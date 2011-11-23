@@ -16,33 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
- * The generic model which can be created automatically using the array of
- * {@link IColumnDefinitionKind} or {@link IColumnDefinition}.
+ * The generic model which can be created automatically using the array of {@link IColumnDefinition}
+ * .
  * 
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
@@ -50,12 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public class BaseEntityModel<T> extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
-
-    public BaseEntityModel(final GridRowModel<T> entity,
-            IColumnDefinitionKind<T>[] staticColumnDefinitions)
-    {
-        this(entity, createColumnsDefinition(staticColumnDefinitions, null));
-    }
 
     /** NOTE: it's assumed that columnDefinitions do not contain custom columns */
     public BaseEntityModel(final GridRowModel<T> entity,
@@ -75,7 +54,7 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
             {
                 continue;
             }
-            String value = renderColumnValue(entity, column);
+            String value = column.getValue(entity);
             set(column.getIdentifier(), value);
             if (column instanceof IColumnDefinitionUI<?>)
             {
@@ -102,74 +81,6 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
     public final String tryGetLink(String columnId)
     {
         return get(ModelDataPropertyNames.link(columnId));
-    }
-
-    // TODO 2010-05-18, IA: unify renderers and remove code below
-    // ugly, ugly, ugly!
-    protected String renderColumnValue(final GridRowModel<T> entity, IColumnDefinition<T> column)
-    {
-        String value = column.getValue(entity);
-        if (column instanceof CommonColumnDefinition<?>)
-        {
-            String headerMsgKey = ((CommonColumnDefinition<?>) column).getHeaderMsgKey();
-            T originalRecord = entity.getOriginalObject();
-            if (headerMsgKey.equals(Dict.REGISTRATOR)
-                    && originalRecord instanceof AbstractRegistrationHolder)
-            {
-                Person registrator = ((AbstractRegistrationHolder) originalRecord).getRegistrator();
-                if (registrator != null)
-                {
-                    value = PersonRenderer.createPersonAnchor(registrator, value);
-                }
-            } else if (headerMsgKey.equals(Dict.CODE)
-                    && originalRecord instanceof IDeletionProvider
-                    && column instanceof AbstractColumnDefinition<?>)
-            {
-                String linkHref = ((AbstractColumnDefinition<T>) column).tryGetLink(originalRecord);
-                boolean invalidate = DeletionUtils.isDeleted(originalRecord);
-                value = LinkRenderer.getLinkWidget(value, null, linkHref, invalidate).toString();
-            }
-        }
-        return value;
-    }
-
-    /** @param viewContext if null, no headers labels will be generated */
-    public static <T> ColumnDefsAndConfigs<T> createColumnConfigs(
-            IColumnDefinitionKind<T>[] colDefKinds, IViewContext<?> viewContext)
-    {
-        List<IColumnDefinitionUI<T>> colDefs = createColumnsDefinition(colDefKinds, viewContext);
-        return ColumnDefsAndConfigs.create(colDefs, viewContext);
-    }
-
-    /** @param msgProviderOrNull if null, no headers labels will be generated */
-    public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
-            IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
-    {
-        return createColumnsDefinition(Arrays.asList(columnKinds), msgProviderOrNull);
-    }
-
-    /** @param msgProviderOrNull if null, no headers labels will be generated */
-    public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
-            List<IColumnDefinitionKind<T>> columnKinds, IMessageProvider msgProviderOrNull)
-    {
-        List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();
-        for (IColumnDefinitionKind<T> columnKind : columnKinds)
-        {
-            list.add(createColumnDefinition(columnKind, msgProviderOrNull));
-        }
-        return list;
-    }
-
-    public static <T> IColumnDefinitionUI<T> createColumnDefinition(
-            IColumnDefinitionKind<T> columnKind, IMessageProvider messageProviderOrNull)
-    {
-        String headerText = null;
-        if (messageProviderOrNull != null)
-        {
-            headerText =
-                    messageProviderOrNull.getMessage(columnKind.getDescriptor().getHeaderMsgKey());
-        }
-        return new CommonColumnDefinition<T>(columnKind, headerText);
     }
 
 }

@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
@@ -51,7 +50,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 new ChangeTableColumnSettingsCommand(SampleBrowserGrid.MAIN_GRID_ID);
         settingsCommand.hiddenChangeEvent(SampleGridColumnIDs.CODE, true);
         settingsCommand.widthChangeEvent(SampleGridColumnIDs.REGISTRATOR,
-                2 * DEFAULT_COLUMN_WIDTH);
+                2 * ColumnSettingsConfigurer.DEFAULT_COLUMN_WIDTH);
         remoteConsole.prepare(settingsCommand);
         remoteConsole.prepare(new Logout());
         Login login = new Login("test", "a");
@@ -61,7 +60,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable checkCommand = new CheckSampleTable();
         checkCommand.expectedColumnHidden(SampleGridColumnIDs.CODE, true);
         checkCommand.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR,
-                2 * DEFAULT_COLUMN_WIDTH);
+                2 * ColumnSettingsConfigurer.DEFAULT_COLUMN_WIDTH);
         checkCommand.expectedColumnsNumber(17);
         remoteConsole.prepare(checkCommand);
 
@@ -74,13 +73,14 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedColumnHidden(SampleGridColumnIDs.CODE, false);
-        table.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR, DEFAULT_COLUMN_WIDTH);
+        table.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR,
+                ColumnSettingsConfigurer.DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").deleted()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
-                        DEFAULT_PLATE_GEOMETRY_VALUE));
+                .noExperiment()
+                .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
-                .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
-                        DEFAULT_PLATE_GEOMETRY_VALUE));
+                .noExperiment()
+                .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest();
@@ -134,8 +134,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
-        table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").deleted().experiment(
-                "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123"));
+        table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").deleted()
+                .experiment("CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123"));
         table.expectedColumnsNumber(21);
         remoteConsole.prepare(table.expectedSize(15));
 

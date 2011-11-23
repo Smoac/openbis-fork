@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
 /**
@@ -30,6 +30,6 @@ public class MaterialRow extends RowWithProperties
     public MaterialRow(final String code)
     {
         super();
-        withCell(CommonMaterialColDefKind.CODE.id(), code);
+        withCell(MaterialGridColumnIDs.CODE, code);
     }
 }

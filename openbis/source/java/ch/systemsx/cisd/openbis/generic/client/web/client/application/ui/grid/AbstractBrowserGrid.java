@@ -98,7 +98,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger.EventPair;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
@@ -658,25 +657,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             + msg;
             System.out.println(text);
         }
-    }
-
-    protected final List<IColumnDefinition<T>> asColumnFilters(
-            IColumnDefinitionKind<T>[] filteredColumnKinds)
-    {
-        return asColumnFilters(filteredColumnKinds, viewContext);
-    }
-
-    private static <T> List<IColumnDefinition<T>> asColumnFilters(
-            IColumnDefinitionKind<T>[] filteredColumnKinds, IMessageProvider messageProvider)
-    {
-        List<IColumnDefinition<T>> filters = new ArrayList<IColumnDefinition<T>>();
-        for (IColumnDefinitionKind<T> colDefKind : filteredColumnKinds)
-        {
-            IColumnDefinition<T> codeColDef =
-                    BaseEntityModel.createColumnDefinition(colDefKind, messageProvider);
-            filters.add(codeColDef);
-        }
-        return filters;
     }
 
     private DefaultResultSetConfig<String, T> createPagingConfig(PagingLoadConfig loadConfig,

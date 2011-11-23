@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -49,7 +49,7 @@ public class ShowAuthorizationGroup extends AbstractDefaultTestCommand
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<AuthorizationGroup>> table =
                 (Grid<BaseEntityModel<AuthorizationGroup>>) widget;
-        GridTestUtils.fireSelectRow(table, CommonExperimentColDefKind.CODE.id(), code);
+        GridTestUtils.fireSelectRow(table, ExperimentBrowserGridColumnIDs.CODE, code);
         GWTTestUtil.clickButtonWithID(AuthorizationGroupGrid.USERS_BUTTON_ID);
     }
 }

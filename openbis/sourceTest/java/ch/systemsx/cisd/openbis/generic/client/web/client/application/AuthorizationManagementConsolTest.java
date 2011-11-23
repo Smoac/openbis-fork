@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Cre
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.FillRoleAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.OpenRoleAssignmentDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
@@ -55,7 +55,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         CreateGroup createGroupCommand = new CreateGroup(groupCode);
         remoteConsole.prepare(createGroupCommand);
         final CheckGroupTable table = new CheckGroupTable();
-        table.expectedRow(new Row().withCell(GroupColDefKind.CODE.id(), groupCode.toUpperCase()));
+        table.expectedRow(new Row().withCell(SpaceGridColumnIDs.CODE, groupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
         launchTest();
@@ -96,9 +96,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_ROLES);
 
         remoteConsole.prepare(new OpenRoleAssignmentDialog());
-        remoteConsole.prepare(FillRoleAssignmentForm.fillAuthorizationGroupRole(TEST_GROUP
-                .toUpperCase(), TestConstants.ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER
-                .toString()));
+        remoteConsole.prepare(FillRoleAssignmentForm.fillAuthorizationGroupRole(
+                TEST_GROUP.toUpperCase(), TestConstants.ADMINS_GROUP,
+                RoleWithHierarchy.SPACE_OBSERVER.toString()));
         final CheckRoleAssignmentTable table = new CheckRoleAssignmentTable();
         table.expectedRow(RoleAssignmentRow.authorizationGroupRoleRow(TEST_GROUP.toUpperCase(),
                 ADMINS_GROUP, RoleWithHierarchy.SPACE_OBSERVER.toString()));

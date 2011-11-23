@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentDataSetArchivingMenu.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -165,7 +164,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     {
         super(viewContext, GRID_ID, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
-        registerLinkClickListenerFor(CommonExperimentColDefKind.EXPERIMENT_IDENTIFIER.id(),
+        registerLinkClickListenerFor(ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER,
                 showEntityViewerLinkClickListener);
         // NOTE: links to experiment are handled by EntityTableCell
         linkProject();

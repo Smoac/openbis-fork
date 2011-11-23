@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 
 /**
@@ -34,7 +34,7 @@ public class DataSetSearchRow extends Row
 
     public DataSetSearchRow(final String code)
     {
-        withCell(CommonExternalDataColDefKind.CODE.id(), code);
+        withCell(ExternalDataGridColumnIDs.CODE, code);
     }
 
     /**

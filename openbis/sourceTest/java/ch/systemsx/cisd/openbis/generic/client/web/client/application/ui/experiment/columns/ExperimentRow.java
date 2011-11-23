@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 
@@ -30,13 +30,13 @@ public class ExperimentRow extends RowWithProperties
     public ExperimentRow(final String code)
     {
         super();
-        withCell(CommonExperimentColDefKind.CODE.id(), code);
+        withCell(ExperimentBrowserGridColumnIDs.CODE, code);
     }
 
     public ExperimentRow(final String code, final String typeCode)
     {
         this(code);
-        withCell(CommonExperimentColDefKind.EXPERIMENT_TYPE.id(), typeCode);
+        withCell(ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE, typeCode);
     }
 
     public ExperimentRow deleted()
@@ -53,7 +53,7 @@ public class ExperimentRow extends RowWithProperties
 
     private void withDeletion(boolean isDeleted)
     {
-        withCell(CommonExperimentColDefKind.IS_DELETED.id(), SimpleYesNoRenderer.render(isDeleted));
+        withCell(ExperimentBrowserGridColumnIDs.IS_DELETED, SimpleYesNoRenderer.render(isDeleted));
     }
 
 }

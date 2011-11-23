@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
@@ -66,11 +66,10 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
                 ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row()
-                .withCell(PropertyTypeAssignmentColDefKind.LABEL.id(), propertyTypeLabel)
-                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), entityTypeCode)
-                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
-                        entityKind.getDescription())
-                .withCell(PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
+                .withCell(PropertyTypeAssignmentGridColumnIDs.LABEL, propertyTypeLabel)
+                .withCell(PropertyTypeAssignmentGridColumnIDs.ASSIGNED_TO, entityTypeCode)
+                .withCell(PropertyTypeAssignmentGridColumnIDs.TYPE_OF, entityKind.getDescription())
+                .withCell(PropertyTypeAssignmentGridColumnIDs.IS_MANDATORY,
                         SimpleYesNoRenderer.render(isMandatory)));
         remoteConsole.prepare(table.expectedSize(expectedEntries));
     }

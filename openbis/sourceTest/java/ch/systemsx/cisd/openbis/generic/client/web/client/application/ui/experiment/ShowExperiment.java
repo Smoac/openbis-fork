@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -47,7 +47,7 @@ public class ShowExperiment extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(ExperimentBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Experiment>> table = (Grid<BaseEntityModel<Experiment>>) widget;
-        GridTestUtils.fireSelectRow(table, CommonExperimentColDefKind.CODE.id(), code);
+        GridTestUtils.fireSelectRow(table, ExperimentBrowserGridColumnIDs.CODE, code);
         GWTTestUtil.clickButtonWithID(ExperimentBrowserGrid.SHOW_DETAILS_BUTTON_ID);
     }
 }

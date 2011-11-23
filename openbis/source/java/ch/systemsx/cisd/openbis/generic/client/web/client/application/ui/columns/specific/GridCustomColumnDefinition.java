@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -40,7 +39,7 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
 
     public int getWidth()
     {
-        return AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
+        return 150;
     }
 
     public boolean isHidden()

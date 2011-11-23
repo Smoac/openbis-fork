@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +42,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
+public class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
 {
+    public static final int DEFAULT_COLUMN_WIDTH = 150;
+
     private final AbstractBrowserGrid<T, M> browserGrid;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -180,7 +180,9 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
             if (column == null)
             {
                 String header = columnDataModel.getHeader();
-                column = new ColumnConfig(columnID, header, DEFAULT_COLUMN_WIDTH);
+                column =
+                        new ColumnConfig(columnID, header,
+                                ColumnSettingsConfigurer.DEFAULT_COLUMN_WIDTH);
             }
             column.setHidden(columnDataModel.isVisible() == false);
             columns.add(column);

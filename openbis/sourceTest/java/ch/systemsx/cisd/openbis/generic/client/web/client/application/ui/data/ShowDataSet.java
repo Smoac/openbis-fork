@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -49,7 +49,7 @@ public class ShowDataSet extends AbstractDefaultTestCommand
         assertTrue(widget instanceof Grid<?>);
         final Grid<BaseEntityModel<ExternalData>> table =
                 (Grid<BaseEntityModel<ExternalData>>) widget;
-        GridTestUtils.fireSelectRow(table, CommonExperimentColDefKind.CODE.id(), code);
+        GridTestUtils.fireSelectRow(table, ExperimentBrowserGridColumnIDs.CODE, code);
         GWTTestUtil.clickButtonWithID(DataSetSearchHitGrid.BROWSER_ID
                 + DataSetSearchHitGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX);
     }

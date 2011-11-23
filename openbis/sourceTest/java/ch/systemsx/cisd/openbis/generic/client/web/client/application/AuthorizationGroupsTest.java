@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Cre
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.FillAddPersonForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.OpenAddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.ShowAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -50,8 +50,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new CreateAuthorizationGroup(authGroupCode));
         final CheckAuthorizationGroupTable table = new CheckAuthorizationGroupTable();
-        table.expectedRow(new Row()
-                .withCell(GroupColDefKind.CODE.id(), authGroupCode.toUpperCase()));
+        table.expectedRow(new Row().withCell(SpaceGridColumnIDs.CODE, authGroupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
         launchTest();

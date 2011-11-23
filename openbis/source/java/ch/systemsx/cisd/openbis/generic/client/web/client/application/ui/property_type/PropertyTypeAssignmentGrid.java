@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
@@ -493,7 +492,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<EntityTypePropertyType<?>>> schema =
                 super.createColumnsDefinition();
-        schema.setGridCellRendererFor(PropertyTypeAssignmentColDefKind.DESCRIPTION.id(),
+        schema.setGridCellRendererFor(PropertyTypeAssignmentGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         return schema;
     }
