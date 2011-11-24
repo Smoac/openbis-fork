@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -29,18 +31,31 @@ import org.aopalliance.intercept.MethodInvocation;
 public class MethodInvocationUtils
 {
     /**
+     * see {@link #getMethod(MethodInvocation, List)}.
+     */
+    public static Method getMethod(final MethodInvocation methodInvocation,
+            Class<? extends Annotation> annotationClass) throws NoSuchMethodException
+    {
+        final List<Class<? extends Annotation>> annotationList =
+                Collections.<Class<? extends Annotation>> singletonList(annotationClass);
+        return getMethod(methodInvocation, annotationList);
+
+    }
+
+    /**
      * Returns either the method of the specified {@link MethodInvocation} object or the method of
-     * the target object. The later is returned if <code>methodInvocation.getMethod()</code> hasn't
-     * the specified annotation and the target object class isn't a synthetic proxy class.
+     * the target object. The later is returned if <code>methodInvocation.getMethod()</code> has
+     * none the specified annotations and the target object class isn't a synthetic proxy class.
      * <p>
      * This function should be used if it isn't known whether the interface of a proxy or the real
      * target has the annotation.
      */
     public static Method getMethod(final MethodInvocation methodInvocation,
-            Class<? extends Annotation> annotationClass) throws NoSuchMethodException
+            List<Class<? extends Annotation>> annotationClasses) throws NoSuchMethodException
     {
         Method method = methodInvocation.getMethod();
-        if (method.getAnnotation(annotationClass) == null)
+
+        if (false == hasAnnotation(method, annotationClasses))
         {
             // If not authorization annotation found, try method of target class if it isn't a
             // proxy
@@ -55,6 +70,22 @@ public class MethodInvocationUtils
             }
         }
         return method;
+    }
+
+    /**
+     * Return true if the method has at least one of the specified annotations, false otherwise.
+     */
+    private static boolean hasAnnotation(Method method,
+            List<Class<? extends Annotation>> annotationClasses)
+    {
+        for (Class<? extends Annotation> annotationClass : annotationClasses)
+        {
+            if (method.getAnnotation(annotationClass) != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

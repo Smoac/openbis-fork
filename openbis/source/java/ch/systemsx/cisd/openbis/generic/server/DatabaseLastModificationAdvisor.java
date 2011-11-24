@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,6 +80,11 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
     private static final class DatabaseLastModificationMethodInterceptor implements
             MethodInterceptor
     {
+
+        @SuppressWarnings("unchecked")
+        private static final List<Class<? extends Annotation>> HANDLED_ANNOTATIONS = Arrays.asList(
+                DatabaseUpdateModification.class, DatabaseCreateOrDeleteModification.class);
+
         private final LastModificationState state;
 
         private final Map<Method, Set<DatabaseModificationKind>> annotationsCache;
@@ -91,8 +99,9 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
         {
             long currentTimestamp = new Date().getTime();
             Object result = methodInvocation.proceed();
-            registerModification(MethodInvocationUtils.getMethod(methodInvocation,
-                    DatabaseUpdateModification.class), currentTimestamp);
+            registerModification(
+                    MethodInvocationUtils.getMethod(methodInvocation, HANDLED_ANNOTATIONS),
+                    currentTimestamp);
             return result;
         }
 
