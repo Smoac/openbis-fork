@@ -253,8 +253,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // PostgreSQL has a limit of 2^15-1 values in an IN clause, so we need to split the data set
         // codes into chunks to avoid a
         // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
-        // However, we know from experience that using chunk sizes larger than 999 we get bad 
-        // performance, so we split the query in chunks of 999 rather than 2^15-1. 
+        // However, we know from experience that using chunk sizes larger than 999 we get bad
+        // performance, so we split the query in chunks of 999 rather than 2^15-1.
         final int len = dataSetCodes.size();
         if (len > MAX_BATCH_SIZE)
         {
@@ -360,25 +360,68 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+        // PostgreSQL has a limit of 2^15-1 values in an IN clause, so we need to split the data set
+        // codes into chunks to avoid a
+        // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
+        // However, we know from experience that using chunk sizes larger than 999 we get bad
+        // performance, so we split the query in chunks of 999 rather than 2^15-1.
+        final int len = dataSetCodes.size();
+        int updatedRows = 0;
+        if (len > MAX_BATCH_SIZE)
+        {
+            int startIndex = 0;
+            int endIndex = MAX_BATCH_SIZE;
+            while (endIndex > startIndex)
             {
+                final int startIndexFinal = startIndex;
+                final int endIndexFinal = endIndex;
+                updatedRows += (Integer) hibernateTemplate.execute(new HibernateCallback()
+                    {
 
-                //
-                // HibernateCallback
-                //
+                        //
+                        // HibernateCallback
+                        //
 
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
+                        {
+                            // NOTE: 'VERSIONED' makes modification time modified too
+                            return session
+                                    .createQuery(
+                                            "UPDATE VERSIONED "
+                                                    + EXTERNAL_DATA_TABLE_NAME
+                                                    + " SET status = :status WHERE code IN (:codes) ")
+                                    .setParameter("status", status)
+                                    .setParameterList("codes",
+                                            dataSetCodes.subList(startIndexFinal, endIndexFinal))
+                                    .executeUpdate();
+                        }
+                    });
+                startIndex = endIndex;
+                endIndex = Math.min(endIndex + MAX_BATCH_SIZE, len);
+            }
+        } else
+        {
+            updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
                 {
-                    // NOTE: 'VERSIONED' makes modification time modified too
-                    return session
-                            .createQuery(
-                                    "UPDATE VERSIONED " + EXTERNAL_DATA_TABLE_NAME
-                                            + " SET status = :status WHERE code IN (:codes) ")
-                            .setParameter("status", status).setParameterList("codes", dataSetCodes)
-                            .executeUpdate();
-                }
-            });
+
+                    //
+                    // HibernateCallback
+                    //
+
+                    public final Object doInHibernate(final Session session)
+                            throws HibernateException, SQLException
+                    {
+                        // NOTE: 'VERSIONED' makes modification time modified too
+                        return session
+                                .createQuery(
+                                        "UPDATE VERSIONED " + EXTERNAL_DATA_TABLE_NAME
+                                                + " SET status = :status WHERE code IN (:codes) ")
+                                .setParameter("status", status)
+                                .setParameterList("codes", dataSetCodes).executeUpdate();
+                    }
+                });
+        }
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
@@ -403,28 +446,73 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+        // PostgreSQL has a limit of 2^15-1 values in an IN clause, so we need to split the data set
+        // codes into chunks to avoid a
+        // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
+        // However, we know from experience that using chunk sizes larger than 999 we get bad
+        // performance, so we split the query in chunks of 999 rather than 2^15-1.
+        final int len = dataSetCodes.size();
+        int updatedRows = 0;
+        if (len > MAX_BATCH_SIZE)
+        {
+            int startIndex = 0;
+            int endIndex = MAX_BATCH_SIZE;
+            while (endIndex > startIndex)
             {
+                final int startIndexFinal = startIndex;
+                final int endIndexFinal = endIndex;
+                updatedRows += (Integer) hibernateTemplate.execute(new HibernateCallback()
+                    {
 
-                //
-                // HibernateCallback
-                //
+                        //
+                        // HibernateCallback
+                        //
 
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
+                        {
+                            // NOTE: 'VERSIONED' makes modification time modified too
+                            return session
+                                    .createQuery(
+                                            "UPDATE VERSIONED "
+                                                    + EXTERNAL_DATA_TABLE_NAME
+                                                    + " SET status = :status, presentInArchive = :presentInArchive"
+                                                    + " WHERE code IN (:codes) ")
+                                    .setParameter("status", status)
+                                    .setParameter("presentInArchive", presentInArchive)
+                                    .setParameterList("codes",
+                                            dataSetCodes.subList(startIndexFinal, endIndexFinal))
+                                    .executeUpdate();
+                        }
+                    });
+                startIndex = endIndex;
+                endIndex = Math.min(endIndex + MAX_BATCH_SIZE, len);
+            }
+        } else
+        {
+            updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
                 {
-                    // NOTE: 'VERSIONED' makes modification time modified too
-                    return session
-                            .createQuery(
-                                    "UPDATE VERSIONED "
-                                            + EXTERNAL_DATA_TABLE_NAME
-                                            + " SET status = :status, presentInArchive = :presentInArchive"
-                                            + " WHERE code IN (:codes) ")
-                            .setParameter("status", status)
-                            .setParameter("presentInArchive", presentInArchive)
-                            .setParameterList("codes", dataSetCodes).executeUpdate();
-                }
-            });
+
+                    //
+                    // HibernateCallback
+                    //
+
+                    public final Object doInHibernate(final Session session)
+                            throws HibernateException, SQLException
+                    {
+                        // NOTE: 'VERSIONED' makes modification time modified too
+                        return session
+                                .createQuery(
+                                        "UPDATE VERSIONED "
+                                                + EXTERNAL_DATA_TABLE_NAME
+                                                + " SET status = :status, presentInArchive = :presentInArchive"
+                                                + " WHERE code IN (:codes) ")
+                                .setParameter("status", status)
+                                .setParameter("presentInArchive", presentInArchive)
+                                .setParameterList("codes", dataSetCodes).executeUpdate();
+                    }
+                });
+        }
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
