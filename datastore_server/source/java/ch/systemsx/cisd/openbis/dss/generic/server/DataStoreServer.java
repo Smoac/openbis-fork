@@ -205,7 +205,7 @@ public class DataStoreServer
     {
         final Connector socketConnector = createSocketConnector(configParams);
         socketConnector.setPort(port);
-        socketConnector.setMaxIdleTime(60000);
+        socketConnector.setMaxIdleTime(300000);
         thisServer.addConnector(socketConnector);
     }
 
