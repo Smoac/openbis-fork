@@ -77,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> implements IDataDAO
 {
+    private final int MAX_BATCH_SIZE = 999;
+
     private final static Class<DataPE> ENTITY_CLASS = DataPE.class;
 
     private final static Class<ExternalDataPE> EXTERNAL_DATA_ENTITY_CLASS = ExternalDataPE.class;
@@ -248,23 +250,25 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         assert dataSetCodes != null : "Unspecified collection";
 
-        // PostgreSQL has a limit of 2^15 values in an IN clause, so we need to split the data set
+        // PostgreSQL has a limit of 2^15-1 values in an IN clause, so we need to split the data set
         // codes into chunks to avoid a
         // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
+        // However, we know from experience that using chunk sizes larger than 999 we get bad 
+        // performance, so we split the query in chunks of 999 rather than 2^15-1. 
         final int len = dataSetCodes.size();
-        if (len > Short.MAX_VALUE)
+        if (len > MAX_BATCH_SIZE)
         {
             final List<DataPE> result = new ArrayList<DataPE>(dataSetCodes.size());
             final List<String> dataSetCodesList = new ArrayList<String>(dataSetCodes);
             int startIndex = 0;
-            int endIndex = Short.MAX_VALUE;
+            int endIndex = MAX_BATCH_SIZE;
             while (endIndex > startIndex)
             {
                 result.addAll(primFindFullDataSetsByCode(
                         dataSetCodesList.subList(startIndex, endIndex), withPropertyTypes,
                         lockForUpdate));
                 startIndex = endIndex;
-                endIndex = Math.min(endIndex + Short.MAX_VALUE, len);
+                endIndex = Math.min(endIndex + MAX_BATCH_SIZE, len);
             }
             return result;
         } else
