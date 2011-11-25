@@ -79,10 +79,7 @@ source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
 
-installer_tarball=""
-for installer_tarball in $ROOT_DIR/*.tar.gz; do
-  : # only use the loop to assign the correct value of the installer_tarball
-done
+installer_tarball=`ls -1 $ROOT_DIR/*.tar.gz`
 
 if [ -f "$installer_tarball" ]; then
   upgrade_from_installer_tarball $installer_tarball
