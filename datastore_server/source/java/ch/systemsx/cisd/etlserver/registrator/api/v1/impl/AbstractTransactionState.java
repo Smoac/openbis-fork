@@ -522,12 +522,36 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             FileUtilities.checkInputFile(srcFile);
 
+            // Make parent directories if necessary
+            File dstFolder = dstFile.getParentFile();
+            mkdirsIfNeeded(dstFolder);
+
             MoveFileCommand cmd =
                     new MoveFileCommand(srcFile.getParentFile().getAbsolutePath(),
-                            srcFile.getName(), dstFile.getParentFile().getAbsolutePath(),
-                            dstFile.getName());
+                            srcFile.getName(), dstFolder.getAbsolutePath(), dstFile.getName());
             executeCommand(cmd);
             return dstFile.getAbsolutePath();
+        }
+
+        /**
+         * Recursively add folder creation commands to the rollback stack as necessary.
+         * <p>
+         * Discussion: The operation needs to be recursive so that on a rollback, children will have
+         * been deleted before the parent gets deleted. This is required because the folder must be
+         * empty for delete to succeed.
+         */
+        private void mkdirsIfNeeded(File dstFolder)
+        {
+            File parentDir = dstFolder.getParentFile();
+            if (false == parentDir.exists())
+            {
+                mkdirsIfNeeded(parentDir);
+            }
+            if (false == dstFolder.exists())
+            {
+                MkdirsCommand cmd = new MkdirsCommand(dstFolder.getAbsolutePath());
+                executeCommand(cmd);
+            }
         }
 
         public String createNewDirectory(IDataSet dst, String dirName)
