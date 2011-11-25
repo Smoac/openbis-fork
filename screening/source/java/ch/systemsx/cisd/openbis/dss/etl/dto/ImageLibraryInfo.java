@@ -35,7 +35,7 @@ public class ImageLibraryInfo
 
         this.name = imageLibraryName;
     }
-    
+
     public ImageLibraryInfo(String imageLibraryName, String readerName)
     {
         this(imageLibraryName);
@@ -58,18 +58,9 @@ public class ImageLibraryInfo
         {
             throw new IllegalArgumentException("Unspecified reader name");
         }
-        if (readerName.equals(this.readerName))
-        {
-            return;
-        }
-        if (this.readerName != null)
-        {
-            throw new IllegalStateException("Reader name already specified as '" + this.readerName
-                    + "': " + readerName);
-        }
         this.readerName = readerName;
     }
-    
+
     @Override
     public String toString()
     {
