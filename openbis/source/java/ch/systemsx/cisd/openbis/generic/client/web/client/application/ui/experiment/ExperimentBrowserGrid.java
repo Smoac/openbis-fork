@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -119,7 +121,6 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                     // cells.
                 }
             };
-        browserGrid.addGridRefreshListener(toolbar);
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
     }
 
@@ -127,6 +128,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
             final ProjectSelectionTreeGridContainer tree, final ExperimentBrowserToolbar toolbar,
             final ExperimentBrowserGrid browserGrid, IMessageProvider messageProvider)
     {
+        browserGrid.addGridRefreshListener(toolbar);
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree,
                 messageProvider.getMessage(Dict.EXPEIRMENTS_GRID_HEADER));
     }
@@ -145,7 +147,6 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         final ExperimentBrowserToolbar toolbar =
                 new ExperimentBrowserToolbar(viewContext, tree, initialExperimentTypeOrNull);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
-        browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
     }
@@ -384,6 +385,19 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     protected EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
+    }
+
+    @Override
+    public void update(final Set<DatabaseModificationKind> observedModifications)
+    {
+        criteriaProvider.update(observedModifications, new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                    // update the browser
+                    ExperimentBrowserGrid.super.update(observedModifications);
+                }
+            });
     }
 
     protected final IDelegatedActionWithResult<DisplayedAndSelectedExperiments> getDisplayedAndSelectedItemsAction()

@@ -145,20 +145,18 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback entityTypeRefreshCallback)
     {
-        if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
+        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT))
+                || observedModifications.contains(edit(ObjectKind.PROJECT)))
+        {
+            selectProjectTree.update(observedModifications);
+        } else if (observedModifications.contains(createOrDelete(ObjectKind.EXPERIMENT_TYPE))
                 || observedModifications
                         .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
                 || observedModifications.contains(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
         {
             selectExperimentTypeCombo.refreshStore(entityTypeRefreshCallback);
-        } else
-        {
+        } else {
             entityTypeRefreshCallback.postRefresh(true);
-        }
-        if (observedModifications.contains(createOrDelete(ObjectKind.PROJECT))
-                || observedModifications.contains(edit(ObjectKind.PROJECT)))
-        {
-            selectProjectTree.update(observedModifications);
         }
     }
 
@@ -176,4 +174,5 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         selectExperimentTypeCombo.dispose();
         selectProjectTree.dispose();
     }
+
 }
