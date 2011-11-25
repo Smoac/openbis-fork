@@ -241,8 +241,6 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
 
         private boolean rolledbackBeforePredecessor = false;
 
-        private int rollbackCount = 0;
-
         protected TrackingCommand()
         {
             this.predecessor = null;
@@ -264,7 +262,6 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
             rolledbackBeforePredecessor =
                     (predecessor != null) ? predecessor.status == TrackingCommandStatus.EXECUTED
                             : true;
-            ++rollbackCount;
         }
 
         @Override
