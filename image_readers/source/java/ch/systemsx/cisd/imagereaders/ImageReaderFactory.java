@@ -49,20 +49,20 @@ public class ImageReaderFactory
 
     private static List<IImageReaderLibrary> getAvailableReaders()
     {
-        Iterator<IImageReaderLibrary> librariesIterator;
         try
         {
-            librariesIterator = java.util.ServiceLoader.load(IImageReaderLibrary.class).iterator();
+            Iterator<IImageReaderLibrary> librariesIterator =
+                    java.util.ServiceLoader.load(IImageReaderLibrary.class).iterator();
+            return CollectionUtils.asList(librariesIterator);
         } catch (NoClassDefFoundError ex)
         {
             operationLog.warn("Image reader plugins not available (JRE < 1.6), "
                     + "fallback to built-in readers.", ex);
-            librariesIterator = getBuiltInReaders();
+            return getBuiltInReaders();
         }
-        return CollectionUtils.asList(librariesIterator);
     }
 
-    private static Iterator<IImageReaderLibrary> getBuiltInReaders()
+    private static List<IImageReaderLibrary> getBuiltInReaders()
     {
         IImageReaderLibrary reader;
         List<IImageReaderLibrary> readers = new ArrayList<IImageReaderLibrary>();
@@ -87,7 +87,7 @@ public class ImageReaderFactory
         {
             readers.add(reader);
         }
-        return readers.iterator();
+        return readers;
     }
 
     private static IImageReaderLibrary tryCreateReader(String className)
