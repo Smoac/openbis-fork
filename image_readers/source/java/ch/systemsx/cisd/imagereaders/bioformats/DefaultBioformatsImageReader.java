@@ -40,18 +40,27 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
 {
     private final IFormatReader formatReader;
 
-    DefaultBioformatsImageReader(String libraryName, String readerName,
-            IFormatReader formatReader)
+    private final boolean singleImagePerFile;
+
+    DefaultBioformatsImageReader(String libraryName, String readerName, IFormatReader formatReader,
+            boolean singleImagePerFile)
     {
         super(libraryName, readerName);
         this.formatReader = formatReader;
+        this.singleImagePerFile = singleImagePerFile;
     }
 
     @Override
     public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked
     {
-        IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
-        return BioFormatsImageUtils.listImageIDs(formatReader, input);
+        if (singleImagePerFile)
+        {
+            return super.getImageIDs(handle);
+        } else
+        {
+            IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
+            return BioFormatsImageUtils.listImageIDs(formatReader, input);
+        }
     }
 
     public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
@@ -67,8 +76,8 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
         if (intensityRescalingChannel != null)
         {
-            return BioFormatsImageUtils.readImageWithIntensityRescaling(formatReader, input, imageID,
-                    intensityRescalingChannel);
+            return BioFormatsImageUtils.readImageWithIntensityRescaling(formatReader, input,
+                    imageID, intensityRescalingChannel);
         } else
         {
             return BioFormatsImageUtils.readImage(formatReader, input, imageID);
@@ -76,8 +85,8 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
     }
 
     @Override
-    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID, IReadParams params)
-            throws IOExceptionUnchecked
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID,
+            IReadParams params) throws IOExceptionUnchecked
     {
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
         return BioFormatsImageUtils.readMetadata(formatReader, input, imageID);

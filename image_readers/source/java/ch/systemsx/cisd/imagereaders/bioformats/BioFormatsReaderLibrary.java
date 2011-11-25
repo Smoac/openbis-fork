@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.imagereaders.bioformats;
 
-
 import java.util.List;
 
 import loci.formats.IFormatReader;
@@ -32,6 +31,11 @@ import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
  */
 public class BioFormatsReaderLibrary implements IImageReaderLibrary
 {
+    /**
+     * If the reader has this suffix then it is assumed that each file contains a single image and
+     * the file does not have to be read to determine that.
+     */
+    public final static String SINGLE_IMAGE_PER_FILE_READER_SUFFIX = "##SINGLE_IMAGE";
 
     public String getName()
     {
@@ -51,36 +55,49 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
      */
     public IImageReader tryGetReader(String readerName)
     {
+        String readerNameToUse = readerName;
+        boolean singleImagePerFile =
+                readerName.toUpperCase().endsWith(SINGLE_IMAGE_PER_FILE_READER_SUFFIX);
+        if (singleImagePerFile)
+        {
+            readerNameToUse =
+                    readerName.substring(0, readerName.length()
+                            - SINGLE_IMAGE_PER_FILE_READER_SUFFIX.length());
+        }
         final IFormatReader formatReaderOrNull =
-                BioFormatsImageUtils.tryToCreateReaderByName(readerName);
-        return tryAdaptFormatReader(formatReaderOrNull);
+                BioFormatsImageUtils.tryToCreateReaderByName(readerNameToUse);
+        return tryAdaptFormatReader(formatReaderOrNull, singleImagePerFile);
     }
 
     /**
      * Tries to create a suitable reader for the file specified with <var>fileName</var>. This is a
-     * factory method which returns for each invocation a new instance of a suitable reader. 
+     * factory method which returns for each invocation a new instance of a suitable reader.
      * 
      * @return <code>null</code> if no suitable reader is found.
      */
     public IImageReader tryGetReaderForFile(String fileName)
     {
         IFormatReader formatReaderOrNull = BioFormatsImageUtils.tryToCreateReaderForFile(fileName);
-        return tryAdaptFormatReader(formatReaderOrNull);
+        return tryAdaptFormatReader(formatReaderOrNull, false);
     }
 
     /**
      * Delegate the wrapping of non-null readers to an abstract method.
      */
-    protected IImageReader tryAdaptFormatReader(final IFormatReader formatReaderOrNull)
+    protected IImageReader tryAdaptFormatReader(final IFormatReader formatReaderOrNull,
+            boolean singleImagePerFile)
     {
-        return (formatReaderOrNull == null) ? null : adaptFormatReader(formatReaderOrNull);
+        return (formatReaderOrNull == null) ? null : adaptFormatReader(formatReaderOrNull,
+                singleImagePerFile);
     }
 
-    protected IImageReader adaptFormatReader(final IFormatReader formatReader)
+    protected IImageReader adaptFormatReader(final IFormatReader formatReader,
+            boolean singleImagePerFile)
     {
         final String libraryName = getName();
         final String readerName = BioFormatsImageUtils.getReaderName(formatReader);
-        return new DefaultBioformatsImageReader(libraryName, readerName, formatReader);
+        return new DefaultBioformatsImageReader(libraryName, readerName, formatReader,
+                singleImagePerFile);
     }
 
 }
