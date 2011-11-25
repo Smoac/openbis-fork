@@ -23,6 +23,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+
 /**
  * @since {@link IGeneralInformationService} version 1.13
  * @author Kaloyan Enimanev
