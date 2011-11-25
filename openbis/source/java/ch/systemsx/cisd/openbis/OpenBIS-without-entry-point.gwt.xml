@@ -4,6 +4,7 @@
     // Inherit the basic CISD stuff (shared client-server).
   -->
   <inherits name='ch.systemsx.cisd.common.shared.CISD-basic' />
+  <inherits name='ch.systemsx.cisd.openbis.generic.shared.OpenBIS-DTO' />
   
   <!--
     // Inherit the core Web Toolkit stuff.

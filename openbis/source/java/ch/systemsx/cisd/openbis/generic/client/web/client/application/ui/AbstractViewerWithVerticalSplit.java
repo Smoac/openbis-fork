@@ -84,6 +84,9 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
         if (isLeftPanelInitiallyCollapsed())
         {
             viewContext.log(displayIdSuffix + " Initially Collapsed");
+            // Without making the panel visible the collapse method is removing the panel
+            // from DOM (nothing is shown, even the collapse/show button).
+            panel.setVisible(true);
             ((BorderLayout) getLayout()).collapse(LayoutRegion.WEST);
         }
 

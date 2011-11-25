@@ -506,6 +506,7 @@
         <fileset file="../openbis/${server-resource}/bis-common.xml" includes="*.xml"/>
     </copy>
     <antcall target="prepare-gwt.copy-common-source" />
+  	<antcall target="prepare-gwt.copy-api-source" />
   </target>
 	
 	<target name="prepare-gwt.copy-common-source">
@@ -515,6 +516,14 @@
 	  	</fileset>
 	  </copy>
 	</target>
+
+  <target name="prepare-gwt.copy-api-source">
+    <copy todir="${targets.www.web-inf}/classes">
+      <fileset dir="../openbis_api/${sources}">
+        <include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.java" />
+      </fileset>
+    </copy>
+  </target>
 	
   <!--
     // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
