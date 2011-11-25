@@ -289,6 +289,29 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     }
 
     @Test
+    public void testRollbackWhereMoveCreatesIntermediateDirectories()
+    {
+        setUpOpenBisExpectations(false);
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet, "original/foo");
+
+        File dstFile = new File(dst);
+        File parentDir = dstFile.getParentFile();
+
+        checkContentsOfFile(dstFile);
+        assertTrue("The parent directory should exist", parentDir.exists());
+
+        tr.rollback();
+
+        checkContentsOfFile(srcFile);
+        assertFalse("The parent directory should have been deleted", parentDir.exists());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testAbortAndRollback()
     {
         setUpOpenBisExpectations(false);
