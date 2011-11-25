@@ -22,8 +22,7 @@ h3 { font: 12px; }
 
 .strains td:hover {
 	font-size: 14px;
-	width: 10%;
-  background-color: steelblue;
+	background-color: steelblue;
 	font-weight: bold;
 	color: white;
 	padding: 2px;
@@ -34,8 +33,10 @@ h3 { font: 12px; }
 	fill: black;
 }
 
-.inspected {
-	font-weight: bold
+td.inspected {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 2px;
 }
 
 /* Inspector */
