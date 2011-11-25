@@ -132,6 +132,9 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
 
+    /** Returns ids of contained data sets for a given collection of containers. */
+    public List<TechId> listContainedDataSets(final Collection<TechId> containerIds);
+
     /**
      * Delete data sets with given ids by specified registrator with specified reason.
      */

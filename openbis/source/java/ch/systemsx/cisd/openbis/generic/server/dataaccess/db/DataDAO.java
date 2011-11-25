@@ -994,4 +994,47 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return operationLog;
     }
 
+    public List<TechId> listContainedDataSets(Collection<TechId> containerIds)
+    {
+
+        final List<Long> longIds = TechId.asLongs(containerIds);
+        final List<Long> totalResults = new ArrayList<Long>();
+
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
+            {
+
+                public void execute(List<Long> batchIds)
+                {
+                    final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
+                    criteria.setProjection(Projections.id());
+                    criteria.add(Restrictions.in("containerInternal.id", batchIds));
+                    final List<Long> batchResults =
+                            cast(getHibernateTemplate().findByCriteria(criteria));
+                    totalResults.addAll(batchResults);
+                }
+
+                public List<Long> getAllEntities()
+                {
+                    return longIds;
+                }
+
+                public String getEntityName()
+                {
+                    return "dataSet";
+                }
+
+                public String getOperationName()
+                {
+                    return "listContainedDataSets";
+                }
+            }, MAX_BATCH_SIZE);
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info(String.format("found %s data sets for given containers",
+                    totalResults.size()));
+        }
+
+        return transformNumbers2TechIdList(totalResults);
+    }
 }

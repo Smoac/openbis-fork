@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,7 +132,7 @@ public final class TrashBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testTrashExperientsAlreadyTrashed()
+    public final void testTrashExperimentsAlreadyTrashed()
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> experimentIds = EXAMPLE_ID_LIST;
@@ -172,6 +173,10 @@ public final class TrashBOTest extends AbstractBOTest
                     // trash dependent data sets
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
+
+                    one(dataDAO).listContainedDataSets(with(dsIdsMatcher));
+                    will(returnValue(Collections.emptyList()));
+
                     oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
                             with(same(deletion)));
                     will(returnValue(0));
@@ -180,7 +185,7 @@ public final class TrashBOTest extends AbstractBOTest
         trashBO.trashExperiments(experimentIds);
 
         // Check that the data set ids match
-        List<TechId> usedDsIds = dsIdsMatcher.getRecordedObjects().get(0);
+        List<TechId> usedDsIds = dsIdsMatcher.getRecordedObjects().get(1);
         assertEquals(new HashSet<TechId>().addAll(dataSetIds),
                 new HashSet<TechId>().addAll(usedDsIds));
         context.assertIsSatisfied();
@@ -209,6 +214,9 @@ public final class TrashBOTest extends AbstractBOTest
                     // trash dependent data sets
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
+
+                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
+                    will(returnValue(Collections.emptyList()));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
                             with(dataSetIdsMatcher), with(same(deletion)));
@@ -283,8 +291,17 @@ public final class TrashBOTest extends AbstractBOTest
                     List<TechId> dataSetIds = TechId.createList(70, 71, 72);
                     one(dataDAO).listDataSetIdsBySampleIds(with(sampleIdsMatcher));
                     will(returnValue(dataSetIds));
+
                     RecordingMatcher<List<TechId>> dataSetIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
+
+                    final List<TechId> containedDataSetIds = TechId.createList(71, 73);
+                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
+                    will(returnValue(containedDataSetIds));
+
+                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
+                    will(returnValue(Collections.emptyList()));
+
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
                             with(dataSetIdsMatcher), with(same(deletion)));
                     will(returnValue(2));
@@ -298,12 +315,20 @@ public final class TrashBOTest extends AbstractBOTest
     public final void testTrashDataSets()
     {
         final DeletionPE deletion = createDeletion();
-        final List<TechId> dataSetIds = EXAMPLE_ID_LIST;
+        final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
+        final List<TechId> containedIds = TechId.createList(5, 6);
+        final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
         context.checking(new Expectations()
             {
                 {
-                    one(deletionDAO).trash(EntityKind.DATA_SET, dataSetIds, deletion);
-                    will(returnValue(EXAMPLE_ID_LIST.size()));
+                    one(dataDAO).listContainedDataSets(dataSetIds);
+                    will(returnValue(containedIds));
+
+                    one(dataDAO).listContainedDataSets(containedIds);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(deletionDAO).trash(EntityKind.DATA_SET, allIds, deletion);
+                    will(returnValue(allIds.size()));
                 }
             });
         trashBO.trashDataSets(dataSetIds);

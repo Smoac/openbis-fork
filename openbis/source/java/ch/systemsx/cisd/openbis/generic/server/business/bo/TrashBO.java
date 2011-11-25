@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -111,10 +112,21 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
 
+        LinkedHashSet<TechId> allIds = new LinkedHashSet<TechId>();
+        // cascade deletion of contained datasets
+        List<TechId> containedDataSetIds = dataSetIds;
+
+        while (allIds.addAll(containedDataSetIds))
+        {
+            containedDataSetIds = getDataDAO().listContainedDataSets(containedDataSetIds);
+        }
+
+        ArrayList<TechId> allIdsAsList = new ArrayList<TechId>(allIds);
+
         TrashBatchOperation batchOperation =
-                new TrashBatchOperation(EntityKind.DATA_SET, dataSetIds, deletion, getDeletionDAO());
+                new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
+                        getDeletionDAO());
         BatchOperationExecutor.executeInBatches(batchOperation);
-        // NOTE: data set children are not cascade trashed - a conscious decision made by Tomek
     }
 
     private void trashSampleDependentChildren(List<TechId> sampleIds)
