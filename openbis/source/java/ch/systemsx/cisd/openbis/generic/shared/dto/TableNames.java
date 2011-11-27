@@ -51,6 +51,8 @@ public final class TableNames
 
     public static final String DATA_SET_PROPERTIES_TABLE = "data_set_properties";
 
+    public static final String DATA_SET_PROPERTIES_HISTORY_TABLE = "data_set_properties_history";
+
     public static final String DATA_SET_TYPE_PROPERTY_TYPE_TABLE = "data_set_type_property_types";
 
     public static final String DATA_TYPES_TABLE = "data_types";
@@ -66,6 +68,9 @@ public final class TableNames
     public static final String ATTACHMENTS_TABLE = "attachments";
 
     public static final String EXPERIMENT_PROPERTIES_TABLE = "experiment_properties";
+
+    public static final String EXPERIMENT_PROPERTIES_HISTORY_TABLE =
+            "experiment_properties_history";
 
     public static final String EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE =
             "experiment_type_property_types";
@@ -92,6 +97,8 @@ public final class TableNames
 
     public static final String MATERIAL_PROPERTIES_TABLE = "material_properties";
 
+    public static final String MATERIAL_PROPERTIES_HISTORY_TABLE = "material_properties_history";
+
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_TABLE = "material_type_property_types";
 
     public static final String MATERIAL_TYPES_TABLE = "material_types";
@@ -111,6 +118,8 @@ public final class TableNames
     public static final String SAMPLE_MATERIAL_BATCHES_TABLE = "sample_material_batches";
 
     public static final String SAMPLE_PROPERTIES_TABLE = "sample_properties";
+
+    public static final String SAMPLE_PROPERTIES_HISTORY_TABLE = "sample_properties_history";
 
     public static final String SAMPLE_TYPE_PROPERTY_TYPE_TABLE = "sample_type_property_types";
 

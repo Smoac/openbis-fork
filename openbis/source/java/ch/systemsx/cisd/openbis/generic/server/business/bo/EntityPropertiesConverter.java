@@ -272,6 +272,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         final T entityProperty = EntityPropertyPE.createEntityProperty(entityKind);
         entityProperty.setRegistrator(registrator);
+        entityProperty.setAuthor(registrator);
         entityProperty.setEntityTypePropertyType(entityTypePropertyType);
         setPropertyValue(entityProperty, propertyType, value);
         return entityProperty;
@@ -434,10 +435,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator)
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author)
     {
         final List<T> convertedProperties =
-                convertPropertiesForUpdate(newProperties, entityType.getCode(), registrator);
+                convertPropertiesForUpdate(newProperties, entityType.getCode(), author);
         final Set<T> set = new HashSet<T>();
         for (T newProperty : convertedProperties)
         {
@@ -447,6 +448,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 existingProperty.setUntypedValue(newProperty.getValue(),
                         newProperty.getVocabularyTerm(), newProperty.getMaterialValue());
+                existingProperty.setAuthor(author);
                 set.add(existingProperty);
             } else
             {
@@ -461,7 +463,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
      * value.
      */
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
-            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE registrator)
+            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE author)
     {
 
         final Set<T> set = new HashSet<T>();
@@ -474,6 +476,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         if (existingProperty != null)
         {
             existingProperty.setUntypedValue(managedProperty.getValue(), null, null);
+            existingProperty.setAuthor(author);
         }
         return set;
     }
@@ -487,11 +490,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
             Set<String> propertiesToUpdate)
     {
         // all new properties should be among propertiesToUpdate (no need to check it)
-        final Set<T> set = updateProperties(oldProperties, entityType, newProperties, registrator);
+        final Set<T> set = updateProperties(oldProperties, entityType, newProperties, author);
         // add old properties that are not among propertiesToUpdate (preserve those properties)
         for (T oldProperty : oldProperties)
         {

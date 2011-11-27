@@ -69,14 +69,14 @@ public interface IEntityPropertiesConverter
 
     /** Updates Set<T> of properties. */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator);
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author);
 
     /**
      * Updates Set<T> of properties but preserve those old properties which codes are not among
      * <var>propertiesToUpdate</var>.
      */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
             Set<String> propertiesToUpdate);
 
     /**
@@ -97,6 +97,6 @@ public interface IEntityPropertiesConverter
      * value.
      */
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
-            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE registrator);
+            EntityTypePE entityType, IManagedProperty managedProperty, PersonPE author);
 
 }

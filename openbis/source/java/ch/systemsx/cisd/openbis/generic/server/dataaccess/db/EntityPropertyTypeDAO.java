@@ -243,8 +243,9 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
 
         final String sql =
-                String.format("INSERT INTO %s (id, pers_id_registerer, %s, %s, %s) "
-                        + "VALUES (nextval('%s'), :registratorId, :entityId, :etptId, :value)",
+                String.format(
+                        "INSERT INTO %s (id, pers_id_registerer, pers_id_author, %s, %s, %s) "
+                                + "VALUES (nextval('%s'), :registratorId, :registratorId, :entityId, :etptId, :value)",
                         tableName, entityColumn, propertyTypeColumn, valueColumn, sequenceName);
 
         // inserts are performed using stateless session for better memory management

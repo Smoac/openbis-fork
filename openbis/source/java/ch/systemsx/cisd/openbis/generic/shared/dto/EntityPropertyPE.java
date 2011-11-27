@@ -86,6 +86,14 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     protected EntityTypePropertyTypePE entityTypePropertyType;
 
+    /**
+     * Person who modified this entity.
+     * <p>
+     * This is specified at update time.
+     * </p>
+     */
+    private PersonPE author;
+
     private Date modificationDate;
 
     /**
@@ -201,6 +209,18 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PERSON_AUTHOR_COLUMN, nullable = false, updatable = true)
+    public PersonPE getAuthor()
+    {
+        return author;
+    }
+
+    public void setAuthor(PersonPE author)
+    {
+        this.author = author;
     }
 
     /**

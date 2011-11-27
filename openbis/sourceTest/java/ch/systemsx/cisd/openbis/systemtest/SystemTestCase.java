@@ -247,7 +247,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         List<PropertyHistory> list =
                 simpleJdbcTemplate
-                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, h.pers_id_author,"
+                                + " h.valid_from_timestamp, h.valid_until_timestamp"
                                 + " from material_properties_history as h "
                                 + " join material_type_property_types as etpt on h.mtpt_id = etpt.id"
                                 + " join property_types as t on etpt.prty_id = t.id where h.mate_id = ?",
@@ -260,7 +261,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         List<PropertyHistory> list =
                 simpleJdbcTemplate
-                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, h.pers_id_author,"
+                                + " h.valid_from_timestamp, h.valid_until_timestamp"
                                 + " from experiment_properties_history as h "
                                 + " join experiment_type_property_types as etpt on h.etpt_id = etpt.id"
                                 + " join property_types as t on etpt.prty_id = t.id where h.expe_id = ?",
@@ -273,7 +275,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         List<PropertyHistory> list =
                 simpleJdbcTemplate
-                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, h.pers_id_author,"
+                                + " h.valid_from_timestamp, h.valid_until_timestamp"
                                 + " from sample_properties_history as h "
                                 + " join sample_type_property_types as etpt on h.stpt_id = etpt.id"
                                 + " join property_types as t on etpt.prty_id = t.id where h.samp_id = ?",
@@ -286,7 +289,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         List<PropertyHistory> list =
                 simpleJdbcTemplate
-                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, h.pers_id_author,"
+                                + " h.valid_from_timestamp, h.valid_until_timestamp"
                                 + " from data_set_properties_history as h "
                                 + " join data_set_type_property_types as etpt on h.dstpt_id = etpt.id"
                                 + " join property_types as t on etpt.prty_id = t.id where h.ds_id = ?",

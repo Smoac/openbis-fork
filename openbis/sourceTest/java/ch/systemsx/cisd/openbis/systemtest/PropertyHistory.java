@@ -33,6 +33,10 @@ public class PropertyHistory
 
     private Long materialID;
 
+    private Long persIdAuthor;
+
+    private Date validFromTimeStamp;
+
     private Date validUntilTimeStamp;
 
     public Date getValidUntilTimeStamp()
@@ -43,6 +47,26 @@ public class PropertyHistory
     public void setValidUntilTimeStamp(Date validUntilTimeStamp)
     {
         this.validUntilTimeStamp = validUntilTimeStamp;
+    }
+
+    public Long getPersIdAuthor()
+    {
+        return persIdAuthor;
+    }
+
+    public void setPersIdAuthor(Long persIdRegisterer)
+    {
+        this.persIdAuthor = persIdRegisterer;
+    }
+
+    public Date getValidFromTimeStamp()
+    {
+        return validFromTimeStamp;
+    }
+
+    public void setValidFromTimeStamp(Date validFromTimeStamp)
+    {
+        this.validFromTimeStamp = validFromTimeStamp;
     }
 
     public void setPropertyTypeCode(String propertyTypeCode)
@@ -82,6 +106,7 @@ public class PropertyHistory
         {
             builder.append(" material:").append(materialID);
         }
+        builder.append("<a:" + persIdAuthor + ">");
         return builder.toString();
     }
 

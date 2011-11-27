@@ -76,7 +76,8 @@ public class PropertiesHistoryTest extends SystemTestCase
         genericClientService.updateExperiment(updates);
 
         List<PropertyHistory> history = getExperimentPropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:34, DESCRIPTION: A simple experiment, GENDER: term:11]",
+        assertEquals(
+                "[BACTERIUM: material:34<a:2>, DESCRIPTION: A simple experiment<a:1>, GENDER: term:11<a:1>]",
                 history.toString());
     }
 
@@ -110,7 +111,8 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         assertEquals(0, commonClientService.getExperimentInfo(id).getProperties().size());
         List<PropertyHistory> history = getExperimentPropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:34, DESCRIPTION: A simple experiment, GENDER: term:11]",
+        assertEquals(
+                "[BACTERIUM: material:34<a:2>, DESCRIPTION: A simple experiment<a:1>, GENDER: term:11<a:1>]",
                 history.toString());
     }
 
@@ -143,7 +145,8 @@ public class PropertiesHistoryTest extends SystemTestCase
         genericClientService.updateSample(updates);
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:34, COMMENT: very advanced stuff, GENDER: term:11]",
+        assertEquals(
+                "[BACTERIUM: material:34<a:1>, COMMENT: very advanced stuff<a:1>, GENDER: term:11<a:2>]",
                 history.toString());
     }
 
@@ -174,7 +177,8 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         assertEquals(3, genericClientService.getSampleInfo(id).getProperties().size());
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:34, COMMENT: very advanced stuff, GENDER: term:11]",
+        assertEquals(
+                "[BACTERIUM: material:34<a:1>, COMMENT: very advanced stuff<a:1>, GENDER: term:11<a:2>]",
                 history.toString());
     }
 
@@ -203,7 +207,8 @@ public class PropertiesHistoryTest extends SystemTestCase
         genericClientService.updateDataSet(updates);
 
         List<PropertyHistory> history = getDataSetPropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:22, COMMENT: no comment, GENDER: term:12]",
+        assertEquals(
+                "[BACTERIUM: material:22<a:1>, COMMENT: no comment<a:1>, GENDER: term:12<a:1>]",
                 history.toString());
     }
 
@@ -232,7 +237,8 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         assertEquals(1, genericClientService.getDataSetInfo(id).getProperties().size());
         List<PropertyHistory> history = getDataSetPropertiesHistory(id.getId());
-        assertEquals("[BACTERIUM: material:22, COMMENT: no comment, GENDER: term:12]",
+        assertEquals(
+                "[BACTERIUM: material:22<a:1>, COMMENT: no comment<a:1>, GENDER: term:12<a:1>]",
                 history.toString());
     }
 
