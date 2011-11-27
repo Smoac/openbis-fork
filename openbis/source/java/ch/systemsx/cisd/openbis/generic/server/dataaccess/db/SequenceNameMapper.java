@@ -48,11 +48,15 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.MATERIAL_BATCHES_TABLE, SequenceNames.MATERIAL_BATCH_SEQUENCE);
         map.put(TableNames.DATA_STORES_TABLE, SequenceNames.DATA_STORE_SEQUENCE);
         map.put(TableNames.MATERIAL_PROPERTIES_TABLE, SequenceNames.MATERIAL_PROPERTY_SEQUENCE);
+        map.put(TableNames.MATERIAL_PROPERTIES_HISTORY_TABLE,
+                SequenceNames.MATERIAL_PROPERTY_SEQUENCE);
         map.put(TableNames.MATERIAL_TYPE_PROPERTY_TYPE_TABLE,
                 SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE);
         map.put(TableNames.EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE,
                 SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE);
         map.put(TableNames.EXPERIMENT_PROPERTIES_TABLE, SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE);
+        map.put(TableNames.EXPERIMENT_PROPERTIES_HISTORY_TABLE,
+                SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE);
         map.put(TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE,
                 SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE);
         map.put(TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE,
@@ -60,11 +64,14 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.SAMPLE_MATERIAL_BATCHES_TABLE,
                 SequenceNames.SAMPLE_MATERIAL_BATCH_SEQUENCE);
         map.put(TableNames.SAMPLE_PROPERTIES_TABLE, SequenceNames.SAMPLE_PROPERTY_SEQUENCE);
+        map.put(TableNames.SAMPLE_PROPERTIES_HISTORY_TABLE, SequenceNames.SAMPLE_PROPERTY_SEQUENCE);
         map.put(TableNames.CONTROLLED_VOCABULARY_TABLE,
                 SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE);
         map.put(TableNames.CONTROLLED_VOCABULARY_TERM_TABLE,
                 SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE);
         map.put(TableNames.DATA_SET_PROPERTIES_TABLE, SequenceNames.DATA_SET_PROPERTY_SEQUENCE);
+        map.put(TableNames.DATA_SET_PROPERTIES_HISTORY_TABLE,
+                SequenceNames.DATA_SET_PROPERTY_SEQUENCE);
         map.put(TableNames.DATA_STORE_SERVICES_TABLE, SequenceNames.DATA_STORE_SERVICE_SEQUENCE);
         // legacy code to make migration tests from db version 018 work
         map.put("sample_component_materials", "SCMA_ID_SEQ");
