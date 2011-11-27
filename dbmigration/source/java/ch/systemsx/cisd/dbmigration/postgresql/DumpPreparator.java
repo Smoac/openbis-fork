@@ -58,8 +58,8 @@ import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
  */
 public class DumpPreparator
 {
-    private static final String MAC_POSTGRESQL_PATH = "/opt/local/lib/postgresql90/bin/";
-    private static final String MAC_POSTGRESQL_9_PATH = "/opt/local/lib/postgresql90/bin/";
+    private static final String MAC_POSTGRESQL_91PATH = "/opt/local/lib/postgresql91/bin/";
+    private static final String MAC_POSTGRESQL_90_PATH = "/opt/local/lib/postgresql90/bin/";
 
     private static final String DUMP_EXEC = "pg_dump";
     
@@ -153,8 +153,8 @@ public class DumpPreparator
     private static String getExecutable(String executable)
     {
         final Set<String> paths = OSUtilities.getSafeOSPath();
-        paths.add(MAC_POSTGRESQL_9_PATH);
-        paths.add(MAC_POSTGRESQL_PATH);
+        paths.add(MAC_POSTGRESQL_91PATH);
+        paths.add(MAC_POSTGRESQL_90_PATH);
         final File dumbExec = OSUtilities.findExecutable(executable, paths);
         if (dumbExec == null)
         {
