@@ -164,11 +164,14 @@ public class DeletionTestCase extends SystemTestCase
     public void tearDown()
     {
         List<Experiment> existingExperiments = new ArrayList<Experiment>();
-        for (Experiment exp : registeredExperiments)
+        if (registeredExperiments != null)
         {
-            if (isExistingExperiment(exp.getCode()))
+            for (Experiment exp : registeredExperiments)
             {
-                existingExperiments.add(exp);
+                if (isExistingExperiment(exp.getCode()))
+                {
+                    existingExperiments.add(exp);
+                }
             }
         }
         commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
