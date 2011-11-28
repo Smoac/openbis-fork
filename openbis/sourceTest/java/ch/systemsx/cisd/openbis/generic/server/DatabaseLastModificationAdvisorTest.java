@@ -31,6 +31,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
@@ -63,6 +64,7 @@ public class DatabaseLastModificationAdvisorTest extends AssertJUnit
     public void testCreateModificationNoticed() throws Throwable
     {
         long initialState = state.getLastModificationTime(createOrDelete(DATASET_TYPE));
+        waitForClockChange();
 
         context.checking(new Expectations()
             {
@@ -84,6 +86,7 @@ public class DatabaseLastModificationAdvisorTest extends AssertJUnit
     public void testUpdatedModificationNoticed() throws Throwable
     {
         long initialState = state.getLastModificationTime(edit(DATA_SET));
+        waitForClockChange();
 
         context.checking(new Expectations()
             {
@@ -111,5 +114,16 @@ public class DatabaseLastModificationAdvisorTest extends AssertJUnit
     {
         return ICommonServer.class.getMethod("updateDataSet", new Class[]
             { String.class, DataSetUpdatesDTO.class });
+    }
+
+    private void waitForClockChange()
+    {
+        try
+        {
+            Thread.sleep(1001);
+        } catch (InterruptedException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 }
