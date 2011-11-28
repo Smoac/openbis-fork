@@ -71,6 +71,7 @@
 			<param name="src" value="${sources}" />
 		</antcall>
 	</target>
+	
 	<target name="_plain-compile-tests">
 		<antcall target="_plain-compile">
 			<param name="src" value="${sources.test}" />
@@ -89,6 +90,7 @@
 		       classpath="${ecp}"
 		       source="1.5"
 		       target="1.5"
+			     encoding="UTF-8"
 		       debug="true">
 			<compilerarg line="-warn:none" />
 		</javac>
