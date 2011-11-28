@@ -312,7 +312,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             List<Sample> existingSamples = new ArrayList<Sample>();
 
             // add non-contained samples codes
-            List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
+            List<String> codes = SampleRegisterOrUpdateUtil.extractNonContainedCodes(newSamples);
             // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples!
             List<Sample> list =
                     sampleLister.list(SampleRegisterOrUpdateUtil
@@ -320,7 +320,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             existingSamples.addAll(list);
 
             // for contained samples add container samples codes
-            codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
+            codes = SampleRegisterOrUpdateUtil.extractContainerCodes(newSamples);
             ListOrSearchSampleCriteria criteria =
                     SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
             List<Sample> existingContainers = sampleLister.list(criteria);

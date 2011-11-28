@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -179,23 +181,55 @@ public class SampleRegisterOrUpdateUtil
         }
     }
 
-    /**
-     * If <var>withContainers</var> is true, containers codes are extracted, otherwise - sample
-     * codes.
-     */
-    public static List<String> extractCodes(List<NewSample> newSamples, boolean withContainers)
+    public static List<String> extractNonContainedCodes(List<NewSample> newSamples)
     {
         HashSet<String> set = new HashSet<String>();
         for (NewSample s : newSamples)
         {
-            String identifierWithoutInstance = dropDatabaseInstance(s.getIdentifier());
-            boolean hasContainer = identifierWithoutInstance.contains(CODE_SEPARATOR);
-            if (hasContainer == withContainers)
+            if (false == hasContainer(s))
             {
                 SampleIdentifier parsed = SampleIdentifierFactory.parse(s.getIdentifier());
                 set.add(extractCode(parsed.getSampleCode()));
             }
         }
         return new ArrayList<String>(set);
+    }
+
+    public static List<String> extractContainerCodes(List<NewSample> newSamples)
+    {
+        HashSet<String> set = new HashSet<String>();
+        for (NewSample s : newSamples)
+        {
+            if (hasContainer(s))
+            {
+                set.add(extractContainerCode(s));
+            }
+        }
+        return new ArrayList<String>(set);
+    }
+
+    private static boolean hasContainer(NewSample s)
+    {
+        if (false == StringUtils.isBlank(s.getContainerIdentifierForNewSample()))
+        {
+            return true;
+        }
+
+        String identifierWithoutInstance = dropDatabaseInstance(s.getIdentifier());
+        return identifierWithoutInstance.contains(CODE_SEPARATOR);
+    }
+
+    private static String extractContainerCode(NewSample s)
+    {
+        String containerIdentifier = s.getContainerIdentifierForNewSample();
+        if (StringUtils.isBlank(containerIdentifier))
+        {
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(s.getIdentifier());
+            return extractCode(sampleIdentifier.getSampleCode());
+        } else
+        {
+            SampleIdentifier parsedContainerIdentifier = SampleIdentifierFactory.parse(containerIdentifier);
+            return extractCode(parsedContainerIdentifier.getSampleCode());
+        }
     }
 }
