@@ -588,7 +588,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         try
         {
-            return Long.parseLong(numberStr) * 1000;
+            return (long) (Double.parseDouble(numberStr) * 1000);
         } catch (final NumberFormatException e)
         {
             return null;
