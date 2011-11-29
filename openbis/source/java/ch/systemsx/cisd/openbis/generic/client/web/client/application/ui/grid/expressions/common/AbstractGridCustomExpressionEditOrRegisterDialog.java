@@ -146,7 +146,6 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
     {
         MultilineVarcharField field =
                 new MultilineVarcharField(viewContext.getMessage(Dict.EXPRESSION), true, 10);
-        field.setMaxLength(2000);
         return field;
     }
 

@@ -1,11 +1,18 @@
 -- Migration from 090 to 091
 -- S121
+-- Change type definition of QUERIES.EXPRESSION and FILTERS_EXPRESSION from VARCHAR(2000) to TEXT
 -- Add this column to property tables:
 --   PERS_ID_AUTHOR TECH_ID NOT NULL
 -- Add these columns to property history tables:
 --   PERS_ID_AUTHOR TECH_ID NOT NULL
 --   VALID_FROM_TIMESTAMP TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP 
 -- and make them be filled properly by the history trigger condition.
+
+-- Relax length restriction on QUERIES.EXPRESSION
+ALTER TABLE queries ALTER COLUMN expression SET DATA TYPE text;
+
+-- Relax length restriction on FILTERS.EXPRESSION
+ALTER TABLE filters ALTER COLUMN expression SET DATA TYPE text;
 
 -- Experiment properties
 ALTER TABLE experiment_properties ADD COLUMN pers_id_author TECH_ID;

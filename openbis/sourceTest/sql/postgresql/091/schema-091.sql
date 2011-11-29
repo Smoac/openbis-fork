@@ -855,7 +855,7 @@ CREATE TABLE filters (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    expression character varying(2000) NOT NULL,
+    expression text NOT NULL,
     is_public boolean NOT NULL,
     grid_id character varying(200) NOT NULL
 );
@@ -1047,7 +1047,7 @@ CREATE TABLE queries (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    expression character varying(2000) NOT NULL,
+    expression text NOT NULL,
     is_public boolean NOT NULL,
     query_type query_type NOT NULL,
     db_key code DEFAULT '1'::character varying NOT NULL,
