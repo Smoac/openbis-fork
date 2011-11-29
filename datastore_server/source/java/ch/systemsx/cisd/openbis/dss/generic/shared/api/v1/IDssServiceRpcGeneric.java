@@ -156,13 +156,14 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @return An absolute path to the data set. If overrideStorePathOrNull is specified, it
      *         replaces the DSS's notion of the store path. Otherwise the return value will begin
      *         with the DSS's storeRootPath.
-     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IOExceptionUnchecked if an IOException occurs when listing the files.
+     * @throws IllegalArgumentException if <var>dataSetCode</var> is a container dataset.
      * @since 1.1
      */
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
-            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked;
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get the validation script for the specified data set type.

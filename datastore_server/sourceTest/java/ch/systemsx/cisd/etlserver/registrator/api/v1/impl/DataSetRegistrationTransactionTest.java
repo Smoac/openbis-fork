@@ -287,7 +287,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testRollbackWhereMoveCreatesIntermediateDirectories()
     {

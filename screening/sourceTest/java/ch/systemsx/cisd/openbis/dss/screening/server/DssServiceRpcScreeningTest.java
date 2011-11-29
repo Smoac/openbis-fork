@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -68,7 +68,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Ds
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -83,8 +82,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -192,6 +191,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     allowing(imageLoader).getImageParameters();
                     will(returnValue(imageParameters));
+                    allowing(contentProvider).asContent(with(any(String.class)));
+                    will(returnValue(null));
                 }
             });
         testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
@@ -200,7 +201,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         streamRepository, shareIdManager, contentProvider, false)
                     {
                         @Override
-                        IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)
+                        IImagingDatasetLoader createImageLoader(String datasetCode, 
+                                IHierarchicalContent content)
                         {
                             return imageLoader;
                         }
@@ -241,9 +243,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         final DatasetIdentifier ds = new DatasetIdentifier(DATASET_CODE, URL1);
         final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
         final String channel = "dapi";
-        prepareGetHomeDatabaseInstance();
         prepareAssetDataSetIsAccessible(ds.getPermId());
-        prepareGetShareId();
         prepareLockDataSet(DATASET_CODE);
 
         List<PlateImageReference> plateImageReferences =
@@ -372,9 +372,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testLoadImages() throws IOException
     {
         final String channel = CHANNEL_CODE;
-        prepareGetHomeDatabaseInstance();
         prepareAssetDataSetIsAccessible(DATASET_CODE);
-        prepareGetShareId();
         prepareLockDataSet(DATASET_CODE);
         context.checking(new Expectations()
             {
@@ -666,19 +664,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 .toString());
     }
 
-    private void prepareGetHomeDatabaseInstance()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(service).getHomeDatabaseInstance();
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid("12345");
-                    will(returnValue(databaseInstance));
-                }
-            });
-    }
-
     private void prepareCreateFeatureVectorDataSet(final long[] dataSetIDs,
             final String[]... featureCodesPerDataset)
     {
@@ -878,17 +863,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(service)
                             .checkDataSetCollectionAccess(SESSION_TOKEN, Arrays.asList(dsCodes));
-                }
-            });
-    }
-
-    private void prepareGetShareId()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(shareIdManager).getShareId(DATASET_CODE);
-                    will(returnValue(Constants.DEFAULT_SHARE_ID));
                 }
             });
     }

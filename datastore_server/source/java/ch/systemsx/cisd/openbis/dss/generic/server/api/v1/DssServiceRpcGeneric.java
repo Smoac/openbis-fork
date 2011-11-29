@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 
 /**
  * Implementation of the generic RPC interface.
@@ -47,7 +48,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         implements IDssServiceRpcGenericInternal
 {
     private final PutDataSetService putService;
-    
+
     /**
      * The designated constructor.
      */
@@ -75,7 +76,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
-    
+
     public IDssServiceRpcGenericInternal createLogger(IInvocationLoggerContext context)
     {
         return new DssServiceRpcGenericLogger(context);
@@ -225,10 +226,17 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
+        final File dataSetRootDirectory =
+                DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), dataSetCode,
+                        getShareIdManager().getShareId(dataSetCode), getHomeDatabaseInstance()
+                                .getUuid());
         // see NOTE in interface documentation
-        @SuppressWarnings("deprecation")
-        File rootDir = getRootDirectory(dataSetCode);
-        return convertPath(getStoreDirectory(), rootDir, overrideStoreRootPathOrNull);
+        if (dataSetRootDirectory.exists() == false)
+        {
+            throw new IllegalArgumentException("Path to dataset '" + dataSetCode
+                    + "' not available: this is a container dataset.");
+        }
+        return convertPath(getStoreDirectory(), dataSetRootDirectory, overrideStoreRootPathOrNull);
     }
 
     public static String convertPath(File storeRoot, File dataSetRoot,

@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
@@ -150,56 +146,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     protected IHierarchicalContent getHierarchicalContent(String dataSetCode)
     {
         return getHierarchicalContentProvider().asContent(dataSetCode);
-    }
-
-    /**
-     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
-     *             container traversal)
-     */
-    @Deprecated
-    protected File getRootDirectory(String datasetCode)
-    {
-        return getRootDirectoryForDataSet(datasetCode, getShareIdManager().getShareId(datasetCode));
-    }
-
-    /**
-     * Get the top level of the folder for the data set.
-     * 
-     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
-     *             container traversal)
-     */
-    @Deprecated
-    private File getRootDirectoryForDataSet(String code, String shareId)
-    {
-        File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), code, shareId,
-                        getHomeDatabaseInstance().getUuid());
-        return dataSetRootDirectory;
-    }
-
-    /**
-     * Return a map keyed by data set code with value root directory for that data set.
-     * 
-     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
-     *             container traversal)
-     */
-    @Deprecated
-    protected Map<String, File> getRootDirectories(String sessionToken, Set<String> dataSetCodes)
-            throws IllegalArgumentException
-    {
-        HashMap<String, File> rootDirectories = new HashMap<String, File>();
-        for (String datasetCode : dataSetCodes)
-        {
-            String shareId = getShareIdManager().getShareId(datasetCode);
-            File dataSetRootDirectory = getRootDirectoryForDataSet(datasetCode, shareId);
-            if (dataSetRootDirectory.exists() == false)
-            {
-                throw new IllegalArgumentException("Path does not exist: " + dataSetRootDirectory);
-            }
-            File rootDirectory = dataSetRootDirectory;
-            rootDirectories.put(datasetCode, rootDirectory);
-        }
-        return rootDirectories;
     }
 
     protected ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

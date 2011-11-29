@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.HierarchicalContentNodeBasedHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
@@ -216,15 +217,17 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
         try
         {
-            @SuppressWarnings("deprecation")
-            Map<String, File> datasetRoots = getRootDirectories(sessionToken, datasetCodes);
             List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
             for (IImageDatasetIdentifier dataset : imageDatasets)
             {
-                File rootDirectoryOrNull = datasetRoots.get(dataset.getDatasetCode());
-                if (rootDirectoryOrNull != null)
+                final IHierarchicalContent content =
+                        getHierarchicalContent(dataset.getDatasetCode());
+                try
                 {
-                    result.add(extractImageMetadata(dataset, rootDirectoryOrNull));
+                    result.add(extractImageMetadata(dataset, content));
+                } finally
+                {
+                    content.close();
                 }
             }
             return result;
@@ -235,10 +238,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
-            File datasetRoot)
+            IHierarchicalContent content)
     {
         final IImagingDatasetLoader imageAccessor =
-                createImageLoader(dataset.getDatasetCode(), datasetRoot);
+                createImageLoader(dataset.getDatasetCode(), content);
         final Size imageSize = getOriginalImageSize(dataset, imageAccessor);
         final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
@@ -711,10 +714,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)
     {
-        String datasetCode = dataSetIdentifier.getDatasetCode();
-        @SuppressWarnings("deprecation")
-        File rootDir = getRootDirectory(datasetCode);
-        return createImageLoader(datasetCode, rootDir);
+        final String datasetCode = dataSetIdentifier.getDatasetCode();
+        return createImageLoader(datasetCode);
     }
 
     public void saveImageTransformerFactory(String sessionToken,
@@ -1129,16 +1130,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IImagingDatasetLoader createImageLoader(String datasetCode)
     {
-        @SuppressWarnings("deprecation")
-        File datasetRoot = getRootDirectory(datasetCode);
-        return createImageLoader(datasetCode, datasetRoot);
+        final IHierarchicalContent content = getHierarchicalContent(datasetCode);
+        return createImageLoader(datasetCode, content);
     }
 
-    IImagingDatasetLoader createImageLoader(String dataSetCode, File datasetRoot)
+    IImagingDatasetLoader createImageLoader(String dataSetCode, IHierarchicalContent content)
     {
-        IImagingDatasetLoader loader =
-                HCSImageDatasetLoaderFactory.tryCreate(getHierarchicalContent(dataSetCode),
-                        dataSetCode);
+        IImagingDatasetLoader loader = HCSImageDatasetLoaderFactory.tryCreate(content, dataSetCode);
         if (loader == null)
         {
             throw new IllegalStateException(String.format(
