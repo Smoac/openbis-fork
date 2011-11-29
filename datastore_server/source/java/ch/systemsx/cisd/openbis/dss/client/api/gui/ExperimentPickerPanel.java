@@ -17,12 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.JFrame;
-
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 
 /**
  * @author Pawel Glyzewski
@@ -33,12 +29,11 @@ public class ExperimentPickerPanel extends AbstractEntityPickerPanel
 
     private final ExperimentPickerDialog dialog;
 
-    public ExperimentPickerPanel(final JFrame mainWindow, final List<Experiment> experiments,
-            IOpenbisServiceFacade openbisServiceFacade)
+    public ExperimentPickerPanel(final JFrame mainWindow, DataSetUploadClientModel clientModel)
     {
-        super(mainWindow, experiments, openbisServiceFacade);
+        super(mainWindow);
 
-        dialog = new ExperimentPickerDialog(mainWindow, experiments);
+        dialog = new ExperimentPickerDialog(mainWindow, clientModel);
     }
 
     public void actionPerformed(ActionEvent e)

@@ -27,6 +27,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
@@ -42,14 +43,13 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 
 /**
  * @author Pawel Glyzewski
  */
-public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConnection implements
+public class SamplePickerDialog extends AbstractEntityPickerDialog implements
         TreeWillExpandListener
 {
     private static final long serialVersionUID = 1L;
@@ -60,30 +60,42 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
 
     private final JOptionPane optionPane;
 
-    /**
-     * @param mainWindow
-     * @param experiments
-     * @param openbisService
-     */
-    public SamplePickerDialog(JFrame mainWindow, List<Experiment> experiments,
-            final IOpenbisServiceFacade openbisService)
+    public SamplePickerDialog(JFrame mainWindow, DataSetUploadClientModel clientModel)
     {
-        super(mainWindow, "Pick a sample", openbisService);
+        super(mainWindow, "Pick a sample", clientModel);
 
-        FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
-        createNodes(top, experiments);
-        tree = new JTree(top);
+        tree = new JTree();
+        tree.setModel(new DefaultTreeModel(null));
         tree.addTreeWillExpandListener(this);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        filterField = createFilterField(top, tree);
+        filterField = createFilterField();
 
-        optionPane = createOptionPane(tree, filterField, this);
+        JPanel northPanel = createFilterAndRefreshButtonPanel(filterField, refreshButton);
+        optionPane = createOptionPane(tree, northPanel, this);
 
         addTreeSelectionListener();
+        setDialogData();
 
         this.setContentPane(optionPane);
     }
+
+    @Override
+    protected void setDialogData()
+    {
+        FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
+        
+        final List<String> projectIdentifiers = clientModel.getProjectIdentifiers();
+        List<Experiment> experiments =
+                clientModel.getOpenBISService().listExperimentsHavingSamplesForProjects(
+                        projectIdentifiers);
+        createNodes(top, experiments);
+        
+        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+        treeModel.setRoot(top);
+        updateTreeSelection();
+    }
+
 
     /**
      * Treat double click and return the same as clicking the ok button.
@@ -103,13 +115,13 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
             });
     }
 
-    private static JOptionPane createOptionPane(final JTree tree, final JTextField filterField,
+    private static JOptionPane createOptionPane(final JTree tree, final JPanel northPanel,
             final SamplePickerDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(tree);
 
         Object[] objects = new Object[]
-            { "Filter experiments: ", filterField, "Select Sample:", scrollPane };
+            { "Filter experiments: ", northPanel, "Select Sample:", scrollPane };
         final JOptionPane theOptionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 
@@ -180,33 +192,41 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
         }
     }
 
-    private static JTextField createFilterField(final FilterableMutableTreeNode treeNode,
-            final JTree tree)
+    private JTextField createFilterField()
     {
-        final JTextField filterField = new JTextField();
-        filterField.setEditable(true);
-        filterField.getDocument().addDocumentListener(new DocumentListener()
+        final JTextField textField = new JTextField();
+        textField.setEditable(true);
+        textField.getDocument().addDocumentListener(new DocumentListener()
             {
                 public void removeUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
 
                 public void insertUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
 
                 public void changedUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
+
             });
 
-        return filterField;
+        return textField;
+    }
+
+    private void updateTreeSelection()
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+        FilterableMutableTreeNode rootNode = (FilterableMutableTreeNode) treeModel.getRoot();
+        if (rootNode != null)
+        {
+            rootNode.filter(filterField.getText());
+        }
+        treeModel.reload();
     }
 
     public String pickSample()
@@ -275,9 +295,10 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
 
     protected List<Sample> listSortedSamples(TreeExpansionEvent event)
     {
+        final List<String> experimentId =
+                Collections.singletonList(event.getPath().getLastPathComponent().toString());
         List<Sample> samples =
-                openbisService.listSamplesForExperiments(Collections.singletonList(event.getPath()
-                        .getLastPathComponent().toString()));
+                clientModel.getOpenBISService().listSamplesForExperiments(experimentId);
         UploadClientSortingUtils.sortSamplesByIdentifier(samples);
         return samples;
     }
@@ -290,4 +311,5 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
         node.removeAllChildren();
         node.add(new DefaultMutableTreeNode("dummy child"));
     }
+
 }

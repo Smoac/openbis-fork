@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -55,29 +56,32 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
 
     private final JTable table;
 
-    final JTextField filterField;
+    private final JTextField filterField;
 
     private final JOptionPane optionPane;
 
-    public ExperimentPickerDialog(JFrame mainWindow, List<Experiment> experiments)
+    public ExperimentPickerDialog(JFrame mainWindow, DataSetUploadClientModel clientModel)
     {
-        super(mainWindow, "Pick an experiment");
+        super(mainWindow, "Pick an experiment", clientModel);
 
-        table = createTable(prepareData(experiments));
+        table = createTable();
         filterField = createFilterField(table);
-        optionPane = createOptionPane(filterField, table, this);
+
+        JPanel northPanel = createFilterAndRefreshButtonPanel(filterField, refreshButton);
+        optionPane = createOptionPane(northPanel, table, this);
         createTableListener(table, optionPane);
+        setDialogData();
 
         this.setContentPane(optionPane);
     }
 
-    private static JOptionPane createOptionPane(JTextField filterField, final JTable table,
+    private static JOptionPane createOptionPane(JPanel northPanel, final JTable table,
             final JDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(table);
 
         Object[] objects = new Object[]
-            { "Filter experiments: ", filterField, "Select Experiment:", scrollPane };
+            { "Filter experiments: ", northPanel, "Select Experiment:", scrollPane };
         final JOptionPane optionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
@@ -120,10 +124,9 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         return data;
     }
 
-    private static JTable createTable(List<String[]> data)
+    private static JTable createTable()
     {
-        final JTable table = new JTable(new SortableFilterableTableModel(data, HEADERS));
-
+        final JTable table = new JTable();
         table.setPreferredScrollableViewportSize(new Dimension(500, 150));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -132,10 +135,6 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         {
             table.getColumnModel().getColumn(i).setPreferredWidth(110);
         }
-        table.getColumnModel().getColumn(3).setPreferredWidth(200);
-
-        header.addMouseListener(new TableHeaderMouseListener((SortableFilterableTableModel) table
-                .getModel()));
         header.setDefaultRenderer(new SortButtonRenderer());
 
         return table;
@@ -188,6 +187,18 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
             });
 
         return filterField;
+    }
+
+    @Override
+    protected void setDialogData()
+    {
+        List<Experiment> experiments = clientModel.getExperiments();
+        final SortableFilterableTableModel model =
+                new SortableFilterableTableModel(prepareData(experiments), HEADERS);
+        table.setModel(model);
+        table.getTableHeader().addMouseListener(new TableHeaderMouseListener(model));
+        model.filter(filterField.getText());
+        table.getColumnModel().getColumn(3).setPreferredWidth(200);
     }
 
     public String pickExperiment()

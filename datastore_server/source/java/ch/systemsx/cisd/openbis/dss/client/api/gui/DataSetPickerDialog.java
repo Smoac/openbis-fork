@@ -28,6 +28,7 @@ import java.util.TimerTask;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
@@ -44,14 +45,13 @@ import javax.swing.tree.TreeSelectionModel;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 
 /**
  * @author Pawel Glyzewski
  */
-public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerConnection implements
+public class DataSetPickerDialog extends AbstractEntityPickerDialog implements
         TreeWillExpandListener
 {
     private static final long serialVersionUID = 1L;
@@ -62,29 +62,39 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
 
     private final JOptionPane optionPane;
 
-    /**
-     * @param mainWindow
-     * @param experiments
-     * @param openbisService
-     */
-    public DataSetPickerDialog(JFrame mainWindow, List<Experiment> experiments,
-            final IOpenbisServiceFacade openbisService)
+    public DataSetPickerDialog(JFrame mainWindow, DataSetUploadClientModel clientModel)
     {
-        super(mainWindow, "Pick a data set", openbisService);
+        super(mainWindow, "Pick a data set", clientModel);
 
-        FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
-        createNodes(top, experiments);
-        tree = new JTree(top);
+        tree = new JTree();
         tree.addTreeWillExpandListener(this);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-        filterField = createFilterField(top, tree);
+        filterField = createFilterField();
 
-        optionPane = createOptionPane(filterField, tree, this);
+        JPanel northPanel = createFilterAndRefreshButtonPanel(filterField, refreshButton);
+        optionPane = createOptionPane(northPanel, tree, this);
 
         addTreeSelectionListener();
+        setDialogData();
 
         this.setContentPane(optionPane);
+    }
+
+    @Override
+    protected void setDialogData()
+    {
+        FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
+
+        final List<String> projectIdentifiers = clientModel.getProjectIdentifiers();
+        List<Experiment> experiments =
+                clientModel.getOpenBISService().listExperimentsHavingDataSetsForProjects(
+                        projectIdentifiers);
+        createNodes(top, experiments);
+
+        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+        treeModel.setRoot(top);
+        updateTreeSelection();
     }
 
     /**
@@ -105,13 +115,13 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
             });
     }
 
-    private static JOptionPane createOptionPane(JTextField filterField, final JTree tree,
+    private static JOptionPane createOptionPane(final JPanel northPanel, final JTree tree,
             final JDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(tree);
 
         Object[] objects = new Object[]
-            { "Filter experiments: ", filterField, "Select data set:", scrollPane };
+            { "Filter experiments: ", northPanel, "Select data set:", scrollPane };
         final JOptionPane optionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
@@ -157,33 +167,37 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
         }
     }
 
-    private static JTextField createFilterField(final FilterableMutableTreeNode treeNode,
-            final JTree tree)
+    private JTextField createFilterField()
     {
-        final JTextField filterField = new JTextField();
-        filterField.setEditable(true);
-        filterField.getDocument().addDocumentListener(new DocumentListener()
+        final JTextField textField = new JTextField();
+        textField.setEditable(true);
+        textField.getDocument().addDocumentListener(new DocumentListener()
             {
                 public void removeUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
 
                 public void insertUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
 
                 public void changedUpdate(DocumentEvent e)
                 {
-                    treeNode.filter(filterField.getText());
-                    ((DefaultTreeModel) tree.getModel()).reload();
+                    updateTreeSelection();
                 }
             });
 
-        return filterField;
+        return textField;
+    }
+
+    private void updateTreeSelection()
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+        FilterableMutableTreeNode rootNode = (FilterableMutableTreeNode) treeModel.getRoot();
+        rootNode.filter(filterField.getText());
+        treeModel.reload();
     }
 
     public String pickDataSet()
@@ -290,27 +304,29 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
 
     protected List<DataSet> listExperimentDataSets(TreeExpansionEvent event)
     {
+        final List<String> experimentId =
+                Collections.singletonList(event.getPath().getLastPathComponent().toString());
         List<DataSet> dataSets =
-                openbisService.listDataSetsForExperiments(Collections.singletonList(event
-                        .getPath().getLastPathComponent().toString()));
+                clientModel.getOpenBISService().listDataSetsForExperiments(experimentId);
         UploadClientSortingUtils.sortDataSetsByCode(dataSets);
         return dataSets;
     }
 
     protected List<Sample> listExperimentSamples(TreeExpansionEvent event)
     {
+        final List<String> experimentId =
+                Collections.singletonList(event.getPath().getLastPathComponent().toString());
         List<Sample> samples =
-                openbisService.listSamplesForExperiments(Collections.singletonList(event
-                        .getPath().getLastPathComponent().toString()));
+                clientModel.getOpenBISService().listSamplesForExperiments(experimentId);
         UploadClientSortingUtils.sortSamplesByIdentifier(samples);
         return samples;
     }
 
     protected List<DataSet> listSampleDataSets(TreeExpansionEvent event)
     {
-        List<DataSet> dataSets =
-                openbisService.listDataSetsForSamples(Collections.singletonList(event.getPath()
-                        .getLastPathComponent().toString()));
+        final List<String> sampleId = Collections.singletonList(event.getPath()
+                .getLastPathComponent().toString());
+        List<DataSet> dataSets = clientModel.getOpenBISService().listDataSetsForSamples(sampleId);
         UploadClientSortingUtils.sortDataSetsByCode(dataSets);
         return dataSets;
     }

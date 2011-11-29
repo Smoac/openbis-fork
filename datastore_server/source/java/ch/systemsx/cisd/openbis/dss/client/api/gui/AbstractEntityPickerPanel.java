@@ -36,15 +36,11 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 
 /**
  * @author Pawel Glyzewski
@@ -70,8 +66,7 @@ public abstract class AbstractEntityPickerPanel extends JPanel implements Action
 
     private final JButton button = new JButton("...");
 
-    public AbstractEntityPickerPanel(final JFrame mainWindow, List<Experiment> experiments,
-            IOpenbisServiceFacade openbisService)
+    public AbstractEntityPickerPanel(final JFrame mainWindow)
     {
         super(new BorderLayout());
 

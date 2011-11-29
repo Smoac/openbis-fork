@@ -98,6 +98,11 @@ public class DataSetUploadClientModel
         this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
 
+        reloadDataFromServer();
+    }
+
+    public void reloadDataFromServer()
+    {
         DataSetTypeFilter filter =
                 new DataSetTypeFilter(
                         System.getProperty(ResourceNames.CREATABLE_DATA_SET_TYPES_WHITELIST),
@@ -574,12 +579,12 @@ public class DataSetUploadClientModel
 
     public List<Experiment> getExperiments()
     {
-        return experiments;
+        return Collections.unmodifiableList(experiments);
     }
 
     public List<String> getProjectIdentifiers()
     {
-        return projectIdentifiers;
+        return Collections.unmodifiableList(projectIdentifiers);
     }
 
     public Vocabulary getVocabulary(String code)
