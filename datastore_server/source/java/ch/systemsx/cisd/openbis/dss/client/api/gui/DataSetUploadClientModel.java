@@ -322,6 +322,18 @@ public class DataSetUploadClientModel
         return dataSetTypes;
     }
 
+    public DataSetType getDataSetType(String dataSetTypeCode)
+    {
+        for (DataSetType dataSetType : dataSetTypes)
+        {
+            if (dataSetType.getCode().equals(dataSetTypeCode))
+            {
+                return dataSetType;
+            }
+        }
+        return null;
+    }
+
     public int getIndexOfDataSetType(String dataSetTypeCode)
     {
         if (null == dataSetTypeCode)

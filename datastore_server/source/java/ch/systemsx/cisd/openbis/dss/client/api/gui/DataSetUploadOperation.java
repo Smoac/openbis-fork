@@ -16,12 +16,25 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * DataSetUploadOperation represents a request to upload a data set to openBIS/dss. The upload
@@ -54,6 +67,7 @@ final class DataSetUploadOperation implements Runnable
             {
                 newDataSetInfo.setStatus(Status.UPLOADING);
                 tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
+                createAdHocVocabularyTermsIfNeeded(newDataSetInfo);
                 NewDataSetDTO cleanDto =
                         clientModel.cleanNewDataSetDTO(newDataSetInfo.getNewDataSetBuilder()
                                 .asNewDataSetDTO());
@@ -85,5 +99,85 @@ final class DataSetUploadOperation implements Runnable
                         "Uploading", actualTh, null);
             }
         }
+    }
+
+    /**
+     * When metadata extraction has produced non-existing vocabulary terms, we create them on the
+     * fly (as ad-hoc terms) to make the data set registration possible.
+     */
+    private void createAdHocVocabularyTermsIfNeeded(NewDataSetInfo dataSetInfo)
+    {
+        NewDataSetMetadataDTO metadata = dataSetInfo.getNewDataSetBuilder().getDataSetMetadata();
+        String dataSetTypeCode = metadata.tryDataSetType();
+        if (dataSetTypeCode == null) {
+            return;
+        }
+        
+        DataSetType dataSetType = clientModel.getDataSetType(dataSetTypeCode);
+        Set<String> vocabularyProperties = getVocabularyPropertyNames(dataSetType);
+        if (vocabularyProperties.isEmpty())
+        {
+            return;
+        }
+
+        Map<String, String> dataSetProperties = metadata.getProperties();
+        Collection<String> unmodifiableProperties =
+                new ArrayList<String>(metadata.getUnmodifiableProperties());
+
+        for (String property : unmodifiableProperties)
+        {
+            if (vocabularyProperties.contains(property))
+            {
+                String term = dataSetProperties.get(property);
+                Vocabulary vocabulary = clientModel.getVocabulary(property);
+                if (false == hasTerm(vocabulary, term))
+                {
+                    clientModel.addUnofficialVocabularyTerm(vocabulary, term, term.trim(), term,
+                            getMaxOrdinal(vocabulary));
+                }
+            }
+        }
+
+    }
+
+    private boolean hasTerm(Vocabulary vocabulary, String termCode)
+    {
+        for (VocabularyTerm term : vocabulary.getTerms())
+        {
+            if (term.getCode().equalsIgnoreCase(termCode))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private long getMaxOrdinal(Vocabulary vocabulary)
+    {
+        long maxOrdinal = -1L;
+        for (VocabularyTerm term : vocabulary.getTerms())
+        {
+            if (term.getOrdinal() > maxOrdinal)
+            {
+                maxOrdinal = term.getOrdinal();
+            }
+        }
+        return maxOrdinal;
+    }
+
+    private Set<String> getVocabularyPropertyNames(DataSetType dataSetType)
+    {
+        Set<String> vocabularyProperties = new HashSet<String>();
+        for (PropertyTypeGroup typeGroup : dataSetType.getPropertyTypeGroups())
+        {
+            for (PropertyType propertyType : typeGroup.getPropertyTypes())
+            {
+                if (propertyType.getDataType() == DataTypeCode.CONTROLLEDVOCABULARY)
+                {
+                    vocabularyProperties.add(propertyType.getCode());
+                }
+            }
+        }
+        return vocabularyProperties;
     }
 }
