@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
@@ -73,22 +75,38 @@ public class DefaultParser<E, T> implements IParser<E, T>
             {
                 E object = null;
                 String[] tokens = parseLine(number, nextLine, headerLength);
-                try
+                // skip empty lines
+                if (false == areAllTokensBlank(tokens))
                 {
-                    object = createObject(tokens);
-                } catch (final ParserException parserException)
-                {
-                    throw new ParsingException(parserException, tokens, number);
-                }
-                // Skip null values
-                if (null != object)
-                {
-                    elements.add(object);
+                    try
+                    {
+                        object = createObject(tokens);
+                    } catch (final ParserException parserException)
+                    {
+                        throw new ParsingException(parserException, tokens, number);
+                    }
+                    // Skip null values
+                    if (null != object)
+                    {
+                        elements.add(object);
+                    }
                 }
             }
         }
         lineTokenizer.destroy();
         return elements;
+    }
+
+    private boolean areAllTokensBlank(String[] tokens)
+    {
+        for (String token : tokens)
+        {
+            if (false == StringUtils.isBlank(token))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public final Iterator<E> parseIteratively(final Iterator<ILine<T>> lineIterator,

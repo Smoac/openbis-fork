@@ -47,6 +47,10 @@ public final class DefaultParserTest
             "# This is a comment", "firstName\tlastName\taddress\tcity",
             "\tDarwin\tHumboldt Ave. 1865", "Albert\tEinstein");
 
+    private final static List<String> textWithEmptyLines = Arrays.asList("", "# This is a comment",
+            "firstName\tlastName\taddress\tcity", "\tDarwin\tHumboldt Ave. 1865", "  \t  \t  \t  ",
+            "Albert\tEinstein");
+
     private final static int HEADER_LENGTH = 4;
 
     private final static IParser<String[], String> createParser()
@@ -128,6 +132,18 @@ public final class DefaultParserTest
         assertEquals("Einstein", result.get(2)[1]);
         assertEquals("", result.get(2)[2]);
         assertEquals("", result.get(2)[3]);
+    }
+
+    @Test
+    public final void testParseEmptyLinesIgnored()
+    {
+        final IParser<String[], String> parser = createParser();
+        final List<String[]> result =
+                parser.parse(createLineIterator(textWithEmptyLines), new HeaderLineFilter(),
+                        HEADER_LENGTH);
+        assertEquals(3, result.size());
+        assertEquals("Darwin", result.get(1)[1]);
+        assertEquals("Albert", result.get(2)[0]);
     }
 
     @Test
