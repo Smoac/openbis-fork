@@ -469,6 +469,7 @@ function enterApp()
 		addProjectsToTree(data.result); 
 		showProjects();
 	});
+	$('#openbis-logo').height(30);
 }
 
 
@@ -487,10 +488,9 @@ $(document).ready(function() {
  </script>
 </head>
 <body>
-
+<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
 <div id="login-form-div">
 <h1>openBIS DSU</h1>
-
 <form id="login-form" action="javascript:">
 <input id="username" type="text"> <input id="password" type="password"> <button id="login-button">Login</button>
 </form>
