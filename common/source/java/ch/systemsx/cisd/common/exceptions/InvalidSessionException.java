@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
+import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+
 /**
  * This <code>UserFailureException</code> extension signals that a session has expired.
  * 
  * @author Christian Ribeaud
  */
-public final class InvalidSessionException extends UserFailureException
+public final class InvalidSessionException extends UserFailureException implements
+        IOptionalStackTraceLoggingException
 {
     private static final long serialVersionUID = 1L;
 
