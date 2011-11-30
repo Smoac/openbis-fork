@@ -384,6 +384,9 @@ function enterApp()
 	basynthec.listAllDataSets(function(data) { 
 		showDataSets(data.result); 
 	});
+	
+	$('#openbis-logo').height(50)
+	
 }
 
 function groupBy(numElts)
@@ -426,7 +429,7 @@ $(document).ready(function() {
  </script>
 </head>
 <body>
-
+<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" height="100px" style="float: right;"/>
 <div id="login-form-div">
 <h1>openBIS BaSynthec</h1>
 
