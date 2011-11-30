@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.parser;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.util.NumberToTextConverter;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
@@ -86,7 +87,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
             case Cell.CELL_TYPE_BOOLEAN:
                 return Boolean.toString(cell.getBooleanCellValue());
             case Cell.CELL_TYPE_NUMERIC:
-                return Double.toString(cell.getNumericCellValue());
+                return NumberToTextConverter.toText(cell.getNumericCellValue());
             case Cell.CELL_TYPE_STRING:
                 return cell.getStringCellValue();
             case Cell.CELL_TYPE_FORMULA:
