@@ -70,30 +70,41 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria,
-            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         return new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
-                experimentSearchCriteria, analysisProcedureListenerHolder)
-                .asDisposableWithoutToolbar();
+                experimentSearchCriteria, analysisProcedureCriteria).asDisposableWithoutToolbar();
+    }
+
+    public static IDisposableComponent create(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            IEntityInformationHolderWithPermId material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+    {
+        MaterialFeaturesFromAllExperimentsGrid grid =
+                new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
+                        experimentSearchCriteria, null);
+        analysisProcedureListenerHolder.setAnalysisProcedureListener(grid
+                .createAnalysisProcedureListener());
+        return grid.asDisposableWithoutToolbar();
     }
 
     MaterialFeaturesFromAllExperimentsGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria,
-            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+            AnalysisProcedureCriteria analysisProcedureCriteriaOrNull)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
+        super(viewContext.getCommonViewContext(), BROWSER_ID,
+                analysisProcedureCriteriaOrNull != null,
                 DisplayTypeIDGenerator.MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION);
         this.screeningViewContext = viewContext;
         this.material = material;
         this.experimentSearchCriteria = experimentSearchCriteria;
+        this.analysisProcedureCriteria = analysisProcedureCriteriaOrNull;
         setBorders(true);
         linkExperiment();
         linkMaterialInExperiment();
-
-        IAnalysisProcedureSelectionListener analysisProcedureListener =
-                createAnalysisProcedureListener();
-        analysisProcedureListenerHolder.setAnalysisProcedureListener(analysisProcedureListener);
     }
 
     private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()

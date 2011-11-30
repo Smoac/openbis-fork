@@ -39,9 +39,11 @@ public class MaterialFeaturesFromAllExperimentsComponent
             ExperimentSearchByProjectCriteria experimentSearchCriteria,
             AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
+        final IDisposableComponent gridComponent =
+                MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
+                        experimentSearchCriteria, analysisProcedureListenerHolder);
         return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
-                .createComponent(material, experimentSearchCriteria,
-                        analysisProcedureListenerHolder);
+                .createComponent(gridComponent, material, experimentSearchCriteria);
     }
 
     public static IDisposableComponent createComponent(
@@ -49,12 +51,11 @@ public class MaterialFeaturesFromAllExperimentsComponent
             ExperimentSearchByProjectCriteria experimentCriteria,
             AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        AnalysisProcedureListenerHolder listenerHolder = new AnalysisProcedureListenerHolder();
-        IDisposableComponent component =
-                createComponent(screeningViewContext, material, experimentCriteria, listenerHolder);
-        listenerHolder.getAnalysisProcedureListener().analysisProcedureSelected(
-                analysisProcedureCriteria);
-        return component;
+        final IDisposableComponent gridComponent =
+                MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
+                        experimentCriteria, analysisProcedureCriteria);
+        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
+                .createComponent(gridComponent, material, experimentCriteria);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -65,13 +66,9 @@ public class MaterialFeaturesFromAllExperimentsComponent
         this.screeningViewContext = screeningViewContext;
     }
 
-    private IDisposableComponent createComponent(Material material,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria,
-            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+    private IDisposableComponent createComponent(IDisposableComponent gridComponent,
+            Material material, ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        final IDisposableComponent gridComponent =
-                MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
-                        experimentSearchCriteria, analysisProcedureListenerHolder);
         String headingTextOtNull = tryCreateHeadingText(material, experimentSearchCriteria);
         return MaterialComponentUtils.createMaterialViewer(screeningViewContext, material,
                 headingTextOtNull, gridComponent);
