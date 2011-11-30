@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 
@@ -35,10 +34,11 @@ public interface IImagingDataSetRegistrationTransaction extends IDataSetRegistra
      * Creates a new image dataset. See {@link SimpleImageDataConfig} documentation for
      * configuration details.
      */
-    IDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet, File incomingFolderWithImages);
+    IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages);
 
     @Deprecated
-    IDataSet createNewImageDataSet(
+    IImageDataSet createNewImageDataSet(
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails);
 
 }

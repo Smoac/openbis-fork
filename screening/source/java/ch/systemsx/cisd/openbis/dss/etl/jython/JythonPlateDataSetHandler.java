@@ -389,7 +389,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             this.originalDirName = originalDirName;
         }
 
-        public IDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
+        public IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
                 File incomingFolderWithImages)
         {
             DataSetRegistrationDetails<ImageDataSetInformation> details =
