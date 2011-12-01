@@ -40,11 +40,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -67,6 +70,7 @@ public class DataSetTranslator
         {
             description.setDataSetLocation(dataSet.getLocation());
             description.setSpeedHint(dataSet.getSpeedHint());
+            description.setFileFormatType(dataSet.getFileFormatType().getCode());
         }
         description.setDataSetSize(data.getSize());
         DataSetType dataSetType = data.getDataSetType();
@@ -296,4 +300,53 @@ public class DataSetTranslator
                 new HashMap<PropertyTypePE, PropertyType>()));
         return result;
     }
+
+    public static List<DatasetDescription> translateToDescriptions(List<? extends DataPE> datasets)
+    {
+        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        for (DataPE dataset : datasets)
+        {
+            result.add(translateToDescription(dataset));
+        }
+        return result;
+    }
+
+    public static DatasetDescription translateToDescription(DataPE dataSet)
+    {
+        assert dataSet != null;
+
+        DatasetDescription description = new DatasetDescription();
+        description.setDataSetCode(dataSet.getCode());
+        if (dataSet.isExternalData())
+        {
+            ExternalDataPE externalData = dataSet.tryAsExternalData();
+            description.setDataSetLocation(externalData.getLocation());
+            description.setDataSetSize(externalData.getSize());
+            description.setSpeedHint(externalData.getSpeedHint());
+            description.setFileFormatType(externalData.getFileFormatType().getCode());
+        }
+        SamplePE sample = dataSet.tryGetSample();
+        if (sample != null)
+        {
+            description.setSampleCode(sample.getCode());
+            description.setSampleIdentifier(sample.getIdentifier());
+            description.setSampleTypeCode(sample.getSampleType().getCode());
+        }
+        ExperimentPE experiment = dataSet.getExperiment();
+        description.setExperimentIdentifier(experiment.getIdentifier());
+        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
+        description.setExperimentCode(experiment.getCode());
+        ProjectPE project = experiment.getProject();
+        description.setProjectCode(project.getCode());
+        SpacePE group = project.getSpace();
+        description.setSpaceCode(group.getCode());
+        description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
+        DataSetTypePE dataSetType = dataSet.getDataSetType();
+        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
+        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
+        description.setDatasetTypeCode(dataSetType.getCode());
+
+        return description;
+    }
+
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator.translateToDescription;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -65,10 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -254,7 +253,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
             // delete remotely from Data Store (only executed for available datasets)
             List<ExternalDataPE> available = availableDatasets.get(dataStore);
-            deleteDataSets(dataStore, createDatasetDescriptions(available));
+            deleteDataSets(dataStore, DataSetTranslator.translateToDescriptions(available));
         }
     }
 
@@ -385,7 +384,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             DataStorePE dataStore = entry.getKey();
             List<ExternalDataPE> externalDatas = filterRealDataSets(entry.getValue());
             Set<String> knownLocations =
-                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas),
+                    getKnownDataSets(dataStore,
+                            DataSetTranslator.translateToDescriptions(externalDatas),
                             ignoreNonExistingLocation);
             for (ExternalDataPE dataSet : externalDatas)
             {
@@ -589,65 +589,18 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 ExternalDataPE externalData = dataSet.tryAsExternalData();
                 if (externalData.getStatus().isAvailable())
                 {
-                    result.add(createDatasetDescription(externalData));
+                    result.add(translateToDescription(externalData));
                 } else
                 {
                     notAvailableDatasets.add(dataSet.getCode());
                 }
             } else
             {
-                result.add(createDatasetDescription(dataSet));
+                result.add(translateToDescription(dataSet));
             }
         }
         throwUnavailableOperationExceptionIfNecessary(notAvailableDatasets);
         return result;
-    }
-
-    private List<DatasetDescription> createDatasetDescriptions(List<ExternalDataPE> datasets)
-    {
-        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            result.add(createDatasetDescription(dataset));
-        }
-        return result;
-    }
-
-    private DatasetDescription createDatasetDescription(DataPE dataSet)
-    {
-        assert dataSet != null;
-
-        DatasetDescription description = new DatasetDescription();
-        description.setDataSetCode(dataSet.getCode());
-        if (dataSet.isExternalData())
-        {
-            ExternalDataPE externalData = dataSet.tryAsExternalData();
-            description.setDataSetLocation(externalData.getLocation());
-            description.setDataSetSize(externalData.getSize());
-            description.setSpeedHint(externalData.getSpeedHint());
-        }
-        SamplePE sample = dataSet.tryGetSample();
-        if (sample != null)
-        {
-            description.setSampleCode(sample.getCode());
-            description.setSampleIdentifier(sample.getIdentifier());
-            description.setSampleTypeCode(sample.getSampleType().getCode());
-        }
-        ExperimentPE experiment = dataSet.getExperiment();
-        description.setExperimentIdentifier(experiment.getIdentifier());
-        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
-        description.setExperimentCode(experiment.getCode());
-        ProjectPE project = experiment.getProject();
-        description.setProjectCode(project.getCode());
-        SpacePE group = project.getSpace();
-        description.setSpaceCode(group.getCode());
-        description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
-        DataSetTypePE dataSetType = dataSet.getDataSetType();
-        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
-        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
-        description.setDatasetTypeCode(dataSetType.getCode());
-
-        return description;
     }
 
     private DataStorePE findDataStore(String datastoreCode)
@@ -837,7 +790,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             {
                 continue;
             }
-            List<DatasetDescription> descriptions = createDatasetDescriptions(datasets);
+            List<DatasetDescription> descriptions =
+                    DataSetTranslator.translateToDescriptions(datasets);
             String sessionToken = dataStore.getSessionToken();
             String userEmailOrNull = tryGetLoggedUserEmail();
             try

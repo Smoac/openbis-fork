@@ -33,12 +33,14 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String dataSetTypeCode;
 
+    private String fileFormatType;
+
     private String datasetCode;
 
     private String dataSetLocation;
 
     private Long dataSetSize;
-    
+
     private int speedHint;
 
     private String sampleCode;
@@ -248,6 +250,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public String getExperimentTypeCode()
     {
         return experimentTypeCode;
+    }
+
+    public String getFileFormatType()
+    {
+        return fileFormatType;
+    }
+
+    public void setFileFormatType(String fileFormatType)
+    {
+        this.fileFormatType = fileFormatType;
     }
 
     @Override
