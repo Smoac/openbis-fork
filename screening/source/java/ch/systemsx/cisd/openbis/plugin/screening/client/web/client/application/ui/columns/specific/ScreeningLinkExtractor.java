@@ -68,6 +68,9 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static boolean WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT = true;
 
+    public final static String WELL_SEARCH_NOTHING_FOUND_REDIRECTION_URL_KEY =
+            "noResultsRedirectionUrl";
+
     public final static String EXPERIMENT_ANALYSIS_SUMMARY_ACTION = "FEATURE_VECTOR_SUMMARY";
 
     public final static String EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =

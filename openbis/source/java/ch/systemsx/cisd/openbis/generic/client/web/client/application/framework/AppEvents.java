@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.google.gwt.user.client.Event;
 
 /**
@@ -49,8 +50,32 @@ public class AppEvents
     // opens a new tab
     public static final EventType NAVI_EVENT = new EventType(STARTING_VALUE + 40);
 
-    // opens a new browser window with a specified URL
-    public static final EventType OPEN_URL_EVENT = new EventType(STARTING_VALUE + 50);
-
     public static final EventType CloseViewer = new EventType(STARTING_VALUE + 70);
+
+    // opens a new browser window with a specified URL
+    public static class OpenUrlEvent extends AppEvent
+    {
+        public static final EventType OPEN_URL_EVENT = new EventType(STARTING_VALUE + 50);
+
+        private static final String TARGET_KEY = "target";
+
+        private static final long serialVersionUID = 1L;
+
+        public OpenUrlEvent(String url, String targetWindow)
+        {
+            super(OPEN_URL_EVENT, url);
+            setData(TARGET_KEY, targetWindow);
+        }
+
+        public String getURL()
+        {
+            return (String) getData();
+        }
+
+        public String getTargetWindow()
+        {
+            String target = getData(TARGET_KEY);
+            return target == null ? "" : target;
+        }
+    }
 }

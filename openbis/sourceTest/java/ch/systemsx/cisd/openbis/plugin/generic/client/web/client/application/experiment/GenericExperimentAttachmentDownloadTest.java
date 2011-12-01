@@ -27,7 +27,7 @@ import com.google.gwt.http.client.Response;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents.OpenUrlEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -193,13 +193,13 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         public UrlOpenedController(OpenedUrlCallback openedUrlCallback)
         {
             this.openedUrlCallback = openedUrlCallback;
-            registerEventTypes(AppEvents.OPEN_URL_EVENT);
+            registerEventTypes(OpenUrlEvent.OPEN_URL_EVENT);
         }
 
         @Override
         public void handleEvent(AppEvent event)
         {
-            if (event.getType() == AppEvents.OPEN_URL_EVENT)
+            if (event.getType() == OpenUrlEvent.OPEN_URL_EVENT)
             {
                 String openedUrl = (String) event.getData();
                 openedUrlCallback.reuse();

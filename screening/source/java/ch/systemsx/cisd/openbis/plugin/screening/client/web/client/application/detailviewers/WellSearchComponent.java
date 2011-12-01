@@ -209,7 +209,8 @@ public class WellSearchComponent extends TabContent
         }
         WellSearchGrid.openTab(screeningViewContext, experimentSearchCriteria,
                 MaterialSearchCriteria.create(materialCriteria),
-                AnalysisProcedureCriteria.createNoProcedures(), showCombinedResults.getValue());
+                AnalysisProcedureCriteria.createNoProcedures(), showCombinedResults.getValue(),
+                null);
     }
 
     private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()

@@ -54,11 +54,14 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                 getOptionalBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT);
+        String nothingFoundRedirectionUrlOrNull =
+                getOptionalParameter(locator,
+                        ScreeningLinkExtractor.WELL_SEARCH_NOTHING_FOUND_REDIRECTION_URL_KEY);
 
         String[] materialCodes = MaterialCodeUtils.decodeList(materialCodesOrProperties);
         MaterialSearchCodesCriteria materialCodesCriteria =
-                new MaterialSearchCodesCriteria(materialCodes,
-                        decodeList(materialTypeCodes), exactMatchOnly);
+                new MaterialSearchCodesCriteria(materialCodes, decodeList(materialTypeCodes),
+                        exactMatchOnly);
 
         MaterialSearchCriteria materialSearchCriteria =
                 MaterialSearchCriteria.create(materialCodesCriteria);
@@ -80,13 +83,13 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                                         spaceCode, projectCode));
             }
             WellSearchGrid.openTab(viewContext, criteria, materialSearchCriteria,
-                    analysisProcedureCriteria,
-                    showCombinedResults);
+                    analysisProcedureCriteria, showCombinedResults,
+                    nothingFoundRedirectionUrlOrNull);
         } else
         {
             WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria,
-                    analysisProcedureCriteria,
-                    showCombinedResults);
+                    analysisProcedureCriteria, showCombinedResults,
+                    nothingFoundRedirectionUrlOrNull);
         }
 
     }

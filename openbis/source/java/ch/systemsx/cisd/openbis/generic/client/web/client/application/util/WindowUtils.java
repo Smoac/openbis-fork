@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents.OpenUrlEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 
 /**
@@ -40,26 +40,34 @@ public class WindowUtils
         DispatcherHelper.dispatchOpenUrlEvent(url);
     }
 
+    /**
+     * Requests to redirect the browser to a given URL.
+     */
+    static public void redirect(String url, String target)
+    {
+        DispatcherHelper.dispatchRedirectUrlEvent(url, target);
+    }
+
     /** Creates a controller which handles requests to open the URL in a new browser window. */
     public static Controller createOpenUrlController()
     {
-        return new OpenUrlController();
+        return new BrowserUrlController();
     }
 
-    private static class OpenUrlController extends Controller
+    private static class BrowserUrlController extends Controller
     {
-        public OpenUrlController()
+        public BrowserUrlController()
         {
-            registerEventTypes(AppEvents.OPEN_URL_EVENT);
+            registerEventTypes(OpenUrlEvent.OPEN_URL_EVENT);
         }
 
         @Override
         public void handleEvent(AppEvent event)
         {
-            if (event.getType() == AppEvents.OPEN_URL_EVENT)
+            if (event.getType() == OpenUrlEvent.OPEN_URL_EVENT)
             {
-                String openedUrl = (String) event.getData();
-                doOpenWindow(openedUrl);
+                OpenUrlEvent openUrlEvent = (OpenUrlEvent) event;
+                doOpenWindow(openUrlEvent.getURL(), openUrlEvent.getTargetWindow());
             }
         }
     }
@@ -68,9 +76,9 @@ public class WindowUtils
      * Opens a new window with given parameters if pop-up blocker has not been detected and displays
      * an alert message otherwise.
      */
-    private static void doOpenWindow(String url)
+    private static void doOpenWindow(String url, String target)
     {
-        boolean opened = openWindow(url, "", "scrollbars=yes,resizable=yes");
+        boolean opened = openWindow(url, target, "scrollbars=yes,resizable=yes");
         if (opened == false)
         {
             MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
@@ -82,9 +90,9 @@ public class WindowUtils
      * @return true if the window has been opened, false otherwise (it can be a case e.g. when the
      *         pop-up detector is switched on)
      */
-    private static native boolean openWindow(String url, String name, String features)
+    private static native boolean openWindow(String url, String target, String features)
     /*-{      
-       var pop = $wnd.open(url, name, features);
+       var pop = $wnd.open(url, target, features);
        return (pop != null);
     }-*/;
 }

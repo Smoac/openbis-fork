@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents.OpenUrlEvent;
+
 /**
  * A helper for using {@link Dispatcher}.
  * 
@@ -33,12 +35,21 @@ public final class DispatcherHelper
     }
 
     /**
-     * Creates and dispatches an event of type {@link AppEvents#OPEN_URL_EVENT}.
+     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which opens a new
+     * window.
      */
     public final static void dispatchOpenUrlEvent(String url)
     {
-        AppEvent event = createEvent(AppEvents.OPEN_URL_EVENT, url);
-        Dispatcher.get().dispatch(event);
+        dispatch(new OpenUrlEvent(url, null));
+    }
+
+    /**
+     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which changes the
+     * url of the current window.
+     */
+    public final static void dispatchRedirectUrlEvent(String url, String target)
+    {
+        dispatch(new OpenUrlEvent(url, target));
     }
 
     /**
@@ -47,13 +58,17 @@ public final class DispatcherHelper
      */
     public final static void dispatchNaviEvent(final AbstractTabItemFactory tabItemFactory)
     {
-        AppEvent event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
-        Dispatcher.get().dispatch(event);
+        dispatch(createEvent(AppEvents.NAVI_EVENT, tabItemFactory));
     }
 
     private final static AppEvent createEvent(EventType eventType, Object data)
     {
         final AppEvent event = new AppEvent(eventType, data);
         return event;
+    }
+
+    private static void dispatch(AppEvent event)
+    {
+        Dispatcher.get().dispatch(event);
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnIDUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
@@ -64,7 +66,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
             + "material-disambiguation-grid";
 
     public static void openTab(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellSearchCriteria searchCriteria)
+            final WellSearchCriteria searchCriteria, final String nothingFoundRedirectionUrlOrNull)
     {
         boolean refreshAutomatically = false;
         final MaterialDisambiguationGrid grid =
@@ -85,9 +87,16 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                     firstCall = false;
                     if (grid.getRowNumber() == 0)
                     {
-                        AbstractTabItemFactory tabFactory =
-                                createNoResultsTab(viewContext, searchCriteria);
-                        DispatcherHelper.dispatchNaviEvent(tabFactory);
+                        if (nothingFoundRedirectionUrlOrNull != null)
+                        {
+                            String url = URL.decodeQueryString(nothingFoundRedirectionUrlOrNull);
+                            WindowUtils.redirect(url, "_top");
+                        } else
+                        {
+                            AbstractTabItemFactory tabFactory =
+                                    createNoResultsTab(viewContext, searchCriteria);
+                            DispatcherHelper.dispatchNaviEvent(tabFactory);
+                        }
                     } else if (grid.getRowNumber() == 1)
                     {
                         List<Material> materials = grid.getContainedGridElements();

@@ -98,7 +98,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final String experimentPermId, final MaterialSearchCriteria materialSearchCriteria,
             final AnalysisProcedureCriteria analysisProcedureCriteria,
-            final boolean showCombinedResults)
+            final boolean showCombinedResults, final String nothingFoundRedirectionUrlOrNull)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -111,7 +111,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                             TechId experimentId = new TechId(experimentIdentifier.getId());
                             WellSearchGrid.openTab(screeningViewContext, experimentId,
                                     materialSearchCriteria, analysisProcedureCriteria,
-                                    showCombinedResults);
+                                    showCombinedResults, nothingFoundRedirectionUrlOrNull);
                         }
                     });
     }
@@ -121,7 +121,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             TechId experimentId, final MaterialSearchCriteria materialSearchCriteria,
             final AnalysisProcedureCriteria analysisProcedureCriteria,
-            final boolean showCombinedResults)
+            final boolean showCombinedResults, final String nothingFoundRedirectionUrlOrNull)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
                 new AbstractAsyncCallback<Experiment>(screeningViewContext)
@@ -133,16 +133,17 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                                     ExperimentSearchCriteria.createExperiment(experiment);
                             WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
                                     materialSearchCriteria, analysisProcedureCriteria,
-                                    showCombinedResults);
+                                    showCombinedResults, nothingFoundRedirectionUrlOrNull);
                         }
                     });
     }
 
+    /** @param nothingFoundRedirectionUrlOrNull used only when showCombinedResults is false. */
     public static void openTab(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final ExperimentSearchCriteria experimentCriteria,
             final MaterialSearchCriteria materialCriteria,
             final AnalysisProcedureCriteria analysisProcedureCriteria,
-            final boolean showCombinedResults)
+            final boolean showCombinedResults, String nothingFoundRedirectionUrlOrNull)
     {
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(experimentCriteria, materialCriteria,
@@ -152,7 +153,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             openWellSearchTab(viewContext, searchCriteria);
         } else
         {
-            MaterialDisambiguationGrid.openTab(viewContext, searchCriteria);
+            MaterialDisambiguationGrid.openTab(viewContext, searchCriteria,
+                    nothingFoundRedirectionUrlOrNull);
         }
     }
 
