@@ -89,8 +89,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         return viewContext;
     }
 
-    private final IViewContext<ICommonClientServiceAsync> createViewContext(
-            final Controller openUrlController)
+    private final IViewContext<ICommonClientServiceAsync> createViewContext()
     {
         final ICommonClientServiceAsync service = GWT.create(ICommonClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
@@ -191,7 +190,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
     {
         if (viewContext == null)
         {
-            viewContext = createViewContext(openUrlController);
+            viewContext = createViewContext();
             initializeControllers(openUrlController);
         }
         History.addValueChangeHandler(this); // both modes
@@ -278,7 +277,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         Controller openUrlController = WindowUtils.createOpenUrlController();
         if (viewContext == null)
         {
-            viewContext = createViewContext(openUrlController);
+            viewContext = createViewContext();
             initializeControllers(openUrlController);
         }
 
