@@ -476,10 +476,14 @@ function enterApp()
 $(document).ready(function() {
 	$('#main').hide()
 	
-	$('#logout-button').click(function() { dsu.server.logout(function(data) {}) });
+	$('#logout-button').click(function() { 
+		dsu.server.logout(function(data) {
+			window.location.reload();
+		});
+	});
 	
 	$('#login-form').submit(function() {
-		 dsu.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+		dsu.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
 	});
 	
 	dsu.server.ifRestoredSessionActive(function(data) { enterApp() });
