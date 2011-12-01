@@ -32,6 +32,9 @@ import java.util.Queue;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
+ * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization
+ * on the queue elements and thus requires queue elements to be serializable.
+ * 
  * @author Pawel Glyzewski
  */
 public class SmartQueuePersister<E> implements IQueuePersister<E>

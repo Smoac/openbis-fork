@@ -35,10 +35,11 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization
  * on the queue elements and thus requires queue elements to be serializable.
  * 
+ * @deprecated Use the {@link SmartQueuePersister} instead.
  * @author Bernd Rinn
  */
 @Deprecated
-public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
+class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 {
     final static int DEFAULT_INITIAL_RECORD_SIZE = 32;
 
