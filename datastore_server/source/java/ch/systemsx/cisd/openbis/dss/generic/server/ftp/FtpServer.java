@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,10 +30,18 @@ import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
+import org.apache.ftpserver.ftplet.DefaultFtpReply;
+import org.apache.ftpserver.ftplet.DefaultFtplet;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.apache.ftpserver.ftplet.FtpReply;
+import org.apache.ftpserver.ftplet.FtpRequest;
+import org.apache.ftpserver.ftplet.FtpSession;
+import org.apache.ftpserver.ftplet.Ftplet;
+import org.apache.ftpserver.ftplet.FtpletContext;
+import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.listener.ListenerFactory;
@@ -151,6 +160,28 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
         serverFactory.setFileSystem(this);
         serverFactory.setUserManager(userManager);
+        serverFactory.setFtplets(Collections.<String, Ftplet> singletonMap("", new DefaultFtplet()
+            {
+                @Override
+                public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
+                        throws FtpException, IOException
+                {
+                    String cmd = request.getCommand().toUpperCase();
+                    System.out
+                            .println("FtpServer.creatFtpServer().new DefaultFtplet() {...}.beforeCommand() "+cmd);
+                    if ("USER".equals(cmd))
+                    {
+                        if (session.isSecure() == false)
+                        {
+                            session.write(new DefaultFtpReply(500,
+                                    "Control channel is not secure. "
+                                            + "Please, issue AUTH command first."));
+                            return FtpletResult.SKIP;
+                        }
+                    }
+                    return super.beforeCommand(session, request);
+                }
+            }));
 
         return serverFactory.createServer();
     }
@@ -158,6 +189,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     private SshServer createSftpServer()
     {
         SshServer s = SshServer.setUpDefaultServer();
+        // TODO keystore based provider needed
         s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
         s.setPort(config.getPort());
         s.setSubsystemFactories(creatSubsystemFactories());
