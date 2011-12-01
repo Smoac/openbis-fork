@@ -74,7 +74,7 @@ public class NewExternalDataDAG
     }
 
     /**
-     * Sort the registrations topologically.
+     * Create a dependency graph that can be used for topological sorting.
      */
     private void constructGraph()
     {
@@ -92,7 +92,7 @@ public class NewExternalDataDAG
 
             if (dataSet instanceof NewContainerDataSet)
             {
-                // All contained data sets are the dependents
+                // All contained data sets are dependents
                 List<String> containedDataSetCodes =
                         ((NewContainerDataSet) dataSet).getContainedDataSetCodes();
                 dependents.addAll(containedDataSetCodes);
