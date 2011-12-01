@@ -12,12 +12,13 @@ function findGene()
   // -- For testing on the sprint server:
   //var host = "https://sprint-openbis.ethz.ch:8446/openbis/index.html"
   
-  var url = host + "?viewMode=embedded#action=WELL_SEARCH&isExactSearch=false&showCombinedResults=false"+
-     			         "&types=GENE&items=" + gene
+  var redirect = "";
+  // var redirect = "&noResultsRedirectionUrl=http://www.infectome.org/find-a-gene.html?results%3dnone"
+  var url = host + "?viewMode=embedded#action=WELL_SEARCH&isExactSearch=false&showCombinedResults=false"
+  							   + redirect + "&types=GENE&items=" + gene
   if (assay != "_all_") {
      url += "&experimentPermId=" + assay
   } else {
-     //url += "&projectCode=50K&spaceCode=PELKMANS_PUBLIC"
      url += "&projectCode=ENDOCYTIC_PATHWAYS&spaceCode=ENDOCYTOME"
   }
   queryDiv = document.getElementById('query')
@@ -71,6 +72,7 @@ function findGene()
 </form>
 </div>
 <div id="result" style="display: none">
-	<iframe  id="resultFrame"/>
+	<iframe  id="resultFrame">
+	</iframe>
 </div>
 </body>
