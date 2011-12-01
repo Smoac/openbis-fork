@@ -93,6 +93,7 @@ EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION: "Analysis Summary",
 experiment_feature_vector_summary_section_RANK: "Rank",
 experiment_feature_vector_summary_section_ID: "Id",
 experiment_feature_vector_summary_section_DETAILS: "Details",
+experiment_feature_vector_summary_section_EXPERIMENT_PERM_ID: "Experiment Perm Id",
 
 material_replica_feature_summary_FEATURE: "Feature",
 material_replica_feature_summary_RANK: "Rank",

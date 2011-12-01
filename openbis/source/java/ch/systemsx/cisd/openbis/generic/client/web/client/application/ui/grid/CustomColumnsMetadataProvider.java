@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 
@@ -48,9 +50,38 @@ class CustomColumnsMetadataProvider
         return customColumnsMetadata;
     }
 
-    public void setCustomColumnsMetadata(List<GridCustomColumnInfo> customColumnsMetadata)
+    public void setCustomColumnsMetadata(List<GridCustomColumnInfo> columns)
     {
-        this.hasChanged = this.customColumnsMetadata.equals(customColumnsMetadata) == false;
-        this.customColumnsMetadata = customColumnsMetadata;
+        // create old columns map by code
+        Map<String, GridCustomColumnInfo> oldColumns = new HashMap<String, GridCustomColumnInfo>();
+        for (GridCustomColumnInfo oldColumn : this.customColumnsMetadata)
+        {
+            oldColumns.put(oldColumn.getCode(), oldColumn);
+        }
+
+        // copy data types whenever data type is missing in a new column but was set in the old one
+        List<GridCustomColumnInfo> newColumns = new ArrayList<GridCustomColumnInfo>();
+        if (columns != null)
+        {
+            for (GridCustomColumnInfo column : columns)
+            {
+                if (column.getDataType() == null)
+                {
+                    GridCustomColumnInfo oldColumn = oldColumns.get(column.getCode());
+                    if (oldColumn != null && oldColumn.getDataType() != null)
+                    {
+                        newColumns
+                                .add(new GridCustomColumnInfo(column.getCode(), column.getLabel(),
+                                        column.getDescription(), oldColumn.getDataType()));
+                    }
+                } else
+                {
+                    newColumns.add(column);
+                }
+            }
+        }
+
+        this.hasChanged = this.customColumnsMetadata.equals(newColumns) == false;
+        this.customColumnsMetadata = newColumns;
     }
 }

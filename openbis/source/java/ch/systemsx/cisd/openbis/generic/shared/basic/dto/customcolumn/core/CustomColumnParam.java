@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.core;
 
 /**
- * @author Kaloyan Enimanev
+ * @author pkupczyk
  */
-public class FeatureVectorSummaryGridColumnIDs
+public enum CustomColumnParam
 {
-    public static final String MATERIAL_ID = "id";
-    
-    public static final String EXPERIMENT_PERM_ID = "experiment_perm_id";
 
-    public static final String RANK_PREFIX = "RANK";
+    $$__METHOD__$$, $$__PARAMS__$$;
 
-    public static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
 }

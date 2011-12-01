@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_PROPS_GROUP;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.EXPERIMENT_PERM_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs;
@@ -40,7 +42,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * 
  * @author Kaloyan Enimanev
  */
-public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
+public class FeatureVectorSummaryProvider extends
+        AbstractTableModelProvider<MaterialFeatureVectorSummary>
 {
     private static final String FEATURE_VALUE_PREFIX = "FEATURE_VALUE-";
 
@@ -71,6 +74,8 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
                         analysisProcedureCriteria);
 
         builder.addColumn(MATERIAL_ID);
+        builder.addColumn(EXPERIMENT_PERM_ID).hideByDefault();
+
         builder.columnGroup(MATERIAL_PROPS_GROUP);
 
         List<CodeAndLabel> featureDescriptions = fvSummary.getFeatureDescriptions();
@@ -94,20 +99,23 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
 
         for (MaterialFeatureVectorSummary summary : fvSummary.getMaterialsSummary())
         {
-            addRow(builder, summary, featureColumnIds, rankColumnIds);
+            addRow(builder, fvSummary.getExperiment(), summary, featureColumnIds, rankColumnIds);
         }
 
         return builder.getModel();
     }
 
     private void addRow(TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,
-            MaterialFeatureVectorSummary summary, List<String> featureColumnIds,
-            List<String> rankColumnIds)
+            ExperimentReference experiment, MaterialFeatureVectorSummary summary,
+            List<String> featureColumnIds, List<String> rankColumnIds)
     {
         builder.addRow(summary);
 
         Material material = summary.getMaterial();
         builder.column(MATERIAL_ID).addString(material.getCode());
+        builder.column(EXPERIMENT_PERM_ID).addString(
+                experiment != null ? experiment.getPermId() : null);
+
         if (material.getProperties() != null)
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());

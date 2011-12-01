@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.customcolumn.core;
+
+import java.io.IOException;
 
 /**
- * @author Kaloyan Enimanev
+ * @author pkupczyk
  */
-public class FeatureVectorSummaryGridColumnIDs
+public class CustomColumnJSONException extends Exception
 {
-    public static final String MATERIAL_ID = "id";
-    
-    public static final String EXPERIMENT_PERM_ID = "experiment_perm_id";
 
-    public static final String RANK_PREFIX = "RANK";
+    private static final long serialVersionUID = 1L;
 
-    public static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
+    public CustomColumnJSONException(String msg)
+    {
+        super(msg);
+    }
+
+    public CustomColumnJSONException(String msg, IOException e)
+    {
+        super(msg, e);
+    }
+
 }

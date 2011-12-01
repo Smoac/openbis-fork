@@ -96,6 +96,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.customcolumn.core.CustomColumnStringRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger.EventPair;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -1295,14 +1296,27 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     createCustomColumnDefinitions(customColumnsMetadata);
             defsAndConfigs.addColumns(customColumnsDefs, viewContext);
 
-            RealNumberRenderer renderer =
-                    new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                            .getRealNumberFormatingParameters());
             for (GridCustomColumnInfo gridCustomColumnInfo : customColumnsMetadata)
             {
-                if (gridCustomColumnInfo.getDataType() == DataTypeCode.REAL)
+
+                DataTypeCode columnType = gridCustomColumnInfo.getDataType();
+                GridCellRenderer<BaseEntityModel<?>> columnRenderer = null;
+
+                if (DataTypeCode.REAL.equals(columnType))
                 {
-                    defsAndConfigs.setGridCellRendererFor(gridCustomColumnInfo.getCode(), renderer);
+                    columnRenderer =
+                            new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                                    .getRealNumberFormatingParameters());
+
+                } else if (DataTypeCode.VARCHAR.equals(columnType))
+                {
+                    columnRenderer = new CustomColumnStringRenderer();
+                }
+
+                if (columnRenderer != null)
+                {
+                    defsAndConfigs.setGridCellRendererFor(gridCustomColumnInfo.getCode(),
+                            columnRenderer);
                 }
             }
         }

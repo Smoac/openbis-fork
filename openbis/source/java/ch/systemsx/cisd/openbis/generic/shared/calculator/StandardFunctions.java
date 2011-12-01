@@ -33,6 +33,10 @@ import org.apache.commons.lang.StringUtils;
 import org.xml.sax.InputSource;
 
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.core.CustomColumnMethod;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.extension.link.CustomColumnLinkParam;
+import ch.systemsx.cisd.openbis.generic.shared.calculator.customcolumn.CustomColumnJSONBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.calculator.customcolumn.CustomColumnJSONServerData;
 
 /**
  * Set of standard functions used in jython expressions.
@@ -332,6 +336,14 @@ public final class StandardFunctions
     public static Date currentDate()
     {
         return new Date();
+    }
+
+    public static String createLink(String linkText, String linkUrl)
+    {
+        CustomColumnJSONServerData data = new CustomColumnJSONServerData(CustomColumnMethod.LINK);
+        data.addParam(CustomColumnLinkParam.LINK_TEXT.name(), linkText);
+        data.addParam(CustomColumnLinkParam.LINK_URL.name(), linkUrl);
+        return CustomColumnJSONBuilder.build(data);
     }
 
     private static boolean isBlank(Object value)
