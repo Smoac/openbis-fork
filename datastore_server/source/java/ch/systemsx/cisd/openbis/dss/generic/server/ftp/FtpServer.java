@@ -16,20 +16,42 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServerFactory;
+import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
+import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.log4j.Logger;
+import org.apache.sshd.SshServer;
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.common.Session;
+import org.apache.sshd.common.Session.AttributeKey;
+import org.apache.sshd.server.Command;
+import org.apache.sshd.server.PasswordAuthenticator;
+import org.apache.sshd.server.SshFile;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.sftp.SftpSubsystem;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -40,8 +62,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  * 
  * @author Kaloyan Enimanev
  */
-public class FtpServer implements FileSystemFactory
+public class FtpServer implements FileSystemFactory, org.apache.sshd.server.FileSystemFactory
 {
+    private static final AttributeKey<User> USER_KEY = new Session.AttributeKey<User>();
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpServer.class);
 
@@ -56,6 +80,8 @@ public class FtpServer implements FileSystemFactory
     private org.apache.ftpserver.FtpServer server;
 
     private final IGeneralInformationService generalInfoService;
+
+    private SshServer sshServer;
 
     public FtpServer(IETLLIMSService openBisService, IGeneralInformationService generalInfoService,
             UserManager userManager, Properties configProps) throws Exception
@@ -74,6 +100,25 @@ public class FtpServer implements FileSystemFactory
     }
 
     private void start() throws Exception
+    {
+        String startingMessage =
+                String.format("Starting %sFTP server on port %d ...", "%s", config.getPort());
+        if (config.isSftpMode())
+        {
+            sshServer = createSftpServer();
+            operationLog.info(String.format(startingMessage, "S"));
+            sshServer.start();
+            operationLog.info("SFTP server started.");
+        } else
+        {
+            server = creatFtpServer();
+            operationLog.info(String.format(startingMessage, ""));
+            server.start();
+            operationLog.info("FTP server started.");
+        }
+    }
+
+    private org.apache.ftpserver.FtpServer creatFtpServer()
     {
         FtpServerFactory serverFactory = new FtpServerFactory();
 
@@ -107,13 +152,40 @@ public class FtpServer implements FileSystemFactory
         serverFactory.setFileSystem(this);
         serverFactory.setUserManager(userManager);
 
-        server = serverFactory.createServer();
+        return serverFactory.createServer();
+    }
 
-        String startingMessage =
-                String.format("Starting FTP server on port %d ...", config.getPort());
-        operationLog.info(startingMessage);
-        server.start();
+    private SshServer createSftpServer()
+    {
+        SshServer s = SshServer.setUpDefaultServer();
+        s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
+        s.setPort(config.getPort());
+        s.setSubsystemFactories(creatSubsystemFactories());
+        s.setFileSystemFactory(this);
+        s.setPasswordAuthenticator(new PasswordAuthenticator()
+            {
+                public boolean authenticate(String username, String password, ServerSession session)
+                {
+                    try
+                    {
+                        UsernamePasswordAuthentication authentication =
+                                new UsernamePasswordAuthentication(username, password);
+                        User user = userManager.authenticate(authentication);
+                        session.setAttribute(USER_KEY, user);
+                        return true;
+                    } catch (AuthenticationFailedException ex)
+                    {
+                        return false;
+                    }
+                }
+            });
+        return s;
+    }
 
+    @SuppressWarnings("unchecked")
+    private List<NamedFactory<Command>> creatSubsystemFactories()
+    {
+        return Arrays.<NamedFactory<Command>>asList(new SftpSubsystem.Factory());
     }
 
     /**
@@ -124,6 +196,16 @@ public class FtpServer implements FileSystemFactory
         if (server != null)
         {
             server.stop();
+        }
+        if (sshServer != null)
+        {
+            try
+            {
+                sshServer.stop();
+            } catch (InterruptedException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
     }
 
@@ -140,4 +222,175 @@ public class FtpServer implements FileSystemFactory
         }
     }
 
+    public org.apache.sshd.server.FileSystemView createFileSystemView(Session session)
+            throws IOException
+    {
+        User user = session.getAttribute(USER_KEY);
+        try
+        {
+            final FileSystemView view = createFileSystemView(user);
+            return new org.apache.sshd.server.FileSystemView()
+                {
+                    
+                    public SshFile getFile(SshFile baseDir, String file)
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                    
+                    public SshFile getFile(String file)
+                    {
+                        return new FileView(view, file);
+                    }
+                };
+        } catch (FtpException ex)
+        {
+            throw new IOException(ex.getMessage());
+        }
+    }
+
+    private static final class FileView implements SshFile
+    {
+        private final FileSystemView fileView;
+        private final String path;
+        private final List<InputStream> inputStreams = new ArrayList<InputStream>();
+
+        FileView(FileSystemView fileView, String path)
+        {
+            this.fileView = fileView;
+            this.path = path;
+        }
+        
+        private FtpFile getFile()
+        {
+            try
+            {
+                return fileView.getFile(path);
+            } catch (FtpException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+
+        public String getAbsolutePath()
+        {
+            return getFile().getAbsolutePath();
+        }
+
+        public String getName()
+        {
+            return FileUtilities.getFileNameFromRelativePath(path);
+        }
+
+        public boolean isDirectory()
+        {
+            return getFile().isDirectory();
+        }
+
+        public boolean isFile()
+        {
+            return getFile().isFile();
+        }
+
+        public boolean doesExist()
+        {
+            return getFile().doesExist();
+        }
+
+        public boolean isReadable()
+        {
+            return getFile().isReadable();
+        }
+
+        public boolean isWritable()
+        {
+            return false;
+        }
+
+        public boolean isExecutable()
+        {
+            return false;
+        }
+
+        public boolean isRemovable()
+        {
+            return getFile().isRemovable();
+        }
+
+        public SshFile getParentFile()
+        {
+            return null;
+        }
+
+        public long getLastModified()
+        {
+            return getFile().getLastModified();
+        }
+
+        public boolean setLastModified(long time)
+        {
+            return false;
+        }
+
+        public long getSize()
+        {
+            return getFile().getSize();
+        }
+
+        public boolean mkdir()
+        {
+            return false;
+        }
+
+        public boolean delete()
+        {
+            return false;
+        }
+
+        public boolean create() throws IOException
+        {
+            return false;
+        }
+
+        public void truncate() throws IOException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean move(SshFile destination)
+        {
+            return false;
+        }
+
+        public List<SshFile> listSshFiles()
+        {
+            List<FtpFile> files = getFile().listFiles();
+            List<SshFile> result = new ArrayList<SshFile>();
+            for (FtpFile file : files)
+            {
+                result.add(new FileView(fileView, file.getAbsolutePath()));
+            }
+            return result;
+        }
+
+        public OutputStream createOutputStream(long offset) throws IOException
+        {
+            throw new UnsupportedOperationException();
+        }
+        
+        public InputStream createInputStream(long offset) throws IOException
+        {
+            InputStream inputStream = getFile().createInputStream(offset);
+            inputStreams.add(inputStream);
+            return inputStream;
+        }
+
+        public void handleClose() throws IOException
+        {
+            for (InputStream inputStream : inputStreams)
+            {
+                IOUtils.closeQuietly(inputStream);
+            }
+            inputStreams.clear();
+        }
+    }
 }

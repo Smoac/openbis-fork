@@ -42,6 +42,8 @@ public class FtpServerConfig
     private final static String PREFIX = "ftp.server.";
 
     final static String ENABLE_KEY = PREFIX + "enable";
+    
+    final static String SFTP_KEY = PREFIX + "sftp";
 
     final static String PORT_KEY = PREFIX + "port";
 
@@ -111,6 +113,8 @@ public class FtpServerConfig
 
     private boolean showParentsAndChildren;
 
+    private boolean sftpMode;
+
     public FtpServerConfig(Properties props) {
         this.startServer = PropertyUtils.getBoolean(props, ENABLE_KEY, false);
         if (startServer)
@@ -121,6 +125,7 @@ public class FtpServerConfig
 
     private void initializeProperties(Properties props)
     {
+        sftpMode = PropertyUtils.getBoolean(props, SFTP_KEY, false);
         port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
         useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
         if (useSSL)
@@ -169,6 +174,11 @@ public class FtpServerConfig
                 PropertyUtils.getMandatoryProperty(props,
                         ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY);
         implicitSSL = PropertyUtils.getBoolean(props, IMPLICIT_SSL_KEY, DEFAULT_IMPLICIT_SSL);
+    }
+
+    public boolean isSftpMode()
+    {
+        return sftpMode;
     }
 
     public boolean isStartServer()

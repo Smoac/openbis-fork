@@ -115,6 +115,8 @@ public class DSSFileSystemView implements FileSystemView
         {
             result = workingDirectory.getAbsolutePath() + FtpConstants.FILE_SEPARATOR + result;
         }
+        // remove '.' at the end of a path
+        result = result.replaceAll("/\\.$", "/");
         // remove trailing slashes
         result = result.replaceAll("/*$", "");
         // replace multiple adjacent slashes with a single slash

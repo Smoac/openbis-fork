@@ -68,12 +68,13 @@
 	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar" sourcepath="/libraries/ftpserver/ftpserver-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar" sourcepath="/libraries/mina/mina-core-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/pngj/pngj.jar" sourcepath="/libraries/pngj/pngj_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-isserializable.jar"/>
+	<classpathentry kind="lib" path="/libraries/sshd/sshd-core.jar" sourcepath="/libraries/sshd/sshd-core-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
