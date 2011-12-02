@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collections.SmartQueuePersister;
+import ch.systemsx.cisd.common.collections.QueuePersister;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -244,7 +244,7 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static final List<DataSetCodesWithStatus> listItems(File queueFile)
     {
-        return SmartQueuePersister.list(DataSetCodesWithStatus.class, queueFile);
+        return QueuePersister.list(DataSetCodesWithStatus.class, queueFile);
     }
 
     private QueueingDataSetStatusUpdaterService()
