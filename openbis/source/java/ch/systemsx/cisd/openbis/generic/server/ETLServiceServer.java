@@ -16,17 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
+ * @author Kaloyan Enimanev
  */
 @Controller
 @RequestMapping(
@@ -41,6 +46,19 @@ public class ETLServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IETLLIMSService.class);
         setService(etlService);
+        setInterceptors(new Object[]
+            { createExceptionTranslator() });
         super.afterPropertiesSet();
+    }
+
+    private ServiceExceptionTranslator createExceptionTranslator()
+    {
+        List<String> packagesNotMasqueraded =
+                Arrays.asList("ch.systemsx.cisd.openbis.generic.shared.dto");
+        ServiceExceptionTranslator exceptionTranslator = new ServiceExceptionTranslator();
+
+        exceptionTranslator.setPackagesNotMasqueraded(packagesNotMasqueraded);
+        return exceptionTranslator;
+
     }
 }

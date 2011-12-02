@@ -132,39 +132,15 @@
     </bean>
     
     <!-- 
-        // ETL Service with interceptors for translating results
+        // ETL Service 
     -->
-    
-    <bean id="etl-service" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="proxyInterfaces">
-            <list>
-                <value>ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService</value>
-            </list>
-        </property>
-        <property name="target">
-            <bean class="ch.systemsx.cisd.openbis.generic.server.ETLService">
-                <constructor-arg ref="authentication-service" />
-                <constructor-arg ref="session-manager" />
-                <constructor-arg ref="dao-factory" />
-                <constructor-arg ref="common-business-object-factory" />
-                <constructor-arg ref="dss-factory" />
-                <constructor-arg ref="trusted-origin-domain-provider" />
-            </bean>
-        </property>
-        <property name="interceptorNames">
-            <list>
-                <value>exception-translator</value>
-            </list>
-        </property>
-    </bean>
-    
-    <bean id="exception-translator"
-        class="ch.systemsx.cisd.common.spring.ServiceExceptionTranslator">
-        <property name="packagesNotMasqueraded">
-            <list>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto</value>
-            </list>
-        </property>
+    <bean id="etl-service" class="ch.systemsx.cisd.openbis.generic.server.ETLService">
+        <constructor-arg ref="authentication-service" />
+        <constructor-arg ref="session-manager" />
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg ref="common-business-object-factory" />
+        <constructor-arg ref="dss-factory" />
+        <constructor-arg ref="trusted-origin-domain-provider" />
     </bean>
 
     <!-- 
