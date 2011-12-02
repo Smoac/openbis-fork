@@ -39,7 +39,7 @@ public class MetabolomicsValidator2Test extends AssertJUnit
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics2-Example.xlsx"));
+                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-Example.xlsx"));
         assertTrue("The example should have no errors", errors.isEmpty());
     }
 
@@ -49,7 +49,7 @@ public class MetabolomicsValidator2Test extends AssertJUnit
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics2-Template.xlsx"));
+                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-Template.xlsx"));
         System.out.println(errors);
         assertEquals("The template should have seven errors", 7, errors.size());
     }
@@ -60,7 +60,7 @@ public class MetabolomicsValidator2Test extends AssertJUnit
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics2-BadData.xlsx"));
+                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-BadData.xlsx"));
         assertEquals("The bad data should have seven errors", 7, errors.size());
     }
 }

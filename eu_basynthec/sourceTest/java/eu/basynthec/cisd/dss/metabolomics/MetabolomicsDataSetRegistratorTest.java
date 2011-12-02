@@ -42,7 +42,7 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadProperties();
         createHandler(properties, false, true);
-        createData("Metabolomics-Example.xlsx");
+        createData("Metabolomics1-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
                 setUpDataSetRegistrationExpectations(DATA_SET_TYPE, TSV_DATA_SET_TYPE);

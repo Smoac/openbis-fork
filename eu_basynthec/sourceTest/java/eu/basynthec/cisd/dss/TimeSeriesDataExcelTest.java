@@ -32,7 +32,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
     {
         TimeSeriesDataExcel data =
                 TimeSeriesDataExcel
-                        .createTimeSeriesDataExcel("sourceTest/examples/Metabolomics-Example.xlsx");
+                        .createTimeSeriesDataExcel("sourceTest/examples/Metabolomics1-Example.xlsx");
         List<String[]> metadataLines = data.getRawMetadataLines();
         assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
         String[][] expectedMetadata =
@@ -62,7 +62,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
     {
         TimeSeriesDataExcel data =
                 TimeSeriesDataExcel
-                        .createTimeSeriesDataExcel("sourceTest/examples/Metabolomics-Template.xlsx");
+                        .createTimeSeriesDataExcel("sourceTest/examples/Metabolomics1-Template.xlsx");
         List<String[]> metadataLines = data.getRawMetadataLines();
         assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
         String[][] expectedMetadata =
