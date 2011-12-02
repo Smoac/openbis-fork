@@ -421,8 +421,8 @@ class AuthenticatedState extends AbstractDssComponentState
         File parent = new File(filePath);
         if (false == parent.isDirectory())
         {
-            return Collections
-                    .<IHierarchicalContentNode> singletonList(new FileBasedContentNode(parent));
+            return Collections.<IHierarchicalContentNode> singletonList(new FileBasedContentNode(
+                    parent));
         }
 
         for (FileInfoDssDTO fileInfo : fileInfos)
@@ -464,7 +464,14 @@ class AuthenticatedState extends AbstractDssComponentState
                         dataSet.getCode(), path);
         try
         {
-            return new URL(url).openStream();
+            if (url.toLowerCase().startsWith("https"))
+            {
+                return new URL(null, url, new sun.net.www.protocol.https.Handler())
+                        .openConnection().getInputStream();
+            } else
+            {
+                return new URL(url).openStream();
+            }
         } catch (MalformedURLException ex)
         {
             throw new ConfigurationFailureException("Malformed URL: " + url);
