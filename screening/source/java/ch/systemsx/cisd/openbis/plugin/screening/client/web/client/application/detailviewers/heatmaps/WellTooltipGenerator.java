@@ -185,7 +185,7 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
         Material material = property.getMaterial();
         if (material != null)
         {
-            return material.getCode();
+            return material.getCode() + " (" + material.getMaterialType().getCode() + ")";
         } else
         {
             return property.tryGetAsString();
