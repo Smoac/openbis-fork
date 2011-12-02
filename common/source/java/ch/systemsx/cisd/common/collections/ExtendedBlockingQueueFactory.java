@@ -40,7 +40,7 @@ public class ExtendedBlockingQueueFactory
     {
         final IExtendedBlockingQueue<E> queue = new ExtendedLinkedBlockingQueue<E>();
         final IQueuePersister<E> queuePersister =
-                new SmartQueuePersister<E>(queue, queueFile, autoSync);
+                new QueuePersister<E>(queue, queueFile, autoSync);
         return new PersistentExtendedBlockingQueueDecorator<E>(queue, queuePersister);
     }
 

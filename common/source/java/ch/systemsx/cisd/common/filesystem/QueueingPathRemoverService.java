@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collections.SmartQueuePersister;
+import ch.systemsx.cisd.common.collections.QueuePersister;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -236,7 +236,7 @@ public class QueueingPathRemoverService
      */
     public static final List<File> listShredderItems(File queueFile)
     {
-        return SmartQueuePersister.list(File.class, queueFile);
+        return QueuePersister.list(File.class, queueFile);
     }
 
     private QueueingPathRemoverService()

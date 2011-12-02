@@ -25,21 +25,21 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.collections.QueuePersister.LegacyQueuePersister;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * @author Franz-Josef Elmer
  */
-@SuppressWarnings("deprecation")
-public class RecordBasedQueuePersisterTest extends AssertJUnit
+public class LegacyQueuePersisterTest extends AssertJUnit
 {
     private static final File TMP = new File("targets/unit-test-wd");
 
-    private static final File QUEUE_FILE = new File(TMP, "RecordBasedQueuePersisterTestQueue");
+    private static final File QUEUE_FILE = new File(TMP, "LegacyQueuePersisterTestQueue");
 
     private ArrayBlockingQueue<String> queue;
 
-    private RecordBasedQueuePersister<String> persister;
+    private LegacyQueuePersister<String> persister;
 
     @BeforeTest
     public void setUp()
@@ -47,7 +47,7 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
         TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
     }
 
     @AfterTest
@@ -61,15 +61,15 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
     {
         String element =
                 "a string with more characters than "
-                        + "RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE";
-        assertEquals(true, element.length() > RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE);
+                        + "LegacyQueuePersister.DEFAULT_INITIAL_RECORD_SIZE";
+        assertEquals(true, element.length() > LegacyQueuePersister.DEFAULT_INITIAL_RECORD_SIZE);
         queue.add(element);
 
         persister.persist();
 
         persister.close();
         queue.clear();
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(1, queue.size());
         assertEquals(element, queue.peek());
@@ -89,14 +89,14 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
         TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE, 0, false);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE, 0, false);
 
         queue.add("");
         queue.add("foo");
         persister.persist();
         persister.close();
         queue.clear();
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(2, queue.size());
         assertEquals("", queue.poll());
@@ -115,13 +115,13 @@ public class RecordBasedQueuePersisterTest extends AssertJUnit
         tooShortRaf.writeInt(1);
         tooShortRaf.close();
 
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
 
         queue.add("test");
         persister.persist();
         persister.close();
         queue.clear();
-        persister = new RecordBasedQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(1, queue.size());
         assertEquals("test", queue.poll());

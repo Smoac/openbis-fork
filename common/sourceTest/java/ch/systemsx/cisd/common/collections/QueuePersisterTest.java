@@ -25,12 +25,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.collections.QueuePersister.LegacyQueuePersister;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * @author Pawel Glyzewski
  */
-public class SmartQueuePersisterTest extends AssertJUnit
+public class QueuePersisterTest extends AssertJUnit
 {
     private static final File TMP = new File("targets/unit-test-wd");
 
@@ -40,7 +41,7 @@ public class SmartQueuePersisterTest extends AssertJUnit
 
     private ArrayBlockingQueue<String> queue;
 
-    private SmartQueuePersister<String> persister;
+    private QueuePersister<String> persister;
 
     @BeforeMethod
     public void setUp()
@@ -48,7 +49,7 @@ public class SmartQueuePersisterTest extends AssertJUnit
         assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
         TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
     }
 
     @AfterMethod
@@ -66,14 +67,14 @@ public class SmartQueuePersisterTest extends AssertJUnit
     {
         String element =
                 "a string with more characters than "
-                        + "RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE";
+                        + "LegacyQueuePersister.DEFAULT_INITIAL_RECORD_SIZE";
         queue.add(element);
 
         persister.persist();
 
         persister.close();
         queue.clear();
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(1, queue.size());
         assertEquals(element, queue.peek());
@@ -89,14 +90,14 @@ public class SmartQueuePersisterTest extends AssertJUnit
     public void testPersistMoreElements()
     {
         queue = new ArrayBlockingQueue<String>(10);
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE, false);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE, false);
 
         queue.add("");
         queue.add("foo");
         persister.persist();
         persister.close();
         queue.clear();
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(2, queue.size());
         assertEquals("", queue.poll());
@@ -117,27 +118,26 @@ public class SmartQueuePersisterTest extends AssertJUnit
         tooShortRaf.writeInt(1);
         tooShortRaf.close();
 
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
 
         queue.add("test");
         persister.persist();
         persister.close();
         queue.clear();
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
 
         assertEquals(1, queue.size());
         assertEquals("test", queue.poll());
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testMigrateRecordBasedToSmartQueue() throws Exception
     {
         assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
         TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
-        RecordBasedQueuePersister<String> recordBasedPersister =
-                new RecordBasedQueuePersister<String>(queue, QUEUE_FILE, 0, false);
+        LegacyQueuePersister<String> recordBasedPersister =
+                new LegacyQueuePersister<String>(queue, QUEUE_FILE, 0, false);
 
         queue.add("");
         queue.add("foobar");
@@ -148,7 +148,7 @@ public class SmartQueuePersisterTest extends AssertJUnit
         recordBasedPersister.close();
         queue.clear();
         long fileSize = QUEUE_FILE.length();
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
 
         assertTrue(fileSize > 3 * QUEUE_FILE.length());
         assertEquals(4, queue.size());
@@ -165,7 +165,7 @@ public class SmartQueuePersisterTest extends AssertJUnit
     public void testAddAndRemove() throws Exception
     {
         queue = new ArrayBlockingQueue<String>(10);
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
         queue.add("one");
         queue.add("two");
         queue.add("three");
@@ -176,7 +176,7 @@ public class SmartQueuePersisterTest extends AssertJUnit
         persister.removeFromHead(queue.remove());
         persister.close();
         queue.clear();
-        persister = new SmartQueuePersister<String>(queue, QUEUE_FILE);
+        persister = new QueuePersister<String>(queue, QUEUE_FILE);
         assertEquals(2, queue.size());
     }
 }
