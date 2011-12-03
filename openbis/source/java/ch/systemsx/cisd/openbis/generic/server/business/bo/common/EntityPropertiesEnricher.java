@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
@@ -47,7 +47,61 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             final IEntityPropertySetListingQuery setQuery)
     {
         this.query = query;
-        this.propertySetQuery = setQuery;
+        this.propertySetQuery = createEfficientIterator(setQuery);
+    }
+
+    private IEntityPropertySetListingQuery createEfficientIterator(
+            final IEntityPropertySetListingQuery setQuery)
+    {
+        return new IEntityPropertySetListingQuery()
+            {
+                private final static int BATCH_SIZE = 50000;
+
+                public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+                        LongSet entityIDs)
+                {
+                    return new AbstractBatchIterator<GenericEntityPropertyRecord>(entityIDs,
+                            BATCH_SIZE)
+                        {
+                            @Override
+                            protected Iterable<GenericEntityPropertyRecord> createUnefficientIterator(
+                                    LongSet ids)
+                            {
+                                return setQuery.getEntityPropertyGenericValues(ids);
+                            }
+                        };
+                }
+
+                public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+                        LongSet entityIDs)
+                {
+                    return new AbstractBatchIterator<VocabularyTermRecord>(entityIDs, BATCH_SIZE)
+                        {
+                            @Override
+                            protected Iterable<VocabularyTermRecord> createUnefficientIterator(
+                                    LongSet ids)
+                            {
+                                return setQuery.getEntityPropertyVocabularyTermValues(ids);
+                            }
+                        };
+                }
+
+                public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+                        LongSet entityIDs)
+                {
+                    return new AbstractBatchIterator<MaterialEntityPropertyRecord>(entityIDs,
+                            BATCH_SIZE)
+                        {
+                            @Override
+                            protected Iterable<MaterialEntityPropertyRecord> createUnefficientIterator(
+                                    LongSet ids)
+                            {
+                                return setQuery.getEntityPropertyMaterialValues(ids);
+                            }
+                        };
+                }
+
+            };
     }
 
     /**
@@ -68,6 +122,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             property.setScriptable(val.script_id != null);
             entity.getProperties().add(property);
         }
+
         // Controlled vocabulary properties
         Long2ObjectMap<String> vocabularyURLMap = null;
         Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
@@ -98,6 +153,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             property.setPropertyType(propertyTypes.get(val.prty_id));
             entity.getProperties().add(property);
         }
+
         // Material-type properties
         Long2ObjectMap<MaterialType> materialTypes = null;
         Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
@@ -123,6 +179,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             property.setPropertyType(propertyTypes.get(val.prty_id));
             entity.getProperties().add(property);
         }
+
     }
 
     private Long2ObjectMap<PropertyType> getPropertyTypes()
