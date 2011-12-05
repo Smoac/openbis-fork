@@ -27,6 +27,8 @@ import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.common.retry.RetryCaller;
+import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -145,16 +147,27 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * 
      * @return null if the user could not be authenticated.
      */
-    public static IScreeningOpenbisServiceFacade tryCreate(String userId, String userPassword,
-            String serverUrl)
+    public static IScreeningOpenbisServiceFacade tryCreate(final String userId,
+            final String userPassword, final String serverUrl)
     {
-        final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
-        final String sessionToken = openbisServer.tryLoginScreening(userId, userPassword);
-        if (sessionToken == null)
-        {
-            return null;
-        }
-        return tryCreate(sessionToken, serverUrl, openbisServer);
+        RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException> caller =
+                new RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IScreeningOpenbisServiceFacade call()
+                        {
+                            final IScreeningApiServer openbisServer =
+                                    createScreeningOpenbisServer(serverUrl);
+                            final String sessionToken =
+                                    openbisServer.tryLoginScreening(userId, userPassword);
+                            if (sessionToken == null)
+                            {
+                                return null;
+                            }
+                            return tryCreate(sessionToken, serverUrl, openbisServer);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     /**
@@ -164,9 +177,20 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @param sessionToken The session token for the authenticated user
      * @param serverUrl The URL for the openBIS application server
      */
-    public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
+    public static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken,
+            final String serverUrl)
     {
-        return tryCreate(sessionToken, serverUrl, createScreeningOpenbisServer(serverUrl));
+        RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException> caller =
+                new RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IScreeningOpenbisServiceFacade call()
+                        {
+                            return tryCreate(sessionToken, serverUrl,
+                                    createScreeningOpenbisServer(serverUrl));
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     private static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl,
@@ -179,9 +203,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final int minorVersion = openbisServer.getMinorVersion();
         final IDssComponent dssComponent =
                 DssComponentFactory.tryCreate(sessionToken, serverUrl, SERVER_TIMEOUT_MILLIS);
-        return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
-                DSS_SERVICE_FACTORY, dssComponent, generalInformationService,
-                generalInformationChangingService);
+
+        IScreeningOpenbisServiceFacade facade =
+                new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
+                        DSS_SERVICE_FACTORY, dssComponent, generalInformationService,
+                        generalInformationChangingService);
+
+        return RetryProxyFactory.createProxy(facade);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -531,7 +559,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException
     {
-        return dssComponent.getDataSet(dataSetCode);
+        return RetryProxyFactory.createProxy(dssComponent.getDataSet(dataSetCode));
     }
 
     /**
@@ -565,7 +593,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             if (filter.pass(dataSet))
             {
-                result.add(dssComponent.getDataSet(dataSet.getCode()));
+                IDataSetDss dataSetDss = dssComponent.getDataSet(dataSet.getCode());
+                result.add(RetryProxyFactory.createProxy(dataSetDss));
             }
         }
         return result;
@@ -596,7 +625,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
                                 openbisServiceFacade, dssComponent, dataSet, null);
 
-                result.add(fullDataset);
+                result.add(RetryProxyFactory.createProxy(fullDataset));
             }
         }
         return result;
@@ -618,7 +647,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             if (filter.pass(dataSet))
             {
-                result.add(dssComponent.getDataSet(dataSet.getCode()));
+                IDataSetDss dataSetDss = dssComponent.getDataSet(dataSet.getCode());
+                result.add(RetryProxyFactory.createProxy(dataSetDss));
             }
         }
         return result;
@@ -655,7 +685,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
                                 openbisServiceFacade, dssComponent, dataSet, null);
 
-                result.add(fullDataset);
+                result.add(RetryProxyFactory.createProxy(fullDataset));
             }
         }
         return result;
@@ -673,7 +703,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet fullDataset =
                     new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(openbisServiceFacade,
                             dssComponent, dataSet, null);
-            result.add(fullDataset);
+            result.add(RetryProxyFactory.createProxy(fullDataset));
         }
         return result;
     }
@@ -734,6 +764,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final NewDataSetMetadataDTO dataSetMetadata =
                 (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO()
                         : dataSetMetadataOrNull;
+
         return createDatasetDss(dataSetMetadata, dataSetFile, dataSetOwner);
     }
 
@@ -745,7 +776,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
         final NewDataSetDTO newDataSet =
                 new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
-        return dssComponent.putDataSet(newDataSet, dataSetFile);
+        IDataSetDss dataSetDss = dssComponent.putDataSet(newDataSet, dataSetFile);
+        return RetryProxyFactory.createProxy(dataSetDss);
     }
 
     private List<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException

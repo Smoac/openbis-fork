@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 
@@ -42,6 +43,13 @@ public class DataSet
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
 
     private IDataSetDss dataSetDss;
+
+    /* Default constructor needed to create a retry-proxy */
+    protected DataSet()
+    {
+        facade = null;
+        dssComponent = null;
+    }
 
     /**
      * Constructor.
@@ -66,6 +74,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getCode()
      */
+    @Retry
     public String getCode()
     {
         return (metadata == null) ? dataSetDss.getCode() : metadata.getCode();
@@ -74,6 +83,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getExperimentIdentifier()
      */
+    @Retry
     public String getExperimentIdentifier()
     {
         return getMetadata().getExperimentIdentifier();
@@ -82,6 +92,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getSampleIdentifierOrNull()
      */
+    @Retry
     public String getSampleIdentifierOrNull()
     {
         return getMetadata().getSampleIdentifierOrNull();
@@ -90,6 +101,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getDataSetTypeCode()
      */
+    @Retry
     public String getDataSetTypeCode()
     {
         return getMetadata().getDataSetTypeCode();
@@ -98,6 +110,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getRegistrationDate()
      */
+    @Retry
     public Date getRegistrationDate()
     {
         return getMetadata().getRegistrationDate();
@@ -106,6 +119,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getProperties()
      */
+    @Retry
     public HashMap<String, String> getProperties()
     {
         return getMetadata().getProperties();
@@ -114,6 +128,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getRetrievedConnections()
      */
+    @Retry
     public EnumSet<Connections> getRetrievedConnections()
     {
         return getMetadata().getRetrievedConnections();
@@ -122,6 +137,7 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getParentCodes()
      */
+    @Retry
     public List<String> getParentCodes()
     {
         return getMetadata().getParentCodes();
@@ -130,15 +146,17 @@ public class DataSet
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getChildrenCodes()
      */
+    @Retry
     public List<String> getChildrenCodes()
     {
         return getMetadata().getChildrenCodes();
     }
-    
+
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#equals(java.lang.Object)
      */
     @Override
+    @Retry
     public boolean equals(Object obj)
     {
         return getMetadata().equals(obj);
@@ -148,6 +166,7 @@ public class DataSet
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#hashCode()
      */
     @Override
+    @Retry
     public int hashCode()
     {
         return getMetadata().hashCode();
@@ -157,6 +176,7 @@ public class DataSet
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#toString()
      */
     @Override
+    @Retry
     public String toString()
     {
         return getMetadata().toString();
@@ -170,6 +190,7 @@ public class DataSet
      * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#listFiles(java.lang.String,
      *      boolean)
      */
+    @Retry
     public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
             throws IllegalArgumentException, InvalidSessionException
     {
@@ -182,6 +203,7 @@ public class DataSet
      * @throws InvalidSessionException
      * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getFile(java.lang.String)
      */
+    @Retry
     public InputStream getFile(String path) throws IllegalArgumentException,
             InvalidSessionException
     {
@@ -194,6 +216,7 @@ public class DataSet
      * @throws InvalidSessionException
      * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#tryLinkToContents(java.lang.String)
      */
+    @Retry
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
             throws IllegalArgumentException, InvalidSessionException
     {
@@ -208,6 +231,7 @@ public class DataSet
      * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContents(java.lang.String,
      *      java.io.File)
      */
+    @Retry
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException
     {
@@ -223,6 +247,7 @@ public class DataSet
      * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContent(java.lang.String,
      *      java.io.File, java.lang.String)
      */
+    @Retry
     public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
             String pathInDataSet) throws IllegalArgumentException, InvalidSessionException
     {

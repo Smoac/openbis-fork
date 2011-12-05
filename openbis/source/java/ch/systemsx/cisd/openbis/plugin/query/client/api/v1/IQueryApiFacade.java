@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -34,33 +35,39 @@ public interface IQueryApiFacade
     /**
      * Return the session token for the logged-in user.
      */
+    @Retry
     public String getSessionToken();
 
     /**
      * Lists all queries the user has access rights.
      */
+    @Retry
     public List<QueryDescription> listQueries();
 
     /**
      * Executes specified query by using specified parameter bindings.
      */
+    @Retry
     public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings);
 
     /**
      * Returns meta data for all reporting plugins which deliver a table.
      */
+    @Retry
     public List<ReportDescription> listTableReportDescriptions();
 
     /**
      * Creates for the specified data sets and specified report description a report. Available
      * report descriptions can be obtained by {@link #listTableReportDescriptions()}.
      */
+    @Retry
     public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
             List<String> dataSetCodes);
 
     /**
      * Returns a remote access to the {@link IGeneralInformationService}.
      */
+    @Retry
     public IGeneralInformationService getGeneralInformationService();
 
     /**

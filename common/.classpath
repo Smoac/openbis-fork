@@ -31,5 +31,7 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas-3.7-20101029.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

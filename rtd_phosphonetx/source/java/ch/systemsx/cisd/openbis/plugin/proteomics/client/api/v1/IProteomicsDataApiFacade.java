@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.client.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
@@ -34,17 +35,20 @@ public interface IProteomicsDataApiFacade
     /**
      * Return the session token for the logged-in user.
      */
+    @Retry
     public String getSessionToken();
 
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
      * the specified user is allow to read.
      */
+    @Retry
     public List<MsInjectionDataInfo> listRawDataSamples(String userID);
 
     /**
      * Lists all processing plugins on DSS.
      */
+    @Retry
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos();
 
     /**
@@ -65,23 +69,26 @@ public interface IProteomicsDataApiFacade
     /**
      * Returns all projects where the specified user has USER access rights.
      */
+    @Retry
     public List<Project> listProjects(String userID);
 
     /**
      * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
      * read.
      */
-    @Deprecated
+    @Retry
     public List<Experiment> listSearchExperiments(String userID);
 
     /**
      * Returns all experiments of specified type which the specified user is allowed to read.
      */
+    @Retry
     public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
     
     /**
      * Returns all data sets of specified experiment which the specified user is allowed to read.
      */
+    @Retry
     public List<DataSet> listDataSetsByExperiment(String userID, long experimentID);
     
     /**

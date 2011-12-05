@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.client.api.v1;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.retry.RetryCaller;
+import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataService;
 
@@ -27,35 +29,64 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataS
  */
 public class FacadeFactory
 {
-    private static final ServiceFinder SERVICE_FINDER =
-            new ServiceFinder("openbis", IProteomicsDataService.SERVER_URL);
+    private static final ServiceFinder SERVICE_FINDER = new ServiceFinder("openbis",
+            IProteomicsDataService.SERVER_URL);
 
-    private static final ServiceFinder GENERIC_INFO_SERVICE_FINDER =
-            new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+    private static final ServiceFinder GENERIC_INFO_SERVICE_FINDER = new ServiceFinder("openbis",
+            IGeneralInformationService.SERVICE_URL);
 
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
-    public static IProteomicsDataApiFacade create(String serverURL, String userID, String password)
+    public static IProteomicsDataApiFacade create(final String serverURL, final String userID,
+            final String password)
     {
-        IGeneralInformationService infoService = createGenericInfoService(serverURL);
-        IProteomicsDataService service = createService(serverURL);
-        String sessionToken = infoService.tryToAuthenticateForAllServices(userID, password);
-        if (sessionToken == null)
-        {
-            throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
-        }
-        return new ProteomicsDataApiFacade(service, infoService, sessionToken);
+        RetryCaller<IProteomicsDataApiFacade, RuntimeException> caller =
+                new RetryCaller<IProteomicsDataApiFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IProteomicsDataApiFacade call()
+                        {
+                            IGeneralInformationService infoService =
+                                    createGenericInfoService(serverURL);
+                            IProteomicsDataService service = createService(serverURL);
+                            String sessionToken =
+                                    infoService.tryToAuthenticateForAllServices(userID, password);
+                            if (sessionToken == null)
+                            {
+                                throw new IllegalArgumentException("User " + userID
+                                        + " couldn't be authenticated");
+                            }
+
+                            IProteomicsDataApiFacade facade =
+                                    new ProteomicsDataApiFacade(service, infoService, sessionToken);
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     /**
      * Creates a facade for specified url and sessionToken.
      */
-    public static IProteomicsDataApiFacade create(String serverURL, String sessionToken)
+    public static IProteomicsDataApiFacade create(final String serverURL, final String sessionToken)
     {
-        IProteomicsDataService service = createService(serverURL);
-        IGeneralInformationService infoService = createGenericInfoService(serverURL);
-        return new ProteomicsDataApiFacade(service, infoService, sessionToken);
+        RetryCaller<IProteomicsDataApiFacade, RuntimeException> caller =
+                new RetryCaller<IProteomicsDataApiFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IProteomicsDataApiFacade call()
+                        {
+                            IProteomicsDataService service = createService(serverURL);
+                            IGeneralInformationService infoService =
+                                    createGenericInfoService(serverURL);
+
+                            IProteomicsDataApiFacade facade =
+                                    new ProteomicsDataApiFacade(service, infoService, sessionToken);
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     private static IProteomicsDataService createService(String serverURL)
@@ -65,7 +96,8 @@ public class FacadeFactory
 
     private static IGeneralInformationService createGenericInfoService(String serverURL)
     {
-        return GENERIC_INFO_SERVICE_FINDER.createService(IGeneralInformationService.class, serverURL);
+        return GENERIC_INFO_SERVICE_FINDER.createService(IGeneralInformationService.class,
+                serverURL);
     }
-    
+
 }

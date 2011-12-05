@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.retry.RetryCaller;
+import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
@@ -36,25 +38,53 @@ public class FacadeFactory
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
-    public static IQueryApiFacade create(String serverURL, String userID, String password)
+    public static IQueryApiFacade create(final String serverURL, final String userID,
+            final String password)
     {
-        IQueryApiServer service = createQueryService(serverURL);
-        String sessionToken = service.tryToAuthenticateAtQueryServer(userID, password);
-        if (sessionToken == null)
-        {
-            throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
-        }
-        // Login at one service is enough
-        return new QueryApiFacade(service, createGeneralInfoService(serverURL), sessionToken);
+        RetryCaller<IQueryApiFacade, RuntimeException> caller =
+                new RetryCaller<IQueryApiFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IQueryApiFacade call()
+                        {
+                            IQueryApiServer service = createQueryService(serverURL);
+                            String sessionToken =
+                                    service.tryToAuthenticateAtQueryServer(userID, password);
+                            if (sessionToken == null)
+                            {
+                                throw new IllegalArgumentException("User " + userID
+                                        + " couldn't be authenticated");
+                            }
+                            // Login at one service is enough
+                            IQueryApiFacade facade =
+                                    new QueryApiFacade(service,
+                                            createGeneralInfoService(serverURL), sessionToken);
+
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     /**
      * Creates a facade for specified url and sessionToken.
      */
-    public static IQueryApiFacade create(String serverURL, String sessionToken)
+    public static IQueryApiFacade create(final String serverURL, final String sessionToken)
     {
-        return new QueryApiFacade(createQueryService(serverURL),
-                createGeneralInfoService(serverURL), sessionToken);
+        RetryCaller<IQueryApiFacade, RuntimeException> caller =
+                new RetryCaller<IQueryApiFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IQueryApiFacade call()
+                        {
+                            IQueryApiFacade facade =
+                                    new QueryApiFacade(createQueryService(serverURL),
+                                            createGeneralInfoService(serverURL), sessionToken);
+
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     private static IQueryApiServer createQueryService(String serverURL)

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -48,53 +49,62 @@ public interface ISimpleOpenbisServiceFacade
     /**
      * Returns all available projects.
      */
+    @Retry
     List<Project> listProjects();
 
     /**
      * Return all spaces enriched with their projects and role assignments.
      */
+    @Retry
     List<SpaceWithProjectsAndRoleAssignments> getSpacesWithProjects();
 
     /**
      * Return {@link Experiment} objects for a set of given experiment identifiers. If some of the
      * specified experiment identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Experiment> getExperiments(List<String> experimentIdentifiers);
 
     /**
      * Return all experiments for a given list of project identifiers. If some of the specified
      * project identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Experiment> listExperimentsForProjects(List<String> projectIdentifiers);
 
     /**
      * Return all experiments having samples for a given list of project identifiers. If some of the
      * specified project identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Experiment> listExperimentsHavingSamplesForProjects(List<String> projectIdentifiers);
 
     /**
      * Return all experiments having data sets for a given list of project identifiers. If some of
      * the specified project identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Experiment> listExperimentsHavingDataSetsForProjects(List<String> projectIdentifiers);
 
     /**
      * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified
      * sample identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Sample> getSamples(List<String> sampleIdentifiers);
 
     /**
      * Return all samples for a given list of experiments identifiers. If some of the specified
      * experiment identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers);
 
     /**
      * Return all samples for a given list of project identifiers. If some of the specified project
      * identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers);
 
     /**
@@ -103,34 +113,40 @@ public interface ISimpleOpenbisServiceFacade
      * 
      * @return The requested data set, or null if it does not exist.
      */
+    @Retry
     DataSet getDataSet(String dataSetCodes);
 
     /**
      * Return {@link DataSet} objects for given a set of codes. If some of the specified data set
      * codes does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<DataSet> getDataSets(List<String> dataSetCodes);
 
     /**
      * Return all data sets for a given list of experiments identifiers. If some of the specified
      * experiment identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<DataSet> listDataSetsForExperiments(List<String> experimentIdentifiers);
 
     /**
      * Return all data sets for a given list of sample identifiers. If some of the specified sample
      * identifiers does not exist in openBIS it will be silently ignored.
      */
+    @Retry
     List<DataSet> listDataSetsForSamples(List<String> sampleIdentifiers);
 
     /**
      * Returns all data set types available in openBIS.
      */
+    @Retry
     List<DataSetType> listDataSetTypes();
 
     /**
      * Return all vocabularies available in openBIS together with the contained vocabulary terms.
      */
+    @Retry
     List<Vocabulary> listVocabularies();
 
     /**
@@ -152,6 +168,7 @@ public interface ISimpleOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
@@ -165,6 +182,7 @@ public interface ISimpleOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
@@ -173,6 +191,7 @@ public interface ISimpleOpenbisServiceFacade
      * 
      * @throws InvalidSessionException If the session is not alive.
      */
+    @Retry
     public void checkSession() throws InvalidSessionException;
 
     /**

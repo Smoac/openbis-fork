@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
@@ -33,6 +34,7 @@ public interface IDataSetDss
     /**
      * The code of this data set.
      */
+    @Retry
     public String getCode();
 
     /**
@@ -43,6 +45,7 @@ public interface IDataSetDss
      *            or "" for the root of the hierarchy for this data set.
      * @param isRecursive If true, the contents of any subdirectories will be listed as well.
      */
+    @Retry
     public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
             throws IllegalArgumentException, InvalidSessionException;
 
@@ -52,6 +55,7 @@ public interface IDataSetDss
      * @param path The path of the file to retrieve. The path must be relative with respect to the
      *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
      */
+    @Retry
     public InputStream getFile(String path) throws IllegalArgumentException,
             InvalidSessionException;
 
@@ -67,6 +71,7 @@ public interface IDataSetDss
      *         container), a File that references the contents of the data set otherwise.
      * @since 1.1
      */
+    @Retry
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
             throws IllegalArgumentException, InvalidSessionException;
 
@@ -82,13 +87,14 @@ public interface IDataSetDss
      * @return A File containing the contents of the data set.
      * @since 1.1
      */
+    @Retry
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException;
-    
+
     /**
-     * Returns a {@link File}, if possible, that directly references some specified content of a data set in
-     * the data store server. If not possible, downloads that content and returns a File in
-     * the downloadDir containing that content.
+     * Returns a {@link File}, if possible, that directly references some specified content of a
+     * data set in the data store server. If not possible, downloads that content and returns a File
+     * in the downloadDir containing that content.
      * 
      * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
      *            the DSS' store root. If null, datasets are copied to the downloadDir folder.
@@ -97,6 +103,7 @@ public interface IDataSetDss
      * @param pathInDataSet Path of requested content inside the data set.
      * @return A File containing the requested content.
      */
+    @Retry
     public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
             String pathInDataSet) throws IllegalArgumentException, InvalidSessionException;
 

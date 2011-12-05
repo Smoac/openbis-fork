@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
@@ -65,6 +66,7 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * Return the session token for this authenticated user.
      */
+    @Retry
     public String getSessionToken();
 
     /** Closes connection with the server. After calling this method this facade cannot be used. */
@@ -81,29 +83,34 @@ public interface IScreeningOpenbisServiceFacade
      * Return the list of all visible plates assigned to any experiment, along with their
      * hierarchical context (space, project, experiment).
      */
+    @Retry
     public List<Plate> listPlates();
 
     /**
      * Return full metadata for each specified plate, including wells and their properties. If a
      * well contains a material, its properties are also available.
      */
+    @Retry
     public List<PlateMetadata> getPlateMetadataList(List<? extends PlateIdentifier> plateIdentifiers);
 
     /**
      * Return the list of all plates for the given <var>experiment</var>.
      */
+    @Retry
     public List<Plate> listPlates(ExperimentIdentifier experiment);
 
     /**
      * Return the list of all plates for the given <var>experiment</var> and analysis procedure.
      * Each returned plate has at least one data set with the specified analysis procedure.
      */
+    @Retry
     public List<Plate> listPlates(ExperimentIdentifier experiment, String analysisProcedure);
 
     /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
      */
+    @Retry
     public List<ExperimentIdentifier> listExperiments();
 
     /**
@@ -115,12 +122,14 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @since 1.6
      */
+    @Retry
     public List<ExperimentIdentifier> listExperiments(String userId);
 
     /**
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
      */
+    @Retry
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates);
 
@@ -131,6 +140,7 @@ public interface IScreeningOpenbisServiceFacade
      * @param analysisProcedureOrNull If <code>null</code> returned list isn't filtered on analysis
      *            procedure property.
      */
+    @Retry
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull);
 
@@ -140,18 +150,21 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @deprecated Use {@link #listRawImageDatasets(List)} instead.
      */
+    @Retry
     @Deprecated
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates);
 
     /**
      * For a given set of plates provides the list of all connected data sets containing raw images.
      */
+    @Retry
     public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates);
 
     /**
      * For a given set of plates provides the list of all connected data sets containing
      * segmentation images (overlays).
      */
+    @Retry
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates);
 
@@ -161,6 +174,7 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @param analysisProcedureOrNull If <code>null</code> no restriction applies.
      */
+    @Retry
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull);
 
@@ -172,6 +186,7 @@ public interface IScreeningOpenbisServiceFacade
      * For how to get the feature vectors, see
      * {@link #convertToFeatureVectorDatasetWellIdentifier(List)}.
      */
+    @Retry
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             boolean findDatasets);
@@ -181,17 +196,20 @@ public interface IScreeningOpenbisServiceFacade
      * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
      * data sets for the relevant plates.
      */
+    @Retry
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             MaterialIdentifier materialIdentifier, boolean findDatasets);
 
     /**
      * For the given <var>plateIdentifier</var> find all wells that are connected to it.
      */
+    @Retry
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier);
 
     /**
      * Returns all properties of specified well as a map.
      */
+    @Retry
     public Map<String, String> getWellProperties(WellIdentifier wellIdentifier);
 
     /**
@@ -211,6 +229,7 @@ public interface IScreeningOpenbisServiceFacade
      *             the server.
      */
     @Deprecated
+    @Retry
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException;
@@ -222,9 +241,11 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier, IDataSetFilter dataSetFilter)
             throws IllegalStateException, EnvironmentFailureException;
 
+    @Retry
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException;
 
@@ -257,6 +278,7 @@ public interface IScreeningOpenbisServiceFacade
      *             the server.
      */
     @Deprecated
+    @Retry
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException;
@@ -268,6 +290,7 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
@@ -280,6 +303,7 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<DataSet> getFullDataSets(PlateIdentifier plateIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
@@ -290,6 +314,7 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<IDataSetDss> getDataSets(ExperimentIdentifier plateIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
@@ -302,6 +327,7 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<DataSet> getFullDataSets(ExperimentIdentifier experimentIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
@@ -314,6 +340,7 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Retry
     public List<DataSet> getDataSetMetaData(List<String> dataSetCodes)
             throws IllegalStateException, EnvironmentFailureException;
 
@@ -359,6 +386,7 @@ public interface IScreeningOpenbisServiceFacade
      * @see #listPlateWells(ExperimentIdentifier, MaterialIdentifier, boolean)
      * @see #loadFeaturesForDatasetWellReferences(List, List)
      */
+    @Retry
     public List<FeatureVectorDatasetWellReference> convertToFeatureVectorDatasetWellIdentifier(
             List<PlateWellReferenceWithDatasets> plateWellReferenceWithDataSets);
 
@@ -366,6 +394,7 @@ public interface IScreeningOpenbisServiceFacade
      * Converts a given list of dataset codes to dataset identifiers which can be used in other API
      * calls.
      */
+    @Retry
     public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes);
 
     /**
@@ -381,6 +410,7 @@ public interface IScreeningOpenbisServiceFacade
      *             {@link FeatureVectorDataset} will provide feature codes and feature labels.
      */
     @Deprecated
+    @Retry
     public List<String> listAvailableFeatureNames(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
@@ -389,6 +419,7 @@ public interface IScreeningOpenbisServiceFacade
      * is just the code of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
      */
+    @Retry
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
@@ -398,6 +429,7 @@ public interface IScreeningOpenbisServiceFacade
      * sets of features are available, provide the union of the features of all data sets. Only
      * available when all data store services have minor version 9 or newer.
      */
+    @Retry
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
@@ -411,6 +443,7 @@ public interface IScreeningOpenbisServiceFacade
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Retry
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull);
 
@@ -426,6 +459,7 @@ public interface IScreeningOpenbisServiceFacade
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Retry
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull, String analysisProcedureOrNull);
 
@@ -439,6 +473,7 @@ public interface IScreeningOpenbisServiceFacade
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Retry
     public List<FeatureVectorDataset> loadFeatures(
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodesOrNull);
 
@@ -462,6 +497,7 @@ public interface IScreeningOpenbisServiceFacade
      *         {@link FeatureVectorWithDescription#getDatasetWellReference()} to find the
      *         corresponding dataset / well.</b>
      */
+    @Retry
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureCodesOrNull);
@@ -485,6 +521,7 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>materialIdentifier</var>.
      */
     @Deprecated
+    @Retry
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             List<String> featureCodesOrNull);
@@ -508,6 +545,7 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>experimentIdentifer</var> and connected with the given
      *         <var>materialIdentifier</var>.
      */
+    @Retry
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             String analysisProcedureOrNull, List<String> featureCodesOrNull);
@@ -529,6 +567,7 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>materialIdentifier</var>.
      */
     @Deprecated
+    @Retry
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull);
 
@@ -549,6 +588,7 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>experimentIdentifer</var> and connected with the given
      *         <var>materialIdentifier</var>.
      */
+    @Retry
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, String analysisProcedureOrNull,
             List<String> featureCodesOrNull);
@@ -556,11 +596,13 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * Converts the given <var>WellIdentifiers</var> to <var>WellPositions</var>
      */
+    @Retry
     public List<WellPosition> convertToWellPositions(List<WellIdentifier> wellIds);
 
     /**
      * Returns the list of all plate image references for the given <var>imageDatasetRef</var>.
      */
+    @Retry
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef);
 
@@ -573,6 +615,7 @@ public interface IScreeningOpenbisServiceFacade
      * @param wellsOrNull The wells to create image references for. If <code>null</code> or empty,
      *            references for all wells will be created.
      */
+    @Retry
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef, List<String> channelCodesOrNull,
             List<WellPosition> wellsOrNull);
@@ -588,6 +631,7 @@ public interface IScreeningOpenbisServiceFacade
      * @param wellsOrNull The wells to create image references for. If <code>null</code> or empty,
      *            references for all wells will be created.
      */
+    @Retry
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef, ImageDatasetMetadata metadataOrNull,
             List<String> channelCodesOrNull, List<WellPosition> wellsOrNull);
@@ -600,6 +644,7 @@ public interface IScreeningOpenbisServiceFacade
      *            <code>null</code> or empty, references for all channels will be created.
      * @param wellsToUse The wells to create image references for. Must not be <code>null</code>.
      */
+    @Retry
     public List<PlateImageReference> createPlateImageReferences(
             IImageDatasetIdentifier imageDatasetRef, List<String> channelCodesOrNull,
             List<WellPosition> wellsToUse);
@@ -614,6 +659,7 @@ public interface IScreeningOpenbisServiceFacade
      *            <code>null</code> or empty, references for all channels will be created.
      * @param wellsToUse The wells to create image references for. Must not be <code>null</code>.
      */
+    @Retry
     public List<PlateImageReference> createPlateImageReferences(
             IImageDatasetIdentifier imageDatasetRef, ImageDatasetMetadata metadataOrNull,
             List<String> channelCodesOrNull, List<WellPosition> wellsToUse);
@@ -667,6 +713,7 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @return a list of byte arrays where each array contains a PNG encoded image.
      */
+    @Retry
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
             throws IOException;
@@ -689,6 +736,7 @@ public interface IScreeningOpenbisServiceFacade
      * with same aspect ratio as the original image but which fits into specified size will be
      * delivered.
      */
+    @Retry
     public byte[] loadImageWellCaching(final PlateImageReference imageReference,
             final ImageSize imageSizeOrNull) throws IOException;
 
@@ -723,6 +771,7 @@ public interface IScreeningOpenbisServiceFacade
      * a time but eventually needs all images for a well and can increase performance of image
      * loading considerably.
      */
+    @Retry
     public byte[] loadThumbnailImageWellCaching(final PlateImageReference imageReference)
             throws IOException;
 
@@ -763,6 +812,7 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @return <code>null</code> if such a factory has been defined yet.
      */
+    @Retry
     public IImageTransformerFactory getImageTransformerFactoryOrNull(
             List<IDatasetIdentifier> dataSetIdentifiers, String channel);
 
@@ -770,12 +820,14 @@ public interface IScreeningOpenbisServiceFacade
      * For a given image data set, provide meta like like which image channels have been acquired,
      * what is the tile geometry, the available (natural) image size(s) and the like.
      */
+    @Retry
     public ImageDatasetMetadata listImageMetadata(IImageDatasetIdentifier imageDataset);
 
     /**
      * For a given set of image data sets, provide meta like like which image channels have been
      * acquired, what is the tile geometry, the available (natural) image size(s) and the like.
      */
+    @Retry
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);
 
@@ -788,6 +840,7 @@ public interface IScreeningOpenbisServiceFacade
      *            given type for the mapping.
      * @return A list of well to material mappings, one element for each plate.
      */
+    @Retry
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
@@ -796,11 +849,13 @@ public interface IScreeningOpenbisServiceFacade
      * Returns an alphabetically sorted list of analysis procedure codes of all data sets of the
      * specified experiment.
      */
+    @Retry
     public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier);
 
     /**
      * Returns aggregated metadata for all images/plates within one experiment.
      */
+    @Retry
     public ExperimentImageMetadata getExperimentImageMetadata(
             ExperimentIdentifier experimentIdentifier);
 

@@ -30,6 +30,8 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.retry.RetryCaller;
+import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -70,41 +72,74 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 {
 
     @Private
-    public static OpenbisServiceFacade tryCreate(String username, String password,
-            String openbisUrl, long timeoutInMillis)
+    public static IOpenbisServiceFacade tryCreate(final String username, final String password,
+            final String openbisUrl, final long timeoutInMillis)
     {
-        IGeneralInformationService service =
-                createGeneralInformationService(openbisUrl, timeoutInMillis);
-        IGeneralInformationChangingService changingService =
-                createGeneralInformationChangingService(openbisUrl, timeoutInMillis);
+        RetryCaller<IOpenbisServiceFacade, RuntimeException> caller =
+                new RetryCaller<IOpenbisServiceFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IOpenbisServiceFacade call()
+                        {
+                            IGeneralInformationService service =
+                                    createGeneralInformationService(openbisUrl, timeoutInMillis);
+                            IGeneralInformationChangingService changingService =
+                                    createGeneralInformationChangingService(openbisUrl,
+                                            timeoutInMillis);
 
-        // TODO KE: wrap the facade into a re-authenticating java.lang.reflect.Proxy
-        // this will hide any re-authentication complexity from the clients
-        String token = service.tryToAuthenticateForAllServices(username, password);
-        if (token == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Failed to authenticate user '%s' against the openBIS at '%s'.", username,
-                    openbisUrl);
-        }
+                            // TODO KE: wrap the facade into a re-authenticating
+                            // java.lang.reflect.Proxy
+                            // this will hide any re-authentication complexity from the clients
+                            String token =
+                                    service.tryToAuthenticateForAllServices(username, password);
+                            if (token == null)
+                            {
+                                throw UserFailureException
+                                        .fromTemplate(
+                                                "Failed to authenticate user '%s' against the openBIS at '%s'.",
+                                                username, openbisUrl);
+                            }
 
-        IDssComponent dssComponent =
-                DssComponentFactory.tryCreate(token, openbisUrl, timeoutInMillis);
-        return new OpenbisServiceFacade(token, service, changingService, dssComponent);
+                            IDssComponent dssComponent =
+                                    DssComponentFactory.tryCreate(token, openbisUrl,
+                                            timeoutInMillis);
+                            IOpenbisServiceFacade facade =
+                                    new OpenbisServiceFacade(token, service, changingService,
+                                            dssComponent);
+
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     @Private
-    public static IOpenbisServiceFacade tryCreate(String sessionToken, String openbisUrl,
-            long timeoutInMillis)
+    public static IOpenbisServiceFacade tryCreate(final String sessionToken,
+            final String openbisUrl, final long timeoutInMillis)
     {
-        IGeneralInformationService service =
-                createGeneralInformationService(openbisUrl, timeoutInMillis);
-        IGeneralInformationChangingService changingService =
-                createGeneralInformationChangingService(openbisUrl, timeoutInMillis);
+        RetryCaller<IOpenbisServiceFacade, RuntimeException> caller =
+                new RetryCaller<IOpenbisServiceFacade, RuntimeException>()
+                    {
+                        @Override
+                        protected IOpenbisServiceFacade call()
+                        {
+                            IGeneralInformationService service =
+                                    createGeneralInformationService(openbisUrl, timeoutInMillis);
+                            IGeneralInformationChangingService changingService =
+                                    createGeneralInformationChangingService(openbisUrl,
+                                            timeoutInMillis);
 
-        IDssComponent dssComponent =
-                DssComponentFactory.tryCreate(sessionToken, openbisUrl, timeoutInMillis);
-        return new OpenbisServiceFacade(sessionToken, service, changingService, dssComponent);
+                            IDssComponent dssComponent =
+                                    DssComponentFactory.tryCreate(sessionToken, openbisUrl,
+                                            timeoutInMillis);
+                            IOpenbisServiceFacade facade =
+                                    new OpenbisServiceFacade(sessionToken, service,
+                                            changingService, dssComponent);
+
+                            return RetryProxyFactory.createProxy(facade);
+                        }
+                    };
+        return caller.callWithRetry();
     }
 
     private static IGeneralInformationService createGeneralInformationService(String openbisUrl,
@@ -332,14 +367,14 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
     public IDataSetDss getDataSetDss(String code) throws EnvironmentFailureException
     {
-        return dssComponent.getDataSet(code);
+        return RetryProxyFactory.createProxy(dssComponent.getDataSet(code));
     }
 
     public DataSet putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws EnvironmentFailureException
     {
         IDataSetDss dataSetDss = dssComponent.putDataSet(newDataset, dataSetFile);
-        return new DataSet(this, dssComponent, null, dataSetDss);
+        return RetryProxyFactory.createProxy(new DataSet(this, dssComponent, null, dataSetDss));
     }
 
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -460,7 +495,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : internalDataSets)
         {
             DataSet converted = new DataSet(this, dssComponent, dataSet, null);
-            convertedDataSets.add(converted);
+            convertedDataSets.add(RetryProxyFactory.createProxy(converted));
         }
 
         return convertedDataSets;

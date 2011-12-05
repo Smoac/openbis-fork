@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
@@ -47,6 +48,7 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      */
+    @Retry
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
 
     /**
@@ -54,6 +56,7 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * 
      * @param searchCriteria the criteria used for searching.
      */
+    @Retry
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria);
 
     /**
@@ -61,6 +64,7 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * 
      * @param samples The samples for which we return attached data sets.
      */
+    @Retry
     public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet);
 
     /**
@@ -93,5 +97,6 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @deprecated Please use the {@link #listVocabularies()} method instead.
      */
     @Deprecated
+    @Retry
     public HashMap<Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap();
 }
