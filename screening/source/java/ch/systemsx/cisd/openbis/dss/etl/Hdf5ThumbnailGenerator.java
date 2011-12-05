@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,8 +44,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
@@ -68,10 +69,10 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
      */
     public static ThumbnailFilePaths tryGenerateThumbnails(List<RelativeImageFile> images,
             File imagesParentDirectory, String thumbnailFilePath,
-            ImageStorageConfiguraton imageStorageConfiguraton, String thumbnailPhysicalDatasetPermId)
+            ImageStorageConfiguraton imageStorageConfiguraton,
+            String thumbnailPhysicalDatasetPermId,
+            ThumbnailsStorageFormat thumbnailsStorageFormatOrNull)
     {
-        ThumbnailsStorageFormat thumbnailsStorageFormatOrNull =
-                imageStorageConfiguraton.getThumbnailsStorageFormat();
         if (thumbnailsStorageFormatOrNull != null)
         {
             ThumbnailFilePaths thumbnailPaths =
@@ -211,6 +212,19 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         String size =
                 thumbnailsStorageFormat.getMaxWidth() + "x"
                         + thumbnailsStorageFormat.getMaxHeight();
+
+        if (thumbnailsStorageFormat.getZoomLevel() != null)
+        {
+            Dimension originalSize = loadUnchangedImageDimension(imageFile, null);
+            long x =
+                    (int) Math.round(thumbnailsStorageFormat.getZoomLevel()
+                            * originalSize.getWidth());
+            long y =
+                    (int) Math.round(thumbnailsStorageFormat.getZoomLevel()
+                            * originalSize.getHeight());
+            size = x + "x" + y;
+        }
+
         String imageFilePath = imageFile.getPath();
         List<String> params = new ArrayList<String>();
         params.addAll(Arrays.asList(convertUtilityOrNull.getPath(), imageFilePath, "-scale", size));
@@ -239,9 +253,17 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             ByteArrayOutputStream bufferOutputStream) throws IOException
     {
         BufferedImage image = loadUnchangedImage(imageFile, imageIdOrNull);
+
+        long x = thumbnailsStorageFormat.getMaxWidth();
+        long y = thumbnailsStorageFormat.getMaxHeight();
+        if (thumbnailsStorageFormat.getZoomLevel() != null)
+        {
+            x = Math.round(thumbnailsStorageFormat.getZoomLevel() * image.getWidth());
+            y = Math.round(thumbnailsStorageFormat.getZoomLevel() * image.getHeight());
+        }
+
         BufferedImage thumbnail =
-                ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
-                        thumbnailsStorageFormat.getMaxHeight(), false,
+                ImageUtil.rescale(image, (int) x, (int) y, false,
                         thumbnailsStorageFormat.isHighQuality());
         ImageUtil.writeImageToPng(thumbnail, bufferOutputStream);
         return bufferOutputStream.toByteArray();
@@ -251,6 +273,12 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     {
         return AbsoluteImageReference.loadUnchangedImage(new FileBasedContentNode(imageFile),
                 imageIdOrNull, imageLibraryOrNull);
+    }
+
+    private Dimension loadUnchangedImageDimension(File imageFile, String imageIdOrNull)
+    {
+        return AbsoluteImageReference.loadUnchangedImageDimension(new FileBasedContentNode(
+                imageFile), imageIdOrNull, imageLibraryOrNull);
     }
 
     private Status createStatus(String thumbnailPath, IOException ex)

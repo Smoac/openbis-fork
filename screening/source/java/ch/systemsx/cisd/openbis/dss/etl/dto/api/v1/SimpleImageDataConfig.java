@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,9 @@ import java.util.List;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.DefaultThumbnailsConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.IThumbnailsConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.ZoomLevelBasedThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
@@ -200,7 +204,8 @@ abstract public class SimpleImageDataConfig
     private String[] recognizedImageExtensions = new String[]
         { "tiff", "tif", "png", "gif", "jpg", "jpeg" };
 
-    private boolean generateThumbnails = false;
+    private List<IThumbnailsConfiguration> thumbnailsPyramid =
+            new ArrayList<IThumbnailsConfiguration>();
 
     private int maxThumbnailWidthAndHeight = 256;
 
@@ -244,17 +249,10 @@ abstract public class SimpleImageDataConfig
         imageStorageConfiguraton
                 .setStoreChannelsOnExperimentLevel(isStoreChannelsOnExperimentLevel());
         imageStorageConfiguraton.setOriginalDataStorageFormat(getOriginalDataStorageFormat());
-        if (isGenerateThumbnails())
+        for (IThumbnailsConfiguration thumbnailsConfiguration : thumbnailsPyramid)
         {
-            ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-            thumbnailsStorageFormat
-                    .setAllowedMachineLoadDuringGeneration(getAllowedMachineLoadDuringThumbnailsGeneration());
-            thumbnailsStorageFormat.setMaxWidth(getMaxThumbnailWidthAndHeight());
-            thumbnailsStorageFormat.setMaxHeight(getMaxThumbnailWidthAndHeight());
-            thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
-            thumbnailsStorageFormat.setImageMagicParams(thumbnailsGenerationImageMagicParams);
-            thumbnailsStorageFormat.setHighQuality(generateThumbnailsIn8BitHighQuality);
-            imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
+            imageStorageConfiguraton.addThumbnailsStorageFormat(thumbnailsConfiguration
+                    .getThumbnailsStorageFormat(this));
         }
         if (false == StringUtils.isBlank(convertTransformationCliArgumentsOrNull))
         {
@@ -284,7 +282,7 @@ abstract public class SimpleImageDataConfig
 
     public boolean isGenerateThumbnails()
     {
-        return generateThumbnails;
+        return thumbnailsPyramid.size() > 0;
     }
 
     public int getMaxThumbnailWidthAndHeight()
@@ -358,7 +356,22 @@ abstract public class SimpleImageDataConfig
     /** should thumbnails be generated? False by default. */
     public void setGenerateThumbnails(boolean generateThumbnails)
     {
-        this.generateThumbnails = generateThumbnails;
+        thumbnailsPyramid.clear();
+        thumbnailsPyramid.add(new DefaultThumbnailsConfiguration());
+    }
+
+    public void setGenerateThumbnailsPyramid(double[] zoomLevels)
+    {
+        if (zoomLevels == null)
+        {
+            thumbnailsPyramid.clear();
+        } else
+        {
+            for (double zoomLevel : zoomLevels)
+            {
+                thumbnailsPyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
+            }
+        }
     }
 
     /** the maximal width and height of the generated thumbnails */
@@ -391,6 +404,11 @@ abstract public class SimpleImageDataConfig
         this.generateThumbnailsWithImageMagic = generateWithImageMagic;
     }
 
+    public boolean getGenerateThumbnailsWithImageMagic()
+    {
+        return generateThumbnailsWithImageMagic;
+    }
+
     /**
      * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is
      * used to generate thumbnails.
@@ -401,6 +419,11 @@ abstract public class SimpleImageDataConfig
     public void setThumbnailsGenerationImageMagicParams(String[] imageMagicParams)
     {
         this.thumbnailsGenerationImageMagicParams = Arrays.asList(imageMagicParams);
+    }
+
+    public List<String> getThumbnailsGenerationImageMagicParams()
+    {
+        return thumbnailsGenerationImageMagicParams;
     }
 
     /**
@@ -414,6 +437,11 @@ abstract public class SimpleImageDataConfig
     public void setGenerateHighQuality8BitThumbnails(boolean highQualityThumbnails)
     {
         this.generateThumbnailsIn8BitHighQuality = highQualityThumbnails;
+    }
+
+    public boolean getGenerateThumbnailsIn8BitHighQuality()
+    {
+        return generateThumbnailsIn8BitHighQuality;
     }
 
     /**

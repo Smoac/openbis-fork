@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.common.utilities.DataTypeUtil.JPEG_FILE;
 import static ch.systemsx.cisd.common.utilities.DataTypeUtil.PNG_FILE;
 import static ch.systemsx.cisd.common.utilities.DataTypeUtil.TIFF_FILE;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -83,6 +84,8 @@ public class ImageUtil
     private static interface ImageLoader
     {
         public BufferedImage load(IRandomAccessFile raf, ImageID imageID);
+
+        public Dimension readDimension(IRandomAccessFile handle, ImageID imageID);
     }
 
     private static final class TiffImageLoader implements ImageLoader
@@ -115,6 +118,33 @@ public class ImageUtil
                 }
             }
         }
+
+        public Dimension readDimension(IRandomAccessFile handle, ImageID imageID)
+        {
+            handle.mark(MAX_READ_AHEAD);
+            try
+            {
+                return loadDimensionWithBioFormats(handle, imageID);
+            } catch (RuntimeException ex1)
+            {
+                try
+                {
+                    return loadDimensionJavaAdvancedImagingTiff(handle, imageID);
+                } catch (RuntimeException ex2)
+                {
+                    if (imageID.equals(ImageID.NULL))
+                    {
+                        handle.reset();
+                        // There are some TIFF files which cannot be opened by JAI, try ImageJ
+                        // instead...
+                        return loadDimensionWithImageJ(handle);
+                    } else
+                    {
+                        throw ex2;
+                    }
+                }
+            }
+        }
     }
 
     private static BufferedImage loadWithImageJ(IRandomAccessFile handle)
@@ -122,9 +152,21 @@ public class ImageUtil
         return loadWithLibrary(handle, ImageID.NULL, ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
     }
 
+    private static Dimension loadDimensionWithImageJ(IRandomAccessFile handle)
+    {
+        return loadDimensionWithLibrary(handle, ImageID.NULL, ImageReaderConstants.IMAGEJ_LIBRARY,
+                "tiff");
+    }
+
     private static BufferedImage loadWithBioFormats(IRandomAccessFile handle, ImageID imageID)
     {
         return loadWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
+                "TiffDelegateReader");
+    }
+
+    private static Dimension loadDimensionWithBioFormats(IRandomAccessFile handle, ImageID imageID)
+    {
+        return loadDimensionWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
                 "TiffDelegateReader");
     }
 
@@ -135,6 +177,15 @@ public class ImageUtil
             ImageID imageID) throws EnvironmentFailureException
     {
         return loadWithLibrary(handle, imageID, ImageReaderConstants.JAI_LIBRARY, "tiff");
+    }
+
+    /**
+     * For experts only! Loads some kinds of TIFF images handled by JAI library.
+     */
+    public static Dimension loadDimensionJavaAdvancedImagingTiff(IRandomAccessFile handle,
+            ImageID imageID) throws EnvironmentFailureException
+    {
+        return loadDimensionWithLibrary(handle, imageID, ImageReaderConstants.JAI_LIBRARY, "tiff");
     }
 
     private static BufferedImage loadWithLibrary(IRandomAccessFile handle, ImageID imageIDOrNull,
@@ -150,6 +201,25 @@ public class ImageUtil
         try
         {
             return imageReader.readImage(handle, imageIDOrNull, null);
+        } catch (Exception ex)
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+        }
+    }
+
+    private static Dimension loadDimensionWithLibrary(IRandomAccessFile handle,
+            ImageID imageIDOrNull, String libraryName, String readerName)
+    {
+        operationLog.debug("Load tiff image using " + libraryName);
+        IImageReader imageReader = ImageReaderFactory.tryGetReader(libraryName, readerName);
+        if (imageReader == null)
+        {
+            throw new IllegalStateException(String.format(
+                    "There is no reader '%s' in image library '%s'.", readerName, libraryName));
+        }
+        try
+        {
+            return imageReader.readDimensions(handle, imageIDOrNull);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
@@ -184,6 +254,24 @@ public class ImageUtil
             }
         }
 
+        public Dimension readDimension(IRandomAccessFile handle, ImageID imageID)
+        {
+            if (imageID.equals(ImageID.NULL))
+            {
+                IImageReader imageReader =
+                        ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEIO_LIBRARY,
+                                fileType);
+                if (imageReader == null)
+                {
+                    throw EnvironmentFailureException.fromTemplate(
+                            "Cannot find ImageIO reader for file type '%s'", fileType);
+                }
+                return imageReader.readDimensions(handle, imageID);
+            } else
+            {
+                throw new UnsupportedOperationException();
+            }
+        }
     }
 
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
@@ -245,6 +333,43 @@ public class ImageUtil
             }
         }
         return loadImageGuessingLibrary(contentNode, imageID);
+    }
+
+    /**
+     * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
+     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
+     * loading.
+     * <p>
+     * Note that the original color depth will be kept, so e.g. 12 or 16 bit grayscale images will
+     * not be converted to RGB.
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    public static Dimension loadUnchangedImageDimension(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
+                + "is specified then library name should be specified as well";
+        ImageID imageID = parseImageID(imageIdOrNull);
+        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
+        {
+            IImageReader reader =
+                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                            imageLibraryReaderNameOrNull);
+            if (reader != null)
+            {
+                IRandomAccessFile handle = contentNode.getFileContent();
+                try
+                {
+                    return reader.readDimensions(handle, imageID);
+                } finally
+                {
+                    closeQuietly(handle);
+                }
+            }
+        }
+        return loadImageDimensionGuessingLibrary(contentNode, imageID);
     }
 
     /**
@@ -412,6 +537,14 @@ public class ImageUtil
         return loadImageGuessingLibrary(handle, fileType, imageID);
     }
 
+    private static Dimension loadImageDimensionGuessingLibrary(
+            IHierarchicalContentNode contentNode, ImageID imageID)
+    {
+        IRandomAccessFile handle = contentNode.getFileContent();
+        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
+        return loadImageDimensionGuessingLibrary(handle, fileType, imageID);
+    }
+
     /**
      * Loads the image specified by <var>imageID</var> from the image from the given
      * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
@@ -437,6 +570,29 @@ public class ImageUtil
                         + "'.");
             }
             return imageLoader.load(handle, imageID);
+        } finally
+        {
+            closeQuietly(handle);
+        }
+    }
+
+    private static Dimension loadImageDimensionGuessingLibrary(IRandomAccessFile handle,
+            String fileType, ImageID imageID)
+    {
+        try
+        {
+            if (fileType == null)
+            {
+                throw new IllegalArgumentException(
+                        "File type of an image input stream couldn't be determined.");
+            }
+            ImageLoader imageLoader = imageLoaders.get(fileType);
+            if (imageLoader == null)
+            {
+                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
+                        + "'.");
+            }
+            return imageLoader.readDimension(handle, imageID);
         } finally
         {
             closeQuietly(handle);

@@ -79,7 +79,7 @@ public class ImageDataSetStructure
 
     public boolean areThumbnailsGenerated()
     {
-        return getImageStorageConfiguraton().getThumbnailsStorageFormat() != null;
+        return getImageStorageConfiguraton().getThumbnailsStorageFormat().size() > 0;
     }
 
     // ------ setters

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.dss.Constants;
 
 /**
  * Configuration parameters which describe how thumbnails should be generated.
@@ -40,6 +41,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     private int maxHeight = DEFAULT_THUMBNAIL_MAX_SIZE;
 
+    private Double zoomLevel = null;
+
     private boolean storeCompressed = DEFAULT_COMPRESS_THUMBNAILS;
 
     private double allowedMachineLoadDuringGeneration = 1;
@@ -49,6 +52,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     private boolean generateWithImageMagic = false;
 
     private List<String> imageMagicParams = Collections.emptyList();
+
+    private String thumbnailsFileName;
 
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
@@ -153,4 +158,24 @@ public class ThumbnailsStorageFormat extends AbstractHashable
         this.imageMagicParams = imageMagicParams;
     }
 
+    public Double getZoomLevel()
+    {
+        return zoomLevel;
+    }
+
+    public void setZoomLevel(Double zoomLevel)
+    {
+        this.zoomLevel = zoomLevel;
+    }
+
+    public String getThumbnailsFileName()
+    {
+        return thumbnailsFileName == null ? Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME
+                : thumbnailsFileName;
+    }
+
+    public void setThumbnailsFileName(String thumbnailsFileName)
+    {
+        this.thumbnailsFileName = thumbnailsFileName;
+    }
 }

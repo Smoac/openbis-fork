@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -117,6 +118,20 @@ public class AbsoluteImageReference extends AbstractImageReference
         }
         return ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
                 imageLibraryReaderNameOrNull, null);
+    }
+
+    static Dimension loadUnchangedImageDimension(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    {
+        String imageLibraryNameOrNull = null;
+        String imageLibraryReaderNameOrNull = null;
+        if (imageLibraryOrNull != null)
+        {
+            imageLibraryNameOrNull = imageLibraryOrNull.getName();
+            imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
+        }
+        return ImageUtil.loadUnchangedImageDimension(contentNode, imageIdOrNull,
+                imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
     }
 
     public RequestedImageSize getRequestedSize()
