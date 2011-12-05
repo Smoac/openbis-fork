@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -86,17 +85,19 @@ public class ScreeningUtils
                 dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
     }
 
-    private static String tryGetFileTypeCode(ExternalData dataset)
+    private static String tryGetFileTypeCode(ExternalData abstractDataSet)
     {
-        @SuppressWarnings("deprecation")
-        FileFormatType fileFormat = dataset.getFileFormatType();
-        String fileTypeCode = fileFormat == null ? null : fileFormat.getCode();
-        if (fileTypeCode != null
-                && fileTypeCode.equalsIgnoreCase(ScreeningConstants.UNKNOWN_FILE_FORMAT))
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet dataSet =
+                abstractDataSet.tryGetAsDataSet();
+        if (dataSet != null && dataSet.getFileFormatType() != null)
         {
-            fileTypeCode = null;
+            String fileTypeCode = dataSet.getFileFormatType().getCode();
+            if (false == ScreeningConstants.UNKNOWN_FILE_FORMAT.equalsIgnoreCase(fileTypeCode))
+            {
+                return fileTypeCode;
+            }
         }
-        return fileTypeCode;
+        return null;
     }
 
     private static DatasetReference createDatasetReference(long datasetId, String datasetCode,

@@ -510,7 +510,11 @@ class UploadingCommand implements IDataSetCommand
         builder.dataSet("producer_code", dataSet.getDataProducerCode());
         builder.dataSet("data_set_type", dataSet.getDataSetType().getCode());
         builder.dataSet("is_measured", dataSet.isDerived() == false);
-        builder.dataSet("is_complete", BooleanOrUnknown.T.equals(dataSet.getComplete()));
+        if (dataSet.tryGetAsDataSet() != null)
+        {
+            final Boolean completeFlag = dataSet.tryGetAsDataSet().getComplete();
+            builder.dataSet("is_complete", BooleanOrUnknown.T.equals(completeFlag));
+        }
         builder.dataSetProperties(dataSet.getProperties());
 
         StringBuilder stringBuilder = new StringBuilder();

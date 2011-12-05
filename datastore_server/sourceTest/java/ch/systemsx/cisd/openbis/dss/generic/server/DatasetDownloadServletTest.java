@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -202,7 +203,7 @@ public class DatasetDownloadServletTest
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
@@ -276,7 +277,7 @@ public class DatasetDownloadServletTest
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -352,7 +353,7 @@ public class DatasetDownloadServletTest
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareLocking();
@@ -385,7 +386,7 @@ public class DatasetDownloadServletTest
     @Test()
     public void testDoGetFile() throws Exception
     {
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prepareParseRequestURL();
@@ -433,7 +434,7 @@ public class DatasetDownloadServletTest
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(image, "png", EXAMPLE_FILE);
         prepareParseRequestURLForThumbnail(100, 50);
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
         prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -482,7 +483,7 @@ public class DatasetDownloadServletTest
     public void testDoGetNonExistingFile() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createExternalData();
+        final ExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -773,7 +774,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private DataSet createExternalData()
+    private DataSet createDataSet()
     {
         Space space = new Space();
         space.setCode(SPACE_CODE);
@@ -783,16 +784,17 @@ public class DatasetDownloadServletTest
         Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);
-        final DataSet externalData = new DataSet();
-        externalData.setExperiment(experiment);
-        externalData.setCode(EXAMPLE_DATA_SET_CODE);
+        final DataSet dataSet = new DataSet();
+        dataSet.setExperiment(experiment);
+        dataSet.setCode(EXAMPLE_DATA_SET_CODE);
+        dataSet.setFileFormatType(new FileFormatType("DATA"));
         LocatorType locatorType = new LocatorType();
         locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
-        externalData.setLocatorType(locatorType);
-        externalData.setShareId(DEFAULT_SHARE_ID);
-        externalData.setLocation(DatasetLocationUtil.getDatasetLocationPath(EXAMPLE_DATA_SET_CODE,
+        dataSet.setLocatorType(locatorType);
+        dataSet.setShareId(DEFAULT_SHARE_ID);
+        dataSet.setLocation(DatasetLocationUtil.getDatasetLocationPath(EXAMPLE_DATA_SET_CODE,
                 DATABASE_INSTANCE_UUID));
-        return externalData;
+        return dataSet;
     }
 
     private static File getDatasetDirectoryLocation(final File baseDir, String dataSetCode)

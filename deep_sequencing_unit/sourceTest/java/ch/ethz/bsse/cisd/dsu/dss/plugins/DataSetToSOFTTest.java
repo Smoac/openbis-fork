@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -227,7 +227,7 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
             {
                 {
                     one(service).tryGetDataSet(dataSetCode);
-                    ExternalData dataSet = new ExternalData();
+                    DataSet dataSet = new DataSet();
                     dataSet.setCode(dataSetCode);
                     dataSet.setSample(flowLaneSample);
                     will(returnValue(dataSet));

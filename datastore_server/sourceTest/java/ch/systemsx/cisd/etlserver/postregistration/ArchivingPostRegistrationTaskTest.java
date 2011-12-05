@@ -41,7 +41,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
  * @author Kaloyan Enimanev
@@ -116,7 +118,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                     will(returnValue(directoryProvider));
 
                     one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
-                    List<ExternalData> externalDatas = Arrays.asList(createExternalData());
+                    List<ExternalData> externalDatas = Arrays.asList(createDataSet());
                     will(returnValue(externalDatas));
 
                     one(service).compareAndSetDataSetStatus(DATASET_CODE, AVAILABLE,
@@ -151,10 +153,11 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
     }
 
     
-    private ExternalData createExternalData()
+    private ExternalData createDataSet()
     {
-        ExternalData externalData = new ExternalData();
-        externalData.setCode(DATASET_CODE);
-        return externalData;
+        DataSet dataSet = new DataSet();
+        dataSet.setCode(DATASET_CODE);
+        dataSet.setFileFormatType(new FileFormatType("DATA"));
+        return dataSet;
     }
 }

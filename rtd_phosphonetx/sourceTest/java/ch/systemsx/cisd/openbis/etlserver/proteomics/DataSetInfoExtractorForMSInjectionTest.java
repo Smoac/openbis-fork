@@ -54,7 +54,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractorForMSInjection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -709,7 +709,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
     private ExternalData createDataSet(String type, String code, int timestamp)
     {
-        ExternalData ds = new ExternalData();
+        DataSet ds = new DataSet();
         ds.setDataSetType(new DataSetType(type));
         ds.setCode(code);
         ds.setRegistrationDate(new Date(timestamp));

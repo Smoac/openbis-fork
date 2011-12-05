@@ -25,8 +25,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.api.v1.ProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataSet;
@@ -412,7 +411,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
 
     private ExternalData createDataSet(String type, long date)
     {
-        ExternalData dataSet = new ExternalData();
+        ExternalData dataSet = new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet();
         dataSet.setId(date);
         dataSet.setCode(type + "-" + date);
         dataSet.setDataSetType(new DataSetType(type));

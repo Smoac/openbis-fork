@@ -48,13 +48,11 @@ public class DataSet extends ExternalData implements IDatasetLocation
         return this;
     }
 
-    @Override
     public Boolean getComplete()
     {
         return complete;
     }
 
-    @Override
     public void setComplete(Boolean complete)
     {
         this.complete = complete;
@@ -70,7 +68,6 @@ public class DataSet extends ExternalData implements IDatasetLocation
         return shareId;
     }
 
-    @Override
     public String getLocation()
     {
         return location;
@@ -85,19 +82,16 @@ public class DataSet extends ExternalData implements IDatasetLocation
             return "-";
     }
 
-    @Override
     public void setLocation(String location)
     {
         this.location = location;
     }
 
-    @Override
     public DataSetArchivingStatus getStatus()
     {
         return status;
     }
 
-    @Override
     public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
@@ -113,37 +107,31 @@ public class DataSet extends ExternalData implements IDatasetLocation
         this.presentInArchive = presentInArchive;
     }
 
-    @Override
     public int getSpeedHint()
     {
         return speedHint;
     }
 
-    @Override
     public void setSpeedHint(int speedHint)
     {
         this.speedHint = speedHint;
     }
 
-    @Override
     public LocatorType getLocatorType()
     {
         return locatorType;
     }
 
-    @Override
     public void setLocatorType(LocatorType locatorType)
     {
         this.locatorType = locatorType;
     }
 
-    @Override
     public FileFormatType getFileFormatType()
     {
         return fileFormatType;
     }
 
-    @Override
     public void setFileFormatType(FileFormatType fileFormatType)
     {
         this.fileFormatType = fileFormatType;

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -198,7 +199,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     prepareGetSessionToken(this);
 
                     one(genericServer).getDataSetInfo(SESSION_TOKEN, id);
-                    ExternalData dataSet = new ExternalData();
+                    DataSet dataSet = new DataSet();
                     dataSet.setDataSetProperties(Arrays.asList(createXmlProperty()));
                     will(returnValue(dataSet));
                 }
@@ -972,7 +973,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
         private final boolean equals(final NewSample newSample, final NewSample thatNewSample)
         {
-            // NOTE: this should take default container and default space into account to be complete
+            // NOTE: this should take default container and default space into account to be
+            // complete
             return ObjectUtils.equals(newSample, thatNewSample)
                     && StringUtils.equals(newSample.getContainerIdentifier(),
                             thatNewSample.getContainerIdentifier())

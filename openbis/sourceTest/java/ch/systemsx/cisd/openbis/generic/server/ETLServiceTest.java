@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBu
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -143,6 +144,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
         hibernateSearchDao = context.mock(IHibernateSearchDAO.class);
+        MaterialConfigurationProvider.initializeForTesting(false);
     }
 
     @Test

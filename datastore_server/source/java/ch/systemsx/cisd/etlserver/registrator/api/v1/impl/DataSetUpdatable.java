@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -112,7 +113,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         {
             for (String code : containedDataSetCodes)
             {
-                ExternalData dummy = new ExternalData();
+                PlaceholderDataSet dummy = new PlaceholderDataSet();
                 dummy.setCode(code);
                 dummies.add(dummy);
             }

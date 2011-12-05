@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Christian Ribeaud
  */
-public class ExternalData extends CodeWithRegistration<ExternalData> implements
+public abstract class ExternalData extends CodeWithRegistration<ExternalData> implements
         IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
         IPermIdHolder
 {
@@ -96,6 +96,14 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
      * @return true if this is a container data set.
      */
     public boolean isContainer()
+    {
+        return false; // overriden in subclasses
+    }
+
+    /**
+     * @return true if this is a place holder data set.
+     */
+    public boolean isPlaceHolderDataSet()
     {
         return false; // overriden in subclasses
     }
@@ -196,39 +204,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.derived = derived;
     }
 
-    @Deprecated
-    public DataSetArchivingStatus getStatus()
-    {
-        return null;
-    }
-
-    @Deprecated
-    public void setStatus(DataSetArchivingStatus status)
-    {
-    }
-
-    @Deprecated
-    public int getSpeedHint()
-    {
-        return 0;
-    }
-
-    @Deprecated
-    public void setSpeedHint(int speedHint)
-    {
-    }
-
-    @Deprecated
-    public Boolean getComplete()
-    {
-        return null;
-    }
-
-    @Deprecated
-    public void setComplete(Boolean complete)
-    {
-    }
-
     public final DataSetType getDataSetType()
     {
         return dataSetType;
@@ -287,39 +262,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setSize(Long size)
     {
         this.size = size;
-    }
-
-    @Deprecated
-    public String getLocation()
-    {
-        return null;
-    }
-
-    @Deprecated
-    public void setLocation(final String location)
-    {
-    }
-
-    @Deprecated
-    public FileFormatType getFileFormatType()
-    {
-        return null;
-    }
-
-    @Deprecated
-    public void setFileFormatType(final FileFormatType fileFormatType)
-    {
-    }
-
-    @Deprecated
-    public LocatorType getLocatorType()
-    {
-        return null;
-    }
-
-    @Deprecated
-    public void setLocatorType(final LocatorType locatorType)
-    {
     }
 
     public final Deletion getDeletion()

@@ -68,8 +68,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Ds
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
@@ -633,16 +633,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    ExternalData externalData = new ExternalData();
+                    DataSet dataSet = new DataSet();
                     Experiment experiment = new Experiment();
                     experiment.setPermId(EXPERIMENT_PERM_ID);
                     experiment.setId(EXPERIMENT_ID);
-                    externalData.setExperiment(experiment);
+                    dataSet.setExperiment(experiment);
                     for (DatasetIdentifier datasetIdentifier : dataSetIdentifiers)
                     {
                         one(service).tryGetDataSet(SESSION_TOKEN,
                                 datasetIdentifier.getDatasetCode());
-                        will(returnValue(externalData));
+                        will(returnValue(dataSet));
                     }
                 }
             });

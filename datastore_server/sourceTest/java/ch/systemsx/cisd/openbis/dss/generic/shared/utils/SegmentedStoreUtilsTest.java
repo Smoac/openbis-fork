@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -197,7 +197,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet("ds-1");
-                    will(returnValue(new ExternalData()));
+                    will(returnValue(new DataSet()));
                     
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
                     one(shareIdManager).setShareId("ds-1", "2");

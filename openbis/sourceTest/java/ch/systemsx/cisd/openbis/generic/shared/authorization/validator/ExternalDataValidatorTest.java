@@ -19,25 +19,24 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExternalDataValidatorTest extends AuthorizationTestCase
 {
-    private ExternalData createData(SpacePE group)
+    private DataSet createData(SpacePE group)
     {
-        ExternalData data = new ExternalData();
-        data.setExperiment(ExperimentTranslator.translate(createExperiment(group), "http://someURL"));
+        DataSet data = new DataSet();
+        data.setExperiment(ExperimentTranslator
+                .translate(createExperiment(group), "http://someURL"));
         return data;
     }
-    
+
     @Test
     public void testIsValidWithDataInTheRightGroup()
     {
@@ -53,7 +52,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, createData(createGroup())));
     }
-    
+
     @Test
     public void testIsValidWithDataInTheWrongGroup()
     {
@@ -62,5 +61,5 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
         SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, createData(group)));
     }
-    
+
 }

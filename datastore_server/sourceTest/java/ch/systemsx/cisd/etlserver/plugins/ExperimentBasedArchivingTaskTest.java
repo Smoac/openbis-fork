@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -134,7 +135,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         e1 = new ExperimentBuilder().id(41).identifier("/S/P/E1").getExperiment();
         e2 = new ExperimentBuilder().id(42).identifier("/S/P/E2").getExperiment();
         e3 = new ExperimentBuilder().id(42).identifier("/S/P/E3").getExperiment();
-        notARealDataSet = new ExternalData();
+        notARealDataSet = new PlaceholderDataSet();
         lockedDataSet =
                 dataSet("lockedDataSet").modificationDate(new Date(100))
                         .status(DataSetArchivingStatus.LOCKED).getDataSet();

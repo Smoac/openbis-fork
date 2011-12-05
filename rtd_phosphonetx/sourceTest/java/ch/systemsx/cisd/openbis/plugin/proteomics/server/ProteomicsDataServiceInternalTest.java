@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.ProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ISampleLoader;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
@@ -362,32 +362,35 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(bioExperiments));
 
                     List<Sample> filteredSamples = new ArrayList<Sample>();
-                    Map<Sample, List<ExternalData>> dataSetsBySamples =
-                            new HashMap<Sample, List<ExternalData>>();
+                    Map<Sample, List<DataSet>> dataSetsBySamples =
+                            new HashMap<Sample, List<DataSet>>();
                     for (Sample sample : samples)
                     {
                         if ("Space-0".equals(sample.getGeneratedFrom().getSpace().getCode()))
                         {
                             Long id = sample.getId();
-                            ExternalData ds1 = new ExternalData();
-                            ds1.setId(id * 1000);
-                            ds1.setCode("ds-" + id);
-                            ds1.setRegistrationDate(new Date(ds1.getId()));
-                            ds1.setDataSetType(new DataSetType("dt-" + id % 2));
-                            ds1.setSample(sample);
-                            ExternalData ds2 = new ExternalData();
-                            ds2.setId((id + 1) * 1001);
-                            ds2.setCode("ds-" + id + 1);
-                            ds2.setRegistrationDate(new Date(ds2.getId()));
-                            ds2.setDataSetType(new DataSetType("dt-" + id % 2));
-                            ds2.setSample(sample);
-                            ExternalData ds2Child = new ExternalData();
-                            ds2Child.setId(ds2.getId() + 1);
-                            ds2Child.setCode(ds2.getCode() + "-child");
-                            ds2Child.setRegistrationDate(new Date(ds2Child.getId()));
-                            ds2Child.setDataSetType(new DataSetType("dt-" + id % 2));
-                            ds2.setChildren(Arrays.asList(ds2Child));
+                            String dataSetType = "dt-" + id % 2;
+                            long ds1Id = id * 1000;
+                            DataSet ds1 =
+                                    new DataSetBuilder(ds1Id).code("ds-" + id)
+                                            .registrationDate(new Date(ds1Id)).sample(sample)
+                                            .type(dataSetType).getDataSet();
+
+                            long ds2Id = (id + 1) * 1001;
+                            DataSet ds2 =
+                                    new DataSetBuilder(ds2Id).code("ds-" + id + 1)
+                                            .registrationDate(new Date(ds2Id)).sample(sample)
+                                            .type(dataSetType).getDataSet();
+
+                            long ds2ChildId = ds2.getId() + 1;
+                            DataSet ds2Child =
+                                    new DataSetBuilder(ds2ChildId).code(ds2.getCode() + "-child")
+                                            .registrationDate(new Date(ds2ChildId)).sample(sample)
+                                            .type(dataSetType).getDataSet();
+
+                            ds2.setChildren(Arrays.<ExternalData> asList(ds2Child));
                             dataSetsBySamples.put(sample, Arrays.asList(ds1, ds2));
+
                             filteredSamples.add(sample);
                         }
                     }
