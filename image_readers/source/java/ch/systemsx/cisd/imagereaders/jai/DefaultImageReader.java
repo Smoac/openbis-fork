@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.imagereaders.jai;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -87,6 +88,21 @@ class DefaultImageReader extends AbstractImageReader
             RenderedImage renderedImage =
                     decoder.decodeAsRenderedImage(imageID.getTimeSeriesIndex());
             return ImageConvertionUtils.convertToBufferedImage(renderedImage);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
+    {
+        try
+        {
+            InputStream input = new AdapterIInputStreamToInputStream(handle);
+            ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
+            RenderedImage renderedImage =
+                    decoder.decodeAsRenderedImage(imageID.getTimeSeriesIndex());
+            return new Dimension(renderedImage.getWidth(), renderedImage.getHeight());
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

@@ -17,6 +17,7 @@
 
 package ch.systemsx.cisd.imagereaders.imageio;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,6 +108,19 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
                         ImageInputStream imageInput = adaptHandle(handle);
                         ioReader.setInput(imageInput);
                         return ioReader.read(0);
+                    } catch (IOException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
+
+                public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
+                {
+                    try
+                    {
+                        ImageInputStream imageInput = adaptHandle(handle);
+                        ioReader.setInput(imageInput);
+                        return new Dimension(ioReader.getWidth(0), ioReader.getHeight(0));
                     } catch (IOException ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);

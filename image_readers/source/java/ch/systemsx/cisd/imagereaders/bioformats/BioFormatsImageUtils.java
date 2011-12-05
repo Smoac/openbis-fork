@@ -20,6 +20,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,7 +150,7 @@ final class BioFormatsImageUtils
     {
         return reader.getClass().getSimpleName();
     }
-    
+
     static List<ImageID> listImageIDs(IFormatReader reader, IRandomAccess handle)
     {
         String handleId = generateHandleId(reader);
@@ -196,8 +197,8 @@ final class BioFormatsImageUtils
      * 
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      */
-    static BufferedImage readImage(IFormatReader reader,
-            IRandomAccess handle, ImageID imageID) throws IOExceptionUnchecked, IllegalArgumentException
+    static BufferedImage readImage(IFormatReader reader, IRandomAccess handle, ImageID imageID)
+            throws IOExceptionUnchecked, IllegalArgumentException
     {
         String handleId = generateHandleId(reader);
         // Add to static map.
@@ -235,7 +236,7 @@ final class BioFormatsImageUtils
     /**
      * Returns the metadata of the image file represented by <var>handle</var>.
      * 
-     * @param imageID 
+     * @param imageID
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      */
     public static Map<String, Object> readMetadata(IFormatReader reader, IRandomAccess handle,
@@ -268,7 +269,6 @@ final class BioFormatsImageUtils
         }
     }
 
-
     /**
      * An utility method that uses bio-formats reader to read an image and ImageJ to do a basic
      * intensity rescaling.
@@ -295,13 +295,42 @@ final class BioFormatsImageUtils
             int height = reader.getSizeY();
             final ImageStack stack = new ImageStack(width, height);
             int imageIndex = calculateImageIndex(reader, imageID);
-            final ImageProcessor ip = BioFormatsImageProcessor.openProcessor(reader, imageIndex, channel);
+            final ImageProcessor ip =
+                    BioFormatsImageProcessor.openProcessor(reader, imageIndex, channel);
             stack.addSlice("", ip);
             final ImagePlus imp = new ImagePlus(handleId, stack);
 
             final BufferedImage image = imp.getBufferedImage();
             reader.close();
             return image;
+        } catch (FormatException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            // Remove from static map.
+            Location.mapFile(handleId, null);
+        }
+    }
+
+    static Dimension readImageDimensions(IFormatReader reader, IRandomAccess handle, ImageID imageID)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        // Add to static map.
+        String handleId = generateHandleId(reader);
+        Location.mapFile(handleId, handle);
+        try
+        {
+            // This does the actual parsing.
+            reader.setId(handleId);
+            reader.setSeries(imageID.getSeriesIndex());
+            int width = reader.getSizeX();
+            int height = reader.getSizeY();
+            reader.close();
+            return new Dimension(width, height);
         } catch (FormatException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

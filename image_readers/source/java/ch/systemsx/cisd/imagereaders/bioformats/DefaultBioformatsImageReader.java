@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.imagereaders.bioformats;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -90,5 +91,11 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
     {
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
         return BioFormatsImageUtils.readMetadata(formatReader, input, imageID);
+    }
+
+    public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
+    {
+        IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
+        return BioFormatsImageUtils.readImageDimensions(formatReader, input, imageID);
     }
 }

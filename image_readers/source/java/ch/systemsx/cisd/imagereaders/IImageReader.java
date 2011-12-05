@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.imagereaders;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -41,12 +42,12 @@ public interface IImageReader
      * Return the name of the reader.
      */
     public String getName();
-    
+
     /**
      * Returns a list of IDs uniquely identifying all images in the specified file.
      */
     public List<ImageID> getImageIDs(File file) throws IOExceptionUnchecked;
-    
+
     /**
      * Returns a list of IDs uniquely identifying all images in the specified byte array.
      */
@@ -56,7 +57,7 @@ public interface IImageReader
      * Returns a list of IDs uniquely identifying all images in the specified handle.
      */
     public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked;
-    
+
     /**
      * Reads a {@link BufferedImage} from a {@link File}.
      * 
@@ -64,7 +65,8 @@ public interface IImageReader
      * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public BufferedImage readImage(File file, ImageID imageID, IReadParams params) throws IOExceptionUnchecked;
+    public BufferedImage readImage(File file, ImageID imageID, IReadParams params)
+            throws IOExceptionUnchecked;
 
     /**
      * Reads a {@link BufferedImage} from a byte array.
@@ -119,7 +121,15 @@ public interface IImageReader
      * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID, IReadParams params)
-            throws IOExceptionUnchecked;
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID,
+            IReadParams params) throws IOExceptionUnchecked;
 
+    /**
+     * Reads image dimensions (width and height).
+     * 
+     * @param handle the image file as {@link IRandomAccessFile}
+     * @param imageID the ID of the image to be read
+     * @return dimensions of the image
+     */
+    public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID);
 }

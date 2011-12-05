@@ -21,6 +21,7 @@ import ij.io.Opener;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -66,6 +67,17 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
                     throw new IllegalStateException("Cannot open the image file with ImageJ.");
                 }
                 return createBufferedImageOfSameType(imagePlus);
+            }
+
+            public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
+            {
+                AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);
+                ImagePlus imagePlus = new Opener().openTiff(is, "");
+                if (imagePlus == null)
+                {
+                    throw new IllegalStateException("Cannot open the image file with ImageJ.");
+                }
+                return new Dimension(imagePlus.getWidth(), imagePlus.getHeight());
             }
         };
 
