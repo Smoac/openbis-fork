@@ -501,7 +501,6 @@ class UploadingCommand implements IDataSetCommand
         }
     }
 
-    @SuppressWarnings("deprecation")
     private String createMetaData(ExternalData dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
