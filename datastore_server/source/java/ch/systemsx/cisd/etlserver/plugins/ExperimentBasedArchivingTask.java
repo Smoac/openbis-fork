@@ -132,8 +132,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     private File setUpMonitoredDirectory(Properties properties)
     {
         final String monitoredDirPath = PropertyUtils.getProperty(properties, MONITORED_DIR);
-        File monitoredDir = new File(monitoredDirPath);
-        if (monitoredDir.isDirectory() == false)
+        File monitoredDir = (monitoredDirPath == null) ? null : new File(monitoredDirPath);
+        if (monitoredDir == null || monitoredDir.isDirectory() == false)
         {
             throw new ConfigurationFailureException("Directory '" + monitoredDirPath
                     + "' doesn't exists or isn't a directory.");
@@ -227,6 +227,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
         Collections.sort(infos, new ExperimentDataSetsInfoComparator());
         StringBuilder archivingMessages = new StringBuilder();
+
         try
         {
             for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
