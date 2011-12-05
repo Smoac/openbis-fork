@@ -43,7 +43,7 @@ public class FtpServerConfig
 
     final static String ENABLE_KEY = PREFIX + "enable";
     
-    final static String SFTP_KEY = PREFIX + "sftp";
+    final static String SFTP_PORT_KEY = PREFIX + "sftp-port";
 
     final static String PORT_KEY = PREFIX + "port";
 
@@ -115,6 +115,8 @@ public class FtpServerConfig
 
     private boolean sftpMode;
 
+    private int sftpPort;
+
     public FtpServerConfig(Properties props) {
         this.startServer = PropertyUtils.getBoolean(props, ENABLE_KEY, false);
         if (startServer)
@@ -125,7 +127,8 @@ public class FtpServerConfig
 
     private void initializeProperties(Properties props)
     {
-        sftpMode = PropertyUtils.getBoolean(props, SFTP_KEY, false);
+        sftpPort = PropertyUtils.getInt(props, SFTP_PORT_KEY, 0);
+        sftpMode = sftpPort > 0;
         port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
         useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
         if (useSSL)
@@ -179,6 +182,11 @@ public class FtpServerConfig
     public boolean isSftpMode()
     {
         return sftpMode;
+    }
+
+    public int getSftpPort()
+    {
+        return sftpPort;
     }
 
     public boolean isStartServer()
@@ -246,20 +254,24 @@ public class FtpServerConfig
      */
     public void logStartupInfo()
     {
-        operationLog.info("Ftp Server port: " + port);
-        operationLog.info("Ftp Server using SSL: " + useSSL);
-        operationLog.info("Ftp Server data set display template : " + dataSetDisplayTemplate);
-        operationLog.info("Ftp Server passive ports: " + passivePortsRange);
-        operationLog.info("Ftp Server enable active mode: " + activeModeEnabled);
+        operationLog.info("FTP Server port: " + port);
+        operationLog.info("FTP Server using SSL: " + useSSL);
+        operationLog.info("FTP Server passive ports: " + passivePortsRange);
+        operationLog.info("FTP Server enable active mode: " + activeModeEnabled);
         if (activeModeEnabled)
         {
-            operationLog.info("Ftp Server active mode port: " + activePort);
+            operationLog.info("FTP Server active mode port: " + activePort);
         }
+        if (sftpMode)
+        {
+            operationLog.info("SFTP Server port: " + sftpPort);
+        }
+        operationLog.info("SFTP/FTP Server data set display template : " + dataSetDisplayTemplate);
 
         for (Entry<String, String> subpathEntry : fileListSubPaths.entrySet())
         {
             String message =
-                    String.format("Ftp Server subpath configuration for data "
+                    String.format("SFTP/FTP Server subpath configuration for data "
                             + "set type '%s' : '%s'", subpathEntry.getKey(),
                             subpathEntry.getValue());
             operationLog.info(message);
@@ -267,7 +279,7 @@ public class FtpServerConfig
         for (Entry<String, String> filterEntry : fileListFilters.entrySet())
         {
             String message =
-                    String.format("Ftp Server file filter configuration for data "
+                    String.format("SFTP/FTP Server file filter configuration for data "
                             + "set type '%s' : '%s'", filterEntry.getKey(), filterEntry.getValue());
             operationLog.info(message);
         }

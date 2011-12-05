@@ -16,14 +16,26 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.X509ExtendedKeyManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.ftpserver.ConnectionConfigFactory;
@@ -47,17 +59,19 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.log4j.Logger;
 import org.apache.sshd.SshServer;
+import org.apache.sshd.common.KeyPairProvider;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.Session;
 import org.apache.sshd.common.Session.AttributeKey;
+import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.PasswordAuthenticator;
 import org.apache.sshd.server.SshFile;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.sftp.SftpSubsystem;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -116,13 +130,11 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             operationLog.info(String.format(startingMessage, "S"));
             sshServer.start();
             operationLog.info("SFTP server started.");
-        } else
-        {
-            server = creatFtpServer();
-            operationLog.info(String.format(startingMessage, ""));
-            server.start();
-            operationLog.info("FTP server started.");
         }
+        server = creatFtpServer();
+        operationLog.info(String.format(startingMessage, ""));
+        server.start();
+        operationLog.info("FTP server started.");
     }
 
     private org.apache.ftpserver.FtpServer creatFtpServer()
@@ -187,9 +199,9 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     private SshServer createSftpServer()
     {
         SshServer s = SshServer.setUpDefaultServer();
-        // TODO keystore based provider needed
-        s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
-        s.setPort(config.getPort());
+        KeyPairProvider keyPairProvider = new KeystoreBasedKeyPairProvider(config, operationLog);
+        s.setKeyPairProvider(keyPairProvider);
+        s.setPort(config.getSftpPort());
         s.setSubsystemFactories(creatSubsystemFactories());
         s.setFileSystemFactory(this);
         s.setPasswordAuthenticator(new PasswordAuthenticator()
@@ -421,6 +433,94 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                 IOUtils.closeQuietly(inputStream);
             }
             inputStreams.clear();
+        }
+    }
+    
+    private static final class KeystoreBasedKeyPairProvider extends AbstractKeyPairProvider
+    {
+        private final KeyPair[] keyPairs;
+
+        private KeystoreBasedKeyPairProvider(FtpServerConfig config, Logger operationLog)
+        {
+            File keyStoreFile = config.getKeyStore();
+            String keyStorePassword = config.getKeyStorePassword();
+            String keyPassword = config.getKeyPassword();
+            KeyStore keystore = loadKeystore(keyStoreFile, keyStorePassword);
+            X509ExtendedKeyManager keyManager = getKeyManager(keystore, keyStorePassword, keyPassword);
+            List<KeyPair> list = new ArrayList<KeyPair>();
+            try
+            {
+                Enumeration<String> aliases = keystore.aliases();
+                while (aliases.hasMoreElements())
+                {
+                    String alias = aliases.nextElement();
+                    if (keystore.isKeyEntry(alias))
+                    {
+                        Certificate certificate = keystore.getCertificate(alias);
+                        PublicKey publicKey = certificate.getPublicKey();
+                        PrivateKey privateKey = keyManager.getPrivateKey(alias);
+                        list.add(new KeyPair(publicKey, privateKey));
+                    }
+                }
+                keyPairs = list.toArray(new KeyPair[list.size()]);
+                operationLog.info(keyPairs.length + " key pairs loaded from keystore " + keyStoreFile);
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+
+        @Override
+        protected KeyPair[] loadKeys()
+        {
+            return keyPairs;
+        }
+
+        private KeyStore loadKeystore(File keyStoreFile, String keyStorePassword)
+        {
+            InputStream stream = null;
+            try
+            {
+                KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+                stream = new FileInputStream(keyStoreFile);
+                keystore.load(stream, keyStorePassword.toCharArray());
+                return keystore;
+            } catch (Exception e)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(e);
+            }finally{
+                IOUtils.closeQuietly(stream);
+            }
+        }
+        
+        private X509ExtendedKeyManager getKeyManager(KeyStore keystore, String keyStorePassword,
+                String keyPassword)
+        {
+            try
+            {
+                String defaultAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
+                KeyManagerFactory factory = KeyManagerFactory.getInstance(defaultAlgorithm);
+                char[] password = (keyPassword == null ? keyStorePassword : keyPassword).toCharArray();
+                factory.init(keystore, password);
+                KeyManager[] keyManagers = factory.getKeyManagers();
+                if (keyManagers.length != 1)
+                {
+                    throw new ConfigurationFailureException(
+                            "Only one key manager expected instead of " + keyManagers.length + ".");
+                }
+                KeyManager keyManager = keyManagers[0];
+                if (keyManager instanceof X509ExtendedKeyManager == false)
+                {
+                    throw new ConfigurationFailureException("Key manager is not of type "
+                            + X509ExtendedKeyManager.class.getSimpleName() + ": "
+                            + keyManager.getClass().getName());
+                }
+                return (X509ExtendedKeyManager) keyManager;
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            
         }
     }
 }
