@@ -12,6 +12,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
@@ -34,6 +35,7 @@ class HeatmapScaleFactory
         container.setLayout(new TableLayout(2));
         container.setBorders(false);
         container.setScrollMode(Scroll.NONE);
+        container.setAutoHeight(true);
         boolean isFirstLabel = firstLabelOrNull != null;
         if (isFirstLabel)
         {
@@ -78,8 +80,9 @@ class HeatmapScaleFactory
         {
             box.setStyleAttribute("background-color", color.getHexColor());
         }
-        box.setWidth("2em");
-        box.setHeight("2em");
+        int size = PlateStyleSetter.WELL_BOX_SIZE_PX + PlateStyleSetter.WELL_SPACING_PX;
+        box.setWidth("" + size);
+        box.setHeight("" + size);
         return box;
     }
 

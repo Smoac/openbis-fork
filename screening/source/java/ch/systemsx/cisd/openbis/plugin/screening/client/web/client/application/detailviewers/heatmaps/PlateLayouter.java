@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter.WELL_SPACING_PX;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,8 +96,6 @@ public class PlateLayouter
     private static final String FEATURE_HEATMAP_KIND_PREFIX_MSG = "Feature ";
 
     private static final int HEATMAP_KIND_COMBOBOX_CHOOSER_WIDTH_PX = 200;
-
-    private static final int WELL_SPACING_PX = 2;
 
     // ------- internal fixed state
 
@@ -191,6 +191,7 @@ public class PlateLayouter
                 {
                     legendContainer.removeAll();
                     legendContainer.add(legend);
+                    legendContainer.setAutoHeight(true);
                     legendContainer.layout();
                 }
 
@@ -259,11 +260,10 @@ public class PlateLayouter
         plateContainer.setLayout(new ColumnLayout());
 
         int legendWidth = 200;
-        int topChoosersHeight = 70; // height of things above plate layout in this container
         int plateWidth = getPlateMatrixPixelWidth(renderedWells);
-        int plateHeight = getPlateMatrixPixelHeight(renderedWells);
         int totalWidth = plateWidth + legendWidth;
-        plateContainer.setSize(totalWidth, plateHeight);
+        plateContainer.setAutoHeight(true);
+        plateContainer.setWidth(totalWidth);
 
         plateContainer.add(renderPlateLayout(renderedWells));
 
@@ -275,14 +275,19 @@ public class PlateLayouter
         plateContainer.add(legendContainer);
 
         container.add(plateContainer);
-        container.setSize(totalWidth, plateHeight + topChoosersHeight);
+        container.setAutoHeight(true);
+        container.setWidth(totalWidth);
         return container;
     }
 
     private static int getPlateMatrixPixelHeight(Component[][] renderedWells)
     {
-        int boxes = renderedWells.length + 1;
-        return WELL_SPACING_PX * (boxes + 1) + PlateStyleSetter.WELL_BOX_SIZE_PX * boxes;
+        return getPlateMatrixPixelHeight(renderedWells.length + 1);
+    }
+
+    private static int getPlateMatrixPixelHeight(int numRows)
+    {
+        return WELL_SPACING_PX * (numRows + 1) + PlateStyleSetter.WELL_BOX_SIZE_PX * numRows;
     }
 
     private static int getPlateMatrixPixelWidth(Component[][] renderedWells)

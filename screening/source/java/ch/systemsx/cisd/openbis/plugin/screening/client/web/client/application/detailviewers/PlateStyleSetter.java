@@ -27,6 +27,8 @@ public class PlateStyleSetter
 {
     public static final int WELL_BOX_SIZE_PX = 20;
 
+    public static final int WELL_SPACING_PX = 2;
+
     public static Component setWellStyle(Component component)
     {
         setPointerCursor(component);
