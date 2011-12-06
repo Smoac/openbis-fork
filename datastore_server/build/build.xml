@@ -10,6 +10,8 @@
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
 	<property name="dist.lib" value="${dist}/lib"/>
 	<property name="plugin-jar.file" value="${dist}/datastore_server-plugin.jar" />
+	<property name="dss-build.info.filename" value="BUILD-datastore_server.INFO"/>
+	<property name="dss-build.info.file" value="${classes}/${dss-build.info.filename}"/>
 	
 	<property name="dss_client" value="dss_client" />
 	<property name="dist.dss_client" value="${dist}/dss_client" />
@@ -43,7 +45,7 @@
 		<mkdir dir="${dist.datastore_server.lib}" />
 		<delete dir="tmp/test"/><!-- remove this directory in order to get a clean clean-flag -->
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<echo file="${dss-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
 			<fileset dir="${nativesrc}">
 				<include name="**/unix.so" />
@@ -58,7 +60,7 @@
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
 				<include name="**/*.xsd" />
-				<include name="${build.info.filename}" />
+				<include name="${dss-build.info.filename}" />
 			</fileset>
 			<zipfileset prefix="datastore_server/" src="${dist}/dss-sql.jar">
 				<include name="**/*.sql" />
@@ -240,7 +242,7 @@
   <target name="dss-client-jar" depends="">
     <mkdir dir="${dist.dss_client.lib}" />
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+    <echo file="${dss-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
     <recursive-jar destfile="${dss-client-jar.file}">
       <fileset dir="${classes}">
       	<include name="ch/systemsx/cisd/common/**/*.class" />
@@ -248,7 +250,7 @@
         <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class" />
-        <include name="${build.info.filename}" />
+        <include name="${dss-build.info.filename}" />
       </fileset>
       <manifest>
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient" />
@@ -314,7 +316,7 @@
   <target name="dss-upload-gui-jar" depends="">
     <mkdir dir="${dist.dss_upload_gui.lib}" />
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+    <echo file="${dss-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
     <recursive-jar destfile="${dss-upload-gui-jar.file}">
       <fileset dir="${classes}">
       	<include name="ch/systemsx/cisd/common/**/*.class" />
@@ -323,7 +325,7 @@
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class" />
       	<include name="org/python/core/SyspathArchiveHack.class" />
-        <include name="${build.info.filename}" />
+        <include name="${dss-build.info.filename}" />
       </fileset>
       <fileset dir="resource">
         <include name="wait.gif" />
