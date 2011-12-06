@@ -75,7 +75,6 @@ ALTER TABLE material_properties_history ALTER COLUMN valid_from_timestamp SET NO
 CREATE OR REPLACE RULE material_properties_update AS
     ON UPDATE TO material_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -130,7 +129,6 @@ CREATE OR REPLACE RULE material_properties_delete AS
 CREATE OR REPLACE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -185,7 +183,6 @@ CREATE OR REPLACE RULE experiment_properties_delete AS
 CREATE OR REPLACE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
@@ -240,7 +237,6 @@ CREATE OR REPLACE RULE sample_properties_delete AS
 CREATE OR REPLACE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 

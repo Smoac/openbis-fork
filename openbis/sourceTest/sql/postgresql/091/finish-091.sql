@@ -306,7 +306,6 @@ CREATE RULE data_insert AS ON INSERT TO data DO INSTEAD INSERT INTO data_all (id
 CREATE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
@@ -362,7 +361,6 @@ CREATE RULE experiment_insert AS ON INSERT TO experiments DO INSTEAD INSERT INTO
 CREATE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -416,7 +414,6 @@ CREATE RULE experiments_deleted_update AS ON UPDATE TO experiments_deleted DO IN
 CREATE RULE material_properties_update AS
     ON UPDATE TO material_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -471,7 +468,6 @@ CREATE RULE sample_insert AS ON INSERT TO samples DO INSTEAD INSERT INTO samples
 CREATE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
