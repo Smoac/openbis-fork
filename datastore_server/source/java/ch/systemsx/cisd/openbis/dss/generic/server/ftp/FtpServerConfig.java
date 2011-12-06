@@ -131,7 +131,7 @@ public class FtpServerConfig
         sftpMode = sftpPort > 0;
         port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
         useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
-        if (useSSL)
+        if (sftpMode || useSSL)
         {
             initializeSSLProperties(props);
         }
