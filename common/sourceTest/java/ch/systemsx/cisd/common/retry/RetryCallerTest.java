@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.retry.config.StaticRetryConfiguration;
+
 /**
  * @author pkupczyk
  */
@@ -35,6 +37,8 @@ public class RetryCallerTest
 
     private Runnable runnable;
 
+    private StaticRetryConfiguration configuration;
+
     private RetryCaller<Object, Throwable> caller;
 
     @BeforeMethod
@@ -42,7 +46,13 @@ public class RetryCallerTest
     {
         mockery = new Mockery();
         runnable = mockery.mock(Runnable.class);
-        caller = new RetryCaller<Object, Throwable>()
+
+        configuration = new StaticRetryConfiguration();
+        configuration.setMaximumNumberOfRetries(5);
+        configuration.setWaitingTimeBetweenRetries(100);
+        configuration.setWaitingTimeBetweenRetriesIncreasingFactor(2);
+
+        caller = new RetryCaller<Object, Throwable>(configuration)
             {
                 @Override
                 protected Object call() throws Throwable
@@ -51,9 +61,6 @@ public class RetryCallerTest
                     return null;
                 }
             };
-        caller.setRetryWaitingTime(100);
-        caller.setRetryWaitingTimeFactor(2);
-        caller.setRetryMaxCounter(5);
     }
 
     @Test
@@ -91,12 +98,11 @@ public class RetryCallerTest
             throws Throwable
     {
         final long startTime = System.currentTimeMillis();
-        final long waitingTime = caller.getRetryWaitingTime();
 
         mockery.checking(new Expectations()
             {
                 {
-                    for (int i = 0; i < caller.getRetryMaxCounter() - 1; i++)
+                    for (int i = 0; i < configuration.getMaximumNumberOfRetries(); i++)
                     {
                         final int ifinal = i;
                         oneOf(runnable).run();
@@ -105,7 +111,8 @@ public class RetryCallerTest
                                 public Object invoke(Invocation invocation) throws Throwable
                                 {
                                     Assert.assertTrue(System.currentTimeMillis() >= startTime
-                                            + (ifinal * waitingTime));
+                                            + (ifinal * configuration
+                                                    .getWaitingTimeBetweenRetries()));
                                     throw new RemoteConnectFailureException("", null);
                                 }
                             });
@@ -125,7 +132,7 @@ public class RetryCallerTest
         mockery.checking(new Expectations()
             {
                 {
-                    for (int i = 0; i < caller.getRetryMaxCounter(); i++)
+                    for (int i = 0; i < configuration.getMaximumNumberOfRetries() + 1; i++)
                     {
                         oneOf(runnable).run();
                         will(throwException(new RemoteConnectFailureException("", null)));

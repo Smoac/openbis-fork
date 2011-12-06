@@ -18,19 +18,49 @@ package ch.systemsx.cisd.common.retry;
 
 import org.springframework.remoting.RemoteConnectFailureException;
 
+import ch.systemsx.cisd.common.retry.config.DefaultRetryConfiguration;
+import ch.systemsx.cisd.common.retry.config.RetryConfiguration;
+
 /**
  * @author pkupczyk
  */
 public abstract class RetryCaller<T, E extends Throwable>
 {
 
-    private int retryCounter = 1;
+    private RetryConfiguration configuration;
 
-    private int retryMaxCounter = 5;
+    private int retryCounter;
 
-    private int retryWaitingTime = 1000;
+    private int waitingTime;
 
-    private int retryWaitingTimeFactor = 2;
+    public RetryCaller()
+    {
+        this(DefaultRetryConfiguration.getInstance());
+    }
+
+    public RetryCaller(RetryConfiguration configuration)
+    {
+        if (configuration == null)
+        {
+            throw new IllegalArgumentException("Configuration was null");
+        }
+        if (configuration.getMaximumNumberOfRetries() < 0)
+        {
+            throw new IllegalArgumentException("MaximumNumberOfRetries must be >= 0");
+        }
+        if (configuration.getWaitingTimeBetweenRetries() <= 0)
+        {
+            throw new IllegalArgumentException("WaitingTimeBetweenRetries must be > 0");
+        }
+        if (configuration.getWaitingTimeBetweenRetriesIncreasingFactor() <= 0)
+        {
+            throw new IllegalArgumentException(
+                    "WaitingTimeBetweenRetriesIncreasingFactor must be > 0");
+        }
+
+        this.configuration = configuration;
+        this.waitingTime = configuration.getWaitingTimeBetweenRetries();
+    }
 
     protected abstract T call() throws E;
 
@@ -59,50 +89,20 @@ public abstract class RetryCaller<T, E extends Throwable>
 
     private boolean shouldRetry()
     {
-        return retryCounter < retryMaxCounter;
+        return retryCounter < configuration.getMaximumNumberOfRetries();
     }
 
     private void waitForRetry()
     {
         try
         {
-            Thread.sleep(retryWaitingTime);
-            retryWaitingTime *= retryWaitingTimeFactor;
+            Thread.sleep(waitingTime);
+            waitingTime *= configuration.getWaitingTimeBetweenRetriesIncreasingFactor();
             retryCounter++;
         } catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
         }
-    }
-
-    public int getRetryMaxCounter()
-    {
-        return retryMaxCounter;
-    }
-
-    public void setRetryMaxCounter(int retryMaxCounter)
-    {
-        this.retryMaxCounter = retryMaxCounter;
-    }
-
-    public int getRetryWaitingTime()
-    {
-        return retryWaitingTime;
-    }
-
-    public void setRetryWaitingTime(int retryWaitingTime)
-    {
-        this.retryWaitingTime = retryWaitingTime;
-    }
-
-    public int getRetryWaitingTimeFactor()
-    {
-        return retryWaitingTimeFactor;
-    }
-
-    public void setRetryWaitingTimeFactor(int retryWaitingTimeFactor)
-    {
-        this.retryWaitingTimeFactor = retryWaitingTimeFactor;
     }
 
 }

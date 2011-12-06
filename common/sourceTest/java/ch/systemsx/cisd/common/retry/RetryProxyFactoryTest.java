@@ -20,13 +20,29 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.springframework.remoting.RemoteConnectFailureException;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.retry.config.DefaultRetryConfiguration;
 
 /**
  * @author pkupczyk
  */
 public class RetryProxyFactoryTest
 {
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        DefaultRetryConfiguration.getInstance().setWaitingTimeBetweenRetries(100);
+    }
+
+    @AfterMethod
+    public void afterMethod()
+    {
+        DefaultRetryConfiguration.getInstance().reset();
+    }
 
     @Test
     public void testCreateProxyForClassWithoutAnyInterfaceAndCallCommunicationFailingRetryMethod()
