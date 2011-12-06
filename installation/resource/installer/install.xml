@@ -6,7 +6,6 @@
     <url>http://www.cisd.ethz.ch/software/openBIS</url>
     <uninstaller write="no"/>
     <javaversion>1.6</javaversion>
-    <requiresjdk>yes</requiresjdk>
     <os>
       <family>unix, mac</family>  
     </os>
