@@ -73,7 +73,10 @@ ALTER TABLE material_properties_history ALTER COLUMN valid_from_timestamp SET NO
 -- Material Properties --
 
 CREATE OR REPLACE RULE material_properties_update AS
-    ON UPDATE TO material_properties DO ALSO 
+    ON UPDATE TO material_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
+    DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
          MATE_ID, 
@@ -97,7 +100,9 @@ CREATE OR REPLACE RULE material_properties_update AS
        );
        
 CREATE OR REPLACE RULE material_properties_delete AS
-    ON DELETE TO material_properties DO ALSO 
+    ON DELETE TO material_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+    DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
          MATE_ID, 
@@ -123,7 +128,10 @@ CREATE OR REPLACE RULE material_properties_delete AS
 -- Experiment Properties --
 
 CREATE OR REPLACE RULE experiment_properties_update AS
-    ON UPDATE TO experiment_properties DO ALSO 
+    ON UPDATE TO experiment_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
+    DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
          EXPE_ID,
@@ -147,7 +155,9 @@ CREATE OR REPLACE RULE experiment_properties_update AS
        );
        
 CREATE OR REPLACE RULE experiment_properties_delete AS
-    ON DELETE TO experiment_properties DO ALSO 
+    ON DELETE TO experiment_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+    DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
          EXPE_ID,
@@ -173,7 +183,10 @@ CREATE OR REPLACE RULE experiment_properties_delete AS
 -- Sample Properties --
 
 CREATE OR REPLACE RULE sample_properties_update AS
-    ON UPDATE TO sample_properties DO ALSO
+    ON UPDATE TO sample_properties
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
+    DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
          SAMP_ID,
@@ -197,7 +210,9 @@ CREATE OR REPLACE RULE sample_properties_update AS
        );
        
 CREATE OR REPLACE RULE sample_properties_delete AS
-    ON DELETE TO sample_properties DO ALSO
+    ON DELETE TO sample_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+    DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
          SAMP_ID,
@@ -223,7 +238,10 @@ CREATE OR REPLACE RULE sample_properties_delete AS
 -- Data Set Properties --
 
 CREATE OR REPLACE RULE data_set_properties_update AS
-    ON UPDATE TO data_set_properties DO ALSO
+    ON UPDATE TO data_set_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND decode(substring(NEW.value from 1 for 1), 'escape') != E'\\xefbfbd' 
+    DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
          DS_ID,
@@ -247,7 +265,9 @@ CREATE OR REPLACE RULE data_set_properties_update AS
        );
 
 CREATE OR REPLACE RULE data_set_properties_delete AS
-    ON DELETE TO data_set_properties DO ALSO
+    ON DELETE TO data_set_properties 
+    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+    DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
          DS_ID,
