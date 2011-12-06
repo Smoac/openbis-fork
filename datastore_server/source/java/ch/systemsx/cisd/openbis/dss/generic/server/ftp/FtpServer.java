@@ -151,6 +151,27 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             sslConfigFactory.setKeyPassword(config.getKeyPassword());
             factory.setSslConfiguration(sslConfigFactory.createSslConfiguration());
             factory.setImplicitSsl(config.isImplicitSSL());
+            serverFactory.setFtplets(Collections.<String, Ftplet> singletonMap("",
+                    new DefaultFtplet()
+                        {
+                            @Override
+                            public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
+                                    throws FtpException, IOException
+                            {
+                                String cmd = request.getCommand().toUpperCase();
+                                if ("USER".equals(cmd))
+                                {
+                                    if (session.isSecure() == false)
+                                    {
+                                        session.write(new DefaultFtpReply(500,
+                                                "Control channel is not secure. "
+                                                        + "Please, issue AUTH command first."));
+                                        return FtpletResult.SKIP;
+                                    }
+                                }
+                                return super.beforeCommand(session, request);
+                            }
+                        }));
         }
 
         DataConnectionConfigurationFactory dccFactory = new DataConnectionConfigurationFactory();
@@ -170,28 +191,6 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
         serverFactory.setFileSystem(this);
         serverFactory.setUserManager(userManager);
-        serverFactory.setFtplets(Collections.<String, Ftplet> singletonMap("", new DefaultFtplet()
-            {
-                @Override
-                public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
-                        throws FtpException, IOException
-                {
-                    String cmd = request.getCommand().toUpperCase();
-                    System.out
-                            .println("FtpServer.creatFtpServer().new DefaultFtplet() {...}.beforeCommand() "+cmd);
-                    if ("USER".equals(cmd))
-                    {
-                        if (session.isSecure() == false)
-                        {
-                            session.write(new DefaultFtpReply(500,
-                                    "Control channel is not secure. "
-                                            + "Please, issue AUTH command first."));
-                            return FtpletResult.SKIP;
-                        }
-                    }
-                    return super.beforeCommand(session, request);
-                }
-            }));
 
         return serverFactory.createServer();
     }
