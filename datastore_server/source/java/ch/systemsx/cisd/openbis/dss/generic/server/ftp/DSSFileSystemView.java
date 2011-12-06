@@ -16,6 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -26,6 +36,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.util.Key;
 
 /**
  * A central class that manages the movement of a user up and down the exposed hierarchical
@@ -35,6 +46,45 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  */
 public class DSSFileSystemView implements FileSystemView
 {
+    private static final Set<String> METHOD_NAMES = new HashSet<String>(Arrays.asList(
+            "tryToGetExperiment", "listDataSetsByExperimentID"));
+
+    private final class ServiceInvocationHandler implements InvocationHandler
+    {
+        private final Map<Key, Object> cache = new HashMap<Key, Object>();
+        private final IETLLIMSService openbisService;
+
+        private ServiceInvocationHandler(IETLLIMSService service)
+        {
+            this.openbisService = service;
+        }
+
+        public Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable
+        {
+            if (METHOD_NAMES.contains(method.getName()))
+            {
+                Key key = new Key(args);
+                Object result = cache.get(key);
+                if (result == null)
+                {
+                    result = invoke(method, args);
+                    cache.put(key, result);
+                }
+                return result;
+            } else
+            {
+                return invoke(method, args);
+            }
+        }
+
+        private Object invoke(Method method, Object[] args) throws IllegalAccessException,
+                InvocationTargetException
+        {
+            return method.invoke(openbisService, args);
+        }
+    }
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DSSFileSystemView.class);
 
@@ -48,12 +98,14 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
-    DSSFileSystemView(String sessionToken, IETLLIMSService service,
+    DSSFileSystemView(String sessionToken, final IETLLIMSService service,
             IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
         this.sessionToken = sessionToken;
-        this.service = service;
+        this.service =
+                (IETLLIMSService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
+                    { IETLLIMSService.class }, new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
         this.pathResolverRegistry = pathResolverRegistry;
         this.workingDirectory = getHomeDirectory();
