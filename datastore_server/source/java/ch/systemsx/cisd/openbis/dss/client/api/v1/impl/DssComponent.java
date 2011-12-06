@@ -466,6 +466,7 @@ class AuthenticatedState extends AbstractDssComponentState
         {
             if (url.toLowerCase().startsWith("https"))
             {
+                // TODO: find a way to accept invalid certificates on request
                 return new URL(null, url, new sun.net.www.protocol.https.Handler())
                         .openConnection().getInputStream();
             } else
