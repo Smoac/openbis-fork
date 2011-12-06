@@ -75,4 +75,34 @@ public abstract class RetryCaller<T, E extends Throwable>
         }
     }
 
+    public int getRetryMaxCounter()
+    {
+        return retryMaxCounter;
+    }
+
+    public void setRetryMaxCounter(int retryMaxCounter)
+    {
+        this.retryMaxCounter = retryMaxCounter;
+    }
+
+    public int getRetryWaitingTime()
+    {
+        return retryWaitingTime;
+    }
+
+    public void setRetryWaitingTime(int retryWaitingTime)
+    {
+        this.retryWaitingTime = retryWaitingTime;
+    }
+
+    public int getRetryWaitingTimeFactor()
+    {
+        return retryWaitingTimeFactor;
+    }
+
+    public void setRetryWaitingTimeFactor(int retryWaitingTimeFactor)
+    {
+        this.retryWaitingTimeFactor = retryWaitingTimeFactor;
+    }
+
 }
