@@ -21,6 +21,8 @@ if [ -d "$INSTALL_TMPEXTRACT" ]; then
 fi
 
 if [ -d "$DATA_TMPEXTRACT" ]; then
-   cp -R "$DATA_TMPEXTRACT/data/" "$DSS_ROOT_DIR"
+   # executed just for safety, the folder should exist
+   mkdir -p "$DSS_ROOT_DIR" > /dev/null
+   cp -R "$DATA_TMPEXTRACT/data/*" "$DSS_ROOT_DIR"
    rm -rf "$DATA_TMPEXTRACT"
 fi
