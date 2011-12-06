@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.api.v1;
+package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
 import static ch.systemsx.cisd.common.collections.CollectionUtils.nullSafe;
 
@@ -59,12 +59,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
  */
 public class Translator
 {
-    static Role translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy role)
+    public static Role translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy role)
     {
         return translate(role.getRoleCode(), role.getRoleLevel().equals(RoleLevel.SPACE));
     }
 
-    static Role translate(RoleCode roleCode, boolean spaceLevel)
+    public static Role translate(RoleCode roleCode, boolean spaceLevel)
     {
         return new Role(roleCode.name(), spaceLevel);
     }
@@ -82,7 +83,8 @@ public class Translator
         return translated;
     }
 
-    static Project translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
+    public static Project translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
     {
         EntityRegistrationDetails registrationDetails = translateRegistrationDetails(project);
         return new Project(project.getSpace().getCode(), project.getCode(), registrationDetails);
@@ -128,7 +130,7 @@ public class Translator
         return new Sample(initializer);
     }
 
-    static List<Experiment> translateExperiments(
+    public static List<Experiment> translateExperiments(
             Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> privateExperiments)
     {
         ArrayList<Experiment> experiments = new ArrayList<Experiment>();
@@ -139,7 +141,7 @@ public class Translator
         return experiments;
     }
 
-    static Experiment translate(
+    public static Experiment translate(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment privateExperiment)
     {
         ExperimentInitializer initializer = new ExperimentInitializer();

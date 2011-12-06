@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -41,9 +42,9 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
 
     public ImageContainerDataSet(
             DataSetRegistrationDetails<? extends DataSetInformation> registrationDetails,
-            File dataSetFolder)
+            File dataSetFolder, IEncapsulatedOpenBISService service)
     {
-        super(registrationDetails, dataSetFolder);
+        super(registrationDetails, dataSetFolder, service);
     }
 
     public DataSet<ImageDataSetInformation> getOriginalDataset()

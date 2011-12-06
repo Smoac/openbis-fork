@@ -127,7 +127,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         public ImageContainerDataSet createDataSet(
                 DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
         {
-            return new ImageContainerDataSet(registrationDetails, stagingFile);
+            IEncapsulatedOpenBISService service = registratorState.getGlobalState().getOpenBisService();
+            return new ImageContainerDataSet(registrationDetails, stagingFile, service);
         }
 
         @Override

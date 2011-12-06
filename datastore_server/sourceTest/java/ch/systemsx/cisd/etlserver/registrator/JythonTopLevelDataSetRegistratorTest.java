@@ -155,6 +155,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 incomingDir);
         assertEquals("hello world1",
                 FileUtilities.loadToString(new File(datasetLocation, "read1.me")).trim());
+        assertEquals("", logAppender.getLogContent());
         context.assertIsSatisfied();
     }
 
