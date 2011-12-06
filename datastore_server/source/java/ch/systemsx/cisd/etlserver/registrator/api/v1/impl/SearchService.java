@@ -102,7 +102,7 @@ class SearchService implements ISearchService
                 new ArrayList<IDataSetImmutable>(serverDataSets.size());
         for (ExternalData dataSet : serverDataSets)
         {
-            dataSets.add(new DataSetImmutable(dataSet));
+            dataSets.add(new DataSetImmutable(dataSet, openBisService));
         }
         return dataSets;
     }

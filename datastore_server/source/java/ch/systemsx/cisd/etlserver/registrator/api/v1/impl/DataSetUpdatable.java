@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -36,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdatable
 {
-    public DataSetUpdatable(ExternalData dataSet)
+    public DataSetUpdatable(ExternalData dataSet, IEncapsulatedOpenBISService service)
     {
-        super(dataSet);
+        super(dataSet, service);
         if (dataSet.getProperties() == null)
         {
             dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());

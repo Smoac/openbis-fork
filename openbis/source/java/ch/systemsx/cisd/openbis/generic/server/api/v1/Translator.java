@@ -161,7 +161,7 @@ public class Translator
         return new Experiment(initializer);
     }
 
-    static DataSetType translate(
+    public static DataSetType translate(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType,
             HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms)
     {

@@ -22,12 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -41,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSet<T extends DataSetInformation> implements IDataSet
+public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmutable implements IDataSet
 {
     private final DataSetRegistrationDetails<? extends T> registrationDetails;
 
@@ -52,8 +55,10 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
 
     private ISampleImmutable sampleOrNull;
 
-    public DataSet(DataSetRegistrationDetails<? extends T> registrationDetails, File dataSetFolder)
+    public DataSet(DataSetRegistrationDetails<? extends T> registrationDetails, File dataSetFolder,
+            IEncapsulatedOpenBISService service)
     {
+        super(service);
         this.registrationDetails = registrationDetails;
         this.dataSetFolder = dataSetFolder;
     }
@@ -184,6 +189,18 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     public String getDataSetType()
     {
         return registrationDetails.getDataSetType().getCode();
+    }
+
+    public DataSetType getDataSetTypeWithPropertyTypes()
+    {
+        String dataSetTypeCode = getDataSetType();
+        if (dataSetTypeCode == null)
+        {
+            throw new UserFailureException(
+                    "Unkown data set type. Data set type code has to be set "
+                            + "before invoking getDataSetTypeWithPropertyTypes().");
+        }
+        return getDataSetTypeWithPropertyTypes(dataSetTypeCode);
     }
 
     public void setDataSetType(String dataSetTypeCode)

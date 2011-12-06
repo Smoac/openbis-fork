@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -33,12 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetImmutable implements IDataSetImmutable
+public class DataSetImmutable extends AbstractDataSetImmutable
 {
     protected final ExternalData dataSet;
 
-    public DataSetImmutable(ExternalData dataSet)
+    public DataSetImmutable(ExternalData dataSet, IEncapsulatedOpenBISService service)
     {
+        super(service);
         this.dataSet = dataSet;
     }
 
@@ -96,6 +99,11 @@ public class DataSetImmutable implements IDataSetImmutable
         return dataSet.getDataSetType().getCode();
     }
 
+    public DataSetType getDataSetTypeWithPropertyTypes()
+    {
+        return getDataSetTypeWithPropertyTypes(getDataSetType());
+    }
+
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(dataSet, propertyCode);
@@ -141,7 +149,7 @@ public class DataSetImmutable implements IDataSetImmutable
         {
             for (ExternalData child : children)
             {
-                result.add(new DataSetImmutable(child));
+                result.add(new DataSetImmutable(child, service));
             }
         }
         return result;

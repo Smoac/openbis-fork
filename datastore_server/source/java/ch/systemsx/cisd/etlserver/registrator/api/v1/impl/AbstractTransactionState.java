@@ -370,7 +370,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 return null;
             } else
             {
-                return new DataSetImmutable(dataSet);
+                return new DataSetImmutable(dataSet, openBisService);
             }
         }
 
@@ -389,7 +389,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 return null;
             } else
             {
-                result = new DataSetUpdatable(dataSet);
+                result = new DataSetUpdatable(dataSet, openBisService);
                 dataSetsToBeUpdated.add(result);
                 return result;
             }

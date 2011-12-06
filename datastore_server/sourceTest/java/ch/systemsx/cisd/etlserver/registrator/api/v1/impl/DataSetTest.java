@@ -40,7 +40,7 @@ public class DataSetTest extends AssertJUnit
         DataSetRegistrationDetails<DataSetInformation> registrationDetails =
                 new DataSetRegistrationDetails<DataSetInformation>();
         registrationDetails.setDataSetInformation(new DataSetInformation());
-        IDataSet dataSet = new DataSet<DataSetInformation>(registrationDetails, new File("."));
+        IDataSet dataSet = new DataSet<DataSetInformation>(registrationDetails, new File("."), null);
         
         assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet.getSpeedHint());
 

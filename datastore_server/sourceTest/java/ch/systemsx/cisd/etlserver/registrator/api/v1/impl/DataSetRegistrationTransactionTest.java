@@ -701,7 +701,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         public DataSet<DataSetInformation> createDataSet(
                 DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
         {
-            return new DataSet<DataSetInformation>(registrationDetails, stagingFile);
+            return new DataSet<DataSetInformation>(registrationDetails, stagingFile, openBisService);
         }
     }
 

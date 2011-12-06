@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -71,7 +72,8 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
             File stagingFile)
     {
-        return new DataSet<T>(registrationDetails, stagingFile);
+        IEncapsulatedOpenBISService service = registratorState.getGlobalState().getOpenBisService();
+        return new DataSet<T>(registrationDetails, stagingFile, service);
     }
 
     /**

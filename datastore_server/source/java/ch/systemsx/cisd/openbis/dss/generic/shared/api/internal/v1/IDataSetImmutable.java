@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
@@ -71,6 +73,14 @@ public interface IDataSetImmutable
      * data set.
      */
     public String getDataSetType();
+    
+    /**
+     * Returns data set type with property types and vocabulary terms for all property types with
+     * vocabulary data type.
+     * 
+     * @throws UserFailureException if data set type code hasn't been defined.
+     */
+    public DataSetType getDataSetTypeWithPropertyTypes();
 
     /**
      * Returns the speed hint.
