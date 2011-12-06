@@ -306,6 +306,9 @@ CREATE RULE data_insert AS ON INSERT TO data DO INSTEAD INSERT INTO data_all (id
 CREATE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
@@ -331,6 +334,9 @@ CREATE RULE data_set_properties_update AS
 CREATE RULE data_set_properties_delete AS
     ON DELETE TO data_set_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND (OLD.VALUE IS NOT NULL 
+        OR OLD.CVTE_ID IS NOT NULL 
+        OR OLD.MATE_PROP_ID IS NOT NULL) 
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
@@ -361,6 +367,9 @@ CREATE RULE experiment_insert AS ON INSERT TO experiments DO INSTEAD INSERT INTO
 CREATE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -386,6 +395,9 @@ CREATE RULE experiment_properties_update AS
 CREATE RULE experiment_properties_delete AS
     ON DELETE TO experiment_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND (OLD.VALUE IS NOT NULL 
+        OR OLD.CVTE_ID IS NOT NULL 
+        OR OLD.MATE_PROP_ID IS NOT NULL) 
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -414,6 +426,9 @@ CREATE RULE experiments_deleted_update AS ON UPDATE TO experiments_deleted DO IN
 CREATE RULE material_properties_update AS
     ON UPDATE TO material_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -439,6 +454,9 @@ CREATE RULE material_properties_update AS
 CREATE RULE material_properties_delete AS
     ON DELETE TO material_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND (OLD.VALUE IS NOT NULL 
+        OR OLD.CVTE_ID IS NOT NULL 
+        OR OLD.MATE_PROP_ID IS NOT NULL) 
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -468,6 +486,9 @@ CREATE RULE sample_insert AS ON INSERT TO samples DO INSTEAD INSERT INTO samples
 CREATE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
@@ -493,6 +514,9 @@ CREATE RULE sample_properties_update AS
 CREATE RULE sample_properties_delete AS
     ON DELETE TO sample_properties 
     WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
+      AND (OLD.VALUE IS NOT NULL 
+        OR OLD.CVTE_ID IS NOT NULL 
+        OR OLD.MATE_PROP_ID IS NOT NULL) 
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
