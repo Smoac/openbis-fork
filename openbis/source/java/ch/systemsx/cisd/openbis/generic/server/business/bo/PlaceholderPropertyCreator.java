@@ -32,8 +32,8 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
     public void addDynamicPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
             Set<String> dynamicProperties)
     {
-        // Note: if you want to set the dynamicProperties to 'invalid', this is the right place
-        // to do it.
+        addPlaceholders(definedProperties, dynamicProperties,
+                BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE);
     }
 
     /**

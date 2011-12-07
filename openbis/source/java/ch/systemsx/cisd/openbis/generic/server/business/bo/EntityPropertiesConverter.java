@@ -286,12 +286,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
-        return convertProperties(properties, entityTypeCode, registrator, true);
+        return convertProperties(properties, entityTypeCode, registrator, true, true);
     }
 
     private final <T extends EntityPropertyPE> List<T> convertProperties(
             final IEntityProperty[] properties, final String entityTypeCode,
-            final PersonPE registrator, final boolean createManagedPropertiesPlaceholders)
+            final PersonPE registrator, final boolean createManagedPropertiesPlaceholders,
+            boolean createDynamicPropertiesPlaceholders)
     {
         assert entityTypeCode != null : "Unspecified entity type code.";
         assert registrator != null : "Unspecified registrator";
@@ -304,7 +305,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         Set<String> propertiesToUpdate = extractPropertiesToUpdate(properties);
         dynamicPropertiesUpdateChecker.checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate,
                 dynamicProperties);
-        placeholderCreator.addDynamicPropertiesPlaceholders(definedProperties, dynamicProperties);
+        if (createDynamicPropertiesPlaceholders)
+        {
+            placeholderCreator.addDynamicPropertiesPlaceholders(definedProperties,
+                    dynamicProperties);
+        }
         if (createManagedPropertiesPlaceholders)
         {
             placeholderCreator.addManagedPropertiesPlaceholders(definedProperties,
@@ -486,7 +491,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final PersonPE registrator)
     {
         IEntityProperty[] propsArray = properties.toArray(new IEntityProperty[0]);
-        return convertProperties(propsArray, entityTypeCode, registrator, false);
+        return convertProperties(propsArray, entityTypeCode, registrator, false, false);
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,

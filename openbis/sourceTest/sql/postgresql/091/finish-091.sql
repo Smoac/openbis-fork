@@ -305,10 +305,9 @@ CREATE RULE data_deleted_update AS ON UPDATE TO data_deleted DO INSTEAD UPDATE d
 CREATE RULE data_insert AS ON INSERT TO data DO INSTEAD INSERT INTO data_all (id, code, ctnr_id, ctnr_order, del_id, expe_id, dast_id, data_producer_code, dsty_id, is_derived, is_placeholder, is_valid, modification_timestamp, pers_id_registerer, production_timestamp, registration_timestamp, samp_id) VALUES (new.id, new.code, new.ctnr_id, new.ctnr_order, new.del_id, new.expe_id, new.dast_id, new.data_producer_code, new.dsty_id, new.is_derived, new.is_placeholder, new.is_valid, new.modification_timestamp, new.pers_id_registerer, new.production_timestamp, new.registration_timestamp, new.samp_id);
 CREATE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
@@ -333,10 +332,9 @@ CREATE RULE data_set_properties_update AS
        );
 CREATE RULE data_set_properties_delete AS
     ON DELETE TO data_set_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND (OLD.VALUE IS NOT NULL 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL) 
+        OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO
        INSERT INTO data_set_properties_history (
          ID, 
@@ -366,10 +364,9 @@ CREATE RULE experiment_delete AS ON DELETE TO experiments DO INSTEAD DELETE FROM
 CREATE RULE experiment_insert AS ON INSERT TO experiments DO INSTEAD INSERT INTO experiments_all (id, code, del_id, exty_id, is_public, mate_id_study_object, modification_timestamp, perm_id, pers_id_registerer, proj_id, registration_timestamp) VALUES (new.id, new.code, new.del_id, new.exty_id, new.is_public, new.mate_id_study_object, new.modification_timestamp, new.perm_id, new.pers_id_registerer, new.proj_id, new.registration_timestamp);
 CREATE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -394,10 +391,9 @@ CREATE RULE experiment_properties_update AS
        );
 CREATE RULE experiment_properties_delete AS
     ON DELETE TO experiment_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND (OLD.VALUE IS NOT NULL 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL) 
+        OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
@@ -425,10 +421,9 @@ CREATE RULE experiments_deleted_delete AS ON DELETE TO experiments_deleted DO IN
 CREATE RULE experiments_deleted_update AS ON UPDATE TO experiments_deleted DO INSTEAD UPDATE experiments_all SET del_id = new.del_id, modification_timestamp = new.modification_timestamp WHERE ((experiments_all.id)::bigint = (new.id)::bigint);
 CREATE RULE material_properties_update AS
     ON UPDATE TO material_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -453,10 +448,9 @@ CREATE RULE material_properties_update AS
        );
 CREATE RULE material_properties_delete AS
     ON DELETE TO material_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND (OLD.VALUE IS NOT NULL 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL) 
+        OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO 
        INSERT INTO material_properties_history (
          ID, 
@@ -485,10 +479,9 @@ CREATE RULE sample_deleted_update AS ON UPDATE TO samples_deleted DO INSTEAD UPD
 CREATE RULE sample_insert AS ON INSERT TO samples DO INSTEAD INSERT INTO samples_all (id, code, dbin_id, del_id, expe_id, modification_timestamp, perm_id, pers_id_registerer, registration_timestamp, samp_id_part_of, saty_id, space_id) VALUES (new.id, new.code, new.dbin_id, new.del_id, new.expe_id, new.modification_timestamp, new.perm_id, new.pers_id_registerer, new.registration_timestamp, new.samp_id_part_of, new.saty_id, new.space_id);
 CREATE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND ((OLD.VALUE IS NOT NULL AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)) 
+        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
@@ -513,10 +506,9 @@ CREATE RULE sample_properties_update AS
        );
 CREATE RULE sample_properties_delete AS
     ON DELETE TO sample_properties 
-    WHERE decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd'
-      AND (OLD.VALUE IS NOT NULL 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL) 
+        OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO
        INSERT INTO sample_properties_history (
          ID, 
