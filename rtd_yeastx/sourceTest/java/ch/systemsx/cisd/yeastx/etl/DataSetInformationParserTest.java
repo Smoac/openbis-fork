@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -84,11 +85,9 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     {
         File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB + TAB + TAB + TAB);
         List<DataSetMappingInformation> result = tryParse(indexFile);
-        AssertJUnit.assertNull("error during parsing expected", result);
+        AssertJUnit.assertEquals("[]", result.toString());
         List<String> logLines = readLogFile();
-        System.out.println(logLines);
-        AssertJUnit.assertEquals(3, logLines.size());
-        AssertionUtil.assertContains("Missing value for the mandatory column", logLines.get(2));
+        AssertJUnit.assertEquals("[]", logLines.toString());
     }
 
     @Test
@@ -120,7 +119,11 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     @SuppressWarnings("unchecked")
     private static List<String> readLines(File file) throws IOException, FileNotFoundException
     {
-        return IOUtils.readLines(new FileInputStream(file));
+        if (file.exists())
+        {
+            return IOUtils.readLines(new FileInputStream(file));
+        }
+        return Collections.emptyList();
     }
 
     private File writeMappingFile(String content)
