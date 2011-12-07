@@ -3,7 +3,7 @@ def validate_header(line, first_data_col, errors):
   if line[0] != "Locustag":
     errors.append(createFileValidationError("The first data column must be 'Locustag' (not " + line[0] + ")."))
     return False
-  header_regex = re.compile("^MGP[0-9]{1,3}-[0-9] [0-9]+")
+  header_regex = re.compile("^.+-[0-9] [0-9]+")
   for i in range(first_data_col, len(line)):
     match = header_regex.match(line[i])
     if match is None:
