@@ -18,9 +18,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -29,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewD
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
@@ -115,7 +115,8 @@ final class DataSetUploadOperation implements Runnable
         }
 
         DataSetType dataSetType = clientModel.getDataSetType(dataSetTypeCode);
-        Set<String> vocabularyProperties = getVocabularyPropertyNames(dataSetType);
+        Map<String, String> vocabularyProperties =
+                getVocabularyPropertyNamesToVocabularyMap(dataSetType);
         if (vocabularyProperties.isEmpty())
         {
             return;
@@ -127,14 +128,15 @@ final class DataSetUploadOperation implements Runnable
 
         for (String property : unmodifiableProperties)
         {
-            if (vocabularyProperties.contains(property))
+            if (vocabularyProperties.keySet().contains(property))
             {
                 String term = dataSetProperties.get(property);
                 if (null == term)
                 {
                     continue;
                 }
-                Vocabulary vocabulary = clientModel.getVocabulary(property);
+                Vocabulary vocabulary =
+                        clientModel.getVocabulary(vocabularyProperties.get(property));
                 if (null == vocabulary)
                 {
                     continue;
@@ -174,16 +176,19 @@ final class DataSetUploadOperation implements Runnable
         return maxOrdinal;
     }
 
-    private Set<String> getVocabularyPropertyNames(DataSetType dataSetType)
+    private Map<String, String> getVocabularyPropertyNamesToVocabularyMap(DataSetType dataSetType)
     {
-        Set<String> vocabularyProperties = new HashSet<String>();
+        HashMap<String, String> vocabularyProperties = new HashMap<String, String>();
         for (PropertyTypeGroup typeGroup : dataSetType.getPropertyTypeGroups())
         {
             for (PropertyType propertyType : typeGroup.getPropertyTypes())
             {
                 if (propertyType.getDataType() == DataTypeCode.CONTROLLEDVOCABULARY)
                 {
-                    vocabularyProperties.add(propertyType.getCode());
+                    ControlledVocabularyPropertyType vocabPropertyType =
+                            (ControlledVocabularyPropertyType) propertyType;
+                    vocabularyProperties.put(propertyType.getCode(), vocabPropertyType
+                            .getVocabulary().getCode());
                 }
             }
         }
