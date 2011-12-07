@@ -362,10 +362,8 @@ abstract public class SimpleImageDataConfig
 
     public void setGenerateThumbnailsPyramid(double[] zoomLevels)
     {
-        if (zoomLevels == null)
-        {
-            thumbnailsPyramid.clear();
-        } else
+        thumbnailsPyramid.clear();
+        if (zoomLevels != null)
         {
             for (double zoomLevel : zoomLevels)
             {
