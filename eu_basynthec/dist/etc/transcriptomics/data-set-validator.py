@@ -3,11 +3,17 @@ def validate_header(line, first_data_col, errors):
   if line[0] != "Locustag":
     errors.append(createFileValidationError("The first data column must be 'Locustag' (not " + line[0] + ")."))
     return False
-  header_regex = re.compile("^.+-[0-9] [0-9]+")
+  header_regex = re.compile("^(.+)-([0-9]) ([0-9]+)")
   for i in range(first_data_col, len(line)):
     match = header_regex.match(line[i])
     if match is None:
-      errors.append(createFileValidationError("The column header + " + str(i) + " must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]"))
+      errors.append(createFileValidationError("The column header + " + str(i) + " must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]. " + line[i] + " is not."))
+      continue
+    strainName = match.group(1)
+    if isStrainIdValid(strainName) is False:
+      errors.append(createFileValidationError("The column header + " + str(i) + " must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]. " + strainName + " is not a recognized strain."))
+      continue      
+    
 
 
 def validate_data(time_series_data, first_data_row, first_data_col, errors):

@@ -2,6 +2,9 @@ from datetime import datetime
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel
 import re
 
+# A Regex for matching the column headers
+header_regex = re.compile("^(.+)-([0-9]) ([0-9]+)")
+
 def set_data_type(data_set):
   data_set.setPropertyValue("DATA_TYPE", "TRANSCRIPTOMICS")
 
@@ -96,7 +99,6 @@ def convert_data_to_split_tsv(tr, start_row, start_col, dataset, location):
   
   # Extract the column / strain mapping
   header_line = raw_data[start_row]
-  header_regex = re.compile("^(MGP[0-9]{1,3})-([0-9]) ([0-9]+)")
   for i in range(start_col, len(header_line)):
     match = header_regex.match(header_line[i])
     strain_name = match.group(1)
@@ -149,10 +151,9 @@ def store_original_data(tr, dataset, location):
   tr.moveFile(incoming.getAbsolutePath(), dataset, location + "/" + incoming.getName())
 
 def extract_strains(start_row, start_col):
-  """Extract the strain names from the header."""
+  """Extract the strain names from the header. These have already been validated by the validator."""
   strains = []
   line = timeSeriesData.getRawDataLines()[start_row]
-  header_regex = re.compile("^(MGP[0-9]{1,3})-([0-9]) ([0-9]+)")
   for i in range(start_col, len(line)):
     match = header_regex.match(line[i])
     strains.append(match.group(1))
