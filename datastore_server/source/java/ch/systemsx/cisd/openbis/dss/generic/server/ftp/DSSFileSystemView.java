@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +33,6 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -154,32 +155,21 @@ public class DSSFileSystemView implements FileSystemView
 
     private String normalizePath(String path) throws FtpException
     {
-        String result = path.trim();
-        if (result.startsWith(".."))
-        {
-            String currentPath = workingDirectory.getAbsolutePath();
-            int idx = currentPath.lastIndexOf(FtpConstants.FILE_SEPARATOR);
-            result = currentPath.substring(0, idx) + result.substring(2);
-        } else if (result.startsWith("."))
-        {
-            result = workingDirectory.getAbsolutePath() + result.substring(1);
-        } else if (false == result.startsWith(FtpConstants.ROOT_DIRECTORY))
-        {
-            result = workingDirectory.getAbsolutePath() + FtpConstants.FILE_SEPARATOR + result;
-        }
-        // remove '.' at the end of a path
-        result = result.replaceAll("/\\.$", "/");
-        // remove trailing slashes
-        result = result.replaceAll("/*$", "");
-        // replace multiple adjacent slashes with a single slash
-        result = result.replaceAll("/+", "/");
 
-        if (StringUtils.isBlank(result))
+        String fullPath = path.trim();
+        if (false == fullPath.startsWith(FtpConstants.FILE_SEPARATOR))
         {
-            return FtpConstants.ROOT_DIRECTORY;
+            fullPath = workingDirectory.getAbsolutePath() + FtpConstants.FILE_SEPARATOR + fullPath;
         }
 
-        return result;
+        try
+        {
+            URI uri = new URI(fullPath);
+            return uri.normalize().toString();
+        } catch (URISyntaxException ex)
+        {
+            throw new FtpException("Cannot parse path " + fullPath, ex);
+        }
     }
 
     public FtpFile getHomeDirectory() throws FtpException
