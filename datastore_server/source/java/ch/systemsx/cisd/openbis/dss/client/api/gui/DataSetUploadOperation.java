@@ -109,10 +109,11 @@ final class DataSetUploadOperation implements Runnable
     {
         NewDataSetMetadataDTO metadata = dataSetInfo.getNewDataSetBuilder().getDataSetMetadata();
         String dataSetTypeCode = metadata.tryDataSetType();
-        if (dataSetTypeCode == null) {
+        if (dataSetTypeCode == null)
+        {
             return;
         }
-        
+
         DataSetType dataSetType = clientModel.getDataSetType(dataSetTypeCode);
         Set<String> vocabularyProperties = getVocabularyPropertyNames(dataSetType);
         if (vocabularyProperties.isEmpty())
@@ -129,7 +130,15 @@ final class DataSetUploadOperation implements Runnable
             if (vocabularyProperties.contains(property))
             {
                 String term = dataSetProperties.get(property);
+                if (null == term)
+                {
+                    continue;
+                }
                 Vocabulary vocabulary = clientModel.getVocabulary(property);
+                if (null == vocabulary)
+                {
+                    continue;
+                }
                 if (false == hasTerm(vocabulary, term))
                 {
                     clientModel.addUnofficialVocabularyTerm(vocabulary, term, term.trim(), term,
@@ -144,7 +153,7 @@ final class DataSetUploadOperation implements Runnable
     {
         for (VocabularyTerm term : vocabulary.getTerms())
         {
-            if (term.getCode().equalsIgnoreCase(termCode))
+            if (termCode.equalsIgnoreCase(term.getCode()))
             {
                 return true;
             }
