@@ -182,6 +182,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.checking(new Expectations()
             {
                 {
+                    allowing(ds1Proxy).getCode();
+                    will(returnValue("ds1ProxyCode"));
+
                     allowing(dssService1).getMajorVersion();
                     will(returnValue(ScreeningOpenbisServiceFacade.MAJOR_VERSION_DSS));
 
@@ -841,12 +844,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     public void testListImageMetaData()
     {
         List<ImageChannel> channels = Arrays.asList(new ImageChannel("channel1", "Channel 1"));
-        final ImageDatasetMetadata m1 =
-                new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
-        final ImageDatasetMetadata m2 =
-                new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
-        final ImageDatasetMetadata m3 =
-                new ImageDatasetMetadata(i2id, channels, 1, 1, 1, 1, 0, 0);
+        final ImageDatasetMetadata m1 = new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
+        final ImageDatasetMetadata m2 = new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
+        final ImageDatasetMetadata m3 = new ImageDatasetMetadata(i2id, channels, 1, 1, 1, 1, 0, 0);
         context.checking(new Expectations()
             {
                 {
@@ -1166,7 +1166,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier, filter);
 
-        assertSame(ds1Proxy, dataSets.get(0));
+        assertSame(ds1Proxy.getCode(), dataSets.get(0).getCode());
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
@@ -1198,7 +1198,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier, filter);
 
-        assertSame(ds1Proxy, dataSets.get(0));
+        assertSame(ds1Proxy.getCode(), dataSets.get(0).getCode());
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
@@ -1234,7 +1234,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         IDataSetDss dataSet = facade.putDataSet(wellIdentifier, dataSetRoot, metaData);
 
-        assertSame(ds1Proxy, dataSet);
+        assertSame(ds1Proxy.getCode(), dataSet.getCode());
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
         assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject().getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
@@ -1283,7 +1283,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         IDataSetDss dataSet = facade.putDataSet(plateIdentifier, dataSetRoot, metaData);
 
-        assertSame(ds1Proxy, dataSet);
+        assertSame(ds1Proxy.getCode(), dataSet.getCode());
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
         assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject().getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
