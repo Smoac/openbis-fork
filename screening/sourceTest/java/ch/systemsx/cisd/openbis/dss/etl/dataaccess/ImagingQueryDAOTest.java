@@ -428,9 +428,9 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final long datasetId = dao.addImageDataset(dataset);
         String physicalDatasetPermIdPrefix = permId + "666";
         dao.addImageZoomLevel(new ImgImageZoomLevelDTO(physicalDatasetPermIdPrefix + "-123", true,
-                datasetId));
+                "original", 800, 600, datasetId));
         dao.addImageZoomLevel(new ImgImageZoomLevelDTO(physicalDatasetPermIdPrefix + "-666", false,
-                datasetId));
+                "thumbs", 200, 150, datasetId));
 
         final ImgImageDatasetDTO loadedDataset = dao.tryGetImageDatasetByPermId(permId);
         assertNotNull(loadedDataset);
@@ -448,12 +448,23 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(loadedDataset, datasets.get(0));
 
         // test listImageZoomLevels
-        List<ImgImageZoomLevelDTO> zoomLevels = dao.listImageZoomLevels(permId);
+        List<ImgImageZoomLevelDTO> zoomLevels = dao.listImageZoomLevels(datasetId);
         assertEquals(2, zoomLevels.size());
         for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
         {
             AssertionUtil.assertContains(physicalDatasetPermIdPrefix,
                     zoomLevel.getPhysicalDatasetPermId());
+            if (zoomLevel.getIsOriginal())
+            {
+                assertEquals("original", zoomLevel.getRootPath());
+                assertEquals(800, zoomLevel.getWidth().intValue());
+                assertEquals(600, zoomLevel.getHeight().intValue());
+            } else
+            {
+                assertEquals("thumbs", zoomLevel.getRootPath());
+                assertEquals(200, zoomLevel.getWidth().intValue());
+                assertEquals(150, zoomLevel.getHeight().intValue());
+            }
         }
 
         return datasetId;

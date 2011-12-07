@@ -23,13 +23,16 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -146,33 +149,47 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     public static class ImageDatasetOwnerInformation extends DatasetOwnerInformation
     {
         public static ImageDatasetOwnerInformation create(String containerDatasetPermId,
-                DataSetInformation originalDataset, String thumbnailDatasetPermIdOrNull)
+                DataSetInformation originalDataset, ThumbnailsInfo thumbnailsInfosOrNull)
         {
             return new ImageDatasetOwnerInformation(containerDatasetPermId, originalDataset,
-                    thumbnailDatasetPermIdOrNull);
+                    thumbnailsInfosOrNull);
         }
 
         private final List<ImageZoomLevel> imageZoomLevels;
 
         private ImageDatasetOwnerInformation(String containerDatasetPermId,
-                DataSetInformation originalDataset, String thumbnailDatasetPermIdOrNull)
+                DataSetInformation originalDataset, ThumbnailsInfo thumbnailsInfosOrNull)
         {
             super(containerDatasetPermId, originalDataset);
-            this.imageZoomLevels = createZoomLevels(originalDataset, thumbnailDatasetPermIdOrNull);
+            this.imageZoomLevels = createZoomLevels(originalDataset, thumbnailsInfosOrNull);
         }
 
         private static List<ImageZoomLevel> createZoomLevels(DataSetInformation originalDataset,
-                String thumbnailDatasetPermIdOrNull)
+                ThumbnailsInfo thumbnailsInfosOrNull)
         {
             List<ImageZoomLevel> zoomLevels = new ArrayList<ImageZoomLevel>();
+
             ImageZoomLevel originalZoomLevel =
-                    new ImageZoomLevel(originalDataset.getDataSetCode(), true);
+                    new ImageZoomLevel(originalDataset.getDataSetCode(), true,
+                            StringUtils.EMPTY_STRING, null, null);
             zoomLevels.add(originalZoomLevel);
-            if (thumbnailDatasetPermIdOrNull != null)
+            if (thumbnailsInfosOrNull != null)
             {
-                ImageZoomLevel thumbnailZoomLevel =
-                        new ImageZoomLevel(thumbnailDatasetPermIdOrNull, false);
-                zoomLevels.add(thumbnailZoomLevel);
+                for (String permId : thumbnailsInfosOrNull.getThumbnailPhysicalDatasetsPermIds())
+                {
+                    Integer width = null, height = null;
+                    Size dimension = thumbnailsInfosOrNull.tryGetDimension(permId);
+                    if (dimension != null)
+                    {
+                        width = dimension.getWidth();
+                        height = dimension.getHeight();
+                    }
+                    String rootPath = thumbnailsInfosOrNull.getRootPath(permId);
+
+                    ImageZoomLevel thumbnailZoomLevel =
+                            new ImageZoomLevel(permId, false, rootPath, width, height);
+                    zoomLevels.add(thumbnailZoomLevel);
+                }
             }
             return zoomLevels;
         }
@@ -193,7 +210,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                         extractionResult, operationLog, notificationLog, notifyIfPlateIncomplete);
         return validator.validateImages();
     }
-    
+
     private void checkDataSetInformation(final DatasetOwnerInformation dataSetInformation)
     {
         assert dataSetInformation != null : "Unspecified data set information";

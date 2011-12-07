@@ -346,7 +346,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         for (String channelCode : params.getChannelsCodes())
         {
             AbsoluteImageReference image =
-                    imageAccessor.tryGetRepresentativeThumbnail(channelCode, null);
+                    imageAccessor.tryGetRepresentativeThumbnail(channelCode, null, null);
             if (image != null)
             {
                 return image.getUnchangedImage();

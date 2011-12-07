@@ -59,14 +59,15 @@ public class ImagingLoaderStrategyFactory
                         ImageChannelStackReference channelStackReference,
                         RequestedImageSize imageSize)
                 {
-                    return this.imageAccessor.tryGetThumbnail(channelCode, channelStackReference);
+                    return this.imageAccessor.tryGetThumbnail(channelCode, channelStackReference,
+                            imageSize);
                 }
 
                 public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
                         Location wellLocationOrNull, RequestedImageSize imageSize)
                 {
                     return imageAccessor.tryGetRepresentativeThumbnail(channelCode,
-                            wellLocationOrNull);
+                            wellLocationOrNull, imageSize);
                 }
 
             };

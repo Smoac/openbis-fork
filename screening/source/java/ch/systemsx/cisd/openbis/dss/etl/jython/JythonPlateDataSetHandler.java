@@ -30,14 +30,13 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
-import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageContainerDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImagingDataSetRegistrationTransaction;
@@ -429,17 +428,17 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                         imageDataSetStructure.getImageStorageConfiguraton()
                                 .getThumbnailsStorageFormat();
 
+                ThumbnailsInfo thumbnailsInfo = new ThumbnailsInfo();
                 for (ThumbnailsStorageFormat thumbnailsStorageFormat : thumbnailsStorageFormatList)
                 {
                     IDataSet thumbnailDataset = createThumbnailDataset();
                     thumbnailDatasets.add(thumbnailDataset);
 
-                    ThumbnailFilePaths thumbnailPaths =
-                            generateThumbnails(imageDataSetStructure, incomingDirectory,
-                                    thumbnailDataset, thumbnailsStorageFormat);
-                    imageDataSetInformation.setThumbnailFilePaths(thumbnailPaths);
+                    generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
+                            thumbnailsStorageFormat, thumbnailsInfo);
                     containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
                 }
+                imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
             }
             // create main dataset (with original images)
             @SuppressWarnings("unchecked")
@@ -470,9 +469,9 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return new File(originalDirName + File.separator + directoryPath);
         }
 
-        private ThumbnailFilePaths generateThumbnails(ImageDataSetStructure imageDataSetStructure,
+        private void generateThumbnails(ImageDataSetStructure imageDataSetStructure,
                 File incomingDirectory, IDataSet thumbnailDataset,
-                ThumbnailsStorageFormat thumbnailsStorageFormatOrNull)
+                ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths)
         {
             String thumbnailFile;
             if (thumbnailsStorageFormatOrNull == null)
@@ -487,22 +486,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                                 thumbnailsStorageFormatOrNull.getThumbnailsFileName());
             }
 
-            List<RelativeImageFile> images = asRelativeImageFile(imageDataSetStructure.getImages());
-            ThumbnailFilePaths thumbnailPaths =
-                    Hdf5ThumbnailGenerator.tryGenerateThumbnails(images, incomingDirectory,
-                            thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
-                            thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull);
-            return thumbnailPaths;
-        }
-
-        private static List<RelativeImageFile> asRelativeImageFile(List<ImageFileInfo> images)
-        {
-            List<RelativeImageFile> imageFiles = new ArrayList<RelativeImageFile>();
-            for (ImageFileInfo image : images)
-            {
-                imageFiles.add(RelativeImageFile.create(image));
-            }
-            return imageFiles;
+            Hdf5ThumbnailGenerator.tryGenerateThumbnails(imageDataSetStructure, incomingDirectory,
+                    thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
+                    thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull,
+                    thumbnailPaths);
         }
 
         private IDataSet createThumbnailDataset()

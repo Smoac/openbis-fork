@@ -72,9 +72,10 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * @param channelCode channel code for which representative image is requested
      * @param wellLocationOrNull if not null the returned images are restricted to one well.
      *            Otherwise the dataset is assumed to have no container and spots.
+     * @param imageSize
      */
     AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,
-            Location wellLocationOrNull);
+            Location wellLocationOrNull, RequestedImageSize imageSize);
 
     /**
      * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail
@@ -85,8 +86,9 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * 
      * @param channelCode The code of the channel to get the thumbnail for.
      * @param channelStackReference Specifies well and tile of the thumbnail.
+     * @param imageSize
      */
     AbsoluteImageReference tryGetThumbnail(String channelCode,
-            ImageChannelStackReference channelStackReference);
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
 
 }

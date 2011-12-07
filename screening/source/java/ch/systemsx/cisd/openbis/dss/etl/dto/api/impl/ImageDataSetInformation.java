@@ -42,7 +42,7 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private ImageDataSetStructure imageDataSetStructure;
 
-    private ThumbnailFilePaths thumbnailFilePathsOrNull;
+    private ThumbnailsInfo thumbnailsInfos;
 
     private String containerDatasetPermId;
 
@@ -57,9 +57,9 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     }
 
     /** @returns null if no thumbnails will be stored */
-    public ThumbnailFilePaths tryGetThumbnailFilePaths()
+    public ThumbnailsInfo getThumbnailsInfos()
     {
-        return thumbnailFilePathsOrNull;
+        return thumbnailsInfos;
     }
 
     public ImageDataSetStructure getImageDataSetStructure()
@@ -88,9 +88,9 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         this.containerDatasetPermId = containerDatasetPermId;
     }
 
-    public void setThumbnailFilePaths(ThumbnailFilePaths thumbnailFilePathsOrNull)
+    public void setThumbnailsInfo(ThumbnailsInfo thumbnailsInfo)
     {
-        this.thumbnailFilePathsOrNull = thumbnailFilePathsOrNull;
+        this.thumbnailsInfos = thumbnailsInfo;
     }
 
     public void setImageDataSetStructure(ImageDataSetStructure imageDataSetStructure)
@@ -107,9 +107,9 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         appendNameAndObject(buffer, "images structure", imageDataSetStructure);
         appendNameAndObject(buffer, "container dataset", containerDatasetPermId);
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
-        if (this.tryGetThumbnailFilePaths() != null)
+        if (getThumbnailsInfos() != null)
         {
-            appendNameAndObject(buffer, "thumbnail", this.tryGetThumbnailFilePaths());
+            appendNameAndObject(buffer, "thumbnail", getThumbnailsInfos());
         } else
         {
             appendNameAndObject(buffer, "thumbnail", "none");

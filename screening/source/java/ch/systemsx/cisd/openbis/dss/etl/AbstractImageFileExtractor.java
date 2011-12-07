@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
@@ -457,7 +457,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     }
 
     public final static List<AcquiredSingleImage> createImagesWithNoColorComponent(
-            ImageFileInfo imageInfo, ThumbnailFilePaths thumbnailFilePathsOrNull)
+            ImageFileInfo imageInfo, ThumbnailsInfo thumbnailFilePathsOrNull)
     {
         List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
         images.add(createImage(imageInfo, imageInfo.getChannelCode(), null,
@@ -467,7 +467,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     public final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
             String channelCode, ColorComponent colorComponentOrNull,
-            ThumbnailFilePaths thumbnailFilePathsOrNull)
+            ThumbnailsInfo thumbnailFilePathsOrNull)
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(),

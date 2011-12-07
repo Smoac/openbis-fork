@@ -34,18 +34,30 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
     @ResultColumn("container_dataset_id")
     private long containerDatasetId;
 
+    @ResultColumn("path")
+    private String rootPath;
+
+    @ResultColumn("width")
+    private Integer width;
+
+    @ResultColumn("height")
+    private Integer height;
+
     @SuppressWarnings("unused")
     private ImgImageZoomLevelDTO()
     {
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgImageZoomLevelDTO(String physicalDatasetPermId, boolean isOriginal,
-            long containerDatasetId)
+    public ImgImageZoomLevelDTO(String physicalDatasetPermId, boolean isOriginal, String rootPath,
+            Integer width, Integer height, long containerDatasetId)
     {
         this.physicalDatasetPermId = physicalDatasetPermId;
         this.isOriginal = isOriginal;
         this.containerDatasetId = containerDatasetId;
+        this.rootPath = rootPath;
+        this.width = width;
+        this.height = height;
     }
 
     public String getPhysicalDatasetPermId()
@@ -76,5 +88,35 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
     public void setContainerDatasetId(long containerDatasetId)
     {
         this.containerDatasetId = containerDatasetId;
+    }
+
+    public String getRootPath()
+    {
+        return rootPath;
+    }
+
+    public void setRootPath(String rootPath)
+    {
+        this.rootPath = rootPath;
+    }
+
+    public Integer getWidth()
+    {
+        return width;
+    }
+
+    public void setWidth(Integer width)
+    {
+        this.width = width;
+    }
+
+    public Integer getHeight()
+    {
+        return height;
+    }
+
+    public void setHeight(Integer height)
+    {
+        this.height = height;
     }
 }

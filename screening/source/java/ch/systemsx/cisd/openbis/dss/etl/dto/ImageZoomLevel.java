@@ -27,10 +27,20 @@ public class ImageZoomLevel
 
     private final boolean isOriginal;
 
-    public ImageZoomLevel(String physicalDatasetPermId, boolean isOriginal)
+    private final String rootPath;
+
+    private final Integer width;
+
+    private final Integer height;
+
+    public ImageZoomLevel(String physicalDatasetPermId, boolean isOriginal, String rootPath,
+            Integer width, Integer height)
     {
         this.physicalDatasetPermId = physicalDatasetPermId;
         this.isOriginal = isOriginal;
+        this.rootPath = rootPath;
+        this.width = width;
+        this.height = height;
     }
 
     public String getPhysicalDatasetPermId()
@@ -43,4 +53,18 @@ public class ImageZoomLevel
         return isOriginal;
     }
 
+    public Integer getWidth()
+    {
+        return width;
+    }
+
+    public Integer getHeight()
+    {
+        return height;
+    }
+
+    public String getRootPath()
+    {
+        return rootPath;
+    }
 }

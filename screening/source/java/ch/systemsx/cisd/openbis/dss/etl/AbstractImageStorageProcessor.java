@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
@@ -674,8 +674,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 new Geometry(imageDataSetStructure.getTileRowsNumber(),
                         imageDataSetStructure.getTileColumnsNumber());
 
-        ThumbnailFilePaths thumbnailFilePaths = dataSetInformation.tryGetThumbnailFilePaths();
-        List<AcquiredSingleImage> images = convertImages(imageDataSetStructure, thumbnailFilePaths);
+        ThumbnailsInfo thumbnailsInfo = dataSetInformation.getThumbnailsInfos();
+
+        List<AcquiredSingleImage> images = convertImages(imageDataSetStructure, thumbnailsInfo);
 
         List<File> invalidFiles = new ArrayList<File>(); // handles in an earlier phase
         ImageStorageConfiguraton imageStorageConfiguraton =
@@ -694,18 +695,15 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                         imageStorageConfiguraton.getStoreChannelsOnExperimentLevel(),
                         imageStorageConfiguraton.tryGetImageLibrary());
 
-        String thumbnailDatasetPermIdOrNull =
-                (thumbnailFilePaths == null) ? null : thumbnailFilePaths
-                        .getThumbnailPhysicalDatasetPermId();
         ImageDatasetOwnerInformation imageDatasetOwner =
                 ImageDatasetOwnerInformation.create(dataSetInformation.getContainerDatasetPermId(),
-                        dataSetInformation, thumbnailDatasetPermIdOrNull);
+                        dataSetInformation, thumbnailsInfo);
         return new ImageFileExtractionWithConfig(imageDatasetOwner, extractionResult,
                 imageStorageConfiguraton);
     }
 
     private static List<AcquiredSingleImage> convertImages(
-            ImageDataSetStructure imageDataSetStructure, ThumbnailFilePaths thumbnailFilePathsOrNull)
+            ImageDataSetStructure imageDataSetStructure, ThumbnailsInfo thumbnailFilePathsOrNull)
     {
         List<ImageFileInfo> imageInfos = imageDataSetStructure.getImages();
         List<ChannelColorComponent> channelColorComponentsOrNull =
