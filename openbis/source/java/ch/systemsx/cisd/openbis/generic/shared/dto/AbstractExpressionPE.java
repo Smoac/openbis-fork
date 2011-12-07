@@ -35,12 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Super class of PEs with an expression in some language (jython, sql, etc.)
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @MappedSuperclass
-public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrationHolder
-        implements IIdHolder, Comparable<T>, Serializable
+public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrationHolder implements
+        IIdHolder, Comparable<T>, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -70,7 +70,7 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
 
     @Column(name = ColumnNames.EXPRESSION_COLUMN)
     @NotNull(message = ValidationMessages.EXPRESSION_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 2000, message = ValidationMessages.EXPRESSION_LENGTH_MESSAGE)
+    @Length(min = 1, message = ValidationMessages.EXPRESSION_LENGTH_MESSAGE)
     public String getExpression()
     {
         return expression;
