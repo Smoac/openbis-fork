@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +35,8 @@ import org.testng.annotations.Test;
  */
 public class ExcelRowTokenizerTest extends AssertJUnit
 {
+    private static final String TEST_FOLDER = "../common/sourceTest/java/";
+
     @Test
     public void testIntegerValuesParsedCorrectly() throws Exception
     {
@@ -52,7 +56,10 @@ public class ExcelRowTokenizerTest extends AssertJUnit
 
     private List<Row> getRows() throws Exception
     {
-        final InputStream stream = getClass().getResourceAsStream("excel-row-tokenizer-test.xls");
+
+        File excelDir = new File(TEST_FOLDER + getClass().getPackage().getName().replace('.', '/'));
+        File excelFile = new File(excelDir, "excel-row-tokenizer-test.xls");
+        final InputStream stream = new FileInputStream(excelFile);
         try
         {
             POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
