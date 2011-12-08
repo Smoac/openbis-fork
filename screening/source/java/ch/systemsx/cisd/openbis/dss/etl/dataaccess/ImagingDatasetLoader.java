@@ -312,7 +312,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
     private static ImgImageZoomLevelDTO selectBestZoomLevel(ImgImageZoomLevelDTO current,
             ImgImageZoomLevelDTO candidate, RequestedImageSize imageSize)
     {
-        Size size = imageSize.tryGetThumbnailSize();
+        Size size = imageSize == null ? null : imageSize.tryGetThumbnailSize();
         Integer height = candidate.getHeight();
         Integer width = candidate.getWidth();
         if (size == null || width == null || height == null)
