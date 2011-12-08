@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.common.retry;
 
+import java.net.SocketTimeoutException;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
+import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -78,13 +81,29 @@ public class RetryCallerTest
     }
 
     @Test
-    public void testCallWithCommunicationErrorShouldBeRetried() throws Throwable
+    public void testCallWithConnectErrorShouldBeRetried() throws Throwable
     {
         mockery.checking(new Expectations()
             {
                 {
                     oneOf(runnable).run();
                     will(throwException(new RemoteConnectFailureException("", null)));
+                    oneOf(runnable).run();
+                }
+            });
+
+        caller.callWithRetry();
+        mockery.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCallWithTimeoutErrorShouldBeRetried() throws Throwable
+    {
+        mockery.checking(new Expectations()
+            {
+                {
+                    oneOf(runnable).run();
+                    will(throwException(new RemoteAccessException("", new SocketTimeoutException())));
                     oneOf(runnable).run();
                 }
             });

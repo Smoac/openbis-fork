@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.common.retry;
 
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+
+import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.common.retry.config.DefaultRetryConfiguration;
@@ -72,19 +76,39 @@ public abstract class RetryCaller<T, E extends Throwable>
             {
                 T result = call();
                 return result;
-            } catch (RemoteConnectFailureException e)
+            } catch (RuntimeException e)
             {
-                if (shouldRetry())
+                if (isCommunicationException(e))
                 {
-                    System.err.println("Call failed - will retry");
-                    waitForRetry();
+                    if (shouldRetry())
+                    {
+                        System.err.println("Communication failed - will retry");
+                        waitForRetry();
+                    } else
+                    {
+                        System.err.println("Communication failed - will NOT retry");
+                        throw e;
+                    }
                 } else
                 {
-                    System.err.println("Call failed - will NOT retry");
                     throw e;
                 }
             }
         }
+    }
+
+    private boolean isCommunicationException(RuntimeException e)
+    {
+        if (e instanceof RemoteConnectFailureException)
+        {
+            return true;
+        }
+        if (e instanceof RemoteAccessException)
+        {
+            return e.getCause() instanceof SocketTimeoutException
+                    || e.getCause() instanceof SocketException;
+        }
+        return false;
     }
 
     private boolean shouldRetry()
