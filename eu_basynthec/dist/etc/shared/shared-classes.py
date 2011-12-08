@@ -139,14 +139,30 @@ class ValidationHelper:
       if match is None:
         self.errors.append(createFileValidationError("The Start Data Col must be a letter between A and Z (not " + value + ")."))
   
-strainIdRegex = re.compile("^JJS-MGP[0-9]{1,3}|^JJS-DIN[0-9]{1,3}|^MS|CHASSIS\s*[1-3]|WT 168 TRP\+")
-def isStrainIdValid(strainId):
-  """Return true if the strain id passes validation (has the form sepecified in the regex)"""
-  strainId = strainId.strip().upper()
-  match = strainIdRegex.match(strainId)
+#
+# Strain validation stuff
+#
+strainIdRegex = re.compile("^ms|chassis\s*[1-3]|wt 168 trp\+")
+strainIdRegexFull = re.compile("^jjs-mgp[0-9]{1,3}|^jjs-din[0-9]{1,3}|^ms|chassis\s*[1-3]|wt 168 trp\+")
+strainIds = {}
+home_dir = os.environ.get('HOME', '')
+if os.path.exists(home_dir + '/var/strainids.txt'):
+  for sid in open(home_dir + '/var/strainids.txt').readlines():
+    strainIds[sid.strip().lower()] = 1
+
+def _match(regex, strainId):
+  match = regex.match(strainId)
   if match is None:
     return False
-  return match.end() == len(strainId)
+  return len(match.group(0)) == len(strainId)
+
+def isStrainIdValid(strainId):
+  """Return true if the strain id passes validation (has the form specified in the regex and is in Chris' strain db)"""
+  strainIdLower = strainId.lower()
+  if len(strainIds) > 0:
+    return strainIds.has_key(strainIdLower) or _match(strainIdRegex, strainIdLower)
+  else:
+    return _match(strainIdRegexFull, strainIdLower)
   
 def strainValidationErrorMessageFragment(strain):
     """Return a sentence fragment describing the strain validation error."""

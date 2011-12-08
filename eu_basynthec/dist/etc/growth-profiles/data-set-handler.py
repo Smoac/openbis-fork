@@ -20,6 +20,13 @@ def extract_strains():
     line = lines[i]
     strains.append(line[0].upper())
   return ",".join(strains)
+  
+def strain_canonical(strainId):
+  """Return the canonical form of the strainId"""
+  if strainId.lower().startswith('jjs-din'):
+    return "JJS-DIn" + strainId[7:]
+  else:
+    return strainId.upper()
 
 def assign_properties(dataset, metadata):
   """Assign properties to the data set from information in the data."""
@@ -38,7 +45,7 @@ def assign_properties(dataset, metadata):
       value = metadata.get(prop)
       if (key == "STRAIN"):
         value = value + " (STRAIN)"
-      dataset.setPropertyValue(key, value.upper())
+      dataset.setPropertyValue(key, strain_canonical(value))
       
 def convert_data_to_tsv(tr, dataset, location):
   """Create a tsv file containing the data and add it to the data set."""

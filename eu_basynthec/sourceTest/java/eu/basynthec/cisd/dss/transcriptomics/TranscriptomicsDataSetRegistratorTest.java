@@ -74,7 +74,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("MGP253,MGP776", strainProperty.getValue());
+        assertEquals("JJS-MGP253,JJS-MGP776", strainProperty.getValue());
 
         NewExternalData tsvDataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(2);
@@ -91,10 +91,10 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         String[] contents = tsvSplitFolder.list();
         Arrays.sort(contents);
         String[] expectedContents =
-                    { "Transcriptomics-Example.xlsx_MGP253.tsv",
-                            "Transcriptomics-Example.xlsx_MGP776.tsv" };
+                    { "Transcriptomics-Example.xlsx_JJS-MGP253.tsv",
+                            "Transcriptomics-Example.xlsx_JJS-MGP776.tsv" };
         assertEquals(Arrays.asList(expectedContents), Arrays.asList(contents));
-        File tsvSplitFile = new File(tsvSplitFolder, "Transcriptomics-Example.xlsx_MGP253.tsv");
+        File tsvSplitFile = new File(tsvSplitFolder, "Transcriptomics-Example.xlsx_JJS-MGP253.tsv");
         checkSplitTsvContent(tsvSplitFile);
         context.assertIsSatisfied();
     }
@@ -108,7 +108,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
     private void checkTsvContent(File tsvFile) throws IOException
     {
         String content = FileUtils.readFileToString(tsvFile);
-        assertEquals("Locustag\tMGP253-1 66687802\tMGP776-2 66730002\n"
+        assertEquals("Locustag\tJJS-MGP253-1 66687802\tJJS-MGP776-2 66730002\n"
                 + "BSU00010\t13.7953\t13.5517\n" + "BSU00020\t13.5907\t13.3277\n"
                 + "BSU00030\t13.8489\t13.6306\n" + "BSU00040\t14.3564\t14.1073\n"
                 + "BSU00050\t14.5239\t14.1992\n" + "BSU00060\t14.3293\t13.933\n"
