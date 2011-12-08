@@ -49,8 +49,9 @@ abstract class AbstractDataSetImmutable implements IDataSetImmutable
         DataSetTypeWithVocabularyTerms dataSetType = service.getDataSetType(dataSetTypeCode);
         HashMap<Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> termsMap =
                 new HashMap<Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>>();
-        for (DataSetTypePropertyType dataSetTypePropertyType : dataSetType.getDataSetType()
-                .getAssignedPropertyTypes())
+        List<DataSetTypePropertyType> propertyTypes =
+                dataSetType.getDataSetType().getAssignedPropertyTypes();
+        for (DataSetTypePropertyType dataSetTypePropertyType : propertyTypes)
         {
             Vocabulary vocabulary = dataSetTypePropertyType.getPropertyType().getVocabulary();
             if (vocabulary != null)
