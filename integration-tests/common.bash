@@ -333,7 +333,7 @@ function fetch_latest_artifacts_from_cruise_control {
     local dest_dir=$2
     
     local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
-    if [ $MY_HOST_IP == $CI_HOST_IP ]; then
+    if [ -n "$MY_HOST_IP" -a "$MY_HOST_IP" == "$CI_HOST_IP" ]; then
         local last=`ls -1 $CI_HOME/$last_build | sort | tail -1`
         echo "Fetching artifacts for $proj_name: $last" 
         cp $CI_HOME/$last_build/*.zip $dest_dir
