@@ -30,4 +30,7 @@ public interface IImageDataSet extends IDataSet
     IDataSet getOriginalDataset();
 
     List<IDataSet> getThumbnailDatasets();
+
+    /** Sets analysis procedure. Makes sense only for segmentation datasets. */
+    void setAnalysisProcedure(String analysisProcedure);
 }

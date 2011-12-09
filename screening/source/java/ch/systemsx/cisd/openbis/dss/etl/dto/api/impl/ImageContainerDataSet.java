@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Represents an image data set for the registration API.
@@ -45,6 +46,11 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
             File dataSetFolder, IEncapsulatedOpenBISService service)
     {
         super(registrationDetails, dataSetFolder, service);
+    }
+
+    public void setAnalysisProcedure(String analysisProcedure)
+    {
+        setPropertyValue(ScreeningConstants.ANALYSIS_PROCEDURE, analysisProcedure);
     }
 
     public DataSet<ImageDataSetInformation> getOriginalDataset()
