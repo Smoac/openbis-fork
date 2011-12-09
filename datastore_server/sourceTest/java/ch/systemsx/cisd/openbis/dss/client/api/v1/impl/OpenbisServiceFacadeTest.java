@@ -392,10 +392,14 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
                     one(dssComponent).getDataSet(dataSetCode);
                     will(returnValue(dataSet));
+
+                    allowing(dataSet).getCode();
+                    will(returnValue("myDataSetCode"));
                 }
             });
 
-        assertEquals(dataSet, openbisFacade.getDataSet(dataSetCode).getDataSetDss());
+        assertEquals(dataSet.getCode(), openbisFacade.getDataSet(dataSetCode).getDataSetDss()
+                .getCode());
     }
 
     @Test
