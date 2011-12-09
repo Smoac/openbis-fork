@@ -8,8 +8,10 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -100,6 +102,7 @@ public class SslCertificateHelper
 
         // Create a trust manager that does not validate certificate chains
         setUpAllAcceptingTrustManager();
+        setUpAllAcceptingHostNameVerifier();
         SSLSocket socket = null;
         try
         {
@@ -152,6 +155,7 @@ public class SslCertificateHelper
                     {
                     }
                 } };
+        
         // Install the all-trusting trust manager
         try
         {
@@ -161,6 +165,18 @@ public class SslCertificateHelper
         } catch (Exception e)
         {
         }
+    }
+
+    private void setUpAllAcceptingHostNameVerifier()
+    {
+        HostnameVerifier acceptAllHostNames = new HostnameVerifier()
+            {
+                public boolean verify(String hostname, SSLSession session)
+                {
+                    return true;
+                }
+            };
+        HttpsURLConnection.setDefaultHostnameVerifier(acceptAllHostNames);
     }
 
     // WORKAROUND: see comment submitted on 31-JAN-2008 for
