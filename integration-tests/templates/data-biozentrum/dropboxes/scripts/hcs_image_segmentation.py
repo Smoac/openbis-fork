@@ -12,22 +12,6 @@ def rollback_service(service, throwable):
     global datasetMetadataParser
     commonDropbox.createFailureStatus(datasetMetadataParser, throwable, incoming)
         
-def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory, tr = None):
-    iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
-    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
-        imageRegistrationDetails.setPropertyValue(propertyCode, value)
-    # Workaround: set the property as the registration details are a SimpleImageDataConfig which doesn't have a setter for it
-    imageRegistrationDetails.setPropertyValue('$ANALYSIS_PROCEDURE', metadataParser.getAnalysisProcedure())
-
-    if tr is None:
-        tr = service.transaction(incoming, factory)
-    dataset = tr.createNewDataSet(imageRegistrationDetails)
-    dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
-    imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
-    if tr.commit():
-        commonDropbox.createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
-
 def register(incomingPath):
     global datasetMetadataParser
     datasetMetadataParser = commonDropbox.DerivedDatasetMetadataParser(incomingPath)
@@ -56,7 +40,7 @@ def register(incomingPath):
     imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/2.0)
     imageDataset.setImageLibrary("BioFormats", "TiffDelegateReader")
 
-    setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
+    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
           
 if incoming.isDirectory():
     register(incoming.getPath())
