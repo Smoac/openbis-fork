@@ -275,6 +275,7 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
 	imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
 	if tr.commit():
 		createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+	return dataset
 
 """
 param ensureSingleChild - if true, then it will be ensured that the parent dataset 
