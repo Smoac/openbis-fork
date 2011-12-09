@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;

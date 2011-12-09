@@ -14,34 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
+
+import org.springframework.remoting.RemoteConnectFailureException;
 
 /**
  * @author pkupczyk
  */
-class RetryClassWithoutAnyInterface
+public class RetryClassCommunicationFailingMethod extends RetryClassMethod
 {
-    private RetryClassMethod method;
-
-    @Retry
-    public void testWithRetryAnnotation()
+    @Override
+    public void call()
     {
-        method.call();
+        if (count++ == 0)
+        {
+            throw new RemoteConnectFailureException("", null);
+        }
     }
-
-    public void testWithoutRetryAnnotation()
-    {
-        method.call();
-    }
-
-    public RetryClassMethod getMethod()
-    {
-        return method;
-    }
-
-    public void setMethod(RetryClassMethod method)
-    {
-        this.method = method;
-    }
-
 }

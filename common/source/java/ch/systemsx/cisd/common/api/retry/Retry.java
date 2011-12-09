@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

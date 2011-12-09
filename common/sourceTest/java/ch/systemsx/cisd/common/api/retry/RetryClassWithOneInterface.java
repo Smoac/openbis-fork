@@ -14,16 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 /**
  * @author pkupczyk
  */
-public interface RetryClassInterfaceTestWithoutRetry
+public class RetryClassWithOneInterface implements RetryClassInterfaceTestWithAndWithoutRetry
 {
 
-    public void testWithoutRetryAnnotation();
-    
-    public void setMethod(RetryClassMethod method);
-    
+    private RetryClassMethod method;
+
+    public void testWithRetryAnnotation()
+    {
+        method.call();
+    }
+
+    public void testWithoutRetryAnnotation()
+    {
+        method.call();
+    }
+
+    public RetryClassMethod getMethod()
+    {
+        return method;
+    }
+
+    public void setMethod(RetryClassMethod method)
+    {
+        this.method = method;
+    }
+
 }

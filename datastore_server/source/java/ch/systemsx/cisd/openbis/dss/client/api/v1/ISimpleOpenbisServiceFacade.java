@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;

@@ -26,12 +26,12 @@ import java.util.Map;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.retry.RetryCaller;
-import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -374,7 +374,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             throws EnvironmentFailureException
     {
         IDataSetDss dataSetDss = dssComponent.putDataSet(newDataset, dataSetFile);
-        return RetryProxyFactory.createProxy(new DataSet(this, dssComponent, null, dataSetDss));
+        return new DataSet(this, dssComponent, null, dataSetDss);
     }
 
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -495,7 +495,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : internalDataSets)
         {
             DataSet converted = new DataSet(this, dssComponent, dataSet, null);
-            convertedDataSets.add(RetryProxyFactory.createProxy(converted));
+            convertedDataSets.add(converted);
         }
 
         return convertedDataSets;

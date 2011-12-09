@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.client.api.v1;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.retry.Retry;
+import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;

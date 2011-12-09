@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 import java.net.SocketTimeoutException;
 
@@ -28,7 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.retry.config.StaticRetryConfiguration;
+import ch.systemsx.cisd.common.api.retry.config.StaticRetryConfiguration;
 
 /**
  * @author pkupczyk

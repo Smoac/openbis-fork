@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -22,8 +22,8 @@ import java.net.SocketTimeoutException;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
-import ch.systemsx.cisd.common.retry.config.DefaultRetryConfiguration;
-import ch.systemsx.cisd.common.retry.config.RetryConfiguration;
+import ch.systemsx.cisd.common.api.retry.config.DefaultRetryConfiguration;
+import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
 
 /**
  * @author pkupczyk

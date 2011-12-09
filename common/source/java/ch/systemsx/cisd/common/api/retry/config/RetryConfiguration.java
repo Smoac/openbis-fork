@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry.config;
 
 /**
  * @author pkupczyk
  */
-public interface RetryClassInterfaceTestWithAndWithoutRetry
+public interface RetryConfiguration
 {
 
-    @Retry
-    public void testWithRetryAnnotation();
+    public int getMaximumNumberOfRetries();
 
-    public void testWithoutRetryAnnotation();
+    public int getWaitingTimeBetweenRetries();
 
-    public void setMethod(RetryClassMethod method);
+    public float getWaitingTimeBetweenRetriesIncreasingFactor();
+
 }

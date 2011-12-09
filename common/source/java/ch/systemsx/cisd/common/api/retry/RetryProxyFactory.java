@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.util.ClassUtils;
@@ -38,12 +38,21 @@ public class RetryProxyFactory
         } else
         {
             Class<?>[] proxyTargetInterfaces = ClassUtils.getAllInterfaces(proxyTarget);
-            ProxyFactory proxyFactory = new ProxyFactory(proxyTarget);
-            proxyFactory.addInterface(RetryProxy.class);
-            proxyFactory.addAdvice(new RetryInterceptor());
-            proxyFactory.setProxyTargetClass(proxyTargetInterfaces == null
-                    || proxyTargetInterfaces.length == 0);
-            return (T) proxyFactory.getProxy();
+
+            if (proxyTargetInterfaces == null || proxyTargetInterfaces.length == 0)
+            {
+                // We could ask CGLIB library to create a proxy even if the object doesn't
+                // implement any interfaces, but we don't want to use this library. 
+                // Instead, we just return an unchanged object.
+                return proxyTarget;
+            } else
+            {
+                ProxyFactory proxyFactory = new ProxyFactory(proxyTarget);
+                proxyFactory.addInterface(RetryProxy.class);
+                proxyFactory.addAdvice(new RetryInterceptor());
+                return (T) proxyFactory.getProxy();
+            }
+
         }
     }
 

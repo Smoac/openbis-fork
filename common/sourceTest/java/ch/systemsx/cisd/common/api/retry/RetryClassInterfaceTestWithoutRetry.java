@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 /**
  * @author pkupczyk
  */
-public abstract class RetryClassMethod
+public interface RetryClassInterfaceTestWithoutRetry
 {
 
-    public int count;
-
-    public abstract void call();
-
+    public void testWithoutRetryAnnotation();
+    
+    public void setMethod(RetryClassMethod method);
+    
 }

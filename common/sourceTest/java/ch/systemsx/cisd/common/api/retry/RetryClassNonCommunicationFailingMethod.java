@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 /**
  * @author pkupczyk
  */
-public interface RetryClassInterfaceTestWithRetry
+public class RetryClassNonCommunicationFailingMethod extends RetryClassMethod
 {
 
-    @Retry
-    public void testWithRetryAnnotation();
-
-    public void setMethod(RetryClassMethod method);
+    @Override
+    public void call()
+    {
+        if (count++ == 0)
+        {
+            throw new RuntimeException("", null);
+        }
+    }
 
 }

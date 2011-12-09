@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -24,7 +24,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.retry.config.DefaultRetryConfiguration;
+import ch.systemsx.cisd.common.api.retry.config.DefaultRetryConfiguration;
 
 /**
  * @author pkupczyk
@@ -44,12 +44,13 @@ public class RetryProxyFactoryTest
         DefaultRetryConfiguration.getInstance().reset();
     }
 
-    @Test
+    @Test(expectedExceptions = RemoteConnectFailureException.class)
     public void testCreateProxyForClassWithoutAnyInterfaceAndCallCommunicationFailingRetryMethod()
             throws Throwable
     {
+        // retry proxies are not created for classes without any interfaces (see RetryProxyFactory)
         testWithRetryAnnotation(new RetryClassWithoutAnyInterface(),
-                new RetryClassCommunicationFailingMethod(), 2);
+                new RetryClassCommunicationFailingMethod(), null);
     }
 
     @Test(expectedExceptions = RemoteConnectFailureException.class)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry.config;
+package ch.systemsx.cisd.common.api.retry.config;
 
 /**
  * @author pkupczyk

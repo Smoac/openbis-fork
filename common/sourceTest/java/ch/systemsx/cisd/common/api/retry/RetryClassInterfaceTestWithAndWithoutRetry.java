@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 /**
  * @author pkupczyk
  */
-public interface RetryProxy
+public interface RetryClassInterfaceTestWithAndWithoutRetry
 {
 
+    @Retry
+    public void testWithRetryAnnotation();
+
+    public void testWithoutRetryAnnotation();
+
+    public void setMethod(RetryClassMethod method);
 }

@@ -24,11 +24,11 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
-import ch.systemsx.cisd.common.retry.RetryCaller;
-import ch.systemsx.cisd.common.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -625,7 +625,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
                                 openbisServiceFacade, dssComponent, dataSet, null);
 
-                result.add(RetryProxyFactory.createProxy(fullDataset));
+                result.add(fullDataset);
             }
         }
         return result;
@@ -685,7 +685,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
                                 openbisServiceFacade, dssComponent, dataSet, null);
 
-                result.add(RetryProxyFactory.createProxy(fullDataset));
+                result.add(fullDataset);
             }
         }
         return result;
@@ -703,7 +703,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet fullDataset =
                     new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(openbisServiceFacade,
                             dssComponent, dataSet, null);
-            result.add(RetryProxyFactory.createProxy(fullDataset));
+            result.add(fullDataset);
         }
         return result;
     }

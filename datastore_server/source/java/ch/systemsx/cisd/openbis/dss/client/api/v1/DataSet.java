@@ -23,8 +23,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.common.api.retry.Retry;
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.retry.Retry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 
@@ -263,7 +265,16 @@ public class DataSet
         // lazily initialize the ivar.
         if (null == dataSetDss)
         {
-            dataSetDss = dssComponent.getDataSet(getMetadata().getCode());
+            RetryCaller<IDataSetDss, RuntimeException> caller =
+                    new RetryCaller<IDataSetDss, RuntimeException>()
+                        {
+                            @Override
+                            protected IDataSetDss call()
+                            {
+                                return dssComponent.getDataSet(getMetadata().getCode());
+                            }
+                        };
+            dataSetDss = RetryProxyFactory.createProxy(caller.callWithRetry());
         }
         return dataSetDss;
     }
@@ -275,7 +286,17 @@ public class DataSet
     {
         if (null == metadata)
         {
-            DataSet dataSetWithMetaData = facade.getDataSet(dataSetDss.getCode());
+            RetryCaller<DataSet, RuntimeException> caller =
+                    new RetryCaller<DataSet, RuntimeException>()
+                        {
+                            @Override
+                            protected DataSet call()
+                            {
+                                return facade.getDataSet(dataSetDss.getCode());
+                            }
+                        };
+
+            DataSet dataSetWithMetaData = caller.callWithRetry();
             if (dataSetWithMetaData != null)
             {
                 metadata = dataSetWithMetaData.getMetadata();

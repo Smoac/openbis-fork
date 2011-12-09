@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.retry;
+package ch.systemsx.cisd.common.api.retry;
 
 /**
  * @author pkupczyk
  */
-public class RetryClassNotFailingMethod extends RetryClassMethod
+public interface RetryProxy
 {
-
-    @Override
-    public void call()
-    {
-        count++;
-    }
 
 }
