@@ -16,26 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import java.io.Serializable;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 
 /**
- * Abstract {@link IDataRefreshCallback} implementation for refreshing {@link AbstractBrowserGrid}.
+ * Abstract {@link IDataRefreshCallback} implementation for refreshing {@link TypedTableGrid}.
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractGridDataRefreshCallback<T/* Entity */> implements
-        IDataRefreshCallback
+public abstract class AbstractGridDataRefreshCallback<T extends Serializable/* Entity */>
+        implements IDataRefreshCallback
 {
-    private AbstractBrowserGrid<T, BaseEntityModel<T>> grid;
+    private TypedTableGrid<T> grid;
 
-    public AbstractBrowserGrid<T, BaseEntityModel<T>> getGrid()
+    public TypedTableGrid<T> getGrid()
     {
         assert grid != null : "grid not set!";
         return grid;
     }
 
-    public void setGrid(AbstractBrowserGrid<T, BaseEntityModel<T>> grid)
+    public void setGrid(TypedTableGrid<T> grid)
     {
         this.grid = grid;
     }

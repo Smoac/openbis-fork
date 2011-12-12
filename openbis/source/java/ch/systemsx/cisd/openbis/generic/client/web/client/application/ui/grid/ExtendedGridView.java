@@ -21,7 +21,7 @@ import com.google.gwt.user.client.Element;
  * 
  * @author Izabela Adamczyk
  */
-class ExtendedGridView extends GridView
+public class ExtendedGridView extends GridView
 {
     @Override
     protected ColumnHeader newColumnHeader()

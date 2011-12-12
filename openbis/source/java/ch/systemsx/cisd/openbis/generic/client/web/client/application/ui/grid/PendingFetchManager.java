@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class PendingFetchManager
+public class PendingFetchManager
 {
     // The current pending fetch, or null if there is none.
     private ResultSetFetchConfig<String> pendingFetchConfigOrNull = null;

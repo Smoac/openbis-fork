@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnSettingsConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;

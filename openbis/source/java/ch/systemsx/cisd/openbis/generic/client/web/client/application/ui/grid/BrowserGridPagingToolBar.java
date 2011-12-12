@@ -217,12 +217,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         disable();
     }
 
-    protected final void updateDefaultRefreshButton(boolean isEnabled)
+    public final void updateDefaultRefreshButton(boolean isEnabled)
     {
         updateRefreshButton(refreshButton, isEnabled, messageProvider);
     }
 
-    protected final void updateDefaultConfigButton(boolean isEnabled)
+    public final void updateDefaultConfigButton(boolean isEnabled)
     {
         updateConfigButton(configButton, isEnabled, messageProvider);
     }

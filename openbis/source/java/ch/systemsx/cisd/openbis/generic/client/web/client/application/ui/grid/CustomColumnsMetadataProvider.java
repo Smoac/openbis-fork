@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
  * 
  * @author Tomasz Pylak
  */
-class CustomColumnsMetadataProvider
+public class CustomColumnsMetadataProvider
 {
     // what custom columns are present in the grid. Used to build column definitions.
     private List<GridCustomColumnInfo> customColumnsMetadata =

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +29,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CustomColumnsMetadataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A class that manages the configuring of column settings in the AbstractBrowserGrid.
@@ -42,15 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
+public class ColumnSettingsConfigurer<T extends Serializable>
 {
     public static final int DEFAULT_COLUMN_WIDTH = 150;
 
-    private final AbstractBrowserGrid<T, M> browserGrid;
+    private final TypedTableGrid<T> browserGrid;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final FilterToolbar<T> filterToolbar;
+    private final FilterToolbar<TableModelRowWithObject<T>> filterToolbar;
 
     private final CustomColumnsMetadataProvider customColumnsMetadataProvider;
 
@@ -61,8 +66,9 @@ public class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
     // finished.
     private final ResultSetFetchConfig<String> pendingFetchConfigOrNull;
 
-    public ColumnSettingsConfigurer(AbstractBrowserGrid<T, M> browserGrid,
-            IViewContext<ICommonClientServiceAsync> viewContext, FilterToolbar<T> filterToolbar,
+    public ColumnSettingsConfigurer(TypedTableGrid<T> browserGrid,
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            FilterToolbar<TableModelRowWithObject<T>> filterToolbar,
             CustomColumnsMetadataProvider customColumnsMetadataProvider, String resultSetKeyOrNull,
             ResultSetFetchConfig<String> pendingFetchConfigOrNull)
     {
@@ -77,7 +83,7 @@ public class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
     public void showDialog()
     {
         List<ColumnDataModel> settingsModel =
-                AbstractBrowserGrid.createColumnsSettingsModel(browserGrid.getFullColumnModel(),
+                TypedTableGrid.createColumnsSettingsModel(browserGrid.getFullColumnModel(),
                         filterToolbar.extractFilteredColumnIds());
         AbstractColumnSettingsDataModelProvider provider =
                 new AbstractColumnSettingsDataModelProvider(settingsModel)
@@ -167,7 +173,7 @@ public class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
 
     /**
      * Creates a new column model based on the specified column data models and the old full column
-     * model as provided by {@link AbstractBrowserGrid#getFullColumnModel()}.
+     * model as provided by {@link TypedTableGrid#getFullColumnModel()}.
      */
     private ColumnModel createNewColumnModel(List<ColumnDataModel> newColumnDataModels)
     {
