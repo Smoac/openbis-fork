@@ -204,7 +204,7 @@ abstract public class SimpleImageDataConfig
     private String[] recognizedImageExtensions = new String[]
         { "tiff", "tif", "png", "gif", "jpg", "jpeg" };
 
-    private List<IThumbnailsConfiguration> thumbnailsPyramid =
+    private List<IThumbnailsConfiguration> imagePyramid =
             new ArrayList<IThumbnailsConfiguration>();
 
     private int maxThumbnailWidthAndHeight = 256;
@@ -249,7 +249,7 @@ abstract public class SimpleImageDataConfig
         imageStorageConfiguraton
                 .setStoreChannelsOnExperimentLevel(isStoreChannelsOnExperimentLevel());
         imageStorageConfiguraton.setOriginalDataStorageFormat(getOriginalDataStorageFormat());
-        for (IThumbnailsConfiguration thumbnailsConfiguration : thumbnailsPyramid)
+        for (IThumbnailsConfiguration thumbnailsConfiguration : imagePyramid)
         {
             imageStorageConfiguraton.addThumbnailsStorageFormat(thumbnailsConfiguration
                     .getThumbnailsStorageFormat(this));
@@ -282,7 +282,7 @@ abstract public class SimpleImageDataConfig
 
     public boolean isGenerateThumbnails()
     {
-        return thumbnailsPyramid.size() > 0;
+        return imagePyramid.size() > 0;
     }
 
     public int getMaxThumbnailWidthAndHeight()
@@ -356,18 +356,18 @@ abstract public class SimpleImageDataConfig
     /** should thumbnails be generated? False by default. */
     public void setGenerateThumbnails(boolean generateThumbnails)
     {
-        thumbnailsPyramid.clear();
-        thumbnailsPyramid.add(new DefaultThumbnailsConfiguration());
+        imagePyramid.clear();
+        imagePyramid.add(new DefaultThumbnailsConfiguration());
     }
 
-    public void setGenerateThumbnailsPyramid(double[] zoomLevels)
+    public void setGenerateImagePyramidWithScaleFactors(double[] zoomLevels)
     {
-        thumbnailsPyramid.clear();
+        imagePyramid.clear();
         if (zoomLevels != null)
         {
             for (double zoomLevel : zoomLevels)
             {
-                thumbnailsPyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
+                imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
             }
         }
     }
