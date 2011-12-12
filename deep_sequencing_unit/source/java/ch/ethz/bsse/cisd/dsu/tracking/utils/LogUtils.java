@@ -27,18 +27,18 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class LogUtils
 {
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, LogUtils.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            LogUtils.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, LogUtils.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            LogUtils.class);
 
     public static void notify(EnvironmentFailureException ex)
     {
         String causeMsg =
                 (ex.getCause() == null) ? "" : "Error cause: " + ex.getCause().getMessage();
         String fullMsg =
-                "An environment exception occured why trying to send emails with changes.\n"
+                "An environment exception occured while trying to send emails with changes.\n"
                         + "Check and correct the configuration.\n" + "Error details: "
                         + ex.getMessage() + "\n" + causeMsg;
         notify(ex, fullMsg);

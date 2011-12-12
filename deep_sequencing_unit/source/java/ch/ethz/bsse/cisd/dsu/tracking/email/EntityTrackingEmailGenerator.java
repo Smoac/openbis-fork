@@ -37,14 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerator
 {
-    private static final String NOTIFICATION_EMAIL_FROM = "notification-email-from";
+    private static final String NOTIFICATION_EMAIL_FROM = "mail.from";
 
     private static final String NOTIFICATION_EMAIL_REPLY_TO = "notification-email-reply-to";
 
     private static final String NOTIFICATION_EMAIL_SUBJECT = "notification-email-subject";
 
     private static final String AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX =
-        "-affiliation-notification-email-contact";
+            "-affiliation-notification-email-contact";
 
     private final String from;
 
@@ -62,7 +62,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         this.template = template;
 
         final Map<String, String> recipientsByAffiliation =
-            retrieveRecipientsByAffiliation(properties);
+                retrieveRecipientsByAffiliation(properties);
         EntityTrackingEmailDataManager.initialize(recipientsByAffiliation);
     }
 
@@ -77,10 +77,10 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             if (propertyKey.endsWith(AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX))
             {
                 final String affiliation =
-                    propertyKey.substring(0, propertyKey.length()
-                            - AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX.length());
+                        propertyKey.substring(0, propertyKey.length()
+                                - AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX.length());
                 final String affiliationRecipient =
-                    PropertyUtils.getMandatoryProperty(properties, propertyKey);
+                        PropertyUtils.getMandatoryProperty(properties, propertyKey);
                 result.put(affiliation, affiliationRecipient);
             }
         }
@@ -90,7 +90,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     public List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities)
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipient =
-            EntityTrackingEmailDataManager.groupByRecipient(trackedEntities);
+                EntityTrackingEmailDataManager.groupByRecipient(trackedEntities);
 
         final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
         for (EntityTrackingEmailData emailData : emailDataGroupedByRecipient)
@@ -129,10 +129,10 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         private static final char SUBSECTION_SEPARATOR_CHAR = '-';
 
         private static final String SECTION_SEPARATOR_LINE =
-            createSeparatorLine(SECTION_SEPARATOR_CHAR);
+                createSeparatorLine(SECTION_SEPARATOR_CHAR);
 
         private static final String SUBSECTION_SEPARATOR_LINE =
-            createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
+                createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
 
         private final static String EXTERNAL_SAMPLE_NAME_PROPERTY_CODE = "EXTERNAL_SAMPLE_NAME";
 
@@ -167,8 +167,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 // append Sequencing sample details
                 if (processed)
                 {
-                    appendSampleDetails(sb, String
-                            .format("Library processing of sample '%s' was successful.",
+                    appendSampleDetails(sb,
+                            String.format("Library processing of sample '%s' was successful.",
                                     externalSampleName), sequencingSample);
                     appendln(sb, SUBSECTION_SEPARATOR_LINE);
                 } else
@@ -220,8 +220,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             sequencingSamples = flowLaneSample.getParents();
             assert sequencingSamples != null;
 
-            for (Sample sequencingSample : sequencingSamples) {
-
+            for (Sample sequencingSample : sequencingSamples)
+            {
 
                 String externalSampleName = getExternalSampleName(sequencingSample);
 
@@ -229,23 +229,24 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 appendAttribute(sb, String.format(
                         "You can download results for external sample named '%s' at",
                         externalSampleName), dataSet.getPermlink());
+                // add which Data set type has been added
+                appendAttribute(sb, "Data Set Type:", dataSet.getDataSetType().toString());
 
                 // data set properties
                 appendProperties(sb, dataSet.getProperties());
 
                 // sequencing sample info
                 appendAttribute(sb, String.format(
-                        "Meta data of Sequencing sample '%s' are available here", externalSampleName),
-                        sequencingSample.getPermlink());
+                        "Meta data of Sequencing sample '%s' are available here",
+                        externalSampleName), sequencingSample.getPermlink());
             }
-
 
         }
 
         private static String getExternalSampleName(Sample sequencingSample)
         {
             String externalSampleName =
-                tryGetSamplePropertyValue(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
+                    tryGetSamplePropertyValue(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
             assert externalSampleName != null;
             return externalSampleName;
         }

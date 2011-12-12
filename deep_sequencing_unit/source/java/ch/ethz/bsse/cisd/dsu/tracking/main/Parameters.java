@@ -39,7 +39,7 @@ public class Parameters
 
     private static final String TRACKING_ADMIN_EMAIL = "tracking-admin-email";
 
-    private static final String NOTIFICATION_EMAIL_FROM = "notification-email-from";
+    private static final String NOTIFICATION_EMAIL_FROM = "mail.from";
 
     private final String openbisUser;
 
