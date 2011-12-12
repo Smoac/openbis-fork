@@ -48,6 +48,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private final String[] permIds;
 
+    private final boolean searchForContainerSamplesOnly;
+
     private boolean enrichDependentSamplesWithProperties = false;
 
     /** Creates criteria that delegates to given {@link ListSampleCriteria}. */
@@ -57,6 +59,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.listCriteria = listCriteria;
         this.sampleCodes = null;
         this.permIds = null;
+        this.searchForContainerSamplesOnly = false;
     }
 
     /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
@@ -66,6 +69,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.newTrackingCriteria = newTrackingCriteria;
         this.sampleCodes = null;
         this.permIds = null;
+        this.searchForContainerSamplesOnly = false;
     }
 
     /** Creates criteria for detailed search of samples with given ids. */
@@ -75,19 +79,27 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.sampleIds = sampleIds;
         this.sampleCodes = null;
         this.permIds = null;
+        this.searchForContainerSamplesOnly = false;
     }
 
     /** Creates criteria for detailed search of samples with codes. */
     public ListOrSearchSampleCriteria(final String[] codes, final boolean codesArePermIds)
     {
+        this(codes, codesArePermIds, false);
+    }
+
+    /** Creates criteria for detailed search of samples with codes. */
+    public ListOrSearchSampleCriteria(String[] codes, boolean codesArePermIds,
+            boolean searchForContainerSamplesOnly)
+    {
         // Need to add the type to disambiguate method signatures for erased generic types.
         assert codes != null;
+        this.searchForContainerSamplesOnly = searchForContainerSamplesOnly;
 
         if (codesArePermIds)
         {
             this.sampleCodes = null;
             this.permIds = codes;
-
         } else
         {
             this.sampleCodes = codes;
@@ -104,6 +116,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
         this.sampleCodes = codes;
         this.permIds = permIds;
+        this.searchForContainerSamplesOnly = false;
     }
 
     // search
@@ -232,4 +245,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         this.enrichDependentSamplesWithProperties = enrichDependentSamplesWithProperties;
     }
 
+    public boolean isSearchForContainerSamplesOnly()
+    {
+        return searchForContainerSamplesOnly;
+    }
 }

@@ -228,8 +228,18 @@ public class SampleRegisterOrUpdateUtil
             return extractCode(sampleIdentifier.getSampleCode());
         } else
         {
-            SampleIdentifier parsedContainerIdentifier = SampleIdentifierFactory.parse(containerIdentifier);
+            SampleIdentifier parsedContainerIdentifier =
+                    SampleIdentifierFactory.parse(containerIdentifier);
             return extractCode(parsedContainerIdentifier.getSampleCode());
         }
+    }
+
+    public static ListOrSearchSampleCriteria createListContainerSamplesByCodeCriteria(
+            List<String> codes)
+    {
+        String[] codesAsArray = codes.toArray(new String[0]);
+        ListOrSearchSampleCriteria criteria =
+                new ListOrSearchSampleCriteria(codesAsArray, false, true);
+        return criteria;
     }
 }

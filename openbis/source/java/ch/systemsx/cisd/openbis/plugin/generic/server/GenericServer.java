@@ -322,7 +322,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             // for contained samples add container samples codes
             codes = SampleRegisterOrUpdateUtil.extractContainerCodes(newSamples);
             ListOrSearchSampleCriteria criteria =
-                    SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
+                    SampleRegisterOrUpdateUtil.createListContainerSamplesByCodeCriteria(codes);
             List<Sample> existingContainers = sampleLister.list(criteria);
             for (Sample s : existingContainers)
             {

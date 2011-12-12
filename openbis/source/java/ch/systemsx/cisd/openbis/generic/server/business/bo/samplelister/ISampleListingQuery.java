@@ -341,11 +341,27 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRecord> getSamplesForCodes(String[] sampleCodes);
 
     /**
+     * Returns the non-empty container samples for the given <var>sampleCodes</var>.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S
+            + " where s.id in (select samp_id_part_of from samples where samp_id_part_of in (select id from samples where code = any(?{1})))", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getContainerSamplesForCodes(String[] sampleCodes);
+
+    /**
      * Returns the samples for the given <var>permIds</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.perm_id = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesForPermIds(String[] permIds);
+
+    /**
+     * Returns the non-empty container samples for the given <var>sampleCodes</var>.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S
+            + " where s.id in (select samp_id_part_of from samples where samp_id_part_of in (select id from samples where permId = any(?{1})))", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getContainerSamplesForPermIds(String[] permIds);
 
     //
     // Sample Properties

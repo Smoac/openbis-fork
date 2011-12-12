@@ -44,10 +44,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -218,7 +218,9 @@ final class SampleListingWorker extends AbstractLister
         loadSampleTypes();
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds());
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByCodes());
+        retrievePrimaryBasicSamples(tryGetIteratorForContainerSamplesByCodes());
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByPermIds());
+        retrievePrimaryBasicSamples(tryGetIteratorForContainerSamplesByPermIds());
         retrievePrimaryBasicSamples(tryGetIteratorForSpaceSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
@@ -351,6 +353,10 @@ final class SampleListingWorker extends AbstractLister
 
     private Iterable<SampleRecord> tryGetIteratorForSamplesByCodes()
     {
+        if (criteria.isSearchForContainerSamplesOnly())
+        {
+            return null;
+        }
         String[] codes = criteria.trySampleCodes();
         if (codes == null)
         {
@@ -359,14 +365,46 @@ final class SampleListingWorker extends AbstractLister
         return query.getSamplesForCodes(codes);
     }
 
+    private Iterable<SampleRecord> tryGetIteratorForContainerSamplesByCodes()
+    {
+        if (criteria.isSearchForContainerSamplesOnly())
+        {
+            return null;
+        }
+        String[] codes = criteria.trySampleCodes();
+        if (codes == null)
+        {
+            return null;
+        }
+        return query.getContainerSamplesForCodes(codes);
+    }
+
     private Iterable<SampleRecord> tryGetIteratorForSamplesByPermIds()
     {
+        if (criteria.isSearchForContainerSamplesOnly())
+        {
+            return null;
+        }
         String[] permIds = criteria.trySamplePermIds();
         if (permIds == null)
         {
             return null;
         }
         return query.getSamplesForPermIds(permIds);
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForContainerSamplesByPermIds()
+    {
+        if (false == criteria.isSearchForContainerSamplesOnly())
+        {
+            return null;
+        }
+        String[] permIds = criteria.trySamplePermIds();
+        if (permIds == null)
+        {
+            return null;
+        }
+        return query.getContainerSamplesForPermIds(permIds);
     }
 
     private Iterable<SampleRecord> tryGetIteratorForSpaceSamples()
