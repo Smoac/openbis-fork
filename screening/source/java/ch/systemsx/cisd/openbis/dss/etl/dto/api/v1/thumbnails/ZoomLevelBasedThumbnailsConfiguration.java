@@ -37,7 +37,7 @@ public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsCon
         thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
                 .getAllowedMachineLoadDuringThumbnailsGeneration());
         thumbnailsStorageFormat.setZoomLevel(zoomLevel);
-        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%.0f%%.h5",
+        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%.0fpct.h5",
                 zoomLevel * 100.0));
         thumbnailsStorageFormat.setGenerateWithImageMagic(config
                 .getGenerateThumbnailsWithImageMagic());
