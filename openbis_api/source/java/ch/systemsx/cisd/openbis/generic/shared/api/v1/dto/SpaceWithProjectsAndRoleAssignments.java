@@ -28,13 +28,15 @@ import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+
 /**
  * Bean which represents a space, all its projects, and all its relevant role assignments
  * 
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-public class SpaceWithProjectsAndRoleAssignments implements Serializable
+public class SpaceWithProjectsAndRoleAssignments implements ICodeHolder, Serializable
 {
     private static final long serialVersionUID = 1L;
 
