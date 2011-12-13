@@ -45,7 +45,6 @@ public class ConfigParametersTest extends AssertJUnit
         assertEquals("key-store", configParameters.getKeystorePath());
         assertEquals("key-store-password", configParameters.getKeystorePassword());
         assertEquals("key-store-key-password", configParameters.getKeystoreKeyPassword());
-        assertEquals("dss_rpc_incoming", configParameters.getRpcIncomingDirectory().getName());
         assertEquals(false, configParameters.isUseNIO());
         assertEquals(ConfigParameters.DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS,
                 configParameters.getAuthCacheCleanupTimerPeriodMins());

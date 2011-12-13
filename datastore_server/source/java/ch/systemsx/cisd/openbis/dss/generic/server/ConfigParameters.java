@@ -51,8 +51,6 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
-    static final String RPC_INCOMING_DIR = "rpc-incoming-dir";
-
     static final String SESSION_TIMEOUT_KEY = "session-timeout";
 
     static final String DOWNLOAD_URL = "download-url";
@@ -102,8 +100,6 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     private final File dssInternalTempDir;
 
-    private final File rpcIncomingDirectory;
-
     private final int port;
 
     private final String serverURL;
@@ -146,7 +142,6 @@ public final class ConfigParameters implements IServletPropertiesManager
                 PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
         storePath = new File(storeRootDir);
         dssInternalTempDir = getInternalTempDirectory(properties);
-        rpcIncomingDirectory = getRpcIncomingDirectory(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
@@ -185,18 +180,6 @@ public final class ConfigParameters implements IServletPropertiesManager
     private static File getInternalTempDirectory(Properties properties)
     {
         return DssPropertyParametersUtil.getDssInternalTempDir(properties);
-    }
-
-    private static File getRpcIncomingDirectory(final Properties properties)
-    {
-        String incomingDirPath = PropertyUtils.getProperty(properties, RPC_INCOMING_DIR);
-        if (null != incomingDirPath)
-        {
-            return new File(incomingDirPath);
-        } else
-        {
-            return new File(System.getProperty("java.io.tmpdir"), "dss_rpc_incoming");
-        }
     }
 
     public void addServletsProperties(String keyPrefix, SectionProperties[] servletsProperties)
@@ -248,11 +231,6 @@ public final class ConfigParameters implements IServletPropertiesManager
     public File getCommandQueueDir()
     {
         return commandQueueDir;
-    }
-
-    public final File getRpcIncomingDirectory()
-    {
-        return rpcIncomingDirectory;
     }
 
     public File getDssInternalTempDir()
@@ -336,7 +314,6 @@ public final class ConfigParameters implements IServletPropertiesManager
         {
             operationLog.info(String.format("Store root directory: '%s'.", storePath));
             operationLog.info(String.format("Temp file directory: '%s'.", dssInternalTempDir));
-            operationLog.info(String.format("RPC incoming directory: '%s'.", rpcIncomingDirectory));
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
             operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
