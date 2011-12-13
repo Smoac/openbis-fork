@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * Stores metadata about grid custom columns.
@@ -68,11 +69,14 @@ public class CustomColumnsMetadataProvider
                 if (column.getDataType() == null)
                 {
                     GridCustomColumnInfo oldColumn = oldColumns.get(column.getCode());
-                    if (oldColumn != null && oldColumn.getDataType() != null)
+                    if (oldColumn != null)
                     {
-                        newColumns
-                                .add(new GridCustomColumnInfo(column.getCode(), column.getLabel(),
-                                        column.getDescription(), oldColumn.getDataType()));
+                        DataTypeCode dataType = oldColumn.getDataType();
+                        newColumns.add(new GridCustomColumnInfo(column.getCode(),
+                                column.getLabel(), column.getDescription(), dataType));
+                    } else
+                    {
+                        newColumns.add(column);
                     }
                 } else
                 {

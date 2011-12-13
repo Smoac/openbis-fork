@@ -548,7 +548,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
-    protected int log(String message)
+    private int log(String message)
     {
         return viewContext.log(message + " [" + getId() + "]");
     }
@@ -582,7 +582,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /** Refreshes the grid without showing the loading progress bar */
-    protected final void refreshGridSilently()
+    private void refreshGridSilently()
     {
         grid.setLoadMask(false);
         int id = log("refresh silently");
@@ -634,7 +634,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
 
-    protected List<TableModelRowWithObject<T>> getGridElements()
+    private List<TableModelRowWithObject<T>> getGridElements()
     {
         List<BaseEntityModel<TableModelRowWithObject<T>>> models = grid.getStore().getModels();
         List<TableModelRowWithObject<T>> elements = new ArrayList<TableModelRowWithObject<T>>();
@@ -1031,8 +1031,6 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             saveCacheKey(key);
             GridRowModels<TableModelRowWithObject<T>> rowModels = result.getList();
             boolean partial = result.isPartial();
-            List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
-            customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
 
             if (reloadingPhase)
             {
@@ -1107,6 +1105,22 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             return result;
         }
 
+        private void initializeModelCreation()
+        {
+            Set<String> visibleColumnIds = getIDsOfVisibleColumns();
+            List<IColumnDefinitionUI<TableModelRowWithObject<T>>> colDefinitions =
+                    createColDefinitions();
+            visibleColDefinitions =
+                    new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
+            for (IColumnDefinitionUI<TableModelRowWithObject<T>> definition : colDefinitions)
+            {
+                if (visibleColumnIds.contains(definition.getIdentifier()))
+                {
+                    visibleColDefinitions.add(definition);
+                }
+            }
+        }
+
         @Override
         /* Note: we want to differentiate between callbacks in different subclasses of this grid. */
         public String getCallbackId()
@@ -1115,7 +1129,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
-    protected Set<String> getIDsOfVisibleColumns()
+    private Set<String> getIDsOfVisibleColumns()
     {
         Set<String> visibleColumnIds = new HashSet<String>();
         for (int i = 0, n = fullColumnModel.getColumnCount(); i < n; i++)
@@ -1180,7 +1194,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         bottomToolbars.layout();
     }
 
-    protected void showModificationsBar()
+    private void showModificationsBar()
     {
         if (bottomToolbars.getItems().contains(modificationsToolbar) == false)
         {
@@ -1192,7 +1206,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
-    protected void hideModificationsBar()
+    private void hideModificationsBar()
     {
         bottomToolbars.remove(modificationsToolbar);
         bottomToolbars.layout();
@@ -1822,8 +1836,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         columnSettingsConfigurer.showDialog();
     }
 
-    // Default visibility so that friend classes can use -- should otherwise be considered private
-    void saveColumnDisplaySettings()
+    private void saveColumnDisplaySettings()
     {
         IDisplaySettingsGetter settingsUpdater = createDisplaySettingsUpdater();
         viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
@@ -1845,7 +1858,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return createTableExportCriteria(false);
     }
 
-    protected final TableExportCriteria<TableModelRowWithObject<T>> createTableExportCriteria(
+    private final TableExportCriteria<TableModelRowWithObject<T>> createTableExportCriteria(
             boolean allColumns)
     {
         assert columnDefinitions != null : "refresh before exporting!";
@@ -1923,7 +1936,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
-    public static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
+    static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
             List<String> filteredColumnsIds)
     {
         Set<String> filteredColumnsMap = new HashSet<String>(filteredColumnsIds);
@@ -2117,7 +2130,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return new ColumnModel(columConfigs);
     }
 
-    public ColumnModel getFullColumnModel()
+    ColumnModel getFullColumnModel()
     {
         return fullColumnModel;
     }
@@ -2396,7 +2409,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /** Toolbar for handling table modifications */
-    static class TableModificationsToolbar extends ToolBar
+    private static class TableModificationsToolbar extends ToolBar
     {
 
         public TableModificationsToolbar(final IMessageProvider messageProvider,
@@ -2517,28 +2530,6 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
-    /**
-     * Initializes creation of model from received data. This is a hook method called before {
-     * {@link #createModel(GridRowModel)} is invoked for all rows. This implementation does nothing.
-     * Subclasses usually override this method by creating an instance attribute which holds a list
-     * of visible column definitions. This speeds up invocation of
-     * {@link #createModel(GridRowModel)}.
-     */
-    protected void initializeModelCreation()
-    {
-        Set<String> visibleColumnIds = getIDsOfVisibleColumns();
-        List<IColumnDefinitionUI<TableModelRowWithObject<T>>> colDefinitions =
-                createColDefinitions();
-        visibleColDefinitions = new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
-        for (IColumnDefinitionUI<TableModelRowWithObject<T>> definition : colDefinitions)
-        {
-            if (visibleColumnIds.contains(definition.getIdentifier()))
-            {
-                visibleColDefinitions.add(definition);
-            }
-        }
-    }
-
     /** Converts specified entity into a grid row model */
     protected BaseEntityModel<TableModelRowWithObject<T>> createModel(
             GridRowModel<TableModelRowWithObject<T>> entity)
@@ -2615,7 +2606,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return getId() + "_" + columnID;
     }
 
-    protected void listEntities(
+    private void listEntities(
             final DefaultResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
             final AbstractAsyncCallback<ResultSet<TableModelRowWithObject<T>>> callback)
     {
@@ -2625,14 +2616,19 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                         @Override
                         protected void process(TypedTableResultSet<T> result)
                         {
+                            ResultSet<TableModelRowWithObject<T>> resultSet = result.getResultSet();
                             // don't need to recreate columns when paging or filtering
                             if (resultSetConfig.getCacheConfig().getMode() != ResultSetFetchMode.FETCH_FROM_CACHE)
                             {
-                                headers = result.getResultSet().getList().getColumnHeaders();
+                                headers = resultSet.getList().getColumnHeaders();
                                 columnUIDefinitions = null;
+                                List<GridCustomColumnInfo> customColumnMetadata =
+                                        resultSet.getList().getCustomColumnsMetadata();
+                                customColumnsMetadataProvider
+                                        .setCustomColumnsMetadata(customColumnMetadata);
                                 recreateColumnModelAndRefreshColumnsWithFilters();
                             }
-                            callback.onSuccess(result.getResultSet());
+                            callback.onSuccess(resultSet);
                         }
 
                         @Override
@@ -2673,7 +2669,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /** @return on which fields filters should be switched on by default? */
-    protected List<IColumnDefinition<TableModelRowWithObject<T>>> getInitialFilters()
+    private List<IColumnDefinition<TableModelRowWithObject<T>>> getInitialFilters()
     {
 
         List<IColumnDefinition<TableModelRowWithObject<T>>> definitions =
