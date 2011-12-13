@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -155,17 +156,30 @@ public class DSSFileSystemView implements FileSystemView
 
     private String normalizePath(String path) throws FtpException
     {
-
         String fullPath = path.trim();
-        if (false == fullPath.startsWith(FtpConstants.FILE_SEPARATOR))
+        if (fullPath.startsWith("./"))
         {
-            fullPath = workingDirectory.getAbsolutePath() + FtpConstants.FILE_SEPARATOR + fullPath;
+            fullPath = fullPath.substring(2);
+        }
+        if (fullPath.startsWith(FtpConstants.FILE_SEPARATOR) == false)
+        {
+            String absolutePath = workingDirectory.getAbsolutePath();
+            if (absolutePath.endsWith(FtpConstants.FILE_SEPARATOR) == false)
+            {
+                absolutePath += FtpConstants.FILE_SEPARATOR;
+            }
+            fullPath = absolutePath + fullPath;
         }
 
         try
         {
             URI uri = new URI(fullPath);
-            return uri.normalize().toString();
+            String normalizedPath = uri.normalize().toString();
+            // remove trailing slashes
+            normalizedPath = normalizedPath.replaceAll("/*$", "");
+            // replace multiple adjacent slashes with a single slash
+            normalizedPath = normalizedPath.replaceAll("/+", "/");
+            return StringUtils.isBlank(normalizedPath) ? FtpConstants.ROOT_DIRECTORY : normalizedPath;
         } catch (URISyntaxException ex)
         {
             throw new FtpException("Cannot parse path " + fullPath, ex);
