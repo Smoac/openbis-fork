@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -44,8 +45,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransactionTest.MockStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -89,6 +94,8 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
 
     private File incomingDir;
 
+    private File rpcIncomingDir;
+
     private File storeDir;
 
     @BeforeMethod
@@ -101,19 +108,26 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         registrator = context.mock(ITopLevelDataSetRegistrator.class);
         final DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode(DATABASE_INSTANCE_CODE);
+        storeDir = new File(workingDirectory, "store");
+        storeDir.mkdirs();
+        rpcIncomingDir = new File(storeDir, "1/rpc-incoming");
+        rpcIncomingDir.mkdirs();
+        incomingDir = new File(workingDirectory, "incoming/");
+        incomingDir.mkdirs();
+
         context.checking(new Expectations()
             {
                 {
                     one(service).getHomeDatabaseInstance();
                     will(returnValue(databaseInstance));
+
+                    allowing(registrator).getGlobalState();
+                    will(returnValue(createGlobalState(incomingDir)));
                 }
             });
-        storeDir = new File(workingDirectory, "store/");
-        storeDir.mkdirs();
-        incomingDir = new File(workingDirectory, "incoming/");
-        incomingDir.mkdirs();
+
         putDataSetService =
-                new PutDataSetService(service, logger, storeDir, incomingDir,
+                new PutDataSetService(service, logger, storeDir,
                         new TestDataSetTypeToTopLevelRegistratorMapper(registrator), null,
                         DATA_SET_CODE, null);
     }
@@ -154,7 +168,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
                 new RecordingMatcher<DataSetInformation>();
         FileInfoDssDTO f1 = new FileInfoDssDTO("hello.txt", "hello", false, 12);
-        File file1 = new File(incomingDir, DATA_SET_CODE + "/" + f1.getPathInDataSet());
+        File file1 = new File(rpcIncomingDir, DATA_SET_CODE + "/" + f1.getPathInDataSet());
         List<IHierarchicalContentNode> contents =
                 prepareRegistrator(file1, Arrays.asList(file1), Arrays.asList("hello world"),
                         dataSetInfoMatcher);
@@ -201,7 +215,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
                 new RecordingMatcher<DataSetInformation>();
         FileInfoDssDTO f1 = new FileInfoDssDTO("hello.txt", "hello", false, 12);
-        File dataSet = new File(incomingDir, DATA_SET_CODE + "/ds-folder");
+        File dataSet = new File(rpcIncomingDir, DATA_SET_CODE + "/ds-folder");
         File file1 = new File(dataSet, f1.getPathInDataSet());
         FileInfoDssDTO f2 = new FileInfoDssDTO("subdir/hi.txt", "hi", false, 10);
         File file2 = new File(dataSet, f2.getPathInDataSet());
@@ -247,7 +261,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                                     public boolean matches(Object item)
                                     {
                                         // We can check file content only here because after
-                                        // in vocation of handle() all files are deleted.
+                                        // invocation of handle() all files are deleted.
                                         for (int i = 0; i < files.size(); i++)
                                         {
                                             File file = files.get(i);
@@ -271,5 +285,27 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
             result.add(new ByteArrayBasedContentNode(contents.get(i).getBytes(), file.getName()));
         }
         return result;
+    }
+
+    private Properties createThreadProperties()
+    {
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, incomingDir.getPath());
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+                MockStorageProcessor.class.getName());
+        return threadProperties;
+    }
+
+    private TopLevelDataSetRegistratorGlobalState createGlobalState(File tmpIncomingDir)
+    {
+
+        ThreadParameters params =
+                new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
+                        + "-thread");
+        return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", this.storeDir,
+                tmpIncomingDir, this.service, null, null, null, null, true, params);
     }
 }

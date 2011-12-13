@@ -24,12 +24,12 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
@@ -75,13 +75,9 @@ public class PutDataSetService
 
     private IMailClient mailClient;
 
-    private File incomingDir;
-
     private IDataSetValidator dataSetValidator;
 
     private DatabaseInstance homeDatabaseInstance;
-
-    private String shareId;
 
     /**
      * The designated constructor.
@@ -103,19 +99,15 @@ public class PutDataSetService
      * @param openBisService
      * @param operationLog
      * @param store
-     * @param incoming
      * @param map
      * @param mail
      * @param dsCode
      */
     public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog,
-            File store, File incoming, DataSetTypeToRegistratorMapper map, IMailClient mail,
-            String dsCode, IDataSetValidator validator)
+            File store, DataSetTypeToRegistratorMapper map, IMailClient mail, String dsCode,
+            IDataSetValidator validator)
     {
         this(openBisService, operationLog);
-
-        incomingDir = incoming;
-        incomingDir.mkdir();
 
         registratorMap = map;
         storeDirectory = store;
@@ -129,8 +121,6 @@ public class PutDataSetService
         homeDatabaseInstance = openBisService.getHomeDatabaseInstance();
 
         dataSetValidator = validator;
-
-        shareId = Constants.DEFAULT_SHARE_ID;
 
         isInitialized = true;
     }
@@ -221,8 +211,6 @@ public class PutDataSetService
     {
         PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
 
-        incomingDir.mkdirs();
-
         mailClient = new MailClient(initializer.getMailProperties());
         dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
 
@@ -241,12 +229,8 @@ public class PutDataSetService
                         + storeDirectory);
             }
         }
-        shareId =
-                SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory,
-                        new Log4jSimpleLogger(operationLog));
-        operationLog.info("Data sets registered via RPC are stored in share " + shareId + ".");
 
-        registratorMap = initializer.getRegistratorMap(shareId, openBisService, mailClient);
+        registratorMap = initializer.getRegistratorMap(openBisService, mailClient);
         registratorMap.initializeStoreRootDirectory(storeDirectory);
 
         isInitialized = true;
@@ -262,19 +246,20 @@ public class PutDataSetService
         return mailClient;
     }
 
-    String getShareId()
+    String getShareId(String dataSetTypeOrNull)
     {
-        return shareId;
+        return getThreadGlobalState(dataSetTypeOrNull).getShareId();
     }
 
-    File getIncomingDir()
+    File getIncomingDir(String dataSetTypeOrNull)
     {
-        return incomingDir;
+        return getThreadGlobalState(dataSetTypeOrNull).getThreadParameters()
+                .getIncomingDataDirectory();
     }
 
-    public void setIncomingDir(File aDir)
+    private TopLevelDataSetRegistratorGlobalState getThreadGlobalState(String dataSetTypeOrNull)
     {
-        incomingDir = aDir;
+        return registratorMap.getRegistratorForType(dataSetTypeOrNull).getGlobalState();
     }
 
     Logger getOperationLog()
@@ -317,19 +302,36 @@ public class PutDataSetService
         this.storeDirectory = storeDirectory;
     }
 
-    /**
-     * Return a new subdirectory of the incoming directory for saving files and preventing conflicts
-     * between threads.
-     * <p>
-     * Clients are responsible for deleting the temporary incoming directories.
-     */
-    public File createTemporaryIncomingDir()
+    public File createTemporaryIncomingDir(String dataSetTypeCodeOrNull)
     {
         String uniqueFolderName = openBisService.createDataSetCode();
-        File temporaryIncomingDir = new File(getIncomingDir(), uniqueFolderName);
+        File temporaryIncomingDir =
+                new File(getTemporaryIncomingRoot(dataSetTypeCodeOrNull), uniqueFolderName);
         temporaryIncomingDir.mkdir();
         return temporaryIncomingDir;
     }
+
+    private File getTemporaryIncomingRoot(String dataSetTypeCodeOrNull)
+    {
+        TopLevelDataSetRegistratorGlobalState globalState =
+                getThreadGlobalState(dataSetTypeCodeOrNull);
+        File storeRoot = globalState.getStoreRootDir();
+        if (false == StringUtils.isBlank(globalState.getShareId()))
+        {
+            File shareRoot = new File(storeRoot, globalState.getShareId());
+            if (shareRoot.isDirectory())
+            {
+                File incomingDir = new File(shareRoot, "rpc-incoming");
+                incomingDir.mkdir();
+                if (incomingDir.isDirectory())
+                {
+                    return incomingDir;
+                }
+            }
+        }
+        return storeRoot;
+    }
+
 }
 
 /**
@@ -346,10 +348,10 @@ class PutDataSetServiceInitializer
         params = Parameters.createParametersForApiUse();
     }
 
-    public DataSetTypeToRegistratorMapper getRegistratorMap(String shareId,
+    public DataSetTypeToRegistratorMapper getRegistratorMap(
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
     {
-        return new DataSetTypeToRegistratorMapper(params, shareId, openBisService, mailClient,
+        return new DataSetTypeToRegistratorMapper(params, openBisService, mailClient,
                 getDataSetValidator());
     }
 

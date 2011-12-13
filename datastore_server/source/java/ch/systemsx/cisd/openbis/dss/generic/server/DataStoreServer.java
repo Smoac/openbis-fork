@@ -256,8 +256,6 @@ public class DataStoreServer
         IDssServiceRpcGenericInternal service =
                 (IDssServiceRpcGenericInternal) v1ServiceExporter.getService();
         service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
-        service.setIncomingDirectory(applicationContext.getConfigParameters()
-                .getRpcIncomingDirectory());
 
         // Export the spring bean to the world by wrapping it in an HttpInvokerServlet
         String rpcV1Suffix = "/rmi-dss-api-v1";

@@ -115,7 +115,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
         this.copier = FastRecursiveHardLinkMaker.tryCreate();
-        this.temporaryIncomingDir = service.createTemporaryIncomingDir();
+        this.temporaryIncomingDir = service.createTemporaryIncomingDir(newDataSet.tryDataSetType());
         this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
         if (dataSetDir.exists())
         {
@@ -174,7 +174,9 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             overrideOrNull = newOverride;
         }
 
-        RegistrationHelper helper = new RegistrationHelper(service, plugin, dataSet);
+        String dataSetTypeCodeOrNull = tryGetDataSetTypeCode(newOverride);
+        String shareId = service.getShareId(dataSetTypeCodeOrNull);
+        RegistrationHelper helper = new RegistrationHelper(service, shareId, plugin, dataSet);
 
         new DataSetRegistrationAlgorithmRunner(
                 helper,
@@ -193,10 +195,16 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return Collections.singletonList(helper.getDataSetInformation());
     }
 
+    public String tryGetDataSetTypeCode(final DataSetInformation newOverride)
+    {
+        String dataSetTypeCodeOrNull = (newOverride != null && newOverride.getDataSetType() != null) ?  newOverride.getDataSetType().getCode() : null;
+        return dataSetTypeCodeOrNull;
+    }
+
     public List<DataSetInformation> linkAndHandleDataSet(File dataSetComponent,
             DataSetInformation newOverride)
     {
-        File incomingDir = service.getIncomingDir();
+        File incomingDir = service.getIncomingDir(tryGetDataSetTypeCode(newOverride));
         // Make a hard link to the file within the data set
         boolean success;
         success = copier.copyImmutably(dataSetComponent, incomingDir, null);
@@ -204,7 +212,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         {
             throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
                     + dataSetComponent.getAbsolutePath() + "' in folder '"
-                    + service.getIncomingDir().getAbsolutePath() + "'.");
+                    + incomingDir.getAbsolutePath() + "'.");
         }
 
         File linkedFile = new File(incomingDir, dataSetComponent.getName());
@@ -559,10 +567,11 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
          * @param plugin The provider of the storage processor
          * @param incomingDataSetFile The data set to register
          */
-        public RegistrationHelper(PutDataSetService service, IETLServerPlugin plugin,
+        public RegistrationHelper(PutDataSetService service, String shareId,
+                IETLServerPlugin plugin,
                 File incomingDataSetFile)
         {
-            super(incomingDataSetFile, service.getShareId(), new CleanAfterwardsAction(),
+            super(incomingDataSetFile, shareId, new CleanAfterwardsAction(),
                     new PreRegistrationAction(), new PostRegistrationAction());
         }
 

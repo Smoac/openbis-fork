@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -50,10 +51,14 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.etlserver.api.v1.TestDataSetTypeToTopLevelRegistratorMapper;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransactionTest.MockStorageProcessor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
@@ -126,6 +131,12 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IStreamRepository streamRepository;
 
+    private File rpcIncomingDir;
+
+    private File storeDir;
+
+    private File incomingDir;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -144,9 +155,12 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         validator = context.mock(IDataSetValidator.class);
         dataSetRegistrator = context.mock(ITopLevelDataSetRegistrator.class);
 
-        File storeDir = new File(workingDirectory, "store/");
-        File incomingDir = new File(workingDirectory, "incoming/");
-        initializeDirectories(storeDir, incomingDir);
+        storeDir = new File(workingDirectory, "store/");
+        incomingDir = new File(workingDirectory, "incoming/");
+        initializeStoreAndIncomingDirectories();
+
+        rpcIncomingDir = new File(storeDir, "1/rpc-incoming/");
+        rpcIncomingDir.mkdirs();
 
         // test with DefaultFileBasedHierarchicalContentFactory to actually access files
         final IHierarchicalContentFactory fileBasedContentFactory =
@@ -161,14 +175,13 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
         PutDataSetService putService =
                 new PutDataSetService(openBisService, LogFactory.getLogger(LogCategory.OPERATION,
-                        DssServiceRpcV1Test.class), storeDir, incomingDir,
+                        DssServiceRpcV1Test.class), storeDir,
                         new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
                         mailClient, "TEST", validator);
         rpcService =
                 new DssServiceRpcGeneric(openBisService, streamRepository, shareIdManager, contentProvider,
                         putService);
         rpcService.setStoreDirectory(storeDir);
-        rpcService.setIncomingDirectory(incomingDir);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -177,7 +190,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
-    private void initializeDirectories(File storeDir, File incomingDir) throws IOException
+    private void initializeStoreAndIncomingDirectories() throws IOException
     {
         File location =
                 DatasetLocationUtil.getDatasetLocationPath(storeDir, DATA_SET_CODE, SHARE_ID,
@@ -274,7 +287,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     atLeast(1).of(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
                             with(spaceIdentifier));
-                    oneOf(dataSetRegistrator).handle(with(fileMatcher), with(dataSetInfoMatcher),
+                    one(dataSetRegistrator).handle(with(fileMatcher), with(dataSetInfoMatcher),
                             with(delegateMatcher));
                     will(new CustomAction("Notify the delegate")
                         {
@@ -291,6 +304,10 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                                 return null;
                             }
                         });
+
+                    one(dataSetRegistrator).getGlobalState();
+                    will(returnValue(createGlobalState()));
+
                     allowing(openBisService).tryGetSession(SESSION_TOKEN);
                     will(returnValue(session));
                     allowing(openBisService).createDataSetCode();
@@ -713,6 +730,28 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                     one(shareIdManager).releaseLocks();
                 }
             });
+    }
+
+    private Properties createThreadProperties()
+    {
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, incomingDir.getPath());
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+                MockStorageProcessor.class.getName());
+        return threadProperties;
+    }
+
+    private TopLevelDataSetRegistratorGlobalState createGlobalState()
+    {
+
+        ThreadParameters params =
+                new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
+                        + "-thread");
+        return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", storeDir,
+                rpcIncomingDir, openBisService, null, null, null, null, true, params);
     }
 
 }

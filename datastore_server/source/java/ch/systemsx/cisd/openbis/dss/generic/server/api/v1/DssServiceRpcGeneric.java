@@ -216,12 +216,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         putService.setStoreDirectory(aFile);
     }
 
-    @Override
-    public void setIncomingDirectory(File aFile)
-    {
-        putService.setIncomingDir(aFile);
-    }
-
     public String getPathToDataSet(String sessionToken, String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException

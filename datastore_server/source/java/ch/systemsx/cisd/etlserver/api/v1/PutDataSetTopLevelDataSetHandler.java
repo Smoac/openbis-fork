@@ -98,7 +98,7 @@ class PutDataSetTopLevelDataSetHandler
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.inputStream = inputStream;
-        this.temporaryIncomingDir = service.createTemporaryIncomingDir();
+        this.temporaryIncomingDir = service.createTemporaryIncomingDir(newDataSet.tryDataSetType());
         String dataSetFolderName = newDataSet.getDataSetFolderName();
         // TODO, 2011-04-27, FJE: It would be better to allow null value for
         // newDataSet.getDataSetFolderName()

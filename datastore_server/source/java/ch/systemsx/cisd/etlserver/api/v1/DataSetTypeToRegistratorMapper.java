@@ -61,12 +61,12 @@ class DataSetTypeToRegistratorMapper
         handlerMap = new HashMap<String, ITopLevelDataSetRegistrator>();
     }
 
-    DataSetTypeToRegistratorMapper(Parameters params, String shareId,
-            IEncapsulatedOpenBISService openBISService, IMailClient mailClient,
+    DataSetTypeToRegistratorMapper(Parameters params, IEncapsulatedOpenBISService openBISService,
+            IMailClient mailClient,
             IDataSetValidator dataSetValidator)
     {
         DataSetTypeToTopLevelHandlerMapperInitializer initializer =
-                new DataSetTypeToTopLevelHandlerMapperInitializer(params, shareId, openBISService,
+                new DataSetTypeToTopLevelHandlerMapperInitializer(params, openBISService,
                         mailClient, dataSetValidator);
         initializer.initialize();
         defaultHandler = initializer.getDefaultHandler();
@@ -106,8 +106,6 @@ class DataSetTypeToRegistratorMapper
     {
         private final Parameters params;
 
-        private final String shareId;
-
         private final IEncapsulatedOpenBISService openBISService;
 
         private final IMailClient mailClient;
@@ -120,18 +118,16 @@ class DataSetTypeToRegistratorMapper
 
         /**
          * @param params
-         * @param shareId
          * @param openBISService
          * @param mailClient
          * @param dataSetValidator
          */
-        public DataSetTypeToTopLevelHandlerMapperInitializer(Parameters params, String shareId,
+        public DataSetTypeToTopLevelHandlerMapperInitializer(Parameters params,
                 IEncapsulatedOpenBISService openBISService, IMailClient mailClient,
                 IDataSetValidator dataSetValidator)
         {
             super();
             this.params = params;
-            this.shareId = shareId;
             this.openBISService = openBISService;
             this.mailClient = mailClient;
             this.dataSetValidator = dataSetValidator;
@@ -155,7 +151,7 @@ class DataSetTypeToRegistratorMapper
             if (null == defaultThread)
             {
                 return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                        firstThread, shareId, openBISService, mailClient, dataSetValidator, null,
+                        firstThread, openBISService, mailClient, dataSetValidator, null,
                         false,
                         false, false, firstThread.tryGetPreRegistrationScript(),
                         firstThread.tryGetPostRegistrationScript(),
@@ -163,7 +159,7 @@ class DataSetTypeToRegistratorMapper
             }
 
             return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                    defaultThread, shareId, openBISService, mailClient, dataSetValidator, null,
+                    defaultThread, openBISService, mailClient, dataSetValidator, null,
                     false, false, false, defaultThread.tryGetPreRegistrationScript(),
                     defaultThread.tryGetPostRegistrationScript(),
                     defaultThread.tryGetValidationScripts(), PutDataSetServerPluginHolder.class);
@@ -184,7 +180,7 @@ class DataSetTypeToRegistratorMapper
                 if (null != threadParams)
                 {
                     map.put(key.toUpperCase(), ETLDaemon.createTopLevelDataSetRegistrator(
-                            params.getProperties(), threadParams, shareId, openBISService,
+                            params.getProperties(), threadParams, openBISService,
                             mailClient, dataSetValidator, null, false));
                 }
             }
@@ -206,5 +202,6 @@ class DataSetTypeToRegistratorMapper
                     ExtendedProperties.createWith(params.getProperties()).getSubset(
                             DSS_RPC_SECTION_KEY + ".", true);
         }
+
     }
 }
