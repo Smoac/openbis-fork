@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.dss.etl.jython;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MICROSCOPY_CONTAINER_TYPE_SUBSTRING;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MICROSCOPY_IMAGE_TYPE_SUBSTRING;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -547,28 +550,53 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             }
         }
 
+        private static boolean isHCSImageDataSetType(String mainDatasetTypeCode)
+        {
+            String prefix = ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX;
+            if (mainDatasetTypeCode.startsWith(prefix))
+            {
+                if (mainDatasetTypeCode
+                        .contains(ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER))
+                {
+                    throw UserFailureException
+                            .fromTemplate(
+                                    "The specified image dataset type '%s' should not be of container type, but contains '%s' in the type code.",
+                                    mainDatasetTypeCode,
+                                    ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
+                }
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
+        private static boolean isMicroscopyImageDataSetType(String dataSetTypeCode)
+        {
+            return dataSetTypeCode.contains(MICROSCOPY_IMAGE_TYPE_SUBSTRING)
+                    && false == dataSetTypeCode.contains(MICROSCOPY_CONTAINER_TYPE_SUBSTRING);
+        }
+
         private static String findContainerDatasetTypeCode(
                 ImageDataSetInformation imageDataSetInformation)
         {
-            String mainDatasetTypeCode = imageDataSetInformation.getDataSetType().getCode();
+            String dataSetTypeCode =
+                    imageDataSetInformation.getDataSetType().getCode().toUpperCase();
             String prefix = ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX;
-            if (mainDatasetTypeCode.toUpperCase().startsWith(prefix) == false)
+            if (isHCSImageDataSetType(dataSetTypeCode))
             {
+                return prefix + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER
+                        + dataSetTypeCode.substring(prefix.length());
+            } else if (isMicroscopyImageDataSetType(dataSetTypeCode))
+            {
+                return dataSetTypeCode.replace(MICROSCOPY_IMAGE_TYPE_SUBSTRING,
+                        MICROSCOPY_CONTAINER_TYPE_SUBSTRING);
+            } else {
                 throw UserFailureException.fromTemplate(
-                        "The image dataset type '%s' does not start with '%s'.",
-                        mainDatasetTypeCode, prefix);
+                                "The image dataset type '%s' is neither standard HCS type (starts with '%s') nor a microscopy type (contains '%s').",
+                                dataSetTypeCode, prefix,
+                                ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
             }
-            if (mainDatasetTypeCode.toUpperCase().contains(
-                    ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER))
-            {
-                throw UserFailureException
-                        .fromTemplate(
-                                "The specified image dataset type '%s' should not be of container type, but contains '%s' in the type code.",
-                                mainDatasetTypeCode,
-                                ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
-            }
-            return prefix + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER
-                    + mainDatasetTypeCode.substring(prefix.length());
         }
 
         private static void setSameDatasetOwner(IDataSet templateDataset,

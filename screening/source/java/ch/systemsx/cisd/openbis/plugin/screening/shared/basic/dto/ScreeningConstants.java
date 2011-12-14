@@ -99,6 +99,11 @@ public class ScreeningConstants
 
     private static final String MICROSCOPY_IMAGE_TYPE_PATTERN = ".*IMG.*";
 
+    public static final String MICROSCOPY_IMAGE_TYPE_SUBSTRING = "IMG";
+
+    public static final String MICROSCOPY_CONTAINER_TYPE_SUBSTRING =
+            MICROSCOPY_IMAGE_TYPE_SUBSTRING + "_CONTAINER";
+
     /** type of the dataset which stores microscopy images. */
     public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
             + MICROSCOPY_IMAGE_TYPE_PATTERN;
