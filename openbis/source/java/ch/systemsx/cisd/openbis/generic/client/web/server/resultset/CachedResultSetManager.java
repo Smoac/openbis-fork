@@ -795,6 +795,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 newColumnFilterInfos.add(new GridColumnFilterInfo<T>(definition, pattern));
             }
         }
+        // add ids of presented custom columns
+        for (String id : idsOfPresentedColumns)
+        {
+            if (id.startsWith("$"))
+            {
+                newIdsOfPresentedColumns.add(id);
+            }
+        }
 
         DefaultResultSetConfig<K, T> newConfig = new DefaultResultSetConfig<K, T>();
         newConfig.setAvailableColumns(newAvailableColumns);
