@@ -467,33 +467,7 @@ public class DisplaySettingsManager
     public final void updateColumnSettings(String gridDisplayTypeID,
             List<ColumnSetting> newSettings, Object modifier)
     {
-        Map<String, List<ColumnSetting>> columnSettings = displaySettings.getColumnSettings();
-        List<ColumnSetting> previous = columnSettings.put(gridDisplayTypeID, newSettings);
-        if (previous != null)
-        {
-            System.out.println(previous.size() + " previously in " + gridDisplayTypeID + ": "
-                    + printColumnCodes(previous));
-        }
-        if (newSettings != null)
-        {
-            System.out.println(newSettings.size() + " now in " + gridDisplayTypeID + ": "
-                    + printColumnCodes(newSettings));
-
-        }
-    }
-
-    private String printColumnCodes(List<ColumnSetting> setting)
-    {
-        StringBuilder builder = new StringBuilder();
-        for (ColumnSetting columnSetting : setting)
-        {
-            if (builder.length() > 0)
-            {
-                builder.append(", ");
-            }
-            builder.append(columnSetting.getColumnID());
-        }
-        return builder.toString();
+        displaySettings.getColumnSettings().put(gridDisplayTypeID, newSettings);
     }
 
     /** @returns tab settings for given panel - which tab should be selected */
