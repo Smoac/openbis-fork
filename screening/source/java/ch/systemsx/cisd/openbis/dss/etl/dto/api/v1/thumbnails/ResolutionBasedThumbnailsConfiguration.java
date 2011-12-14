@@ -22,19 +22,16 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 /**
  * @author Pawel Glyzewski
  */
-public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsConfiguration
+public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsConfiguration
 {
-    private final double zoomLevel;
+    private final int maxWidth;
 
-    public ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
+    private final int maxHeight;
+
+    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
     {
-        if (zoomLevel > 100d || zoomLevel < 0d)
-        {
-            throw new IllegalStateException("Zoom level must be between 0% and 100%, but was: "
-                    + zoomLevel);
-        }
-
-        this.zoomLevel = zoomLevel;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
     }
 
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
@@ -42,9 +39,10 @@ public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsCon
         ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
         thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
                 .getAllowedMachineLoadDuringThumbnailsGeneration());
-        thumbnailsStorageFormat.setZoomLevel(zoomLevel);
-        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%.0fpct.h5",
-                zoomLevel * 100.0));
+        thumbnailsStorageFormat.setMaxWidth(maxWidth);
+        thumbnailsStorageFormat.setMaxHeight(maxHeight);
+        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%dx%d.h5",
+                maxWidth, maxHeight));
         thumbnailsStorageFormat.setGenerateWithImageMagic(config
                 .getGenerateThumbnailsWithImageMagic());
         thumbnailsStorageFormat.setImageMagicParams(config

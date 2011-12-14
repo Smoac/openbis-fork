@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.DefaultThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.IThumbnailsConfiguration;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.ResolutionBasedThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.ZoomLevelBasedThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
@@ -204,8 +205,7 @@ abstract public class SimpleImageDataConfig
     private String[] recognizedImageExtensions = new String[]
         { "tiff", "tif", "png", "gif", "jpg", "jpeg" };
 
-    private List<IThumbnailsConfiguration> imagePyramid =
-            new ArrayList<IThumbnailsConfiguration>();
+    private List<IThumbnailsConfiguration> imagePyramid = new ArrayList<IThumbnailsConfiguration>();
 
     private int maxThumbnailWidthAndHeight = 256;
 
@@ -368,6 +368,27 @@ abstract public class SimpleImageDataConfig
             for (double zoomLevel : zoomLevels)
             {
                 imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
+            }
+        }
+    }
+
+    public void setGenerateImagePyramidWithImageResolution(String[] resolutions)
+    {
+        imagePyramid.clear();
+        if (resolutions != null)
+        {
+            for (String resolution : resolutions)
+            {
+                String[] dimension = resolution.split("x");
+                if (dimension.length != 2)
+                {
+                    throw new IllegalArgumentException(
+                            "Resolution must be specified in format width x height, e. g. '400x300', but was: '"
+                                    + resolution + "'");
+                }
+                int width = Integer.parseInt(dimension[0].trim());
+                int height = Integer.parseInt(dimension[1].trim());
+                imagePyramid.add(new ResolutionBasedThumbnailsConfiguration(width, height));
             }
         }
     }

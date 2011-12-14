@@ -97,14 +97,13 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             thumbnailPaths.putDataSet(thumbnailPhysicalDatasetPermId,
                     thumbnailsStorageFormatOrNull.getThumbnailsFileName());
             File thumbnailsFile = new File(thumbnailFilePath);
-            final String relativeThumbnailFilePath = thumbnailsFile.getName();
 
             HDF5Container container = new HDF5Container(thumbnailsFile);
             ImageLibraryInfo imageLibrary = imageStorageConfiguraton.tryGetImageLibrary();
             Hdf5ThumbnailGenerator thumbnailsGenerator =
                     new Hdf5ThumbnailGenerator(imageDataSetStructure, imagesParentDirectory,
                             thumbnailPhysicalDatasetPermId, thumbnailsStorageFormatOrNull,
-                            imageLibrary, relativeThumbnailFilePath, thumbnailPaths, operationLog);
+                            imageLibrary, thumbnailPaths, operationLog);
             container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
                     thumbnailsGenerator);
         }
@@ -130,8 +129,6 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private final ImageLibraryInfo imageLibraryOrNull;
 
-    private final String relativeThumbnailFilePath;
-
     private final ThumbnailsInfo thumbnailPathCollector;
 
     private final Logger logger;
@@ -139,15 +136,13 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private Hdf5ThumbnailGenerator(ImageDataSetStructure imageDataSetStructure,
             File imagesParentDirectory, String thumbnailPhysicalDatasetPermId,
             ThumbnailsStorageFormat thumbnailsStorageFormat, ImageLibraryInfo imageLibraryOrNull,
-            String relativeThumbnailFilePath, ThumbnailsInfo thumbnailPathCollector,
-            Logger operationLog)
+            ThumbnailsInfo thumbnailPathCollector, Logger operationLog)
     {
         this.imageDataSetStructure = imageDataSetStructure;
         this.imagesParentDirectory = imagesParentDirectory;
         this.thumbnailPhysicalDatasetPermId = thumbnailPhysicalDatasetPermId;
         this.thumbnailsStorageFormat = thumbnailsStorageFormat;
         this.imageLibraryOrNull = imageLibraryOrNull;
-        this.relativeThumbnailFilePath = relativeThumbnailFilePath;
         this.thumbnailPathCollector = thumbnailPathCollector;
         this.logger = operationLog;
     }
@@ -336,17 +331,19 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
+        final String thumbnailsName = " (" + thumbnailsStorageFormat.getThumbnailsFileName() + ")";
+
         Collection<FailureRecord<ImageFileInfo>> errors =
                 ParallelizedExecutor.process(imageDataSetStructure.getImages(),
                         createThumbnailGenerator(writer),
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
-                        "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION, true);
+                        "Thumbnails generation" + thumbnailsName, MAX_RETRY_OF_FAILED_GENERATION,
+                        true);
         if (errors.size() > 0)
         {
-            throw new IllegalStateException(
-                    String.format(
-                            "There were errors when generating %d thumbnails, the whole thumbnails generation process fails.",
-                            errors.size()));
+            throw new IllegalStateException(String.format(
+                    "There were errors when generating %d thumbnails" + thumbnailsName
+                            + ", the whole thumbnails generation process fails.", errors.size()));
         }
     }
 }
