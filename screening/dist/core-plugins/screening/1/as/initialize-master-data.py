@@ -211,6 +211,10 @@ prop_type_ANALYSIS_PROCEDURE.setLabel('Analysis procedure')
 prop_type_ANALYSIS_PROCEDURE.setManagedInternally(False)
 prop_type_ANALYSIS_PROCEDURE.setInternalNamespace(True)
 
+prop_type_RESOLUTION = tr.createNewPropertyType('RESOLUTION', DataType.VARCHAR)
+prop_type_RESOLUTION.setLabel('Resolution')
+prop_type_RESOLUTION.setManagedInternally(False)
+prop_type_RESOLUTION.setInternalNamespace(True)
 
 prop_type_PLATE_GEOMETRY = tr.createNewPropertyType('PLATE_GEOMETRY', DataType.CONTROLLEDVOCABULARY)
 prop_type_PLATE_GEOMETRY.setLabel('Plate Geometry')
@@ -326,6 +330,11 @@ assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE = tr.assignPropert
 assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE.setMandatory(False)
 assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE.setSection(None)
 assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE.setPositionInForms(1)
+
+assignment_DATA_SET_HCS_IMAGE_OVERVIEW_ANALYSIS_PROCEDURE = tr.assignPropertyType(data_set_type_HCS_IMAGE_OVERVIEW, prop_type_RESOLUTION)
+assignment_DATA_SET_HCS_IMAGE_OVERVIEW_ANALYSIS_PROCEDURE.setMandatory(False)
+assignment_DATA_SET_HCS_IMAGE_OVERVIEW_ANALYSIS_PROCEDURE.setSection(None)
+assignment_DATA_SET_HCS_IMAGE_OVERVIEW_ANALYSIS_PROCEDURE.setPositionInForms(1)
 
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY = tr.assignPropertyType(samp_type_PLATE, prop_type_PLATE_GEOMETRY)
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setMandatory(True)
