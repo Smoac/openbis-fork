@@ -55,9 +55,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.DataSetByExperimentIdentifierValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
@@ -147,6 +152,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SimpleSpaceValidator.class)
+    @Capability("LIST_SPACES")
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull)
     {
@@ -251,6 +257,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
+    @Capability("SEARCH_FOR_SAMPLES")
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         checkSession(sessionToken);
@@ -265,6 +273,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
+    @Capability("LIST_SAMPLES")
     public List<Sample> listSamplesForExperiment(String sessionToken,
             String experimentIdentifierString)
     {
@@ -284,6 +294,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("LIST_DATA_SETS")
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
@@ -291,6 +303,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    @Capability("LIST_EXPERIMENTS")
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class)
             List<Project> projects, String experimentTypeString)
@@ -300,6 +314,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    @Capability("LIST_EXPERIMENTS")
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class)
             List<Project> projects, String experimentTypeString)
@@ -309,6 +325,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    @Capability("LIST_EXPERIMENTS")
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectPredicate.class)
             List<Project> projects, String experimentTypeString)
@@ -385,6 +403,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("LIST_DATA_SETS")
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded)
     {
@@ -470,6 +490,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("LIST_DATA_SETS")
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connections)
     {
@@ -488,6 +510,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("LIST_DATA_SETS")
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connections)
     {
@@ -506,6 +530,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("GET_DATA_SET_META_DATA")
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
         Session session = getSession(sessionToken);
@@ -530,6 +556,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("SEARCH_FOR_DATA_SETS")
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         checkSession(sessionToken);
@@ -546,6 +574,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    @Capability("LIST_EXPERIMENTS")
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
     {
         checkSession(sessionToken);
@@ -561,6 +591,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ProjectByIdentiferValidator.class)
+    @Capability("LIST_PROJECTS")
     public List<Project> listProjects(String sessionToken)
     {
         checkSession(sessionToken);

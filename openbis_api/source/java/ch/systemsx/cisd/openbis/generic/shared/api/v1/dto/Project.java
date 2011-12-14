@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+
 /**
  * Immutable value object representing a project. A project is specified by its code and the code of
  * the space to which it belongs.
@@ -25,7 +27,7 @@ import java.io.Serializable;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-public final class Project implements Serializable
+public final class Project implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -82,6 +84,11 @@ public final class Project implements Serializable
     {
         return code;
     }
+    
+    public String getIdentifier()
+    {
+        return "/" + spaceCode + "/" + code;
+    }
 
     /**
      * Return the vocabulary term registration details.
@@ -117,7 +124,7 @@ public final class Project implements Serializable
     @Override
     public String toString()
     {
-        return "/" + spaceCode + "/" + code;
+        return getIdentifier();
     }
 
     //

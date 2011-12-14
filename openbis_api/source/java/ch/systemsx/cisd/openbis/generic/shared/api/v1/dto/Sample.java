@@ -26,13 +26,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+
 /**
  * Immutable value object representing a sample.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-public final class Sample implements Serializable
+public final class Sample implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
 
