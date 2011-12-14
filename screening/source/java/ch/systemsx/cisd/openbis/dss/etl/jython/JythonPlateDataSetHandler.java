@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -126,7 +127,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         public ImageContainerDataSet createDataSet(
                 DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
         {
-            IEncapsulatedOpenBISService service = registratorState.getGlobalState().getOpenBisService();
+            IEncapsulatedOpenBISService service =
+                    registratorState.getGlobalState().getOpenBisService();
             return new ImageContainerDataSet(registrationDetails, stagingFile, service);
         }
 
@@ -490,6 +492,18 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                     thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
                     thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull,
                     thumbnailPaths);
+            enhanceWithResolution(thumbnailDataset, thumbnailPaths);
+        }
+
+        private static void enhanceWithResolution(IDataSet thumbnailDataset,
+                ThumbnailsInfo thumbnailPaths)
+        {
+            Size size = thumbnailPaths.tryGetDimension(thumbnailDataset.getDataSetCode());
+            if (size != null)
+            {
+                thumbnailDataset.setPropertyValue(ScreeningConstants.RESOLUTION, size.getWidth()
+                        + "x" + size.getHeight());
+            }
         }
 
         private IDataSet createThumbnailDataset()
