@@ -91,7 +91,7 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
     private boolean isAllExperimentsChoosen()
     {
         ExperimentSearchCriteria criteriaOrNull = tryGetExperimentSearchCriteria();
-        return criteriaOrNull != null && criteriaOrNull.tryGetExperiment() == null;
+        return criteriaOrNull == null || criteriaOrNull.tryGetExperiment() == null;
     }
 
     private ExperimentChooserFieldAdaptor createSingleExperimentChooser()
@@ -159,7 +159,6 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         oneExps.setBoxLabel(SINGLE_EXPERIMENT_TEXT);
         experimentRadio.add(oneExps);
 
-        experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
         experimentRadio.setAutoHeight(true);
         experimentRadio.addListener(Events.Change, new Listener<BaseEvent>()
             {
@@ -192,6 +191,7 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
                     }
                 }
             });
+        experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
         return experimentRadio;
     }
 
