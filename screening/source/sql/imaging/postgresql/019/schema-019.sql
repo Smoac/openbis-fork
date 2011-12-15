@@ -82,7 +82,7 @@ CREATE TABLE IMAGE_DATA_SETS (
   ID BIGSERIAL NOT NULL,
   PERM_ID CODE NOT NULL,
 
-  ---- image dataset specific fields (should be refactored) 
+  -- image dataset specific fields (should be refactored) 
 	FIELDS_WIDTH INTEGER,
 	FIELDS_HEIGHT INTEGER,	
   -- transformation for merged channels on the dataset level, overrides experiment level transformation
@@ -96,7 +96,7 @@ CREATE TABLE IMAGE_DATA_SETS (
   -- Which reader in the library should be used? Valid only if the library name is specified.
   -- Should be specified when library name is specified.
   IMAGE_LIBRARY_READER_NAME NAME,
-  ---- END image dataset specific fields
+  -- END image dataset specific fields
   
   CONT_ID TECH_ID,
   
