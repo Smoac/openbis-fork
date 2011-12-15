@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.test.annotation.Rollback;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -44,7 +43,6 @@ public final class DataStoreDAOTest extends AbstractDAOTest
     private static final String DATA_STORE_CODE = "xxx";
 
     @Test
-    @Rollback(value = false)
     public void testCreate()
     {
         DataStorePE dataStore = new DataStorePE();
@@ -64,14 +62,7 @@ public final class DataStoreDAOTest extends AbstractDAOTest
         // method will be commited
         dataStore.setServices(createDataStoreServices("another"));
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
-    }
 
-    @Test(dependsOnMethods = "testCreate")
-    public void testDelete()
-    {
-        DataStorePE dataStore =
-                daoFactory.getDataStoreDAO().tryToFindDataStoreByCode(DATA_STORE_CODE);
-        assertNotNull(dataStore);
         dataStore.setServices(new HashSet<DataStoreServicePE>()); // delete all services
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
