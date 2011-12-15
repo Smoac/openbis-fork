@@ -358,4 +358,17 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_TILE_GEOMETRIES_FOR_EXPERIMENT)
     public List<WidthAndHeightDTO> listTileGeometriesForExperiment(long experimentId);
+    
+    final static String SELECT_IMAGE_SIZES_FOR_EXPERIMENT =
+            " select dataset.perm_id, level.width, level.height "
+                    + "      from experiments exp "
+                    + "           join containers container on container.expe_id = exp.id "
+                    + "           join image_data_sets dataset on dataset.cont_id = container.id "
+                    + "           join image_zoom_levels level on level.container_dataset_id = dataset.id "
+                    + "      where exp.id = ?{1} and level.is_original = ?{2}";
+    
+    @Select(sql = SELECT_IMAGE_SIZES_FOR_EXPERIMENT)
+    public List<WidthAndHeightAndPermIdDTO> listImageSizesForExperiment(long experimentId, boolean original);
+    
+    
 }

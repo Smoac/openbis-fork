@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -33,11 +34,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * @author Kaloyan Enimanev
@@ -137,7 +140,103 @@ public class ExperimentMetadaLoaderTest extends AbstractDBTest
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testAllSameOriginalImageSize()
+    {
+        Geometry plateGeometry = Geometry.createFromRowColDimensions(15, 10);
+        Geometry tileGeometry = Geometry.createFromRowColDimensions(2, 3);
+        long experimentId = createExperiment();
+        ImgContainerDTO plate1 = container(plateGeometry, experimentId);
+        ImgImageDatasetDTO ds1 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds2 = dataset(tileGeometry);
+        List<Long> dataSetIds = createContainerWithDataSets(plate1, ds1, ds2);
+        createZoomLevels(dataSetIds.get(0), zoomLevel(400, 300, true), zoomLevel(40, 30, false));
+        createZoomLevels(dataSetIds.get(1), zoomLevel(400, 300, true), zoomLevel(80, 60, false));
 
+        ExperimentMetadaLoader loader = createLoader(experimentId);
+        ImageSize imageSize = loader.tryGetOriginalImageSize();
+        
+        assertEquals("400x300", imageSize.toString());
+    }
+    
+    @Test
+    public void testDifferentOriginalImageSize()
+    {
+        Geometry plateGeometry = Geometry.createFromRowColDimensions(15, 10);
+        Geometry tileGeometry = Geometry.createFromRowColDimensions(2, 3);
+        long experimentId = createExperiment();
+        ImgContainerDTO plate1 = container(plateGeometry, experimentId);
+        ImgImageDatasetDTO ds1 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds2 = dataset(tileGeometry);
+        List<Long> dataSetIds = createContainerWithDataSets(plate1, ds1, ds2);
+        createZoomLevels(dataSetIds.get(0), zoomLevel(400, 300, true), zoomLevel(40, 30, false));
+        createZoomLevels(dataSetIds.get(1), zoomLevel(400, 200, true), zoomLevel(80, 60, false));
+        
+        ExperimentMetadaLoader loader = createLoader(experimentId);
+        ImageSize imageSize = loader.tryGetOriginalImageSize();
+        
+        assertEquals(null, imageSize);
+    }
+    
+    @Test
+    public void testMissingOriginalImageSize()
+    {
+        Geometry plateGeometry = Geometry.createFromRowColDimensions(15, 10);
+        Geometry tileGeometry = Geometry.createFromRowColDimensions(2, 3);
+        long experimentId = createExperiment();
+        ImgContainerDTO plate1 = container(plateGeometry, experimentId);
+        ImgImageDatasetDTO ds1 = dataset(tileGeometry);
+        createContainerWithDataSets(plate1, ds1);
+        
+        ExperimentMetadaLoader loader = createLoader(experimentId);
+        ImageSize imageSize = loader.tryGetOriginalImageSize();
+        
+        assertEquals(null, imageSize);
+    }
+    
+    @Test
+    public void testCommonThumbnailImageSizes()
+    {
+        Geometry plateGeometry = Geometry.createFromRowColDimensions(15, 10);
+        Geometry tileGeometry = Geometry.createFromRowColDimensions(2, 3);
+        long experimentId = createExperiment();
+        ImgContainerDTO plate1 = container(plateGeometry, experimentId);
+        ImgImageDatasetDTO ds1 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds2 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds3 = dataset(tileGeometry);
+        List<Long> dataSetIds = createContainerWithDataSets(plate1, ds1, ds2, ds3);
+        createZoomLevels(dataSetIds.get(0), zoomLevel(4, 3, false), zoomLevel(40, 30, false), zoomLevel(80, 60, false), zoomLevel(400, 300, true));
+        createZoomLevels(dataSetIds.get(1), zoomLevel(40, 30, false), zoomLevel(80, 60, false), zoomLevel(400, 300, true));
+        createZoomLevels(dataSetIds.get(2), zoomLevel(40, 30, false), zoomLevel(80, 60, false), zoomLevel(200, 150, false), zoomLevel(400, 300, true));
+
+        ExperimentMetadaLoader loader = createLoader(experimentId);
+        List<ImageSize> sizes = loader.getThumbnailImageSizes();
+        
+        assertEquals("[40x30, 80x60]", sizes.toString());
+    }
+    
+    @Test
+    public void testNoCommonThumbnailImageSizes()
+    {
+        Geometry plateGeometry = Geometry.createFromRowColDimensions(15, 10);
+        Geometry tileGeometry = Geometry.createFromRowColDimensions(2, 3);
+        long experimentId = createExperiment();
+        ImgContainerDTO plate1 = container(plateGeometry, experimentId);
+        ImgImageDatasetDTO ds1 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds2 = dataset(tileGeometry);
+        ImgImageDatasetDTO ds3 = dataset(tileGeometry);
+        List<Long> dataSetIds = createContainerWithDataSets(plate1, ds1, ds2, ds3);
+        createZoomLevels(dataSetIds.get(0), zoomLevel(40, 30, false), zoomLevel(400, 300, true));
+        createZoomLevels(dataSetIds.get(1), zoomLevel(40, 30, false), zoomLevel(400, 300, true));
+        createZoomLevels(dataSetIds.get(2), zoomLevel(80, 60, false), zoomLevel(400, 300, true));
+        
+        ExperimentMetadaLoader loader = createLoader(experimentId);
+        List<ImageSize> sizes = loader.getThumbnailImageSizes();
+        
+        assertEquals("[]", sizes.toString());
+    }
+    
     private ImgChannelDTO channel(String code)
     {
         return new ImgChannelDTO(code, null, null, null, 0L, null, 0, 1, 2);
@@ -147,18 +246,30 @@ public class ExperimentMetadaLoaderTest extends AbstractDBTest
     {
         return dao.addExperiment(generatePermId());
     }
+    
 
-    private void createContainerWithDataSets(ImgContainerDTO container,
+    private List<Long> createContainerWithDataSets(ImgContainerDTO container,
             ImgImageDatasetDTO... datasets)
     {
         long containerId = dao.addContainer(container);
+        List<Long> dataSetIds = new ArrayList<Long>();
         for (ImgImageDatasetDTO dataset : datasets)
         {
             dataset.setContainerId(containerId);
-            dao.addImageDataset(dataset);
+            dataSetIds.add(dao.addImageDataset(dataset));
+        }
+        return dataSetIds;
+    }
+    
+    private void createZoomLevels(long dataSetId, ImgImageZoomLevelDTO... zoomLevels)
+    {
+        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+        {
+            zoomLevel.setContainerDatasetId(dataSetId);
+            dao.addImageZoomLevel(zoomLevel);
         }
     }
-
+        
     private ImgContainerDTO container(Geometry plateGeometry, long experimentId)
     {
         return new ImgContainerDTO(generatePermId(), plateGeometry.getNumberOfRows(),
@@ -169,6 +280,11 @@ public class ExperimentMetadaLoaderTest extends AbstractDBTest
     {
         return new ImgImageDatasetDTO(generatePermId(), tileGeometry.getNumberOfRows(),
                 tileGeometry.getNumberOfColumns(), 0L, true, null, null);
+    }
+
+    private ImgImageZoomLevelDTO zoomLevel(int width, int height, boolean original)
+    {
+        return new ImgImageZoomLevelDTO(generatePermId(), original, "", width, height, 0);
     }
 
     private ExperimentMetadaLoader createLoader(long experimentId)

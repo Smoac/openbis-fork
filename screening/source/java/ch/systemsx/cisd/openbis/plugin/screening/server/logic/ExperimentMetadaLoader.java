@@ -18,19 +18,28 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.WidthAndHeightAndPermIdDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.WidthAndHeightDTO;
 
 /**
+ * Implementation of {@link IExperimentMetadataLoader} based on imaging database.
+ * 
  * @author Kaloyan Enimanev
+ * @author Franz-Josef Elmer
  */
 public class ExperimentMetadaLoader implements IExperimentMetadataLoader
 {
@@ -95,6 +104,63 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         return asImageChannels(uniqueChannels);
     }
 
+    public ImageSize tryGetOriginalImageSize()
+    {
+        List<WidthAndHeightAndPermIdDTO> imageSizes = getImageSizes(true);
+        Set<ImageSize> distinctSizes = new HashSet<ImageSize>();
+        for (WidthAndHeightAndPermIdDTO size : imageSizes)
+        {
+            distinctSizes.add(asImageSize(size));
+        }
+        return distinctSizes.size() == 1 ? distinctSizes.iterator().next() : null;
+    }
+
+    public List<ImageSize> getThumbnailImageSizes()
+    {
+        List<WidthAndHeightAndPermIdDTO> imageSizes = getImageSizes(false);
+        Map<String, Set<ImageSize>> dataSet2SizesMap = new HashMap<String, Set<ImageSize>>();
+        for (WidthAndHeightAndPermIdDTO size : imageSizes)
+        {
+            String dataSetCode = size.getPermID();
+            Set<ImageSize> set = dataSet2SizesMap.get(dataSetCode);
+            if (set == null)
+            {
+                set = new HashSet<ImageSize>();
+                dataSet2SizesMap.put(dataSetCode, set);
+            }
+            set.add(asImageSize(size));
+        }
+        if (dataSet2SizesMap.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        List<Set<ImageSize>> values = new ArrayList<Set<ImageSize>>(dataSet2SizesMap.values());
+        List<ImageSize> sizes = new ArrayList<ImageSize>(values.get(0));
+        for (int i = 1, n = values.size(); i < n; i++)
+        {
+            sizes.retainAll(values.get(i));
+        }
+        Collections.sort(sizes, new Comparator<ImageSize>()
+            {
+                public int compare(ImageSize s1, ImageSize s2)
+                {
+                    return s1.getWidth() * s1.getHeight() - s2.getWidth() * s2.getWidth();
+                }
+            });
+        return sizes;
+    }
+    
+    private List<WidthAndHeightAndPermIdDTO> getImageSizes(final boolean original)
+    {
+        return getMergedResult(new IExperimentMetadataQuery<WidthAndHeightAndPermIdDTO>()
+            {
+                public List<WidthAndHeightAndPermIdDTO> select(IImagingReadonlyQueryDAO query)
+                {
+                    return query.listImageSizesForExperiment(experimentId, original);
+                }
+            });
+    }
+
     private List<ImgChannelDTO> removeDuplicates(List<ImgChannelDTO> channels)
     {
         Map<String, ImgChannelDTO> channelsByCode = new TreeMap<String, ImgChannelDTO>();
@@ -133,6 +199,11 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
                     widthAndHeight.getWidth());
 
         }
+    }
+
+    private ImageSize asImageSize(WidthAndHeightAndPermIdDTO size)
+    {
+        return new ImageSize(size.getWidth(), size.getHeight());
     }
 
     private <T> T getUniqueOrNull(IExperimentMetadataQuery<T> experimentMetadataQuery)

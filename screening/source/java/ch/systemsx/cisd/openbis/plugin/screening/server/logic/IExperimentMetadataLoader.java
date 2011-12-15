@@ -20,11 +20,13 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 
 /**
  * Loader for experiment image metadata.
  * 
  * @author Kaloyan Enimanev
+ * @author Franz-Josef Elmer
  */
 public interface IExperimentMetadataLoader
 {
@@ -44,4 +46,17 @@ public interface IExperimentMetadataLoader
      * Return all image channels within an experiment.
      */
     List<ImageChannel> getImageChannels();
+    
+    /**
+     * Returns the original image size.
+     * 
+     * @return <code>null</code> if not all data sets have the same original image size.
+     */
+    ImageSize tryGetOriginalImageSize();
+    
+    /**
+     * Returns a sorted list of image sizes where for all data sets thumbnail images of these sizes
+     * exist.
+     */
+    List<ImageSize> getThumbnailImageSizes();
 }

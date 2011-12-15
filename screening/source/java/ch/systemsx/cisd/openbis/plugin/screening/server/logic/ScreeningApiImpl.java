@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
@@ -980,9 +981,11 @@ public class ScreeningApiImpl
         Geometry plateGeometry = loader.tryGetPlateGeometry();
         Geometry tileGeometry = loader.tryGetTileGeometry();
         List<ImageChannel> channels = loader.getImageChannels();
+        ImageSize originalImageSize = loader.tryGetOriginalImageSize();
+        List<ImageSize> thumbnailImageSizes = loader.getThumbnailImageSizes();
 
         return new ExperimentImageMetadata(experimentIdentifer, plateGeometry, tileGeometry,
-                channels);
+                channels, originalImageSize, thumbnailImageSizes);
 
     }
 
