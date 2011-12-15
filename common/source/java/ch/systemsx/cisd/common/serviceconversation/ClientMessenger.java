@@ -21,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 
 /**
  * A class that a client can use to receive messages from a service.
@@ -40,7 +41,13 @@ public class ClientMessenger implements IClientMessenger
 
     private int outgoingMessageIdx;
 
-    public ClientMessenger(ISendingMessenger senderToService)
+    public ClientMessenger(String serviceConversationId, ISendingMessenger senderToService)
+    {
+        this.serviceConversationId = serviceConversationId;
+        this.senderToService = senderToService;
+    }
+
+    ClientMessenger(ISendingMessenger senderToService)
     {
         this.senderToService = senderToService;
     }
@@ -100,6 +107,10 @@ public class ClientMessenger implements IClientMessenger
     @SuppressWarnings("unchecked")
     private <T> T handleMessage(ServiceMessage message, Class<T> messageClass)
     {
+        if (message == null)
+        {
+            throw new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
+        }
         if (message.isException())
         {
             throw new ServiceExecutionException(message.getConversationId(),
@@ -118,7 +129,7 @@ public class ClientMessenger implements IClientMessenger
         return serviceConversationId;
     }
 
-    public void setServiceConversationId(String serviceConversationId)
+    void setServiceConversationId(String serviceConversationId)
     {
         this.serviceConversationId = serviceConversationId;
     }

@@ -126,8 +126,16 @@ public class ServiceConversationCollection implements ISendingMessenger
                                     ex.printStackTrace(pw);
                                     pw.close();
                                     final String errorMessage = new String(os.toByteArray());
-                                    responseMessenger.send(new ServiceMessage(conversationId,
-                                            messenger.nextOutgoingMessageIndex(), errorMessage));
+                                    try
+                                    {
+                                        responseMessenger
+                                                .send(new ServiceMessage(conversationId, messenger
+                                                        .nextOutgoingMessageIndex(), errorMessage));
+                                    } catch (Exception ex2)
+                                    {
+                                        // TODO: improve logging
+                                        ex2.printStackTrace();
+                                    }
                                 }
                             } finally
                             {
@@ -156,6 +164,21 @@ public class ServiceConversationCollection implements ISendingMessenger
                 record.getController().cancel(true);
             }
             executor.awaitTermination(SHUTDOWN_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (Exception ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
+
+    public void shutdownNow()
+    {
+        try
+        {
+            for (ServiceConversationRecord record : conversations.values())
+            {
+                record.getController().cancel(true);
+            }
+            executor.awaitTermination(0, TimeUnit.MILLISECONDS);
         } catch (Exception ex)
         {
             throw new CheckedExceptionTunnel(ex);
