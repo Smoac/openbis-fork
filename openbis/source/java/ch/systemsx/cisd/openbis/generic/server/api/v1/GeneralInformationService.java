@@ -58,7 +58,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.DataSetByExperimentIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectByIdentiferValidator;
@@ -276,6 +279,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     @Capability("LIST_SAMPLES")
     public List<Sample> listSamplesForExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
             String experimentIdentifierString)
     {
         checkSession(sessionToken);
@@ -296,7 +300,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     @Capability("LIST_DATA_SETS")
-    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
+    public List<DataSet> listDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = SamplePredicate.class)
+            List<Sample> samples)
     {
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
     }
@@ -405,8 +411,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     @Capability("LIST_DATA_SETS")
-    public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
-            boolean areOnlyDirectlyConnectedIncluded)
+    public List<DataSet> listDataSetsForSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SamplePredicate.class)
+            Sample sample, boolean areOnlyDirectlyConnectedIncluded)
     {
         checkSession(sessionToken);
         List<ExternalData> externalData =
@@ -492,8 +499,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     @Capability("LIST_DATA_SETS")
-    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
-            EnumSet<Connections> connections)
+    public List<DataSet> listDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = SamplePredicate.class)
+            List<Sample> samples, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
         EnumSet<Connections> connectionsToGet =
@@ -513,6 +521,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     @Capability("LIST_DATA_SETS")
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentPredicate.class)
             List<Experiment> experiments, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
@@ -576,7 +585,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     @Capability("LIST_EXPERIMENTS")
-    public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
+    public List<Experiment> listExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
+            List<String> experimentIdentifiers)
     {
         checkSession(sessionToken);
 
