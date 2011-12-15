@@ -40,12 +40,8 @@ def register(incomingPath):
     imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/2.0)
     imageDataset.setImageLibrary("BioFormats", "TiffDelegateReader")
 
-    dataset = commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
-    # In S122 one can already call:
-    # dataset.setAnalysisProcedure(datasetMetadataParser.getAnalysisProcedure())
-    # In older versions one has to call:
-    dataset.setPropertyValue('$ANALYSIS_PROCEDURE', datasetMetadataParser.getAnalysisProcedure())
-
+    commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory, None, True)
     
+
 if incoming.isDirectory():
     register(incoming.getPath())
