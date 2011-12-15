@@ -518,11 +518,15 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             PersonPE person = session.tryGetPerson();
             if (person != null)
             {
-                List<EntityVisit> visits = joinVisits(displaySettings, person);
-                sortAndRemoveMultipleVisits(visits);
-                for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                if (displaySettings != null)
                 {
-                    visits.remove(i);
+                    @SuppressWarnings("deprecation")
+                    List<EntityVisit> visits = displaySettings.getVisits();
+                    sortAndRemoveMultipleVisits(visits);
+                    for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                    {
+                        visits.remove(i);
+                    }
                 }
                 person.setDisplaySettings(displaySettings);
                 getDAOFactory().getPersonDAO().updatePerson(person);
@@ -547,19 +551,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             }
             permIds.add(permID);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    private List<EntityVisit> joinVisits(DisplaySettings displaySettings, PersonPE person)
-    {
-        List<EntityVisit> personVisits = person.getDisplaySettings().getVisits();
-        if (displaySettings == null)
-        {
-            return personVisits;
-        }
-        List<EntityVisit> visits = displaySettings.getVisits();
-        visits.addAll(personVisits);
-        return visits;
     }
 
     public DisplaySettings getDefaultDisplaySettings(String sessionToken)

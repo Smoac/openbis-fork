@@ -1513,9 +1513,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final PersonPE person = new PersonPE();
         EntityVisit v0 = visit(EntityKind.MATERIAL, 0);
-        EntityVisit v1 = visit(EntityKind.EXPERIMENT, 1);
-        EntityVisit v2 = visit(EntityKind.SAMPLE, 2);
-        DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v0, v1, v2);
+        EntityVisit v1 = visit(EntityKind.SAMPLE, 2);
+        DisplaySettings currentDisplaySettings = displaySettingsWithVisits(v0, v1);
         person.setDisplaySettings(currentDisplaySettings);
         context.checking(new Expectations()
             {
@@ -1528,9 +1527,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).updatePerson(person);
                 }
             });
+        EntityVisit v2 = visit(EntityKind.EXPERIMENT, 1);
         EntityVisit v3 = visit(EntityKind.DATA_SET, 3);
         EntityVisit v4 = visit(EntityKind.SAMPLE, 2);
-        DisplaySettings displaySettings = displaySettingsWithVisits(v3, v4);
+        DisplaySettings displaySettings = displaySettingsWithVisits(v0, v1, v2, v3, v4);
 
         createServer().saveDisplaySettings(SESSION_TOKEN, displaySettings, 3);
 
