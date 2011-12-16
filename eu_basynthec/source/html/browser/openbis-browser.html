@@ -28,12 +28,12 @@ var dataSetsByStrain = { };
 var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
 
 // The names to show the user for the strain groups
-var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-Din", "JJS-MGP" : "JJS-MGP" };
+var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-DIn", "JJS-MGP" : "JJS-MGP" };
 
 // groups of strains to be displayed  
 var strainGroups = [];
 
-var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "UNKNOWN" ];
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
 
 //The inspected strains
 var inspected = [];
@@ -67,21 +67,18 @@ function showDataSets(bisDataSets)
 	
 	// group dataSets
 	dataSetsByStrain = basynthec.dataSetList.reduce(
-			function(result, dataSet) { 
-				
-				var uniqueStrains = uniqueElements(basynthec.getStrains(dataSet).sort());
-				
-				uniqueStrains.forEach(function(strain) {
-	    	    if (result[strain]) {
-	    	    	result[strain].push(dataSet);
-	    	    } else {
-	    	    	result[strain] = [dataSet];
-	    	    }
-	      });
-				return result
-	}, {});
-
-	
+		function(result, dataSet) { 
+			var uniqueStrains = uniqueElements(basynthec.getStrains(dataSet).sort());
+			
+			uniqueStrains.forEach(function(strain) {
+					if (result[strain]) {
+						result[strain].push(dataSet);
+					} else {
+						result[strain] = [dataSet];
+					}
+			});
+			return result;
+		}, {});
 	refreshStrainTables();
 }
 
@@ -120,7 +117,7 @@ function refreshStrainTables() {
 	strainGroups = createStrainGroups(strains);
 	
   createVis();
- 	updateDiagram(1000);			
+ 	updateDiagram(1000);
 }
 
 
@@ -154,7 +151,13 @@ function updateDiagram(duration)
 		.append("h2")
 		.text(function(d) { return d.groupName })
 	.append("table")
-		.selectAll("tr").data(function(d) { var lineSize = (d.groupName.indexOf("Other") == 0) ? 3 : 10; return d.strains.reduce(groupBy(lineSize), []) })
+		.selectAll("tr").data(function(d) { 
+				// Group the different sets of strains differently
+				if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
+				if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
+				
+				// Group the JJS-DIn strains by runs
+				return d.strains.reduce(groupByRuns(10), []) })
 			.enter()
 		.append("tr")
 		.selectAll("td").data(function(d) { return d })
@@ -412,6 +415,44 @@ function groupBy(numElts)
 	}
 	return groupBy;
 }
+
+/**
+ * Check if the current elt number = last elt number + 1
+ */
+function isRun(lastElt, currentElt) {
+	var lastNumber = Number(lastElt.label);
+	var currentNumber = Number(currentElt.label);
+	// Assume that non numeric values are runs
+	if (lastNumber == NaN || currentNumber == NaN) return true;
+	
+	return currentNumber == (lastNumber + 1);
+}
+
+function groupByRuns(maxNumEltsPerGroup)
+{
+  var lastSeen = "";
+	var groupBy = function(groups, elt) {
+		// Initialize the groups
+		if (groups.length < 1) { groups.push([elt]); return groups; }
+
+		// Check if we should append to the last group or create a new one
+		var lastGrp = groups[groups.length - 1];
+		var createNewGroup = false;
+		if (lastGrp.length >= maxNumEltsPerGroup) {
+			// We've reached the size limit of the group
+			createNewGroup = true;
+		} else {
+			// See if this is a run, if not create a new group
+			createNewGroup = !isRun(lastGrp[lastGrp.length - 1], elt);
+		}
+
+		(createNewGroup) ? groups.push([elt]) : lastGrp.push(elt);
+	
+		return groups;
+	}
+	return groupBy;
+}
+
 
 
 $(document).ready(function() {
