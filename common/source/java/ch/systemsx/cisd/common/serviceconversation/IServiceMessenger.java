@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
+import java.io.Serializable;
+
 
 /**
  * A messaging interface for a service of the service conversation framework.
@@ -27,10 +29,10 @@ public interface IServiceMessenger
     /**
      * Send a message to the client.
      */
-    public void send(Object message);
+    public void send(Serializable message);
     
     /**
      * Receive a message from the client.
      */
-    public <T> T receive(Class<T> messageClass);
+    public <T extends Serializable> T receive(Class<T> messageClass);
 }

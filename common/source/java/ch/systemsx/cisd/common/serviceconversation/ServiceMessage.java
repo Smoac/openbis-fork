@@ -16,40 +16,42 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
+import java.io.Serializable;
+
 /**
  * A service message which is part of a service conversation.
- *
+ * 
  * @author Bernd Rinn
  */
 public class ServiceMessage
 {
     private final String conversationId;
-    
+
     private final int messageIdx;
-    
-    private final Object payload;
-    
+
+    private final Serializable payload;
+
     private final String exceptionDescription;
-    
+
     public static ServiceMessage terminate(String conversationId)
     {
-        return new ServiceMessage(conversationId, 0, null);
+        return new ServiceMessage(conversationId, 0, false, null);
     }
 
-    public ServiceMessage(String conversationId, int messageId, Object payload)
+    public ServiceMessage(String conversationId, int messageId, boolean exception,
+            Serializable payload)
     {
         this.conversationId = conversationId;
         this.messageIdx = messageId;
-        this.payload = payload;
-        this.exceptionDescription = null;
-    }
-
-    ServiceMessage(String conversationId, int messageId, String exceptionDescription)
-    {
-        this.conversationId = conversationId;
-        this.messageIdx = messageId;
-        this.payload = null;
-        this.exceptionDescription = exceptionDescription;
+        if (exception)
+        {
+            this.payload = null;
+            this.exceptionDescription = payload.toString();
+        } else
+        {
+            this.payload = payload;
+            this.exceptionDescription = null;
+        }
     }
 
     public String getConversationId()
@@ -62,7 +64,7 @@ public class ServiceMessage
         return messageIdx;
     }
 
-    public Object getPayload()
+    public Serializable getPayload()
     {
         return payload;
     }
@@ -76,7 +78,7 @@ public class ServiceMessage
     {
         return (payload == null) && (exceptionDescription != null);
     }
-    
+
     public String tryGetExceptionDescription()
     {
         return exceptionDescription;
@@ -90,12 +92,12 @@ public class ServiceMessage
             return "ServiceMessage [conversationId=" + conversationId + ", TERMINATE]";
         } else if (isException())
         {
-            return "ServiceMessage [conversationId=" + conversationId + ", messageIdx=" + messageIdx
-                    + ", exceptionDescription=" + exceptionDescription + "]";
+            return "ServiceMessage [conversationId=" + conversationId + ", messageIdx="
+                    + messageIdx + ", exceptionDescription=" + exceptionDescription + "]";
         } else
         {
-            return "ServiceMessage [conversationId=" + conversationId + ", messageIdx=" + messageIdx
-                    + ", payload=" + payload + "]";
+            return "ServiceMessage [conversationId=" + conversationId + ", messageIdx="
+                    + messageIdx + ", payload=" + payload + "]";
         }
     }
 }

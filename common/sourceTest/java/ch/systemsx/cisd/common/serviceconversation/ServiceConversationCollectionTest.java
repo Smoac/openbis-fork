@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversarions;
+package ch.systemsx.cisd.common.serviceconversation;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.serviceconversation.ClientMessenger;
-import ch.systemsx.cisd.common.serviceconversation.IClientMessenger;
-import ch.systemsx.cisd.common.serviceconversation.ISendingMessenger;
-import ch.systemsx.cisd.common.serviceconversation.IService;
-import ch.systemsx.cisd.common.serviceconversation.IServiceFactory;
-import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
-import ch.systemsx.cisd.common.serviceconversation.ServiceConversationCollection;
-import ch.systemsx.cisd.common.serviceconversation.ServiceExecutionException;
-import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-import ch.systemsx.cisd.common.serviceconversation.UnknownServiceTypeException;
 
 /**
  * Test cases for the {@Link ServiceConversationCollection} class.
@@ -62,6 +54,10 @@ public class ServiceConversationCollectionTest
                 public IService create()
                 {
                     return new SingleEchoService();
+                }
+                public int getClientTimeoutMillis()
+                {
+                    return 100;
                 }
             });
         final IClientMessenger messenger = conversations.startConversation("singleEcho");
@@ -100,6 +96,10 @@ public class ServiceConversationCollectionTest
                 {
                     return new EchoService();
                 }
+                public int getClientTimeoutMillis()
+                {
+                    return 100;
+                }
             });
         final BlockingQueue<ServiceMessage> messageQueue =
                 new LinkedBlockingQueue<ServiceMessage>();
@@ -109,25 +109,25 @@ public class ServiceConversationCollectionTest
                 {
                     messageQueue.add(message);
                 }
-            });
+            }).getServiceConversationId();
         assertTrue(conversations.hasConversation(id));
         int messageIdx = 0;
 
-        conversations.send(new ServiceMessage(id, 0, "One"));
+        conversations.send(new ServiceMessage(id, 0, false, "One"));
         ServiceMessage m = messageQueue.take();
         assertEquals(id, m.getConversationId());
         assertEquals(messageIdx++, m.getMessageIdx());
         assertEquals("One", m.getPayload());
 
-        conversations.send(new ServiceMessage(id, 1, "Two"));
+        conversations.send(new ServiceMessage(id, 1, false, "Two"));
         // Try to resend and check that the second one is swallowed.
-        conversations.send(new ServiceMessage(id, 1, "Two"));
+        conversations.send(new ServiceMessage(id, 1, false, "Two"));
         m = messageQueue.take();
         assertEquals(id, m.getConversationId());
         assertEquals(messageIdx++, m.getMessageIdx());
         assertEquals("Two", m.getPayload());
 
-        conversations.send(new ServiceMessage(id, 2, "Three"));
+        conversations.send(new ServiceMessage(id, 2, false, "Three"));
         m = messageQueue.take();
         assertEquals(id, m.getConversationId());
         assertEquals(messageIdx++, m.getMessageIdx());
@@ -151,6 +151,10 @@ public class ServiceConversationCollectionTest
                 {
                     return new EchoService();
                 }
+                public int getClientTimeoutMillis()
+                {
+                    return 100;
+                }
             });
         final BlockingQueue<ServiceMessage> messageQueue =
                 new LinkedBlockingQueue<ServiceMessage>();
@@ -160,10 +164,10 @@ public class ServiceConversationCollectionTest
                 {
                     messageQueue.add(message);
                 }
-            });
+            }).getServiceConversationId();
         assertTrue(conversations.hasConversation(id));
         int messageIdx = 0;
-        conversations.send(new ServiceMessage(id, 0, "One"));
+        conversations.send(new ServiceMessage(id, 0, false, "One"));
         ServiceMessage m = messageQueue.take();
         assertEquals(id, m.getConversationId());
         assertEquals(messageIdx++, m.getMessageIdx());
@@ -211,11 +215,15 @@ public class ServiceConversationCollectionTest
                 {
                     return new ExceptionThrowingService();
                 }
+                public int getClientTimeoutMillis()
+                {
+                    return 100;
+                }
             });
         final ClientMessenger messenger = conversations.startConversation("throwException");
         try
         {
-            messenger.receive(Object.class);
+            messenger.receive(Serializable.class);
             fail();
         } catch (ServiceExecutionException ex)
         {
@@ -225,4 +233,47 @@ public class ServiceConversationCollectionTest
             assertTrue(ex.getDescription().contains("Don't like you!"));
         }
     }
+
+    private static class DelayedService implements IService
+    {
+        public void run(IServiceMessenger messenger)
+        {
+            ConcurrencyUtilities.sleep(100L);
+            try
+            {
+                messenger.receive(Serializable.class);
+            } catch (ClientExecutionException ex)
+            {
+                System.err.println("Client timed out.");
+            }
+        }
+    }
+
+    @Test
+    public void testClientTimesout() throws Exception
+    {
+        final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
+        conversations.addServiceType("delayed", new IServiceFactory()
+            {
+                public IService create()
+                {
+                    return new DelayedService();
+                }
+                public int getClientTimeoutMillis()
+                {
+                    return 10;
+                }
+            });
+        final ClientMessenger messenger = conversations.startConversation("delayed");
+        try
+        {
+            messenger.receive(Serializable.class);
+            fail();
+        } catch (TimeoutExceptionUnchecked ex)
+        {
+        }
+        // Wait for service to find out that the client timed out.
+        ConcurrencyUtilities.sleep(100L);
+    }
+
 }

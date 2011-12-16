@@ -19,15 +19,13 @@ package ch.systemsx.cisd.common.serviceconversation;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
-
 /**
- * An exception that signals to the client that an exception happened during service execution on
- * the server.
+ * An exception that signals to the server that an exception happened during service execution on
+ * the client.
  * 
  * @author Bernd Rinn
  */
-public class ServiceExecutionException extends RuntimeException
+public class ClientExecutionException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
@@ -35,9 +33,9 @@ public class ServiceExecutionException extends RuntimeException
 
     private final String description;
 
-    ServiceExecutionException(String serviceConversationId, String description)
+    ClientExecutionException(String serviceConversationId, String description)
     {
-        super("Execution exception in service conversation " + serviceConversationId);
+        super("Client execution exception in service conversation " + serviceConversationId);
         this.serviceConversationId = serviceConversationId;
         this.description = description;
     }
@@ -55,7 +53,7 @@ public class ServiceExecutionException extends RuntimeException
     @Override
     public String toString()
     {
-        return "ServiceExecutionException [serviceConversationId=" + serviceConversationId
+        return "ClientExecutionException [serviceConversationId=" + serviceConversationId
                 + ", description=" + description + "]";
     }
 
@@ -78,19 +76,6 @@ public class ServiceExecutionException extends RuntimeException
     {
         s.println(getMessage());
         s.println(getDescription());
-    }
-
-    /**
-     * Creates a text description from an exception.
-     */
-    public static String getDescriptionFromException(Throwable th)
-    {
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        final PrintWriter pw = new PrintWriter(os);
-        th.printStackTrace(pw);
-        pw.close();
-        final String errorMessage = new String(os.toByteArray());
-        return errorMessage;
     }
 
 }

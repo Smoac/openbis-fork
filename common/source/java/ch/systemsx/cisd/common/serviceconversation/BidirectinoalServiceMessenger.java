@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
+import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,7 @@ class BidirectinoalServiceMessenger
         return new IServiceMessenger()
             {
                 @SuppressWarnings("unchecked")
-                public <T> T receive(Class<T> messageClass)
+                public <T extends Serializable> T receive(Class<T> messageClass)
                 {
                     final Object payload;
                     try
@@ -66,7 +67,12 @@ class BidirectinoalServiceMessenger
                         if (message == null)
                         {
                             throw new TimeoutExceptionUnchecked(
-                                    "Timeout while waiting for message to return.");
+                                    "Timeout while waiting for message from client.");
+                        }
+                        if (message.isException())
+                        {
+                            throw new ClientExecutionException(conversationId,
+                                    message.tryGetExceptionDescription());
                         }
                         payload = message.getPayload();
                     } catch (InterruptedException ex)
@@ -82,10 +88,10 @@ class BidirectinoalServiceMessenger
                     return (T) payload;
                 }
 
-                public void send(Object message)
+                public void send(Serializable message)
                 {
                     responseMessenger.send(new ServiceMessage(conversationId,
-                            nextOutgoingMessageIndex(), message));
+                            nextOutgoingMessageIndex(), false, message));
                 }
             };
     }

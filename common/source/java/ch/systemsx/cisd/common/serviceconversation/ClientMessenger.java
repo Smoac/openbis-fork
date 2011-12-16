@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
+import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,8 @@ public class ClientMessenger implements IClientMessenger
     private final ISendingMessenger senderToService;
 
     private String serviceConversationId;
+
+    private int timeoutMillis;
 
     private int messageIdxLastSeen = -1;
 
@@ -70,10 +73,10 @@ public class ClientMessenger implements IClientMessenger
             };
     }
 
-    public void send(Object message)
+    public void send(Serializable message)
     {
         senderToService.send(new ServiceMessage(serviceConversationId, nextOutgoingMessageIndex(),
-                message));
+                false, message));
     }
 
     private int nextOutgoingMessageIndex()
@@ -81,18 +84,7 @@ public class ClientMessenger implements IClientMessenger
         return outgoingMessageIdx++;
     }
 
-    public <T> T receive(Class<T> messageClass)
-    {
-        try
-        {
-            return handleMessage(messageQueue.take(), messageClass);
-        } catch (InterruptedException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    public <T> T receive(Class<T> messageClass, int timeoutMillis)
+    public <T extends Serializable> T receive(Class<T> messageClass)
     {
         try
         {
@@ -109,7 +101,13 @@ public class ClientMessenger implements IClientMessenger
     {
         if (message == null)
         {
-            throw new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
+            final TimeoutExceptionUnchecked exception =
+                    new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
+            final String exceptionDescription =
+                    ServiceExecutionException.getDescriptionFromException(exception);
+            senderToService.send(new ServiceMessage(serviceConversationId,
+                    nextOutgoingMessageIndex(), true, exceptionDescription));
+            throw exception;
         }
         if (message.isException())
         {
@@ -129,9 +127,10 @@ public class ClientMessenger implements IClientMessenger
         return serviceConversationId;
     }
 
-    void setServiceConversationId(String serviceConversationId)
+    void setServiceConversationDTO(ServiceConversationDTO serviceConversation)
     {
-        this.serviceConversationId = serviceConversationId;
+        this.serviceConversationId = serviceConversation.getServiceConversationId();
+        this.timeoutMillis = serviceConversation.getClientTimeoutInMillis();
     }
 
 }

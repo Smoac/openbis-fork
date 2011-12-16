@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -79,9 +76,9 @@ public class ServiceConversationCollection implements ISendingMessenger
     public ClientMessenger startConversation(final String typeId)
     {
         final ClientMessenger clientMessenger = new ClientMessenger(this);
-        final String serviceConversationId =
+        final ServiceConversationDTO serviceConversationRecord =
                 startConversation(typeId, clientMessenger.getResponseMessenger());
-        clientMessenger.setServiceConversationId(serviceConversationId);
+        clientMessenger.setServiceConversationDTO(serviceConversationRecord);
         return clientMessenger;
     }
 
@@ -91,9 +88,10 @@ public class ServiceConversationCollection implements ISendingMessenger
      * @param typeId The service type of the conversation.
      * @param responseMessenger The messenger to communicate back the messages from the service to
      *            the client.
-     * @return The service conversation id.
+     * @return The information about the service conversation started.
      */
-    public String startConversation(final String typeId, final ISendingMessenger responseMessenger)
+    public ServiceConversationDTO startConversation(final String typeId,
+            final ISendingMessenger responseMessenger)
     {
         final IServiceFactory serviceFactory = serviceFactoryMap.get(typeId);
         if (serviceFactory == null)
@@ -101,13 +99,13 @@ public class ServiceConversationCollection implements ISendingMessenger
             throw new UnknownServiceTypeException(typeId);
         }
         final IService serviceInstance = serviceFactory.create();
-        final String conversationId =
+        final String serviceConversationId =
                 Long.toString(System.currentTimeMillis()) + "-" + rng.nextInt(Integer.MAX_VALUE);
         final BidirectinoalServiceMessenger messenger =
-                new BidirectinoalServiceMessenger(conversationId, messageReceivingTimeoutMillis,
-                        responseMessenger);
+                new BidirectinoalServiceMessenger(serviceConversationId,
+                        messageReceivingTimeoutMillis, responseMessenger);
         final ServiceConversationRecord record = new ServiceConversationRecord(messenger);
-        conversations.put(conversationId, record);
+        conversations.put(serviceConversationId, record);
         final ITerminableFuture<Void> controller =
                 ConcurrencyUtilities.submit(executor, new ICallable<Void>()
                     {
@@ -119,18 +117,18 @@ public class ServiceConversationCollection implements ISendingMessenger
                                 serviceInstance.run(messenger.getServiceMessenger());
                             } catch (Exception ex)
                             {
-                                if (ex instanceof InterruptedExceptionUnchecked == false)
+                                if (ex instanceof InterruptedExceptionUnchecked == false
+                                        && ex instanceof ClientExecutionException == false)
                                 {
-                                    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-                                    final PrintWriter pw = new PrintWriter(os);
-                                    ex.printStackTrace(pw);
-                                    pw.close();
-                                    final String errorMessage = new String(os.toByteArray());
+                                    final String errorMessage =
+                                            ServiceExecutionException
+                                                    .getDescriptionFromException(ex);
                                     try
                                     {
-                                        responseMessenger
-                                                .send(new ServiceMessage(conversationId, messenger
-                                                        .nextOutgoingMessageIndex(), errorMessage));
+                                        responseMessenger.send(new ServiceMessage(
+                                                serviceConversationId, messenger
+                                                        .nextOutgoingMessageIndex(), true,
+                                                errorMessage));
                                     } catch (Exception ex2)
                                     {
                                         // TODO: improve logging
@@ -139,7 +137,7 @@ public class ServiceConversationCollection implements ISendingMessenger
                                 }
                             } finally
                             {
-                                conversations.remove(conversationId);
+                                conversations.remove(serviceConversationId);
                             }
                             return null;
                         }
@@ -152,7 +150,8 @@ public class ServiceConversationCollection implements ISendingMessenger
 
                     });
         record.setController(controller);
-        return conversationId;
+        return new ServiceConversationDTO(serviceConversationId,
+                serviceFactory.getClientTimeoutMillis());
     }
 
     public void shutdown()
@@ -200,7 +199,14 @@ public class ServiceConversationCollection implements ISendingMessenger
         final ServiceConversationRecord record = conversations.get(conversationId);
         if (record == null)
         {
-            throw new UnknownServiceConversationException(conversationId);
+            if (message.isException() == false)
+            {
+                throw new UnknownServiceConversationException(conversationId);
+            } else
+            {
+                // If it was an exception on the client side, be silent.
+                return;
+            }
         }
         if (message.isTerminate())
         {

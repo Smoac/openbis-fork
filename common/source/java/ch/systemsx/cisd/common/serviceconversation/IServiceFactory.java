@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.serviceconversation;
 
 /**
  * A factory for services.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IServiceFactory
@@ -27,4 +27,10 @@ public interface IServiceFactory
      * Create a new service.
      */
     public IService create();
+
+    /**
+     * Returns the suggested timeout (in milli-seconds) of the client when waiting for a message
+     * from this service.
+     */
+    public int getClientTimeoutMillis();
 }
