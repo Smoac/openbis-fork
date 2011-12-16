@@ -1,0 +1,481 @@
+<html>
+<head>
+  <title>openBIS BaSynthec Browser</title>
+  <link type="text/css" rel="stylesheet" href="basynthec-style.css" />
+  <link type="text/css" rel="stylesheet" href="button.css" />
+  <script type="text/javascript" src="d3.js"></script>
+  <script type="text/javascript" src="d3.layout.js"></script>
+  <script type="text/javascript" src="d3.time.js"></script>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="openbis-utils.js"></script>
+  <script type="text/javascript" src="openbis.js"></script>
+  <script type="text/javascript" src="openbis-basynthec.js"></script>
+  <!-- To speed development, cache the requests -->
+  <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
+  <script>
+
+//basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
+basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+
+// The elements for each of the views
+var vis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+// The height for each of the tables -- anything beyond is is overflowed
+var viewTableHeight = "320px";
+
+// A map holding data sets by type
+var dataSetsByType = { };
+
+// prefixes of strain names to be grouped togehter
+var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
+
+// The names to show the user for the strain groups
+var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-DIn", "JJS-MGP" : "JJS-MGP" };
+
+// groups of strains to be displayed  
+var strainGroups = [];
+
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_MULTISTRAIN_EXPORT", "TSV_EXPORT", "UNKNOWN" ];
+
+//The inspected strains
+var inspected = [];
+
+//The node inspectors
+var inspectors;
+
+// A date formatter used to display data sets
+var timeformat = d3.time.format("%Y-%m-%d %H:%M");
+
+/**
+ * Shows the list of data sets retrieved from the openBIS server.
+ */
+function showDataSets(bisDataSets)
+{
+	if (null == bisDataSets) return;
+	
+	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
+		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
+  });
+	
+	// sort data sets
+	var sortByTypeAndRegistration = function(a, b) {
+		if (a.dataSetTypeCode == b.dataSetTypeCode) {
+			return a.registrationDetails.registrationDate - b.registrationDetails.registrationDate;
+		}
+		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
+	};
+	
+	basynthec.dataSetList.sort(sortByTypeAndRegistration);
+	
+	// Group data sets by type
+	dataSetsByType = basynthec.dataSetList.reduce(
+		function(result, dataSet) {
+			var listForType = result[dataSet.dataSetTypeCode];
+			if (listForType == null) {
+				listForType = [];
+				result[dataSet.dataSetTypeCode] = listForType;
+			}
+			listForType.push(dataSet);
+			return result;
+		}, {});
+	refreshDataSetTypeTables();
+}
+
+function createStrainGroups(strains) {
+	
+	var groups = STRAIN_GROUP_PREFIXES.map(
+			function(strainPrefix) {
+				var filtered = strains.filter(function(strain) { 
+			    return strain.indexOf(strainPrefix) >= 0
+			  });
+				var groupStrains = filtered.map(function(strain) {
+					return { name : strain, label : strain.substring(strainPrefix.length)};
+			  });
+				
+				return {groupName : STRAIN_GROUP_PREFIXES_DISPLAY_NAME[strainPrefix], strains : groupStrains};
+	});
+	
+	var otherStrains = strains.filter(function(strain) {
+      return false == STRAIN_GROUP_PREFIXES.some(function(prefix) { return strain.indexOf(prefix) >=0; } );
+	});
+	otherStrains = otherStrains.map(function(strain) { return {name:strain, label:strain}});
+	groups.push({groupName : "Other strains", strains : otherStrains});
+	
+	var sortFunction = sortByProp("name")
+	groups.forEach(function(group) { group.strains.sort(sortFunction); });
+
+	// only return groups that have strains
+	return groups.filter(function(group) { return group.strains.length > 0 });
+}
+
+function refreshDataSetTypeTables() {
+	var strains = []
+	for (strainName in dataSetsByType) {
+		strains.push(strainName)
+	}
+	strainGroups = createStrainGroups(strains);
+	
+  createVis();
+ 	updateDiagram(1000);
+}
+
+function createDataSetSummaryView(group, floatSide, type, id)
+{
+	var container, result;
+	container = 
+		group.append("div")
+			.style("width", "47%")
+			.style("float", floatSide);
+	container.append("span").text(type);
+	
+	result =  
+		container.append("div")
+			.attr("id", id)
+			.attr("class", "datasummaryview");
+			
+	return result;
+}
+
+
+var didCreateVis = false;
+
+function createVis()
+{
+	if (didCreateVis) return;
+	
+	vis = d3.select("#main").append("div").style("position", "relative").style("top", "20px");
+	
+	// Group the views 
+	var group1 = vis.append("div");
+	group1
+		.attr("class", "datasetsummarygroup")
+		.style("padding-bottom", "5px");
+	var group2 = vis.append("div");
+	group2
+		.attr("class", "datasetsummarygroup");
+	
+	od600View = createDataSetSummaryView(group1, "left", "OD600", "od600");
+	metabolomicsView = createDataSetSummaryView (group1, "right", "Metabolomics", "metabolomics")
+	transcriptomicsView = createDataSetSummaryView (group2, "left", "Transcriptomics", "transcriptomics")
+	proteomicsView = createDataSetSummaryView (group2, "right", "Proteomics", "proteomics")
+		
+	// An element for the inspectors.
+	inspectors = vis.append("span")
+		.style("width", "500px")
+		.style("position", "relative")
+		.style("overflow", "auto")
+		.style("float", "right")
+		.style("left", "20px");
+	
+	didCreateVis = true;
+}
+
+function updateView(aView, type)
+{
+	var dataSetsForType = dataSetsByType[type];
+	
+	if (dataSetsForType == null) {
+		aView.selectAll("p")
+			.data(["No Data"])
+		.enter()
+			.append("p")
+			.text("No Data");
+		return;
+	}
+	
+	aView.selectAll("table")
+		.data([dataSetsForType])
+	.enter()
+		.append("table")
+		.attr("class", "datasetsummarytable")
+		.selectAll("tr")
+			.data(function (d) { return d})
+		.enter()
+			.append("tr")
+				.selectAll("td")
+					.data(function (d) { 
+						var dateString = timeformat(new Date(d.registrationDetails.registrationDate));
+						var strainString = "" + d.properties["STRAIN_NAMES"].split(",").length + " strain(s)";
+						return [dateString, d.registrationDetails.userEmail, strainString]
+					})
+				.enter()
+					.append("td")
+					.style("width", "33%")
+					.text(function (d) { return d});
+}
+
+
+function updateDiagram(duration)
+{
+	// Update the OD600 View
+	updateView(od600View, "OD600");
+	updateView(metabolomicsView, "METABOLITE_INTENSITIES");
+	updateView(transcriptomicsView, "TRANSCRIPTOMICS");
+	updateView(proteomicsView, "PROTEIN_QUANTIFICATIONS");
+}
+
+
+/**
+ * Draw / update node inspectors
+ */
+function updateInspectors(duration)
+{	
+	var inspector = inspectors.selectAll("div.inspector").data(inspected, function (d) { return d.name });
+	
+	var box = inspector.enter().append("div")
+		.attr("class", "inspector")
+		.text(function(d) { return d.name });
+
+	box.append("span")
+		.attr("class", "close")
+		.on("click", toggle_inspected)
+		.text("x");
+	
+	var dataSetList = inspector.selectAll("ul").data(function (d) { return [d] });
+	dataSetList.enter()
+	  .append("ul")
+	  .attr('class', 'dataSets');
+	
+	
+	var dataSetElt = dataSetList.selectAll("li").data(function (d) { return d.dataSets });
+	dataSetElt.enter()
+	  .append("li")
+	  .text(function(d) { return dataSetLabel(d) });
+	
+	var dataSetDetailsElt = dataSetElt.selectAll("div.dataSetDetails").data(function(d) { return [d]; });
+	dataSetDetailsElt
+	  .enter()
+	    .append("div")
+	      .attr("class", "dataSetDetails"); 
+	
+	var propsTable = dataSetDetailsElt.selectAll("table.properties").data(function(d) {return [d]});
+	
+	propsTable.enter()
+	  .append("table")
+	  .attr("class", "properties");
+	
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.bis.properties) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d } ).enter()
+				.append("td")
+				.attr("class", function(d, i) { return (i == 0) ? "propkey" : "propvalue"})
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.style("opacity", "1");
+	
+	var downloadTable = dataSetDetailsElt.selectAll("table.downloads").data(function(d) { return [d] });
+	
+	downloadTable
+		.enter()
+			.append("table")
+				.attr("class", "downloads")
+			
+	// Add a caption, but make sure there is just one (this does not work with select())
+	downloadTable.selectAll("caption").data(["Files"])
+		.enter()
+			.append("caption").text(function(d) { return d; });
+			
+	// We just want to see non-directories here
+	var downloadTableRow = downloadTable.selectAll("tr").data(filesForDataSet, function(d) { return d.pathInDataSet });
+	downloadTableRow
+		.enter()
+			.append("tr")
+				.append("td")
+				.on("click", downloadTableFile)
+				.text(function(d) { return d.pathInListing });
+	downloadTableRow
+		.exit()
+			.transition()
+				.duration(duration)
+				.style("opacity", "0")
+				.remove();
+	
+	inspector.exit().transition()
+		.duration(duration)
+		.style("opacity", "0")
+		.remove();
+}
+
+function downloadTableFile(d)
+{
+	// If there is no dataset, this is just a marker for loading
+	if (!d.dataset) return;
+	
+	var action = function(data) { 
+		try {
+			document.location.href = data.result
+		} catch (err) {
+			// just ignore errors		
+		} 
+	};
+	basynthec.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
+}
+
+function dataSetLabel(d) {
+	return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate)); 
+}
+
+function classForNode(d) { 
+	return  (d.inspected) ? "inspected" : "";
+}
+
+function toggle_inspected(d) {
+	if (d.inspected) {
+		var index = inspected.indexOf(d) 
+		if (index > -1)	inspected.splice(index, 1);
+		d.inspected = false;
+	} else {
+		d.inspected = true;
+		d.strainNode = this;
+		inspected.push(d);
+		if (!d.dataSets) {
+			d.dataSets = dataSetsByType[d.name].map(function(ds){ return {bis : ds} }); 
+			retrieveFilesForDataSets(d.dataSets);
+		}
+	}
+	
+	d3.select(d.strainNode).attr("class", classForNode(d))
+  updateInspectors(500);
+}
+
+function filesForDataSet(d)
+{
+	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
+	
+	var fileFilter = function(file) {
+		if (!file.isDirectory) {
+			if (endsWith(file.pathInDataSet, "xls")) {
+				return true;
+			}
+			if (endsWith(file.pathInDataSet, "xls.tsv")) {
+				return true;
+			}
+		}
+		return false;
+	};
+	
+	return (d.files) ? d.files.filter(fileFilter) : [];
+}
+
+function retrieveFilesForDataSets(dataSets)
+{
+	dataSets.forEach(function(ds) {
+		   retrieveFilesForDataSet(ds);
+	});	
+}
+
+function retrieveFilesForDataSet(ds)
+{
+	if (ds.files) {
+		//already retrieved
+		return;
+	}
+	
+	ds.loadingFiles = true;
+	ds.files = [];
+
+	basynthec.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
+		if (!data.result) { 
+			return;
+		}
+		data.result.forEach(function (file) { file.dataset = ds });
+		ds.files = ds.files.concat(data.result);
+		
+		ds.loadingFiles = false; 
+		updateInspectors(500);		
+	});
+}
+
+function shouldRenderProperty(prop, value) {
+	if (prop == STRAIN_PROP_NAME) {
+		// strain properties are dealt with separately
+		return false;
+	}
+	if (!value) {
+		// do not show properties with no values
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Convert properties to pairs
+ */
+function props_to_pairs(d)
+{
+	var pairs = [];
+	
+	var dataSetStrains = basynthec.getStrains({properties:d});
+	var strainGroups = createStrainGroups(dataSetStrains);
+	
+	strainGroups.forEach(function(group) {
+		var shortedStrains = group.strains.map(function(elt) { return elt.label; });
+		shortedStrains = uniqueElements(shortedStrains.sort())
+		var pair = [ group.groupName, shortedStrains.join(" ") ];
+		pairs.push(pair)
+	});
+	
+	for (var prop in d) {
+		if (shouldRenderProperty(prop, d[prop])) {
+			var pair = [prop, d[prop]];
+			pairs.push(pair);
+	  }
+	}
+	pairs.sort(function(a, b) { 
+		if (a[0] == b[0]) return 0;
+		// Sort in reverse lexicographical
+		return (a[0] < b[0]) ? -1 : 1;
+	});
+	return pairs;
+}
+
+function enterApp()
+{
+	$("#login-form-div").hide();
+	$("#main").show();
+	basynthec.listAllDataSets(function(data) { 
+		showDataSets(data.result); 
+	});
+	
+	$('#openbis-logo').height(50)
+	
+}
+
+$(document).ready(function() {
+	$("#main").hide()
+	
+	$('#logout-button').click(function() { basynthec.server.logout(function(data) {
+			window.location.reload();
+		})
+	});
+	
+	$('#login-form').submit(function() {
+	  basynthec.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+	});
+	
+	basynthec.server.ifRestoredSessionActive(function(data) { enterApp() });
+ });
+ 
+ </script>
+</head>
+<body>
+<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" height="100px" style="float: right;"/>
+<div id="login-form-div">
+<h1>openBIS BaSynthec</h1>
+
+<form id="login-form" action="javascript:">
+<input id="username" type="text"> <input id="password" type="password"> <button id="login-button">Login</button>
+</form>
+</div>
+
+<div id="main">
+
+<div id="button-group">
+	<button id="logout-button">Logout</button>
+</div>
+
+</div>
+
+</body>
+</html>

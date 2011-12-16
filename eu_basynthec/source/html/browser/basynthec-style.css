@@ -27,6 +27,19 @@ h3 { font: 12px; }
 	padding: 2px;
 }
 
+.datasetsummarygroup {
+	width: 75%;
+	height: 320px;
+}
+
+div.datasummaryview {
+	height: 300px;
+	overflow: auto;
+}
+
+.datasetsummarytable {
+	font-size: 12px;
+}
 
 .sequenced text {
 	fill: black;
