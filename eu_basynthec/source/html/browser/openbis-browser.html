@@ -14,7 +14,8 @@
   <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
   <script>
 
-basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
+//basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
+basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
 
 var w = 1024;
 
@@ -26,10 +27,13 @@ var dataSetsByStrain = { };
 // prefixes of strain names to be grouped togehter
 var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
 
+// The names to show the user for the strain groups
+var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-Din", "JJS-MGP" : "JJS-MGP" };
+
 // groups of strains to be displayed  
 var strainGroups = [];
 
-var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "UNKNOWN" ];
 
 //The inspected strains
 var inspected = [];
@@ -92,7 +96,7 @@ function createStrainGroups(strains) {
 					return { name : strain, label : strain.substring(strainPrefix.length)};
 			  });
 				
-				return {groupName : strainPrefix, strains : groupStrains};
+				return {groupName : STRAIN_GROUP_PREFIXES_DISPLAY_NAME[strainPrefix], strains : groupStrains};
 	});
 	
 	var otherStrains = strains.filter(function(strain) {
@@ -413,10 +417,9 @@ function groupBy(numElts)
 $(document).ready(function() {
 	$("#main").hide()
 	
-	$('#logout-button').click(function() { basynthec.server.logout(function(data) {}) });
-	
-	$('#login-form').submit(function() {
-	  basynthec.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+	$('#logout-button').click(function() { basynthec.server.logout(function(data) {
+			window.location.reload();
+		})
 	});
 	
 	$('#login-form').submit(function() {
