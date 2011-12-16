@@ -268,7 +268,7 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
    	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
    		imageRegistrationDetails.setPropertyValue(propertyCode, value)
    	if includeAnalysisProcedure:
-   		imageRegistrationDetails.setPropertyValue('$ANALYSIS_PROCEDURE', datasetMetadataParser.getAnalysisProcedure())
+   		imageRegistrationDetails.setPropertyValue('$ANALYSIS_PROCEDURE', metadataParser.getAnalysisProcedure())
 
 	if tr is None: 
 		tr = service.transaction(incoming, factory)
