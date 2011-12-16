@@ -63,6 +63,13 @@ public class ClientMessenger implements IClientMessenger
             {
                 public void send(ServiceMessage message)
                 {
+                    if (serviceConversationId.equals(message.getConversationId()))
+                    {
+                        throw new IllegalArgumentException(
+                                "Attempt to put in a message for conversation "
+                                        + message.getConversationId()
+                                        + " into queue for conversation " + serviceConversationId);
+                    }
                     if (message.getMessageIdx() <= messageIdxLastSeen)
                     {
                         return;
