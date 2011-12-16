@@ -14,8 +14,8 @@
   <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
   <script>
 
-//basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
-basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
+//basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
 
 // The elements for each of the views
 var vis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
@@ -194,7 +194,11 @@ function updateView(aView, type)
 				.selectAll("td")
 					.data(function (d) { 
 						var dateString = timeformat(new Date(d.registrationDetails.registrationDate));
-						var strainString = "" + d.properties["STRAIN_NAMES"].split(",").length + " strain(s)";
+						var strainNames = d.properties["STRAIN_NAMES"].split(",");
+						var strainString = 
+							(strainNames.length < 3) ?
+								strainNames.join(" ") :
+								"" + strainNames.length + " strain(s)";
 						return [dateString, d.registrationDetails.userEmail, strainString]
 					})
 				.enter()
