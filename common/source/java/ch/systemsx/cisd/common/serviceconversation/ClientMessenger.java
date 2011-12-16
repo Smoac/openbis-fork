@@ -44,9 +44,11 @@ public class ClientMessenger implements IClientMessenger
 
     private int outgoingMessageIdx;
 
-    public ClientMessenger(String serviceConversationId, ISendingMessenger senderToService)
+    public ClientMessenger(ServiceConversationDTO serviceConversationDTO,
+            ISendingMessenger senderToService)
     {
-        this.serviceConversationId = serviceConversationId;
+        this.serviceConversationId = serviceConversationDTO.getServiceConversationId();
+        this.timeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
         this.senderToService = senderToService;
     }
 
