@@ -11,7 +11,6 @@
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
 	<property name="dist.file" value="${dist}/cisd-base" />
 	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
-	<property name="jar.test.complete.file" value="${dist}/cisd-base-test-complete.jar" />
 	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
 	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
@@ -102,47 +101,6 @@
 		</recursive-jar>
 	</target>
 
-	<target name="jar-test-complete" depends="compile-tests">
-		<mkdir dir="${dist.common.lib}" />
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-		<copy todir="${native}">
-			<fileset dir="${nativesrc1}">
-				<include name="**/libunix.so" />
-				<include name="**/libunix.jnilib" />
-			</fileset>
-		</copy>
-		<copy todir="${native}">
-			<fileset dir="${nativesrc2}">
-				<include name="**/libnativedata.so" />
-				<include name="**/libnativedata.jnilib" />
-				<include name="**/nativedata.dll" />
-			</fileset>
-		</copy>
-		<recursive-jar destfile="${jar.test.complete.file}">
-			<fileset dir="${classes}">
-				<include name="**/*.class" />
-				<include name="${build.info.filename}" />
-			</fileset>
-			<fileset dir="${nativeroot}">
-				<include name="**/libunix.so" />
-				<include name="**/libunix.jnilib" />
-				<include name="**/libnativedata.so" />
-				<include name="**/libnativedata.jnilib" />
-				<include name="**/nativedata.dll" />
-			</fileset>
-			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
-			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
-			<zipfileset src="${lib}/commons-io/commons-io.jar" />
-			<manifest>
-				<attribute name="Main-Class" value="ch.systemsx.cisd.base.AllTests" />
-				<attribute name="Version" value="${version.number}" />
-				<attribute name="Build-Number"
-				           value="${version.number} (r${revision.number},${clean.flag})" />
-			</manifest>
-		</recursive-jar>
-	</target>
-
 	<target name="src-zip">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<mkdir dir="${classes}" />
@@ -169,7 +127,7 @@
 		<delete dir="targets/doc" />
 		<javadoc sourcepath="source/java"
 		         packagenames="ch.systemsx.cisd.base.*"
-		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/restrictionchecker/restrictions.jar"
+		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/testng/testng-jdk15.jar:../libraries/restrictionchecker/restrictions.jar"
 		         destdir="targets/doc"
 		         access="public" />
 	</target>
