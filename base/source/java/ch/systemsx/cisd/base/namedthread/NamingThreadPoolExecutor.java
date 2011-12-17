@@ -20,6 +20,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -49,8 +50,23 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
      */
     public NamingThreadPoolExecutor(String poolName)
     {
+        this(poolName, 0);
+    }
+
+    /**
+     * Creates a new (caching) <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
+     * This executor will create new threads as needed.
+     * 
+     * @param poolName The default name for new threads.
+     * @param workQueueSize The size of the work queue (0 for no queue).
+     * 
+     */
+    public NamingThreadPoolExecutor(String poolName, int workQueueSize)
+    {
         super(1, Integer.MAX_VALUE, DEFAULT_KEEP_ALIVE_TIME_MILLIS, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<Runnable>(), new NamingThreadFactory(poolName));
+                workQueueSize == 0 ? new SynchronousQueue<Runnable>()
+                        : new LinkedBlockingQueue<Runnable>(workQueueSize),
+                new NamingThreadFactory(poolName));
     }
 
     /**

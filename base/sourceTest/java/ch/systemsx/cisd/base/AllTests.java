@@ -22,6 +22,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUncheckedTests;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFileTests;
 import ch.systemsx.cisd.base.io.RandomAccessFileImplTests;
 import ch.systemsx.cisd.base.mdarray.MDArrayTests;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutorTest;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.unix.UnixTests;
 
@@ -46,6 +47,8 @@ public class AllTests
         RandomAccessFileImplTests.main(args);
         System.out.println();
         MDArrayTests.main(args);
+        System.out.println();
+        NamingThreadPoolExecutorTest.main(args);
         System.out.println();
         if (Unix.isOperational())
         {
