@@ -177,9 +177,9 @@ public class ServiceConversationTest
         {
             try
             {
+                System.err.println(Thread.currentThread().getName());
                 while (true)
                 {
-                    System.err.println(Thread.currentThread().getName());
                     messenger.send(messenger.receive(String.class));
                 }
             } catch (RuntimeException ex)

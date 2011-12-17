@@ -29,7 +29,7 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
-import ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable;
+import ch.systemsx.cisd.common.concurrent.TerminableCallable.INamedCallable;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -188,7 +188,7 @@ public class ServiceConversationServer
         final ServiceConversationRecord record = new ServiceConversationRecord(messenger);
         conversations.put(serviceConversationId, record);
         final ITerminableFuture<Void> controller =
-                ConcurrencyUtilities.submit(executor, new ICallable<Void>()
+                ConcurrencyUtilities.submit(executor, new INamedCallable<Void>()
                     {
                         public Void call(IStoppableExecutor<Void> stoppableExecutor)
                                 throws Exception
@@ -224,11 +224,10 @@ public class ServiceConversationServer
                             return null;
                         }
 
-                        // TODO: uncomment once we can name an ICallable.
-                        // public String getCallableName()
-                        // {
-                        // return conversationId + " (" + typeId + ")";
-                        // }
+                        public String getCallableName()
+                        {
+                            return serviceConversationId + " (" + typeId + ")";
+                        }
 
                     });
         record.setController(controller);
