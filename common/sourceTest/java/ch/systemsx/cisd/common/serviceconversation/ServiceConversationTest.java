@@ -54,7 +54,7 @@ public class ServiceConversationTest
     }
 
     /**
-     * This object encapsulates the client server connection for test purposes. 
+     * This object encapsulates the client server connection for test purposes.
      */
     private static class TestClientServerConnection implements IRemoteServiceConversationServer,
             IServiceMessageTransport
@@ -69,25 +69,25 @@ public class ServiceConversationTest
         void setResponseMessageTransport(final IServiceMessageTransport responseMessageTransport)
         {
             server.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
-            {
-                public void send(ServiceMessage message)
                 {
-                    int attempt = 0;
-                    while (attempt++ < 10)
+                    public void send(ServiceMessage message)
                     {
-                        try
+                        int attempt = 0;
+                        while (attempt++ < 10)
                         {
-                            // Send all messages twice to test detection of duplicate messages.
-                            responseMessageTransport.send(message);
-                            responseMessageTransport.send(message);
-                            break;
-                        } catch (Exception ex)
-                        {
-                            ConcurrencyUtilities.sleep(10);
+                            try
+                            {
+                                // Send all messages twice to test detection of duplicate messages.
+                                responseMessageTransport.send(message);
+                                responseMessageTransport.send(message);
+                                break;
+                            } catch (Exception ex)
+                            {
+                                ConcurrencyUtilities.sleep(10);
+                            }
                         }
                     }
-                }
-            });
+                });
 
         }
 
@@ -230,8 +230,7 @@ public class ServiceConversationTest
         assertEquals("Three", conversation.receive(String.class));
 
         conversation.terminate();
-        for (int i = 0; i < 100
-                && holder.server.hasConversation(conversation.getId()); ++i)
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation.getId()); ++i)
         {
             ConcurrencyUtilities.sleep(10L);
         }
@@ -288,53 +287,34 @@ public class ServiceConversationTest
     @Test
     public void testEchoServiceTimeout() throws Exception
     {
-        final ServiceConversationServer conversations = new ServiceConversationServer(100);
-        conversations.addServiceType(new IServiceFactory()
-            {
-                public IService create()
-                {
-                    return new EchoService();
-                }
+        final ServiceConversationServerAndClientHolder holder =
+                createServerAndClient(EchoService.createFactory());
+        final IServiceConversation conversation = holder.client.startConversation("echo");
+        assertTrue(holder.server.hasConversation(conversation.getId()));
 
-                public int getClientTimeoutMillis()
-                {
-                    return 100;
-                }
-
-                public String getServiceTypeId()
-                {
-                    return "echo";
-                }
-            });
-        final BlockingQueue<ServiceMessage> messageQueue =
-                new LinkedBlockingQueue<ServiceMessage>();
-        conversations.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
-            {
-                public void send(ServiceMessage message)
-                {
-                    messageQueue.add(message);
-                }
-            });
-        final String id =
-                conversations.startConversation("echo", "dummyClient").getServiceConversationId();
-        assertTrue(conversations.hasConversation(id));
-        int messageIdx = 0;
-        conversations.getIncomingMessageTransport().send(new ServiceMessage(id, 0, false, "One"));
-        ServiceMessage m = messageQueue.take();
-        assertEquals(id, m.getConversationId());
-        assertEquals(messageIdx++, m.getMessageIdx());
-        assertEquals("One", m.getPayload());
+        conversation.send("One");
+        assertEquals("One", conversation.receive(String.class));
+        conversation.send("Two");
 
         // Wait for timeout to happen.
-        for (int i = 0; i < 100 && conversations.hasConversation(id); ++i)
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation.getId()); ++i)
         {
             ConcurrencyUtilities.sleep(10L);
         }
-        assertFalse(conversations.hasConversation(id));
-        m = messageQueue.take();
-        assertTrue(m.isException());
-        assertTrue(m.tryGetExceptionDescription().startsWith(
-                "ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked:"));
+        assertFalse(holder.server.hasConversation(conversation.getId()));
+        
+        conversation.send("Three");
+        try
+        {
+            conversation.receive(String.class);
+            fail("Server timeout not signaled to client");
+        } catch (ServiceExecutionException ex)
+        {
+            assertTrue(
+                    ex.getDescription(),
+                    ex.getDescription().startsWith(
+                            "ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked:"));
+        }
     }
 
     @Test(expectedExceptions = UnknownServiceTypeException.class)
