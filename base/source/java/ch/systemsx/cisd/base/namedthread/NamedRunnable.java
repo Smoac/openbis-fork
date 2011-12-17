@@ -21,8 +21,6 @@ package ch.systemsx.cisd.base.namedthread;
  *
  * @author Bernd Rinn
  */
-public interface NamedRunnable extends Runnable
+public interface NamedRunnable extends Runnable, IRunnableNameProvider
 {
-    /** Returns the name to be used for the thread name. */
-    public String getRunnableName();
 }

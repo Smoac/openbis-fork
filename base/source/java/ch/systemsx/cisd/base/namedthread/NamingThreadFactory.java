@@ -20,9 +20,10 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * A {@link ThreadFactory} that gives (non-standard) names to new threads. If a name is a
- * {@link NamedRunnable}, the name provided by {@link NamedRunnable#getRunnableName()} will be
- * used, otherwise the <var>defaultName</var>. The thread count (number of already created threads
- * in this factory) will always be appended.
+ * {@link IRunnableNameProvider}, the name provided by
+ * {@link IRunnableNameProvider#getRunnableName()} will be used, otherwise the
+ * <var>defaultName</var>. The thread count (number of already created threads in this factory) will
+ * always be appended.
  * 
  * @author Bernd Rinn
  */
@@ -32,9 +33,9 @@ public class NamingThreadFactory implements ThreadFactory
     private final String poolName;
 
     private boolean createDaemonThreads;
-    
+
     private boolean addPoolName;
-    
+
     private int threadCount;
 
     public NamingThreadFactory(String poolName)

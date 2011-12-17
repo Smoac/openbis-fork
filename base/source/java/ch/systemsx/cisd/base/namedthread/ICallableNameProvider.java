@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.base.namedthread;
 
-import java.util.concurrent.Callable;
-
 /**
- * A {@link Callable} with a name.
+ * A name provider for a {@link java.util.concurrent.Callable}.
  *
  * @author Bernd Rinn
  */
-public interface NamedCallable<T> extends Callable<T>, ICallableNameProvider
+public interface ICallableNameProvider
 {
+    /** Returns the name to be used for the thread name. */
+    public String getCallableName();
+
 }

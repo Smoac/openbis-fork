@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.base.namedthread;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -25,19 +26,41 @@ import java.util.concurrent.FutureTask;
  */
 class NamedFutureTask<V> extends FutureTask<V> implements NamedRunnable
 {
-
     private final String name;
+    
+    private Thread thread;
+    
+    private String oldThreadName;
 
-    NamedFutureTask(NamedCallable<V> callable)
+    NamedFutureTask(Callable<V> callable)
     {
         super(callable);
-        this.name = callable.getCallableName();
+        this.name =
+                (callable instanceof ICallableNameProvider) ? ((ICallableNameProvider) callable)
+                        .getCallableName() : null;
     }
 
-    NamedFutureTask(NamedRunnable runnable, V result)
+    NamedFutureTask(Runnable runnable, V result)
     {
         super(runnable, result);
-        this.name = runnable.getRunnableName();
+        this.name =
+                (runnable instanceof IRunnableNameProvider) ? ((IRunnableNameProvider) runnable)
+                        .getRunnableName() : null;
+    }
+
+    void restoreThreadName()
+    {
+        if (this.thread != null)
+        {
+            this.thread.setName(oldThreadName);
+            this.thread = null;
+        }
+    }
+
+    void setThread(Thread thread)
+    {
+        this.thread = thread;
+        this.oldThreadName = thread.getName();
     }
 
     public String getRunnableName()

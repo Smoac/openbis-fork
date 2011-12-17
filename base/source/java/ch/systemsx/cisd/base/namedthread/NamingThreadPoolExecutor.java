@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link ThreadPoolExecutor} that allows to attach names to the threads it manages. These names
- * can come either from {@link NamedRunnable}s or {@link NamedCallable}s, or, if their standard
- * counterparts are submitted, a default name is used.
+ * can come either from {@link IRunnableNameProvider}s or {@link ICallableNameProvider}s, or, if
+ * their standard counterparts are submitted, a default name is used.
  * 
  * @author Bernd Rinn
  */
@@ -42,8 +42,8 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
     public final static long DEFAULT_KEEP_ALIVE_TIME_MILLIS = 10000L;
 
     /**
-     * Creates a new (caching) <tt>NamingThreadPoolExecutor</tt> with the given initial
-     * parameters. This executor will create new threads as needed.
+     * Creates a new (caching) <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
+     * This executor will create new threads as needed.
      * 
      * @param poolName the default name for new threads
      */
@@ -63,8 +63,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
      *            time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the keepAliveTime argument.
      * @param workQueue the queue to use for holding tasks before they are executed. This queue will
-     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt>
-     *            method.
+     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt> method.
      * @param handler the handler to use when execution is blocked because the thread bounds and
      *            queue capacities are reached.
      * @throws IllegalArgumentException if corePoolSize, or keepAliveTime less than zero, or if
@@ -91,8 +90,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
      *            time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the keepAliveTime argument.
      * @param workQueue the queue to use for holding tasks before they are executed. This queue will
-     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt>
-     *            method.
+     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt> method.
      * @throws IllegalArgumentException if corePoolSize, or keepAliveTime less than zero, or if
      *             maximumPoolSize less than or equal to zero, or if corePoolSize greater than
      *             maximumPoolSize.
@@ -114,8 +112,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
      *            time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the keepAliveTime argument.
      * @param workQueue the queue to use for holding tasks before they are executed. This queue will
-     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt>
-     *            method.
+     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt> method.
      * @param threadFactory the factory to use when the executor creates a new thread.
      * @param handler the handler to use when execution is blocked because the thread bounds and
      *            queue capacities are reached.
@@ -141,8 +138,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
      *            time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the keepAliveTime argument.
      * @param workQueue the queue to use for holding tasks before they are executed. This queue will
-     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt>
-     *            method.
+     *            hold only the <tt>Runnable</tt> tasks submitted by the <tt>execute</tt> method.
      * @param threadFactory the factory to use when the executor creates a new thread.
      * @throws IllegalArgumentException if corePoolSize, or keepAliveTime less than zero, or if
      *             maximumPoolSize less than or equal to zero, or if corePoolSize greater than
@@ -201,8 +197,8 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
     }
 
     /**
-     * If <var>addPoolName</var> is <code>true</code>, the threads will contain the pool name as
-     * the first part of the thread names.
+     * If <var>addPoolName</var> is <code>true</code>, the threads will contain the pool name as the
+     * first part of the thread names.
      */
     public NamingThreadPoolExecutor addPoolName(boolean addPoolName)
     {
@@ -243,11 +239,19 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
     @Override
     protected void beforeExecute(Thread t, Runnable r)
     {
-        if (r instanceof NamedRunnable == false)
+        if (r instanceof IRunnableNameProvider == false)
         {
             return;
         }
-        final String runnableName = ((NamedRunnable) r).getRunnableName();
+        final String runnableName = ((IRunnableNameProvider) r).getRunnableName();
+        if (runnableName == null)
+        {
+            return;
+        }
+        if (r instanceof NamedFutureTask<?>)
+        {
+            ((NamedFutureTask<?>) r).setThread(t);
+        }
         if (t instanceof PoolNameThread)
         {
             ((PoolNameThread) t).setRunnableName(runnableName);
@@ -259,6 +263,16 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
     }
 
     @Override
+    protected void afterExecute(Runnable r, Throwable t)
+    {
+        if (r instanceof NamedFutureTask<?>)
+        {
+            ((NamedFutureTask<?>) r).restoreThreadName();
+        }
+        super.afterExecute(r, t);
+    }
+
+    @Override
     public Future<?> submit(Runnable task)
     {
         if (task == null)
@@ -266,14 +280,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
             throw new NullPointerException();
         }
 
-        final FutureTask<Object> ftask;
-        if (task instanceof NamedRunnable)
-        {
-            ftask = new NamedFutureTask<Object>((NamedRunnable) task, null);
-        } else
-        {
-            ftask = new FutureTask<Object>(task, null);
-        }
+        final FutureTask<Object> ftask = new NamedFutureTask<Object>(task, null);
         execute(ftask);
         return ftask;
     }
@@ -286,14 +293,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
             throw new NullPointerException();
         }
 
-        final FutureTask<T> ftask;
-        if (task instanceof NamedRunnable)
-        {
-            ftask = new NamedFutureTask<T>((NamedRunnable) task, result);
-        } else
-        {
-            ftask = new FutureTask<T>(task, result);
-        }
+        final FutureTask<T> ftask = new NamedFutureTask<T>(task, result);
         execute(ftask);
         return ftask;
     }
@@ -305,14 +305,7 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
         {
             throw new NullPointerException();
         }
-        final FutureTask<T> ftask;
-        if (task instanceof NamedCallable<?>)
-        {
-            ftask = new NamedFutureTask<T>((NamedCallable<T>) task);
-        } else
-        {
-            ftask = new FutureTask<T>(task);
-        }
+        final FutureTask<T> ftask = new NamedFutureTask<T>(task);
         execute(ftask);
         return ftask;
     }
