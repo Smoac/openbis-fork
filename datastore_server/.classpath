@@ -20,7 +20,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
