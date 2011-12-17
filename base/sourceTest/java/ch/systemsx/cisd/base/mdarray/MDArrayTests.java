@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
  * 
  * @author Bernd Rinn
  */
-public class MDArraytest
+public class MDArrayTests
 {
 
     static class TestMDArray extends MDAbstractArray<Void>
@@ -181,10 +181,10 @@ public class MDArraytest
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
-        System.out.println("Test class: " + MDArraytest.class.getSimpleName());
+        System.out.println("Test class: " + MDArrayTests.class.getSimpleName());
         System.out.println();
-        final MDArraytest test = new MDArraytest();
-        for (Method m : MDArraytest.class.getMethods())
+        final MDArrayTests test = new MDArrayTests();
+        for (Method m : MDArrayTests.class.getMethods())
         {
             final Test testAnnotation = m.getAnnotation(Test.class);
             if (testAnnotation == null)

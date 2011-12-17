@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.convert.NativeTaggedArrayTests;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUncheckedTests;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFileTests;
 import ch.systemsx.cisd.base.io.RandomAccessFileImplTests;
-import ch.systemsx.cisd.base.mdarray.MDArraytest;
+import ch.systemsx.cisd.base.mdarray.MDArrayTests;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.unix.UnixTests;
 
@@ -45,7 +45,7 @@ public class AllTests
         System.out.println();
         RandomAccessFileImplTests.main(args);
         System.out.println();
-        MDArraytest.main(args);
+        MDArrayTests.main(args);
         System.out.println();
         if (Unix.isOperational())
         {
