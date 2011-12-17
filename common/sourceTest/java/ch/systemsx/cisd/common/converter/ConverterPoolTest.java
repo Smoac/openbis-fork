@@ -84,7 +84,7 @@ public final class ConverterPoolTest
         assertNull(ConverterPool.getInstance().getConverter(Date.class));
     }
 
-    @Test
+    @Test(dependsOnMethods = "testUnRegisterConverter")
     public final void testConvert()
     {
         boolean exceptionThrown = false;
