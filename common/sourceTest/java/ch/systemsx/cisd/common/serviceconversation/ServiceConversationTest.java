@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionExcept
 import ch.systemsx.cisd.common.serviceconversation.server.IService;
 import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
+import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServerConfig;
 
 /**
  * Test cases for the {@Link ServiceConversationCollection} class.
@@ -51,6 +52,11 @@ public class ServiceConversationTest
     public void init()
     {
         LogInitializer.init();
+    }
+
+    private ServiceConversationServerConfig config()
+    {
+        return ServiceConversationServerConfig.create().messageReceivingTimeoutMillis(100);
     }
 
     /**
@@ -122,7 +128,7 @@ public class ServiceConversationTest
 
     private ServiceConversationServerAndClientHolder createServerAndClient(IServiceFactory factory)
     {
-        final ServiceConversationServer server = new ServiceConversationServer(100);
+        final ServiceConversationServer server = new ServiceConversationServer(config());
         server.addServiceType(factory);
         final TestClientServerConnection dummyRemoteServer = new TestClientServerConnection(server);
         final ServiceConversationClient client =
@@ -240,7 +246,7 @@ public class ServiceConversationTest
     @Test
     public void testMultipleEchoServiceTerminateLowLevelHappyCase() throws Exception
     {
-        final ServiceConversationServer conversations = new ServiceConversationServer(100);
+        final ServiceConversationServer conversations = new ServiceConversationServer(config());
         conversations.addServiceType(EchoService.createFactory());
         final BlockingQueue<ServiceMessage> messageQueue =
                 new LinkedBlockingQueue<ServiceMessage>();
@@ -320,7 +326,7 @@ public class ServiceConversationTest
     @Test(expectedExceptions = UnknownServiceTypeException.class)
     public void testUnknownService() throws Exception
     {
-        final ServiceConversationServer conversations = new ServiceConversationServer(100);
+        final ServiceConversationServer conversations = new ServiceConversationServer(config());
         conversations.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
             {
                 public void send(ServiceMessage message)
@@ -333,7 +339,7 @@ public class ServiceConversationTest
     @Test(expectedExceptions = UnknownClientException.class)
     public void testUnknownClient() throws Exception
     {
-        final ServiceConversationServer conversations = new ServiceConversationServer(100);
+        final ServiceConversationServer conversations = new ServiceConversationServer(config());
         conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()

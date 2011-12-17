@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.serviceconversation.server;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -47,17 +46,14 @@ import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionExcept
  */
 public class ServiceConversationServer
 {
-    private final static int NUMBER_OF_CORE_THREADS = 10;
-
-    private final static int SHUTDOWN_TIMEOUT_MILLIS = 10000;
-
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ServiceConversationServer.class);
 
     private final int messageReceivingTimeoutMillis;
 
-    private final ExecutorService executor = new NamingThreadPoolExecutor("Service Conversations")
-            .corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
+    private final int shutdownTimeoutMillis;
+
+    private final NamingThreadPoolExecutor executor;
 
     private final Map<String, IServiceFactory> serviceFactoryMap =
             new ConcurrentHashMap<String, IServiceFactory>();
@@ -104,9 +100,23 @@ public class ServiceConversationServer
             }
         };
 
-    public ServiceConversationServer(int messageReceivingTimeoutMillis)
+    public ServiceConversationServer()
     {
-        this.messageReceivingTimeoutMillis = messageReceivingTimeoutMillis;
+        this(ServiceConversationServerConfig.create());
+    }
+
+    public ServiceConversationServer(ServiceConversationServerConfig config)
+    {
+        this.executor =
+                new NamingThreadPoolExecutor("Service Conversations", config.getWorkQueueSize())
+                        .corePoolSize(config.getNumberOfCoreThreads()).maximumPoolSize(
+                                config.getMaxNumberOfThreads());
+        if (config.isDaemonize())
+        {
+            this.executor.daemonize();
+        }
+        this.messageReceivingTimeoutMillis = config.getMessageReceivingTimeoutMillis();
+        this.shutdownTimeoutMillis = config.getShutdownTimeoutMillis();
     }
 
     //
@@ -175,7 +185,7 @@ public class ServiceConversationServer
         final IServiceMessageTransport responseMessenger = responseMessageMap.get(clientId);
         if (responseMessenger == null)
         {
-            final UnknownClientException ex = new UnknownClientException(clientId); 
+            final UnknownClientException ex = new UnknownClientException(clientId);
             operationLog.error(ex.getMessage());
             throw ex;
         }
@@ -235,7 +245,13 @@ public class ServiceConversationServer
                 serviceFactory.getClientTimeoutMillis());
     }
 
-    public void shutdown()
+    /**
+     * Shuts down the server, waiting for ongoing conversations to finish for
+     * {@link ServiceConversationServerConfig#getShutdownTimeoutMillis()} milli-seconds.
+     * 
+     * @return <code>true</code>, if the server was shut down properly.
+     */
+    public boolean shutdown()
     {
         try
         {
@@ -243,14 +259,19 @@ public class ServiceConversationServer
             {
                 record.getController().cancel(true);
             }
-            executor.awaitTermination(SHUTDOWN_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            return executor.awaitTermination(shutdownTimeoutMillis, TimeUnit.MILLISECONDS);
         } catch (Exception ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
     }
 
-    public void shutdownNow()
+    /**
+     * Shuts down the server, not waiting for ongoing conversations to finish.
+     * 
+     * @return <code>true</code>, if the server was shut down properly.
+     */
+    public boolean shutdownNow()
     {
         try
         {
@@ -258,13 +279,16 @@ public class ServiceConversationServer
             {
                 record.getController().cancel(true);
             }
-            executor.awaitTermination(0, TimeUnit.MILLISECONDS);
+            return executor.awaitTermination(0, TimeUnit.MILLISECONDS);
         } catch (Exception ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
     }
 
+    /**
+     * Returns <code>true</code> if this server has the given <var>conversationId</var>. 
+     */
     public boolean hasConversation(String conversationId)
     {
         return conversations.containsKey(conversationId);
