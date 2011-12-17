@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.server;
 
 import java.util.Map;
 import java.util.Random;
@@ -33,6 +33,12 @@ import ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
+import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
+import ch.systemsx.cisd.common.serviceconversation.UnknownClientException;
+import ch.systemsx.cisd.common.serviceconversation.UnknownServiceTypeException;
+import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
 
 /**
  * A collection of service conversations.
@@ -169,7 +175,9 @@ public class ServiceConversationServer
         final IServiceMessageTransport responseMessenger = responseMessageMap.get(clientId);
         if (responseMessenger == null)
         {
-            throw new UnknownClientException(clientId);
+            final UnknownClientException ex = new UnknownClientException(clientId); 
+            operationLog.error(ex.getMessage());
+            throw ex;
         }
         final IService serviceInstance = serviceFactory.create();
         final String serviceConversationId =

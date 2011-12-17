@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.client;
 
 import java.io.Closeable;
 import java.io.Serializable;
+
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 
 /**
  * The service conversation.
  * 
  * @author Bernd Rinn
  */
-public interface IServiceConversation extends Closeable
+public interface IServiceConversation extends IServiceMessenger, Closeable
 {
     /**
      * Returns the service conversation id.

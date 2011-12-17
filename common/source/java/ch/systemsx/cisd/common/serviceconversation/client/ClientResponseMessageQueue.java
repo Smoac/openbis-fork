@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.client;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 
 /**
  * A class that holds a queue for response messages to a client. 

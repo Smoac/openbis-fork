@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.client;
+
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
+import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 
 /**
  * The client for the service conversations.

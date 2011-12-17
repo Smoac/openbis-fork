@@ -31,7 +31,7 @@ public class ServiceConversationDTO implements Serializable
     
     private int clientTimeoutInMillis;
 
-    ServiceConversationDTO(String serviceConversationId, int clientTimeout)
+    public ServiceConversationDTO(String serviceConversationId, int clientTimeout)
     {
         this.serviceConversationId = serviceConversationId;
         this.clientTimeoutInMillis = clientTimeout;

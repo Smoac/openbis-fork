@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.server;
 
 import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
 

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.serviceconversation;
+package ch.systemsx.cisd.common.serviceconversation.server;
+
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 
 /**
- * A remote role for starting a service conversation.
+ * The interface for a service that can participate in a service conversation.
  *
  * @author Bernd Rinn
  */
-public interface IRemoteServiceConversationServer
+public interface IService
 {
-
     /**
-     * Starts a service conversation of type <var>typeId</var>.
-     * 
-     * @param typeId The service type of the conversation.
-     * @return The information about the service conversation started.
+     * Calling this method starts the service conversation.
+     * <p>
+     * This method is called by the service conversation framework.
      */
-    public ServiceConversationDTO startConversation(final String typeId);
+    public void run(IServiceMessenger messenger);
 
 }

@@ -32,6 +32,13 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.serviceconversation.client.IRemoteServiceConversationServer;
+import ch.systemsx.cisd.common.serviceconversation.client.IServiceConversation;
+import ch.systemsx.cisd.common.serviceconversation.client.ServiceConversationClient;
+import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
+import ch.systemsx.cisd.common.serviceconversation.server.IService;
+import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
+import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 /**
  * Test cases for the {@Link ServiceConversationCollection} class.

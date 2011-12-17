@@ -27,12 +27,12 @@ import java.io.Serializable;
 public interface IServiceMessenger
 {
     /**
-     * Send a message to the client.
+     * Send a message to the counter part.
      */
     public void send(Serializable message);
     
     /**
-     * Receive a message from the client.
+     * Receive a message from the counter part.
      */
     public <T extends Serializable> T receive(Class<T> messageClass);
 }
