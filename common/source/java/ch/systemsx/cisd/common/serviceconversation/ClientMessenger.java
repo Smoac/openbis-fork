@@ -63,7 +63,7 @@ public class ClientMessenger implements IClientMessenger
             {
                 public void send(ServiceMessage message)
                 {
-                    if (serviceConversationId.equals(message.getConversationId()))
+                    if (serviceConversationId.equals(message.getConversationId()) == false)
                     {
                         throw new IllegalArgumentException(
                                 "Attempt to put in a message for conversation "
