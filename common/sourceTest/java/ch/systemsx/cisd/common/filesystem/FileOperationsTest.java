@@ -30,13 +30,13 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IInputStream;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for {@link FileOperations}.

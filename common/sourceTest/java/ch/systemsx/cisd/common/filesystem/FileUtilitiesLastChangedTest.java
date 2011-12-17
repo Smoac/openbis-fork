@@ -27,10 +27,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link FileUtilities#lastChanged(File)} method.

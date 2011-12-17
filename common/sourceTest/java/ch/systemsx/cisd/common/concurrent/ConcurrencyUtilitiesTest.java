@@ -36,11 +36,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
+import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.logging.AssertingLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for {@link ConcurrencyUtilities}.

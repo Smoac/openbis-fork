@@ -37,11 +37,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link MonitoringProxy}.
