@@ -24,8 +24,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.test.Retry10;
 import ch.systemsx.cisd.datamover.filesystem.RetryingPathRemover.DeleteActivityDetector;
 
 /**

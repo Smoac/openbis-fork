@@ -182,6 +182,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
 
     }
 
+    @SuppressWarnings("null")
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final StoringLogger storingLoggerOrNull =
