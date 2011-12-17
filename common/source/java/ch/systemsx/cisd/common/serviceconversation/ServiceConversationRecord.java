@@ -25,17 +25,17 @@ import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
  */
 class ServiceConversationRecord
 {
-    private final BidirectinoalServiceMessenger messenger;
+    private final BidirectionalServiceMessenger messenger;
     
     private ITerminableFuture<Void> controller;
 
-    ServiceConversationRecord(BidirectinoalServiceMessenger messenger)
+    ServiceConversationRecord(BidirectionalServiceMessenger messenger)
     {
         super();
         this.messenger = messenger;
     }
 
-    BidirectinoalServiceMessenger getMessenger()
+    BidirectionalServiceMessenger getMessenger()
     {
         return messenger;
     }

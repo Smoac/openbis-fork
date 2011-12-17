@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
@@ -29,9 +31,11 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * The service conversation collection.
+ * A collection of service conversations.
  * 
  * @author Bernd Rinn
  */
@@ -41,17 +45,20 @@ public class ServiceConversationCollection implements ISendingMessenger
 
     private final static int SHUTDOWN_TIMEOUT_MILLIS = 10000;
 
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ServiceConversationCollection.class);
+
     private final int messageReceivingTimeoutMillis;
 
     private final ExecutorService executor = new NamingThreadPoolExecutor("Service Conversations")
             .corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
-    private Random rng = new Random();
+    private final Random rng = new Random();
 
     private final Map<String, IServiceFactory> serviceFactoryMap =
             new ConcurrentHashMap<String, IServiceFactory>();
 
-    private Map<String, ServiceConversationRecord> conversations =
+    private final Map<String, ServiceConversationRecord> conversations =
             new ConcurrentHashMap<String, ServiceConversationRecord>();
 
     public ServiceConversationCollection(int messageReceivingTimeoutMillis)
@@ -62,8 +69,13 @@ public class ServiceConversationCollection implements ISendingMessenger
     /**
      * Adds a new service type to this conversation object.
      */
-    public void addServiceType(String id, IServiceFactory factory)
+    public void addServiceType(IServiceFactory factory)
     {
+        final String id = factory.getServiceTypeId();
+        if (serviceFactoryMap.containsKey(id))
+        {
+            throw new IllegalArgumentException("Service type '" + id + "' is already registered.");
+        }
         serviceFactoryMap.put(id, factory);
     }
 
@@ -101,8 +113,8 @@ public class ServiceConversationCollection implements ISendingMessenger
         final IService serviceInstance = serviceFactory.create();
         final String serviceConversationId =
                 Long.toString(System.currentTimeMillis()) + "-" + rng.nextInt(Integer.MAX_VALUE);
-        final BidirectinoalServiceMessenger messenger =
-                new BidirectinoalServiceMessenger(serviceConversationId,
+        final BidirectionalServiceMessenger messenger =
+                new BidirectionalServiceMessenger(serviceConversationId,
                         messageReceivingTimeoutMillis, responseMessenger);
         final ServiceConversationRecord record = new ServiceConversationRecord(messenger);
         conversations.put(serviceConversationId, record);
@@ -117,8 +129,7 @@ public class ServiceConversationCollection implements ISendingMessenger
                                 serviceInstance.run(messenger.getServiceMessenger());
                             } catch (Exception ex)
                             {
-                                if (ex instanceof InterruptedExceptionUnchecked == false
-                                        && ex instanceof ClientExecutionException == false)
+                                if (ex instanceof InterruptedExceptionUnchecked == false)
                                 {
                                     final String errorMessage =
                                             ServiceExecutionException
@@ -131,8 +142,10 @@ public class ServiceConversationCollection implements ISendingMessenger
                                                 errorMessage));
                                     } catch (Exception ex2)
                                     {
-                                        // TODO: improve logging
-                                        ex2.printStackTrace();
+                                        operationLog.error(
+                                                String.format(
+                                                        "[id: %s] Cannot send message about exception to client.",
+                                                        serviceConversationId), ex2);
                                     }
                                 }
                             } finally
@@ -199,21 +212,27 @@ public class ServiceConversationCollection implements ISendingMessenger
         final ServiceConversationRecord record = conversations.get(conversationId);
         if (record == null)
         {
-            if (message.isException() == false)
-            {
-                throw new UnknownServiceConversationException(conversationId);
-            } else
-            {
-                // If it was an exception on the client side, be silent.
-                return;
-            }
+            operationLog.error(String.format("Message for unknown service conversation '%s'",
+                    conversationId));
+            return;
         }
-        if (message.isTerminate())
-        {
-            record.getController().cancel(true);
-        } else
+        if (message.hasPayload())
         {
             record.getMessenger().sendToService(message);
+        } else
+        {
+            if (message.isException())
+            {
+                operationLog.error(String.format("[id: %s] Client execution exception.\n%s",
+                        conversationId, message.tryGetExceptionDescription()));
+            } else
+            {
+                operationLog.error(String.format(
+                        "[id: %s] Client requests termination of service conversation.",
+                        conversationId));
+            }
+            record.getMessenger().markAsInterrupted();
+            record.getController().cancel(true);
         }
     }
 

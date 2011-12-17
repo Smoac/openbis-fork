@@ -24,6 +24,11 @@ package ch.systemsx.cisd.common.serviceconversation;
 public interface IServiceFactory
 {
     /**
+     * Returns id for this service type.
+     */
+    public String getServiceTypeId();
+    
+    /**
      * Create a new service.
      */
     public IService create();

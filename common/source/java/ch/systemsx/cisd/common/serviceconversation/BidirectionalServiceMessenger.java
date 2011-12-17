@@ -20,8 +20,10 @@ import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 
 /**
@@ -29,7 +31,7 @@ import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
  * 
  * @author Bernd Rinn
  */
-class BidirectinoalServiceMessenger
+class BidirectionalServiceMessenger
 {
     private final BlockingQueue<ServiceMessage> incoming =
             new LinkedBlockingQueue<ServiceMessage>();
@@ -44,7 +46,9 @@ class BidirectinoalServiceMessenger
 
     private int messageIdxLastSeen = -1;
 
-    BidirectinoalServiceMessenger(String conversationId, int messageReceivingTimeoutMillis,
+    private final AtomicBoolean interrupted = new AtomicBoolean();
+
+    BidirectionalServiceMessenger(String conversationId, int messageReceivingTimeoutMillis,
             ISendingMessenger responseMessenger)
     {
         this.conversationId = conversationId;
@@ -59,6 +63,10 @@ class BidirectinoalServiceMessenger
                 @SuppressWarnings("unchecked")
                 public <T extends Serializable> T receive(Class<T> messageClass)
                 {
+                    if (interrupted.get())
+                    {
+                        throw new InterruptedExceptionUnchecked();
+                    }
                     final Object payload;
                     try
                     {
@@ -66,13 +74,10 @@ class BidirectinoalServiceMessenger
                                 incoming.poll(messageReceivingTimeoutMillis, TimeUnit.MILLISECONDS);
                         if (message == null)
                         {
-                            throw new TimeoutExceptionUnchecked(
-                                    "Timeout while waiting for message from client.");
-                        }
-                        if (message.isException())
-                        {
-                            throw new ClientExecutionException(conversationId,
-                                    message.tryGetExceptionDescription());
+                            final String msg = "Timeout while waiting for message from client.";
+                            ServiceConversationCollection.operationLog.error(String.format(
+                                    "[id: %s] %s", conversationId, msg));
+                            throw new TimeoutExceptionUnchecked(msg);
                         }
                         payload = message.getPayload();
                     } catch (InterruptedException ex)
@@ -90,6 +95,10 @@ class BidirectinoalServiceMessenger
 
                 public void send(Serializable message)
                 {
+                    if (interrupted.get())
+                    {
+                        throw new InterruptedExceptionUnchecked();
+                    }
                     responseMessenger.send(new ServiceMessage(conversationId,
                             nextOutgoingMessageIndex(), false, message));
                 }
@@ -112,5 +121,10 @@ class BidirectinoalServiceMessenger
             messageIdxLastSeen = message.getMessageIdx();
         }
         incoming.add(message);
+    }
+
+    public void markAsInterrupted()
+    {
+        interrupted.set(true);
     }
 }

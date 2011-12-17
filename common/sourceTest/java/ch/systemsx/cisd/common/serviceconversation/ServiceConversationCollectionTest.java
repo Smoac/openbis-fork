@@ -25,10 +25,13 @@ import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for the {@Link ServiceConversationCollection} class.
@@ -37,6 +40,12 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
  */
 public class ServiceConversationCollectionTest
 {
+    @BeforeTest
+    public void init()
+    {
+        LogInitializer.init();
+    }
+    
     private static class SingleEchoService implements IService
     {
         public void run(IServiceMessenger messenger)
@@ -49,15 +58,21 @@ public class ServiceConversationCollectionTest
     public void testSingleEchoServiceHappyCase() throws Exception
     {
         final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
-        conversations.addServiceType("singleEcho", new IServiceFactory()
+        conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()
                 {
                     return new SingleEchoService();
                 }
+
                 public int getClientTimeoutMillis()
                 {
                     return 100;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "singleEcho";
                 }
             });
         final IClientMessenger messenger = conversations.startConversation("singleEcho");
@@ -90,15 +105,21 @@ public class ServiceConversationCollectionTest
     public void testMultipleEchoServiceTerminateHappyCase() throws Exception
     {
         final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
-        conversations.addServiceType("echo", new IServiceFactory()
+        conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()
                 {
                     return new EchoService();
                 }
+
                 public int getClientTimeoutMillis()
                 {
                     return 100;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "echo";
                 }
             });
         final BlockingQueue<ServiceMessage> messageQueue =
@@ -145,15 +166,21 @@ public class ServiceConversationCollectionTest
     public void testEchoServiceTimeout() throws Exception
     {
         final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
-        conversations.addServiceType("echo", new IServiceFactory()
+        conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()
                 {
                     return new EchoService();
                 }
+
                 public int getClientTimeoutMillis()
                 {
                     return 100;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "echo";
                 }
             });
         final BlockingQueue<ServiceMessage> messageQueue =
@@ -209,15 +236,21 @@ public class ServiceConversationCollectionTest
     public void testServiceThrowsException() throws Exception
     {
         final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
-        conversations.addServiceType("throwException", new IServiceFactory()
+        conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()
                 {
                     return new ExceptionThrowingService();
                 }
+
                 public int getClientTimeoutMillis()
                 {
                     return 100;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "throwException";
                 }
             });
         final ClientMessenger messenger = conversations.startConversation("throwException");
@@ -227,8 +260,55 @@ public class ServiceConversationCollectionTest
             fail();
         } catch (ServiceExecutionException ex)
         {
-            assertEquals(messenger.getServiceConversationId(),
-                    ex.getServiceConversationId());
+            assertEquals(messenger.getServiceConversationId(), ex.getServiceConversationId());
+            assertTrue(ex.getDescription().contains("RuntimeException"));
+            assertTrue(ex.getDescription().contains("Don't like you!"));
+        }
+    }
+
+    private static class EventuallyExceptionThrowingService implements IService
+    {
+        public void run(IServiceMessenger messenger)
+        {
+            messenger.send("OK1");
+            messenger.send("OK2");
+            messenger.send("OK3");
+            throw new RuntimeException("Don't like you!");
+        }
+    }
+
+    @Test
+    public void testServiceEventuallyThrowsException() throws Exception
+    {
+        final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
+        conversations.addServiceType(new IServiceFactory()
+            {
+                public IService create()
+                {
+                    return new EventuallyExceptionThrowingService();
+                }
+
+                public int getClientTimeoutMillis()
+                {
+                    return 100;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "throwException";
+                }
+            });
+        final ClientMessenger messenger = conversations.startConversation("throwException");
+        ConcurrencyUtilities.sleep(100L);
+        try
+        {
+            // The regular messages should have been cleared by now so that we get to see the
+            // exception immediately.
+            messenger.receive(Serializable.class);
+            fail();
+        } catch (ServiceExecutionException ex)
+        {
+            assertEquals(messenger.getServiceConversationId(), ex.getServiceConversationId());
             assertTrue(ex.getDescription().contains("RuntimeException"));
             assertTrue(ex.getDescription().contains("Don't like you!"));
         }
@@ -238,13 +318,12 @@ public class ServiceConversationCollectionTest
     {
         public void run(IServiceMessenger messenger)
         {
-            ConcurrencyUtilities.sleep(100L);
             try
             {
-                messenger.receive(Serializable.class);
-            } catch (ClientExecutionException ex)
+                ConcurrencyUtilities.sleep(100L);
+            } catch (InterruptedExceptionUnchecked ex)
             {
-                System.err.println("Client timed out.");
+                System.err.println("DelayedService got interrupted.");
             }
         }
     }
@@ -253,15 +332,21 @@ public class ServiceConversationCollectionTest
     public void testClientTimesout() throws Exception
     {
         final ServiceConversationCollection conversations = new ServiceConversationCollection(100);
-        conversations.addServiceType("delayed", new IServiceFactory()
+        conversations.addServiceType(new IServiceFactory()
             {
                 public IService create()
                 {
                     return new DelayedService();
                 }
+
                 public int getClientTimeoutMillis()
                 {
                     return 10;
+                }
+
+                public String getServiceTypeId()
+                {
+                    return "delayed";
                 }
             });
         final ClientMessenger messenger = conversations.startConversation("delayed");

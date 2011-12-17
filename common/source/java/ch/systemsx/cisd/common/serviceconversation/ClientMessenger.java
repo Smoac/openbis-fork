@@ -47,7 +47,9 @@ public class ClientMessenger implements IClientMessenger
     public ClientMessenger(ServiceConversationDTO serviceConversationDTO,
             ISendingMessenger senderToService)
     {
+        assert senderToService != null;
         this.serviceConversationId = serviceConversationDTO.getServiceConversationId();
+        assert serviceConversationId != null;
         this.timeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
         this.senderToService = senderToService;
     }
@@ -63,7 +65,8 @@ public class ClientMessenger implements IClientMessenger
             {
                 public void send(ServiceMessage message)
                 {
-                    if (serviceConversationId.equals(message.getConversationId()) == false)
+                    if (serviceConversationId != null
+                            && serviceConversationId.equals(message.getConversationId()) == false)
                     {
                         throw new IllegalArgumentException(
                                 "Attempt to put in a message for conversation "
@@ -76,6 +79,10 @@ public class ClientMessenger implements IClientMessenger
                     } else
                     {
                         messageIdxLastSeen = message.getMessageIdx();
+                    }
+                    if (message.hasPayload() == false)
+                    {
+                        messageQueue.clear();
                     }
                     messageQueue.add(message);
                 }

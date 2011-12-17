@@ -78,6 +78,11 @@ public class ServiceMessage
     {
         return (payload == null) && (exceptionDescription != null);
     }
+    
+    public boolean hasPayload()
+    {
+        return (payload != null);
+    }
 
     public String tryGetExceptionDescription()
     {
