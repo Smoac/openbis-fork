@@ -38,7 +38,7 @@ class BidirectionalServiceMessenger
 
     private final String conversationId;
 
-    private final ISendingMessenger responseMessenger;
+    private final IServiceMessageTransport responseMessenger;
 
     private final int messageReceivingTimeoutMillis;
 
@@ -49,7 +49,7 @@ class BidirectionalServiceMessenger
     private final AtomicBoolean interrupted = new AtomicBoolean();
 
     BidirectionalServiceMessenger(String conversationId, int messageReceivingTimeoutMillis,
-            ISendingMessenger responseMessenger)
+            IServiceMessageTransport responseMessenger)
     {
         this.conversationId = conversationId;
         this.messageReceivingTimeoutMillis = messageReceivingTimeoutMillis;
@@ -75,7 +75,7 @@ class BidirectionalServiceMessenger
                         if (message == null)
                         {
                             final String msg = "Timeout while waiting for message from client.";
-                            ServiceConversationCollection.operationLog.error(String.format(
+                            ServiceConversationServer.operationLog.error(String.format(
                                     "[id: %s] %s", conversationId, msg));
                             throw new TimeoutExceptionUnchecked(msg);
                         }

@@ -39,32 +39,73 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public class ServiceConversationCollection implements ISendingMessenger
+public class ServiceConversationServer
 {
     private final static int NUMBER_OF_CORE_THREADS = 10;
 
     private final static int SHUTDOWN_TIMEOUT_MILLIS = 10000;
 
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ServiceConversationCollection.class);
+            ServiceConversationServer.class);
 
     private final int messageReceivingTimeoutMillis;
 
     private final ExecutorService executor = new NamingThreadPoolExecutor("Service Conversations")
             .corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
-    private final Random rng = new Random();
-
     private final Map<String, IServiceFactory> serviceFactoryMap =
             new ConcurrentHashMap<String, IServiceFactory>();
+
+    private final Map<String, IServiceMessageTransport> responseMessageMap =
+            new ConcurrentHashMap<String, IServiceMessageTransport>();
 
     private final Map<String, ServiceConversationRecord> conversations =
             new ConcurrentHashMap<String, ServiceConversationRecord>();
 
-    public ServiceConversationCollection(int messageReceivingTimeoutMillis)
+    private final Random rng = new Random();
+
+    private final IServiceMessageTransport incomingTransport = new IServiceMessageTransport()
+        {
+            public void send(ServiceMessage message)
+            {
+                final String conversationId = message.getConversationId();
+                final ServiceConversationRecord record = conversations.get(conversationId);
+                if (record == null)
+                {
+                    operationLog.error(String.format(
+                            "Message for unknown service conversation '%s'", conversationId));
+                    return;
+                }
+                if (message.hasPayload())
+                {
+                    record.getMessenger().sendToService(message);
+                } else
+                {
+                    if (message.isException())
+                    {
+                        operationLog.error(String.format(
+                                "[id: %s] Client execution exception.\n%s", conversationId,
+                                message.tryGetExceptionDescription()));
+                    } else
+                    {
+                        operationLog.error(String.format(
+                                "[id: %s] Client requests termination of service conversation.",
+                                conversationId));
+                    }
+                    record.getMessenger().markAsInterrupted();
+                    record.getController().cancel(true);
+                }
+            }
+        };
+
+    public ServiceConversationServer(int messageReceivingTimeoutMillis)
     {
         this.messageReceivingTimeoutMillis = messageReceivingTimeoutMillis;
     }
+
+    //
+    // Initial setup
+    //
 
     /**
      * Adds a new service type to this conversation object.
@@ -79,36 +120,56 @@ public class ServiceConversationCollection implements ISendingMessenger
         serviceFactoryMap.put(id, factory);
     }
 
+    //
+    // Client setup
+    //
+
     /**
-     * Starts a service conversation of type <var>typeId</var>.
-     * 
-     * @param typeId The service type of the conversation.
-     * @return a {@link ClientMessenger} to communicate with the service.
+     * Adds the client transport (to be called when client connects).
      */
-    public ClientMessenger startConversation(final String typeId)
+    public void addClientResponseTransport(String clientId,
+            IServiceMessageTransport responseTransport)
     {
-        final ClientMessenger clientMessenger = new ClientMessenger(this);
-        final ServiceConversationDTO serviceConversationRecord =
-                startConversation(typeId, clientMessenger.getResponseMessenger());
-        clientMessenger.setServiceConversationDTO(serviceConversationRecord);
-        return clientMessenger;
+        responseMessageMap.put(clientId, responseTransport);
+    }
+
+    /**
+     * Removes the client transport (to be called when client disconnects).
+     * 
+     * @return <code>true</code> if the client transport was removed.
+     */
+    public boolean removeClientResponseTransport(String clientId)
+    {
+        return responseMessageMap.remove(clientId) != null;
+    }
+
+    /**
+     * Returns the transport for incoming messages from clients.
+     */
+    public IServiceMessageTransport getIncomingMessageTransport()
+    {
+        return incomingTransport;
     }
 
     /**
      * Starts a service conversation of type <var>typeId</var>.
      * 
      * @param typeId The service type of the conversation.
-     * @param responseMessenger The messenger to communicate back the messages from the service to
-     *            the client.
+     * @param clientId The id of the client, used to find a suitable transport to communicate back
+     *            the messages from the service to the client.
      * @return The information about the service conversation started.
      */
-    public ServiceConversationDTO startConversation(final String typeId,
-            final ISendingMessenger responseMessenger)
+    public ServiceConversationDTO startConversation(final String typeId, final String clientId)
     {
         final IServiceFactory serviceFactory = serviceFactoryMap.get(typeId);
         if (serviceFactory == null)
         {
             throw new UnknownServiceTypeException(typeId);
+        }
+        final IServiceMessageTransport responseMessenger = responseMessageMap.get(clientId);
+        if (responseMessenger == null)
+        {
+            throw new UnknownClientException(clientId);
         }
         final IService serviceInstance = serviceFactory.create();
         final String serviceConversationId =
@@ -200,40 +261,6 @@ public class ServiceConversationCollection implements ISendingMessenger
     public boolean hasConversation(String conversationId)
     {
         return conversations.containsKey(conversationId);
-    }
-
-    //
-    // IIncomingMessenger
-    //
-
-    public void send(ServiceMessage message)
-    {
-        final String conversationId = message.getConversationId();
-        final ServiceConversationRecord record = conversations.get(conversationId);
-        if (record == null)
-        {
-            operationLog.error(String.format("Message for unknown service conversation '%s'",
-                    conversationId));
-            return;
-        }
-        if (message.hasPayload())
-        {
-            record.getMessenger().sendToService(message);
-        } else
-        {
-            if (message.isException())
-            {
-                operationLog.error(String.format("[id: %s] Client execution exception.\n%s",
-                        conversationId, message.tryGetExceptionDescription()));
-            } else
-            {
-                operationLog.error(String.format(
-                        "[id: %s] Client requests termination of service conversation.",
-                        conversationId));
-            }
-            record.getMessenger().markAsInterrupted();
-            record.getController().cancel(true);
-        }
     }
 
 }

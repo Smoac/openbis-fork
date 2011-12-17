@@ -17,14 +17,16 @@
 package ch.systemsx.cisd.common.serviceconversation;
 
 /**
- * The sending messenger role for a service conversation.
- *
+ * An exception for signaling that a client is not known.
+ * 
  * @author Bernd Rinn
  */
-public interface ISendingMessenger
+public class UnknownClientException extends RuntimeException
 {
-    /**
-     * Send the <var>message</var> using this messenger.
-     */
-    public void send(ServiceMessage message);
+    private static final long serialVersionUID = 1L;
+
+    public UnknownClientException(String clientId)
+    {
+        super("Client '" + clientId + "' is not known.");
+    }
 }

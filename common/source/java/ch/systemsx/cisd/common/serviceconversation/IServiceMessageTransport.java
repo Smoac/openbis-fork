@@ -16,23 +16,15 @@
 
 package ch.systemsx.cisd.common.serviceconversation;
 
-import java.io.Serializable;
-
 /**
- * A messenger role for receiving messages from a service.
+ * The role that can transport service messages.
  *
  * @author Bernd Rinn
  */
-public interface IClientMessenger
+public interface IServiceMessageTransport
 {
     /**
-     * Send a message to the service.
+     * Send the <var>message</var> using this transport.
      */
-    public void send(Serializable message);
-    
-    /**
-     * Receive a message from the service.
-     */
-    public <T extends Serializable> T receive(Class<T> messageClass);
-
+    public void send(ServiceMessage message);
 }

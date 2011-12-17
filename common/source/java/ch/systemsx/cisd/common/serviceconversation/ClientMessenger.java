@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.common.serviceconversation;
 
 import java.io.Serializable;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
@@ -29,70 +26,45 @@ import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
  * 
  * @author Bernd Rinn
  */
-public class ClientMessenger implements IClientMessenger
+class ClientMessenger implements IServiceConversation
 {
-    private final BlockingQueue<ServiceMessage> messageQueue =
-            new LinkedBlockingQueue<ServiceMessage>();
+    private final IServiceMessageTransport transportToService;
 
-    private final ISendingMessenger senderToService;
+    private final String serviceConversationId;
 
-    private String serviceConversationId;
+    private final ClientResponseMessageQueue responseMessageQueue;
+
+    private final ClientResponseMessageMultiplexer responseMessageMultiplexer;
 
     private int timeoutMillis;
 
-    private int messageIdxLastSeen = -1;
-
     private int outgoingMessageIdx;
 
-    public ClientMessenger(ServiceConversationDTO serviceConversationDTO,
-            ISendingMessenger senderToService)
+    ClientMessenger(ServiceConversationDTO serviceConversationDTO,
+            IServiceMessageTransport transportToService,
+            ClientResponseMessageQueue responseMessageQueue,
+            ClientResponseMessageMultiplexer responseMessageMultiplexer)
     {
-        assert senderToService != null;
+        assert transportToService != null;
         this.serviceConversationId = serviceConversationDTO.getServiceConversationId();
         assert serviceConversationId != null;
         this.timeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
-        this.senderToService = senderToService;
-    }
-
-    ClientMessenger(ISendingMessenger senderToService)
-    {
-        this.senderToService = senderToService;
-    }
-
-    public ISendingMessenger getResponseMessenger()
-    {
-        return new ISendingMessenger()
-            {
-                public void send(ServiceMessage message)
-                {
-                    if (serviceConversationId != null
-                            && serviceConversationId.equals(message.getConversationId()) == false)
-                    {
-                        throw new IllegalArgumentException(
-                                "Attempt to put in a message for conversation "
-                                        + message.getConversationId()
-                                        + " into queue for conversation " + serviceConversationId);
-                    }
-                    if (message.getMessageIdx() <= messageIdxLastSeen)
-                    {
-                        return;
-                    } else
-                    {
-                        messageIdxLastSeen = message.getMessageIdx();
-                    }
-                    if (message.hasPayload() == false)
-                    {
-                        messageQueue.clear();
-                    }
-                    messageQueue.add(message);
-                }
-            };
+        this.transportToService = transportToService;
+        this.responseMessageQueue = responseMessageQueue;
+        this.responseMessageMultiplexer = responseMessageMultiplexer;
+        responseMessageMultiplexer.addConversation(serviceConversationId, responseMessageQueue);
     }
 
     public void send(Serializable message)
     {
-        senderToService.send(new ServiceMessage(serviceConversationId, nextOutgoingMessageIndex(),
-                false, message));
+        transportToService.send(new ServiceMessage(serviceConversationId,
+                nextOutgoingMessageIndex(), false, message));
+    }
+
+    public void terminate()
+    {
+        transportToService.send(ServiceMessage.terminate(serviceConversationId));
+        
     }
 
     private int nextOutgoingMessageIndex()
@@ -104,8 +76,7 @@ public class ClientMessenger implements IClientMessenger
     {
         try
         {
-            return handleMessage(messageQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS),
-                    messageClass);
+            return handleMessage(responseMessageQueue.poll(timeoutMillis), messageClass);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -121,7 +92,7 @@ public class ClientMessenger implements IClientMessenger
                     new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
             final String exceptionDescription =
                     ServiceExecutionException.getDescriptionFromException(exception);
-            senderToService.send(new ServiceMessage(serviceConversationId,
+            transportToService.send(new ServiceMessage(serviceConversationId,
                     nextOutgoingMessageIndex(), true, exceptionDescription));
             throw exception;
         }
@@ -138,15 +109,21 @@ public class ClientMessenger implements IClientMessenger
         return (T) payload;
     }
 
-    public String getServiceConversationId()
+    public String getId()
     {
         return serviceConversationId;
     }
 
-    void setServiceConversationDTO(ServiceConversationDTO serviceConversation)
+    public void close()
     {
-        this.serviceConversationId = serviceConversation.getServiceConversationId();
-        this.timeoutMillis = serviceConversation.getClientTimeoutInMillis();
+        responseMessageMultiplexer.removeConversation(serviceConversationId);
+    }
+
+    @Override
+    protected void finalize() throws Throwable
+    {
+        close();
+        super.finalize();
     }
 
 }

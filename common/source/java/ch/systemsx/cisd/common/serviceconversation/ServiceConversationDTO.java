@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.serviceconversation;
 import java.io.Serializable;
 
 /**
- * A record to save to provide the information about a new service conversation.
+ * A data transfer object to save to provide the information about a new service conversation.
  *
  * @author Bernd Rinn
  */
