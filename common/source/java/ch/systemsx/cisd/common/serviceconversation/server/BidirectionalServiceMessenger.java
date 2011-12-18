@@ -131,4 +131,9 @@ class BidirectionalServiceMessenger
     {
         interrupted.set(true);
     }
+    
+    public boolean isMarkedAsInterrupted()
+    {
+        return interrupted.get();
+    }
 }

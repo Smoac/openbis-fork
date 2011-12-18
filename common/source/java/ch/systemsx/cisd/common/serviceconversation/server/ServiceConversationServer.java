@@ -61,9 +61,8 @@ public class ServiceConversationServer
     private final Map<String, IServiceMessageTransport> responseMessageMap =
             new ConcurrentHashMap<String, IServiceMessageTransport>();
 
-    private final Map<String, ServiceConversationRecord> conversations =
-            new ConcurrentHashMap<String, ServiceConversationRecord>();
-
+    private final ConversationMap conversations = new ConversationMap();
+    
     private final Random rng = new Random();
 
     private final IServiceMessageTransport incomingTransport = new IServiceMessageTransport()
@@ -74,8 +73,11 @@ public class ServiceConversationServer
                 final ServiceConversationRecord record = conversations.get(conversationId);
                 if (record == null)
                 {
-                    operationLog.error(String.format(
-                            "Message for unknown service conversation '%s'", conversationId));
+                    if (conversations.recentlySeen(conversationId) == false)
+                    {
+                        operationLog.error(String.format(
+                                "Message for unknown service conversation '%s'", conversationId));
+                    }
                     return;
                 }
                 if (message.hasPayload())
@@ -83,19 +85,22 @@ public class ServiceConversationServer
                     record.getMessenger().sendToService(message);
                 } else
                 {
-                    if (message.isException())
+                    if (record.getMessenger().isMarkedAsInterrupted() == false)
                     {
-                        operationLog.error(String.format(
-                                "[id: %s] Client execution exception.\n%s", conversationId,
-                                message.tryGetExceptionDescription()));
-                    } else
-                    {
-                        operationLog.error(String.format(
-                                "[id: %s] Client requests termination of service conversation.",
-                                conversationId));
+                        if (message.isException())
+                        {
+                            operationLog.error(String.format(
+                                    "[id: %s] Client execution exception.\n%s", conversationId,
+                                    message.tryGetExceptionDescription()));
+                        } else
+                        {
+                            operationLog.error(String.format(
+                                    "[id: %s] Client requests termination of service conversation.",
+                                    conversationId));
+                        }
+                        record.getMessenger().markAsInterrupted();
+                        record.getController().cancel(true);
                     }
-                    record.getMessenger().markAsInterrupted();
-                    record.getController().cancel(true);
                 }
             }
         };
