@@ -244,6 +244,48 @@ public class ServiceConversationTest
     }
 
     @Test
+    public void testTwoMultipleEchoServiceTerminateHappyCase() throws Exception
+    {
+        final ServiceConversationServerAndClientHolder holder =
+                createServerAndClient(EchoService.createFactory());
+        final IServiceConversation conversation1 = holder.client.startConversation("echo");
+        final IServiceConversation conversation2 = holder.client.startConversation("echo");
+
+        conversation1.send("One");
+        assertEquals("One", conversation1.receive(String.class));
+
+        conversation2.send("AAA");
+        assertEquals("AAA", conversation2.receive(String.class));
+
+        conversation1.send("Two");
+        assertEquals("Two", conversation1.receive(String.class));
+
+        conversation2.send("BBB");
+        assertEquals("BBB", conversation2.receive(String.class));
+
+        conversation1.send("Three");
+        assertEquals("Three", conversation1.receive(String.class));
+
+        conversation1.terminate();
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation1.getId()); ++i)
+        {
+            ConcurrencyUtilities.sleep(10L);
+        }
+        assertFalse(holder.server.hasConversation(conversation1.getId()));
+        assertTrue(holder.server.hasConversation(conversation2.getId()));
+
+        conversation2.send("CCC");
+        assertEquals("CCC", conversation2.receive(String.class));
+
+        conversation2.terminate();
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation2.getId()); ++i)
+        {
+            ConcurrencyUtilities.sleep(10L);
+        }
+        assertFalse(holder.server.hasConversation(conversation2.getId()));
+    }
+
+    @Test
     public void testMultipleEchoServiceTerminateLowLevelHappyCase() throws Exception
     {
         final ServiceConversationServer conversations = new ServiceConversationServer(config());
