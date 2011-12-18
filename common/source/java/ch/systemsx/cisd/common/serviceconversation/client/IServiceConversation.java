@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.common.serviceconversation.client;
 
 import java.io.Closeable;
-import java.io.Serializable;
 
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 
@@ -35,8 +34,7 @@ public interface IServiceConversation extends IServiceMessenger, Closeable
     public void terminate();
 
     /**
-     * Closes this messenger. Do not call {@link #send(Serializable)} or {@link #receive(Class)}
-     * after this call.
+     * Closes this messenger. Do not call any other method after this call.
      */
     public void close();
 }
