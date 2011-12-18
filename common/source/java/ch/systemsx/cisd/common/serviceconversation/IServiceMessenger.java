@@ -39,8 +39,10 @@ public interface IServiceMessenger
      * 
      * @param message The message to send.
      * @throws InterruptedExceptionUnchecked If the client signaled termination (server-side only).
+     * @throws ServiceExecutionException If the server signaled an exception (client-side only).
      */
-    public void send(Serializable message) throws InterruptedExceptionUnchecked;
+    public void send(Serializable message) throws InterruptedExceptionUnchecked,
+            ServiceExecutionException;
 
     /**
      * Receive a message from the counter part.
