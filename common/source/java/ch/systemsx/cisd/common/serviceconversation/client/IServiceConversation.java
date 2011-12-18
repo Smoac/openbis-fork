@@ -37,4 +37,11 @@ public interface IServiceConversation extends IServiceMessenger, Closeable
      * Closes this messenger. Do not call any other method after this call.
      */
     public void close();
+
+    /**
+     * Returns the size of the server work queue at startup time of this conversation.
+     * <p>
+     * A value > 0 means that the conversation started queued.
+     */
+    public int getServerWorkQueueSizeAtStartup();
 }

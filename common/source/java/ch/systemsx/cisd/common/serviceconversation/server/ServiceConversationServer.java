@@ -202,52 +202,59 @@ public class ServiceConversationServer
                         messageReceivingTimeoutMillis, responseMessenger);
         final ServiceConversationRecord record = new ServiceConversationRecord(messenger);
         conversations.put(serviceConversationId, record);
-        final ITerminableFuture<Void> controller =
-                ConcurrencyUtilities.submit(executor, new INamedCallable<Void>()
-                    {
-                        public Void call(IStoppableExecutor<Void> stoppableExecutor)
-                                throws Exception
+        try
+        {
+            final ITerminableFuture<Void> controller =
+                    ConcurrencyUtilities.submit(executor, new INamedCallable<Void>()
                         {
-                            try
+                            public Void call(IStoppableExecutor<Void> stoppableExecutor)
+                                    throws Exception
                             {
-                                serviceInstance.run(messenger.getServiceMessenger());
-                            } catch (Throwable ex)
-                            {
-                                if (ex instanceof InterruptedExceptionUnchecked == false)
+                                try
                                 {
-                                    final String errorMessage =
-                                            ServiceExecutionException
-                                                    .getDescriptionFromException(ex);
-                                    try
+                                    serviceInstance.run(messenger.getServiceMessenger());
+                                } catch (Throwable ex)
+                                {
+                                    if (ex instanceof InterruptedExceptionUnchecked == false)
                                     {
-                                        responseMessenger.send(new ServiceMessage(
-                                                serviceConversationId, messenger
-                                                        .nextOutgoingMessageIndex(), true,
-                                                errorMessage));
-                                    } catch (Exception ex2)
-                                    {
-                                        operationLog.error(
-                                                String.format(
-                                                        "[id: %s] Cannot send message about exception to client.",
-                                                        serviceConversationId), ex2);
+                                        final String errorMessage =
+                                                ServiceExecutionException
+                                                        .getDescriptionFromException(ex);
+                                        try
+                                        {
+                                            responseMessenger.send(new ServiceMessage(
+                                                    serviceConversationId, messenger
+                                                            .nextOutgoingMessageIndex(), true,
+                                                    errorMessage));
+                                        } catch (Exception ex2)
+                                        {
+                                            operationLog.error(
+                                                    String.format(
+                                                            "[id: %s] Cannot send message about exception to client.",
+                                                            serviceConversationId), ex2);
+                                        }
                                     }
+                                } finally
+                                {
+                                    conversations.remove(serviceConversationId);
                                 }
-                            } finally
-                            {
-                                conversations.remove(serviceConversationId);
+                                return null;
                             }
-                            return null;
-                        }
-
-                        public String getCallableName()
-                        {
-                            return serviceConversationId + " (" + typeId + ")";
-                        }
-
-                    });
-        record.setController(controller);
-        return new ServiceConversationDTO(serviceConversationId,
-                serviceFactory.getClientTimeoutMillis());
+    
+                            public String getCallableName()
+                            {
+                                return serviceConversationId + " (" + typeId + ")";
+                            }
+    
+                        });
+            record.setController(controller);
+            return new ServiceConversationDTO(serviceConversationId,
+                    serviceFactory.getClientTimeoutMillis(), executor.getQueue().size());
+        } catch (Throwable th)
+        {
+            conversations.remove(serviceConversationId);
+            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+        }
     }
 
     /**

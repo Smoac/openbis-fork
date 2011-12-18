@@ -41,7 +41,9 @@ class ClientMessenger implements IServiceConversation
 
     private final ClientResponseMessageMultiplexer responseMessageMultiplexer;
 
-    private int serviceMessageTimeoutMillis;
+    private final int serviceMessageTimeoutMillis;
+    
+    private final int serverWorkQueueSizeAtStartup;
 
     private int outgoingMessageIdx;
 
@@ -56,6 +58,7 @@ class ClientMessenger implements IServiceConversation
         this.serviceConversationId = serviceConversationDTO.getServiceConversationId();
         assert serviceConversationId != null;
         this.serviceMessageTimeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
+        this.serverWorkQueueSizeAtStartup = serviceConversationDTO.getWorkQueueSize();
         this.transportToService = transportToService;
         this.responseMessageQueue = responseMessageQueue;
         this.responseMessageMultiplexer = responseMessageMultiplexer;
@@ -104,6 +107,11 @@ class ClientMessenger implements IServiceConversation
     public void terminate()
     {
         transportToService.send(ServiceMessage.terminate(serviceConversationId));
+    }
+
+    public int getServerWorkQueueSizeAtStartup()
+    {
+        return serverWorkQueueSizeAtStartup;
     }
 
     public <T extends Serializable> T receive(Class<T> messageClass)

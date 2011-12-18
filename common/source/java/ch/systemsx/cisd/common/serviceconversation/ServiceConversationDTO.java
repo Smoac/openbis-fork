@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * A data transfer object to save to provide the information about a new service conversation.
- *
+ * 
  * @author Bernd Rinn
  */
 public class ServiceConversationDTO implements Serializable
@@ -28,27 +28,44 @@ public class ServiceConversationDTO implements Serializable
     private static final long serialVersionUID = 1L;
 
     private final String serviceConversationId;
-    
-    private int clientTimeoutInMillis;
 
-    public ServiceConversationDTO(String serviceConversationId, int clientTimeout)
+    private final int clientTimeoutInMillis;
+
+    private final int workQueueSize;
+
+    public ServiceConversationDTO(String serviceConversationId, int clientTimeout, int workQueueSize)
     {
         this.serviceConversationId = serviceConversationId;
         this.clientTimeoutInMillis = clientTimeout;
+        this.workQueueSize = workQueueSize;
     }
 
+    /**
+     * Returns the id of the new service conversation.
+     */
+    public String getServiceConversationId()
+    {
+        return serviceConversationId;
+    }
+
+    /**
+     * Returns the proposed message receiving timeout on the client for this conversation.
+     */
     public int getClientTimeoutInMillis()
     {
         return clientTimeoutInMillis;
     }
 
-    public void setClientTimeoutInMillis(int clientTimeoutInMillis)
+    /**
+     * Returns the length of the workqueue after submitting this conversation.
+     * <p>
+     * 0 means: The conversation is running.<br>
+     * 1 means: The conversation is queued but is the next one to run when another conversation
+     * finishes.<br>
+     * N > 1 means: The conversation is queued and there are N - 1 conversations to run first.
+     */
+    public int getWorkQueueSize()
     {
-        this.clientTimeoutInMillis = clientTimeoutInMillis;
-    }
-
-    public String getServiceConversationId()
-    {
-        return serviceConversationId;
+        return workQueueSize;
     }
 }

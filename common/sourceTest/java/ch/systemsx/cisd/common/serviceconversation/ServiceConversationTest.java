@@ -25,6 +25,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -130,6 +131,33 @@ public class ServiceConversationTest
     private ServiceConversationServerAndClientHolder createServerAndClient(IServiceFactory factory)
     {
         final ServiceConversationServer server = new ServiceConversationServer(config());
+        server.addServiceType(factory);
+        final TestClientServerConnection dummyRemoteServer = new TestClientServerConnection(server);
+        final ServiceConversationClient client =
+                new ServiceConversationClient(dummyRemoteServer, dummyRemoteServer);
+        dummyRemoteServer.setResponseMessageTransport(client.getIncomingResponseMessageTransport());
+        return new ServiceConversationServerAndClientHolder(server, client);
+    }
+
+    private ServiceConversationServerAndClientHolder createServerAndClientOneConversationOnly(
+            IServiceFactory factory)
+    {
+        final ServiceConversationServer server =
+                new ServiceConversationServer(config().numberOfCoreThreads(1).maxNumberOfThreads(1));
+        server.addServiceType(factory);
+        final TestClientServerConnection dummyRemoteServer = new TestClientServerConnection(server);
+        final ServiceConversationClient client =
+                new ServiceConversationClient(dummyRemoteServer, dummyRemoteServer);
+        dummyRemoteServer.setResponseMessageTransport(client.getIncomingResponseMessageTransport());
+        return new ServiceConversationServerAndClientHolder(server, client);
+    }
+
+    private ServiceConversationServerAndClientHolder createServerAndClientOneConcurrentConversation(
+            IServiceFactory factory)
+    {
+        final ServiceConversationServer server =
+                new ServiceConversationServer(config().numberOfCoreThreads(1).maxNumberOfThreads(1)
+                        .workQueueSize(Integer.MAX_VALUE));
         server.addServiceType(factory);
         final TestClientServerConnection dummyRemoteServer = new TestClientServerConnection(server);
         final ServiceConversationClient client =
@@ -297,6 +325,69 @@ public class ServiceConversationTest
         }
         assertFalse(holder.server.hasConversation(conversation1.getId()));
         assertTrue(holder.server.hasConversation(conversation2.getId()));
+
+        conversation2.send("CCC");
+        assertEquals("CCC", conversation2.receive(String.class));
+
+        conversation2.terminate();
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation2.getId()); ++i)
+        {
+            ConcurrencyUtilities.sleep(10L);
+        }
+        assertFalse(holder.server.hasConversation(conversation2.getId()));
+    }
+
+    @Test
+    public void testTwoMultipleEchoServiceSecondRejected() throws Exception
+    {
+        final ServiceConversationServerAndClientHolder holder =
+                createServerAndClientOneConversationOnly(EchoService.createFactory());
+        holder.client.startConversation("echo");
+        try
+        {
+            holder.client.startConversation("echo");
+            fail("RejectedExecutionException expected.");
+        } catch (RejectedExecutionException ex)
+        {
+        }
+    }
+
+    @Test
+    public void testTwoMultipleEchoServiceSecondQueued() throws Exception
+    {
+        final ServiceConversationServerAndClientHolder holder =
+                createServerAndClientOneConcurrentConversation(EchoService.createFactory());
+        final IServiceConversation conversation1 = holder.client.startConversation("echo");
+        assertEquals(0, conversation1.getServerWorkQueueSizeAtStartup());
+        final IServiceConversation conversation2 = holder.client.startConversation("echo");
+        assertEquals(1, conversation2.getServerWorkQueueSizeAtStartup());
+
+        conversation1.send("One");
+        assertEquals("One", conversation1.receive(String.class));
+
+        conversation2.send("AAA");
+        assertNull(conversation2.tryReceive(String.class, 10));
+
+        conversation1.send("Two");
+        assertEquals("Two", conversation1.receive(String.class));
+
+        conversation2.send("BBB");
+        assertNull(conversation2.tryReceive(String.class, 10));
+
+        conversation1.send("Three");
+        assertEquals("Three", conversation1.receive(String.class));
+
+        conversation1.terminate();
+        for (int i = 0; i < 100 && holder.server.hasConversation(conversation1.getId()); ++i)
+        {
+            ConcurrencyUtilities.sleep(10L);
+        }
+        assertFalse(holder.server.hasConversation(conversation1.getId()));
+        assertTrue(holder.server.hasConversation(conversation2.getId()));
+
+        // Get echos of queued messages.
+        assertEquals("AAA", conversation2.receive(String.class));
+        assertEquals("BBB", conversation2.receive(String.class));
 
         conversation2.send("CCC");
         assertEquals("CCC", conversation2.receive(String.class));
