@@ -37,9 +37,9 @@ class ClientResponseMessageMultiplexer
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ClientResponseMessageMultiplexer.class);
 
-    private final Map<String, IServiceMessageTransport> conversations =
-            new ConcurrentHashMap<String, IServiceMessageTransport>();
-    
+    private final Map<String, IServiceMessageTransportWithControl> conversations =
+            new ConcurrentHashMap<String, IServiceMessageTransportWithControl>();
+
     /**
      * Returns the transport for incoming response messages.
      */
@@ -50,24 +50,32 @@ class ClientResponseMessageMultiplexer
                 public void send(ServiceMessage message)
                 {
                     final String conversationId = message.getConversationId();
-                    final IServiceMessageTransport transport = conversations.get(conversationId);
+                    final IServiceMessageTransportWithControl transport =
+                            conversations.get(conversationId);
                     if (transport == null)
                     {
-                        final String msg = String.format(
-                                "Message for unknown service conversation '%s'", conversationId);
+                        final String msg =
+                                String.format("Message for unknown service conversation '%s'",
+                                        conversationId);
                         operationLog.error(msg);
                         throw new UnknownServiceConversationException(msg);
                     }
-                    transport.send(message);
+                    if (message.isException())
+                    {
+                        transport.sendException(message);
+                    } else
+                    {
+                        transport.send(message);
+                    }
                 }
             };
     }
-    
+
     /**
      * Adds a new conversation to the multiplexer.
      */
     void addConversation(String serviceConversationId,
-            IServiceMessageTransport responseMessageTransport)
+            IServiceMessageTransportWithControl responseMessageTransport)
     {
         conversations.put(serviceConversationId, responseMessageTransport);
     }

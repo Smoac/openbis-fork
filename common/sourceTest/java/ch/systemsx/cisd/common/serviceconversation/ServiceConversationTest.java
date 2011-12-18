@@ -375,10 +375,9 @@ public class ServiceConversationTest
         }
         assertFalse(holder.server.hasConversation(conversation.getId()));
 
-        conversation.send("Three");
         try
         {
-            conversation.receive(String.class);
+            conversation.send("Three");
             fail("Server timeout not signaled to client");
         } catch (ServiceExecutionException ex)
         {
@@ -464,7 +463,26 @@ public class ServiceConversationTest
         try
         {
             messenger.receive(Serializable.class);
-            fail();
+            fail("Failed to detect error state on serve-side while receiving.");
+        } catch (ServiceExecutionException ex)
+        {
+            assertEquals(messenger.getId(), ex.getServiceConversationId());
+            assertTrue(ex.getDescription().contains("RuntimeException"));
+            assertTrue(ex.getDescription().contains("Don't like you!"));
+        }
+    }
+
+    @Test
+    public void testServiceThrowsExceptionOnSend() throws Exception
+    {
+        final ServiceConversationClient client =
+                createServerAndClient(ExceptionThrowingService.createFactory()).client;
+        final IServiceConversation messenger = client.startConversation("throwException");
+        ConcurrencyUtilities.sleep(20L);
+        try
+        {
+            messenger.send("Test");
+            fail("Failed to detect error state on serve-side while sending.");
         } catch (ServiceExecutionException ex)
         {
             assertEquals(messenger.getId(), ex.getServiceConversationId());

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.serviceconversation.client;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
@@ -44,6 +45,8 @@ class ClientMessenger implements IServiceConversation
 
     private int outgoingMessageIdx;
 
+    private final AtomicBoolean serviceExceptionSignaled = new AtomicBoolean();
+
     ClientMessenger(ServiceConversationDTO serviceConversationDTO,
             IServiceMessageTransport transportToService,
             ClientResponseMessageQueue responseMessageQueue,
@@ -56,24 +59,52 @@ class ClientMessenger implements IServiceConversation
         this.transportToService = transportToService;
         this.responseMessageQueue = responseMessageQueue;
         this.responseMessageMultiplexer = responseMessageMultiplexer;
-        responseMessageMultiplexer.addConversation(serviceConversationId, responseMessageQueue);
+        responseMessageMultiplexer.addConversation(serviceConversationId,
+                new IServiceMessageTransportWithControl()
+                    {
+                        public void send(ServiceMessage message)
+                        {
+                            ClientMessenger.this.responseMessageQueue.send(message);
+                        }
+
+                        public void sendException(ServiceMessage message)
+                        {
+                            ClientMessenger.this.serviceExceptionSignaled.set(true);
+                            ClientMessenger.this.responseMessageQueue.send(message);
+                        }
+                    });
     }
 
     public void send(Serializable message)
     {
+        checkServiceException();
         transportToService.send(new ServiceMessage(serviceConversationId,
                 nextOutgoingMessageIndex(), false, message));
     }
 
     public void terminate()
     {
+        checkServiceException();
         transportToService.send(ServiceMessage.terminate(serviceConversationId));
-
     }
 
-    private int nextOutgoingMessageIndex()
+    private void checkServiceException() throws ServiceExecutionException
     {
-        return outgoingMessageIdx++;
+        if (serviceExceptionSignaled.getAndSet(false))
+        {
+            try
+            {
+                final ServiceMessage messageOrNull = responseMessageQueue.poll(0);
+                if (messageOrNull != null && messageOrNull.isException())
+                {
+                    throw new ServiceExecutionException(messageOrNull.getConversationId(),
+                            messageOrNull.tryGetExceptionDescription());
+                }
+            } catch (InterruptedException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
     }
 
     public <T extends Serializable> T receive(Class<T> messageClass)
@@ -108,7 +139,8 @@ class ClientMessenger implements IServiceConversation
             if (throwExceptionOnNull)
             {
                 final TimeoutExceptionUnchecked exception =
-                        new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
+                        new TimeoutExceptionUnchecked(
+                                "Timeout while waiting on message from service.");
                 final String exceptionDescription =
                         ServiceExecutionException.getDescriptionFromException(exception);
                 transportToService.send(new ServiceMessage(serviceConversationId,
@@ -130,6 +162,11 @@ class ClientMessenger implements IServiceConversation
             throw new UnexpectedMessagePayloadException(payload.getClass(), messageClass);
         }
         return (T) payload;
+    }
+
+    private int nextOutgoingMessageIndex()
+    {
+        return outgoingMessageIdx++;
     }
 
     public String getId()
