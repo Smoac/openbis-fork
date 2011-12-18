@@ -211,7 +211,7 @@ public class ServiceConversationServer
                             try
                             {
                                 serviceInstance.run(messenger.getServiceMessenger());
-                            } catch (Exception ex)
+                            } catch (Throwable ex)
                             {
                                 if (ex instanceof InterruptedExceptionUnchecked == false)
                                 {

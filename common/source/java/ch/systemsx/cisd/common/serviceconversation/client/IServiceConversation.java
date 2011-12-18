@@ -29,21 +29,6 @@ import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 public interface IServiceConversation extends IServiceMessenger, Closeable
 {
     /**
-     * Returns the service conversation id.
-     */
-    public String getId();
-
-    /**
-     * Send a message to the service.
-     */
-    public void send(Serializable message);
-
-    /**
-     * Receive a message from the service.
-     */
-    public <T extends Serializable> T receive(Class<T> messageClass);
-
-    /**
      * Tells the service to terminate. Use this for calls that have no inherent definition of
      * "finished".
      */
@@ -54,5 +39,4 @@ public interface IServiceConversation extends IServiceMessenger, Closeable
      * after this call.
      */
     public void close();
-
 }

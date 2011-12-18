@@ -40,7 +40,7 @@ class ClientMessenger implements IServiceConversation
 
     private final ClientResponseMessageMultiplexer responseMessageMultiplexer;
 
-    private int timeoutMillis;
+    private int serviceMessageTimeoutMillis;
 
     private int outgoingMessageIdx;
 
@@ -52,7 +52,7 @@ class ClientMessenger implements IServiceConversation
         assert transportToService != null;
         this.serviceConversationId = serviceConversationDTO.getServiceConversationId();
         assert serviceConversationId != null;
-        this.timeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
+        this.serviceMessageTimeoutMillis = serviceConversationDTO.getClientTimeoutInMillis();
         this.transportToService = transportToService;
         this.responseMessageQueue = responseMessageQueue;
         this.responseMessageMultiplexer = responseMessageMultiplexer;
@@ -68,7 +68,7 @@ class ClientMessenger implements IServiceConversation
     public void terminate()
     {
         transportToService.send(ServiceMessage.terminate(serviceConversationId));
-        
+
     }
 
     private int nextOutgoingMessageIndex()
@@ -80,7 +80,19 @@ class ClientMessenger implements IServiceConversation
     {
         try
         {
-            return handleMessage(responseMessageQueue.poll(timeoutMillis), messageClass);
+            return handleMessage(responseMessageQueue.poll(serviceMessageTimeoutMillis),
+                    messageClass, true);
+        } catch (InterruptedException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public <T extends Serializable> T tryReceive(Class<T> messageClass, int timeoutMillis)
+    {
+        try
+        {
+            return handleMessage(responseMessageQueue.poll(timeoutMillis), messageClass, false);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -88,17 +100,24 @@ class ClientMessenger implements IServiceConversation
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T handleMessage(ServiceMessage message, Class<T> messageClass)
+    private <T> T handleMessage(ServiceMessage message, Class<T> messageClass,
+            boolean throwExceptionOnNull)
     {
         if (message == null)
         {
-            final TimeoutExceptionUnchecked exception =
-                    new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
-            final String exceptionDescription =
-                    ServiceExecutionException.getDescriptionFromException(exception);
-            transportToService.send(new ServiceMessage(serviceConversationId,
-                    nextOutgoingMessageIndex(), true, exceptionDescription));
-            throw exception;
+            if (throwExceptionOnNull)
+            {
+                final TimeoutExceptionUnchecked exception =
+                        new TimeoutExceptionUnchecked("Timeout while waiting on message from service.");
+                final String exceptionDescription =
+                        ServiceExecutionException.getDescriptionFromException(exception);
+                transportToService.send(new ServiceMessage(serviceConversationId,
+                        nextOutgoingMessageIndex(), true, exceptionDescription));
+                throw exception;
+            } else
+            {
+                return null;
+            }
         }
         if (message.isException())
         {
@@ -129,5 +148,4 @@ class ClientMessenger implements IServiceConversation
         close();
         super.finalize();
     }
-
 }

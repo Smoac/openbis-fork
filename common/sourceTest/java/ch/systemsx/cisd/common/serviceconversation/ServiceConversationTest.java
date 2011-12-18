@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.serviceconversation;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -174,6 +175,29 @@ public class ServiceConversationTest
         final IServiceConversation messenger = client.startConversation("singleEcho");
         messenger.send("Hallo Echo");
         assertEquals("Hallo Echo", messenger.receive(String.class));
+        messenger.close();
+    }
+
+    @Test
+    public void testSingleEchoServiceHappyCaseuseTryReceive() throws Exception
+    {
+        final ServiceConversationClient client =
+                createServerAndClient(SingleEchoService.createFactory()).client;
+        final IServiceConversation messenger = client.startConversation("singleEcho");
+        messenger.send("Hallo Echo");
+        String echo = null;
+        int count = 0;
+        while (count++ < 10)
+        {
+            echo = messenger.tryReceive(String.class, 0);
+            if (echo != null)
+            {
+                break;
+            }
+            ConcurrencyUtilities.sleep(10L);
+        }
+        System.err.println("Got response after " + count + " attempts.");
+        assertEquals("Hallo Echo", echo);
         messenger.close();
     }
 
@@ -350,7 +374,7 @@ public class ServiceConversationTest
             ConcurrencyUtilities.sleep(10L);
         }
         assertFalse(holder.server.hasConversation(conversation.getId()));
-        
+
         conversation.send("Three");
         try
         {
@@ -456,6 +480,8 @@ public class ServiceConversationTest
             messenger.send("OK1");
             messenger.send("OK2");
             messenger.send("OK3");
+            assertNull("Received an unexpected  message",
+                    messenger.tryReceive(Serializable.class, 0));
             throw new RuntimeException("Don't like you!");
         }
 
@@ -497,8 +523,8 @@ public class ServiceConversationTest
         } catch (ServiceExecutionException ex)
         {
             assertEquals(messenger.getId(), ex.getServiceConversationId());
-            assertTrue(ex.getDescription().contains("RuntimeException"));
-            assertTrue(ex.getDescription().contains("Don't like you!"));
+            assertTrue(ex.getDescription(), ex.getDescription().contains("RuntimeException"));
+            assertTrue(ex.getDescription(), ex.getDescription().contains("Don't like you!"));
         }
     }
 
@@ -543,6 +569,7 @@ public class ServiceConversationTest
         final ServiceConversationClient client =
                 createServerAndClient(DelayedService.createFactory()).client;
         final IServiceConversation messenger = client.startConversation("delayed");
+        assertNull(messenger.tryReceive(Serializable.class, 0));
         try
         {
             messenger.receive(Serializable.class);

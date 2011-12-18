@@ -64,24 +64,36 @@ class BidirectionalServiceMessenger
     {
         return new IServiceMessenger()
             {
-                @SuppressWarnings("unchecked")
                 public <T extends Serializable> T receive(Class<T> messageClass)
+                {
+                    final T payload =
+                            tryReceive(messageClass, messageReceivingTimeoutMillis);
+                    if (payload == null)
+                    {
+                        final String msg = "Timeout while waiting for message from client.";
+                        ServiceConversationServer.operationLog.error(String.format(
+                                "[id: %s] %s", conversationId, msg));
+                        throw new TimeoutExceptionUnchecked(msg);
+                    }
+                    return payload;
+                }
+
+                @SuppressWarnings("unchecked")
+                public <T extends Serializable> T tryReceive(Class<T> messageClass,
+                        int timeoutMillis)
                 {
                     if (interrupted.get())
                     {
                         throw new InterruptedExceptionUnchecked();
                     }
-                    final Object payload;
+                    final Serializable payload;
                     try
                     {
                         final ServiceMessage message =
-                                incoming.poll(messageReceivingTimeoutMillis, TimeUnit.MILLISECONDS);
+                                incoming.poll(timeoutMillis, TimeUnit.MILLISECONDS);
                         if (message == null)
                         {
-                            final String msg = "Timeout while waiting for message from client.";
-                            ServiceConversationServer.operationLog.error(String.format(
-                                    "[id: %s] %s", conversationId, msg));
-                            throw new TimeoutExceptionUnchecked(msg);
+                            return null;
                         }
                         payload = message.getPayload();
                     } catch (InterruptedException ex)
@@ -105,6 +117,11 @@ class BidirectionalServiceMessenger
                     }
                     responseMessenger.send(new ServiceMessage(conversationId,
                             nextOutgoingMessageIndex(), false, message));
+                }
+
+                public String getId()
+                {
+                    return conversationId;
                 }
             };
     }
@@ -131,7 +148,7 @@ class BidirectionalServiceMessenger
     {
         interrupted.set(true);
     }
-    
+
     public boolean isMarkedAsInterrupted()
     {
         return interrupted.get();
