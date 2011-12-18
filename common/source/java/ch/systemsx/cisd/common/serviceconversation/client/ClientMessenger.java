@@ -82,12 +82,6 @@ class ClientMessenger implements IServiceConversation
                 nextOutgoingMessageIndex(), false, message));
     }
 
-    public void terminate()
-    {
-        checkServiceException();
-        transportToService.send(ServiceMessage.terminate(serviceConversationId));
-    }
-
     private void checkServiceException() throws ServiceExecutionException
     {
         if (serviceExceptionSignaled.getAndSet(false))
@@ -105,6 +99,11 @@ class ClientMessenger implements IServiceConversation
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
+    }
+
+    public void terminate()
+    {
+        transportToService.send(ServiceMessage.terminate(serviceConversationId));
     }
 
     public <T extends Serializable> T receive(Class<T> messageClass)
