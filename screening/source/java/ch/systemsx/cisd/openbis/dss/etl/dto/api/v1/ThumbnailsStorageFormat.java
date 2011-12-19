@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.Constants;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * Configuration parameters which describe how thumbnails should be generated.
@@ -29,6 +34,99 @@ import ch.systemsx.cisd.openbis.dss.Constants;
  */
 public class ThumbnailsStorageFormat extends AbstractHashable
 {
+    public enum FileFormat
+    {
+        PNG
+        {
+            @Override
+            public void writeImage(BufferedImage image, OutputStream stream)
+            {
+                ImageUtil.writeImageToPng(image, stream);
+            }
+
+            @Override
+            public String getFileExtension()
+            {
+                return "png";
+            }
+
+            @Override
+            public String getImageMagickParam()
+            {
+                return "png";
+            }
+        },
+        JPEG
+        {
+            @Override
+            public void writeImage(BufferedImage image, OutputStream stream)
+            {
+                ImageUtil.writeImageUsingImageIO(image, stream, "jpg");
+            }
+
+            @Override
+            public String getFileExtension()
+            {
+                return "jpg";
+            }
+
+            @Override
+            public String getImageMagickParam()
+            {
+                return "jpeg";
+            }
+        },
+        JPEG_2000
+        {
+            @Override
+            public void writeImage(BufferedImage image, OutputStream stream)
+            {
+                ImageUtil.writeImageUsingImageIO(image, stream, "jpeg 2000");
+            }
+
+            @Override
+            public String getFileExtension()
+            {
+                return "jp2";
+            }
+
+            @Override
+            public String getImageMagickParam()
+            {
+                return "jp2";
+            }
+        };
+
+        private static final Map<String, FileFormat> formats;
+        static
+        {
+            formats = new HashMap<String, ThumbnailsStorageFormat.FileFormat>();
+            for (FileFormat format : FileFormat.values())
+            {
+                formats.put(format.name().toUpperCase(), format);
+            }
+            formats.put("JP2", JPEG_2000);
+            formats.put("JPEG 2000", JPEG_2000);
+            formats.put("JPG", JPEG);
+        }
+
+        public abstract void writeImage(BufferedImage image, OutputStream stream);
+
+        public abstract String getFileExtension();
+
+        public abstract String getImageMagickParam();
+
+        public String getOpenBISFileType()
+        {
+            return getFileExtension().toUpperCase();
+        }
+
+        public static FileFormat getValue(String fileFormat)
+        {
+            return formats.get(fileFormat.toUpperCase());
+        }
+    }
+
     /** Maximum default width and height of a thumbnail */
     public static final int DEFAULT_THUMBNAIL_MAX_SIZE = 200;
 
@@ -54,6 +152,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     private List<String> imageMagicParams = Collections.emptyList();
 
     private String thumbnailsFileName;
+
+    private FileFormat fileFormat = FileFormat.PNG;
 
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
@@ -177,5 +277,20 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     public void setThumbnailsFileName(String thumbnailsFileName)
     {
         this.thumbnailsFileName = thumbnailsFileName;
+    }
+
+    public void setFileFormat(String fileFormat)
+    {
+        FileFormat value = FileFormat.getValue(fileFormat);
+        if (value == null)
+        {
+            throw new IllegalArgumentException("File format '" + fileFormat + "' is unknown");
+        }
+        this.fileFormat = value;
+    }
+
+    public FileFormat getFileFormat()
+    {
+        return fileFormat;
     }
 }

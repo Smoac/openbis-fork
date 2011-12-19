@@ -28,11 +28,14 @@ public class PrefixedImage
 {
     private final String pathPrefix;
 
+    private final String pathSuffix;
+
     private final ImgImageDTO image;
 
-    public PrefixedImage(String pathPrefix, ImgImageDTO image)
+    public PrefixedImage(String pathPrefix, String pathSuffix, ImgImageDTO image)
     {
         this.pathPrefix = pathPrefix;
+        this.pathSuffix = pathSuffix;
         this.image = image;
     }
 
@@ -42,7 +45,8 @@ public class PrefixedImage
         {
             return image.getFilePath();
         }
-        return pathPrefix + "/" + image.getFilePath();
+        return pathPrefix + "/" + image.getFilePath()
+                + (StringUtils.isBlank(pathSuffix) ? "" : "." + pathSuffix);
     }
 
     public ColorComponent getColorComponent()

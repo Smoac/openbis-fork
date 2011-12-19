@@ -37,19 +37,17 @@ public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsCon
         this.zoomLevel = zoomLevel;
     }
 
+    @Override
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
     {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
-                .getAllowedMachineLoadDuringThumbnailsGeneration());
+        ThumbnailsStorageFormat thumbnailsStorageFormat = super.getThumbnailsStorageFormat(config);
         thumbnailsStorageFormat.setZoomLevel(zoomLevel);
-        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%.0fpct.h5",
-                zoomLevel * 100.0));
-        thumbnailsStorageFormat.setGenerateWithImageMagic(config
-                .getGenerateThumbnailsWithImageMagic());
-        thumbnailsStorageFormat.setImageMagicParams(config
-                .getThumbnailsGenerationImageMagicParams());
-        thumbnailsStorageFormat.setHighQuality(config.getGenerateThumbnailsIn8BitHighQuality());
         return thumbnailsStorageFormat;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return String.format("thumbnails_%.0fpct.h5", zoomLevel * 100.0);
     }
 }

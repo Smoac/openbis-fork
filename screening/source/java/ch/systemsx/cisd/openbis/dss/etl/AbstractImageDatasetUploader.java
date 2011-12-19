@@ -286,7 +286,9 @@ abstract class AbstractImageDatasetUploader
     {
         return new ImgImageZoomLevelDTO(imageZoomLevel.getPhysicalDatasetPermId(),
                 imageZoomLevel.isOriginal(), imageZoomLevel.getRootPath(),
-                imageZoomLevel.getWidth(), imageZoomLevel.getHeight(), imageContainerDatasetId);
+                imageZoomLevel.getWidth(), imageZoomLevel.getHeight(),
+                imageZoomLevel.getColorDepth(), imageZoomLevel.getFileType(),
+                imageContainerDatasetId);
     }
 
     private static ImgImageDatasetDTO createImageDatasetDTO(String datasetPermId,

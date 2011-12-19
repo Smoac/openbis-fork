@@ -34,20 +34,18 @@ public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsCo
         this.maxHeight = maxHeight;
     }
 
+    @Override
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
     {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
-                .getAllowedMachineLoadDuringThumbnailsGeneration());
+        ThumbnailsStorageFormat thumbnailsStorageFormat = super.getThumbnailsStorageFormat(config);
         thumbnailsStorageFormat.setMaxWidth(maxWidth);
         thumbnailsStorageFormat.setMaxHeight(maxHeight);
-        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%dx%d.h5",
-                maxWidth, maxHeight));
-        thumbnailsStorageFormat.setGenerateWithImageMagic(config
-                .getGenerateThumbnailsWithImageMagic());
-        thumbnailsStorageFormat.setImageMagicParams(config
-                .getThumbnailsGenerationImageMagicParams());
-        thumbnailsStorageFormat.setHighQuality(config.getGenerateThumbnailsIn8BitHighQuality());
         return thumbnailsStorageFormat;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return String.format("thumbnails_%dx%d.h5", maxWidth, maxHeight);
     }
 }

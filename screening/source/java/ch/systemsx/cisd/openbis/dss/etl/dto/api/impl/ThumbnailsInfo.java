@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 
@@ -23,9 +24,16 @@ public class ThumbnailsInfo
 
         private int thumbnailsHeight;
 
-        public PhysicalDatasetInfo(String rootPath)
+        // TODO make use of color depth
+        @SuppressWarnings("unused")
+        private Integer colorDepth;
+
+        private FileFormat fileType;
+
+        public PhysicalDatasetInfo(String rootPath, FileFormat fileType)
         {
             this.rootPath = rootPath;
+            this.fileType = fileType;
         }
     }
 
@@ -39,9 +47,9 @@ public class ThumbnailsInfo
         this.datasetInfos = new HashMap<String, ThumbnailsInfo.PhysicalDatasetInfo>();
     }
 
-    public void putDataSet(String permId, String rootPath)
+    public void putDataSet(String permId, String rootPath, FileFormat fileFormat)
     {
-        datasetInfos.put(permId, new PhysicalDatasetInfo(rootPath));
+        datasetInfos.put(permId, new PhysicalDatasetInfo(rootPath, fileFormat));
     }
 
     /**
@@ -80,6 +88,16 @@ public class ThumbnailsInfo
             {
                 return new Size(datasetInfo.thumbnailsWidth, datasetInfo.thumbnailsHeight);
             }
+        }
+        return null;
+    }
+
+    public FileFormat getFileType(String permId)
+    {
+        PhysicalDatasetInfo datasetInfo = datasetInfos.get(permId);
+        if (datasetInfo != null)
+        {
+            return datasetInfo.fileType;
         }
         return null;
     }

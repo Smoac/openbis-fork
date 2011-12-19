@@ -436,7 +436,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 ThumbnailsInfo thumbnailsInfo = new ThumbnailsInfo();
                 for (ThumbnailsStorageFormat thumbnailsStorageFormat : thumbnailsStorageFormatList)
                 {
-                    IDataSet thumbnailDataset = createThumbnailDataset();
+                    IDataSet thumbnailDataset = createThumbnailDataset(thumbnailsStorageFormat);
                     thumbnailDatasets.add(thumbnailDataset);
 
                     generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
@@ -509,12 +509,12 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             }
         }
 
-        private IDataSet createThumbnailDataset()
+        private IDataSet createThumbnailDataset(ThumbnailsStorageFormat thumbnailsStorageFormat)
         {
             IDataSet thumbnailDataset =
                     createNewDataSet(ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
-            thumbnailDataset
-                    .setFileFormatType(ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_FILE_FORMAT);
+            thumbnailDataset.setFileFormatType(thumbnailsStorageFormat.getFileFormat()
+                    .getOpenBISFileType());
             thumbnailDataset.setMeasuredData(false);
 
             return thumbnailDataset;
@@ -591,8 +591,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             {
                 return dataSetTypeCode.replace(MICROSCOPY_IMAGE_TYPE_SUBSTRING,
                         MICROSCOPY_CONTAINER_TYPE_SUBSTRING);
-            } else {
-                throw UserFailureException.fromTemplate(
+            } else
+            {
+                throw UserFailureException
+                        .fromTemplate(
                                 "The image dataset type '%s' is neither standard HCS type (starts with '%s') nor a microscopy type (contains '%s').",
                                 dataSetTypeCode, prefix,
                                 ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);

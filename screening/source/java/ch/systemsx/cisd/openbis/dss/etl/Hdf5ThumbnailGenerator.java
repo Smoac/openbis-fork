@@ -95,7 +95,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         if (thumbnailsStorageFormatOrNull != null)
         {
             thumbnailPaths.putDataSet(thumbnailPhysicalDatasetPermId,
-                    thumbnailsStorageFormatOrNull.getThumbnailsFileName());
+                    thumbnailsStorageFormatOrNull.getThumbnailsFileName(),
+                    thumbnailsStorageFormatOrNull.getFileFormat());
             File thumbnailsFile = new File(thumbnailFilePath);
 
             HDF5Container container = new HDF5Container(thumbnailsFile);
@@ -177,8 +178,9 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             }
             synchronized (writer)
             {
-                writer.writeToHDF5Container(thumbnailPath, new ByteArrayInputStream(
-                        thumbnailData.data), thumbnailData.data.length);
+                writer.writeToHDF5Container(thumbnailPath + "."
+                        + thumbnailsStorageFormat.getFileFormat().getFileExtension(),
+                        new ByteArrayInputStream(thumbnailData.data), thumbnailData.data.length);
             }
         } catch (IOException ex)
         {
@@ -202,7 +204,6 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         {
             newImagePath += "_" + imageIdOrNull;
         }
-        newImagePath += ".png";
         return newImagePath;
     }
 
@@ -248,7 +249,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         {
             params.addAll(additionalParams);
         }
-        params.add("png:-");
+        params.add(thumbnailsStorageFormat.getFileFormat().getImageMagickParam() + ":-");
         final ProcessResult result =
                 ProcessExecutionHelper.run(params, logger, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
@@ -280,7 +281,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         BufferedImage thumbnail =
                 ImageUtil.rescale(image, widht, height, false,
                         thumbnailsStorageFormat.isHighQuality());
-        ImageUtil.writeImageToPng(thumbnail, bufferOutputStream);
+        thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
         return new ThumbnailData(bufferOutputStream.toByteArray(), thumbnail.getWidth(),
                 thumbnail.getHeight());
     }

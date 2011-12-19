@@ -240,6 +240,8 @@ abstract public class SimpleImageDataConfig
 
     private boolean computeCommonIntensityRangeOfAllImagesIsDefault = true;
 
+    private String thumbnailsFileFormat;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -707,4 +709,13 @@ abstract public class SimpleImageDataConfig
         return isMicroscopy;
     }
 
+    public void setThumbnailsFileFormat(String thumbnailsFileFormat)
+    {
+        this.thumbnailsFileFormat = thumbnailsFileFormat;
+    }
+
+    public String getThumbnailsFileFormat()
+    {
+        return this.thumbnailsFileFormat;
+    }
 }

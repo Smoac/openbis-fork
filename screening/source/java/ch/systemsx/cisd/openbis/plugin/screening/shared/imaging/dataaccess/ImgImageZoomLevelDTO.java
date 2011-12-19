@@ -43,6 +43,12 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
     @ResultColumn("height")
     private Integer height;
 
+    @ResultColumn("color_depth")
+    private Integer colorDepth;
+
+    @ResultColumn("file_type")
+    private String fileType;
+
     @SuppressWarnings("unused")
     private ImgImageZoomLevelDTO()
     {
@@ -50,7 +56,8 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
     }
 
     public ImgImageZoomLevelDTO(String physicalDatasetPermId, boolean isOriginal, String rootPath,
-            Integer width, Integer height, long containerDatasetId)
+            Integer width, Integer height, Integer colorDepth, String fileType,
+            long containerDatasetId)
     {
         this.physicalDatasetPermId = physicalDatasetPermId;
         this.isOriginal = isOriginal;
@@ -58,6 +65,8 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
         this.rootPath = rootPath;
         this.width = width;
         this.height = height;
+        this.colorDepth = colorDepth;
+        this.fileType = fileType;
     }
 
     public String getPhysicalDatasetPermId()
@@ -119,4 +128,25 @@ public class ImgImageZoomLevelDTO extends AbstractImgIdentifiable
     {
         this.height = height;
     }
+
+    public Integer getColorDepth()
+    {
+        return colorDepth;
+    }
+
+    public void setColorDepth(Integer colorDepth)
+    {
+        this.colorDepth = colorDepth;
+    }
+
+    public String getFileType()
+    {
+        return fileType;
+    }
+
+    public void setFileType(String fileType)
+    {
+        this.fileType = fileType;
+    }
+
 }

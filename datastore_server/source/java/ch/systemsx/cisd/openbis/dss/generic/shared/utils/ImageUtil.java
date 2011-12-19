@@ -27,6 +27,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
@@ -499,6 +501,18 @@ public class ImageUtil
             png.writeRow(imageLine);
         }
         png.end();
+    }
+
+    public static void writeImageUsingImageIO(BufferedImage image, OutputStream out, String format)
+            throws IOExceptionUnchecked
+    {
+        try
+        {
+            ImageIO.write(image, format, out);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
     }
 
     private static void fillGrayscaleLine(BufferedImage image, final int cols, boolean isGrayscale,

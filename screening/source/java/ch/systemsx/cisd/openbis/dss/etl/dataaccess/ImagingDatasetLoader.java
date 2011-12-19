@@ -306,7 +306,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                     + channelStackReference;
             image = query.tryGetImage(channelId, channelStackId, datasetId);
         }
-        return checkAccessability("", image);
+        return checkAccessability("", "", image);
     }
 
     private static ImgImageZoomLevelDTO selectBestZoomLevel(ImgImageZoomLevelDTO current,
@@ -368,7 +368,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         MicroscopyChannelStackByLocationReference micRef =
                 channelStackReference.tryGetMicroscopyChannelStack();
         ImgImageDTO image;
-        String pathPrefix = findPathPrefix(datasetId, imageSize);
+        String[] pathPrefixAndSuffix = findPathPrefixAndSuffix(datasetId, imageSize);
 
         if (hcsRef != null)
         {
@@ -385,11 +385,13 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                     + channelStackReference;
             image = query.tryGetThumbnail(channelId, channelStackId, datasetId);
         }
-        return checkAccessability(pathPrefix, image);
+        return checkAccessability(pathPrefixAndSuffix[0], pathPrefixAndSuffix[1], image);
     }
 
-    private String findPathPrefix(long datasetId, RequestedImageSize imageSize)
+    private String[] findPathPrefixAndSuffix(long datasetId, RequestedImageSize imageSize)
     {
+        String[] ret = new String[]
+            { "", "" };
         ImgImageZoomLevelDTO bestZoomLevel = null;
         List<ImgImageZoomLevelDTO> zoomLevels = query.listImageZoomLevels(datasetId);
         if (zoomLevels != null && zoomLevels.size() > 0)
@@ -414,30 +416,36 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             }
         }
 
-        String pathPrefix = "";
         if (bestZoomLevel != null && bestZoomLevel.getRootPath() != null)
         {
-            pathPrefix = bestZoomLevel.getRootPath();
+            ret[0] = bestZoomLevel.getRootPath();
+            ret[1] = bestZoomLevel.getFileType();
         }
-        return pathPrefix;
+        return ret;
     }
 
-    private PrefixedImage checkAccessability(String pathPrefix, ImgImageDTO imageOrNull)
+    private PrefixedImage checkAccessability(String pathPrefix, String pathSuffix,
+            ImgImageDTO imageOrNull)
     {
         if (imageOrNull == null)
         {
             return null;
         }
-        return isFileAccessible(pathPrefix, imageOrNull) ? new PrefixedImage(pathPrefix,
-                imageOrNull) : null;
+        return isFileAccessible(pathPrefix, pathSuffix, imageOrNull) ? new PrefixedImage(
+                pathPrefix, pathSuffix, imageOrNull) : null;
     }
 
-    private boolean isFileAccessible(String pathPrefix, ImgImageDTO image)
+    private boolean isFileAccessible(String pathPrefix, String pathSuffix, ImgImageDTO image)
     {
         String filePath = image.getFilePath();
         if (ch.systemsx.cisd.common.shared.basic.utils.StringUtils.isNotBlank(pathPrefix))
         {
-            filePath = pathPrefix + "/" + filePath;
+            filePath =
+                    pathPrefix
+                            + "/"
+                            + filePath
+                            + (ch.systemsx.cisd.common.shared.basic.utils.StringUtils
+                                    .isBlank(pathSuffix) ? "" : "." + pathSuffix);
         }
 
         try
@@ -483,7 +491,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                         query.tryGetHCSRepresentativeImage(datasetId, wellLocationOrNull, channelId);
             }
         }
-        return checkAccessability("", image);
+        return checkAccessability("", "", image);
     }
 
     public AbsoluteImageReference tryFindAnyOriginalImage()
@@ -531,7 +539,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             Location wellLocationOrNull, RequestedImageSize imageSize)
     {
         long datasetId = getDataset().getId();
-        String pathPrefix = findPathPrefix(datasetId, imageSize);
+        String[] pathPrefixAndSuffix = findPathPrefixAndSuffix(datasetId, imageSize);
 
         ImgImageDTO image;
         if (wellLocationOrNull == null)
@@ -543,7 +551,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                     query.tryGetHCSRepresentativeThumbnail(dataset.getId(), wellLocationOrNull,
                             channelId);
         }
-        return checkAccessability(pathPrefix, image);
+        return checkAccessability(pathPrefixAndSuffix[0], pathPrefixAndSuffix[1], image);
     }
 
     public AbsoluteImageReference tryFindAnyThumbnail()

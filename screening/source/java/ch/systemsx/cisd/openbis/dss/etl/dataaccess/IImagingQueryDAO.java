@@ -90,8 +90,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addImageDataset(ImgImageDatasetDTO dataset);
 
-    @Select("insert into image_zoom_levels (physical_dataset_perm_id, is_original, container_dataset_id, path, width, height)  "
-            + "values(?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}, ?{1.rootPath}, ?{1.width}, ?{1.height}) returning ID")
+    @Select("insert into image_zoom_levels (physical_dataset_perm_id, is_original, container_dataset_id, path, width, height, color_depth, file_type)  "
+            + "values(?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}, ?{1.rootPath}, ?{1.width}, ?{1.height}, ?{colorDepth}, ?{1.fileType}) returning ID")
     public long addImageZoomLevel(ImgImageZoomLevelDTO dataset);
 
     @Select("insert into ANALYSIS_DATA_SETS (PERM_ID, CONT_ID)                     "

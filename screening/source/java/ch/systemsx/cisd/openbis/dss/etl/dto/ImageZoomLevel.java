@@ -33,14 +33,20 @@ public class ImageZoomLevel
 
     private final Integer height;
 
+    private final Integer colorDepth;
+
+    private final String fileType;
+
     public ImageZoomLevel(String physicalDatasetPermId, boolean isOriginal, String rootPath,
-            Integer width, Integer height)
+            Integer width, Integer height, Integer colorDepth, String fileType)
     {
         this.physicalDatasetPermId = physicalDatasetPermId;
         this.isOriginal = isOriginal;
         this.rootPath = rootPath;
         this.width = width;
         this.height = height;
+        this.colorDepth = colorDepth;
+        this.fileType = fileType;
     }
 
     public String getPhysicalDatasetPermId()
@@ -66,5 +72,15 @@ public class ImageZoomLevel
     public String getRootPath()
     {
         return rootPath;
+    }
+
+    public Integer getColorDepth()
+    {
+        return colorDepth;
+    }
+
+    public String getFileType()
+    {
+        return fileType;
     }
 }

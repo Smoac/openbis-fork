@@ -136,3 +136,5 @@ $$ LANGUAGE 'plpgsql';
 
 SELECT assign_resolution_property();
 DROP FUNCTION assign_resolution_property();
+
+insert into file_format_types (id, code, dbin_id) select nextval('file_format_type_id_seq') as id, 'JP2' as code, dbin_id from file_format_types where code = 'JPG';

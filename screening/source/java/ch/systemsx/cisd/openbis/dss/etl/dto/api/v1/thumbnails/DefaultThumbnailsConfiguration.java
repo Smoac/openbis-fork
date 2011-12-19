@@ -16,26 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
+import ch.systemsx.cisd.openbis.dss.Constants;
 
 /**
  * @author Pawel Glyzewski
  */
 public class DefaultThumbnailsConfiguration extends AbstractThumbnailsConfiguration
 {
-    public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
+    @Override
+    protected String getDefaultFileName()
     {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
-                .getAllowedMachineLoadDuringThumbnailsGeneration());
-        thumbnailsStorageFormat.setMaxWidth(config.getMaxThumbnailWidthAndHeight());
-        thumbnailsStorageFormat.setMaxHeight(config.getMaxThumbnailWidthAndHeight());
-        thumbnailsStorageFormat.setGenerateWithImageMagic(config
-                .getGenerateThumbnailsWithImageMagic());
-        thumbnailsStorageFormat.setImageMagicParams(config
-                .getThumbnailsGenerationImageMagicParams());
-        thumbnailsStorageFormat.setHighQuality(config.getGenerateThumbnailsIn8BitHighQuality());
-        return thumbnailsStorageFormat;
+        return Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME;
     }
 }

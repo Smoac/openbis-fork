@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -171,7 +172,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
             ImageZoomLevel originalZoomLevel =
                     new ImageZoomLevel(originalDataset.getDataSetCode(), true,
-                            StringUtils.EMPTY_STRING, null, null);
+                            StringUtils.EMPTY_STRING, null, null, null, null);
             zoomLevels.add(originalZoomLevel);
             if (thumbnailsInfosOrNull != null)
             {
@@ -184,10 +185,18 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                         width = dimension.getWidth();
                         height = dimension.getHeight();
                     }
+                    String fileTypeString = null;
+                    FileFormat fileType = thumbnailsInfosOrNull.getFileType(permId);
+                    if (fileType != null)
+                    {
+                        fileTypeString = fileType.getFileExtension();
+                    }
                     String rootPath = thumbnailsInfosOrNull.getRootPath(permId);
 
+                    // TODO add color depth
                     ImageZoomLevel thumbnailZoomLevel =
-                            new ImageZoomLevel(permId, false, rootPath, width, height);
+                            new ImageZoomLevel(permId, false, rootPath, width, height, null,
+                                    fileTypeString);
                     zoomLevels.add(thumbnailZoomLevel);
                 }
             }
