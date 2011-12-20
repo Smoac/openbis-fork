@@ -362,6 +362,11 @@ abstract public class SimpleImageDataConfig
         imagePyramid.add(new DefaultThumbnailsConfiguration());
     }
 
+    public void setGenerateImagePyramid(IThumbnailsConfiguration[] elements)
+    {
+        imagePyramid.addAll(Arrays.asList(elements));
+    }
+
     public void setGenerateImagePyramidWithScaleFactors(double[] zoomLevels)
     {
         imagePyramid.clear();
