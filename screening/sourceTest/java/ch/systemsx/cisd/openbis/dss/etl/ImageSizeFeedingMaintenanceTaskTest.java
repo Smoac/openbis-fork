@@ -57,7 +57,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
 
         public MockAbsoluteImageReference(int width, int height)
         {
-            super(null, null, null, null, new RequestedImageSize(null, false), null,
+            super(null, "img.jpg", null, null, new RequestedImageSize(null, false), null,
                     new ImageTransfomationFactories(), null);
             this.width = width;
             this.height = height;
@@ -173,7 +173,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
-        prepareListZoomLevels(ds1, ds1Content, new ImgImageZoomLevelDTO("", true, "", 1, 2, 12));
+        prepareListZoomLevels(ds1, ds1Content, new ImgImageZoomLevelDTO("", true, "", 1, 2, null, null, 12));
         prepareListZoomLevels(ds2, ds2Content);
         prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(144, 89));
         prepareForAddZoomLevel(zoomLevelRecorder);
@@ -188,15 +188,15 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         maintenanceTask.execute();
         
         List<ImgImageZoomLevelDTO> zoomLevels = zoomLevelRecorder.getRecordedObjects();
-        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=144,height=89,id=0}, "
-                + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
-                + "containerDatasetId=99716,rootPath=,width=21,height=34,id=0}]",
-                zoomLevels.toString());
         assertEquals("Scan 3 data sets.\n" + "Original size 144x89 added for data set ds2\n"
                 + "Thumbnail size 21x34 added for data set ds3\n"
                 + "1 original image sizes and 1 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
+        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
+                + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=jpg,id=0}, "
+                + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
+                + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=jpg,id=0}]",
+                zoomLevels.toString());
         context.assertIsSatisfied();
     }
     
@@ -226,15 +226,15 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         maintenanceTask.execute();
         
         List<ImgImageZoomLevelDTO> zoomLevels = zoomLevelRecorder.getRecordedObjects();
-        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=1,height=2,id=0}]",
-                zoomLevels.toString());
         assertEquals("Scan 2 data sets.\n" + 
         		"2 exceptions occured:\n" + 
         		"Data set ds1: java.lang.RuntimeException: Negative width: -1\n" + 
         		"Data set ds2: java.lang.RuntimeException: Negative width: -13\n" + 
         		"0 original image sizes and 0 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
+        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
+                + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=jpg,id=0}]",
+                zoomLevels.toString());
         context.assertIsSatisfied();
     }
     

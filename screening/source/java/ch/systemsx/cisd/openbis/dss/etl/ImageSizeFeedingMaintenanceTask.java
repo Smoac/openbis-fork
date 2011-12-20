@@ -186,8 +186,15 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         BufferedImage unchangedImage = image.getUnchangedImage();
         int width = unchangedImage.getWidth();
         int height = unchangedImage.getHeight();
+        String fileType = null;
+        String uniqueId = image.getUniqueId();
+        int lastIndexOfDot = uniqueId.lastIndexOf('.');
+        if (lastIndexOfDot >= 0)
+        {
+            fileType = uniqueId.substring(lastIndexOfDot + 1);
+        }
         dao.addImageZoomLevel(new ImgImageZoomLevelDTO(dataSetCode, original, "", width, height,
-                dataSetId));
+                null, fileType, dataSetId));
         return (original ? "Original" : "Thumbnail") + " size " + width + "x" + height
                 + " added for data set " + dataSetCode;
     }
