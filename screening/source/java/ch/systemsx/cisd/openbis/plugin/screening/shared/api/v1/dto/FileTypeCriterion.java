@@ -38,7 +38,7 @@ public class FileTypeCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageMetaData imageMetaData)
+    protected boolean accept(IImageSetMetaData imageMetaData)
     {
         return fileTypes.contains(imageMetaData.getFileType());
     }

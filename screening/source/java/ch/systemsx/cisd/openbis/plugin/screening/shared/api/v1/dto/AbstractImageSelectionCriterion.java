@@ -24,13 +24,13 @@ import java.util.List;
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractImageSelectionCriterion implements IImageSelectionCriterion
+public abstract class AbstractImageSelectionCriterion implements IImageSetSelectionCriterion
 {
 
-    public List<IImageMetaData> getMatching(List<IImageMetaData> imageMetaData)
+    public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData)
     {
-        List<IImageMetaData> filteredMetaData = new ArrayList<IImageMetaData>();
-        for (IImageMetaData metaData : imageMetaData)
+        List<IImageSetMetaData> filteredMetaData = new ArrayList<IImageSetMetaData>();
+        for (IImageSetMetaData metaData : imageMetaData)
         {
             if (accept(metaData))
             {
@@ -40,6 +40,6 @@ public abstract class AbstractImageSelectionCriterion implements IImageSelection
         return filteredMetaData;
     }
     
-    protected abstract boolean accept(IImageMetaData imageMetaData);
+    protected abstract boolean accept(IImageSetMetaData imageMetaData);
 
 }

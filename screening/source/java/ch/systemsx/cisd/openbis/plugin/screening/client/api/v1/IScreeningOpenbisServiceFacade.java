@@ -20,13 +20,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.DatasetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
@@ -41,6 +45,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -762,6 +768,22 @@ public interface IScreeningOpenbisServiceFacade
     public void loadImages(List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration, IPlateImageHandler plateImageHandler)
             throws IOException;
+    
+    /**
+     * Provides images for the specified list of image references (specified by data set code, well
+     * position, channel and tile) and image selection criteria. These criteria are applied to the
+     * {@link IImageSetMetaData} sets of each data set. Beside of the set of original images a data
+     * set can have other image sets like thumbnails of various sizes. The provided array of
+     * {@link IImageSetSelectionCriterion} are applied one after another onto the set of
+     * {@link IImageSetMetaData} until its size is reduced to one.
+     * 
+     * @param plateImageHandler Handler for the delivered images.
+     * @throws UserFailureException if for one data set the filtered {@link IImageSetMetaData} set
+     *             has size zero or greater than one.
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            IPlateImageHandler plateImageHandler, IImageSetSelectionCriterion... criteria)
+            throws IOException;
 
     /**
      * Loads the PNG-encoded image for the specified <var>imageReference</var>.
@@ -829,6 +851,13 @@ public interface IScreeningOpenbisServiceFacade
      */
     @Retry
     public List<ImageDatasetMetadata> listImageMetadata(
+            List<? extends IImageDatasetIdentifier> imageDatasets);
+    
+    /**
+     * Returns for each of the specified image data sets the meta data of available image sets.
+     */
+    @Retry
+    public List<Set<IImageSetMetaData>> listImageSetsMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);
 
     /**

@@ -38,7 +38,7 @@ public class ColorDepthCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageMetaData imageMetaData)
+    protected boolean accept(IImageSetMetaData imageMetaData)
     {
         return colorDepth.contains(imageMetaData.getColorDepth());
     }

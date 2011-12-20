@@ -24,17 +24,17 @@ import java.util.List;
 /**
  * @author Franz-Josef Elmer
  */
-public class SizeCriterion implements IImageSelectionCriterion
+public class SizeCriterion implements IImageSetSelectionCriterion
 {
     public static enum Type
     {
         LARGEST_IN_BOUNDING_BOX()
         {
             @Override
-            void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                    List<IImageMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                    List<IImageSetMetaData> filteredImageMetaData)
             {
-                List<IImageMetaData> smallerMetaData = new ArrayList<IImageMetaData>();
+                List<IImageSetMetaData> smallerMetaData = new ArrayList<IImageSetMetaData>();
                 INSIDE_BOUNDING_BOX.filter(width, height, imageMetaData, smallerMetaData);
                 if (smallerMetaData.isEmpty() == false)
                 {
@@ -46,10 +46,10 @@ public class SizeCriterion implements IImageSelectionCriterion
         INSIDE_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                    List<IImageMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                    List<IImageSetMetaData> filteredImageMetaData)
             {
-                for (IImageMetaData metaData : imageMetaData)
+                for (IImageSetMetaData metaData : imageMetaData)
                 {
                     Geometry size = metaData.getSize();
                     if (size.getWidth() <= width && size.getHeight() <= height)
@@ -62,10 +62,10 @@ public class SizeCriterion implements IImageSelectionCriterion
         SMALLEST_OUTSIDE_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                    List<IImageMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                    List<IImageSetMetaData> filteredImageMetaData)
             {
-                List<IImageMetaData> largerMetaData = new ArrayList<IImageMetaData>();
+                List<IImageSetMetaData> largerMetaData = new ArrayList<IImageSetMetaData>();
                 LARGER_THEN_BOUNDING_BOX.filter(width, height, imageMetaData, largerMetaData);
                 if (largerMetaData.isEmpty() == false)
                 {
@@ -77,10 +77,10 @@ public class SizeCriterion implements IImageSelectionCriterion
         LARGER_THEN_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                    List<IImageMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                    List<IImageSetMetaData> filteredImageMetaData)
             {
-                for (IImageMetaData metaData : imageMetaData)
+                for (IImageSetMetaData metaData : imageMetaData)
                 {
                     Geometry size = metaData.getSize();
                     if (size.getWidth() >= width && size.getHeight() >= height)
@@ -93,10 +93,10 @@ public class SizeCriterion implements IImageSelectionCriterion
         EXACTLY
         {
             @Override
-            void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                    List<IImageMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                    List<IImageSetMetaData> filteredImageMetaData)
             {
-                for (IImageMetaData metaData : imageMetaData)
+                for (IImageSetMetaData metaData : imageMetaData)
                 {
                     Geometry size = metaData.getSize();
                     if (size.getWidth() == width && size.getHeight() == height)
@@ -107,16 +107,16 @@ public class SizeCriterion implements IImageSelectionCriterion
             }
         };
 
-        void filter(int width, int height, List<IImageMetaData> imageMetaData,
-                List<IImageMetaData> filteredImageMetaData)
+        void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                List<IImageSetMetaData> filteredImageMetaData)
         {
         }
     }
 
-    private static final Comparator<IImageMetaData> SITE_COMPARATOR =
-            new Comparator<IImageMetaData>()
+    private static final Comparator<IImageSetMetaData> SITE_COMPARATOR =
+            new Comparator<IImageSetMetaData>()
                 {
-                    public int compare(IImageMetaData i1, IImageMetaData i2)
+                    public int compare(IImageSetMetaData i1, IImageSetMetaData i2)
                     {
                         return area(i1.getSize()) - area(i2.getSize());
                     }
@@ -144,9 +144,9 @@ public class SizeCriterion implements IImageSelectionCriterion
         this.type = type;
     }
 
-    public List<IImageMetaData> getMatching(List<IImageMetaData> imageMetaData)
+    public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData)
     {
-        List<IImageMetaData> filteredMetaData = new ArrayList<IImageMetaData>();
+        List<IImageSetMetaData> filteredMetaData = new ArrayList<IImageSetMetaData>();
         type.filter(width, height, imageMetaData, filteredMetaData);
         return filteredMetaData;
     }

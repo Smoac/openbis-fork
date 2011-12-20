@@ -36,7 +36,7 @@ public class OriginalCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageMetaData imageMetaData)
+    protected boolean accept(IImageSetMetaData imageMetaData)
     {
         return imageMetaData.isOriginal() == original;
     }

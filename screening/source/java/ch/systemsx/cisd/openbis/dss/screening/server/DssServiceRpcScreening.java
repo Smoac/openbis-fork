@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelBasedImageMetaData;
+import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelBasedImageSetMetaData;
 import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelFinder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
@@ -74,8 +74,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -241,19 +241,19 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
     }
 
-    public List<Set<IImageMetaData>> listImageMetadataSets(String sessionToken,
+    public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        List<Set<IImageMetaData>> sets = new ArrayList<Set<IImageMetaData>>();
+        List<Set<IImageSetMetaData>> sets = new ArrayList<Set<IImageSetMetaData>>();
         for (IImageDatasetIdentifier dataSet : imageDatasets)
         {
             String datasetCode = dataSet.getDatasetCode();
             IImagingDatasetLoader loader = createImageLoader(datasetCode);
             List<ImgImageZoomLevelDTO> zoomLevels = loader.getImageParameters().getZoomLevels();
-            Set<IImageMetaData> set = new HashSet<IImageMetaData>();
+            Set<IImageSetMetaData> set = new HashSet<IImageSetMetaData>();
             for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
             {
-                set.add(new ZoomLevelBasedImageMetaData(zoomLevel));
+                set.add(new ZoomLevelBasedImageSetMetaData(zoomLevel));
             }
             sets.add(set);
         }
@@ -535,7 +535,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            IImageSelectionCriterion... criteria)
+            IImageSetSelectionCriterion... criteria)
     {
         ZoomLevelFinder finder = new ZoomLevelFinder(criteria);
         final Map<String, IImagingDatasetLoader> imageLoadersMap =

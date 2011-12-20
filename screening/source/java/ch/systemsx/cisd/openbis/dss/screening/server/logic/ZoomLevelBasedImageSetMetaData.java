@@ -17,20 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.screening.server.logic;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
- * Implementation of {@link IImageMetaData} which wraps a {@link ImgImageZoomLevelDTO}.
+ * Implementation of {@link IImageSetMetaData} which wraps a {@link ImgImageZoomLevelDTO}.
  *
  * @author Franz-Josef Elmer
  */
-public class ZoomLevelBasedImageMetaData implements IImageMetaData
+public class ZoomLevelBasedImageSetMetaData implements IImageSetMetaData
 {
     private final Geometry size;
     private final ImgImageZoomLevelDTO zoomLevel;
 
-    public ZoomLevelBasedImageMetaData(ImgImageZoomLevelDTO zoomLevel)
+    public ZoomLevelBasedImageSetMetaData(ImgImageZoomLevelDTO zoomLevel)
     {
         this.zoomLevel = zoomLevel;
         size = Geometry.createFromCartesianDimensions(zoomLevel.getWidth(), zoomLevel.getHeight());

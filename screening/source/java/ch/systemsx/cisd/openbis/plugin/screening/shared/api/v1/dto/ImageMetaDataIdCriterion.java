@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Criterion based on the ID of an {@link IImageMetaData} object.
+ * Criterion based on the ID of an {@link IImageSetMetaData} object.
  *
  * @author Franz-Josef Elmer
  */
@@ -34,7 +34,7 @@ public class ImageMetaDataIdCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageMetaData imageMetaData)
+    protected boolean accept(IImageSetMetaData imageMetaData)
     {
         return imageMetaDataId == imageMetaData.getId();
     }

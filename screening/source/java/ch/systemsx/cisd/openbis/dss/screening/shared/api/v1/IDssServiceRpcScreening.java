@@ -23,6 +23,7 @@ import java.util.Set;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
@@ -36,8 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
@@ -263,11 +264,22 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
     
+    /**
+     * Provides images for the specified list of image references (specified by data set code, well
+     * position, channel and tile) and image selection criteria. These criteria are applied to the
+     * {@link IImageSetMetaData} sets of each data set. Beside of the set of original images a data
+     * set can have other image sets like thumbnails of various sizes. The provided array of
+     * {@link IImageSetSelectionCriterion} are applied one after another onto the set of
+     * {@link IImageSetMetaData} until its size is reduced to one.
+     * 
+     * @throws UserFailureException if for one data set the filtered {@link IImageSetMetaData} set
+     *             has size zero or greater than one.
+     */
     @MinimalMinorVersion(10)
     @DataSetAccessGuard
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
-            List<PlateImageReference> imageReferences, IImageSelectionCriterion... criteria);
+            List<PlateImageReference> imageReferences, IImageSetSelectionCriterion... criteria);
     
     /**
      * Provide thumbnail images for specified microscopy data set. If no thumbnails are stored on
@@ -370,9 +382,14 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IImageDatasetIdentifier> imageDatasets);
     
+    /**
+     * Returns for each of the specified image data sets the meta data of available image sets.
+     * 
+     * @since 1.10
+     */
     @MinimalMinorVersion(10)
     @DataSetAccessGuard
-    public List<Set<IImageMetaData>> listImageMetadataSets(String sessionToken,
+    public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IImageDatasetIdentifier> imageDatasets);
 

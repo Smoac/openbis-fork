@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.dss.screening.server.logic;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class ZoomLevelFinder
 {
-    private final IImageSelectionCriterion[] criteria;
+    private final IImageSetSelectionCriterion[] criteria;
 
-    public ZoomLevelFinder(IImageSelectionCriterion... criteria)
+    public ZoomLevelFinder(IImageSetSelectionCriterion... criteria)
     {
         this.criteria = criteria;
     }
@@ -40,24 +40,24 @@ public class ZoomLevelFinder
     public List<ImgImageZoomLevelDTO> find(List<ImgImageZoomLevelDTO> zoomLevels)
     {
         List<ImgImageZoomLevelDTO> filteredLevels = zoomLevels;
-        for (IImageSelectionCriterion criterion : criteria)
+        for (IImageSetSelectionCriterion criterion : criteria)
         {
             if (filteredLevels.size() == 1)
             {
                 break;
             }
-            List<IImageMetaData> adaptedFilteredLevels = new ArrayList<IImageMetaData>();
+            List<IImageSetMetaData> adaptedFilteredLevels = new ArrayList<IImageSetMetaData>();
             for (ImgImageZoomLevelDTO level : filteredLevels)
             {
-                adaptedFilteredLevels.add(new ZoomLevelBasedImageMetaData(level));
+                adaptedFilteredLevels.add(new ZoomLevelBasedImageSetMetaData(level));
             }
             adaptedFilteredLevels = criterion.getMatching(adaptedFilteredLevels);
             filteredLevels = new ArrayList<ImgImageZoomLevelDTO>();
-            for (IImageMetaData adaptedFilteredLevel : adaptedFilteredLevels)
+            for (IImageSetMetaData adaptedFilteredLevel : adaptedFilteredLevels)
             {
-                if (adaptedFilteredLevel instanceof ZoomLevelBasedImageMetaData)
+                if (adaptedFilteredLevel instanceof ZoomLevelBasedImageSetMetaData)
                 {
-                    filteredLevels.add(((ZoomLevelBasedImageMetaData) adaptedFilteredLevel)
+                    filteredLevels.add(((ZoomLevelBasedImageSetMetaData) adaptedFilteredLevel)
                             .getZoomLevel());
                 }
             }

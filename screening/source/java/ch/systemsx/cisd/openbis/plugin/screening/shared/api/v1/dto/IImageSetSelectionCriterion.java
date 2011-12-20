@@ -16,40 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import java.util.List;
+
 /**
- * Interface to image meta data.
+ * Interface of an image selection criterion based on {@link IImageSetMetaData}.
  *
  * @author Franz-Josef Elmer
  */
-public interface IImageMetaData
+public interface IImageSetSelectionCriterion
 {
     /**
-     * Returns the unique id of this image meta data.
+     * Returns all {@link IImageSetMetaData} objects from the specified list which fulfill this
+     * criterion.
      */
-    public long getId();
-    
-    /**
-     * Returns <code>true</code> if these are the meta data of the original image.
-     */
-    public boolean isOriginal();
-    
-    /**
-     * Returns the size of the image.
-     */
-    public Geometry getSize();
-    
-    /**
-     * Returns the color depth if known.
-     * 
-     * @return <code>null</code> if color depth is unknown.
-     */
-    public Integer getColorDepth();
-    
-    /**
-     * Returns the file type if known.
-     * 
-     * @return <code>null</code> if file type is unknown.
-     */
-    public String getFileType();
-    
+    public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData);
 }
