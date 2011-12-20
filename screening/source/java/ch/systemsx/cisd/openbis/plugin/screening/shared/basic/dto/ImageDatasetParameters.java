@@ -51,7 +51,7 @@ public class ImageDatasetParameters implements Serializable
 
     private String mergedChannelTransformerFactorySignatureOrNull;
     
-    private List<ImgImageZoomLevelDTO> zoomLevels;
+    private List<ImageSetMetaData> zoomLevels;
 
     public Integer tryGetRowsNum()
     {
@@ -197,12 +197,12 @@ public class ImageDatasetParameters implements Serializable
                 mergedChannelTransformerFactorySignatureOrNull;
     }
 
-    public List<ImgImageZoomLevelDTO> getZoomLevels()
+    public List<ImageSetMetaData> getZoomLevels()
     {
         return zoomLevels;
     }
 
-    public void setZoomLevels(List<ImgImageZoomLevelDTO> zoomLevels)
+    public void setZoomLevels(List<ImageSetMetaData> zoomLevels)
     {
         this.zoomLevels = zoomLevels;
     }

@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelBasedImageSetMetaData;
+import ch.systemsx.cisd.openbis.dss.screening.server.logic.SimpleImageSetMetaData;
 import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelFinder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -102,7 +103,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -249,11 +249,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             String datasetCode = dataSet.getDatasetCode();
             IImagingDatasetLoader loader = createImageLoader(datasetCode);
-            List<ImgImageZoomLevelDTO> zoomLevels = loader.getImageParameters().getZoomLevels();
+            List<ImageSetMetaData> zoomLevels = loader.getImageParameters().getZoomLevels();
             Set<IImageSetMetaData> set = new HashSet<IImageSetMetaData>();
-            for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+            for (ImageSetMetaData zoomLevel : zoomLevels)
             {
-                set.add(new ZoomLevelBasedImageSetMetaData(zoomLevel));
+                set.add(new SimpleImageSetMetaData(zoomLevel));
             }
             sets.add(set);
         }
@@ -540,13 +540,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         ZoomLevelFinder finder = new ZoomLevelFinder(criteria);
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        Map<String, ImgImageZoomLevelDTO> dataSetToZoomLevelMap = new HashMap<String, ImgImageZoomLevelDTO>();
+        Map<String, ImageSetMetaData> dataSetToZoomLevelMap = new HashMap<String, ImageSetMetaData>();
         for (Entry<String, IImagingDatasetLoader> entry : imageLoadersMap.entrySet())
         {
             String dataSetCode = entry.getKey();
             IImagingDatasetLoader loader = entry.getValue();
             ImageDatasetParameters imageParameters = loader.getImageParameters();
-            List<ImgImageZoomLevelDTO> filteredZoomLevels =
+            List<ImageSetMetaData> filteredZoomLevels =
                     finder.find(imageParameters.getZoomLevels());
             if (filteredZoomLevels.isEmpty())
             {
@@ -566,7 +566,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             String datasetCode = imageReference.getDatasetCode();
             IImagingDatasetLoader loader = imageLoadersMap.get(datasetCode);
-            ImgImageZoomLevelDTO zoomLevel = dataSetToZoomLevelMap.get(datasetCode);
+            ImageSetMetaData zoomLevel = dataSetToZoomLevelMap.get(datasetCode);
             Size size = new Size(zoomLevel.getWidth(), zoomLevel.getHeight());
             addImageContentTo(imageContents, loader, imageReference, size, null, false, false);
         }

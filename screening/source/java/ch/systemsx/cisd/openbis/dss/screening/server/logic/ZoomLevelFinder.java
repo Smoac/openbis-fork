@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
@@ -37,9 +38,9 @@ public class ZoomLevelFinder
         this.criteria = criteria;
     }
         
-    public List<ImgImageZoomLevelDTO> find(List<ImgImageZoomLevelDTO> zoomLevels)
+    public List<ImageSetMetaData> find(List<ImageSetMetaData> zoomLevels)
     {
-        List<ImgImageZoomLevelDTO> filteredLevels = zoomLevels;
+        List<ImageSetMetaData> filteredLevels = zoomLevels;
         for (IImageSetSelectionCriterion criterion : criteria)
         {
             if (filteredLevels.size() == 1)
@@ -47,18 +48,18 @@ public class ZoomLevelFinder
                 break;
             }
             List<IImageSetMetaData> adaptedFilteredLevels = new ArrayList<IImageSetMetaData>();
-            for (ImgImageZoomLevelDTO level : filteredLevels)
+            for (ImageSetMetaData level : filteredLevels)
             {
-                adaptedFilteredLevels.add(new ZoomLevelBasedImageSetMetaData(level));
+                adaptedFilteredLevels.add(new SimpleImageSetMetaData(level));
             }
             adaptedFilteredLevels = criterion.getMatching(adaptedFilteredLevels);
-            filteredLevels = new ArrayList<ImgImageZoomLevelDTO>();
+            filteredLevels = new ArrayList<ImageSetMetaData>();
             for (IImageSetMetaData adaptedFilteredLevel : adaptedFilteredLevels)
             {
-                if (adaptedFilteredLevel instanceof ZoomLevelBasedImageSetMetaData)
+                if (adaptedFilteredLevel instanceof SimpleImageSetMetaData)
                 {
-                    filteredLevels.add(((ZoomLevelBasedImageSetMetaData) adaptedFilteredLevel)
-                            .getZoomLevel());
+                    filteredLevels.add(((SimpleImageSetMetaData) adaptedFilteredLevel)
+                            .getMetaData());
                 }
             }
         }

@@ -18,37 +18,37 @@ package ch.systemsx.cisd.openbis.dss.screening.server.logic;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 
 /**
- * Implementation of {@link IImageSetMetaData} which wraps a {@link ImgImageZoomLevelDTO}.
+ * Implementation of {@link IImageSetMetaData} which wraps a {@link ImageSetMetaData}.
  *
  * @author Franz-Josef Elmer
  */
-public class ZoomLevelBasedImageSetMetaData implements IImageSetMetaData
+public class SimpleImageSetMetaData implements IImageSetMetaData
 {
     private final Geometry size;
-    private final ImgImageZoomLevelDTO zoomLevel;
+    private final ImageSetMetaData metaData;
 
-    public ZoomLevelBasedImageSetMetaData(ImgImageZoomLevelDTO zoomLevel)
+    public SimpleImageSetMetaData(ImageSetMetaData zoomLevel)
     {
-        this.zoomLevel = zoomLevel;
+        this.metaData = zoomLevel;
         size = Geometry.createFromCartesianDimensions(zoomLevel.getWidth(), zoomLevel.getHeight());
     }
 
-    public ImgImageZoomLevelDTO getZoomLevel()
+    public ImageSetMetaData getMetaData()
     {
-        return zoomLevel;
+        return metaData;
     }
 
     public long getId()
     {
-        return zoomLevel.getId();
+        return metaData.getId();
     }
 
     public boolean isOriginal()
     {
-        return zoomLevel.getIsOriginal();
+        return metaData.isOriginal();
     }
 
     public Geometry getSize()
@@ -58,12 +58,12 @@ public class ZoomLevelBasedImageSetMetaData implements IImageSetMetaData
 
     public Integer getColorDepth()
     {
-        return zoomLevel.getColorDepth();
+        return metaData.getColorDepth();
     }
 
     public String getFileType()
     {
-        return zoomLevel.getFileType();
+        return metaData.getFileType();
     }
 
 }

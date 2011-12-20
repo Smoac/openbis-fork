@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -208,8 +209,25 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.setMergedChannelTransformerFactorySignature(mergedChannelTransformerFactorySignatureOrNull);
         params.setInternalChannels(convertChannels());
-        params.setZoomLevels(query.listImageZoomLevels(dataset.getId()));
+        params.setZoomLevels(translate(query.listImageZoomLevels(dataset.getId())));
         return params;
+    }
+    
+    private List<ImageSetMetaData> translate(List<ImgImageZoomLevelDTO> zoomLevels)
+    {
+        List<ImageSetMetaData> result = new ArrayList<ImageSetMetaData>();
+        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+        {
+            ImageSetMetaData metaData = new ImageSetMetaData();
+            metaData.setId(zoomLevel.getId());
+            metaData.setOriginal(zoomLevel.getIsOriginal());
+            metaData.setWidth(zoomLevel.getWidth());
+            metaData.setHeight(zoomLevel.getHeight());
+            metaData.setColorDepth(zoomLevel.getColorDepth());
+            metaData.setFileType(zoomLevel.getFileType());
+            result.add(metaData);
+        }
+        return result;
     }
     
     private List<InternalImageChannel> convertChannels()
