@@ -2,7 +2,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataTyp
 
 tr = service.transaction()
 
-#
+#   
 # File types existing by default
 #
 #file_type_HDF5 = tr.createNewFileFormatType('HDF5')
@@ -42,6 +42,12 @@ vocabulary_PLATE_GEOMETRY.setUrlTemplate(None)
 vocabulary_PLATE_GEOMETRY.setManagedInternally(True)
 vocabulary_PLATE_GEOMETRY.setInternalNamespace(True)
 vocabulary_PLATE_GEOMETRY.setChosenFromList(True)
+
+vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6 = tr.createNewVocabularyTerm('24_WELLS_4X6')
+vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6.setDescription(None)
+vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6.setLabel('24 Wells, 4x6')
+vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6.setOrdinal(4)
+vocabulary_PLATE_GEOMETRY.addTerm(vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6)
 
 vocabulary_term_PLATE_GEOMETRY_1536_WELLS_32X48 = tr.createNewVocabularyTerm('1536_WELLS_32X48')
 vocabulary_term_PLATE_GEOMETRY_1536_WELLS_32X48.setDescription(None)
