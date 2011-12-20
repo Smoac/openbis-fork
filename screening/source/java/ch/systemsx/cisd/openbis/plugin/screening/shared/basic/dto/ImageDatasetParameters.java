@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
@@ -49,6 +50,8 @@ public class ImageDatasetParameters implements Serializable
     private boolean isMultidimensional;
 
     private String mergedChannelTransformerFactorySignatureOrNull;
+    
+    private List<ImgImageZoomLevelDTO> zoomLevels;
 
     public Integer tryGetRowsNum()
     {
@@ -192,6 +195,16 @@ public class ImageDatasetParameters implements Serializable
     {
         this.mergedChannelTransformerFactorySignatureOrNull =
                 mergedChannelTransformerFactorySignatureOrNull;
+    }
+
+    public List<ImgImageZoomLevelDTO> getZoomLevels()
+    {
+        return zoomLevels;
+    }
+
+    public void setZoomLevels(List<ImgImageZoomLevelDTO> zoomLevels)
+    {
+        this.zoomLevels = zoomLevels;
     }
 
 }

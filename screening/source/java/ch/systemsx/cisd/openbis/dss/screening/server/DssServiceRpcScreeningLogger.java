@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -32,6 +34,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
@@ -197,6 +201,13 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public List<Set<IImageMetaData>> listImageMetadataSets(String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets)
+    {
+        logAccess(sessionToken, "load_image_metadata_sets", "DATA_SETS(%s)", imageDatasets);
+        return null;
+    }
+
     public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> featureDatasets)
     {
@@ -232,6 +243,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
                 imageReferences, configuration);
+        return null;
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            IImageSelectionCriterion... criteria)
+    {
+        logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CRITERIA(%s)",
+                imageReferences, Arrays.asList(criteria));
         return null;
     }
 

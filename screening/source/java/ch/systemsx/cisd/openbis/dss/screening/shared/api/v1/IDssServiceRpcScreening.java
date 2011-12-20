@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -35,6 +36,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
@@ -259,7 +262,13 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
-
+    
+    @MinimalMinorVersion(10)
+    @DataSetAccessGuard
+    public InputStream loadImages(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<PlateImageReference> imageReferences, IImageSelectionCriterion... criteria);
+    
     /**
      * Provide thumbnail images for specified microscopy data set. If no thumbnails are stored on
      * the server, this method will return an empty stream. Images of all tiles are delivered.
@@ -358,6 +367,12 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @DataSetAccessGuard
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<? extends IImageDatasetIdentifier> imageDatasets);
+    
+    @MinimalMinorVersion(10)
+    @DataSetAccessGuard
+    public List<Set<IImageMetaData>> listImageMetadataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IImageDatasetIdentifier> imageDatasets);
 

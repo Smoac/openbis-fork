@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Helper class for easy handling of HCS image dataset standard structure with no code for handling
@@ -207,9 +208,10 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.setMergedChannelTransformerFactorySignature(mergedChannelTransformerFactorySignatureOrNull);
         params.setInternalChannels(convertChannels());
+        params.setZoomLevels(query.listImageZoomLevels(dataset.getId()));
         return params;
     }
-
+    
     private List<InternalImageChannel> convertChannels()
     {
         List<InternalImageChannel> convertedChannels = new ArrayList<InternalImageChannel>();

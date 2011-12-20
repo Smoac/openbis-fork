@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelBasedImageMetaData;
+import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelFinder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
@@ -71,6 +74,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageMetaData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -97,6 +102,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -111,7 +117,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 9;
+    public static final int MINOR_VERSION = 10;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -207,12 +213,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        Set<String> datasetCodes = new HashSet<String>();
         IShareIdManager shareIdManager = getShareIdManager();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
             String datasetCode = dataset.getDatasetCode();
-            datasetCodes.add(datasetCode);
             shareIdManager.lock(datasetCode);
         }
         try
@@ -235,6 +239,25 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             shareIdManager.releaseLocks();
         }
+    }
+
+    public List<Set<IImageMetaData>> listImageMetadataSets(String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets)
+    {
+        List<Set<IImageMetaData>> sets = new ArrayList<Set<IImageMetaData>>();
+        for (IImageDatasetIdentifier dataSet : imageDatasets)
+        {
+            String datasetCode = dataSet.getDatasetCode();
+            IImagingDatasetLoader loader = createImageLoader(datasetCode);
+            List<ImgImageZoomLevelDTO> zoomLevels = loader.getImageParameters().getZoomLevels();
+            Set<IImageMetaData> set = new HashSet<IImageMetaData>();
+            for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+            {
+                set.add(new ZoomLevelBasedImageMetaData(zoomLevel));
+            }
+            sets.add(set);
+        }
+        return sets;
     }
 
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
@@ -509,6 +532,46 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 configuration.isDesiredImageFormatPng(),
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
     }
+    
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            IImageSelectionCriterion... criteria)
+    {
+        ZoomLevelFinder finder = new ZoomLevelFinder(criteria);
+        final Map<String, IImagingDatasetLoader> imageLoadersMap =
+                getImageDatasetsMap(sessionToken, imageReferences);
+        Map<String, ImgImageZoomLevelDTO> dataSetToZoomLevelMap = new HashMap<String, ImgImageZoomLevelDTO>();
+        for (Entry<String, IImagingDatasetLoader> entry : imageLoadersMap.entrySet())
+        {
+            String dataSetCode = entry.getKey();
+            IImagingDatasetLoader loader = entry.getValue();
+            ImageDatasetParameters imageParameters = loader.getImageParameters();
+            List<ImgImageZoomLevelDTO> filteredZoomLevels =
+                    finder.find(imageParameters.getZoomLevels());
+            if (filteredZoomLevels.isEmpty())
+            {
+                throw new UserFailureException("No image set fitting criteria found for data set "
+                        + dataSetCode + ".");
+            }
+            if (filteredZoomLevels.size() > 1)
+            {
+                throw new UserFailureException("To many image sets fitting criteria for data set "
+                        + dataSetCode + ": " + filteredZoomLevels);
+            }
+            dataSetToZoomLevelMap.put(dataSetCode, filteredZoomLevels.get(0));
+        }
+        List<IHierarchicalContentNode> imageContents =
+                new ArrayList<IHierarchicalContentNode>();
+        for (PlateImageReference imageReference : imageReferences)
+        {
+            String datasetCode = imageReference.getDatasetCode();
+            IImagingDatasetLoader loader = imageLoadersMap.get(datasetCode);
+            ImgImageZoomLevelDTO zoomLevel = dataSetToZoomLevelMap.get(datasetCode);
+            Size size = new Size(zoomLevel.getWidth(), zoomLevel.getHeight());
+            addImageContentTo(imageContents, loader, imageReference, size, null, false, false);
+        }
+        return new ConcatenatedContentInputStream(true, imageContents);
+    }
 
     private InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             final Size sizeOrNull, String singleChannelImageTransformationCodeOrNull,
@@ -533,20 +596,29 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
 
-            final IImagingLoaderStrategy imageLoaderStrategy =
-                    ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor);
-
-            final ImageChannelStackReference channelStackRef =
-                    getImageChannelStackReference(imageAccessor, imageReference);
-            final String channelCode = imageReference.getChannel();
-
-            imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
-                    tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode,
-                            sizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
-                            transform)));
+            addImageContentTo(imageContents, imageAccessor, imageReference, sizeOrNull,
+                    singleChannelImageTransformationCodeOrNull, convertToPng, transform);
         }
 
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    private void addImageContentTo(final List<IHierarchicalContentNode> imageContents,
+            final IImagingDatasetLoader imageAccessor, final PlateImageReference imageReference,
+            final Size sizeOrNull, final String singleChannelImageTransformationCodeOrNull,
+            final boolean convertToPng, final boolean transform)
+    {
+        final IImagingLoaderStrategy imageLoaderStrategy =
+                ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor);
+
+        final ImageChannelStackReference channelStackRef =
+                getImageChannelStackReference(imageAccessor, imageReference);
+        final String channelCode = imageReference.getChannel();
+
+        imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
+                tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode,
+                        sizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
+                        transform)));
     }
 
     private InputStream loadThumbnailImages(List<PlateImageReference> imageReferences,
