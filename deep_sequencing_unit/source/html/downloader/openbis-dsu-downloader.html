@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>openBIS DSU Downloader</title>
+  <title>Quantitative Genomics Facility</title>
   <link type="text/css" rel="stylesheet" href="body-style.css" />
   <link type="text/css" rel="stylesheet" href="button.css" />
   <link type="text/css" rel="stylesheet" href="tree.css" />
@@ -16,9 +16,8 @@
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
 
-var w = 840, h = 2400;
-// N.b. Height and width are swapped in the tree
-var tree = d3.layout.tree().size([h, w - 340]);
+//After logout the URL redirected to
+var logouturl = "https://openbis-dsu.ethz.ch/openbis/downloader/openbis-dsu-downloader.html";
 
 // A helper function for drawing the lines between nodes
 var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x] });	
@@ -29,8 +28,10 @@ var vis;
 // The node inspectors
 var inspectors;
 
+var inspectorsWidth = 500;
+
 // The root of the tree
-var root = { code : "DSU", children : [] };
+var root = { code : "QGF", label: "QGF", children : [], type: 'ROOT' };
 
 // The inspected elements
 var inspected = [];
@@ -42,89 +43,150 @@ var yearmonthformat = d3.time.format("%Y-%m");
 /// FUNCTIONS FOR PUTTING DATA INTO THE TREE
 ///
 
-/*!
- * Add the projects to the tree and trigger a request for experiments
- */
-function addProjectsToTree(bisprojs)
-{
-	if (null == bisprojs) return;
-	
-	dsu.projects = 
-		bisprojs
-			.filter(function(project) { return project.code == 'BEISEL' })
-			.map(function(project) { return { code : project.code, bis : project} });	
-	dsu.projects.forEach(function(project) { 
-		var action = function(data) {
-			addSequencingSamplesToProject(project, data.result);
-			showSequencingSamples();
-		}
-		dsu.retrieveSequencingSamplesForProject(project, action) 
-	});
+function initTree(){
+	 dsu.retrieveSequencingSamples(function(data){
+		 addSamplesToTree(data.result);
+		 showSpaces();
+		 updateDiagram(500);
+	 });
 }
 
-/*!
- * Add the sequencing samples to the project
- */
-function addSequencingSamplesToProject(project, bissamps)
+function addSamplesToTree(samples)
 {
-	if (null == bissamps) return;
-	
-	samples = bissamps.map(function(samp) { return { code : samp.properties["EXTERNAL_SAMPLE_NAME"] + " [" +   samp.code + "]", externalName: samp.properties["EXTERNAL_SAMPLE_NAME"], project : project, bis : samp } });
-	
-	// Group the samples by year/month
-	var yearmonthSamplesMap = {};
-	samples.forEach(function(samp) {
-		var date = new Date(samp.bis.registrationDetails.registrationDate);
-		var yearmonth = yearmonthformat(date);
-		var yearmonthsamples = yearmonthSamplesMap[yearmonth];
-		if (undefined === yearmonthsamples) {
-			yearmonthsamples = [];
-			yearmonthSamplesMap[yearmonth] = yearmonthsamples;
-		}
-		yearmonthsamples.push(samp);
-	});
-	
-	var groupedSamples = [];
-	for (var yearmonth in yearmonthSamplesMap) {
-		groupedSamples.push({ code : yearmonth, project : project, children : yearmonthSamplesMap[yearmonth]})
+	if (samples == null){
+		return;
 	}
 	
-	groupedSamples.sort(function(a, b) { 
-		if (a.code == b.code) return 0;
-		// Sort in reverse lexicographical order		
-		return (a.code < b.code) ? 1 : -1;
+	// Create sample nodes 
+	samples = samples.map(function(sample) {
+		return {
+			code : sample.permId,
+			label: sample.properties["EXTERNAL_SAMPLE_NAME"] + " [" +   sample.code + "]",
+			bis: sample,
+			type: 'SAMPLE' 
+    }
+	});
+	
+	samples.sort(function(sample1, sample2){
+		if(sample1.bis.code.toLowerCase() == sample2.bis.code.toLowerCase()) return 0;
+		return (sample1.bis.code.toLowerCase() < sample2.bis.code.toLowerCase()) ? 1: -1;
+	});
+	
+	// Create sample group nodes (group by registration date) 
+	var sampleGroupsMap = [];
+	var sampleGroups = [];
+	
+	samples.forEach(function(sample) {
+		var date = yearmonthformat(new Date(sample.bis.registrationDetails.registrationDate));
+		var sampleGroup = sampleGroupsMap[date];
+		
+		if (undefined === sampleGroup) {
+			sampleGroup = {
+					code: date,
+					label: date,
+					samples: [],
+					type: 'SAMPLE_GROUP'
+			};
+			sampleGroupsMap[date] = sampleGroup;
+			sampleGroups.push(sampleGroup);
+		}
+		sampleGroup.samples.push(sample);
 	});
 
-	if (samples.length > 0)
-		project.children = groupedSamples;
+	// Sort sample groups from newest to oldest 
+	sampleGroups.sort(function(group1, group2) {
+		    if (group1.code == group2.code) return 0;
+		    return (group1.code < group2.code) ? 1 : -1;
+  });
+	
+	// Create space nodes
+	var isFirstSampleGroup = true;
+	sampleGroups.forEach(function(sampleGroup){
+		var spacesMap = [];
+		var spaces = [];
 		
-	// Get the flow lanes for each sequencing sample
-	var deferrer = 
-		new actionDeferrer(
-				function() { updateDiagram(500) }, 
-				samples.map(function(samp) { return samp.bis.code; }));
-				
-	samples.forEach(function(sample) { 
-		dsu.retrieveFlowLanesForSequencingSample(sample, function(data) {
-			if (data.result) sample.flowlanes = data.result.map(function(flowlane) { return { bis : flowlane }});
-			deferrer.dependencyCompleted(sample.bis.code);
-		}) 
+    sampleGroup.samples.forEach(function(sample){
+	    	var spaceCode = sample.bis.spaceCode;
+    	  var space = spacesMap[spaceCode];
+    	  
+    	  if(undefined == space){
+    	     space = {
+    	    		  code: sampleGroup.code + "#" + spaceCode,
+    	    		  label: spaceCode,
+    	    		  _children: [],
+    	    		  type: 'SPACE'
+    	     }
+    	     spacesMap[spaceCode] = space;
+    	     spaces.push(space);
+    	  }
+    	  space._children.push(sample);
+    });
+    
+    if(spaces.length > 1){
+    	sampleGroup._children = spaces;
+    }else{
+      sampleGroup._children = sampleGroup.samples;
+    }
+    
+    if(isFirstSampleGroup){
+    	openAllForNode(sampleGroup);
+    	isFirstSampleGroup = false;
+    }
+	});
+	
+	if (samples.length > 0){
+		root.children = sampleGroups;
+	}
+		
+}
+
+function getAppHeight(){
+	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
+}
+
+function getAppWidth(){
+	return $(window).width();
+}
+
+function closeAll(){
+	  root.children.forEach(function(sampleGroup){
+		  closeAllForNode(sampleGroup);
+	  });
+	  updateDiagram(500);
+}
+
+function closeAllForNode(node){
+	  closeChildren(node);
+	  getChildren(node).forEach(function(child){
+	    closeAllForNode(child);
+	  });
+}
+
+function openAllForNode(node){
+	openChildren(node);
+	getChildren(node).forEach(function(child){
+		openAllForNode(child);
 	});
 }
 
+function getVisibleLeafsCountForNode(node){
+	if(node.children){
+			var count = 0;
+			node.children.forEach(function(child){
+				count += getVisibleLeafsCountForNode(child);
+			});
+			return count;
+	}else{
+		return 1;
+	}
+}
 
-function showProjects()
+function showSpaces()
 {	
 	// Don't show anything yet, just initialize the visualization
 	createVis();
 }
 
-
-function showSequencingSamples()
-{
-	// Now draw the samples
-	updateDiagram(1000);
-}
 
 var didCreateVis = false;
 
@@ -132,28 +194,38 @@ var didCreateVis = false;
  * Create the DOM elements to store the visualization (tree + inspectors)
  */
 function createVis()
-{
+{	
 	if (didCreateVis) return;
 	
 	// Create a div to house the tree visualization and the inspectors
 	visgroup = d3.select("#main").append("div");
-	visgroup.style("width", "" + (w + 400) + "px")
-	
+
 	// An svg element for the tree visualization
 	vis = visgroup.append("svg:svg")
-		.attr("width", w)
-		.attr("height", h)
-	.append("svg:g")
+	  .attr("id","mainVis")
+  	.append("svg:g")
 		.attr("transform", "translate(40, 0)");
-	
+
+	  var legend = vis.append("svg:g")
+	  .attr("class","legend")
+	  .attr("transform", "translate(-30, 0)");
+	  
+	  var legendSeq = legend.append("svg:g").attr("class","sequenced").attr("transform","translate(0, 20)");
+	  legendSeq.append("svg:circle").attr("r", 5.5);
+	  legendSeq.append("svg:text").text("Sequenced").attr("dx", 10).attr("dy",4);
+
+	  var legendNotSeq = legend.append("svg:g").attr("class","notsequenced").attr("transform","translate(0, 40)");
+	    legendNotSeq.append("svg:circle").attr("r", 5.5);
+	    legendNotSeq.append("svg:text").text("Not Sequenced").attr("dx", 10).attr("dy",4);
+	  
 	// An element for the inspectors.
 	inspectors = visgroup.append("span")
-		.style("width", "400px")
+		.style("width", + inspectorsWidth + "px")
 		.style("position", "relative")
 		.style("overflow", "auto")
 		.style("float", "right")
-		.style("left", "20px");
-		
+	  .style("top", "20px");
+
 	didCreateVis = true;
 }
 
@@ -163,8 +235,17 @@ function createVis()
  */
 function updateDiagram(duration)
 {	
-	// Update the root and compute the new layout
-	root.children = dsu.projects;
+
+	// Adjust a size of the vis 
+	d3.select("#mainVis")
+	  .attr("width", getAppWidth() - inspectorsWidth - 50)
+    .attr("height", getAppHeight())
+	
+	// Adjust a size of the tree 
+  tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - inspectorsWidth - 500])	
+	
+	
+	// Update the root and compute the new layout 
 	var nodes = tree.nodes(root);
 
 	// Draw / update the links	
@@ -211,8 +292,8 @@ function updateDiagram(duration)
 	nodeEnter.append("svg:text")
 		.attr("dx", function(d) { return hasChildren(d) ? -8 : 8 })
 		.attr("dy", 3)
-		.attr("text-anchor", function(d) { return hasChildren(d) ? "end" : "start" })
-		.text(function(d) { return d.code });
+		.attr("text-anchor", function(d) { return getTextAnchorType(d) })
+		.text(function(d) { return d.label });
 
 	nodeEnter
 		.transition()
@@ -230,7 +311,7 @@ function updateDiagram(duration)
 	node.selectAll("text").transition()
 		.duration(duration)
 		.attr("dx", function(d) { return hasChildren(d) ? -8 : 8 })
-		.attr("text-anchor", function(d) { return hasChildren(d) ? "end" : "start" });
+		.attr("text-anchor", function(d) { return getTextAnchorType(d) });
 		
 	node.exit().transition()
 		.duration(duration)
@@ -240,10 +321,15 @@ function updateDiagram(duration)
 
 function classForNode(d) { 
 	// Use whether the node has open children or not to compute the class
-	var cssClass = hasChildren(d) ? "node withchildren" : "node leaf";
+	var cssClass = "node " + d.type;
 	if (d.inspected) cssClass = cssClass + " inspected";
-	if (d.flowlanes && d.flowlanes.length > 0) cssClass = cssClass + " sequenced";
-
+	if(d.flowlanesLoaded){
+		if (d.flowlanes && d.flowlanes.length > 0) {
+	          cssClass = cssClass + " sequenced";
+	  } else {
+		  cssClass = cssClass + " notsequenced";
+		}
+	}
 	return cssClass;
 }
 
@@ -270,14 +356,63 @@ function translateDst(d)
 	return translate;
 }
 
+function getChildren(d){
+	if(d.children != null){
+		return d.children;
+	}else if(d._children != null){
+		return d._children;
+	}else{
+		return [];
+	}
+}
+
 function hasChildren(d)
 {
 	return d.children != null || d._children != null;
 }
 
-function hasOpenChildren(d)
-{
+function hasChildrenOpen(d){
 	return d.children != null;
+}
+
+function hasChildrenClosed(d){
+	return d._children != null;
+}
+
+function closeChildren(d){
+	  if(hasChildrenOpen(d)){
+	    d._children = d.children;
+	    d.children = null;
+	  }
+}
+
+function openChildren(d){
+	  if(hasChildrenClosed(d)){
+		    d.children = d._children;
+		    d._children = null;
+    
+		    var hasSampleChildren = d.children && d.children[0].type == 'SAMPLE';
+		    
+	      if(hasSampleChildren && !d.flowlanesLoaded){
+		    	 // Get the flow lanes for each sequencing sample 
+		    	  var deferrer = 
+		    	    new actionDeferrer(
+		    	        function() { d.flowlanesLoaded = true; updateDiagram(500) }, 
+		    	        d.children.map(function(samp) { return samp.bis.code; }));
+		    	        
+		    	  d.children.forEach(function(sample) {
+		    	    dsu.retrieveFlowLanesForSequencingSample(sample, function(data) {
+		    	      if (data && data.result) sample.flowlanes = data.result.map(function(flowlane) { return { bis : flowlane }});
+		    	      sample.flowlanesLoaded = true;
+		    	      deferrer.dependencyCompleted(sample.bis.code);
+		    	    });
+		    	  });
+			  }
+    }
+}
+	  
+function getTextAnchorType(d){
+	return d.type == 'SAMPLE' ? 'start' : 'end'; 	
 }
 
 // Toggle children on click.
@@ -287,12 +422,10 @@ function toggle_open(d) {
 		return toggle_inspected.call(this, d);
 	}
 	
-  if (d.children) {
-    d._children = d.children;
-    d.children = null;
+  if (hasChildrenOpen(d)) {
+	  closeChildren(d);
   } else {
-    d.children = d._children;
-    d._children = null;
+	  openChildren(d);
   }
   updateDiagram(500);
 }
@@ -306,7 +439,7 @@ function updateInspectors(duration)
 	var inspector = inspectors.selectAll("div.inspector").data(inspected, function (d) { return d.code });
 	var box = inspector.enter().append("div")
 		.attr("class", "inspector")
-		.text(function(d) { return d.code });
+		.text(function(d) { return d.label });
 		
 	box.append("span")
 		.attr("class", "close")
@@ -348,7 +481,8 @@ function updateInspectors(duration)
 				.append("td")
 				.style("text-align", "left")
 				.on("click", downloadTableFile)
-				.text(function(d) { return d.pathInListing });
+				.text(function(d) { return d.label; });
+	downloadTableRow.sort()
 	downloadTableRow
 		.exit()
 			.transition()
@@ -394,7 +528,14 @@ function retrieveFilesForSequencingSample(sequencing)
 			// Get all the files and update the inspectors once all the data is avilable
 			var deferrer = 
 				new actionDeferrer(
-					function() { sequencing.loadingFiles = false; updateInspectors(500) }, 
+					function() {
+					   sequencing.files.sort(function(file1, file2){
+						   if(file1.label.toLowerCase() == file2.label.toLowerCase()) return 0;
+						   return (file1.label.toLowerCase() > file2.label.toLowerCase()) ? 1 : -1;
+					   });
+						 sequencing.loadingFiles = false; 
+						 updateInspectors(500) 
+				  }, 
 					sequencing.datasets.map(function(ds) { return ds.bis.code; }));
 				
 			sequencing.datasets.forEach(function(ds) { 
@@ -403,7 +544,10 @@ function retrieveFilesForSequencingSample(sequencing)
 						deferrer.dependencyCompleted(ds.bis.code);
 						return;
 					}
-					data.result.forEach(function (file) { file.dataset = ds });
+					data.result.forEach(function (file) {
+						file.dataset = ds;
+						file.label = file.pathInListing.split("/").pop();
+					});
 					sequencing.files = sequencing.files.concat(data.result);
 					deferrer.dependencyCompleted(ds.bis.code);
 				})
@@ -457,18 +601,23 @@ function downloadTableFile(d)
 
 function filesForSequencingSample(d)
 {
-	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
+	if (d.loadingFiles) return [{ label : "Loading..." }];
 	return (d.files) ? d.files.filter(function(file) { return !file.isDirectory }) : [];
 }
 
-function enterApp()
+function enterApp(data)
 {
+	if(data.result == null){
+		alert("Login or password incorrect");
+		$("#username").focus();
+		return;
+	}
+	
 	$("#login-form-div").hide();
 	$("#main").show();
-	dsu.server.listProjects(function(data) { 
-		addProjectsToTree(data.result); 
-		showProjects();
-	});
+	
+	initTree();
+	
 	$('#openbis-logo').height(30);
 }
 
@@ -477,34 +626,56 @@ $(document).ready(function() {
 	$('#main').hide()
 	
 	$('#logout-button').click(function() { 
-		dsu.server.logout(function(data) {
-			window.location.reload();
-		});
-	});
+           dsu.server.logout(function(data) {$(location).attr('href',logouturl)});
+         });
 	
 	$('#login-form').submit(function() {
-		dsu.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+		 dsu.server.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	dsu.server.ifRestoredSessionActive(function(data) { enterApp() });
- });
- 
+	dsu.server.ifRestoredSessionActive(function(data) { enterApp(data) });
+
+       // Make the ENTER key the default button
+       $("login-form input").keypress(function (e) {
+          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+              $('button[type=submit].default').click();
+              return false;
+          } else {
+              return true;
+          }
+       });
+});
+
+// set the focus 
+function onPageLoad(){
+          if(username.value.length==0) {
+            $("#username").focus();
+          }
+          else {
+            $("#login-button").focus();
+          }
+}
+
+
  </script>
 </head>
-<body>
+<body onload="onPageLoad()">
 <img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
 <div id="login-form-div">
-<h1>openBIS DSU</h1>
+<h1>openBIS Quantitative Genomics Facility</h1>
 <form id="login-form" action="javascript:">
-<input id="username" type="text"> <input id="password" type="password"> <button id="login-button">Login</button>
+<input id="username" type="text" required="required"> <input id="password" type="password" required="required"> <button class="login-button" id="login-button" type="submit">Login</button>
+<br>
+<br>
+<a href="https://crowd-bsse.ethz.ch/crowd/console/forgottenlogindetails!default.action" id="resetpassword" class="resetpassword">Reset password</a>
 </form>
 </div>
 
 <div id="main">
 <div id="button-group">
 	<button id="logout-button">Logout</button>
+	<button id="close-all-button" onclick="closeAll();">Close All</button>
 </div>
 </div>
-
 </body>
 </html>

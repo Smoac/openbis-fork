@@ -16,79 +16,15 @@
  */
 function openbis_dsu(url, dssUrl) {
 	this.server = new openbis(url, dssUrl);
-	// Initial projects
-	var projects = [{code: "No Projects"}];
-}
-
-/**
- * Request the experiments for the project
- */
-openbis_dsu.prototype.retrieveExperimentsForProject =  function(project, action)
-{
-	// Initialize the experiments
-	this.server.listExperiments([project.bis], null, action);
 }
 
 /**
  * Request the sequencing samples for a project
  */
-openbis_dsu.prototype.retrieveSequencingSamplesForProject = function(project, action)
+openbis_dsu.prototype.retrieveSequencingSamples = function(action)
 {	
-	// To serach for samples by project, we need to go through the experiment
-	var experimentCriteria = 
-	{
-		targetEntityKind : "EXPERIMENT",
-		criteria : { 
-			matchClauses : 
-			[ {"@type":"AttributeMatchClause",
-				"attribute":"PROJECT",
-				"fieldType":"ATTRIBUTE",
-				"desiredValue": project.bis.code
-			} ]
-		}
-	};
-	
 	var sampleCriteria = 
 	{
-		subCriterias : [ experimentCriteria ],
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
-				attribute : "TYPE",
-				fieldType : "ATTRIBUTE",
-				desiredValue : "ILLUMINA_SEQUENCING" 
-			} ],
-		operator : "MATCH_ALL_CLAUSES"
-	};
-
-	this.server.searchForSamples(sampleCriteria, action)
-}
-
-/**
- * Request the sequencing samples for an experiment
- */
-openbis_dsu.prototype.retrieveSequencingSamplesForExperiment = function(experiment, action)
-{	
-	var experimentCriteria = 
-	{
-		targetEntityKind : "EXPERIMENT",
-		criteria : { 
-			matchClauses : 
-			[ {"@type":"AttributeMatchClause",
-				"attribute":"CODE",
-				"fieldType":"ATTRIBUTE",
-				"desiredValue": experiment.bis.code 
-			},
-			{"@type":"AttributeMatchClause",
-				"attribute":"PROJECT",
-				"fieldType":"ATTRIBUTE",
-				"desiredValue": experiment.project.bis.code
-			} ]
-		}
-	};
-	
-	var sampleCriteria = 
-	{
-		subCriterias : [ experimentCriteria ],
 		matchClauses : 
 			[ {"@type":"AttributeMatchClause",
 				attribute : "TYPE",
@@ -106,6 +42,17 @@ openbis_dsu.prototype.retrieveSequencingSamplesForExperiment = function(experime
  */
 openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, action)
 {
+	var projectCode = null;
+	
+	if(sample.bis.experimentIdentifierOrNull){
+		var experimentIdentifierRegexp = /\/(.*)\/(.*)\/(.*)/g;
+		var experimentIdentifierMatch = experimentIdentifierRegexp.exec(sample.bis.experimentIdentifierOrNull);
+		projectCode = experimentIdentifierMatch[2];
+	}else{
+		action(null);
+		return;
+	}
+	
 	var experimentCriteria = 
 	{
 		targetEntityKind : "EXPERIMENT",
@@ -114,7 +61,7 @@ openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, ac
 			[ {"@type":"AttributeMatchClause",
 				"attribute":"PROJECT",
 				"fieldType":"ATTRIBUTE",
-				"desiredValue": sample.project.bis.code
+				"desiredValue": projectCode
 			} ]
 		}
 	};

@@ -110,6 +110,16 @@ openbis.prototype.logout = function(action) {
 	 });
 }
 
+openbis.prototype.listSpacesWithProjectsAndRoleAssignments = function(databaseInstanceCodeOrNull, action) {
+	 ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "listSpacesWithProjectsAndRoleAssignments",
+				"params" : [ this.sessionToken,  databaseInstanceCodeOrNull ] 
+			  },
+		success: action
+	 });
+}
+
 openbis.prototype.listProjects = function(action) {
 	 ajaxRequest({
 		url: this.generalInfoServiceUrl,

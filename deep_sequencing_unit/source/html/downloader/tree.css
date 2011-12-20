@@ -1,6 +1,6 @@
 .node circle {
 	 fill: #fff;
-	 stroke: steelblue;
+	 stroke: #444444; 
 	 stroke-width: 1.5px;
 }
 
@@ -8,6 +8,12 @@
 	font: 12px "Verdana", sans-serif;
 	z-index: 1;
 	cursor: pointer;
+	position: relative; 
+	left: -15px;
+}
+
+.node:hover{
+  font-weight: bold;  
 }
 
 .link {
@@ -17,25 +23,24 @@
 	 z-index: -1;
 }
 
-g.withchildren:hover {
-	opacity: 0.5;
-	font-weight: bold;
+.SAMPLE.inspected {
+  font-weight: bold
 }
 
-.leaf text { 
-	fill: #999;
+.SAMPLE.sequenced circle {
+	stroke: DarkGreen;
 }
 
-.sequenced text{
-	fill: black;
+.SAMPLE.sequenced:hover circle {
+  fill: DarkGreen;
 }
 
-g.leaf:hover {
-	font-weight: bold;
+.SAMPLE.notsequenced circle {
+	stroke: DarkRed;
 }
 
-.inspected {
-	font-weight: bold
+.SAMPLE.notsequenced:hover circle {
+  fill: DarkRed;
 }
 
 /* Inspector */
@@ -50,6 +55,18 @@ div.inspector {
 
 .property {
   font-size: 10px;
+}
+
+.properties {
+	width: 100%;	
+}
+
+.properties tr:nth-child(odd) {
+  background-color:#eee;
+}
+
+.properties tr:nth-child(even) {
+  background-color:#fff;
 }
 
 .close {
@@ -95,3 +112,27 @@ table.downloads {
 	cursor: pointer;
 	font-weight: bold;
 }
+
+input:focus{
+background-color: white;
+}
+
+.resetpassword:link {color:#BDBDBD; text-decoration:none}
+.resetpassword:visited {color:#BDBDBD; text-decoration:none}
+.resetpassword:active {color:#BDBDBD; text-decoration:none}
+.resetpassword:hover {color:#000000; text-decoration:none}
+
+/* Legend */
+
+.legend .sequenced circle {
+   stroke-width: 1.5px;
+   fill: white;
+   stroke: DarkGreen;
+}
+
+.legend .notsequenced circle {
+   stroke-width: 1.5px;
+   fill: white;
+   stroke: DarkRed;
+}
+
