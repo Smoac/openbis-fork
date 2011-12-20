@@ -130,10 +130,8 @@ public class SizeCriterion implements IImageSetSelectionCriterion
             }
         };
 
-        void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                List<IImageSetMetaData> filteredImageMetaData)
-        {
-        }
+        abstract void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
+                List<IImageSetMetaData> filteredImageMetaData);
     }
 
     private static final Comparator<IImageSetMetaData> SIZE_COMPARATOR =
