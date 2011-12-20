@@ -1611,8 +1611,19 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<Set<IImageSetMetaData>> listImageSetsMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        // TODO Auto-generated method stub
-        return null;
+        final List<Set<IImageSetMetaData>> list = new ArrayList<Set<IImageSetMetaData>>();
+        metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
+            {
+                public void handle(DssServiceRpcScreeningHolder dssService,
+                        List<IImageDatasetIdentifier> references)
+                {
+                    checkDSSMinimalMinorVersion(dssService, "listImageSetsMetadata", List.class);
+                    List<Set<IImageSetMetaData>> sets =
+                            dssService.getService().listImageSetsMetadata(sessionToken, references);
+                    list.addAll(sets);
+                }
+            });
+        return list;
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
