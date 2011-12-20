@@ -57,7 +57,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
 
         public MockAbsoluteImageReference(int width, int height)
         {
-            super(null, "img.jpg", null, null, new RequestedImageSize(null, false), null,
+            super(null, null, null, null, new RequestedImageSize(null, false), null,
                     new ImageTransfomationFactories(), null);
             this.width = width;
             this.height = height;
@@ -193,9 +193,9 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 + "1 original image sizes and 1 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
         assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=jpg,id=0}, "
+                + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=<null>,id=0}, "
                 + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
-                + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=jpg,id=0}]",
+                + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
@@ -233,7 +233,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         		"0 original image sizes and 0 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
         assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=jpg,id=0}]",
+                + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
