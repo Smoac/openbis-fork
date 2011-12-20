@@ -3,7 +3,7 @@ from eu.basynthec.cisd.dss import TimeSeriesDataExcel
 import re
 
 # A Regex for matching the column headers
-header_regex = re.compile("^(.+)-([0-9]) ([0-9]+)")
+header_regex = re.compile("^(.+)-(.*) ([0-9]+)")
 
 def set_data_type(data_set):
   data_set.setPropertyValue("DATA_TYPE", "TRANSCRIPTOMICS")

@@ -102,11 +102,11 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         String[][] expectedData =
             {
                 { "Strain", "HumanReadable", "-19020.0", "-17220.0" },
-                { "JJS-MGP1", "OD600", "0.05", "0.064" },
+                { "JJS-MGP001", "OD600", "0.05", "0.064" },
                 { "JJS-MGP100", "OD600", "0.05", "0.064" },
-                { "JJS-MGP20", "OD600", "0.05", "0.064" },
+                { "JJS-MGP020", "OD600", "0.05", "0.064" },
                 { "JJS-MGP999", "OD600", "0.05", "0.064" },
-                { "JJS-MGP1", "OD600", "0.05", "0.064" },
+                { "JJS-MGP001", "OD600", "0.05", "0.064" },
                 { "MS", "OD600", "0.05", "0.064" },
                 { "WT 168 trp+", "OD600", "0.05", "0.064" } };
         assertLinesAreEqual(dataLines, expectedData);
