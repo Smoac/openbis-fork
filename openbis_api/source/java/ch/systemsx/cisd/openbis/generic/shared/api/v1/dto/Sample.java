@@ -51,6 +51,8 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         private Long id;
 
+        private String spaceCode;
+
         private String permId;
 
         private String code;
@@ -75,6 +77,16 @@ public final class Sample implements Serializable, IIdentifierHolder
         public Long getId()
         {
             return id;
+        }
+
+        public void setSpaceCode(String spaceCode)
+        {
+            this.spaceCode = spaceCode;
+        }
+
+        public String getSpaceCode()
+        {
+            return spaceCode;
         }
 
         public void setPermId(String permId)
@@ -160,6 +172,8 @@ public final class Sample implements Serializable, IIdentifierHolder
 
     private Long id;
 
+    private String spaceCode;
+
     private String permId;
 
     private String code;
@@ -185,6 +199,8 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         InitializingChecks.checkValidLong(initializer.getId(), "Unspecified id.");
         this.id = initializer.getId();
+
+        this.spaceCode = initializer.getSpaceCode();
 
         InitializingChecks.checkValidString(initializer.getPermId(), "Unspecified permanent id.");
         this.permId = initializer.getPermId();
@@ -219,6 +235,14 @@ public final class Sample implements Serializable, IIdentifierHolder
     public Long getId()
     {
         return id;
+    }
+
+    /**
+     * Returns the space code.
+     */
+    public String getSpaceCode()
+    {
+        return spaceCode;
     }
 
     /**

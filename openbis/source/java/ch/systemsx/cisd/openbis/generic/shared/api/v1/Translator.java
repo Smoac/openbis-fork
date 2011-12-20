@@ -106,6 +106,8 @@ public class Translator
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(privateSample.getId());
+        initializer.setSpaceCode(privateSample.getSpace() != null ? privateSample.getSpace()
+                .getCode() : null);
         initializer.setPermId(privateSample.getPermId());
         initializer.setCode(privateSample.getCode());
         initializer.setIdentifier(privateSample.getIdentifier());
