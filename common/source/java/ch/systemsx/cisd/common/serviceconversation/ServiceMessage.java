@@ -23,8 +23,10 @@ import java.io.Serializable;
  * 
  * @author Bernd Rinn
  */
-public class ServiceMessage
+public class ServiceMessage implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String conversationId;
 
     private final int messageIdx;
