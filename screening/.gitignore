@@ -3,3 +3,5 @@
 /.updater
 /.dynamic_property_evaluator_queue
 /tmp
+/dss-tmp
+/indices-screening

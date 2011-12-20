@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -251,6 +252,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CRITERIA(%s)",
                 imageReferences, Arrays.asList(criteria));
+        return null;
+    }
+
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        logAccess(sessionToken, "list_available_image_representation_formats", "DATA_SETS(%s)",
+                imageDatasets);
         return null;
     }
 

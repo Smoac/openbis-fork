@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -78,6 +80,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMeta
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
@@ -103,6 +106,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -782,6 +786,69 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
         return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channels);
+    }
+
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        IImagingReadonlyQueryDAO queryInterface = getDAO();
+        ArrayList<DatasetImageRepresentationFormats> result =
+                new ArrayList<DatasetImageRepresentationFormats>(imageDatasets.size());
+
+        // Get the database identifiers for the data sets
+        String[] permIds = new String[imageDatasets.size()];
+        for (int i = 0; i < imageDatasets.size(); ++i)
+        {
+            permIds[i] = imageDatasets.get(i).getPermId();
+        }
+        List<ImgImageDatasetDTO> primImageDatasets =
+                queryInterface.listImageDatasetsByPermId(permIds);
+
+        // Convert this to a hash map for faster indexing
+        HashMap<String, ImgImageDatasetDTO> imageDataSetMap =
+                new HashMap<String, ImgImageDatasetDTO>();
+        for (ImgImageDatasetDTO primImageDataSet : primImageDatasets)
+        {
+            imageDataSetMap.put(primImageDataSet.getPermId(), primImageDataSet);
+        }
+
+        // Not an efficient way to execute this query, but it reuses the queries at our disposal
+        for (IDatasetIdentifier imageDataset : imageDatasets)
+        {
+            ImgImageDatasetDTO primImageDataSet = imageDataSetMap.get(imageDataset.getPermId());
+            if (null == primImageDataSet)
+            {
+                List<ImageRepresentationFormat> emptyList = Collections.emptyList();
+                DatasetImageRepresentationFormats datasetResult =
+                        new DatasetImageRepresentationFormats(imageDataset, emptyList);
+                result.add(datasetResult);
+                continue;
+            }
+            List<ImgImageZoomLevelDTO> zoomLevels =
+                    queryInterface.listImageZoomLevels(primImageDataSet.getId());
+            List<ImageRepresentationFormat> formats =
+                    convertZoomLevelsToRepresentationFormats(zoomLevels);
+            DatasetImageRepresentationFormats datasetResult =
+                    new DatasetImageRepresentationFormats(imageDataset, formats);
+            result.add(datasetResult);
+        }
+        return result;
+    }
+
+    private List<ImageRepresentationFormat> convertZoomLevelsToRepresentationFormats(
+            List<ImgImageZoomLevelDTO> zoomLevels)
+    {
+        ArrayList<ImageRepresentationFormat> results = new ArrayList<ImageRepresentationFormat>();
+        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+        {
+            ImageRepresentationFormat result =
+                    new ImageRepresentationFormat(zoomLevel.getIsOriginal(), zoomLevel.getWidth(),
+                            zoomLevel.getHeight(), zoomLevel.getColorDepth(),
+                            zoomLevel.getFileType());
+            results.add(result);
+        }
+
+        return results;
     }
 
     private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)

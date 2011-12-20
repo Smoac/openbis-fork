@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Da
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.DatasetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.SingleDataSetIdentifierPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -392,5 +393,17 @@ public interface IDssServiceRpcScreening extends IRpcService
     public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IImageDatasetIdentifier> imageDatasets);
+
+    /**
+     * Return image representation formats available for the specified image datasets.
+     * 
+     * @param imageDatasets The image data sets for which the representation formats are requested.
+     * @return A list with one entry for each in <b>imageDatasets</b>. 
+     */
+    @MinimalMinorVersion(10)
+    @DataSetAccessGuard
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<? extends IDatasetIdentifier> imageDatasets);
 
 }
