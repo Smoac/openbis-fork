@@ -354,6 +354,11 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.id = id;
     }
 
+    private void setSpaceCode(String spaceCode)
+    {
+        this.spaceCode = spaceCode;
+    }
+    
     private void setPermId(String permId)
     {
         this.permId = permId;
