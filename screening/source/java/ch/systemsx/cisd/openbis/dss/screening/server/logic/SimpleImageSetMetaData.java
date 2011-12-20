@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server.logic;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
@@ -25,8 +27,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaDa
  *
  * @author Franz-Josef Elmer
  */
-public class SimpleImageSetMetaData implements IImageSetMetaData
+public class SimpleImageSetMetaData implements IImageSetMetaData, Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     private final Geometry size;
     private final ImageSetMetaData metaData;
 

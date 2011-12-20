@@ -26,6 +26,8 @@ import java.util.List;
  */
 public class SizeCriterion implements IImageSetSelectionCriterion
 {
+    private static final long serialVersionUID = 1L;
+
     public static enum Type
     {
         LARGEST_IN_BOUNDING_BOX()

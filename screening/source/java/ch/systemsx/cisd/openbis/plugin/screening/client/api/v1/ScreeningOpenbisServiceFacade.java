@@ -1844,7 +1844,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
-                                    IPlateImageHandler.class, IImageSetSelectionCriterion[].class);
+                                    IImageSetSelectionCriterion[].class);
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
                                             criteria);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ import java.util.List;
  *
  * @author Franz-Josef Elmer
  */
-public interface IImageSetSelectionCriterion
+public interface IImageSetSelectionCriterion extends Serializable
 {
     /**
      * Returns all {@link IImageSetMetaData} objects from the specified list which fulfill this

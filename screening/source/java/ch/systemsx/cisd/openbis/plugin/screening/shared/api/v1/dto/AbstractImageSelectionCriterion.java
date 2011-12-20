@@ -26,6 +26,7 @@ import java.util.List;
  */
 public abstract class AbstractImageSelectionCriterion implements IImageSetSelectionCriterion
 {
+    private static final long serialVersionUID = 1L;
 
     public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData)
     {
