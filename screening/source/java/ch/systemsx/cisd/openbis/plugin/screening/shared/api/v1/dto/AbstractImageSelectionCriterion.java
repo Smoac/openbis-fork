@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * Abstract super class of {@link IImageSetSelectionCriterion} which accepting matching
+ * {@link IImageSetMetaData} instance individually. 
  *
  * @author Franz-Josef Elmer
  */
@@ -41,6 +42,10 @@ public abstract class AbstractImageSelectionCriterion implements IImageSetSelect
         return filteredMetaData;
     }
     
+    /**
+     * Returns <code>true</code> if the specified {@link IImageSetMetaData} instance is
+     * accepted by this criterion.
+     */
     protected abstract boolean accept(IImageSetMetaData imageMetaData);
 
 }

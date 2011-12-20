@@ -22,6 +22,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
+ * Criterion based on the image size.
+ * 
  * @author Franz-Josef Elmer
  */
 public class SizeCriterion implements IImageSetSelectionCriterion
@@ -30,6 +32,10 @@ public class SizeCriterion implements IImageSetSelectionCriterion
 
     public static enum Type
     {
+        /**
+         * Picks that image set where the image size is the largest one which just fits into
+         * a bounding box specified by width and height.
+         */
         LARGEST_IN_BOUNDING_BOX()
         {
             @Override
@@ -40,11 +46,15 @@ public class SizeCriterion implements IImageSetSelectionCriterion
                 INSIDE_BOUNDING_BOX.filter(width, height, imageMetaData, smallerMetaData);
                 if (smallerMetaData.isEmpty() == false)
                 {
-                    Collections.sort(smallerMetaData, SITE_COMPARATOR);
+                    Collections.sort(smallerMetaData, SIZE_COMPARATOR);
                     filteredImageMetaData.add(smallerMetaData.get(smallerMetaData.size() - 1));
                 }
             }
         },
+        /**
+         * Picks all image sets where the image size is inside a bounding box specified by width and
+         * height.
+         */
         INSIDE_BOUNDING_BOX
         {
             @Override
@@ -61,22 +71,30 @@ public class SizeCriterion implements IImageSetSelectionCriterion
                 }
             }
         },
-        SMALLEST_OUTSIDE_BOUNDING_BOX
+        /**
+         * Picks that image set where the image size is the smallest one covering a bounding box
+         * specified by width and height.
+         */
+        SMALLEST_COVERING_BOUNDING_BOX
         {
             @Override
             void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
                     List<IImageSetMetaData> filteredImageMetaData)
             {
                 List<IImageSetMetaData> largerMetaData = new ArrayList<IImageSetMetaData>();
-                LARGER_THEN_BOUNDING_BOX.filter(width, height, imageMetaData, largerMetaData);
+                COVERING_BOUNDING_BOX.filter(width, height, imageMetaData, largerMetaData);
                 if (largerMetaData.isEmpty() == false)
                 {
-                    Collections.sort(largerMetaData, SITE_COMPARATOR);
+                    Collections.sort(largerMetaData, SIZE_COMPARATOR);
                     filteredImageMetaData.add(largerMetaData.get(0));
                 }
             }
         },
-        LARGER_THEN_BOUNDING_BOX
+        /**
+         * Picks all image sets where the image size covers a bounding box specified by width and
+         * height.
+         */
+        COVERING_BOUNDING_BOX
         {
             @Override
             void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
@@ -92,6 +110,9 @@ public class SizeCriterion implements IImageSetSelectionCriterion
                 }
             }
         },
+        /**
+         * Picks all image sets where the image size is exactly as specified by width and height.
+         */
         EXACTLY
         {
             @Override
@@ -115,7 +136,7 @@ public class SizeCriterion implements IImageSetSelectionCriterion
         }
     }
 
-    private static final Comparator<IImageSetMetaData> SITE_COMPARATOR =
+    private static final Comparator<IImageSetMetaData> SIZE_COMPARATOR =
             new Comparator<IImageSetMetaData>()
                 {
                     public int compare(IImageSetMetaData i1, IImageSetMetaData i2)
@@ -135,6 +156,9 @@ public class SizeCriterion implements IImageSetSelectionCriterion
 
     private final Type type;
 
+    /**
+     * Creates an instance for the specified image size and criterion type.
+     */
     public SizeCriterion(int width, int height, Type type)
     {
         this.width = width;
