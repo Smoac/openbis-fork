@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFil
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.CachedImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
@@ -1831,11 +1832,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     });
     }
-    
 
     public void loadImages(List<PlateImageReference> imageReferences,
-            final IPlateImageHandler plateImageHandler, final IImageSetSelectionCriterion... criteria)
-            throws IOException
+            final IPlateImageHandler plateImageHandler,
+            final IImageSetSelectionCriterion... criteria) throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
@@ -1901,6 +1901,25 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         checkASMinimalMinorVersion("getExperimentImageMetadata", ExperimentIdentifier.class);
         return openbisScreeningServer
                 .getExperimentImageMetadata(sessionToken, experimentIdentifier);
+    }
+
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            List<? extends IDatasetIdentifier> dataSetIdentifiers)
+    {
+        List<IDatasetIdentifier> simplerList =
+                new ArrayList<IDatasetIdentifier>(dataSetIdentifiers.size());
+        simplerList.addAll(dataSetIdentifiers);
+        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(simplerList);
+        Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
+        if (entrySet.size() != 1)
+        {
+            throw new IllegalArgumentException("Only one data store expected instead of "
+                    + map.keySet());
+        }
+        Entry<String, List<IDatasetIdentifier>> entry = entrySet.iterator().next();
+        IDssServiceRpcScreening service =
+                dssServiceCache.createDssService(entry.getKey()).getService();
+        return service.listAvailableImageRepresentationFormats(sessionToken, dataSetIdentifiers);
     }
 
 }

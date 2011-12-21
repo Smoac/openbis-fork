@@ -28,13 +28,12 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.authorization.DatasetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
@@ -768,7 +767,7 @@ public interface IScreeningOpenbisServiceFacade
     public void loadImages(List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration, IPlateImageHandler plateImageHandler)
             throws IOException;
-    
+
     /**
      * Provides images for the specified list of image references (specified by data set code, well
      * position, channel and tile) and image selection criteria. These criteria are applied to the
@@ -852,7 +851,7 @@ public interface IScreeningOpenbisServiceFacade
     @Retry
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);
-    
+
     /**
      * Returns for each of the specified image data sets the meta data of available image sets.
      */
@@ -887,5 +886,12 @@ public interface IScreeningOpenbisServiceFacade
     @Retry
     public ExperimentImageMetadata getExperimentImageMetadata(
             ExperimentIdentifier experimentIdentifier);
+
+    /**
+     * @return Information about the image representations available for the sepecified data sets.
+     */
+    @Retry
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            List<? extends IDatasetIdentifier> dataSetIdentifiers);
 
 }
