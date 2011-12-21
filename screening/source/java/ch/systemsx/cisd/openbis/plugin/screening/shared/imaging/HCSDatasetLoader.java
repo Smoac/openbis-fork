@@ -221,13 +221,18 @@ public class HCSDatasetLoader implements IImageDatasetLoader
             ImageSetMetaData metaData = new ImageSetMetaData();
             metaData.setId(zoomLevel.getId());
             metaData.setOriginal(zoomLevel.getIsOriginal());
-            metaData.setWidth(zoomLevel.getWidth());
-            metaData.setHeight(zoomLevel.getHeight());
+            metaData.setWidth(mapNullTo0(zoomLevel.getWidth()));
+            metaData.setHeight(mapNullTo0(zoomLevel.getHeight()));
             metaData.setColorDepth(zoomLevel.getColorDepth());
             metaData.setFileType(zoomLevel.getFileType());
             result.add(metaData);
         }
         return result;
+    }
+    
+    private int mapNullTo0(Integer n)
+    {
+        return n == null ? 0 : n;
     }
     
     private List<InternalImageChannel> convertChannels()
