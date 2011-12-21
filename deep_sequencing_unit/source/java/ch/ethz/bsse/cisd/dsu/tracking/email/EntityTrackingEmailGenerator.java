@@ -230,7 +230,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                         "You can download results for external sample named '%s' at",
                         externalSampleName), dataSet.getPermlink());
                 // add which Data set type has been added
-                appendAttribute(sb, "Data Set Type:", dataSet.getDataSetType().toString());
+                appendAttribute(sb, "Data Set Type", dataSet.getDataSetType().toString());
 
                 // data set properties
                 appendProperties(sb, dataSet.getProperties());
