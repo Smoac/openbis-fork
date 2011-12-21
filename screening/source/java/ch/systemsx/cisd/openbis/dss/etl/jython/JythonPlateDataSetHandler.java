@@ -204,7 +204,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 DataSetRegistrationService<ImageDataSetInformation> service)
         {
             DataSetRegistrationTransaction<ImageDataSetInformation> transaction =
-                    service.transaction(incomingDatasetFolder, imageDatasetFactory);
+                    service.transaction(incomingDatasetFolder, service.getDataSetRegistrationDetailsFactory());
             IDataSet newDataset = transaction.createNewDataSet(imageDatasetDetails);
             transaction.moveFile(incomingDatasetFolder.getPath(), newDataset);
             return transaction.commit();
