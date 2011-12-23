@@ -42,6 +42,9 @@ public class WellSearchCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+        public static final SingleExperimentSearchCriteria EMPTY_CRITERIA =
+                new SingleExperimentSearchCriteria();
+
         private TechId experimentId;
 
         private String experimentPermId;

@@ -17,6 +17,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * Material detail view for screening materials. Overrides {@link MaterialLocatorResolver}.
@@ -26,6 +27,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
+
+    private static final String EMPTY_EXPERIMENT_IDENTIFIER = "";
 
     public ImagingMaterialLocatorResolver(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
@@ -44,8 +47,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 tryGetExperimentIdentifierSearchCriteria(locator);
 
         AnalysisProcedureCriteria analysisProcedureCriteria =
-                ScreeningResolverUtils.
-                extractAnalysisProcedureCriteria(locator);
+                ScreeningResolverUtils.extractAnalysisProcedureCriteria(locator);
 
         openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentCriteriaOrNull,
                 analysisProcedureCriteria);
@@ -58,14 +60,24 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
         String experimentIdentifierOrNull =
                 getOptionalParameter(locator,
                         ScreeningLinkExtractor.MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY);
-        if (experimentIdentifierOrNull != null)
+        boolean experimentIdentifierSpecified =
+                locator.getParameters().containsKey(
+                        ScreeningLinkExtractor.MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY);
+
+        if (experimentIdentifierSpecified)
         {
+            if (experimentIdentifierOrNull == null
+                    || experimentIdentifierOrNull.trim().length() == 0)
+            {
+                experimentIdentifierOrNull = EMPTY_EXPERIMENT_IDENTIFIER;
+            }
             boolean restrictGlobalSearchToProject =
                     getOptionalBooleanParameter(locator,
                             ScreeningLinkExtractor.RESTRICT_GLOBAL_SEARCH_TO_PROJECT, false);
             return ExperimentIdentifierSearchCriteria.createExperimentScope(
                     experimentIdentifierOrNull, restrictGlobalSearchToProject);
         }
+
         // project
         String space = getOptionalParameter(locator, ScreeningLinkExtractor.SPACE_CODE_KEY);
         String project = getOptionalParameter(locator, ScreeningLinkExtractor.PROJECT_CODE_KEY);
@@ -95,10 +107,10 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
      */
     protected void openInitialMaterialViewer(MaterialIdentifier identifier,
             ExperimentIdentifierSearchCriteria experimentCriteriaOrNull,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
-            throws UserFailureException
+            AnalysisProcedureCriteria analysisProcedureCriteria) throws UserFailureException
     {
-        viewContext.getCommonService().getMaterialInformationHolder(identifier,
+        viewContext.getCommonService().getMaterialInformationHolder(
+                identifier,
                 new OpenEntityDetailsTabCallback(viewContext, experimentCriteriaOrNull,
                         analysisProcedureCriteria));
     }
@@ -139,12 +151,21 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 BasicProjectIdentifier project = scopeOrNull.tryGetProject();
                 if (experimentIdentifier != null)
                 {
-                    fetchExperimentAndShowLocations(material, experimentIdentifier);
+                    if (EMPTY_EXPERIMENT_IDENTIFIER.equals(experimentIdentifier))
+                    {
+                        openImagingMaterialViewer(material,
+                                ExperimentSearchCriteria.createExperiment(
+                                        SingleExperimentSearchCriteria.EMPTY_CRITERIA,
+                                        scopeOrNull.getRestrictGlobalSearchLinkToProject()));
+                    } else
+                    {
+                        fetchExperimentAndShowLocations(material, experimentIdentifier);
+                    }
+
                 } else if (project != null)
                 {
                     openImagingMaterialViewer(material,
-                            ExperimentSearchCriteria
-                                    .createAllExperimentsForProject(project));
+                            ExperimentSearchCriteria.createAllExperimentsForProject(project));
                 } else
                 {
                     openImagingMaterialViewer(material,
@@ -164,8 +185,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                             protected void process(Experiment experiment)
                             {
                                 ExperimentSearchCriteria experimentCriteria =
-                                        ExperimentSearchCriteria.createExperiment(
-                                                experiment,
+                                        ExperimentSearchCriteria.createExperiment(experiment,
                                                 scopeOrNull.getRestrictGlobalSearchLinkToProject());
                                 openImagingMaterialViewer(material, experimentCriteria);
                             }

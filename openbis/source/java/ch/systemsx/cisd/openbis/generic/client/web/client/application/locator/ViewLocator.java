@@ -137,30 +137,36 @@ public class ViewLocator
         for (int i = 0; i < params.length; i++)
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
-            assert paramPair.length == 2 : "Incorrectly formatted URL parameters";
+            String paramName = paramPair.length > 0 ? paramPair[0] : null;
+            String paramValue = paramPair.length > 1 ? paramPair[1] : null;
+
             // TODO 2010-09-20, Piotr Buczek: use com.google.gwt.http.client.URL.decode, exchange
             // BasicURLEncoder with URL.encode
-            paramPair[1] = StringEscapeUtils.unescapeHtml(paramPair[1].replaceAll("%2F", "/"));
-            if (GWT_PARAMETER.equals(paramPair[0]))
+            if (paramValue != null)
+            {
+                paramValue = StringEscapeUtils.unescapeHtml(paramValue.replaceAll("%2F", "/"));
+            }
+
+            if (GWT_PARAMETER.equals(paramName))
             {
                 // skip GWT parameters -- only relevant during testing
-            } else if (ACTION_PARAMETER.equalsIgnoreCase(paramPair[0]))
+            } else if (ACTION_PARAMETER.equalsIgnoreCase(paramName))
             {
-                actionOrNull = paramPair[1];
-            } else if (ENTITY_PARAMETER.equalsIgnoreCase(paramPair[0]))
+                actionOrNull = paramValue;
+            } else if (ENTITY_PARAMETER.equalsIgnoreCase(paramName))
             {
-                entityOrNull = paramPair[1];
-            } else if (PERM_ID_PARAMETER.equalsIgnoreCase(paramPair[0]))
+                entityOrNull = paramValue;
+            } else if (PERM_ID_PARAMETER.equalsIgnoreCase(paramName))
             {
                 // Permlink URLs have an implied action
                 if (actionOrNull == null)
                 {
                     actionOrNull = PERMLINK_ACTION;
                 }
-                parameters.put(paramPair[0], paramPair[1]);
+                parameters.put(paramName, paramValue);
             } else
             {
-                parameters.put(paramPair[0], paramPair[1]);
+                parameters.put(paramName, paramValue);
             }
         }
 
