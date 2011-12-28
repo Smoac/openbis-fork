@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import java.util.ArrayList;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -58,6 +60,21 @@ public class ViewLocatorResolverRegistry
                 break;
             }
         }
+    }
+
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
+    {
+        for (IViewLocatorResolver handler : handlers)
+        {
+            if (handler.canHandleLocator(locator))
+            {
+                handler.locatorExists(locator, callback);
+                return;
+            }
+        }
+
+        // trigger on failure when there is no handler that can handle the locator
+        callback.onFailure(null);
     }
 
     /**

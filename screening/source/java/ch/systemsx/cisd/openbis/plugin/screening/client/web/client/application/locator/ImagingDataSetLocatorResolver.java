@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
@@ -23,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -44,14 +45,34 @@ public class ImagingDataSetLocatorResolver extends PermlinkLocatorResolver
     @Override
     public boolean canHandleLocator(ViewLocator locator)
     {
-        String entityKindValueOrNull = locator.tryGetEntity();
-        String permIdValueOrNull =
-                locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+        String entityKindValueOrNull = tryGetEntityKind(locator);
+        String permIdValueOrNull = tryGetPermId(locator);
 
         return super.canHandleLocator(locator)
                 && (EntityKind.DATA_SET.name().equals(entityKindValueOrNull) || EntityKind.SAMPLE
                         .name().equals(entityKindValueOrNull)) && permIdValueOrNull != null
                 && permIdValueOrNull.contains(":");
+    }
+
+    @Override
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
+    {
+        EntityKind entityKindValueOrNull = tryGetEntityKindEnum(locator);
+        String permIdValueOrNull = tryGetPermId(locator);
+
+        if (entityKindValueOrNull != null && permIdValueOrNull != null)
+        {
+            int idx = permIdValueOrNull.indexOf(':');
+            if (idx != -1)
+            {
+                viewContext.getCommonService().getEntityInformationHolder(entityKindValueOrNull,
+                        permIdValueOrNull.substring(0, idx),
+                        new LocatorExistsCallback<IEntityInformationHolderWithPermId>(callback));
+                return;
+            }
+        }
+
+        callback.onFailure(null);
     }
 
     /**
@@ -123,4 +144,5 @@ public class ImagingDataSetLocatorResolver extends PermlinkLocatorResolver
                 }, viewContext, false).execute();
         }
     }
+
 }

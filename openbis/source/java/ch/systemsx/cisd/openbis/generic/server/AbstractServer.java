@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -411,7 +412,58 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             }
         }
 
+        removeNotExistingVisits(session);
+
         return asDTO(session);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void removeNotExistingVisits(Session session)
+    {
+        if (session == null || session.tryGetPerson() == null)
+        {
+            return;
+        }
+
+        DisplaySettings settings = session.tryGetPerson().getDisplaySettings();
+        Iterator<EntityVisit> iterator = settings.getVisits().iterator();
+        boolean changed = false;
+
+        while (iterator.hasNext())
+        {
+            EntityVisit visit = iterator.next();
+            EntityKind kind = EntityKind.valueOf(visit.getEntityKind());
+            Object entity = null;
+
+            switch (kind)
+            {
+                case DATA_SET:
+                    entity = daoFactory.getDataDAO().tryToFindDataSetByCode(visit.getIdentifier());
+                    break;
+                case EXPERIMENT:
+                    entity = daoFactory.getExperimentDAO().tryGetByPermID(visit.getPermID());
+                    break;
+                case MATERIAL:
+                    entity =
+                            daoFactory.getMaterialDAO().tryFindMaterial(
+                                    MaterialIdentifier.tryParseIdentifier(visit.getIdentifier()));
+                    break;
+                case SAMPLE:
+                    entity = daoFactory.getSampleDAO().tryToFindByPermID(visit.getPermID());
+                    break;
+            }
+
+            if (entity == null)
+            {
+                iterator.remove();
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            daoFactory.getPersonDAO().updatePerson(session.tryGetPerson());
+        }
     }
 
     private void grantRoleAtFirstLogin(List<PersonPE> persons, PersonPE person, RoleCode roleCode)

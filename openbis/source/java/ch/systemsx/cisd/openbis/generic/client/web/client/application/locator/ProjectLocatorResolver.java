@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -36,6 +38,20 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
     {
         String entityKindValueOrNull = locator.tryGetEntity();
         return super.canHandleLocator(locator) && PROJECT.equals(entityKindValueOrNull);
+    }
+
+    @Override
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
+    {
+        try
+        {
+            BasicProjectIdentifier identifier = extractProjectIdentifier(locator);
+            viewContext.getService().getProjectInfo(identifier,
+                    new LocatorExistsCallback<Project>(callback));
+        } catch (UserFailureException e)
+        {
+            callback.onFailure(null);
+        }
     }
 
     public void resolve(ViewLocator locator) throws UserFailureException

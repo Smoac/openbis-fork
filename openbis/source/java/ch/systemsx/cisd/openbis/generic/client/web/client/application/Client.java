@@ -27,6 +27,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ma
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LoginAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
@@ -361,10 +363,29 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     GWTUtils.setConfirmExitMessage();
                 }
 
-                String lastHistoryOrNull = tryGetLastHistoryToken();
+                final String lastHistoryOrNull = tryGetLastHistoryToken();
                 if (lastHistoryOrNull != null)
                 {
-                    History.newItem(lastHistoryOrNull);
+                    ViewLocator lastHistoryLocator = new ViewLocator(lastHistoryOrNull);
+                    viewContext.getLocatorResolverRegistry().locatorExists(lastHistoryLocator,
+                            new AsyncCallback<Void>()
+                                {
+
+                                    public void onSuccess(Void result)
+                                    {
+                                        History.newItem(lastHistoryOrNull);
+                                    }
+
+                                    public void onFailure(Throwable reason)
+                                    {
+                                        // Do not try to open the last history location
+                                        // when it no longer exists. Clear it instead.
+                                        viewContext.getModel().getSessionContext()
+                                                .getDisplaySettings()
+                                                .setLastHistoryTokenOrNull(null);
+                                        viewContext.getDisplaySettingsManager().storeSettings();
+                                    }
+                                });
                 } else
                 {
                     afterInitAction.execute();

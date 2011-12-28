@@ -1,9 +1,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
@@ -33,6 +36,20 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
         String entityKindValueOrNull = locator.tryGetEntity();
         return super.canHandleLocator(locator)
                 && EntityKind.MATERIAL.name().equals(entityKindValueOrNull);
+    }
+
+    @Override
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
+    {
+        try
+        {
+            MaterialIdentifier identifier = extractMaterialIdentifier(locator);
+            viewContext.getCommonService().getMaterialInformationHolder(identifier,
+                    new LocatorExistsCallback<IEntityInformationHolderWithPermId>(callback));
+        } catch (UserFailureException e)
+        {
+            callback.onFailure(null);
+        }
     }
 
     public void resolve(ViewLocator locator) throws UserFailureException

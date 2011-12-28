@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public interface IViewLocatorResolver
@@ -26,6 +28,11 @@ public interface IViewLocatorResolver
     public boolean canHandleLocator(ViewLocator locator);
 
     /**
+     * Test whether the locator exists (e.g. data to be displayed hasn't been deleted).
+     */
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback);
+
+    /**
      * Invoke the code to open the view specified by the locator. Implementations should try to
      * interpret the parameters to the best of their abilities and not fail unless absolutely
      * necessary (e.g., unnecessary parameters should be ignored).
@@ -34,4 +41,5 @@ public interface IViewLocatorResolver
      *                information is not specified.
      */
     public void resolve(ViewLocator locator) throws UserFailureException;
+
 }

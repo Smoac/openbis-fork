@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -26,6 +28,11 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
     public boolean canHandleLocator(ViewLocator locator)
     {
         return handledAction.equals(locator.tryGetAction());
+    }
+
+    public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
+    {
+        callback.onSuccess(null);
     }
 
     protected static final boolean getMandatoryBooleanParameter(ViewLocator locator,
@@ -108,6 +115,33 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
         {
             throw new UserFailureException("Invalid '" + ViewLocator.ENTITY_PARAMETER
                     + "' URL parameter value.");
+        }
+    }
+
+    protected class LocatorExistsCallback<T> implements AsyncCallback<T>
+    {
+
+        private AsyncCallback<Void> callback;
+
+        public LocatorExistsCallback(AsyncCallback<Void> callback)
+        {
+            this.callback = callback;
+        }
+
+        public final void onSuccess(T result)
+        {
+            if (result != null)
+            {
+                callback.onSuccess(null);
+            } else
+            {
+                callback.onFailure(null);
+            }
+        }
+
+        public final void onFailure(Throwable caught)
+        {
+            callback.onFailure(null);
         }
     }
 }
