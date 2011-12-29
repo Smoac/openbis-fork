@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 <head>
   <title>Quantitative Genomics Facility</title>
   <link type="text/css" rel="stylesheet" href="body-style.css" />
@@ -16,8 +16,8 @@
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
 
-//After logout the URL redirected to
-var logouturl = "https://openbis-dsu.ethz.ch/openbis/downloader/openbis-dsu-downloader.html";
+//After logout the URL redirected to, just go to current URL in this case
+var logouturl = $(location).attr('href');
 
 // A helper function for drawing the lines between nodes
 var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x] });	
@@ -67,10 +67,7 @@ function addSamplesToTree(samples)
     }
 	});
 	
-	samples.sort(function(sample1, sample2){
-		if(sample1.bis.code.toLowerCase() == sample2.bis.code.toLowerCase()) return 0;
-		return (sample1.bis.code.toLowerCase() < sample2.bis.code.toLowerCase()) ? 1: -1;
-	});
+	sortArray(samples, 'code', false);
 	
 	// Create sample group nodes (group by registration date) 
 	var sampleGroupsMap = [];
@@ -93,11 +90,8 @@ function addSamplesToTree(samples)
 		sampleGroup.samples.push(sample);
 	});
 
-	// Sort sample groups from newest to oldest 
-	sampleGroups.sort(function(group1, group2) {
-		    if (group1.code == group2.code) return 0;
-		    return (group1.code < group2.code) ? 1 : -1;
-  });
+	// Sort sample groups from newest to oldest
+	sortArray(sampleGroups, 'code', false);
 	
 	// Create space nodes
 	var isFirstSampleGroup = true;
@@ -123,6 +117,7 @@ function addSamplesToTree(samples)
     });
     
     if(spaces.length > 1){
+    	sortArray(spaces, 'label', true);
     	sampleGroup._children = spaces;
     }else{
       sampleGroup._children = sampleGroup.samples;
@@ -141,7 +136,7 @@ function addSamplesToTree(samples)
 }
 
 function getAppHeight(){
-	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
+	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 20);
 }
 
 function getAppWidth(){
@@ -178,6 +173,21 @@ function getVisibleLeafsCountForNode(node){
 			return count;
 	}else{
 		return 1;
+	}
+}
+
+function getVisibleLabelsMaxLength(node){
+	if(node.children){
+		var length = 0;
+		node.children.forEach(function(child){
+			var childLength = getVisibleLabelsMaxLength(child);
+			if(childLength > length){
+				length = childLength;
+			}
+		});
+		return length;
+	}else{
+		  return node.label.length * 13;		
 	}
 }
 
@@ -220,11 +230,13 @@ function createVis()
 	  
 	// An element for the inspectors.
 	inspectors = visgroup.append("span")
+	  .attr("id","inspectorsContainer")
 		.style("width", + inspectorsWidth + "px")
 		.style("position", "relative")
 		.style("overflow", "auto")
 		.style("float", "right")
-	  .style("top", "20px");
+	  .style("top", "20px")
+	  .style("display", "none");
 
 	didCreateVis = true;
 }
@@ -235,15 +247,31 @@ function createVis()
  */
 function updateDiagram(duration)
 {	
-
+  log('Updating diagram');
+	
+  var inspectorsSize = inspected.length > 0 ? inspectorsWidth : 0;
+  var labelsSize = getVisibleLabelsMaxLength(root);
+  
+  var treeWidth = Math.max(300, getAppWidth() - inspectorsSize - labelsSize);
+  var treeHeight = Math.max(100, getAppHeight());
+  
+  var visWidth = treeWidth + labelsSize - 20;
+  var visHeight = treeHeight;
+  
+  var mainWidth = visWidth + inspectorsSize;
+  var mainHeight = visHeight;
+  
 	// Adjust a size of the vis 
 	d3.select("#mainVis")
-	  .attr("width", getAppWidth() - inspectorsWidth - 50)
-    .attr("height", getAppHeight())
+	  .attr("width", visWidth)
+    .attr("height", visHeight);
+    
+  d3.select("#main")
+    .style("width", mainWidth)
+    .style("height", mainHeight);
 	
 	// Adjust a size of the tree 
-  tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - inspectorsWidth - 500])	
-	
+  tree = d3.layout.tree().size([treeHeight, treeWidth])	
 	
 	// Update the root and compute the new layout 
 	var nodes = tree.nodes(root);
@@ -323,9 +351,9 @@ function classForNode(d) {
 	// Use whether the node has open children or not to compute the class
 	var cssClass = "node " + d.type;
 	if (d.inspected) cssClass = cssClass + " inspected";
-	if(d.flowlanesLoaded){
-		if (d.flowlanes && d.flowlanes.length > 0) {
-	          cssClass = cssClass + " sequenced";
+	if(d.hasFilesLoaded){
+		if (d.hasFiles) {
+	    cssClass = cssClass + " sequenced";
 	  } else {
 		  cssClass = cssClass + " notsequenced";
 		}
@@ -393,22 +421,114 @@ function openChildren(d){
     
 		    var hasSampleChildren = d.children && d.children[0].type == 'SAMPLE';
 		    
-	      if(hasSampleChildren && !d.flowlanesLoaded){
-		    	 // Get the flow lanes for each sequencing sample 
-		    	  var deferrer = 
+	      if(hasSampleChildren && !d.hasFilesLoaded && !d.hasFilesLoading){
+		    	  d.hasFilesLoading = true; 
+	    	  
+	    	    // Get datasets for each sequencing sample 
+		    	  var sampleDeferrer = 
 		    	    new actionDeferrer(
-		    	        function() { d.flowlanesLoaded = true; updateDiagram(500) }, 
+		    	        function() {
+		    	        	log("Loaded HAS_FILES for all samples");
+		    	        	d.hasFilesLoaded = true; 
+		    	        	d.hasFilesLoading = false;
+		    	        	updateDiagram(500);
+		    	        }, 
 		    	        d.children.map(function(samp) { return samp.bis.code; }));
 		    	        
 		    	  d.children.forEach(function(sample) {
-		    	    dsu.retrieveFlowLanesForSequencingSample(sample, function(data) {
-		    	      if (data && data.result) sample.flowlanes = data.result.map(function(flowlane) { return { bis : flowlane }});
-		    	      sample.flowlanesLoaded = true;
-		    	      deferrer.dependencyCompleted(sample.bis.code);
-		    	    });
-		    	  });
+		    		   loadHasFilesForSample(sample, function(){
+		    			   sampleDeferrer.dependencyCompleted(sample.bis.code);
+		    		   });
+		    		});
 			  }
     }
+}
+
+function loadHasFilesForSample(sample, callback){
+	 dsu.retrieveDataSetsForSequencingSample(sample, function(data) {
+		      var datasets = data.result;
+		      
+	        log("Got " + (datasets ? datasets.length : 0) + " datasets for sample: " + sample.bis.code);
+
+	        if (!datasets || datasets.length == 0){
+	          sample.hasFiles = false;
+	          sample.hasFilesLoaded = true;
+	        	callback();
+	        }else{
+	            var listFiles = function(dataset){
+	                dsu.server.listFilesForDataSet(dataset.code, "/", true, function(data) {
+	                	  var files = data.result;
+	                	
+	                    log("Got " + (files ? files.length : 0) + " files for sample: " + sample.bis.code + " dataset: " + dataset.code);
+	                    
+	                    if (!files || files.length == 0) {
+	                      if(datasets.length > 0){
+	                    	  log("Sample: " + sample.bis.code + " no files found yet - will try in the next dataset");
+	                        listFilesFunction(datasets.pop());
+	                      }else{
+	                    	  log("Sample: " + sample.bis.code + " HAS_NO_FILES");
+	                    	  sample.hasFiles = false;
+	                    	  sample.hasFilesLoaded = true;
+	                    	  callback();
+	                      }
+	                    }else{
+	                    	 log("Sample: " + sample.bis.code + " HAS_FILES");
+	                    	 sample.hasFiles = true;
+	                    	 sample.hasFilesLoaded = true;
+	                    	 callback();
+	                    }
+	                });
+	            };
+	            listFiles(datasets.pop());
+	        }
+	    });	
+}
+
+function loadFilesForSample(sample, callback){
+    dsu.retrieveDataSetsForSequencingSample(sample, function(data) {
+    	  var datasets = data.result;
+    	
+        log("Got " + (datasets ? datasets.length : 0) + " datasets for sample: " + sample.bis.code);
+        
+        if (!datasets || datasets.length == 0){
+        	sample.files = [];
+        	sample.filesLoaded = true;
+          callback();      
+        }else{
+            sample.datasets = data.result.map(function(bisds) { return {bis : bisds} });
+            sample.files = [];
+            sample.filesLoaded = false;
+                  
+            // Get all the files from the sequencing sample's datasets 
+            var datasetDeferrer = 
+              new actionDeferrer(
+                function() {
+                   log("Loaded ALL datasets' files for sample: " + sample.bis.code);
+                   sortArray(sample.files, 'label', true);
+                   sample.filesLoaded = true; 
+                   callback();
+                }, 
+                sample.datasets.map(function(ds) { return ds.bis.code; }));
+              
+            sample.datasets.forEach(function(ds) { 
+              dsu.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {         
+                log("Got " + (data.result ? data.result.length : 0) + " files for sample: " + sample.bis.code + " dataset: " + ds.bis.code);
+                
+                if (!data.result || data.result.length == 0) {
+                  datasetDeferrer.dependencyCompleted(ds.bis.code);
+                  return;
+                }
+                data.result.forEach(function (file) {
+                  file.dataset = ds;
+                  file.label = file.pathInListing.split("/").pop();
+                });
+                data.result = data.result.filter(function(file){ return !file.isDirectory; });
+                sample.files = sample.files.concat(data.result);
+                datasetDeferrer.dependencyCompleted(ds.bis.code);
+              })
+            });
+        }
+    });
 }
 	  
 function getTextAnchorType(d){
@@ -464,8 +584,7 @@ function updateInspectors(duration)
 		.enter()
 			.append("table")
 				.attr("width", "100%")
-				.attr("class", "downloads")
-				.style("color", "steelblue");
+				.attr("class", "downloads");
 			
 	// Add a caption, but make sure there is just one (this does not work with select())
 	downloadTable.selectAll("caption")
@@ -482,7 +601,6 @@ function updateInspectors(duration)
 				.style("text-align", "left")
 				.on("click", downloadTableFile)
 				.text(function(d) { return d.label; });
-	downloadTableRow.sort()
 	downloadTableRow
 		.exit()
 			.transition()
@@ -498,6 +616,8 @@ function updateInspectors(duration)
 
 // Toggle children on click.
 function toggle_inspected(d) {
+	var count = inspected.length;
+	
 	if (d.inspected) {
 		var index = inspected.indexOf(d) 
 		if (index > -1)	inspected.splice(index, 1);
@@ -507,54 +627,49 @@ function toggle_inspected(d) {
 		d.inspected = true;
 		inspected.push(d);
 		d3.select(d.svgNode).attr("class", classForNode(d))
-		retrieveFilesForSequencingSample(d);
+		if(!d.filesLoaded){
+			loadFilesForSample(d, function(){
+				updateInspectors(500);
+			});
+		}
 	}
-  updateInspectors(500);
+
+	if(inspected.length > 0){
+		$("#inspectorsContainer").show();	
+	}else{
+		$("#inspectorsContainer").hide(); 
+	}
+
+	if(count == 0 && inspected.length > 0 || count > 0 && inspected.length == 0){
+		updateDiagram(500);
+		setTimeout(function(){
+			updateInspectors(500);
+		}, 500);
+	}else{
+		updateInspectors(500);
+	}
 }
 
-function retrieveFilesForSequencingSample(sequencing)
-{
-	// No point getting files for a sample that hasn't been sequenced
-	if (!hasSampleBeenSequenced(sequencing)) return;
-	
-	sequencing.loadingFiles = true;
-	
-	dsu.retrieveDataSetsForSequencingSample(sequencing, function(data) {
-			if (!data.result) return;
-
-			sequencing.datasets = data.result.map(function(bisds) { return {bis : bisds} });
-			sequencing.files = [];
-						
-			// Get all the files and update the inspectors once all the data is avilable
-			var deferrer = 
-				new actionDeferrer(
-					function() {
-					   sequencing.files.sort(function(file1, file2){
-						   if(file1.label.toLowerCase() == file2.label.toLowerCase()) return 0;
-						   return (file1.label.toLowerCase() > file2.label.toLowerCase()) ? 1 : -1;
-					   });
-						 sequencing.loadingFiles = false; 
-						 updateInspectors(500) 
-				  }, 
-					sequencing.datasets.map(function(ds) { return ds.bis.code; }));
-				
-			sequencing.datasets.forEach(function(ds) { 
-				dsu.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
-					if (!data.result) { 
-						deferrer.dependencyCompleted(ds.bis.code);
-						return;
-					}
-					data.result.forEach(function (file) {
-						file.dataset = ds;
-						file.label = file.pathInListing.split("/").pop();
-					});
-					sequencing.files = sequencing.files.concat(data.result);
-					deferrer.dependencyCompleted(ds.bis.code);
-				})
-			});
+function sortArray(array, sortingFieldName, ascending){
+	 array.sort(function(item1, item2){
+		 var value1 = item1[sortingFieldName];
+		 var value2 = item2[sortingFieldName];
+		 
+		 if(value1){
+			  value1 = new String(value1).toLowerCase(); 
+		 }
+		 if(value2){
+		    value2 = new String(value2).toLowerCase();
+		 }
+		 
+		 if(ascending){
+			 return (value1 >= value2) ? 1: -1;			 
+		 }else{
+			 return (value1 <= value2) ? 1: -1;
+		 }
 	});
 }
-
+	 
 /**
  * Convert properties to pairs
  */
@@ -574,14 +689,15 @@ function props_to_pairs(d)
 }
 
 
-function hasSampleBeenSequenced(d)
-{	
-	return (d.flowlanes && d.flowlanes.length > 0);
-}
-
 function downloadTableCaption(d)
 {	
-	return hasSampleBeenSequenced(d) ? ["Files"] : ["Not Yet Sequenced"];
+	if(d.filesLoaded){
+		if(d.files && d.files.length > 0){
+			return ["Files"]
+		}else{
+			return ["Not Yet Sequenced"];
+		}
+	}
 }
 
 function downloadTableFile(d)
@@ -601,8 +717,7 @@ function downloadTableFile(d)
 
 function filesForSequencingSample(d)
 {
-	if (d.loadingFiles) return [{ label : "Loading..." }];
-	return (d.files) ? d.files.filter(function(file) { return !file.isDirectory }) : [];
+	return d.filesLoaded ? d.files : [{ label : "Loading..." }];
 }
 
 function enterApp(data)
@@ -634,16 +749,6 @@ $(document).ready(function() {
 	});
 	
 	dsu.server.ifRestoredSessionActive(function(data) { enterApp(data) });
-
-       // Make the ENTER key the default button
-       $("login-form input").keypress(function (e) {
-          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-              $('button[type=submit].default').click();
-              return false;
-          } else {
-              return true;
-          }
-       });
 });
 
 // set the focus 
@@ -656,26 +761,38 @@ function onPageLoad(){
           }
 }
 
+function log(msg){
+	/*
+	if(console){
+		console.log(msg);
+	}
+	*/
+}
+
 
  </script>
 </head>
 <body onload="onPageLoad()">
 <img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
+<link rel="shortcut icon" href="../images/favicon.ico" /> 
+<link rel="icon" type="image/png" href="../images/favicon.png" /> 
+
 <div id="login-form-div">
-<h1>openBIS Quantitative Genomics Facility</h1>
-<form id="login-form" action="javascript:">
-<input id="username" type="text" required="required"> <input id="password" type="password" required="required"> <button class="login-button" id="login-button" type="submit">Login</button>
-<br>
-<br>
-<a href="https://crowd-bsse.ethz.ch/crowd/console/forgottenlogindetails!default.action" id="resetpassword" class="resetpassword">Reset password</a>
-</form>
+  <h1>openBIS Quantitative Genomics Facility</h1>
+  <form id="login-form" action="javascript:">
+    <input id="username" type="text" required="required"> <input id="password" type="password" required="required"> </input>
+    <button id="login-button" type="submit">Login</button>
+    <br>
+    <br>
+    <a href="https://crowd-bsse.ethz.ch/crowd/console/forgottenlogindetails!default.action" id="resetpassword" class="resetpassword">Reset password</a>
+  </form>
 </div>
 
 <div id="main">
-<div id="button-group">
-	<button id="logout-button">Logout</button>
-	<button id="close-all-button" onclick="closeAll();">Close All</button>
-</div>
+  <div id="button-group">
+    <button id="logout-button">Logout</button>
+    <button id="close-all-button" onclick="closeAll();">Close All</button>
+  </div>
 </div>
 </body>
 </html>
