@@ -147,7 +147,17 @@ function closeAll(){
 	  root.children.forEach(function(sampleGroup){
 		  closeAllForNode(sampleGroup);
 	  });
-	  updateDiagram(500);
+	  
+	  if(inspected.length > 0){
+		  var inspectedCopy = inspected.slice(0);
+		  inspectedCopy.forEach(function(elem){
+			  if(elem.inspected){
+			    toggle_inspected(elem);
+			  }
+		  });
+	  }else{
+	    updateDiagram(500);
+	  }
 }
 
 function closeAllForNode(node){
