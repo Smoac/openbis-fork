@@ -570,7 +570,7 @@ CREATE SEQUENCE data_set_property_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('data_set_property_id_seq', 37, true);
+SELECT pg_catalog.setval('data_set_property_id_seq', 20, true);
 CREATE SEQUENCE data_set_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -768,7 +768,7 @@ CREATE SEQUENCE experiment_property_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_property_id_seq', 35, true);
+SELECT pg_catalog.setval('experiment_property_id_seq', 20, true);
 CREATE SEQUENCE experiment_type_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -929,7 +929,7 @@ CREATE SEQUENCE material_property_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('material_property_id_seq', 18628, true);
+SELECT pg_catalog.setval('material_property_id_seq', 9321, true);
 CREATE SEQUENCE material_type_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1137,7 +1137,7 @@ CREATE SEQUENCE sample_property_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_property_id_seq', 93, true);
+SELECT pg_catalog.setval('sample_property_id_seq', 53, true);
 CREATE SEQUENCE sample_relationship_id_seq
     START WITH 1
     INCREMENT BY 1

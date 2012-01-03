@@ -303,234 +303,26 @@ CREATE RULE data_all AS ON DELETE TO data DO INSTEAD DELETE FROM data_all WHERE 
 CREATE RULE data_deleted_delete AS ON DELETE TO data_deleted DO INSTEAD DELETE FROM data_all WHERE ((data_all.id)::bigint = (old.id)::bigint);
 CREATE RULE data_deleted_update AS ON UPDATE TO data_deleted DO INSTEAD UPDATE data_all SET del_id = new.del_id, modification_timestamp = new.modification_timestamp WHERE ((data_all.id)::bigint = (new.id)::bigint);
 CREATE RULE data_insert AS ON INSERT TO data DO INSTEAD INSERT INTO data_all (id, code, ctnr_id, ctnr_order, del_id, expe_id, dast_id, data_producer_code, dsty_id, is_derived, is_placeholder, is_valid, modification_timestamp, pers_id_registerer, production_timestamp, registration_timestamp, samp_id) VALUES (new.id, new.code, new.ctnr_id, new.ctnr_order, new.del_id, new.expe_id, new.dast_id, new.data_producer_code, new.dsty_id, new.is_derived, new.is_placeholder, new.is_valid, new.modification_timestamp, new.pers_id_registerer, new.production_timestamp, new.registration_timestamp, new.samp_id);
-CREATE RULE data_set_properties_update AS
-    ON UPDATE TO data_set_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
-        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
-    DO ALSO
-       INSERT INTO data_set_properties_history (
-         ID, 
-         DS_ID,
-         DSTPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('DATA_SET_PROPERTY_ID_SEQ'), 
-         OLD.DS_ID, 
-         OLD.DSTPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
-CREATE RULE data_set_properties_delete AS
-    ON DELETE TO data_set_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
-        OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL
-    DO ALSO
-       INSERT INTO data_set_properties_history (
-         ID, 
-         DS_ID,
-         DSTPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('DATA_SET_PROPERTY_ID_SEQ'), 
-         OLD.DS_ID, 
-         OLD.DSTPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
+CREATE RULE data_set_properties_delete AS ON DELETE TO data_set_properties WHERE ((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) OR (old.cvte_id IS NOT NULL)) OR (old.mate_prop_id IS NOT NULL)) DO INSERT INTO data_set_properties_history (id, ds_id, dstpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('data_set_property_id_seq'::regclass), old.ds_id, old.dstpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
+CREATE RULE data_set_properties_update AS ON UPDATE TO data_set_properties WHERE (((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) AND ((old.value)::text <> (new.value)::text)) OR ((old.cvte_id IS NOT NULL) AND ((old.cvte_id)::bigint <> (new.cvte_id)::bigint))) OR ((old.mate_prop_id IS NOT NULL) AND ((old.mate_prop_id)::bigint <> (new.mate_prop_id)::bigint))) DO INSERT INTO data_set_properties_history (id, ds_id, dstpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('data_set_property_id_seq'::regclass), old.ds_id, old.dstpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
 CREATE RULE data_set_relationships_delete AS ON DELETE TO data_set_relationships DO INSTEAD DELETE FROM data_set_relationships_all WHERE (((data_set_relationships_all.data_id_parent)::bigint = (old.data_id_parent)::bigint) AND ((data_set_relationships_all.data_id_child)::bigint = (old.data_id_child)::bigint));
 CREATE RULE data_set_relationships_insert AS ON INSERT TO data_set_relationships DO INSTEAD INSERT INTO data_set_relationships_all (data_id_parent, data_id_child) VALUES (new.data_id_parent, new.data_id_child);
 CREATE RULE data_update AS ON UPDATE TO data DO INSTEAD UPDATE data_all SET code = new.code, ctnr_id = new.ctnr_id, ctnr_order = new.ctnr_order, del_id = new.del_id, expe_id = new.expe_id, dast_id = new.dast_id, data_producer_code = new.data_producer_code, dsty_id = new.dsty_id, is_derived = new.is_derived, is_placeholder = new.is_placeholder, is_valid = new.is_valid, modification_timestamp = new.modification_timestamp, pers_id_registerer = new.pers_id_registerer, production_timestamp = new.production_timestamp, registration_timestamp = new.registration_timestamp, samp_id = new.samp_id WHERE ((data_all.id)::bigint = (new.id)::bigint);
 CREATE RULE experiment_delete AS ON DELETE TO experiments DO INSTEAD DELETE FROM experiments_all WHERE ((experiments_all.id)::bigint = (old.id)::bigint);
 CREATE RULE experiment_insert AS ON INSERT TO experiments DO INSTEAD INSERT INTO experiments_all (id, code, del_id, exty_id, is_public, mate_id_study_object, modification_timestamp, perm_id, pers_id_registerer, proj_id, registration_timestamp) VALUES (new.id, new.code, new.del_id, new.exty_id, new.is_public, new.mate_id_study_object, new.modification_timestamp, new.perm_id, new.pers_id_registerer, new.proj_id, new.registration_timestamp);
-CREATE RULE experiment_properties_update AS
-    ON UPDATE TO experiment_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
-        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
-    DO ALSO 
-       INSERT INTO experiment_properties_history (
-         ID, 
-         EXPE_ID,
-         ETPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('EXPERIMENT_PROPERTY_ID_SEQ'), 
-         OLD.EXPE_ID, 
-         OLD.ETPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
-CREATE RULE experiment_properties_delete AS
-    ON DELETE TO experiment_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
-        OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL
-    DO ALSO 
-       INSERT INTO experiment_properties_history (
-         ID, 
-         EXPE_ID,
-         ETPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('EXPERIMENT_PROPERTY_ID_SEQ'), 
-         OLD.EXPE_ID, 
-         OLD.ETPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
+CREATE RULE experiment_properties_delete AS ON DELETE TO experiment_properties WHERE ((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) OR (old.cvte_id IS NOT NULL)) OR (old.mate_prop_id IS NOT NULL)) DO INSERT INTO experiment_properties_history (id, expe_id, etpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('experiment_property_id_seq'::regclass), old.expe_id, old.etpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
+CREATE RULE experiment_properties_update AS ON UPDATE TO experiment_properties WHERE (((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) AND ((old.value)::text <> (new.value)::text)) OR ((old.cvte_id IS NOT NULL) AND ((old.cvte_id)::bigint <> (new.cvte_id)::bigint))) OR ((old.mate_prop_id IS NOT NULL) AND ((old.mate_prop_id)::bigint <> (new.mate_prop_id)::bigint))) DO INSERT INTO experiment_properties_history (id, expe_id, etpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('experiment_property_id_seq'::regclass), old.expe_id, old.etpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
 CREATE RULE experiment_update AS ON UPDATE TO experiments DO INSTEAD UPDATE experiments_all SET code = new.code, del_id = new.del_id, exty_id = new.exty_id, is_public = new.is_public, mate_id_study_object = new.mate_id_study_object, modification_timestamp = new.modification_timestamp, perm_id = new.perm_id, pers_id_registerer = new.pers_id_registerer, proj_id = new.proj_id, registration_timestamp = new.registration_timestamp WHERE ((experiments_all.id)::bigint = (new.id)::bigint);
 CREATE RULE experiments_deleted_delete AS ON DELETE TO experiments_deleted DO INSTEAD DELETE FROM experiments_all WHERE ((experiments_all.id)::bigint = (old.id)::bigint);
 CREATE RULE experiments_deleted_update AS ON UPDATE TO experiments_deleted DO INSTEAD UPDATE experiments_all SET del_id = new.del_id, modification_timestamp = new.modification_timestamp WHERE ((experiments_all.id)::bigint = (new.id)::bigint);
-CREATE RULE material_properties_update AS
-    ON UPDATE TO material_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
-        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
-    DO ALSO 
-       INSERT INTO material_properties_history (
-         ID, 
-         MATE_ID, 
-         MTPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('MATERIAL_PROPERTY_ID_SEQ'), 
-         OLD.MATE_ID, 
-         OLD.MTPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
-CREATE RULE material_properties_delete AS
-    ON DELETE TO material_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
-        OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL
-    DO ALSO 
-       INSERT INTO material_properties_history (
-         ID, 
-         MATE_ID, 
-         MTPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('MATERIAL_PROPERTY_ID_SEQ'), 
-         OLD.MATE_ID, 
-         OLD.MTPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
+CREATE RULE material_properties_delete AS ON DELETE TO material_properties WHERE ((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) OR (old.cvte_id IS NOT NULL)) OR (old.mate_prop_id IS NOT NULL)) DO INSERT INTO material_properties_history (id, mate_id, mtpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('material_property_id_seq'::regclass), old.mate_id, old.mtpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
+CREATE RULE material_properties_update AS ON UPDATE TO material_properties WHERE (((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) AND ((old.value)::text <> (new.value)::text)) OR ((old.cvte_id IS NOT NULL) AND ((old.cvte_id)::bigint <> (new.cvte_id)::bigint))) OR ((old.mate_prop_id IS NOT NULL) AND ((old.mate_prop_id)::bigint <> (new.mate_prop_id)::bigint))) DO INSERT INTO material_properties_history (id, mate_id, mtpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('material_property_id_seq'::regclass), old.mate_id, old.mtpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
 CREATE RULE sample_delete AS ON DELETE TO samples DO INSTEAD DELETE FROM samples_all WHERE ((samples_all.id)::bigint = (old.id)::bigint);
 CREATE RULE sample_deleted_delete AS ON DELETE TO samples_deleted DO INSTEAD DELETE FROM samples_all WHERE ((samples_all.id)::bigint = (old.id)::bigint);
 CREATE RULE sample_deleted_update AS ON UPDATE TO samples_deleted DO INSTEAD UPDATE samples_all SET del_id = new.del_id, modification_timestamp = new.modification_timestamp WHERE ((samples_all.id)::bigint = (new.id)::bigint);
 CREATE RULE sample_insert AS ON INSERT TO samples DO INSTEAD INSERT INTO samples_all (id, code, dbin_id, del_id, expe_id, modification_timestamp, perm_id, pers_id_registerer, registration_timestamp, samp_id_part_of, saty_id, space_id) VALUES (new.id, new.code, new.dbin_id, new.del_id, new.expe_id, new.modification_timestamp, new.perm_id, new.pers_id_registerer, new.registration_timestamp, new.samp_id_part_of, new.saty_id, new.space_id);
-CREATE RULE sample_properties_update AS
-    ON UPDATE TO sample_properties
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
-        OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
-        OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
-    DO ALSO
-       INSERT INTO sample_properties_history (
-         ID, 
-         SAMP_ID,
-         STPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('SAMPLE_PROPERTY_ID_SEQ'), 
-         OLD.SAMP_ID, 
-         OLD.STPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
-CREATE RULE sample_properties_delete AS
-    ON DELETE TO sample_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
-        OR OLD.CVTE_ID IS NOT NULL 
-        OR OLD.MATE_PROP_ID IS NOT NULL
-    DO ALSO
-       INSERT INTO sample_properties_history (
-         ID, 
-         SAMP_ID,
-         STPT_ID, 
-         VALUE, 
-         CVTE_ID, 
-         MATE_PROP_ID, 
-         PERS_ID_AUTHOR,
-         VALID_FROM_TIMESTAMP,
-         VALID_UNTIL_TIMESTAMP 
-       ) VALUES (
-         nextval('SAMPLE_PROPERTY_ID_SEQ'), 
-         OLD.SAMP_ID, 
-         OLD.STPT_ID, 
-         OLD.VALUE, 
-         OLD.CVTE_ID, 
-         OLD.MATE_PROP_ID, 
-         OLD.PERS_ID_AUTHOR,
-         OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
-       );
+CREATE RULE sample_properties_delete AS ON DELETE TO sample_properties WHERE ((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) OR (old.cvte_id IS NOT NULL)) OR (old.mate_prop_id IS NOT NULL)) DO INSERT INTO sample_properties_history (id, samp_id, stpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('sample_property_id_seq'::regclass), old.samp_id, old.stpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
+CREATE RULE sample_properties_update AS ON UPDATE TO sample_properties WHERE (((((old.value IS NOT NULL) AND (decode("substring"((old.value)::text, 1, 1), 'escape'::text) <> '\\xefbfbd'::bytea)) AND ((old.value)::text <> (new.value)::text)) OR ((old.cvte_id IS NOT NULL) AND ((old.cvte_id)::bigint <> (new.cvte_id)::bigint))) OR ((old.mate_prop_id IS NOT NULL) AND ((old.mate_prop_id)::bigint <> (new.mate_prop_id)::bigint))) DO INSERT INTO sample_properties_history (id, samp_id, stpt_id, value, cvte_id, mate_prop_id, pers_id_author, valid_from_timestamp, valid_until_timestamp) VALUES (nextval('sample_property_id_seq'::regclass), old.samp_id, old.stpt_id, old.value, old.cvte_id, old.mate_prop_id, old.pers_id_author, old.modification_timestamp, now());
 CREATE RULE sample_relationships_delete AS ON DELETE TO sample_relationships DO INSTEAD DELETE FROM sample_relationships_all WHERE ((sample_relationships_all.id)::bigint = (old.id)::bigint);
 CREATE RULE sample_relationships_insert AS ON INSERT TO sample_relationships DO INSTEAD INSERT INTO sample_relationships_all (id, sample_id_parent, relationship_id, sample_id_child) VALUES (new.id, new.sample_id_parent, new.relationship_id, new.sample_id_child);
 CREATE RULE sample_relationships_update AS ON UPDATE TO sample_relationships DO INSTEAD UPDATE sample_relationships_all SET sample_id_parent = new.sample_id_parent, relationship_id = new.relationship_id, sample_id_child = new.sample_id_child WHERE ((sample_relationships_all.id)::bigint = (new.id)::bigint);
