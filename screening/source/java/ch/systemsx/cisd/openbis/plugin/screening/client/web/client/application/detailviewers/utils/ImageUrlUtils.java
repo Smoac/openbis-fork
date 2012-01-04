@@ -28,6 +28,8 @@ import com.google.gwt.user.client.Window;
 import com.reveregroup.gwt.imagepreloader.FitImage;
 import com.reveregroup.gwt.imagepreloader.FitImageLoadHandler;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
@@ -82,7 +84,7 @@ public class ImageUrlUtils
             LogicalImageChannelsReference channelReferences, ImageChannelStack channelStackRef,
             int width, int height, final FitImageLoadHandler imageLoadHandler)
     {
-        URLMethodWithParameters methodWithParameters =
+        final URLMethodWithParameters methodWithParameters =
                 createBasicImageURL(sessionID, channelReferences);
 
         methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_STACK_ID_PARAM,
@@ -91,11 +93,8 @@ public class ImageUrlUtils
         final String linkURL = methodWithParameters.toString();
         addThumbnailSize(methodWithParameters, width, height);
 
-        String imageURL = methodWithParameters.toString();
-
-        FitImage image = new FitImage();
+        final FitImage image = new FitImage();
         image.setFixedHeight(height);
-        image.setUrl(imageURL);
         image.addFitImageLoadHandler(imageLoadHandler);
         image.addClickHandler(new ClickHandler()
             {
@@ -109,6 +108,22 @@ public class ImageUrlUtils
         tileContent.setHeight("" + height);
         tileContent.add(image);
         PlateStyleSetter.setPointerCursor(tileContent);
+
+        // Set the url at the very end. This method triggers the image loading process
+        // therefore it should be done after all image load handlers have been set.
+        // Setting the url before defining the load handlers may result in handlers not 
+        // being notified about the finished loading (when loading is finished before 
+        // handlers are added). Moreover we are deferring setting the url to make sure that 
+        // all actions that attach the image to DOM finish first. Otherwise again images 
+        // are not displayed.
+        GWTUtils.executeDelayed(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    image.setUrl(methodWithParameters.toString());
+                }
+            });
+
         return tileContent;
     }
 
