@@ -25,12 +25,14 @@ import java.util.Set;
  *
  * @author Franz-Josef Elmer
  */
-public class ColorDepthCriterion extends AbstractImageSelectionCriterion
+public class ColorDepthCriterion extends AbstractFormatSelectionCriterion
 {
+    private static final long serialVersionUID = 1L;
+    
     private final Set<Integer> colorDepth;
 
     /**
-     * Creates an instance which allows all images with specified color depths.
+     * Creates an instance which allows all image representation formats with specified color depths.
      */
     public ColorDepthCriterion(Integer... colorDepths)
     {
@@ -38,9 +40,9 @@ public class ColorDepthCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageSetMetaData imageMetaData)
+    protected boolean accept(ImageRepresentationFormat format)
     {
-        return colorDepth.contains(imageMetaData.getColorDepth());
+        return colorDepth.contains(format.getColorDepth());
     }
 
 }

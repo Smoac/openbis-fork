@@ -17,18 +17,20 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 /**
- * Criterion which filters image meta data concerning whether they are original or not.
+ * Criterion which filters image representation formats concerning whether they are original or not.
  *
  * @author Franz-Josef Elmer
  */
-public class OriginalCriterion extends AbstractImageSelectionCriterion
+public class OriginalCriterion extends AbstractFormatSelectionCriterion
 {
+    private static final long serialVersionUID = 1L;
+    
     private final boolean original;
 
     /**
      * Creates an instance based on the specified flag. If the flag is <code>true</code>
      * all original images fulfill this criterion. If the flag is <code>false</code> all
-     * images which are not original (e.g. thumbnails) fullfil this criterion.
+     * images which are not original (e.g. thumbnails) fulfill this criterion.
      */
     public OriginalCriterion(boolean original)
     {
@@ -36,9 +38,9 @@ public class OriginalCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageSetMetaData imageMetaData)
+    protected boolean accept(ImageRepresentationFormat format)
     {
-        return imageMetaData.isOriginal() == original;
+        return format.isOriginal() == original;
     }
 
 }

@@ -58,14 +58,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.dss.screening.server.logic.SimpleImageSetMetaData;
-import ch.systemsx.cisd.openbis.dss.screening.server.logic.ZoomLevelFinder;
+import ch.systemsx.cisd.openbis.dss.screening.server.logic.ImageRepresentationFormatFinder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
@@ -76,8 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
@@ -88,7 +87,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -243,25 +241,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             shareIdManager.releaseLocks();
         }
-    }
-
-    public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
-            List<? extends IImageDatasetIdentifier> imageDatasets)
-    {
-        List<Set<IImageSetMetaData>> sets = new ArrayList<Set<IImageSetMetaData>>();
-        for (IImageDatasetIdentifier dataSet : imageDatasets)
-        {
-            String datasetCode = dataSet.getDatasetCode();
-            IImagingDatasetLoader loader = createImageLoader(datasetCode);
-            List<ImageSetMetaData> zoomLevels = loader.getImageParameters().getZoomLevels();
-            Set<IImageSetMetaData> set = new HashSet<IImageSetMetaData>();
-            for (ImageSetMetaData zoomLevel : zoomLevels)
-            {
-                set.add(new SimpleImageSetMetaData(zoomLevel));
-            }
-            sets.add(set);
-        }
-        return sets;
     }
 
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
@@ -537,41 +516,69 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
     }
     
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            final ImageRepresentationFormat format)
+    {
+        for (PlateImageReference plateImageReference : imageReferences)
+        {
+            if (plateImageReference.getDatasetCode().equals(format.getDataSetCode()) == false)
+            {
+                throw new UserFailureException(
+                        "At least for one plate image reference the image representation format "
+                                + "is unknown: Plate image reference: " + plateImageReference
+                                + ", format: " + format);
+            }
+        }
+        IImageRepresentationFormatSelectionCriterion criterion =
+                new AbstractFormatSelectionCriterion()
+                    {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        protected boolean accept(ImageRepresentationFormat availableFormat)
+                        {
+                            return format.getId() == availableFormat.getId();
+                        }
+                    };
+        return loadImages(sessionToken, imageReferences, criterion);
+    }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            IImageSetSelectionCriterion... criteria)
+            IImageRepresentationFormatSelectionCriterion... criteria)
     {
-        ZoomLevelFinder finder = new ZoomLevelFinder(criteria);
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        Map<String, ImageSetMetaData> dataSetToZoomLevelMap = new HashMap<String, ImageSetMetaData>();
-        for (Entry<String, IImagingDatasetLoader> entry : imageLoadersMap.entrySet())
+        Map<String, ImgImageDatasetDTO> imageDataSetMap =
+                createDataSetCodeToImageDataSetMap(imageReferences);
+        ImageRepresentationFormatFinder finder = new ImageRepresentationFormatFinder(criteria);
+        Map<String, ImageRepresentationFormat> dataSetToImageReferenceFormatMap =
+                new HashMap<String, ImageRepresentationFormat>();
+        for (Entry<String, ImgImageDatasetDTO> entry : imageDataSetMap.entrySet())
         {
             String dataSetCode = entry.getKey();
-            IImagingDatasetLoader loader = entry.getValue();
-            ImageDatasetParameters imageParameters = loader.getImageParameters();
-            List<ImageSetMetaData> filteredZoomLevels =
-                    finder.find(imageParameters.getZoomLevels());
-            if (filteredZoomLevels.isEmpty())
+            List<ImageRepresentationFormat> filteredFormats =
+                    finder.find(getImageRepresentationFormats(entry.getValue()));
+            if (filteredFormats.isEmpty())
             {
-                throw new UserFailureException("No image set fitting criteria found for data set "
-                        + dataSetCode + ".");
+                throw new UserFailureException(
+                        "No image representation format fitting criteria found for data set "
+                                + dataSetCode + ".");
             }
-            if (filteredZoomLevels.size() > 1)
+            if (filteredFormats.size() > 1)
             {
-                throw new UserFailureException("To many image sets fitting criteria for data set "
-                        + dataSetCode + ": " + filteredZoomLevels);
+                throw new UserFailureException(
+                        "To many image representation formats fitting criteria for data set "
+                                + dataSetCode + ": " + filteredFormats);
             }
-            dataSetToZoomLevelMap.put(dataSetCode, filteredZoomLevels.get(0));
+            dataSetToImageReferenceFormatMap.put(dataSetCode, filteredFormats.get(0));
         }
-        List<IHierarchicalContentNode> imageContents =
-                new ArrayList<IHierarchicalContentNode>();
+        List<IHierarchicalContentNode> imageContents = new ArrayList<IHierarchicalContentNode>();
         for (PlateImageReference imageReference : imageReferences)
         {
             String datasetCode = imageReference.getDatasetCode();
             IImagingDatasetLoader loader = imageLoadersMap.get(datasetCode);
-            ImageSetMetaData zoomLevel = dataSetToZoomLevelMap.get(datasetCode);
-            Size size = new Size(zoomLevel.getWidth(), zoomLevel.getHeight());
+            ImageRepresentationFormat format = dataSetToImageReferenceFormatMap.get(datasetCode);
+            Size size = new Size(format.getWidth(), format.getHeight());
             addImageContentTo(imageContents, loader, imageReference, size, null, false, false);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
@@ -791,18 +798,51 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {
-        IImagingReadonlyQueryDAO queryInterface = getDAO();
         ArrayList<DatasetImageRepresentationFormats> result =
                 new ArrayList<DatasetImageRepresentationFormats>(imageDatasets.size());
 
-        // Get the database identifiers for the data sets
-        String[] permIds = new String[imageDatasets.size()];
-        for (int i = 0; i < imageDatasets.size(); ++i)
+        Map<String, ImgImageDatasetDTO> imageDataSetMap =
+                createDataSetCodeToImageDataSetMap(imageDatasets);
+
+        // Not an efficient way to execute this query, but it reuses the queries at our disposal
+        for (IDatasetIdentifier imageDataset : imageDatasets)
         {
-            permIds[i] = imageDatasets.get(i).getPermId();
+            String dataSetCode = imageDataset.getPermId();
+            ImgImageDatasetDTO primImageDataSet = imageDataSetMap.get(dataSetCode);
+            if (null == primImageDataSet)
+            {
+                List<ImageRepresentationFormat> emptyList = Collections.emptyList();
+                DatasetImageRepresentationFormats datasetResult =
+                        new DatasetImageRepresentationFormats(imageDataset, emptyList);
+                result.add(datasetResult);
+            } else
+            {
+                List<ImageRepresentationFormat> formats =
+                        getImageRepresentationFormats(primImageDataSet);
+                DatasetImageRepresentationFormats datasetResult =
+                        new DatasetImageRepresentationFormats(imageDataset, formats);
+                result.add(datasetResult);
+            }
+        }
+        return result;
+    }
+
+    private List<ImageRepresentationFormat> getImageRepresentationFormats(ImgImageDatasetDTO imageDataSet)
+    {
+        List<ImgImageZoomLevelDTO> zoomLevels = getDAO().listImageZoomLevels(imageDataSet.getId());
+        return convertZoomLevelsToRepresentationFormats(imageDataSet.getPermId(), zoomLevels);
+    }
+
+    private Map<String, ImgImageDatasetDTO> createDataSetCodeToImageDataSetMap(
+            List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        Set<String> permIds = new HashSet<String>();
+        for (IDatasetIdentifier identifier : imageDatasets)
+        {
+            permIds.add(identifier.getPermId());
         }
         List<ImgImageDatasetDTO> primImageDatasets =
-                queryInterface.listImageDatasetsByPermId(permIds);
+                getDAO().listImageDatasetsByPermId(permIds.toArray(new String[permIds.size()]));
 
         // Convert this to a hash map for faster indexing
         HashMap<String, ImgImageDatasetDTO> imageDataSetMap =
@@ -811,39 +851,18 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             imageDataSetMap.put(primImageDataSet.getPermId(), primImageDataSet);
         }
-
-        // Not an efficient way to execute this query, but it reuses the queries at our disposal
-        for (IDatasetIdentifier imageDataset : imageDatasets)
-        {
-            ImgImageDatasetDTO primImageDataSet = imageDataSetMap.get(imageDataset.getPermId());
-            if (null == primImageDataSet)
-            {
-                List<ImageRepresentationFormat> emptyList = Collections.emptyList();
-                DatasetImageRepresentationFormats datasetResult =
-                        new DatasetImageRepresentationFormats(imageDataset, emptyList);
-                result.add(datasetResult);
-                continue;
-            }
-            List<ImgImageZoomLevelDTO> zoomLevels =
-                    queryInterface.listImageZoomLevels(primImageDataSet.getId());
-            List<ImageRepresentationFormat> formats =
-                    convertZoomLevelsToRepresentationFormats(zoomLevels);
-            DatasetImageRepresentationFormats datasetResult =
-                    new DatasetImageRepresentationFormats(imageDataset, formats);
-            result.add(datasetResult);
-        }
-        return result;
+        return imageDataSetMap;
     }
 
     private List<ImageRepresentationFormat> convertZoomLevelsToRepresentationFormats(
-            List<ImgImageZoomLevelDTO> zoomLevels)
+            String dataSetCode, List<ImgImageZoomLevelDTO> zoomLevels)
     {
         ArrayList<ImageRepresentationFormat> results = new ArrayList<ImageRepresentationFormat>();
         for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
         {
             ImageRepresentationFormat result =
-                    new ImageRepresentationFormat(zoomLevel.getIsOriginal(), zoomLevel.getWidth(),
-                            zoomLevel.getHeight(), zoomLevel.getColorDepth(),
+                    new ImageRepresentationFormat(dataSetCode, zoomLevel.getId(), zoomLevel.getIsOriginal(),
+                            zoomLevel.getWidth(), zoomLevel.getHeight(), zoomLevel.getColorDepth(),
                             zoomLevel.getFileType());
             results.add(result);
         }

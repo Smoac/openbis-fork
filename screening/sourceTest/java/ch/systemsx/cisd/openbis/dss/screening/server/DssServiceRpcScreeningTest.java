@@ -70,9 +70,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -80,6 +83,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.OriginalCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -98,6 +102,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
@@ -122,12 +127,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private static final String DATASET_CODE = "ds1";
 
+    private static final String DATASET_CODE2 = "ds2";
+    
     private static final String CHANNEL_CODE = "GFP";
 
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
     private static final long EXPERIMENT_ID = 333;
-
+    
     private static final String URL1 = "url1";
 
     private static final String SESSION_TOKEN = "session";
@@ -175,7 +182,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         contentProvider = context.mock(IHierarchicalContentProvider.class);
         transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create(DATASET_CODE);
-        featureVectorDatasetIdentifier2 = create("ds2");
+        featureVectorDatasetIdentifier2 = create(DATASET_CODE2);
         final ImageDatasetParameters imageParameters = new ImageDatasetParameters();
         imageParameters.setRowsNum(7);
         imageParameters.setColsNum(4);
@@ -262,7 +269,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testListAvailableFeatureNames()
     {
         prepareAssetDataSetsAreAccessible();
-        prepareLockDataSet("ds1", "ds2");
+        prepareLockDataSet("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
             { 1, 2 };
@@ -286,7 +293,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testListAvailableFeatures()
     {
         prepareAssetDataSetsAreAccessible();
-        prepareLockDataSet("ds1", "ds2");
+        prepareLockDataSet("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
             { 1, 2 };
@@ -323,9 +330,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testLoadFeatures()
     {
         prepareAssetDataSetsAreAccessible();
-        prepareLockDataSet("ds1", "ds2");
+        prepareLockDataSet("ds1", DATASET_CODE2);
         FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference(DATASET_CODE);
-        FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference("ds2");
+        FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference(DATASET_CODE2);
         String[][] featureCodesPerDataset = new String[][]
             {
                 { "F1", "F2" } };
@@ -430,14 +437,116 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
 
     @Test
+    public void testListAvailableImageRepresentationFormats()
+    {
+        prepareLockDataSet(DATASET_CODE, DATASET_CODE2);
+        prepareAssetDataSetsAreAccessible(DATASET_CODE, DATASET_CODE2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listImageDatasetsByPermId(new String[]
+                        { DATASET_CODE, DATASET_CODE2 });
+                    ImgImageDatasetDTO ds1 =
+                            new ImgImageDatasetDTO(DATASET_CODE, null, null, null, false, null,
+                                    null);
+                    ds1.setId(42);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                    one(dao).listImageZoomLevels(42L);
+                    ImgImageZoomLevelDTO level1 =
+                            new ImgImageZoomLevelDTO("i1", true, "r1", 10, 20, 8, "png", 102);
+                    ImgImageZoomLevelDTO level2 =
+                            new ImgImageZoomLevelDTO("i2", false, "r2", 11, 21, 16, "blub", 103);
+                    will(returnValue(Arrays.asList(level1, level2)));
+                }
+            });
+
+        DatasetIdentifier id1 = new DatasetIdentifier(DATASET_CODE, URL1);
+        DatasetIdentifier id2 = new DatasetIdentifier(DATASET_CODE2, URL1);
+        List<DatasetIdentifier> dataSetIdentifiers = Arrays.asList(id1, id2);
+        List<DatasetImageRepresentationFormats> formats =
+                screeningService.listAvailableImageRepresentationFormats(SESSION_TOKEN,
+                        dataSetIdentifiers);
+
+        assertEquals("[DatasetImageRepresentationFormats[ds1,["
+                + "ImageRepresentationFormat[true,10,20,8,png], "
+                + "ImageRepresentationFormat[false,11,21,16,blub]]], "
+                + "DatasetImageRepresentationFormats[ds2,[]]]", formats.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadImagesByCriteria() throws IOException
+    {
+        prepareLockDataSet(DATASET_CODE, DATASET_CODE);
+        prepareAssetDataSetsAreAccessible(DATASET_CODE, DATASET_CODE);
+        DatasetIdentifier id1 = new DatasetIdentifier(DATASET_CODE, URL1);
+        prepareGetExperimentPermIDs(id1);
+        PlateImageReference plateRef1 = new PlateImageReference(1, 1, 0, CHANNEL_CODE, id1);
+        PlateImageReference plateRef2 = new PlateImageReference(1, 2, 1, CHANNEL_CODE, id1);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listImageDatasetsByPermId(new String[]
+                        { DATASET_CODE });
+                    ImgImageDatasetDTO ds1 =
+                            new ImgImageDatasetDTO(DATASET_CODE, null, null, null, false, null,
+                                    null);
+                    ds1.setId(42);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                    one(dao).listImageZoomLevels(42L);
+                    ImgImageZoomLevelDTO level1 =
+                            new ImgImageZoomLevelDTO("i1", true, "r1", 10, 20, null, null, 102);
+                    ImgImageZoomLevelDTO level2 =
+                            new ImgImageZoomLevelDTO("i2", false, "r2", 11, 21, null, null, 103);
+                    will(returnValue(Arrays.asList(level1, level2)));
+                    
+                    RequestedImageSize thumbnailSize =
+                            new RequestedImageSize(new Size(10, 20), false);
+                    one(imageLoader).tryGetImage(
+                            CHANNEL_CODE,
+                            ImageChannelStackReference.createHCSFromLocations(new Location(1, 1),
+                                    new Location(1, 1)), thumbnailSize);
+                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
+                            null, thumbnailSize, createBlueColor(),
+                            new ImageTransfomationFactories(), null)));
+
+                    one(imageLoader).tryGetImage(
+                            CHANNEL_CODE,
+                            ImageChannelStackReference.createHCSFromLocations(new Location(2, 1),
+                                    new Location(2, 1)), thumbnailSize);
+                    will(returnValue(new AbsoluteImageReference(image("img1.png"), "img1", null,
+                            null, thumbnailSize, createBlueColor(),
+                            new ImageTransfomationFactories(), null)));
+                    
+                }
+            });
+
+
+        InputStream stream = screeningService.loadImages(SESSION_TOKEN,
+                Arrays.asList(plateRef1, plateRef2),
+                new OriginalCriterion(true));
+        
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+        BufferedImage image1 = extractNextImage(imagesWriter);
+        assertEquals("4x4", image1.getWidth() + "x" + image1.getHeight());
+        BufferedImage image2 = extractNextImage(imagesWriter);
+        assertEquals("4x4", image2.getWidth() + "x" + image2.getHeight());
+        stream.close();
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testGetImageTransformerFactoryForChannel()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
-        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier(DATASET_CODE2, "url1");
         final String channel = "dapi";
         prepareAssetDataSetsAreAccessible();
         prepareGetExperimentPermIDs(ds1, ds2);
-        prepareLockDataSet("ds1", "ds2");
+        prepareLockDataSet("ds1", DATASET_CODE2);
         context.checking(new Expectations()
             {
                 {
@@ -471,10 +580,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testGetImageTransformerFactoryForExperiment()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
-        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier(DATASET_CODE2, "url1");
         prepareAssetDataSetsAreAccessible();
         prepareGetExperimentPermIDs(ds1, ds2);
-        prepareLockDataSet("ds1", "ds2");
+        prepareLockDataSet("ds1", DATASET_CODE2);
         context.checking(new Expectations()
             {
                 {
@@ -500,9 +609,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testSaveImageTransformerFactoryForDatasetChannelFailedDueToInvalidAuthorization()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
-        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier(DATASET_CODE2, "url1");
         final String channel = "dapi";
-        prepareLockDataSet(DATASET_CODE, "ds2");
+        prepareLockDataSet(DATASET_CODE, DATASET_CODE2);
         context.checking(new Expectations()
             {
                 {
@@ -529,9 +638,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testSaveImageTransformerFactoryForDatasetChannel()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
-        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier(DATASET_CODE2, "url1");
         final String channel = "dapi";
-        prepareLockDataSet(DATASET_CODE, "ds2");
+        prepareLockDataSet(DATASET_CODE, DATASET_CODE2);
         prepareAssetDataSetsAreAccessible();
         context.checking(new Expectations()
             {
@@ -545,7 +654,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(dao).tryGetImageDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
 
-                    one(dao).tryGetImageDatasetByPermId("ds2");
+                    one(dao).tryGetImageDatasetByPermId(DATASET_CODE2);
                     will(returnValue(dataset));
 
                     allowing(dao).hasDatasetChannels(DATASET_CODE);
@@ -633,15 +742,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    DataSet dataSet = new DataSet();
-                    Experiment experiment = new Experiment();
-                    experiment.setPermId(EXPERIMENT_PERM_ID);
-                    experiment.setId(EXPERIMENT_ID);
-                    dataSet.setExperiment(experiment);
+                    Experiment experiment =
+                            new ExperimentBuilder().id(EXPERIMENT_ID).permID(EXPERIMENT_PERM_ID)
+                                    .getExperiment();
                     for (DatasetIdentifier datasetIdentifier : dataSetIdentifiers)
                     {
                         one(service).tryGetDataSet(SESSION_TOKEN,
                                 datasetIdentifier.getDatasetCode());
+                        DataSet dataSet =
+                                new DataSetBuilder().code(datasetIdentifier.getDatasetCode())
+                                        .experiment(experiment).type("HCS_IMAGE").getDataSet();
                         will(returnValue(dataSet));
                     }
                 }
@@ -853,7 +963,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private void prepareAssetDataSetsAreAccessible()
     {
-        prepareAssetDataSetsAreAccessible("ds1", "ds2");
+        prepareAssetDataSetsAreAccessible("ds1", DATASET_CODE2);
     }
 
     private void prepareAssetDataSetsAreAccessible(final String... dsCodes)

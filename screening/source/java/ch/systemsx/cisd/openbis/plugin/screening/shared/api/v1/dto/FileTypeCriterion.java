@@ -25,12 +25,14 @@ import java.util.Set;
  *
  * @author Franz-Josef Elmer
  */
-public class FileTypeCriterion extends AbstractImageSelectionCriterion
+public class FileTypeCriterion extends AbstractFormatSelectionCriterion
 {
+    private static final long serialVersionUID = 1L;
+    
     private final Set<String> fileTypes;
 
     /**
-     * Creates an instance which accepts all images of specified file types.
+     * Creates an instance which accepts all image representation formats of specified file types.
      */
     public FileTypeCriterion(String... fileTypes)
     {
@@ -38,9 +40,9 @@ public class FileTypeCriterion extends AbstractImageSelectionCriterion
     }
 
     @Override
-    protected boolean accept(IImageSetMetaData imageMetaData)
+    protected boolean accept(ImageRepresentationFormat format)
     {
-        return fileTypes.contains(imageMetaData.getFileType());
+        return fileTypes.contains(format.getFileType());
     }
 
 }

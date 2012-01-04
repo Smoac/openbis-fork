@@ -33,6 +33,10 @@ public class ImageRepresentationFormat implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    private final String dataSetCode;
+    
+    private final long id;
+    
     private boolean original;
 
     private Integer width;
@@ -46,21 +50,41 @@ public class ImageRepresentationFormat implements Serializable
     /**
      * Constructor.
      * 
+     * @param dataSetCode 
+     * @param id 
      * @param original
      * @param width
      * @param height
      * @param colorDepth
      * @param fileType
      */
-    public ImageRepresentationFormat(boolean original, Integer width, Integer height,
+    public ImageRepresentationFormat(String dataSetCode, long id, boolean original, Integer width, Integer height,
             Integer colorDepth, String fileType)
     {
         super();
+        this.dataSetCode = dataSetCode;
+        this.id = id;
         this.original = original;
         this.width = width;
         this.height = height;
         this.colorDepth = colorDepth;
         this.fileType = fileType;
+    }
+
+    /**
+     * Returns the data set code to which this image representation format belongs.
+     */
+    public String getDataSetCode()
+    {
+        return dataSetCode;
+    }
+
+    /**
+     * Return the ID of this image representation format. 
+     */
+    public long getId()
+    {
+        return id;
     }
 
     /**

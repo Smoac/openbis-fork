@@ -16,27 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * Criterion based on the ID of an {@link IImageSetMetaData} object.
- *
+ * Interface of an image selection criterion based on {@link ImageRepresentationFormat}.
+ * 
  * @author Franz-Josef Elmer
  */
-public class ImageMetaDataIdCriterion extends AbstractImageSelectionCriterion
+public interface IImageRepresentationFormatSelectionCriterion extends Serializable
 {
-    private final long imageMetaDataId;
-
     /**
-     * Creates an instance based on the specified ID.
+     * Returns all {@link ImageRepresentationFormat} objects from the specified list which fulfill
+     * this criterion.
      */
-    public ImageMetaDataIdCriterion(long imageMetaDataId)
-    {
-        this.imageMetaDataId = imageMetaDataId;
-    }
-
-    @Override
-    protected boolean accept(IImageSetMetaData imageMetaData)
-    {
-        return imageMetaDataId == imageMetaData.getId();
-    }
-
+    public List<ImageRepresentationFormat> getMatching(
+            List<ImageRepresentationFormat> imageRepresentationFormats);
 }

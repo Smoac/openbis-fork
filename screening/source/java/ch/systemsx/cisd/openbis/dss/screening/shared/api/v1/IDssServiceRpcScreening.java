@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -38,9 +37,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
@@ -267,21 +266,42 @@ public interface IDssServiceRpcScreening extends IRpcService
     
     /**
      * Provides images for the specified list of image references (specified by data set code, well
-     * position, channel and tile) and image selection criteria. These criteria are applied to the
-     * {@link IImageSetMetaData} sets of each data set. Beside of the set of original images a data
-     * set can have other image sets like thumbnails of various sizes. The provided array of
-     * {@link IImageSetSelectionCriterion} are applied one after another onto the set of
-     * {@link IImageSetMetaData} until its size is reduced to one.
+     * position, channel and tile) and specified image representation format. The
+     * {@link ImageRepresentationFormat} argument should be an object returned by
+     * {@link #listAvailableImageRepresentationFormats(String, List)}. This method assumes that all
+     * image references belong to the same data set which has image representations of specified
+     * format.
      * 
-     * @throws UserFailureException if for one data set the filtered {@link IImageSetMetaData} set
-     *             has size zero or greater than one.
+     * @throws UserFailureException if the specified format refers to an image representations
+     *             unknown by at least one plate image reference.
+     * @since 1.10
      */
     @MinimalMinorVersion(10)
     @DataSetAccessGuard
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
-            List<PlateImageReference> imageReferences, IImageSetSelectionCriterion... criteria);
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
     
+    /**
+     * Provides images for the specified list of image references (specified by data set code, well
+     * position, channel and tile) and image selection criteria. These criteria are applied to the
+     * {@link ImageRepresentationFormat} sets of each data set. Beside of the set of original images
+     * a data set can have other image representations like thumbnails of various sizes. The
+     * provided array of {@link IImageRepresentationFormatSelectionCriterion} are applied one after
+     * another onto the set of {@link ImageRepresentationFormat} until its size is reduced to one.
+     * 
+     * @throws UserFailureException if no criterion has been specified (i.e. <code>criteria</code>
+     *             is an empty array) or if for at least one data set the filtered
+     *             {@link ImageRepresentationFormat} set has size zero or greater than one.
+     * @since 1.10
+     */
+    @MinimalMinorVersion(10)
+    @DataSetAccessGuard
+    public InputStream loadImages(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria);
+
     /**
      * Provide thumbnail images for specified microscopy data set. If no thumbnails are stored on
      * the server, this method will return an empty stream. Images of all tiles are delivered.
@@ -384,21 +404,11 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<? extends IImageDatasetIdentifier> imageDatasets);
     
     /**
-     * Returns for each of the specified image data sets the meta data of available image sets.
-     * 
-     * @since 1.10
-     */
-    @MinimalMinorVersion(10)
-    @DataSetAccessGuard
-    public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
-            List<? extends IImageDatasetIdentifier> imageDatasets);
-
-    /**
-     * Return image representation formats available for the specified image datasets.
+     * Return image representation formats available for the specified image data sets.
      * 
      * @param imageDatasets The image data sets for which the representation formats are requested.
      * @return A list with one entry for each in <b>imageDatasets</b>. 
+     * @since 1.10
      */
     @MinimalMinorVersion(10)
     @DataSetAccessGuard

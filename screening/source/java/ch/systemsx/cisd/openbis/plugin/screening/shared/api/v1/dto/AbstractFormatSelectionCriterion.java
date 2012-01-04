@@ -20,32 +20,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract super class of {@link IImageSetSelectionCriterion} which accepting matching
- * {@link IImageSetMetaData} instance individually. 
- *
+ * Abstract super class of {@link IImageRepresentationFormatSelectionCriterion} which accepting
+ * matching {@link ImageRepresentationFormat} instance individually.
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractImageSelectionCriterion implements IImageSetSelectionCriterion
+public abstract class AbstractFormatSelectionCriterion implements
+        IImageRepresentationFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;
 
-    public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData)
+    public List<ImageRepresentationFormat> getMatching(
+            List<ImageRepresentationFormat> imageRepresentationFormats)
     {
-        List<IImageSetMetaData> filteredMetaData = new ArrayList<IImageSetMetaData>();
-        for (IImageSetMetaData metaData : imageMetaData)
+        List<ImageRepresentationFormat> filteredMetaData =
+                new ArrayList<ImageRepresentationFormat>();
+        for (ImageRepresentationFormat format : imageRepresentationFormats)
         {
-            if (accept(metaData))
+            if (accept(format))
             {
-                filteredMetaData.add(metaData);
+                filteredMetaData.add(format);
             }
         }
         return filteredMetaData;
     }
-    
+
     /**
-     * Returns <code>true</code> if the specified {@link IImageSetMetaData} instance is
+     * Returns <code>true</code> if the specified {@link ImageRepresentationFormat} instance is
      * accepted by this criterion.
      */
-    protected abstract boolean accept(IImageSetMetaData imageMetaData);
+    protected abstract boolean accept(ImageRepresentationFormat format);
 
 }

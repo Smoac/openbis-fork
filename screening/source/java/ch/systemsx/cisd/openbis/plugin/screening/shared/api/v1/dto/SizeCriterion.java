@@ -26,127 +26,142 @@ import java.util.List;
  * 
  * @author Franz-Josef Elmer
  */
-public class SizeCriterion implements IImageSetSelectionCriterion
+public class SizeCriterion implements IImageRepresentationFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;
 
     public static enum Type
     {
         /**
-         * Picks that image set where the image size is the largest one which just fits into
-         * a bounding box specified by width and height.
+         * Picks that format where the image size is the largest one which just fits into a
+         * bounding box specified by width and height.
          */
         LARGEST_IN_BOUNDING_BOX()
         {
             @Override
-            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                    List<IImageSetMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                    List<ImageRepresentationFormat> filteredFormats)
             {
-                List<IImageSetMetaData> smallerMetaData = new ArrayList<IImageSetMetaData>();
-                INSIDE_BOUNDING_BOX.filter(width, height, imageMetaData, smallerMetaData);
-                if (smallerMetaData.isEmpty() == false)
+                List<ImageRepresentationFormat> smallerFormats =
+                        new ArrayList<ImageRepresentationFormat>();
+                INSIDE_BOUNDING_BOX.filter(width, height, formats, smallerFormats);
+                if (smallerFormats.isEmpty() == false)
                 {
-                    Collections.sort(smallerMetaData, SIZE_COMPARATOR);
-                    filteredImageMetaData.add(smallerMetaData.get(smallerMetaData.size() - 1));
+                    Collections.sort(smallerFormats, SIZE_COMPARATOR);
+                    filteredFormats.add(smallerFormats.get(smallerFormats.size() - 1));
                 }
             }
         },
         /**
-         * Picks all image sets where the image size is inside a bounding box specified by width and
+         * Picks all formats where the image size is inside a bounding box specified by width and
          * height.
          */
         INSIDE_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                    List<IImageSetMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                    List<ImageRepresentationFormat> filteredFormats)
             {
-                for (IImageSetMetaData metaData : imageMetaData)
+                for (ImageRepresentationFormat format : formats)
                 {
-                    Geometry size = metaData.getSize();
-                    if (size.getWidth() <= width && size.getHeight() <= height)
+                    if (getWidth(format) <= width && getHeight(format) <= height)
                     {
-                        filteredImageMetaData.add(metaData);
+                        filteredFormats.add(format);
                     }
                 }
             }
         },
         /**
-         * Picks that image set where the image size is the smallest one covering a bounding box
+         * Picks that format where the image size is the smallest one covering a bounding box
          * specified by width and height.
          */
         SMALLEST_COVERING_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                    List<IImageSetMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                    List<ImageRepresentationFormat> filteredFormats)
             {
-                List<IImageSetMetaData> largerMetaData = new ArrayList<IImageSetMetaData>();
-                COVERING_BOUNDING_BOX.filter(width, height, imageMetaData, largerMetaData);
-                if (largerMetaData.isEmpty() == false)
+                List<ImageRepresentationFormat> largerFormats =
+                        new ArrayList<ImageRepresentationFormat>();
+                COVERING_BOUNDING_BOX.filter(width, height, formats, largerFormats);
+                if (largerFormats.isEmpty() == false)
                 {
-                    Collections.sort(largerMetaData, SIZE_COMPARATOR);
-                    filteredImageMetaData.add(largerMetaData.get(0));
+                    Collections.sort(largerFormats, SIZE_COMPARATOR);
+                    filteredFormats.add(largerFormats.get(0));
                 }
             }
         },
         /**
-         * Picks all image sets where the image size covers a bounding box specified by width and
+         * Picks all formats where the image size covers a bounding box specified by width and
          * height.
          */
         COVERING_BOUNDING_BOX
         {
             @Override
-            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                    List<IImageSetMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                    List<ImageRepresentationFormat> filteredFormats)
             {
-                for (IImageSetMetaData metaData : imageMetaData)
+                for (ImageRepresentationFormat format : formats)
                 {
-                    Geometry size = metaData.getSize();
-                    if (size.getWidth() >= width && size.getHeight() >= height)
+                    if (getWidth(format) >= width && getHeight(format) >= height)
                     {
-                        filteredImageMetaData.add(metaData);
+                        filteredFormats.add(format);
                     }
                 }
             }
         },
         /**
-         * Picks all image sets where the image size is exactly as specified by width and height.
+         * Picks all formats where the image size is exactly as specified by width and height.
          */
         EXACTLY
         {
             @Override
-            void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                    List<IImageSetMetaData> filteredImageMetaData)
+            void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                    List<ImageRepresentationFormat> filteredFormats)
             {
-                for (IImageSetMetaData metaData : imageMetaData)
+                for (ImageRepresentationFormat format : formats)
                 {
-                    Geometry size = metaData.getSize();
-                    if (size.getWidth() == width && size.getHeight() == height)
+                    if (getWidth(format) == width && getHeight(format) == height)
                     {
-                        filteredImageMetaData.add(metaData);
+                        filteredFormats.add(format);
                     }
                 }
             }
         };
 
-        abstract void filter(int width, int height, List<IImageSetMetaData> imageMetaData,
-                List<IImageSetMetaData> filteredImageMetaData);
+        abstract void filter(int width, int height, List<ImageRepresentationFormat> formats,
+                List<ImageRepresentationFormat> filteredFormats);
     }
 
-    private static final Comparator<IImageSetMetaData> SIZE_COMPARATOR =
-            new Comparator<IImageSetMetaData>()
+    private static final Comparator<ImageRepresentationFormat> SIZE_COMPARATOR =
+            new Comparator<ImageRepresentationFormat>()
                 {
-                    public int compare(IImageSetMetaData i1, IImageSetMetaData i2)
+                    public int compare(ImageRepresentationFormat i1, ImageRepresentationFormat i2)
                     {
-                        return area(i1.getSize()) - area(i2.getSize());
+                        return area(i1) - area(i2);
                     }
 
-                    private int area(Geometry geometry)
+                    private int area(ImageRepresentationFormat format)
                     {
-                        return geometry.getWidth() * geometry.getHeight();
+                        return mapNull(format.getWidth()) * mapNull(format.getHeight());
                     }
+
                 };
+
+    private static int getWidth(ImageRepresentationFormat format)
+    {
+        return mapNull(format.getWidth());
+    }
+
+    private static int getHeight(ImageRepresentationFormat format)
+    {
+        return mapNull(format.getHeight());
+    }
+
+    private static int mapNull(Integer number)
+    {
+        return number == null ? 0 : number.intValue();
+    }
 
     private final int width;
 
@@ -168,11 +183,13 @@ public class SizeCriterion implements IImageSetSelectionCriterion
         this.type = type;
     }
 
-    public List<IImageSetMetaData> getMatching(List<IImageSetMetaData> imageMetaData)
+    public List<ImageRepresentationFormat> getMatching(
+            List<ImageRepresentationFormat> imageRepresentationFormats)
     {
-        List<IImageSetMetaData> filteredMetaData = new ArrayList<IImageSetMetaData>();
-        type.filter(width, height, imageMetaData, filteredMetaData);
-        return filteredMetaData;
+        List<ImageRepresentationFormat> filteredFormats =
+                new ArrayList<ImageRepresentationFormat>();
+        type.filter(width, height, imageRepresentationFormats, filteredFormats);
+        return filteredFormats;
     }
 
 }

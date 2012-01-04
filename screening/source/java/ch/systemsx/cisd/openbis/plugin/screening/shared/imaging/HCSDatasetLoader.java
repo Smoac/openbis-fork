@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSetMetaData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -41,7 +40,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Helper class for easy handling of HCS image dataset standard structure with no code for handling
@@ -209,30 +207,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.setMergedChannelTransformerFactorySignature(mergedChannelTransformerFactorySignatureOrNull);
         params.setInternalChannels(convertChannels());
-        params.setZoomLevels(translate(query.listImageZoomLevels(dataset.getId())));
         return params;
-    }
-    
-    private List<ImageSetMetaData> translate(List<ImgImageZoomLevelDTO> zoomLevels)
-    {
-        List<ImageSetMetaData> result = new ArrayList<ImageSetMetaData>();
-        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
-        {
-            ImageSetMetaData metaData = new ImageSetMetaData();
-            metaData.setId(zoomLevel.getId());
-            metaData.setOriginal(zoomLevel.getIsOriginal());
-            metaData.setWidth(mapNullTo0(zoomLevel.getWidth()));
-            metaData.setHeight(mapNullTo0(zoomLevel.getHeight()));
-            metaData.setColorDepth(zoomLevel.getColorDepth());
-            metaData.setFileType(zoomLevel.getFileType());
-            result.add(metaData);
-        }
-        return result;
-    }
-    
-    private int mapNullTo0(Integer n)
-    {
-        return n == null ? 0 : n;
     }
     
     private List<InternalImageChannel> convertChannels()

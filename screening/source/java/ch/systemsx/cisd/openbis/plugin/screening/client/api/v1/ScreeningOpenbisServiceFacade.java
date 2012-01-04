@@ -70,10 +70,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
@@ -1609,24 +1609,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
-    public List<Set<IImageSetMetaData>> listImageSetsMetadata(
-            List<? extends IImageDatasetIdentifier> imageDatasets)
-    {
-        final List<Set<IImageSetMetaData>> list = new ArrayList<Set<IImageSetMetaData>>();
-        metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
-            {
-                public void handle(DssServiceRpcScreeningHolder dssService,
-                        List<IImageDatasetIdentifier> references)
-                {
-                    checkDSSMinimalMinorVersion(dssService, "listImageSetsMetadata", List.class);
-                    List<Set<IImageSetMetaData>> sets =
-                            dssService.getService().listImageSetsMetadata(sessionToken, references);
-                    list.addAll(sets);
-                }
-            });
-        return list;
-    }
-
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -1833,9 +1815,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
-    public void loadImages(List<PlateImageReference> imageReferences,
-            final IPlateImageHandler plateImageHandler,
-            final IImageSetSelectionCriterion... criteria) throws IOException
+    public void loadImages(final List<PlateImageReference> imageReferences,
+            final IPlateImageHandler plateImageHandler, final ImageRepresentationFormat format)
+            throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
@@ -1844,7 +1826,27 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
-                                    IImageSetSelectionCriterion[].class);
+                                    ImageRepresentationFormat.class);
+                            final InputStream stream =
+                                    dssService.getService().loadImages(sessionToken, references,
+                                            format);
+                            processImagesStreamUnchecked(plateImageHandler, references, stream);
+                        }
+                    });
+    }
+
+    public void loadImages(List<PlateImageReference> imageReferences,
+            final IPlateImageHandler plateImageHandler,
+            final IImageRepresentationFormatSelectionCriterion... criteria) throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
+                                    IImageRepresentationFormatSelectionCriterion[].class);
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
                                             criteria);

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.screening.server;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -35,9 +34,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
@@ -202,13 +201,6 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
-    public List<Set<IImageSetMetaData>> listImageSetsMetadata(String sessionToken,
-            List<? extends IImageDatasetIdentifier> imageDatasets)
-    {
-        logAccess(sessionToken, "load_image_sets_metadata", "DATA_SETS(%s)", imageDatasets);
-        return null;
-    }
-
     public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> featureDatasets)
     {
@@ -248,7 +240,15 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            IImageSetSelectionCriterion... criteria)
+            ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) FORMAT(%s)", imageReferences,
+                format);
+        return null;
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CRITERIA(%s)",
                 imageReferences, Arrays.asList(criteria));

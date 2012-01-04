@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.retry.Retry;
@@ -44,10 +43,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetMetaData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageSetSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
@@ -770,19 +769,35 @@ public interface IScreeningOpenbisServiceFacade
 
     /**
      * Provides images for the specified list of image references (specified by data set code, well
-     * position, channel and tile) and image selection criteria. These criteria are applied to the
-     * {@link IImageSetMetaData} sets of each data set. Beside of the set of original images a data
-     * set can have other image sets like thumbnails of various sizes. The provided array of
-     * {@link IImageSetSelectionCriterion} are applied one after another onto the set of
-     * {@link IImageSetMetaData} until its size is reduced to one.
+     * position, channel and tile) and specified image representation format. The
+     * {@link ImageRepresentationFormat} argument should be an object returned by
+     * {@link #listAvailableImageRepresentationFormats(List)}. This method assumes that all image
+     * references belong to the same data set which has image representations of specified format.
      * 
      * @param plateImageHandler Handler for the delivered images.
-     * @throws UserFailureException if for one data set the filtered {@link IImageSetMetaData} set
-     *             has size zero or greater than one.
+     * @throws UserFailureException if the specified format refers to an image representations
+     *             unknown by at least one plate image reference.
      */
     public void loadImages(List<PlateImageReference> imageReferences,
-            IPlateImageHandler plateImageHandler, IImageSetSelectionCriterion... criteria)
+            IPlateImageHandler plateImageHandler, ImageRepresentationFormat format)
             throws IOException;
+
+    /**
+     * Provides images for the specified list of image references (specified by data set code, well
+     * position, channel and tile) and image selection criteria. These criteria are applied to the
+     * {@link ImageRepresentationFormat} sets of each data set. Beside of the set of original images
+     * a data set can have other image representations like thumbnails of various sizes. The
+     * provided array of {@link IImageRepresentationFormatSelectionCriterion} are applied one after
+     * another onto the set of {@link ImageRepresentationFormat} until its size is reduced to one.
+     * 
+     * @param plateImageHandler Handler for the delivered images.
+     * @throws UserFailureException if no criterion has been specified (i.e. <code>criteria</code>
+     *             is an empty array) or if for at least one data set the filtered
+     *             {@link ImageRepresentationFormat} set has size zero or greater than one.
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            IPlateImageHandler plateImageHandler,
+            IImageRepresentationFormatSelectionCriterion... criteria) throws IOException;
 
     /**
      * Loads the PNG-encoded image for the specified <var>imageReference</var>.
@@ -850,13 +865,6 @@ public interface IScreeningOpenbisServiceFacade
      */
     @Retry
     public List<ImageDatasetMetadata> listImageMetadata(
-            List<? extends IImageDatasetIdentifier> imageDatasets);
-
-    /**
-     * Returns for each of the specified image data sets the meta data of available image sets.
-     */
-    @Retry
-    public List<Set<IImageSetMetaData>> listImageSetsMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);
 
     /**
