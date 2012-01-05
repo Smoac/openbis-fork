@@ -16,60 +16,51 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * Builder class for creating an instance of {@link DataSet} or {@link ContainerDataSet}.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetBuilder extends AbstractDataSetBuilder<DataSetBuilder>
+public class ContainerDataSetBuilder extends AbstractDataSetBuilder<ContainerDataSetBuilder>
 {
-    public DataSetBuilder()
+    public ContainerDataSetBuilder()
     {
-        super(new DataSet());
+        super(new ContainerDataSet());
     }
 
-    public DataSetBuilder(long id)
+    public ContainerDataSetBuilder(long id)
     {
         this();
         dataSet.setId(id);
     }
 
-    public DataSetBuilder location(String location)
+    public final ContainerDataSet getContainerDataSet()
     {
-        dataSet.tryGetAsDataSet().setLocation(location);
-        return this;
+        return dataSet.tryGetAsContainerDataSet();
     }
 
-    public DataSetBuilder shareID(String shareID)
+    public ContainerDataSetBuilder contains(DataSet contained)
     {
-        dataSet.tryGetAsDataSet().setShareId(shareID);
-        return this;
-    }
-
-    public DataSetBuilder fileFormat(String fileFormatType)
-    {
-        dataSet.tryGetAsDataSet().setFileFormatType(new FileFormatType(fileFormatType));
-        return this;
-    }
-
-    public DataSetBuilder status(DataSetArchivingStatus status)
-    {
-        dataSet.tryGetAsDataSet().setStatus(status);
-        return this;
-    }
-
-    public final DataSet getDataSet()
-    {
-        return dataSet.tryGetAsDataSet();
+        List<ExternalData> containedDataSets =
+                dataSet.tryGetAsContainerDataSet().getContainedDataSets();
+        if (containedDataSets == null)
+        {
+            containedDataSets = new ArrayList<ExternalData>();
+            dataSet.tryGetAsContainerDataSet().setContainedDataSets(containedDataSets);
+        }
+        containedDataSets.add(contained);
+        return asConcreteSubclass();
     }
 
     @Override
-    protected DataSetBuilder asConcreteSubclass()
+    protected ContainerDataSetBuilder asConcreteSubclass()
     {
         return this;
     }

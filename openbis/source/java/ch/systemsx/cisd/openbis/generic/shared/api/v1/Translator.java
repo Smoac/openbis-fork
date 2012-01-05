@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -329,6 +330,21 @@ public class Translator
         for (IEntityProperty prop : properties)
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
+        }
+
+        initializer.setContainerDataSet(externalDatum.isContainer());
+        if (externalDatum.isContainer())
+        {
+            // Recursively translate any contained data sets
+            ContainerDataSet containerDataSet = externalDatum.tryGetAsContainerDataSet();
+
+            ArrayList<DataSet> containedDataSetCodes =
+                    new ArrayList<DataSet>(containerDataSet.getContainedDataSets().size());
+            for (ExternalData containedDataSet : containerDataSet.getContainedDataSets())
+            {
+                containedDataSetCodes.add(translate(containedDataSet, connectionsToGet));
+            }
+            initializer.setContainedDataSets(containedDataSetCodes);
         }
 
         initializer.setRetrievedConnections(connectionsToGet);

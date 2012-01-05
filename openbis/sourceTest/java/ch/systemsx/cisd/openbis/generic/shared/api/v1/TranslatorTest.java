@@ -24,12 +24,12 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
@@ -43,6 +43,8 @@ public class TranslatorTest extends AssertJUnit
 
     private DataSetBuilder ds2;
 
+    private ContainerDataSetBuilder dsContainer;
+
     @BeforeMethod
     public void setUp()
     {
@@ -55,6 +57,25 @@ public class TranslatorTest extends AssertJUnit
         ds2 =
                 new DataSetBuilder().code("ds2").type("T2").experiment(experiment)
                         .property("B", "true");
+
+        dsContainer =
+                new ContainerDataSetBuilder().code("ds-container").type("T3")
+                        .experiment(experiment).sample(sample).contains(ds1.getDataSet())
+                        .contains(ds2.getDataSet());
+
+    }
+
+    @Test
+    public void testTranslateContainerDataSetWithNoConnectionsAndRetrievingNoConnections()
+    {
+        DataSet translated =
+                Translator.translate(dsContainer.getContainerDataSet(),
+                        EnumSet.noneOf(DataSet.Connections.class));
+        assertTrue(translated.isContainerDataSet());
+        assertBasicAttributes(ds1.getDataSet(), translated.getContainedDataSets().get(0));
+        assertBasicAttributes(ds2.getDataSet(), translated.getContainedDataSets().get(1));
+        assertChildrenNotRetrieved(translated);
+        assertParentsNotRetrieved(translated);
     }
 
     @Test
@@ -143,6 +164,7 @@ public class TranslatorTest extends AssertJUnit
                     translatedProperties.get(property.getPropertyType().getCode()));
         }
         assertEquals(originalProperties.size(), translatedProperties.size());
+        assertEquals(originalDataSet.isContainer(), translatedDataSet.isContainerDataSet());
     }
 
     private void assertChildrenNotRetrieved(DataSet dataSet)
