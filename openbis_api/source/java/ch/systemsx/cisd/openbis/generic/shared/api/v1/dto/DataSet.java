@@ -62,11 +62,15 @@ public final class DataSet implements Serializable
 
         private String dataSetTypeCode;
 
+        private boolean containerDataSet;
+
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
-        private List<String> parentCodes = new ArrayList<String>();
+        private List<String> parentCodes = Collections.emptyList();
 
-        private List<String> childrenCodes = new ArrayList<String>();
+        private List<String> childrenCodes = Collections.emptyList();
+
+        private List<DataSet> containedDataSets = Collections.emptyList();
 
         private HashMap<String, String> properties = new HashMap<String, String>();
 
@@ -164,6 +168,28 @@ public final class DataSet implements Serializable
             return registrationDetails;
         }
 
+        public boolean isContainerDataSet()
+        {
+            return containerDataSet;
+        }
+
+        public void setContainerDataSet(boolean containerDataSet)
+        {
+            this.containerDataSet = containerDataSet;
+        }
+
+        public List<DataSet> getContainedDataSets()
+        {
+            return containedDataSets;
+        }
+
+        public void setContainedDataSets(List<DataSet> containedDataSetCodes)
+        {
+            this.containedDataSets =
+                    (null == containedDataSetCodes) ? new ArrayList<DataSet>()
+                            : containedDataSetCodes;
+        }
+
     }
 
     private String code;
@@ -174,6 +200,8 @@ public final class DataSet implements Serializable
 
     private String dataSetTypeCode;
 
+    private boolean containerDataSet;
+
     private HashMap<String, String> properties;
 
     // For handling connections to entities
@@ -182,6 +210,8 @@ public final class DataSet implements Serializable
     private List<String> parentCodes = Collections.emptyList();
 
     private List<String> childrenCodes = Collections.emptyList();
+
+    private List<DataSet> containedDataSets = Collections.emptyList();
 
     private EntityRegistrationDetails registrationDetails;
 
@@ -217,6 +247,8 @@ public final class DataSet implements Serializable
         InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
+        this.containerDataSet = initializer.isContainerDataSet();
+        this.containedDataSets = initializer.getContainedDataSets();
 
     }
 
@@ -311,6 +343,16 @@ public final class DataSet implements Serializable
         return registrationDetails;
     }
 
+    public boolean isContainerDataSet()
+    {
+        return containerDataSet;
+    }
+
+    public List<DataSet> getContainedDataSets()
+    {
+        return containedDataSets;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -403,4 +445,15 @@ public final class DataSet implements Serializable
     {
         this.registrationDetails = registrationDetails;
     }
+
+    public void setContainerDataSet(boolean containerDataSet)
+    {
+        this.containerDataSet = containerDataSet;
+    }
+
+    public void setContainedDataSets(List<DataSet> containedDataSets)
+    {
+        this.containedDataSets = containedDataSets;
+    }
+
 }
