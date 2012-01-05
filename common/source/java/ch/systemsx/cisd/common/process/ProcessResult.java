@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * Class that keeps around the result of running an Operating System process.
@@ -239,6 +240,34 @@ public final class ProcessResult
     public List<String> getErrorOutput()
     {
         return errorOutput;
+    }
+
+    /**
+     * Returns this result as a {@link Status}.
+     */
+    public Status toStatus()
+    {
+        if (isOK())
+        {
+            return Status.OK;
+        } else
+        {
+            if (isTimedOut())
+            {
+                return Status.createRetriableError("Process timed out");
+            }
+            if (isInterruped())
+            {
+                return Status.createRetriableError("Process got interrupted");
+            }
+            if (StringUtils.isBlank(getStartupFailureMessage()) == false)
+            {
+                return Status.createError(getStartupFailureMessage());
+            }
+            return Status.createError("Exit Value: " + getExitValue() + "\n"
+                    + StringUtils.join(getErrorOutput(), "\n"));
+        }
+
     }
 
     /**
