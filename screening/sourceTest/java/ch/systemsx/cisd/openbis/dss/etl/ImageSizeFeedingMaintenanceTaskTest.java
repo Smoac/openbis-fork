@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
@@ -64,13 +64,13 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         }
 
         @Override
-        public BufferedImage getUnchangedImage()
+        public Size getUnchangedImageSize()
         {
             if (width < 0)
             {
                 throw new RuntimeException("Negative width: " + width);
             }
-            return new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            return new Size(width, height);
         }
     }
     
