@@ -229,7 +229,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             return resultStatus;
         } catch (ExceptionWithStatus ex)
         {
-            return BooleanStatus.createError(ex.getStatus().tryGetErrorMessage());
+            return BooleanStatus.createError(ex.getStatus().toString());
         }
     }
 
@@ -251,7 +251,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             return resultStatus;
         } catch (ExceptionWithStatus ex)
         {
-            return BooleanStatus.createError(ex.getStatus().tryGetErrorMessage());
+            return BooleanStatus.createError(ex.getStatus().toString());
         }
     }
 

@@ -91,7 +91,7 @@ public class FileBasedFile implements IFile
                 throw new EnvironmentFailureException("Couldn't copy '"
                         + sourceFile.getAbsolutePath() + "' using hard links to '"
                         + destinationFile.getAbsolutePath()
-                        + "': " + status.tryGetErrorMessage());
+                        + "': " + status);
             }
         } else
         {
@@ -120,7 +120,7 @@ public class FileBasedFile implements IFile
                 throw new EnvironmentFailureException("Couldn't copy '"
                         + sourceDirectory.getAbsolutePath() + "' using hard links to '"
                         + destinationDirectory.getAbsolutePath()
-                        + "': " + status.tryGetErrorMessage());
+                        + "': " + status);
             }
         } else
         {

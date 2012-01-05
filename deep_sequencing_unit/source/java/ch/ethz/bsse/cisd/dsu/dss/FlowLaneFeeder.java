@@ -425,7 +425,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         {
             throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
                     + file.getAbsolutePath() + "' in folder '" + folder.getAbsolutePath() + "'. ["
-                    + status.tryGetErrorMessage() + "]");
+                    + status + "]");
         }
     }
 

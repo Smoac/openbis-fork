@@ -88,7 +88,7 @@ public class TiffCompressor extends Compressor
             for (FailureRecord r : failed)
             {
                 errorMsgBuilder.append(String.format("%s (%s)\n", r.getFailedFile().getName(), r
-                        .getFailureStatus().tryGetErrorMessage()));
+                        .getFailureStatus()));
             }
             return errorMsgBuilder.toString();
         }

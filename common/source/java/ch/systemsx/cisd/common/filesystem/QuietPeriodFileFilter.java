@@ -176,7 +176,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             {
                 conditionalNotificationLog.log(LogLevel.ERROR, String.format(
                         "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s",
-                        item, fileStore, status.tryGetErrorMessage()));
+                        item, fileStore, status));
                 return false;
             } else
             {
@@ -225,7 +225,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
         {
             conditionalNotificationLog.log(LogLevel.ERROR, String.format(
                     "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s", item,
-                    fileStore, status.tryGetErrorMessage()));
+                    fileStore, status));
         }
     }
 

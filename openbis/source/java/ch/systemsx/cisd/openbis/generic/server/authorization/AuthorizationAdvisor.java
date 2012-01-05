@@ -155,7 +155,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
             if (StatusFlag.OK.equals(status.getFlag()) == false)
             {
                 final String groupCode = session.tryGetHomeGroupCode();
-                final String errorMessage = status.tryGetErrorMessage();
+                final String errorMessage = status.toString();
                 authorizationLog.info(String.format(
                         "[USER:'%s' SPACE:%s]: Authorization failure while "
                                 + "invoking method '%s': %s", session.getUserName(),

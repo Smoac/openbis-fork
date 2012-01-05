@@ -160,7 +160,7 @@ class ParallelizedWorker<T> implements Runnable
     {
         if (status.isError())
         {
-            operationLog.error(status.tryGetErrorMessage());
+            operationLog.error(status);
         }
     }
 

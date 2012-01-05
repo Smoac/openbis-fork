@@ -191,7 +191,7 @@ public class ParallelizedExecutor
             for (FailureRecord<T> r : failureRecords)
             {
                 errorMsgBuilder.append(String.format("%s (%s)\n", r.getFailedItem().toString(), r
-                        .getFailureStatus().tryGetErrorMessage()));
+                        .getFailureStatus()));
             }
             return errorMsgBuilder.toString();
         }

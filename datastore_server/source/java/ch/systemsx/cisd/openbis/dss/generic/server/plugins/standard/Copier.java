@@ -123,7 +123,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
                     + " to destination folder '" + destination + "'"
                     + (host != null ? " on host '" + host + "'" : "")
                     + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "") + ": "
-                    + status.tryGetErrorMessage());
+                    + status);
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
         if (renameToDataSetCode)

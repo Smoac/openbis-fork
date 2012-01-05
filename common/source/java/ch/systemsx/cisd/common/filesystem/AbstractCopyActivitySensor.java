@@ -140,7 +140,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
         if (currentResult.isError())
         {
             return "Error: Unable to determine the time of write activity on "
-                    + getTargetDescription() + "\n" + currentResult.tryGetErrorMessage();
+                    + getTargetDescription() + "\n" + currentResult;
         } else
         {
             final String inactivityPeriod =

@@ -546,7 +546,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         if (status.isError())
         {
             throw EnvironmentFailureException.fromTemplate("Cannot unzip '%s': %s",
-                    incomingDataSetDirectory.getName(), status.tryGetErrorMessage());
+                    incomingDataSetDirectory.getName(), status);
         }
         return output;
     }

@@ -276,7 +276,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             sb.append("- processing of ");
             sb.append(unsuccessfullyProcessed.size());
             sb.append(" data set(s) failed because: ");
-            sb.append(" " + errorStatus.tryGetErrorMessage() + ". Datasets: ");
+            sb.append(" " + errorStatus + ". Datasets: ");
             sb.append(getDataSetCodes(unsuccessfullyProcessed));
             sb.append("\n");
         }
