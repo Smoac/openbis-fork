@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A role which can perform an immutable copy of a file or directory. <i>Immutable</i> here means,
@@ -32,7 +33,8 @@ public interface IImmutableCopier
 {
     /**
      * Creates an immutable copy of the {@link File} <code>source</code> in
-     * <code>destinationDirectory</code>.
+     * <code>destinationDirectory</code>. <code>destinationDirectory</code> must not exist already
+     * or else an error is flagged.
      * <p>
      * Note that this method does not perform any checks about whether <var>source</var> exists and
      * is accessible. Use methods like {@link FileUtilities#checkPathFullyAccessible(File, String)}
@@ -50,7 +52,30 @@ public interface IImmutableCopier
      * @return <code>true</code>, if the source file or directory was copied successfully,
      *         <code>false</code> otherwise.
      */
-    boolean copyImmutably(final File source, final File destinationDirectory,
-            final String nameOrNull);
+    Status copyImmutably(final File source, final File destinationDirectory, final String nameOrNull);
+
+    /**
+     * Creates an immutable copy of the {@link File} <code>source</code> in
+     * <code>destinationDirectory</code>.
+     * <p>
+     * Note that this method does not perform any checks about whether <var>source</var> exists and
+     * is accessible. Use methods like {@link FileUtilities#checkPathFullyAccessible(File, String)}
+     * for checking prior to calling this method where appropriate.
+     * </p>
+     * <p>
+     * <i>Can use hard links if available.</i>
+     * </p>
+     * 
+     * @param source The source file or directory. Can not be <code>null</code>.
+     * @param destinationDirectory The directory where given <var>source</var> should be copied. Can
+     *            not be <code>null</code> and must be an existing directory.
+     * @param nameOrNull The link name in the destination file or directory. If it is
+     *            <code>null</code>, the name of <var>source</var> will be used instead.
+     * @param mode Determines how to deal with target files that do already exist.
+     * @return <code>true</code>, if the source file or directory was copied successfully,
+     *         <code>false</code> otherwise.
+     */
+    Status copyImmutably(final File source, final File destinationDirectory,
+            final String nameOrNull, final CopyModeExisting mode);
 
 }

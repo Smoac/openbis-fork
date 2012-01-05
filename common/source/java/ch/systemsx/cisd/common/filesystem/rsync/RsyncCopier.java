@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.filesystem.CopyModeExisting;
 import ch.systemsx.cisd.common.filesystem.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncVersionChecker.RsyncVersion;
@@ -109,7 +110,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     /** If set, overrides all command line parameters for mutable copying. */
     private final List<String> cmdLineFlagsOrNull;
 
-    private final boolean overwrite;
+    private final boolean overwriteMode;
 
     /**
      * If <code>true</code>, the file system of the destination directory requires that already
@@ -149,7 +150,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
         this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.rsyncTerminator = new AtomicReference<ITerminable>(null);
-        this.overwrite = false;
+        this.overwriteMode = false;
         this.destinationDirectoryRequiresDeletionBeforeCreation = false;
         this.additionalCmdLineFlagsOrNull = null;
         this.cmdLineFlagsOrNull = Arrays.asList(cmdLineFlags);
@@ -177,7 +178,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation =
                 destinationDirectoryRequiresDeletionBeforeCreation;
-        this.overwrite = overwrite;
+        this.overwriteMode = overwrite;
         this.rsyncTerminator = new AtomicReference<ITerminable>(null);
         if (cmdLineFlags.length > 0)
         {
@@ -201,7 +202,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private boolean isOverwriteMode(final RsyncRecord remoteRsyncOrNull)
     {
-        return overwrite
+        return overwriteMode
                 || destinationDirectoryRequiresDeletionBeforeCreation
                 || (rsyncSupportsAppend(rsyncVersion) == false)
                 || (remoteRsyncOrNull != null && (rsyncSupportsAppend(remoteRsyncOrNull
@@ -257,22 +258,32 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     // IDirectoryImmutableCopier
     //
 
-    public boolean copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
+    public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
             String targetNameOrNull)
+    {
+        return copyDirectoryImmutably(sourceDirectory, destinationDirectory, targetNameOrNull,
+                CopyModeExisting.ERROR);
+    }
+
+    public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
+            String targetNameOrNull, CopyModeExisting mode)
     {
         assert sourceDirectory != null;
         assert sourceDirectory.isDirectory() : sourceDirectory.getAbsolutePath();
         assert destinationDirectory != null;
         assert destinationDirectory.isDirectory() : destinationDirectory.getAbsolutePath();
 
+        final File targetDirectory =
+                createTargetDirectory(sourceDirectory, destinationDirectory, targetNameOrNull);
+        if (mode == CopyModeExisting.ERROR && targetDirectory.exists())
+        {
+            return Status.createError("Target directory '" + targetDirectory + "' already exists.");
+        }
         final List<String> commandLine =
-                createCommandLineForImmutableCopy(
-                        sourceDirectory,
-                        createTargetDirectory(sourceDirectory, destinationDirectory,
-                                targetNameOrNull));
+                createCommandLineForImmutableCopy(sourceDirectory, targetDirectory, mode);
         final ProcessResult processResult =
                 runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT);
-        return processResult.isOK();
+        return createStatus(processResult);
     }
 
     private File createTargetDirectory(final File sourceDirectory, final File destinationDirectory,
@@ -305,7 +316,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     private final List<String> createCommandLineForImmutableCopy(final File sourcePath,
-            final File destinationPath)
+            final File destinationPath, final CopyModeExisting mode)
     {
         assert sourcePath != null;
         assert destinationPath != null;
@@ -316,6 +327,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
         commandLineList.add("--archive");
+        if (mode == CopyModeExisting.IGNORE)
+        {
+            commandLineList.add("--ignore-existing");
+        }
         commandLineList.add("--link-dest=" + toUnix(absoluteSource));
         commandLineList.add(toUnix(absoluteSource) + "/");
         commandLineList.add(toUnix(destinationPath.getAbsolutePath()));
@@ -384,8 +399,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add(rsyncPasswordFileOrNull);
         }
         commandLineList.add(buildUnixPathForServer(host, new File("/"), rsyncModule, false));
-        final ProcessResult processResult =
-                runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult processResult = runCommand(commandLineList, millisToWaitForCompletion);
         processResult.log();
         return processResult.isOK();
     }
@@ -421,8 +435,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         final List<String> commandLineList =
                 createSshCommand(host, sshExecutable, rsyncExec + " --version");
-        final ProcessResult verResult =
-                runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult verResult = runCommand(commandLineList, millisToWaitForCompletion);
         verResult.log();
         if (verResult.isOK() == false || verResult.getOutput().size() == 0)
         {
@@ -452,8 +465,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     private String tryFindRemoteRsyncExecutable(String host, long millisToWaitForCompletion)
     {
         List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
-        final ProcessResult result =
-                runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult result = runCommand(commandLineList, millisToWaitForCompletion);
         result.log();
         if (result.isOK() && result.getOutput().size() != 1)
         {
@@ -492,8 +504,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
-        return createStatus(runCommand(commandLine,
-                ConcurrencyUtilities.NO_TIMEOUT));
+        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT));
     }
 
     private final String logNonExistent(final File path)
@@ -666,8 +677,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return Status.createError(retriableError, RsyncExitValueTranslator.getMessage(exitValue));
     }
 
-    private ProcessResult runCommand(final List<String> commandLine,
-            long millisToWaitForCompletion)
+    private ProcessResult runCommand(final List<String> commandLine, long millisToWaitForCompletion)
     {
         IProcessHandler processHandler;
         if (operationLog.isTraceEnabled())
@@ -682,8 +692,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 operationLog.debug(String.format("Running command '%s'", commandLine));
             }
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine,
-                            operationLog, machineLog, ProcessIOStrategy.DEFAULT_IO_STRATEGY);
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())

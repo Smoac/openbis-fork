@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -206,13 +207,12 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     {
         File incomingDir = service.getIncomingDir(tryGetDataSetTypeCode(newOverride));
         // Make a hard link to the file within the data set
-        boolean success;
-        success = copier.copyImmutably(dataSetComponent, incomingDir, null);
-        if (success == false)
+        final Status status = copier.copyImmutably(dataSetComponent, incomingDir, null);
+        if (status.isError())
         {
             throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
                     + dataSetComponent.getAbsolutePath() + "' in folder '"
-                    + incomingDir.getAbsolutePath() + "'.");
+                    + incomingDir.getAbsolutePath() + "'. [" + status.isError() + "]");
         }
 
         File linkedFile = new File(incomingDir, dataSetComponent.getName());

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
@@ -173,8 +174,8 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         assert node != null : "Node can not be null.";
         assert name != null : "Name can not be null.";
         final java.io.File file = getNodeFile(node);
-        final boolean ok = LinkMakerProvider.getLinkMaker().copyImmutably(file, nodeFile, name);
-        if (ok)
+        final Status status = LinkMakerProvider.getLinkMaker().copyImmutably(file, nodeFile, name);
+        if (status.isOK())
         {
             final IFileBasedLink link = (IFileBasedLink) NodeFactory.createLinkNode(name, file);
             link.setParent(this);

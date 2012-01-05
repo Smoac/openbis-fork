@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
@@ -82,15 +83,15 @@ public class FileBasedFile implements IFile
         if (hardLinkCopierOrNull != null)
         {
             final File destinationDirectory = destinationFile.getParentFile();
-            final boolean ok =
+            final Status status =
                     hardLinkCopierOrNull.copyImmutably(sourceFile, destinationDirectory,
                             destinationFile.getName());
-            if (ok == false)
+            if (status.isError())
             {
                 throw new EnvironmentFailureException("Couldn't copy '"
                         + sourceFile.getAbsolutePath() + "' using hard links to '"
                         + destinationFile.getAbsolutePath()
-                        + "'. Maybe the destination already exists?");
+                        + "': " + status.tryGetErrorMessage());
             }
         } else
         {
@@ -111,15 +112,15 @@ public class FileBasedFile implements IFile
         if (hardLinkCopierOrNull != null)
         {
             final File destinationParentDirectory = destinationDirectory.getParentFile();
-            final boolean ok =
+            final Status status =
                     hardLinkCopierOrNull.copyImmutably(sourceDirectory,
                             destinationParentDirectory, destinationDirectory.getName());
-            if (ok == false)
+            if (status.isError())
             {
                 throw new EnvironmentFailureException("Couldn't copy '"
                         + sourceDirectory.getAbsolutePath() + "' using hard links to '"
                         + destinationDirectory.getAbsolutePath()
-                        + "'. Maybe the destination already exists?");
+                        + "': " + status.tryGetErrorMessage());
             }
         } else
         {

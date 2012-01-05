@@ -20,9 +20,11 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncBasedRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -47,9 +49,9 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
 
     private final IImmutableCopier fallbackCopierOrNull;
 
-    private final IFileImmutableCopier fastFileCopierOrNull;
+    private final IFileImmutableCopier internFileCopierOrNull;
 
-    private final IDirectoryImmutableCopier fastDirectoryCopierOrNull;
+    private final IDirectoryImmutableCopier rsyncBasedDirectoryCopierOrNull;
 
     public final static IImmutableCopier tryCreate()
     {
@@ -93,36 +95,36 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
             final TimingParameters timingParameters, final boolean neverUseNative)
             throws ConfigurationFailureException
     {
-        this.fastFileCopierOrNull =
+        this.internFileCopierOrNull =
                 neverUseNative ? null : FastHardLinkMaker.tryCreate(timingParameters);
-        this.fastDirectoryCopierOrNull =
+        this.rsyncBasedDirectoryCopierOrNull =
                 new RsyncBasedRecursiveHardLinkMaker(rsyncExcutable, timingParameters,
                         DEFAULT_MAX_ERRORS_TO_IGNORE);
-        if (fastFileCopierOrNull == null)
+        if (internFileCopierOrNull == null)
         {
             this.fallbackCopierOrNull =
                     RecursiveHardLinkMaker.tryCreate(HardLinkMaker.create(lnExecutable,
                             timingParameters));
         } else
         {
-            this.fallbackCopierOrNull = RecursiveHardLinkMaker.tryCreate(fastFileCopierOrNull);
+            this.fallbackCopierOrNull = RecursiveHardLinkMaker.tryCreate(internFileCopierOrNull);
         }
-        if ((fastFileCopierOrNull == null && fallbackCopierOrNull == null)
-                || (fastDirectoryCopierOrNull == null && fallbackCopierOrNull == null))
+        if ((internFileCopierOrNull == null && fallbackCopierOrNull == null)
+                || (rsyncBasedDirectoryCopierOrNull == null && fallbackCopierOrNull == null))
         {
             throw new ConfigurationFailureException("FastRecursiveHardLinkMaker not operational");
         }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(timingParameters.toString());
-            if (fastFileCopierOrNull != null)
+            if (internFileCopierOrNull != null)
             {
                 operationLog.info("Using native library to create hard link copies of files.");
             } else
             {
                 operationLog.info("Using 'ln' to create hard link copies of files.");
             }
-            if (fastDirectoryCopierOrNull != null)
+            if (rsyncBasedDirectoryCopierOrNull != null)
             {
                 operationLog.info("Using 'rsync' to traverse directories when making recursive "
                         + "hard link copies.");
@@ -134,29 +136,45 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
         }
     }
 
-    public boolean copyImmutably(File source, File destinationDirectory, String nameOrNull)
+    public Status copyImmutably(File source, File destinationDirectory, String nameOrNull)
+    {
+        return copyImmutably(source, destinationDirectory, nameOrNull, CopyModeExisting.ERROR);
+    }
+
+    public Status copyImmutably(File source, File destinationDirectory, String nameOrNull,
+            CopyModeExisting mode)
     {
         if (source.isDirectory())
         {
-            if (fastDirectoryCopierOrNull != null)
+            final File target = getTarget(source, destinationDirectory, nameOrNull, mode);
+            if (rsyncBasedDirectoryCopierOrNull != null && (mode != CopyModeExisting.OVERWRITE
+                    || target.exists() == false))
             {
-                return fastDirectoryCopierOrNull.copyDirectoryImmutably(source,
-                        destinationDirectory, nameOrNull);
+                return rsyncBasedDirectoryCopierOrNull.copyDirectoryImmutably(source,
+                        destinationDirectory, nameOrNull, mode);
             } else
             {
-                return fallbackCopierOrNull.copyImmutably(source, destinationDirectory, nameOrNull);
+                return fallbackCopierOrNull.copyImmutably(source, destinationDirectory, nameOrNull,
+                        mode);
             }
         } else
         {
-            if (fastFileCopierOrNull != null)
+            if (internFileCopierOrNull != null)
             {
-                return fastFileCopierOrNull.copyFileImmutably(source, destinationDirectory,
-                        nameOrNull);
+                return internFileCopierOrNull.copyFileImmutably(source, destinationDirectory,
+                        nameOrNull, mode);
             } else
             {
-                return fallbackCopierOrNull.copyImmutably(source, destinationDirectory, nameOrNull);
+                return fallbackCopierOrNull.copyImmutably(source, destinationDirectory, nameOrNull,
+                        mode);
             }
         }
     }
 
+    private final static File getTarget(final File srcDir, final File destDir,
+            final String nameOrNull, final CopyModeExisting mode) throws IOExceptionUnchecked
+    {
+        final String name = (nameOrNull == null) ? srcDir.getName() : nameOrNull;
+        return new File(destDir, name);
+    }
 }

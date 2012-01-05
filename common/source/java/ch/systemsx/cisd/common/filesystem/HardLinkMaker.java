@@ -28,10 +28,12 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
  * A class for creating hard links based on the Unix 'ln' program.
@@ -40,11 +42,11 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
  */
 public class HardLinkMaker implements IFileImmutableCopier
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, HardLinkMaker.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HardLinkMaker.class);
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, HardLinkMaker.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            HardLinkMaker.class);
 
     private static final String HARD_LINK_EXEC = "ln";
 
@@ -124,24 +126,44 @@ public class HardLinkMaker implements IFileImmutableCopier
     // IFileImutableCopier
     //
 
-    public boolean copyFileImmutably(final File source, final File destinationDirectory,
+    public Status copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull)
+    {
+        return copyFileImmutably(source, destinationDirectory, nameOrNull, CopyModeExisting.ERROR);
+    }
+
+    public Status copyFileImmutably(final File source, final File destinationDirectory,
+            final String nameOrNull, final CopyModeExisting mode)
     {
         assert source.isFile() : String
                 .format("Given file '%s' must be a file and is not.", source);
         final File destFile =
                 new File(destinationDirectory, nameOrNull == null ? source.getName() : nameOrNull);
-        final List<String> cmd = createLnCmdLine(source, destFile);
-        final Callable<Boolean> processTask = new Callable<Boolean>()
+        if (destFile.exists())
+        {
+            switch (mode)
             {
-                public final Boolean call()
+                case OVERWRITE:
+                    destFile.delete();
+                    break;
+                case IGNORE:
+                    return Status.OK;
+                default:
+                    return Status.createError("File '" + destFile + "' already exists.");
+            }
+        }
+        final List<String> cmd = createLnCmdLine(source, destFile);
+        final Callable<Status> processTask = new Callable<Status>()
+            {
+                public final Status call()
                 {
-                    boolean result =
-                            ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog,
+                    final ProcessResult result =
+                            ProcessExecutionHelper.run(cmd, operationLog, machineLog,
                                     timingParameters.getTimeoutMillis());
+                    ProcessExecutionHelper.log(result);
                     // NOTE: we have noticed that in some environments sometimes the result is
                     // false although the file have been copied
-                    if (result == false && destFile.exists()
+                    if (result.isOK() == false && destFile.exists()
                             && checkIfIdenticalContent(source, destFile))
                     {
                         machineLog
@@ -149,12 +171,12 @@ public class HardLinkMaker implements IFileImmutableCopier
                                         + source.getPath()
                                         + "' seems to exist in '"
                                         + destFile.getPath() + "'. Error will be ignored.");
-                        result = true;
+                        return Status.OK;
                     }
-                    return result;
+                    return result.toStatus();
                 }
             };
-        boolean ok =
+        final Status ok =
                 runRepeatableProcess(processTask, timingParameters.getMaxRetriesOnFailure(),
                         timingParameters.getIntervalToWaitAfterFailureMillis());
         return ok;
@@ -183,7 +205,7 @@ public class HardLinkMaker implements IFileImmutableCopier
         return tokens;
     }
 
-    private static boolean runRepeatableProcess(final Callable<Boolean> task,
+    private static Status runRepeatableProcess(final Callable<Status> task,
             final int maxRetryOnFailure, final long millisToSleepOnFailure)
     {
         return new CallableExecutor(maxRetryOnFailure, millisToSleepOnFailure)

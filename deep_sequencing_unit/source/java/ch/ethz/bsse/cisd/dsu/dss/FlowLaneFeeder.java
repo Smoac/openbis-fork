@@ -255,8 +255,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         List<String> command = Arrays.asList(srfInfoPathOrNull, "-l1", file.getAbsolutePath());
         ProcessResult result =
                 ProcessExecutionHelper.run(command, operationLog, operationLog,
-                        ConcurrencyUtilities.NO_TIMEOUT,
-                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
+                        ConcurrencyUtilities.NO_TIMEOUT, ProcessIOStrategy.DEFAULT_IO_STRATEGY,
+                        true);
         List<String> output = result.getOutput();
         if (result.isOK() == false)
         {
@@ -420,12 +420,12 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     private void createHardLink(File file, File folder)
     {
-        boolean success;
-        success = copier.copyImmutably(file, folder, null);
-        if (success == false)
+        final Status status = copier.copyImmutably(file, folder, null);
+        if (status.isError())
         {
             throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
-                    + file.getAbsolutePath() + "' in folder '" + folder.getAbsolutePath() + "'.");
+                    + file.getAbsolutePath() + "' in folder '" + folder.getAbsolutePath() + "'. ["
+                    + status.tryGetErrorMessage() + "]");
         }
     }
 

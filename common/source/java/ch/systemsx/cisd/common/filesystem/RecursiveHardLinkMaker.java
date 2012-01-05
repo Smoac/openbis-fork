@@ -20,7 +20,9 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -33,11 +35,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class RecursiveHardLinkMaker implements IImmutableCopier
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RecursiveHardLinkMaker.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RecursiveHardLinkMaker.class);
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, RecursiveHardLinkMaker.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            RecursiveHardLinkMaker.class);
 
     private final IFileImmutableCopier fileCopier;
 
@@ -59,7 +61,7 @@ public final class RecursiveHardLinkMaker implements IImmutableCopier
             return new RecursiveHardLinkMaker(fileCopierOrNull);
         }
     }
-    
+
     //
     // IImmutableCopier
     //
@@ -72,91 +74,114 @@ public final class RecursiveHardLinkMaker implements IImmutableCopier
      * <var>destinationDirectory</var>.</i>
      * </p>
      */
-    public boolean copyImmutably(File source, File destinationDirectory, String nameOrNull)
+    public Status copyImmutably(File source, File destinationDirectory, String nameOrNull)
+    {
+        return copyImmutably(source, destinationDirectory, nameOrNull, CopyModeExisting.ERROR);
+    }
+
+    public Status copyImmutably(File source, File destinationDirectory, String nameOrNull,
+            CopyModeExisting mode)
     {
         assert source != null && source.exists();
         assert destinationDirectory != null && destinationDirectory.isDirectory();
         final String destName = (nameOrNull == null) ? source.getName() : nameOrNull;
         final File destFile = new File(destinationDirectory, destName);
-        if (destFile.exists())
+        if (mode == CopyModeExisting.ERROR && destFile.exists())
         {
-            operationLog.error(String.format(
-                    "File '%s' already exists in given destination directory '%s'", destName,
-                    destinationDirectory));
-            return false;
+            final String errorMsg =
+                    String.format("File '%s' already exists in given destination directory '%s'",
+                            destName, destinationDirectory);
+            operationLog.error(errorMsg);
+            return Status.createError(errorMsg);
         }
         if (operationLog.isTraceEnabled())
         {
-            operationLog.trace(String.format("Creating a hard link copy of '%s' in '%s'.", source
-                    .getPath(), destinationDirectory.getPath()));
+            operationLog.trace(String.format("Creating a hard link copy of '%s' in '%s'.",
+                    source.getPath(), destinationDirectory.getPath()));
         }
-        return primCopyImmutably(source, destinationDirectory, nameOrNull);
+        return primCopyImmutably(source, destinationDirectory, nameOrNull, mode);
     }
 
-    private final boolean primCopyImmutably(final File source, final File destinationDirectory,
-            final String nameOrNull)
+    private final Status primCopyImmutably(final File source, final File destinationDirectory,
+            final String nameOrNull, final CopyModeExisting mode)
     {
         if (source.isFile())
         {
-            return fileCopier.copyFileImmutably(source, destinationDirectory, nameOrNull);
+            return fileCopier
+                    .copyFileImmutably(source, destinationDirectory, nameOrNull, mode);
         } else
         {
-            final String name = nameOrNull == null ? source.getName() : nameOrNull;
-            final File dir = tryCreateDir(name, destinationDirectory);
-            if (dir == null)
+            try
             {
-                return false;
-            }
-            final File[] files = source.listFiles();
-            if (files != null)
-            {
-                for (final File file : files)
+                final File dir = createDir(source, destinationDirectory, nameOrNull, mode);
+                final File[] files = source.listFiles();
+                if (files != null)
                 {
-                    InterruptedExceptionUnchecked.check();
-                    if (primCopyImmutably(file, dir, null) == false)
+                    for (final File file : files)
                     {
-                        return false;
+                        InterruptedExceptionUnchecked.check();
+                        final Status stat = primCopyImmutably(file, dir, null, mode);
+                        if (stat.isError())
+                        {
+                            return stat;
+                        }
+                    }
+                } else
+                // Shouldn't happen, but just to be sure.
+                {
+                    if (source.exists() == false)
+                    {
+                        operationLog.error(String.format("Path '%s' vanished during processing.",
+                                source));
+                    } else
+                    {
+                        operationLog.error(String.format(
+                                "Found path '%s' that is neither a file nor a directory.", source));
                     }
                 }
-            } else
-            // Shouldn't happen, but just to be sure.
+            } catch (IOExceptionUnchecked ex)
             {
-                if (source.exists() == false)
-                {
-                    operationLog.error(String.format("Path '%s' vanished during processing.",
-                            source));
-                } else
-                {
-                    operationLog.error(String.format(
-                            "Found path '%s' that is neither a file nor a directory.", source));
-                }
+                return Status.createError(ex.getCause().getMessage());
             }
-            return true;
+            return Status.OK;
         }
     }
 
-    private final static File tryCreateDir(final String name, final File destDir)
+    private final static File createDir(final File srcDir, final File destDir, final String nameOrNull,
+            final CopyModeExisting mode) throws IOExceptionUnchecked
     {
+        final String name = (nameOrNull == null) ? srcDir.getName() : nameOrNull;
         final File dir = new File(destDir, name);
         boolean ok = dir.mkdir();
         if (ok == false)
         {
             if (dir.isDirectory())
             {
-                machineLog.error(String.format("Directory %s already exists in %s", name, destDir
-                        .getAbsolutePath()));
-                ok = true;
+                if (mode != CopyModeExisting.ERROR)
+                {
+                    return dir;
+                } else
+                {
+                    final String errorMsg =
+                            String.format("Directory %s already exists in %s", nameOrNull,
+                                    destDir.getAbsolutePath());
+                    machineLog.error(errorMsg);
+                    throw new IOExceptionUnchecked(errorMsg);
+                }
             } else
             {
-                machineLog.error(String.format("Could not create directory %s inside %s.", name,
-                        destDir.getAbsolutePath()));
+                final String errorMsg =
+                        String.format("Could not create directory %s inside %s.", nameOrNull,
+                                destDir.getAbsolutePath());
+                machineLog.error(errorMsg);
                 if (dir.isFile())
                 {
                     machineLog.error("There is a file with a same name.");
                 }
+                throw new IOExceptionUnchecked(errorMsg);
             }
         }
-        return ok ? dir : null;
+        return dir;
     }
 
 }

@@ -405,7 +405,8 @@ public final class RsyncCopierTest
                 createRsync("2.6.7",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
-        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null));
+        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null)
+                .isOK());
         final String absWd = workingDirectory.getAbsolutePath();
         final String expectedRsyncCmdLine =
                 String.format("--archive --link-dest=%s/aa %s/aa/ %s/b/aa\n", absWd, absWd, absWd);
@@ -423,7 +424,8 @@ public final class RsyncCopierTest
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         final String name = "xxx";
-        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, name));
+        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, name)
+                .isOK());
         final String absWd = workingDirectory.getAbsolutePath();
         final String expectedRsyncCmdLine =
                 String.format("--archive --link-dest=%s/aa %s/aa/ %s/b/%s\n", absWd, absWd, absWd,
@@ -438,7 +440,9 @@ public final class RsyncCopierTest
     {
         final File failingRsyncBinary = createRsync(1);
         final RsyncCopier copier = new RsyncCopier(failingRsyncBinary, null, false, false);
-        assertFalse(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null));
+        final Status status =
+                copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null);
+        assertTrue(status.isError());
     }
 
     @Test(groups =

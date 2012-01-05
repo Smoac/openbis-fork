@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.CopyModeExisting;
 import ch.systemsx.cisd.common.filesystem.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.RemoteDirectoryCopyActivitySensor;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -40,8 +42,8 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
 
     private static final String RSYNC_EXEC = "rsync";
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, RsyncBasedRecursiveHardLinkMaker.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            RsyncBasedRecursiveHardLinkMaker.class);
 
     private final static int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
 
@@ -84,13 +86,25 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
     //
     // IDirectoryImmutableCopier
     //
-    
-    public boolean copyDirectoryImmutably(final File sourceDirectory,
-            final File destinationDirectory, final String targetNameOrNull)
+
+    public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
+            String targetNameOrNull)
+    {
+        return copyDirectoryImmutably(sourceDirectory, destinationDirectory, targetNameOrNull,
+                CopyModeExisting.ERROR);
+    }
+
+    public Status copyDirectoryImmutably(final File sourceDirectory,
+            final File destinationDirectory, final String targetNameOrNull,
+            final CopyModeExisting mode)
     {
         final File target =
-                new File(destinationDirectory, (targetNameOrNull == null) ? sourceDirectory
-                        .getName() : targetNameOrNull);
+                new File(destinationDirectory,
+                        (targetNameOrNull == null) ? sourceDirectory.getName() : targetNameOrNull);
+        if (mode == CopyModeExisting.ERROR && target.exists())
+        {
+            return Status.createError("Target directory '" + target + "' already exists.");
+        }
         final IInactivityObserver observer = new IInactivityObserver()
             {
                 public void update(long inactiveSinceMillis, String descriptionOfInactivity)
@@ -99,34 +113,36 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
                     rsyncCopier.terminate();
                 }
             };
-        boolean ok;
+        Status status;
         int counter = 0;
         while (true)
         {
-            ok =
+            status =
                     createHardLinks(sourceDirectory, destinationDirectory, targetNameOrNull,
-                            target, observer);
-            if (ok || counter++ > timingParameters.getMaxRetriesOnFailure())
+                            target, mode, observer);
+            if (status.isRetriableError() == false
+                    || counter++ > timingParameters.getMaxRetriesOnFailure())
             {
                 break;
             }
-            if (ok == false)
+            if (status.isError())
             {
                 ConcurrencyUtilities.sleep(timingParameters.getIntervalToWaitAfterFailureMillis());
             }
         }
-        return ok;
+        return status;
     }
 
-    private boolean createHardLinks(final File sourceDirectory, final File destinationDirectory,
-            final String targetNameOrNull, final File target, final IInactivityObserver observer)
+    private Status createHardLinks(final File sourceDirectory, final File destinationDirectory,
+            final String targetNameOrNull, final File target, final CopyModeExisting mode,
+            final IInactivityObserver observer)
     {
         final InactivityMonitor monitor =
                 new InactivityMonitor(new RemoteDirectoryCopyActivitySensor(target,
                         maxErrorsToIgnore), observer, timingParameters.getTimeoutMillis(), true);
-        final boolean result =
+        final Status result =
                 rsyncCopier.copyDirectoryImmutably(sourceDirectory, destinationDirectory,
-                        targetNameOrNull);
+                        targetNameOrNull, mode);
         monitor.stop();
         return result;
     }

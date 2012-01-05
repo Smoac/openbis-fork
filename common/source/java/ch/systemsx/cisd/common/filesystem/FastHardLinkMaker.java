@@ -22,6 +22,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.
@@ -33,20 +34,39 @@ public class FastHardLinkMaker implements IFileImmutableCopier
 
     private final static IFileImmutableCopier nativeCopier = new IFileImmutableCopier()
         {
-            public boolean copyFileImmutably(File source, File destinationDirectory,
+            public Status copyFileImmutably(File source, File destinationDirectory,
                     String nameOrNull)
+            {
+                return copyFileImmutably(source, destinationDirectory, nameOrNull,
+                        CopyModeExisting.ERROR);
+            }
+
+            public Status copyFileImmutably(File source, File destinationDirectory,
+                    String nameOrNull, CopyModeExisting mode)
             {
                 final File destination =
                         new File(destinationDirectory, (nameOrNull == null) ? source.getName()
                                 : nameOrNull);
+                if (destination.exists())
+                {
+                    switch (mode)
+                    {
+                        case OVERWRITE:
+                            destination.delete();
+                            break;
+                        case IGNORE:
+                            return Status.OK;
+                        default:
+                            return Status.createError("File '" + destination + "' already exists.");
+                    }
+                }
                 try
                 {
-                    Unix.createHardLink(source.getAbsolutePath(), destination
-                            .getAbsolutePath());
-                    return true;
+                    Unix.createHardLink(source.getAbsolutePath(), destination.getAbsolutePath());
+                    return Status.OK;
                 } catch (IOExceptionUnchecked ex)
                 {
-                    return false;
+                    return Status.createError(ex.getCause().getMessage());
                 }
             }
         };
@@ -100,14 +120,20 @@ public class FastHardLinkMaker implements IFileImmutableCopier
     private FastHardLinkMaker(final TimingParameters timingParameters)
     {
         monitoringProxy =
-                MonitoringProxy.create(IFileImmutableCopier.class, nativeCopier).timing(
-                        timingParameters).get();
+                MonitoringProxy.create(IFileImmutableCopier.class, nativeCopier)
+                        .timing(timingParameters).get();
     }
 
-    public boolean copyFileImmutably(final File file, final File destinationDirectory,
+    public Status copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull)
     {
-        return monitoringProxy.copyFileImmutably(file, destinationDirectory, nameOrNull);
+        return monitoringProxy.copyFileImmutably(source, destinationDirectory, nameOrNull);
+    }
+
+    public Status copyFileImmutably(File source, File destinationDirectory, String nameOrNull,
+            CopyModeExisting mode)
+    {
+        return monitoringProxy.copyFileImmutably(source, destinationDirectory, nameOrNull, mode);
     }
 
 }

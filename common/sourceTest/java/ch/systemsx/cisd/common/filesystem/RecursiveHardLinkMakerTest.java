@@ -144,7 +144,7 @@ public class RecursiveHardLinkMakerTest
     {
         File inputDir = createDirectory(workingDirectory, "resource-to-copy");
         createStructure(inputDir);
-        assertTrue(createHardLinkCopier().copyImmutably(inputDir, outputDir, null));
+        assertTrue(createHardLinkCopier().copyImmutably(inputDir, outputDir, null).isOK());
         File newInput = new File(outputDir, inputDir.getName());
 
         assertStructureExists(newInput);
@@ -171,7 +171,7 @@ public class RecursiveHardLinkMakerTest
         File src = createFile(workingDirectory, "fileXXX");
         assertFileExists(src);
 
-        assertTrue(createHardLinkCopier().copyImmutably(src, outputDir, null));
+        assertTrue(createHardLinkCopier().copyImmutably(src, outputDir, null).isOK());
         File dest = new File(outputDir, src.getName());
         assertFileExists(dest);
 
