@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class DataSet
     private final IDssComponent dssComponent;
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
+
+    private List<DataSet> containedDataSets;
 
     private IDataSetDss dataSetDss;
 
@@ -152,6 +155,37 @@ public class DataSet
     public List<String> getChildrenCodes()
     {
         return getMetadata().getChildrenCodes();
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#isContainerDataSet()
+     */
+    @Retry
+    public boolean isContainerDataSet()
+    {
+        return getMetadata().isContainerDataSet();
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#isContainerDataSet()
+     */
+    @Retry
+    public List<DataSet> getContainedDataSets()
+    {
+        if (null == containedDataSets)
+        {
+            containedDataSets = new ArrayList<DataSet>();
+            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> primitiveContainedDataSets =
+                    getMetadata().getContainedDataSets();
+            for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet primitiveContainedDataSet : primitiveContainedDataSets)
+            {
+                DataSet containedDataSet =
+                        new DataSet(facade, dssComponent, primitiveContainedDataSet, null);
+                containedDataSets.add(containedDataSet);
+            }
+
+        }
+        return containedDataSets;
     }
 
     /**

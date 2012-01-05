@@ -153,6 +153,15 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
     }
 
+    @Test(dependsOnMethods = "testPutDataSet")
+    public void testGetDataSetContainedDataSets() throws Exception
+    {
+        DataSet ds = getLatestDataSet();
+
+        List<DataSet> contained = ds.getContainedDataSets();
+        assertEquals(0, contained.size());
+    }
+
     private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,

@@ -497,9 +497,18 @@ class AuthenticatedState extends AbstractDssComponentState
         }
 
         // Get the path
-        String path =
-                dataSetDss.getService().getPathToDataSet(getSessionToken(), dataSetDss.getCode(),
-                        overrideStoreRootPathOrNull);
+
+        String path;
+        try
+        {
+            path =
+                    dataSetDss.getService().getPathToDataSet(getSessionToken(),
+                            dataSetDss.getCode(), overrideStoreRootPathOrNull);
+        } catch (IllegalArgumentException e)
+        {
+            // We could not create a link, return null
+            return null;
+        }
 
         // Check if the file referenced by the path exists, if so return it.
         // NOTE: the path will never exist if the data set is a container.
