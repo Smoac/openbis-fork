@@ -207,7 +207,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 DataSetRegistrationService<ImageDataSetInformation> service)
         {
             DataSetRegistrationTransaction<ImageDataSetInformation> transaction =
-                    service.transaction(incomingDatasetFolder, service.getDataSetRegistrationDetailsFactory());
+                    service.transaction(incomingDatasetFolder,
+                            service.getDataSetRegistrationDetailsFactory());
             IDataSet newDataset = transaction.createNewDataSet(imageDatasetDetails);
             transaction.moveFile(incomingDatasetFolder.getPath(), newDataset);
             return transaction.commit();
@@ -439,7 +440,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 ThumbnailsInfo thumbnailsInfo = new ThumbnailsInfo();
                 for (ThumbnailsStorageFormat thumbnailsStorageFormat : thumbnailsStorageFormatList)
                 {
-                    IDataSet thumbnailDataset = createThumbnailDataset(thumbnailsStorageFormat);
+                    IDataSet thumbnailDataset =
+                            createThumbnailDataset(imageDataSetInformation, thumbnailsStorageFormat);
                     thumbnailDatasets.add(thumbnailDataset);
 
                     generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
@@ -532,10 +534,12 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             }
         }
 
-        private IDataSet createThumbnailDataset(ThumbnailsStorageFormat thumbnailsStorageFormat)
+        private IDataSet createThumbnailDataset(ImageDataSetInformation imageDataSetInformation,
+                ThumbnailsStorageFormat thumbnailsStorageFormat)
         {
-            IDataSet thumbnailDataset =
-                    createNewDataSet(ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
+            String thumbnailsDatasetTypeCode =
+                    findThumbnailsDatasetTypeCode(imageDataSetInformation);
+            IDataSet thumbnailDataset = createNewDataSet(thumbnailsDatasetTypeCode);
             thumbnailDataset.setFileFormatType(thumbnailsStorageFormat.getFileFormat()
                     .getOpenBISFileType());
             thumbnailDataset.setMeasuredData(false);
@@ -620,6 +624,30 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                         .fromTemplate(
                                 "The image dataset type '%s' is neither standard HCS type (starts with '%s') nor a microscopy type (contains '%s').",
                                 dataSetTypeCode, prefix,
+                                ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
+            }
+        }
+
+        private static String findThumbnailsDatasetTypeCode(
+                ImageDataSetInformation imageDataSetInformation)
+        {
+            String dataSetTypeCode =
+                    imageDataSetInformation.getDataSetType().getCode().toUpperCase();
+
+            if (isHCSImageDataSetType(dataSetTypeCode))
+            {
+                return ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX
+                        + ScreeningConstants.IMAGE_THUMBNAIL_DATASET_TYPE_MARKER;
+            } else if (isMicroscopyImageDataSetType(dataSetTypeCode))
+            {
+                return dataSetTypeCode.replace(ScreeningConstants.MICROSCOPY_IMAGE_TYPE_SUBSTRING,
+                        ScreeningConstants.MICROSCOPY_THUMBNAIL_TYPE_SUBSTRING);
+            } else
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "The image dataset type '%s' is neither standard HCS type (starts with '%s') nor a microscopy type (contains '%s').",
+                                dataSetTypeCode, ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX,
                                 ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
             }
         }

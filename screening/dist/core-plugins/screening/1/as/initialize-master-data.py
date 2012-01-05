@@ -170,6 +170,10 @@ data_set_type_HCS_IMAGE_OVERVIEW = tr.createNewDataSetType('HCS_IMAGE_OVERVIEW')
 data_set_type_HCS_IMAGE_OVERVIEW.setDescription('Overview High Content Screening Images. Generated from raw images.')
 data_set_type_HCS_IMAGE_OVERVIEW.setContainerType(False)
 
+data_set_type_MICROSCOPY_IMG_OVERVIEW = tr.createNewDataSetType('MICROSCOPY_IMG_OVERVIEW')
+data_set_type_MICROSCOPY_IMG_OVERVIEW.setDescription('Overview Microscopy Images. Generated from raw images.')
+data_set_type_MICROSCOPY_IMG_OVERVIEW.setContainerType(False)
+
 data_set_type_HCS_IMAGE_RAW = tr.createNewDataSetType('HCS_IMAGE_RAW')
 data_set_type_HCS_IMAGE_RAW.setDescription('Raw High Content Screening Images')
 data_set_type_HCS_IMAGE_RAW.setContainerType(False)
@@ -341,6 +345,11 @@ assignment_DATA_SET_HCS_IMAGE_OVERVIEW_RESOLUTION = tr.assignPropertyType(data_s
 assignment_DATA_SET_HCS_IMAGE_OVERVIEW_RESOLUTION.setMandatory(False)
 assignment_DATA_SET_HCS_IMAGE_OVERVIEW_RESOLUTION.setSection(None)
 assignment_DATA_SET_HCS_IMAGE_OVERVIEW_RESOLUTION.setPositionInForms(1)
+
+assignment_DATA_SET_MICROSCOPY_IMG_OVERVIEW_RESOLUTION = tr.assignPropertyType(data_set_type_MICROSCOPY_IMG_OVERVIEW, prop_type_RESOLUTION)
+assignment_DATA_SET_MICROSCOPY_IMG_OVERVIEW_RESOLUTION.setMandatory(False)
+assignment_DATA_SET_MICROSCOPY_IMG_OVERVIEW_RESOLUTION.setSection(None)
+assignment_DATA_SET_MICROSCOPY_IMG_OVERVIEW_RESOLUTION.setPositionInForms(1)
 
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY = tr.assignPropertyType(samp_type_PLATE, prop_type_PLATE_GEOMETRY)
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setMandatory(True)

@@ -44,6 +44,12 @@ public class ScreeningConstants
      */
     public static final String IMAGE_CONTAINER_DATASET_TYPE_MARKER = "_CONTAINER";
 
+    /**
+     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type
+     * code are considered to be thumbnail datasets.
+     */
+    public static final String IMAGE_THUMBNAIL_DATASET_TYPE_MARKER = "_OVERVIEW";
+
     // --- HCS dataset types
 
     /** Prefix of a dataset's type which stores hcs data. */
@@ -103,6 +109,9 @@ public class ScreeningConstants
 
     public static final String MICROSCOPY_CONTAINER_TYPE_SUBSTRING =
             MICROSCOPY_IMAGE_TYPE_SUBSTRING + "_CONTAINER";
+
+    public static final String MICROSCOPY_THUMBNAIL_TYPE_SUBSTRING =
+            MICROSCOPY_IMAGE_TYPE_SUBSTRING + "_OVERVIEW";
 
     /** type of the dataset which stores microscopy images. */
     public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
