@@ -116,7 +116,8 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
                             CHILDREN_RELATIONSHIP_HANDLER);
         }
 
-        return lister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
+        return lister.list(new ListOrSearchSampleCriteria(
+                restrictResultSetIfNecessary(filteredSampleIds)));
     }
 
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,

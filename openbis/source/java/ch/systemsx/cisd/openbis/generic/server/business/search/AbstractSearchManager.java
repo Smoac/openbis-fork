@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.search;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,6 +49,16 @@ public class AbstractSearchManager<T>
         this.lister = lister;
     }
 
+    protected Collection<Long> restrictResultSetIfNecessary(Collection<Long> ids)
+    {
+        int maxSize = searchDAO.getResultSetSizeLimit();
+        if (ids.size() <= maxSize)
+        {
+            return ids;
+        }
+        return new ArrayList<Long>(ids).subList(0, maxSize);
+    }
+
     protected DetailedSearchAssociationCriteria findAssociatedEntities(
             DetailedSearchSubCriteria subCriteria)
     {
@@ -70,7 +81,7 @@ public class AbstractSearchManager<T>
         criteria.setUseWildcardSearchMode(subCriteriaToMerge.getCriteria()
                 .isUseWildcardSearchMode());
     }
-    
+
     interface IRelationshipHandler
     {
         Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
@@ -137,6 +148,5 @@ public class AbstractSearchManager<T>
         }
         return idsToFilter;
     }
-    
 
 }

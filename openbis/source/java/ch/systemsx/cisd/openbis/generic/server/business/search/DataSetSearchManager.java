@@ -46,18 +46,18 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     private final IRelationshipHandler CHILDREN_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
-        public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
-        {
+            {
                 return findDataSetIds(criteria, otherSubCriterias);
             }
 
-        public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
+            public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
             {
                 return lister.listChildrenIds(dataSetIds);
             }
 
-        public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenDataSetIds)
+            public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenDataSetIds)
             {
                 return lister.listParentIds(childrenDataSetIds);
             }
@@ -66,18 +66,18 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     private final IRelationshipHandler PARENT_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
-        public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
-        {
+            {
                 return findDataSetIds(criteria, otherSubCriterias);
             }
 
-        public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
+            public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
             {
                 return lister.listParentIds(dataSetIds);
             }
 
-        public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentDataSetIds)
+            public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentDataSetIds)
             {
                 return lister.listChildrenIds(parentDataSetIds);
             }
@@ -91,7 +91,7 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     public List<ExternalData> searchForDataSets(DetailedSearchCriteria criteria)
             throws DataAccessException
     {
-        
+
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         List<DetailedSearchSubCriteria> otherSubCriterias =
@@ -116,15 +116,14 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
                             CHILDREN_RELATIONSHIP_HANDLER);
         }
 
-        return lister.listByDatasetIds(filteredDataSetIds);
+        return lister.listByDatasetIds(restrictResultSetIfNecessary(filteredDataSetIds));
     }
-
 
     private List<Long> findDataSetIds(DetailedSearchCriteria criteria,
             List<DetailedSearchSubCriteria> otherSubCriterias)
     {
         List<DetailedSearchAssociationCriteria> associations =
-            new ArrayList<DetailedSearchAssociationCriteria>();
+                new ArrayList<DetailedSearchAssociationCriteria>();
         for (DetailedSearchSubCriteria subCriteria : otherSubCriterias)
         {
             associations.add(findAssociatedEntities(subCriteria));
@@ -139,8 +138,8 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         }
 
         final List<Long> dataSetIds =
-            searchDAO.searchForEntityIds(criteria,
-                    DtoConverters.convertEntityKind(EntityKind.DATA_SET), associations);
+                searchDAO.searchForEntityIds(criteria,
+                        DtoConverters.convertEntityKind(EntityKind.DATA_SET), associations);
         return dataSetIds;
     }
 
@@ -168,6 +167,5 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         }
 
     }
-
 
 }

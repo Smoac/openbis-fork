@@ -49,4 +49,11 @@ public interface IHibernateSearchDAO
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind,
             List<DetailedSearchAssociationCriteria> associationCriterias);
+
+    /**
+     * Returns the maximum size of a search result set. The standard implementations returns
+     * <code>hibernate.search.maxResults</code> of <code>service.properties</code>.
+     */
+    public int getResultSetSizeLimit();
+
 }

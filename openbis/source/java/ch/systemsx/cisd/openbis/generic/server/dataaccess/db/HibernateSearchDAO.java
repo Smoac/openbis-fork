@@ -103,6 +103,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // IHibernateSearchDAO
     //
 
+    public int getResultSetSizeLimit()
+    {
+        return hibernateSearchContext.getMaxResults();
+    }
+
     // simple search for MatchingEntities
 
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
@@ -250,7 +255,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());
 
-        hibernateQuery.setMaxResults(hibernateSearchContext.getMaxResults());
         hibernateQuery.setProjection(FullTextQuery.ID);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
