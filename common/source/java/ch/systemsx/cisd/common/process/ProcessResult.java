@@ -264,8 +264,14 @@ public final class ProcessResult
             {
                 return Status.createError(getStartupFailureMessage());
             }
-            return Status.createError("Exit Value: " + getExitValue() + "\n"
-                    + StringUtils.join(getErrorOutput(), "\n"));
+            List<String> statusOutput = getErrorOutput();
+            if (statusOutput.isEmpty())
+            {
+                statusOutput = getOutput();
+            }
+            return Status.createError((StringUtils.join(getCommandLine(), " ").trim() + "\n  "
+                    + "Exit Value: " + getExitValue() + "\n  " + StringUtils.join(
+                            statusOutput, "\n")).trim());
         }
 
     }
