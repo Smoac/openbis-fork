@@ -333,8 +333,8 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                             "Creating extra copy of directory '%s' to '%s'.", path
                                     .getAbsolutePath(), tempDir.getAbsoluteFile()));
                 }
-                final boolean ok = copier.copyImmutably(path, tempDir, null);
-                if (ok == false)
+                final Status status = copier.copyImmutably(path, tempDir, null);
+                if (status.isError())
                 {
                     notificationLog.error(String.format("Creating extra copy of '%s' failed.", path
                             .getAbsolutePath()));
