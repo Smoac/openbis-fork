@@ -362,24 +362,92 @@ abstract public class SimpleImageDataConfig
         imagePyramid.add(new DefaultThumbnailsConfiguration());
     }
 
+    /**
+     * See {@link #setGenerateImageRepresentations}.
+     * 
+     * @deprecated use {@link #setGenerateImageRepresentations} instead.
+     */
+    @Deprecated
     public void setGenerateImagePyramid(IThumbnailsConfiguration[] elements)
     {
-        imagePyramid.addAll(Arrays.asList(elements));
+        setGenerateImageRepresentations(elements);
     }
 
+    /**
+     * See {@link #setGenerateImageRepresentationsWithScaleFactors}.
+     * 
+     * @deprecated use {@link #setGenerateImageRepresentationsWithScaleFactors} instead.
+     */
+    @Deprecated
     public void setGenerateImagePyramidWithScaleFactors(double[] zoomLevels)
     {
+        setGenerateImageRepresentationsWithScaleFactors(zoomLevels);
+    }
+
+    /**
+     * See {@link #setGenerateImageRepresentationsWithImageResolutions}.
+     * 
+     * @deprecated use {@link #setGenerateImageRepresentationsWithImageResolutions} instead.
+     */
+    @Deprecated
+    public void setGenerateImagePyramidWithImageResolution(String[] resolutions)
+    {
+        setGenerateImageRepresentationsWithImageResolutions(resolutions);
+    }
+
+    /**
+     * Registers a request for alternate image representations to be generated based on the original
+     * image. The format of the alternate representations is specified by the {@link formats}
+     * argument.
+     * 
+     * @param formats The formats of the image generated representations. One image representation
+     *            will be created for each format.
+     */
+    public void setGenerateImageRepresentations(IThumbnailsConfiguration[] formats)
+    {
         imagePyramid.clear();
-        if (zoomLevels != null)
+        imagePyramid.addAll(Arrays.asList(formats));
+    }
+
+    /**
+     * Registers a request for alternate image representations to be generated based on the original
+     * image. The alternate image representations vary with respect to resolution from the original
+     * image.
+     * 
+     * @param scaleFactors The scale factors applied to the original resolution. Scale factors must
+     *            be greater than 0.
+     */
+    public void setGenerateImageRepresentationsWithScaleFactors(double[] scaleFactors)
+    {
+        // Verify the arguments
+        for (double scaleFactor : scaleFactors)
         {
-            for (double zoomLevel : zoomLevels)
+            if (scaleFactor <= 0)
+            {
+                throw new IllegalArgumentException(
+                        "Scale factors for generated image representations must be greater than 0.");
+            }
+        }
+        imagePyramid.clear();
+        if (scaleFactors != null)
+        {
+            for (double zoomLevel : scaleFactors)
             {
                 imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
             }
         }
     }
 
-    public void setGenerateImagePyramidWithImageResolution(String[] resolutions)
+    /**
+     * Registers a request for alternate image representations to be generated based on the original
+     * image. The alternate image representations vary with respect to resolution from the original
+     * image.
+     * 
+     * @param resolutions The resolutions
+     * @param allowEnlarging If true, resolutions larger than the original size of the image are
+     *            allowed
+     */
+    public void setGenerateImageRepresentationsWithImageResolutions(String[] resolutions)
     {
         imagePyramid.clear();
         if (resolutions != null)
