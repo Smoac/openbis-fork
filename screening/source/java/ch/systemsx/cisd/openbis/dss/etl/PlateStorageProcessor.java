@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -164,21 +165,34 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             super(containerDatasetPermId, originalDataset);
             this.imageZoomLevels = createZoomLevels(originalDataset, thumbnailsInfosOrNull);
         }
+        
+        private static Integer nullifyIfZero(int value)
+        {
+            return value == 0 ? null : value;
+        }
 
         private static List<ImageZoomLevel> createZoomLevels(DataSetInformation originalDataset,
                 ThumbnailsInfo thumbnailsInfosOrNull)
         {
             List<ImageZoomLevel> zoomLevels = new ArrayList<ImageZoomLevel>();
-
+            Integer width = null;
+            Integer height = null;
+            if (originalDataset instanceof ImageDataSetInformation)
+            {
+                ImageDataSetInformation imageDataSet = (ImageDataSetInformation) originalDataset;
+                width = nullifyIfZero(imageDataSet.getMaximumImageWidth());
+                height = nullifyIfZero(imageDataSet.getMaximumImageHeight());
+            }
             ImageZoomLevel originalZoomLevel =
                     new ImageZoomLevel(originalDataset.getDataSetCode(), true,
-                            StringUtils.EMPTY_STRING, null, null, null, null);
+                            StringUtils.EMPTY_STRING, width, height, null, null);
             zoomLevels.add(originalZoomLevel);
             if (thumbnailsInfosOrNull != null)
             {
                 for (String permId : thumbnailsInfosOrNull.getThumbnailPhysicalDatasetsPermIds())
                 {
-                    Integer width = null, height = null;
+                    width = null;
+                    height = null;
                     Size dimension = thumbnailsInfosOrNull.tryGetDimension(permId);
                     if (dimension != null)
                     {

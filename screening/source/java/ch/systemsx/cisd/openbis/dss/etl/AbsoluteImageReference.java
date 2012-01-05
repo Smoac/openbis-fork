@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -24,7 +23,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -101,37 +100,22 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         if (image == null)
         {
-            image = loadUnchangedImage(contentNode, tryGetImageID(), imageLibraryOrNull);
+            image = Utils.loadUnchangedImage(contentNode, tryGetImageID(), imageLibraryOrNull);
         }
         return image;
     }
-
-    static BufferedImage loadUnchangedImage(IHierarchicalContentNode contentNode,
-            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    
+    /**
+     * Returns the image size. Preferred method if only image size is needed because only the
+     * header of an image file might be read to get the size.
+     */
+    public Size getUnchangedImageSize()
     {
-        String imageLibraryNameOrNull = null;
-        String imageLibraryReaderNameOrNull = null;
-        if (imageLibraryOrNull != null)
+        if (image != null)
         {
-            imageLibraryNameOrNull = imageLibraryOrNull.getName();
-            imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
+            return new Size(image.getWidth(), image.getHeight());
         }
-        return ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
-                imageLibraryReaderNameOrNull, null);
-    }
-
-    static Dimension loadUnchangedImageDimension(IHierarchicalContentNode contentNode,
-            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
-    {
-        String imageLibraryNameOrNull = null;
-        String imageLibraryReaderNameOrNull = null;
-        if (imageLibraryOrNull != null)
-        {
-            imageLibraryNameOrNull = imageLibraryOrNull.getName();
-            imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
-        }
-        return ImageUtil.loadUnchangedImageDimension(contentNode, imageIdOrNull,
-                imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
+        return Utils.loadUnchangedImageSize(contentNode, tryGetImageID(), imageLibraryOrNull);
     }
 
     public RequestedImageSize getRequestedSize()

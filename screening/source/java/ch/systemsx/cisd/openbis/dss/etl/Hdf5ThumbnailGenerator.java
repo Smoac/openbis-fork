@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
@@ -234,7 +234,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         if (thumbnailsStorageFormat.getZoomLevel() != null)
         {
-            Dimension originalSize = loadUnchangedImageDimension(imageFile, null);
+            Size originalSize = loadUnchangedImageDimension(imageFile, null);
             double zoomLevel = thumbnailsStorageFormat.getZoomLevel();
             width = (int) Math.round(zoomLevel * originalSize.getWidth());
             height = (int) Math.round(zoomLevel * originalSize.getHeight());
@@ -288,13 +288,13 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private BufferedImage loadUnchangedImage(File imageFile, String imageIdOrNull)
     {
-        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContentNode(imageFile),
+        return Utils.loadUnchangedImage(new FileBasedContentNode(imageFile),
                 imageIdOrNull, imageLibraryOrNull);
     }
 
-    private Dimension loadUnchangedImageDimension(File imageFile, String imageIdOrNull)
+    private Size loadUnchangedImageDimension(File imageFile, String imageIdOrNull)
     {
-        return AbsoluteImageReference.loadUnchangedImageDimension(new FileBasedContentNode(
+        return Utils.loadUnchangedImageSize(new FileBasedContentNode(
                 imageFile), imageIdOrNull, imageLibraryOrNull);
     }
 

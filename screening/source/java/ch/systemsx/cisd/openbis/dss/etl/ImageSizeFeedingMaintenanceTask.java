@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
@@ -183,9 +183,9 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         {
             return null;
         }
-        BufferedImage unchangedImage = image.getUnchangedImage();
-        int width = unchangedImage.getWidth();
-        int height = unchangedImage.getHeight();
+        Size size = image.getUnchangedImageSize();
+        int width = size.getWidth();
+        int height = size.getHeight();
         dao.addImageZoomLevel(new ImgImageZoomLevelDTO(dataSetCode, original, "", width, height,
                 null, null, dataSetId));
         return (original ? "Original" : "Thumbnail") + " size " + width + "x" + height

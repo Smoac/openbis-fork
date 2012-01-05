@@ -45,6 +45,10 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     private ThumbnailsInfo thumbnailsInfos;
 
     private String containerDatasetPermId;
+    
+    private int maximumImageWidth;
+    
+    private int maximumImageHeight;
 
     public File getIncomingDirectory()
     {
@@ -100,6 +104,26 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     // -------
 
+    public int getMaximumImageWidth()
+    {
+        return maximumImageWidth;
+    }
+
+    public void setMaximumImageWidth(int maximumImageWidth)
+    {
+        this.maximumImageWidth = maximumImageWidth;
+    }
+
+    public int getMaximumImageHeight()
+    {
+        return maximumImageHeight;
+    }
+
+    public void setMaximumImageHeight(int maximumImageHeight)
+    {
+        this.maximumImageHeight = maximumImageHeight;
+    }
+
     @Override
     public String toString()
     {
@@ -107,6 +131,10 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         appendNameAndObject(buffer, "images structure", imageDataSetStructure);
         appendNameAndObject(buffer, "container dataset", containerDatasetPermId);
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
+        if (maximumImageHeight > 0 && maximumImageWidth > 0)
+        {
+            appendNameAndObject(buffer, "bounding box", maximumImageWidth + "x" + maximumImageHeight);
+        }
         if (getThumbnailsInfos() != null)
         {
             appendNameAndObject(buffer, "thumbnail", getThumbnailsInfos());

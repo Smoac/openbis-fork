@@ -18,6 +18,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
+import ch.systemsx.cisd.openbis.dss.etl.Utils;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
@@ -445,6 +448,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 }
                 imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
             }
+            calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
             // create main dataset (with original images)
             @SuppressWarnings("unchecked")
             DataSet<ImageDataSetInformation> mainDataset =
@@ -467,6 +471,25 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
 
             return containerDataset;
+        }
+
+        private void calculateBoundingBox(ImageDataSetInformation imageDataSetInformation,
+                ImageDataSetStructure imageDataSetStructure, File incomingDirectory)
+        {
+            ImageLibraryInfo imageLibrary =
+                    imageDataSetStructure.getImageStorageConfiguraton().tryGetImageLibrary();
+            List<ImageFileInfo> images = imageDataSetStructure.getImages();
+            for (ImageFileInfo imageFileInfo : images)
+            {
+                File file = new File(incomingDirectory, imageFileInfo.getImageRelativePath());
+                Size size =
+                        Utils.loadUnchangedImageSize(new FileBasedContentNode(file), null,
+                                imageLibrary);
+                imageDataSetInformation.setMaximumImageWidth(Math.max(
+                        imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
+                imageDataSetInformation.setMaximumImageHeight(Math.max(
+                        imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+            }
         }
 
         private File prependOriginalDirectory(String directoryPath)
