@@ -27,6 +27,7 @@ import ch.systemsx.cisd.cifex.server.trigger.ITriggerConsole;
 import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IFileImmutableCopier;
@@ -93,15 +94,15 @@ public class DataStoreTrigger implements ITrigger
             copyUploadedFile(sourceFile, destDir, request.getFileName());
             if (propertiesFileOrNull != null)
             {
-                copyUploadedFile(propertiesFileOrNull.getFile(), destDir, propertiesFileOrNull
-                        .getFileName());
+                copyUploadedFile(propertiesFileOrNull.getFile(), destDir,
+                        propertiesFileOrNull.getFileName());
             }
         } catch (Exception ex)
         {
             console.sendEmailMessage("Data set upload failed", String.format(
                     "Upload of data set (file: '%s', comment: '%s') failed. ('%s')", sourceFile,
-                    request.getComment(), ex.getMessage()), null, null, new EMailAddress(request
-                    .getUploadingUserEmail()));
+                    request.getComment(), ex.getMessage()), null, null,
+                    new EMailAddress(request.getUploadingUserEmail()));
         }
     }
 
@@ -134,9 +135,8 @@ public class DataStoreTrigger implements ITrigger
     private File createDestinationDirectory(File sourceFile)
     {
         final File destDir =
-                FileUtilities.createNextNumberedFile(new File(incomingDirectory, sourceFile
-                        .getName()
-                        + ".dir"), null);
+                FileUtilities.createNextNumberedFile(
+                        new File(incomingDirectory, sourceFile.getName() + ".dir"), null);
         boolean success = destDir.mkdir();
         if (success == false)
         {
@@ -151,11 +151,12 @@ public class DataStoreTrigger implements ITrigger
         final IFileImmutableCopier copier = HardLinkMaker.tryCreate();
         if (copier != null)
         {
-            boolean status =
+            final Status status =
                     copier.copyFileImmutably(sourceFile, destinationDirectory, destinationFileName);
-            if (status == false)
+            if (status.isError())
             {
-                throw new EnvironmentFailureException("Could not create the hardlink");
+                throw new EnvironmentFailureException("Could not create the hardlink copy: "
+                        + status.tryGetErrorMessage());
             }
         } else
         {
