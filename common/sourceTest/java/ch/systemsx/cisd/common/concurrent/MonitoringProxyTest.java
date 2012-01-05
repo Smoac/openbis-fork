@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
-import ch.systemsx.cisd.base.tests.Retry10;
+import ch.systemsx.cisd.base.tests.Retry50;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
@@ -347,109 +347,109 @@ public class MonitoringProxyTest
         defaultReturningProxy.idle(true);
     }
 
-    @Test(expectedExceptions = SignalException.class, retryAnalyzer = Retry10.class)
+    @Test(expectedExceptions = SignalException.class, retryAnalyzer = Retry50.class)
     public void testThrowExceptionNullReturningPolicy()
     {
         defaultReturningProxy.throwSignalException();
     }
 
-    @Test(expectedExceptions = SignalException.class, retryAnalyzer = Retry10.class)
+    @Test(expectedExceptions = SignalException.class, retryAnalyzer = Retry50.class)
     public void testThrowExceptionExceptionThrowsPolicy()
     {
         exceptionThrowingProxy.throwSignalException();
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry50.class)
     public void testVoidTimeoutWithException()
     {
         exceptionThrowingProxy.idle(true);
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testNoTimeoutDueToSensorUpdate()
     {
         exceptionThrowingProxy.busyUpdatingActivity();
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testNoTimeoutDueToCommunicatorUpdate()
     {
         exceptionThrowingProxy.busyUpdatingActivity(null);
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testGetStringNullReturningPolicy()
     {
         assertEquals(THE_STRING, defaultReturningProxy.getString(false));
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testGetStringExceptionThrowingPolicy()
     {
         assertEquals(THE_STRING, exceptionThrowingProxy.getString(false));
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testGetStringTimeoutNoException()
     {
         assertNull(defaultReturningProxy.getString(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry50.class)
     public void testGetStringTimeoutWithException()
     {
         exceptionThrowingProxy.getString(true);
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testGetIntNullReturningPolicy()
     {
         assertEquals(THE_INTEGER, defaultReturningProxy.getInteger(false));
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testGetIntExceptionThrowingPolicy()
     {
         assertEquals(THE_INTEGER, exceptionThrowingProxy.getInteger(false));
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testGetBoolTimeoutReturnsDefault()
     {
         assertEquals(false, defaultReturningProxy.getBoolean(true));
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testGetStatus()
     {
         assertEquals(THE_STATUS, defaultReturningProxy.getStatus(false));
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testGetStatusTimeoutReturnsDefault()
     {
         assertEquals(Status.UUUPS, defaultReturningProxy.getStatus(true));
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testGetSpecialStatusTimeoutReturnsMethodDefault()
     {
         assertEquals(Status.SPECIAL_UUUPS, defaultReturningProxy.getSpecialStatus(true));
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testGetIntTimeoutReturnsDefault()
     {
         assertEquals(0, defaultReturningProxy.getInteger(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = Retry50.class)
     public void testGetIntTimeoutWithException()
     {
         exceptionThrowingProxy.getInteger(true);
     }
 
-    @Test(groups = "slow", expectedExceptions = InterruptedExceptionUnchecked.class, retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", expectedExceptions = InterruptedExceptionUnchecked.class, retryAnalyzer = Retry50.class)
     public void testInterruptTheUninterruptableThrowsException()
     {
         final ITest proxy =
@@ -471,7 +471,7 @@ public class MonitoringProxyTest
         timer.cancel();
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testInterruptTheUninterruptableReturnsDefaultValue()
     {
         final String defaultReturnValue = "That's the default return value.";
@@ -502,14 +502,14 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.worksOnSecondInvocation();
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testRetryOnceFailOnce()
     {
         retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
     }
 
     @Test(groups =
-        { "slow" }, retryAnalyzer = Retry10.class)
+        { "slow" }, retryAnalyzer = Retry50.class)
     public void testRetryOnceFailOnceWithCommunicator()
     {
         retryingOnceExceptionThrowingProxy.resetInvocationsCancelled();
@@ -519,19 +519,19 @@ public class MonitoringProxyTest
         assertEquals(1, retryingOnceExceptionThrowingProxy.getInvocationsCancelled());
     }
 
-    @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry10.class, groups = "broken")
+    @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry50.class, groups = "broken")
     public void testRetryOnceFailTwice()
     {
         retryingOnceExceptionThrowingProxy.worksOnThirdInvocation();
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = Retry50.class)
     public void testRetryTwiceFailTwice()
     {
         retryingTwiceExceptionThrowingProxy.worksOnThirdInvocation();
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = Retry50.class)
     public void testInvocationLog()
     {
         final List<ExecutionResult<Object>> results = new ArrayList<ExecutionResult<Object>>();
