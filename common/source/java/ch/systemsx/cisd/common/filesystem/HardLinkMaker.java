@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -179,6 +180,21 @@ public class HardLinkMaker implements IFileImmutableCopier
         final Status ok =
                 runRepeatableProcess(processTask, timingParameters.getMaxRetriesOnFailure(),
                         timingParameters.getIntervalToWaitAfterFailureMillis());
+        if (ok.isError())
+        {
+            final String errorMsg = ok.tryGetErrorMessage();
+            if (errorMsg != null && errorMsg.endsWith("Operation not supported"))
+            {
+                try
+                {
+                    FileUtilities.copyFileTo(source, destFile, true);
+                    return Status.OK;
+                } catch (EnvironmentFailureException ex)
+                {
+                    return Status.createError(ex.getMessage());
+                }
+            }
+        }
         return ok;
     }
 

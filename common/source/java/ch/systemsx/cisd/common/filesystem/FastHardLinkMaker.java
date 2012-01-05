@@ -22,6 +22,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
@@ -66,7 +67,19 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                     return Status.OK;
                 } catch (IOExceptionUnchecked ex)
                 {
-                    return Status.createError(ex.getCause().getMessage());
+                    final String errorMsg = ex.getCause().getMessage();
+                    if (errorMsg.endsWith("Operation not supported"))
+                    {
+                        try
+                        {
+                            FileUtilities.copyFileTo(source, destination, true);
+                            return Status.OK;
+                        } catch (EnvironmentFailureException ex2)
+                        {
+                            return Status.createError(ex2.getMessage());
+                        }
+                    }
+                    return Status.createError(errorMsg);
                 }
             }
         };
