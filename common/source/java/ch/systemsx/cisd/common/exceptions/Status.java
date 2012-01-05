@@ -47,29 +47,29 @@ public class Status
     public static Status createError(final boolean retriable, final String message)
     {
         assert message != null;
-        
+
         return new Status(getErrorFlag(retriable), message);
     }
-    
+
     public static Status createError()
     {
         return new Status(StatusFlag.ERROR, "");
     }
-    
+
     public static Status createError(final String message)
     {
         assert message != null;
-        
+
         return new Status(StatusFlag.ERROR, message);
     }
-    
-    public static Status createError(final String messageTemplate, final Object ... args)
+
+    public static Status createError(final String messageTemplate, final Object... args)
     {
         assert messageTemplate != null;
-        
+
         return new Status(StatusFlag.ERROR, String.format(messageTemplate, args));
     }
-    
+
     public static Status createRetriableError()
     {
         return new Status(StatusFlag.RETRIABLE_ERROR, "");
@@ -78,22 +78,22 @@ public class Status
     public static Status createRetriableError(final String message)
     {
         assert message != null;
-        
+
         return new Status(StatusFlag.RETRIABLE_ERROR, message);
     }
 
-    public static Status createRetriableError(final String messageTemplate, final Object ... args)
+    public static Status createRetriableError(final String messageTemplate, final Object... args)
     {
         assert messageTemplate != null;
-        
+
         return new Status(StatusFlag.RETRIABLE_ERROR, String.format(messageTemplate, args));
     }
-    
+
     protected static StatusFlag getErrorFlag(final boolean retriable)
     {
         return retriable ? StatusFlag.RETRIABLE_ERROR : StatusFlag.ERROR;
     }
-    
+
     protected Status(final StatusFlag flag, final String message)
     {
         assert flag != null;
@@ -112,11 +112,37 @@ public class Status
     }
 
     /**
+     * @return <code>true</code> if this status represents an OK status.
+     */
+    public final boolean isOK()
+    {
+        return flag == StatusFlag.OK;
+    }
+
+    /**
      * @return <code>true</code> if this status represents an error.
      */
     public final boolean isError()
     {
         return flag != StatusFlag.OK;
+    }
+
+    /**
+     * @return <code>true</code> if this status represents an error where it makes sense to retry
+     *         the operation.
+     */
+    public final boolean isRetriableError()
+    {
+        return flag == StatusFlag.RETRIABLE_ERROR;
+    }
+
+    /**
+     * @return <code>true</code> if this status represents an error where it does not make sense to
+     *         retry the operation.
+     */
+    public final boolean isNonRetriableError()
+    {
+        return flag == StatusFlag.ERROR;
     }
 
     /**
