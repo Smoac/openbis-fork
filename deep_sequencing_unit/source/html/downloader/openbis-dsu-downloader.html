@@ -115,6 +115,12 @@ function addSamplesToTree(samples)
     	  }
     	  space._children.push(sample);
     });
+
+		// Sort spacees
+		spaces.sort(function(space1, space2) {
+			    if (space1.label == space2.label) return 0;
+			    return (space1.label < space2.label) ? -1 : 1;
+	  });
     
     if(spaces.length > 1){
     	sortArray(spaces, 'label', true);
