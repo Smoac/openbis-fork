@@ -61,16 +61,14 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
     public final static IImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
         final File rsyncExecOrNull = OSUtilities.findExecutable(RSYNC_EXEC);
-        if (rsyncExecOrNull == null)
-        {
-            return null;
-        }
         final File lnExecOrNull = OSUtilities.findExecutable(LN_EXEC);
-        if (lnExecOrNull == null)
+        try
+        {
+            return create(rsyncExecOrNull, lnExecOrNull, timingParameters, false);
+        } catch (ConfigurationFailureException ex)
         {
             return null;
         }
-        return create(rsyncExecOrNull, lnExecOrNull, timingParameters, false);
     }
 
     public final static IImmutableCopier create(final File rsyncExecutable, final File lnExecutable)
@@ -97,7 +95,7 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
     {
         this.internFileCopierOrNull =
                 neverUseNative ? null : FastHardLinkMaker.tryCreate(timingParameters);
-        this.rsyncBasedDirectoryCopierOrNull =
+        this.rsyncBasedDirectoryCopierOrNull = (rsyncExcutable == null) ? null :
                 new RsyncBasedRecursiveHardLinkMaker(rsyncExcutable, timingParameters,
                         DEFAULT_MAX_ERRORS_TO_IGNORE);
         if (internFileCopierOrNull == null)

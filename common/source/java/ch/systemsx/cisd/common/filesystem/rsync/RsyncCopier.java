@@ -103,7 +103,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final RsyncVersion rsyncVersion;
 
-    private final String sshExecutable;
+    private final String sshExecutablePathOrNull;
 
     private final List<String> additionalCmdLineFlagsOrNull;
 
@@ -143,12 +143,19 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     public RsyncCopier(final File rsyncExecutable, final File sshExecutableOrNull,
             String... cmdLineFlags)
     {
-        assert rsyncExecutable != null && rsyncExecutable.exists();
-        assert sshExecutableOrNull == null || rsyncExecutable.exists();
-
+        if (rsyncExecutable == null)
+        {
+            throw new ConfigurationFailureException("No rsync executable available.");
+        }
+        if (rsyncExecutable.exists() == false)
+        {
+            throw new ConfigurationFailureException("rsync executable '" + rsyncExecutable
+                    + "' does not exist.");
+        }
         this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
         this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
-        this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
+        this.sshExecutablePathOrNull =
+                (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.rsyncTerminator = new AtomicReference<ITerminable>(null);
         this.overwriteMode = false;
         this.destinationDirectoryRequiresDeletionBeforeCreation = false;
@@ -170,12 +177,19 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             final boolean destinationDirectoryRequiresDeletionBeforeCreation,
             final boolean overwrite, final String... cmdLineFlags)
     {
-        assert rsyncExecutable != null && rsyncExecutable.exists();
-        assert sshExecutableOrNull == null || rsyncExecutable.exists();
-
+        if (rsyncExecutable == null)
+        {
+            throw new ConfigurationFailureException("No rsync executable available.");
+        }
+        if (rsyncExecutable.exists() == false)
+        {
+            throw new ConfigurationFailureException("rsync executable '" + rsyncExecutable
+                    + "' does not exist.");
+        }
         this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
         this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
-        this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
+        this.sshExecutablePathOrNull =
+                (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation =
                 destinationDirectoryRequiresDeletionBeforeCreation;
         this.overwriteMode = overwrite;
@@ -417,6 +431,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull,
             long millisToWaitForCompletion)
     {
+        if (sshExecutablePathOrNull == null)
+        {
+            return false;
+        }
         if (remoteHostRsyncMap.containsKey(host))
         {
             return true;
@@ -434,7 +452,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             return false;
         }
         final List<String> commandLineList =
-                createSshCommand(host, sshExecutable, rsyncExec + " --version");
+                createSshCommand(host, sshExecutablePathOrNull, rsyncExec + " --version");
         final ProcessResult verResult = runCommand(commandLineList, millisToWaitForCompletion);
         verResult.log();
         if (verResult.isOK() == false || verResult.getOutput().size() == 0)
@@ -464,7 +482,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private String tryFindRemoteRsyncExecutable(String host, long millisToWaitForCompletion)
     {
-        List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
+        List<String> commandLineList =
+                createSshCommand(host, sshExecutablePathOrNull, "type -p rsync");
         final ProcessResult result = runCommand(commandLineList, millisToWaitForCompletion);
         result.log();
         if (result.isOK() && result.getOutput().size() != 1)
@@ -527,9 +546,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert sourcePath != null && (sourceHostOrNull != null || sourcePath.exists());
         assert destinationDirectory != null
                 && (destinationHostOrNull != null || destinationDirectory.isDirectory());
-        assert (destinationHostOrNull != null && sshExecutable != null)
+        assert (destinationHostOrNull != null && sshExecutablePathOrNull != null)
                 || (destinationHostOrNull == null);
-        assert (sourceHostOrNull != null && sshExecutable != null) || (sourceHostOrNull == null);
+        assert (sourceHostOrNull != null && sshExecutablePathOrNull != null)
+                || (sourceHostOrNull == null);
 
         final List<String> commandLineList = new ArrayList<String>();
         final RsyncRecord remoteRsyncOrNull =
@@ -552,11 +572,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 commandLineList.add("--append");
             }
         }
-        if (sshExecutable != null && (destinationHostOrNull != null || sourceHostOrNull != null)
+        if (sshExecutablePathOrNull != null
+                && (destinationHostOrNull != null || sourceHostOrNull != null)
                 && rsyncModuleNameOrNull == null)
         {
             commandLineList.add("--rsh");
-            commandLineList.add(getSshExecutableArgument(sshExecutable));
+            commandLineList.add(getSshExecutableArgument(sshExecutablePathOrNull));
             if (remoteRsyncOrNull != null)
             {
                 commandLineList.add("--rsync-path");

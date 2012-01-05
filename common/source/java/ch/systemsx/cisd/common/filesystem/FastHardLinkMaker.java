@@ -99,7 +99,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
     }
 
     /**
-     * Creates an {@link IFileImmutableCopier} with default timing pameters (uses
+     * Creates an {@link IFileImmutableCopier} with default timing parameters (uses
      * {@link TimingParameters#getDefaultParameters()}.
      * 
      * @return The copier, if the native library could be initialized successfully, or
@@ -107,12 +107,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static IFileImmutableCopier tryCreate()
     {
-        if (Unix.isOperational() == false)
-        {
-            return null;
-        }
-        return new FastHardLinkMaker(TimingParameters.getDefaultParameters());
-
+        return tryCreate(TimingParameters.getDefaultParameters());
     }
 
     private final IFileImmutableCopier monitoringProxy;

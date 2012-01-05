@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.CopyModeExisting;
 import ch.systemsx.cisd.common.filesystem.IDirectoryImmutableCopier;
@@ -72,13 +73,19 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
     public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull,
             TimingParameters timingParameters, int maxErrorsToIgnore)
     {
-        if (rsyncExecutableOrNull == null)
+        final File rsyncExecutable =
+                (rsyncExecutableOrNull == null) ? OSUtilities.findExecutable(RSYNC_EXEC)
+                        : rsyncExecutableOrNull;
+        if (rsyncExecutable == null)
         {
-            rsyncCopier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
-        } else
-        {
-            rsyncCopier = new RsyncCopier(rsyncExecutableOrNull);
+            throw new ConfigurationFailureException("No rsync executable available.");
         }
+        if (rsyncExecutable.exists() == false)
+        {
+            throw new ConfigurationFailureException("rsync executable '" + rsyncExecutable
+                    + "' does not exist.");
+        }
+        this.rsyncCopier = new RsyncCopier(rsyncExecutable);
         this.timingParameters = timingParameters;
         this.maxErrorsToIgnore = maxErrorsToIgnore;
     }
