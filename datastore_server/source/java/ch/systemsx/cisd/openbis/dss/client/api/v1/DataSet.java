@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
@@ -189,13 +191,83 @@ public class DataSet
     }
 
     /**
+     * Returns the primary data set. For a non-container data set, this is itself. For a container
+     * data set, this is the one contained data set that is considered primary.
+     * 
+     * @return The data set that is considered primary, or null if the primary data set cannot be
+     *         determined.
+     */
+    @Retry
+    public DataSet getPrimaryDataSetOrNull()
+    {
+        if (false == isContainerDataSet())
+        {
+            return this;
+        }
+
+        // Find the contained data set that follows the specified naming convention
+        Pattern containerDataSetTypePattern = Pattern.compile("(.*)_CONTAINER(.*)");
+        // See if the container follows the pattern
+        Matcher matcher = containerDataSetTypePattern.matcher(getDataSetTypeCode());
+        if (false == matcher.matches())
+        {
+            // We do not know how to figure out what the primary data set might be
+            return null;
+        }
+
+        // The primary data set type is the same as the container with the "_CONTAINER" removed
+        String primaryDataSetType = matcher.group(1);
+        if (null == primaryDataSetType)
+        {
+            primaryDataSetType = matcher.group(2);
+        } else
+        {
+            if (null != matcher.group(2))
+            {
+                primaryDataSetType = primaryDataSetType + matcher.group(2);
+            }
+        }
+        if (null == primaryDataSetType)
+        {
+            return null;
+        }
+
+        List<DataSet> contained = getContainedDataSets();
+        List<DataSet> matchedDataSets = new ArrayList<DataSet>();
+        for (DataSet ds : contained)
+        {
+            if (primaryDataSetType.equals(ds.getDataSetTypeCode()))
+            {
+                matchedDataSets.add(ds);
+            }
+        }
+
+        // Return the single match, or null otherwise
+        if (1 == matchedDataSets.size())
+        {
+            return matchedDataSets.get(0);
+        }
+        return null;
+    }
+
+    /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#equals(java.lang.Object)
      */
     @Override
     @Retry
     public boolean equals(Object obj)
     {
-        return getMetadata().equals(obj);
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof DataSet == false)
+        {
+            return false;
+        }
+
+        DataSet other = (DataSet) obj;
+        return getMetadata().equals(other.getMetadata());
     }
 
     /**

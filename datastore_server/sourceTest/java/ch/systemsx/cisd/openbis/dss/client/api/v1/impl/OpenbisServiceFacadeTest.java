@@ -268,8 +268,13 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         final List<String> codes = unmodifiableList("DATA-SET-1", "DATA-SET-2");
         final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
-                unmodifiableList(createDataSet("DATA-SET-1", experimentIdentifier("E1"), null),
-                        createDataSet("DATA-SET-2", experimentIdentifier("E2"), null));
+                unmodifiableList(
+                        createDataSet("DATA-SET-1", experimentIdentifier("E1"), null),
+                        createDataSet("DATA-SET-2", experimentIdentifier("E2"), null,
+                                "data-set-alternative-type"));
+        final ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet containerDataSet =
+                createContainerDataSet("DATA-SET-CONTAINER-1", experimentIdentifier("E1"), null,
+                        dataSets);
 
         final RecordingMatcher<SearchCriteria> criteriaMatcher =
                 new RecordingMatcher<SearchCriteria>();
@@ -279,6 +284,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                     one(service).searchForDataSets(with(equal(SESSION_TOKEN)),
                             with(criteriaMatcher));
                     will(returnValue(dataSets));
+                    one(service).searchForDataSets(with(equal(SESSION_TOKEN)),
+                            with(criteriaMatcher));
+                    will(returnValue(unmodifiableList(containerDataSet)));
                 }
             });
 
@@ -286,12 +294,21 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         // dataSets and result do not have the same type, but should have the same string
         // representation.
         assertEquals(dataSets.toString(), result.toString());
-        SearchCriteria criteria = criteriaMatcher.recordedObject();
+        // A normal data set is its own primary data set
+        assertEquals(result.get(0), result.get(0).getPrimaryDataSetOrNull());
+        SearchCriteria criteria = criteriaMatcher.getRecordedObjects().get(0);
         assertNotNull(criteria);
         assertEquals(SearchOperator.MATCH_ANY_CLAUSES, criteria.getOperator());
         assertEquals(codes.size(), criteria.getMatchClauses().size());
         assertMatchClauseForCode("DATA-SET-1", criteria.getMatchClauses().get(0));
         assertMatchClauseForCode("DATA-SET-2", criteria.getMatchClauses().get(1));
+
+        // Try to get the container data set now
+        DataSet container = openbisFacade.getDataSet("DATA-SET-CONTAINER-1");
+        DataSet primaryDataSet = container.getPrimaryDataSetOrNull();
+        assertNotNull(primaryDataSet);
+        assertEquals("DATA-SET-1", primaryDataSet.getCode());
+
     }
 
     @Test
@@ -537,7 +554,13 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createDataSet(String code,
-            String exprimentId, String sampleIdOrNull)
+            String experimentId, String sampleIdOrNull)
+    {
+        return createDataSet(code, experimentId, sampleIdOrNull, "data-set-type");
+    }
+
+    private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createDataSet(String code,
+            String experimentId, String sampleIdOrNull, String dataSetType)
     {
         EntityRegistrationDetailsInitializer initializer =
                 new EntityRegistrationDetailsInitializer();
@@ -545,10 +568,29 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
         DataSetInitializer init = new DataSetInitializer();
         init.setCode(code);
-        init.setDataSetTypeCode("data-set-type");
+        init.setDataSetTypeCode(dataSetType);
+        init.setExperimentIdentifier(experimentId);
+        init.setSampleIdentifierOrNull(sampleIdOrNull);
+        init.setRegistrationDetails(registrationDetails);
+        return new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(init);
+    }
+
+    private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createContainerDataSet(
+            String code, String exprimentId, String sampleIdOrNull,
+            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> containedDataSets)
+    {
+        EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetailsInitializer();
+        EntityRegistrationDetails registrationDetails = new EntityRegistrationDetails(initializer);
+
+        DataSetInitializer init = new DataSetInitializer();
+        init.setCode(code);
+        init.setDataSetTypeCode("data-set_CONTAINER-type");
         init.setExperimentIdentifier(exprimentId);
         init.setSampleIdentifierOrNull(sampleIdOrNull);
         init.setRegistrationDetails(registrationDetails);
+        init.setContainerDataSet(true);
+        init.setContainedDataSets(containedDataSets);
         return new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(init);
     }
 

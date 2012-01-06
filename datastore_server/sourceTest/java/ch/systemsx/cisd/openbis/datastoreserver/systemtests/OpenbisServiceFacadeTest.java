@@ -160,6 +160,10 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
         List<DataSet> contained = ds.getContainedDataSets();
         assertEquals(0, contained.size());
+
+        // The primary data set for a normal (non-container) data set is itself
+        assertNotNull(ds.getPrimaryDataSetOrNull());
+        assertEquals(ds, ds.getPrimaryDataSetOrNull());
     }
 
     private static String fileInfoString(String startPath, String pathInListing, long length)
