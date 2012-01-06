@@ -42,10 +42,11 @@ var screening = {
   
   
   sample_properties_heading: "Properties",
-  part_of_heading: "Components",
-  derived_samples_heading: "Derived Samples",
-  parent_samples_heading: "Parent Samples",
-  derived_sample: "Derived Sample",
+  part_of_heading: "Contained",
+  derived_samples_heading: "Children",
+  parent_samples_heading: "Parents",
+  derived_sample: "Child",
+  derived_samples: "Children",
   external_data_heading: "Data Sets",
   show_only_directly_connected: "directly connected",
 

@@ -286,7 +286,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             properties.put(viewContext.getMessage(Dict.DERIVED_SAMPLE), generated);
         } else if (generated.length > 1)
         {
-            properties.put(viewContext.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
+            properties.put(viewContext.getMessage(Dict.DERIVED_SAMPLES), generated.length);
         }
         final Set<Sample> parents = sample.getParents();
         final int parentsSize = parents.size();

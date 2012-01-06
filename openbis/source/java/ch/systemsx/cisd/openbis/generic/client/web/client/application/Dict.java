@@ -581,6 +581,8 @@ public abstract class Dict
 
     public static final String DERIVED_SAMPLE = "derived_sample";
 
+    public static final String DERIVED_SAMPLES = "derived_samples";
+
     public static final String EXTERNAL_DATA_HEADING = "external_data_heading";
 
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED = "show_only_directly_connected";
