@@ -73,10 +73,13 @@ if incoming.isDirectory():
     imageDataset = ImageDataSetFlexible()
     imageDataset.setRawImageDatasetType()
     imageDataset.setPlate("PLATONIC", incoming.getName())
+#    imageDataset.setGenerateImageRepresentationsWithScaleFactors([0.25, 0.5])    
+    imageDataset.setGenerateImageRepresentationsUsingImageResolutions(['256x256', '1024x1024'])
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     datasetInfo = imageRegistrationDetails.getDataSetInformation()
     channels = [ Channel("DAPI", "DAPI"), Channel("GFP", "GFP")]
     colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN]
+    
     datasetInfo.setChannels(channels, colorComponents)
-     
+    
     factory.registerImageDataset(imageRegistrationDetails, incoming, service)

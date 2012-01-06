@@ -82,7 +82,7 @@ Configure openBIS
 2. Create space PLATONIC.
 3. Create project SCREENING-EXAMPLES.
 3. Create an experiment EXP-1 of type HCS_PLATONIC in this project.
-4. Use the Administration->General Import to import the file screening/exp-1-library.xls
+4. Use the Import->General Import to import the file screening/exp-1-library.xls
 
 Generate and Register Data
 --------------------------
