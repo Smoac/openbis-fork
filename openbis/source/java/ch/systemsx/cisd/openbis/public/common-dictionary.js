@@ -441,6 +441,7 @@ var common = {
   USER_MENU_CHANGE_SETTINGS: "Settings",
   USER_MENU_LOGOUT: "Logout",
   USER_MENU_LOGIN: "Login",
+  USER_MENU_ABOUT_BOX: "About",
     
   menu_compute: "Perform",
   COMPUTE_MENU_QUERIES: "Query",
@@ -570,6 +571,9 @@ var common = {
   show_last_visits_label: "Show Last Visited Places",
   show_last_visits_info: "Check to show the last visited materials, experiments, samples, and data sets on the welcome page.",
     
+  // About Box
+  about_box_dialog_title: "About",
+  
   //
   // Role View
   //

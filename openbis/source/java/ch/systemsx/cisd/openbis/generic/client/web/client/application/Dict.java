@@ -980,6 +980,8 @@ public abstract class Dict
     public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE =
             "change_user_settings_dialog_title";
 
+    public static final String ABOUT_BOX_DIALOG_TITLE = "about_box_dialog_title";
+
     public static final String USE_WILDCARD_SEARCH_MODE_LABEL = "use_wildcard_search_mode_label";
 
     public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP =

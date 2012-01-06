@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SimpleModeHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
@@ -126,11 +125,6 @@ final class AppView extends View
             panel.setHeaderVisible(false);
             panel.add(DebugPanelManager.createDebugPanel());
             viewport.add(panel, data);
-        } else if (getViewMode() != ViewMode.EMBEDDED)
-        {
-            final Footer footer = new Footer(viewContext);
-            final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);
-            viewport.add(footer, data);
         }
     }
 
