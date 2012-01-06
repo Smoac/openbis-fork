@@ -32,7 +32,7 @@ ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found
 ERROR: file3.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file4.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
 ERROR: file5.mzXML - cannot upload the file: sample '/unknown/x' does not exist or is not connected to any experiment.
-ERROR: file5.mzXML - cannot upload the file: Authorization failure: User 'etlserver1' does not have enough privileges.
+ERROR: "User 'etlserver1' does not have enough privileges.".
 
 faulty-unknown-property --------------------
 ERROR: file1.mzXML - cannot upload the file: Property type with code 'unknown-property' does not exist!
