@@ -183,11 +183,11 @@ public final class DataSet implements Serializable
             return containedDataSets;
         }
 
-        public void setContainedDataSets(List<DataSet> containedDataSetCodes)
+        public void setContainedDataSets(List<DataSet> containedDataSets)
         {
             this.containedDataSets =
-                    (null == containedDataSetCodes) ? new ArrayList<DataSet>()
-                            : containedDataSetCodes;
+                    (null == containedDataSets) ? new ArrayList<DataSet>()
+                            : containedDataSets;
         }
 
     }
