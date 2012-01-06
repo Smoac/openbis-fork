@@ -28,12 +28,6 @@ public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsCon
 
     public ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
     {
-        if (zoomLevel > 100d || zoomLevel < 0d)
-        {
-            throw new IllegalStateException("Zoom level must be between 0% and 100%, but was: "
-                    + zoomLevel);
-        }
-
         this.zoomLevel = zoomLevel;
     }
 

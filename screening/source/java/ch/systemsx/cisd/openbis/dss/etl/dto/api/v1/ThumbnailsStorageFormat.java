@@ -139,6 +139,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     private int maxHeight = DEFAULT_THUMBNAIL_MAX_SIZE;
 
+    private boolean allowEnlarging = true;
+
     private Double zoomLevel = null;
 
     private boolean storeCompressed = DEFAULT_COMPRESS_THUMBNAILS;
@@ -198,6 +200,11 @@ public class ThumbnailsStorageFormat extends AbstractHashable
         return imageMagicParams;
     }
 
+    public boolean isAllowEnlarging()
+    {
+        return allowEnlarging;
+    }
+
     // --- setters ---
 
     /** Sets the maximum width of a thumbnail. */
@@ -216,6 +223,14 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     public void setStoreCompressed(boolean storeCompressed)
     {
         this.storeCompressed = storeCompressed;
+    }
+
+    /**
+     * Specify if this image representation is allowed to be larger than the original image.
+     */
+    public void setAllowEnlarging(boolean allowEnlarging)
+    {
+        this.allowEnlarging = allowEnlarging;
     }
 
     /**

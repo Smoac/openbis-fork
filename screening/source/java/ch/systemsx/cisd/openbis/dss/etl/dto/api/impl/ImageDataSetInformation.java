@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -45,9 +48,9 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     private ThumbnailsInfo thumbnailsInfos;
 
     private String containerDatasetPermId;
-    
+
     private int maximumImageWidth;
-    
+
     private int maximumImageHeight;
 
     public File getIncomingDirectory()
@@ -124,6 +127,27 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         this.maximumImageHeight = maximumImageHeight;
     }
 
+    public List<Channel> getChannels()
+    {
+        return imageDataSetStructure.getChannels();
+    }
+
+    public List<ChannelColorComponent> getChannelColorComponents()
+    {
+        return imageDataSetStructure.getChannelColorComponents();
+    }
+
+    public void setChannels(List<Channel> channels)
+    {
+        imageDataSetStructure.setChannels(channels);
+    }
+
+    public void setChannels(List<Channel> channels,
+            List<ChannelColorComponent> channelColorComponents)
+    {
+        imageDataSetStructure.setChannels(channels, channelColorComponents);
+    }
+
     @Override
     public String toString()
     {
@@ -133,7 +157,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
         if (maximumImageHeight > 0 && maximumImageWidth > 0)
         {
-            appendNameAndObject(buffer, "bounding box", maximumImageWidth + "x" + maximumImageHeight);
+            appendNameAndObject(buffer, "bounding box", maximumImageWidth + "x"
+                    + maximumImageHeight);
         }
         if (getThumbnailsInfos() != null)
         {

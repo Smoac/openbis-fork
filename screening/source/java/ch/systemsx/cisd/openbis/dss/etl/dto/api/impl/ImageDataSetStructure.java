@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 
 /**
@@ -133,6 +135,52 @@ public class ImageDataSetStructure
     public boolean isValid()
     {
         return tileRowsNumber > 0 && tileColumnsNumber > 0 && channels != null && images != null;
+    }
+
+    /**
+     * Verify that the requested image representation formats are valid.
+     * 
+     * @throws UserFailureException Thrown if the requested image representations are not valid.
+     */
+    public void validateImageRepresentationGenerationParameters(
+            ImageDataSetInformation imageDataSetInformation)
+    {
+        List<ThumbnailsStorageFormat> storageFormats =
+                getImageStorageConfiguraton().getThumbnailsStorageFormat();
+
+        // Check that no enlarging will happen if it is not wanted
+        int originalWidth = imageDataSetInformation.getMaximumImageWidth();
+        int originalHeight = imageDataSetInformation.getMaximumImageHeight();
+        boolean foundErrors = false;
+        StringBuilder errorSb = new StringBuilder();
+        for (ThumbnailsStorageFormat storageFormat : storageFormats)
+        {
+            if (storageFormat.isAllowEnlarging())
+            {
+                continue;
+            }
+            int representationWidth = storageFormat.getMaxWidth();
+            int representationHeight = storageFormat.getMaxHeight();
+            if (representationWidth > originalWidth || representationHeight > originalHeight)
+            {
+                foundErrors = true;
+                errorSb.append("Requested representation size ");
+                errorSb.append(representationWidth);
+                errorSb.append("x");
+                errorSb.append(representationHeight);
+                errorSb.append(" is larger than original size ");
+                errorSb.append(originalWidth);
+                errorSb.append("x");
+                errorSb.append(originalHeight);
+                errorSb.append("; enlarging of images has been explicitly disabled");
+                errorSb.append("\n");
+            }
+        }
+
+        if (foundErrors)
+        {
+            throw new UserFailureException(errorSb.toString());
+        }
     }
 
     @Override

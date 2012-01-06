@@ -370,6 +370,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
      * subclass. It has to deal with {@link ImageDataSetInformation},
      * {@link FeatureVectorDataSetInformation} and {@link DataSetInformation} at the same time.
      */
+    @SuppressWarnings("rawtypes")
     private static class ImagingDataSetRegistrationTransaction extends
             DataSetRegistrationTransaction implements IImagingDataSetRegistrationTransaction
     {
@@ -428,11 +429,18 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             File incomingDirectory = imageDataSetInformation.getIncomingDirectory();
             List<String> containedDataSetCodes = new ArrayList<String>();
 
+            // Compute the bounding box of the images -- needs to happen before thumbnail
+            // generation, since thumbnails may want to know the bounding box
+            calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
+
             // create thumbnails dataset if needed
             List<IDataSet> thumbnailDatasets = new ArrayList<IDataSet>();
             boolean generateThumbnails = imageDataSetStructure.areThumbnailsGenerated();
             if (generateThumbnails)
             {
+                imageDataSetStructure
+                        .validateImageRepresentationGenerationParameters(imageDataSetInformation);
+
                 List<ThumbnailsStorageFormat> thumbnailsStorageFormatList =
                         imageDataSetStructure.getImageStorageConfiguraton()
                                 .getThumbnailsStorageFormat();
@@ -450,7 +458,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 }
                 imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
             }
-            calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
+
             // create main dataset (with original images)
             @SuppressWarnings("unchecked")
             DataSet<ImageDataSetInformation> mainDataset =

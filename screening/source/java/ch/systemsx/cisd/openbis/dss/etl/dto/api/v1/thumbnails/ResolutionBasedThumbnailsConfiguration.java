@@ -28,10 +28,19 @@ public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsCo
 
     private final int maxHeight;
 
+    private final boolean allowEnlarging;
+
     public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
+    {
+        this(maxWidth, maxHeight, true);
+    }
+
+    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight,
+            boolean allowEnlarging)
     {
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+        this.allowEnlarging = allowEnlarging;
     }
 
     @Override
@@ -40,6 +49,7 @@ public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsCo
         ThumbnailsStorageFormat thumbnailsStorageFormat = super.getThumbnailsStorageFormat(config);
         thumbnailsStorageFormat.setMaxWidth(maxWidth);
         thumbnailsStorageFormat.setMaxHeight(maxHeight);
+        thumbnailsStorageFormat.setAllowEnlarging(allowEnlarging);
         return thumbnailsStorageFormat;
     }
 

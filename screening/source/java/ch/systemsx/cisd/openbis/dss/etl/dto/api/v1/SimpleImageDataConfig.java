@@ -381,7 +381,7 @@ abstract public class SimpleImageDataConfig
     @Deprecated
     public void setGenerateImagePyramidWithScaleFactors(double[] zoomLevels)
     {
-        setGenerateImageRepresentationsWithScaleFactors(zoomLevels);
+        setGenerateImageRepresentationsUsingScaleFactors(zoomLevels);
     }
 
     /**
@@ -392,7 +392,7 @@ abstract public class SimpleImageDataConfig
     @Deprecated
     public void setGenerateImagePyramidWithImageResolution(String[] resolutions)
     {
-        setGenerateImageRepresentationsWithImageResolutions(resolutions);
+        setGenerateImageRepresentationsUsingImageResolutions(resolutions);
     }
 
     /**
@@ -417,8 +417,14 @@ abstract public class SimpleImageDataConfig
      * @param scaleFactors The scale factors applied to the original resolution. Scale factors must
      *            be greater than 0.
      */
-    public void setGenerateImageRepresentationsWithScaleFactors(double[] scaleFactors)
+    public void setGenerateImageRepresentationsUsingScaleFactors(double[] scaleFactors)
     {
+        imagePyramid.clear();
+        if (scaleFactors == null)
+        {
+            return;
+        }
+
         // Verify the arguments
         for (double scaleFactor : scaleFactors)
         {
@@ -428,14 +434,39 @@ abstract public class SimpleImageDataConfig
                         "Scale factors for generated image representations must be greater than 0.");
             }
         }
-        imagePyramid.clear();
-        if (scaleFactors != null)
+        for (double zoomLevel : scaleFactors)
         {
-            for (double zoomLevel : scaleFactors)
-            {
-                imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
-            }
+            imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
         }
+    }
+
+    /**
+     * Registers a request for alternate image representations to be generated based on the original
+     * image. The alternate image representations vary with respect to resolution from the original
+     * image. By default, allow enlarging. Use
+     * {@link #setGenerateImageRepresentationsWithoutEnlargingUsingImageResolutions(String[])} to
+     * explicitly prevent enlarging.
+     * 
+     * @param resolutions The resolutions
+     */
+    public void setGenerateImageRepresentationsUsingImageResolutions(String[] resolutions)
+    {
+        setGenerateImageRepresentationsUsingImageResolutions(resolutions, true);
+    }
+
+    /**
+     * Registers a request for alternate image representations to be generated based on the original
+     * image. The alternate image representations vary with respect to resolution from the original
+     * image. This method throws an exception if the requested resolution results in the image being
+     * enlarged. Use {@link #setGenerateImageRepresentationsUsingImageResolutions(String[])} to
+     * allow enlarging.
+     * 
+     * @param resolutions The resolutions
+     */
+    public void setGenerateImageRepresentationsWithoutEnlargingUsingImageResolutions(
+            String[] resolutions)
+    {
+        setGenerateImageRepresentationsUsingImageResolutions(resolutions, false);
     }
 
     /**
@@ -447,7 +478,8 @@ abstract public class SimpleImageDataConfig
      * @param allowEnlarging If true, resolutions larger than the original size of the image are
      *            allowed
      */
-    public void setGenerateImageRepresentationsWithImageResolutions(String[] resolutions)
+    private void setGenerateImageRepresentationsUsingImageResolutions(String[] resolutions,
+            boolean allowEnlarging)
     {
         imagePyramid.clear();
         if (resolutions != null)
@@ -463,7 +495,8 @@ abstract public class SimpleImageDataConfig
                 }
                 int width = Integer.parseInt(dimension[0].trim());
                 int height = Integer.parseInt(dimension[1].trim());
-                imagePyramid.add(new ResolutionBasedThumbnailsConfiguration(width, height));
+                imagePyramid.add(new ResolutionBasedThumbnailsConfiguration(width, height,
+                        allowEnlarging));
             }
         }
     }
