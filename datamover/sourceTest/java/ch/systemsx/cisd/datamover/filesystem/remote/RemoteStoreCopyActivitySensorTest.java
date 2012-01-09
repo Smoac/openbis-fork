@@ -104,7 +104,7 @@ public class RemoteStoreCopyActivitySensorTest
     @Test
     public void testOneError()
     {
-        final String errorMsg = "ERROR message";
+        final String errorMsg = "message";
         context.checking(new Expectations()
             {
                 {
@@ -116,7 +116,7 @@ public class RemoteStoreCopyActivitySensorTest
         final long delta = now - sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertTrue("Delta is " + delta, delta < MAX_DELTA);
         assertEquals("Error: Unable to determine the time of write activity on "
-                + "item 'I am probed' in store 'iFileStore'\nERROR message", sensorUnderTest
+                + "item 'I am probed' in store 'iFileStore'\nERROR: \"message\"", sensorUnderTest
                 .describeInactivity(now));
     }
 
