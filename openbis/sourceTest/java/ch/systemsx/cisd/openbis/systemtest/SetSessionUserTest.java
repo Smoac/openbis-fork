@@ -70,8 +70,8 @@ public class SetSessionUserTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
-                    + "could be found in roles of user 'observer'.", ex.getMessage());
+            assertEquals("Authorization failure: ERROR: \"None of method roles '[INSTANCE_ADMIN]' "
+                    + "could be found in roles of user 'observer'.\".", ex.getMessage());
         }
     }
 
@@ -158,8 +158,8 @@ public class SetSessionUserTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
-                    + "could be found in roles of user 'observer'.", ex.getMessage());
+            assertEquals("Authorization failure: ERROR: \"None of method roles '[INSTANCE_ADMIN]' "
+                    + "could be found in roles of user 'observer'.\".", ex.getMessage());
         }
     }
 }

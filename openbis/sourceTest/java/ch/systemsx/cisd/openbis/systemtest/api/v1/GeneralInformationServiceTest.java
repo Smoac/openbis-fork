@@ -146,7 +146,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -175,7 +176,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -204,7 +206,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -239,7 +242,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -271,7 +275,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -310,7 +315,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -429,7 +435,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -454,7 +461,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -479,7 +487,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
@@ -502,7 +511,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
-            assertEquals("Authorization failure: User 'observer' does not have enough privileges.",
+            assertEquals(
+                    "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
     }
