@@ -130,7 +130,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         assertEquals("[This is an automatically generated report from the completed processing "
                 + "of data sets in openBIS.\n"
                 + "- number of successfully processed data sets: 1. Datasets: ds1\n"
-                + "- processing of 1 data set(s) failed because:  Oops!. Datasets: ds2\n" + "]",
+                + "- processing of 1 data set(s) failed because:  RETRIABLE_ERROR: \"Oops!\". Datasets: ds2\n" + "]",
                 contentRecorder.getRecordedObjects().toString());
         context.assertIsSatisfied();
     }
