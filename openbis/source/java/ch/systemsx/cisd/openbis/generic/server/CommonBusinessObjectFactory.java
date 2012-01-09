@@ -228,7 +228,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ITrashBO createTrashBO(Session session)
     {
-        return new TrashBO(getDaoFactory(), session);
+        return new TrashBO(getDaoFactory(), this, session);
     }
 
     public IDeletionTable createDeletionTable(Session session)

@@ -189,6 +189,19 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return dataSets;
     }
 
+    public List<DataPE> getUnavailableDataSets()
+    {
+        List<DataPE> result = new ArrayList<DataPE>();
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.isAvailable() == false)
+            {
+                result.add(dataSet);
+            }
+        }
+        return result;
+    }
+
     public final List<ExternalDataPE> getExternalData()
     {
         assert dataSets != null : "Data Sets not loaded.";
@@ -214,6 +227,14 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets = new ArrayList<DataPE>();
         dataSets.addAll(dataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, withProperties,
                 lockForUpdate));
+    }
+
+    public void loadByIds(List<TechId> ids)
+    {
+        IDataDAO dataDAO = getDataDAO();
+
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(dataDAO.tryToFindFullDataSetsByIds(TechId.asLongs(ids), false, false));
     }
 
     public final void loadBySampleTechId(final TechId sampleId)

@@ -18,20 +18,26 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -45,11 +51,14 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         TRUE, FALSE
     }
 
+    private final ICommonBusinessObjectFactory boFactory;
+
     private DeletionPE deletion;
 
-    public TrashBO(IDAOFactory daoFactory, Session session)
+    public TrashBO(IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory, Session session)
     {
         super(daoFactory, session);
+        this.boFactory = boFactory;
     }
 
     public void createDeletion(String reason)
@@ -121,12 +130,52 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             containedDataSetIds = getDataDAO().listContainedDataSets(containedDataSetIds);
         }
 
-        ArrayList<TechId> allIdsAsList = new ArrayList<TechId>(allIds);
+        List<TechId> allIdsAsList = new ArrayList<TechId>(allIds);
+        checkForUnavailableDataSets(allIdsAsList);
 
         TrashBatchOperation batchOperation =
                 new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
                         getDeletionDAO());
         BatchOperationExecutor.executeInBatches(batchOperation);
+    }
+
+    private void checkForUnavailableDataSets(List<TechId> allIdsAsList)
+    {
+        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
+        dataSetTable.loadByIds(allIdsAsList);
+        List<DataPE> unavailableDataSets = dataSetTable.getUnavailableDataSets();
+        if (unavailableDataSets.isEmpty())
+        {
+            return;
+        }
+        Map<DataSetArchivingStatus, List<String>> statusToCodesMap =
+                new TreeMap<DataSetArchivingStatus, List<String>>();
+        for (DataPE dataSet : unavailableDataSets)
+        {
+            ExternalDataPE externalData = dataSet.tryAsExternalData();
+            if (externalData != null)
+            {
+                DataSetArchivingStatus status = externalData.getStatus();
+                List<String> codes = statusToCodesMap.get(status);
+                if (codes == null)
+                {
+                    codes = new ArrayList<String>();
+                    statusToCodesMap.put(status, codes);
+                }
+                codes.add(dataSet.getCode());
+            }
+        }
+
+        StringBuilder builder = new StringBuilder();
+        Set<Entry<DataSetArchivingStatus, List<String>>> entrySet = statusToCodesMap.entrySet();
+        for (Entry<DataSetArchivingStatus, List<String>> entry : entrySet)
+        {
+            builder.append("\n Status: ").append(entry.getKey()).append(", data sets: ");
+            builder.append(entry.getValue());
+        }
+        throw new UserFailureException(
+                "Deletion not possible because the following data sets are not available:"
+                        + builder);
     }
 
     private void trashSampleDependentChildren(List<TechId> sampleIds)
@@ -277,7 +326,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
         private final String operationName;
 
-        private final Set<TechId> results = new HashSet<TechId>();
+        private final Set<TechId> results = new LinkedHashSet<TechId>();
 
         public AbstractQueryBatchOperation(EntityKind entityKind, List<TechId> entityIds,
                 String operationName)

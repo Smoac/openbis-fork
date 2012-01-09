@@ -44,6 +44,11 @@ public interface IDataSetTable
     void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties, boolean lockForUpdate);
 
     /**
+     * Loads data sets by specified technical ids. Properties are not loaded.
+     */
+    void loadByIds(List<TechId> ids);
+
+    /**
      * Loads data sets which are linked to the sample with given <var>sampleId</var>.
      */
     void loadBySampleTechId(final TechId sampleId);
@@ -57,6 +62,8 @@ public interface IDataSetTable
      * Returns the loaded {@link DataPE}.
      */
     List<DataPE> getDataSets();
+
+    List<DataPE> getUnavailableDataSets();
 
     /**
      * Returns the loaded {@link DataPE}-s filtered to instances of {@link ExternalDataPE}.

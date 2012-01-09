@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,9 +29,12 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -52,12 +56,26 @@ public final class TrashBOTest extends AbstractBOTest
 
     private ITrashBO trashBO;
 
+    private ICommonBusinessObjectFactory boFactory;
+
+    private IDataSetTable dataSetTable;
+
     @Override
     @BeforeMethod
     public void beforeMethod()
     {
         super.beforeMethod();
-        trashBO = new TrashBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        boFactory = context.mock(ICommonBusinessObjectFactory.class);
+        dataSetTable = context.mock(IDataSetTable.class);
+        trashBO = new TrashBO(daoFactory, boFactory, ManagerTestTool.EXAMPLE_SESSION);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(boFactory).createDataSetTable(ManagerTestTool.EXAMPLE_SESSION);
+                    will(returnValue(dataSetTable));
+
+                }
+            });
     }
 
     private DeletionPE createDeletion()
@@ -157,6 +175,10 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(dataSetTable).loadByIds(dataSetIds);
+                    one(dataSetTable).getUnavailableDataSets();
+                    will(returnValue(Arrays.asList()));
+
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
                     will(returnValue(experimentIds.size()));
 
@@ -204,6 +226,10 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(dataSetTable).loadByIds(dataSetIds);
+                    one(dataSetTable).getUnavailableDataSets();
+                    will(returnValue(Arrays.asList()));
+
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
                     will(returnValue(experimentIds.size()));
 
@@ -261,6 +287,10 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(dataSetTable).loadByIds(TechId.createList(70, 71, 72, 73));
+                    one(dataSetTable).getUnavailableDataSets();
+                    will(returnValue(Arrays.asList()));
+
                     RecordingMatcher<List<TechId>> sampleIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
 
@@ -321,6 +351,10 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    one(dataSetTable).loadByIds(allIds);
+                    one(dataSetTable).getUnavailableDataSets();
+                    will(returnValue(Arrays.asList()));
+
                     one(dataDAO).listContainedDataSets(dataSetIds);
                     will(returnValue(containedIds));
 
@@ -332,6 +366,44 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
         trashBO.trashDataSets(dataSetIds);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testTrashUnavailableDataSets()
+    {
+        final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
+        final List<TechId> containedIds = TechId.createList(5, 6);
+        final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSetTable).loadByIds(allIds);
+                    one(dataSetTable).getUnavailableDataSets();
+                    ExternalDataPE dataSet = new ExternalDataPE();
+                    dataSet.setCode("ds1");
+                    dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+                    will(returnValue(Arrays.asList(dataSet)));
+
+                    one(dataDAO).listContainedDataSets(dataSetIds);
+                    will(returnValue(containedIds));
+
+                    one(dataDAO).listContainedDataSets(containedIds);
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        try
+        {
+            trashBO.trashDataSets(dataSetIds);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals(
+                    "Deletion not possible because the following data sets are not available:\n"
+                            + " Status: ARCHIVE_PENDING, data sets: [ds1]", ex.getMessage());
+        }
+
         context.assertIsSatisfied();
     }
 

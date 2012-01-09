@@ -245,26 +245,38 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    public List<DataPE> tryToFindFullDataSetsByIds(Collection<Long> ids, boolean withPropertyTypes,
+            boolean lockForUpdate)
+    {
+        return tryToFindFullDataSets("id", ids, withPropertyTypes, lockForUpdate);
+    }
+
     public List<DataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
             boolean withPropertyTypes, boolean lockForUpdate)
     {
-        assert dataSetCodes != null : "Unspecified collection";
+        return tryToFindFullDataSets("code", dataSetCodes, withPropertyTypes, lockForUpdate);
+    }
+
+    private List<DataPE> tryToFindFullDataSets(String identifierColumn, Collection<?> identifiers,
+            boolean withPropertyTypes, boolean lockForUpdate)
+    {
+        assert identifiers != null : "Unspecified collection";
 
         // PostgreSQL has a limit of 2^15-1 values in an IN clause, so we need to split the data set
         // codes into chunks to avoid a
         // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
         // However, we know from experience that using chunk sizes larger than 999 we get bad
         // performance, so we split the query in chunks of 999 rather than 2^15-1.
-        final int len = dataSetCodes.size();
+        final int len = identifiers.size();
         if (len > MAX_BATCH_SIZE)
         {
-            final List<DataPE> result = new ArrayList<DataPE>(dataSetCodes.size());
-            final List<String> dataSetCodesList = new ArrayList<String>(dataSetCodes);
+            final List<DataPE> result = new ArrayList<DataPE>(identifiers.size());
+            final List<?> dataSetCodesList = new ArrayList<Object>(identifiers);
             int startIndex = 0;
             int endIndex = MAX_BATCH_SIZE;
             while (endIndex > startIndex)
             {
-                result.addAll(primFindFullDataSetsByCode(
+                result.addAll(primFindFullDataSetsByCode(identifierColumn,
                         dataSetCodesList.subList(startIndex, endIndex), withPropertyTypes,
                         lockForUpdate));
                 startIndex = endIndex;
@@ -273,19 +285,20 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             return result;
         } else
         {
-            return primFindFullDataSetsByCode(dataSetCodes, withPropertyTypes, lockForUpdate);
+            return primFindFullDataSetsByCode(identifierColumn, identifiers, withPropertyTypes,
+                    lockForUpdate);
         }
     }
 
-    private List<DataPE> primFindFullDataSetsByCode(Collection<String> dataSetCodes,
-            boolean withPropertyTypes, boolean lockForUpdate)
+    private List<DataPE> primFindFullDataSetsByCode(String identifierColumn,
+            Collection<?> identifiers, boolean withPropertyTypes, boolean lockForUpdate)
     {
-        if (dataSetCodes.size() == 0)
+        if (identifiers.size() == 0)
         {
             return Collections.emptyList();
         }
 
-        final Criterion codeIn = Restrictions.in("code", dataSetCodes);
+        final Criterion codeIn = Restrictions.in(identifierColumn, identifiers);
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(codeIn);
@@ -308,7 +321,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Found '%s' data sets for codes '%s'.", list.size(),
-                    dataSetCodes));
+                    identifiers));
         }
         return list;
     }

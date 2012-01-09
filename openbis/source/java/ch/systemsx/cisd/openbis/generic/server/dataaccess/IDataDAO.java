@@ -79,6 +79,12 @@ public interface IDataDAO extends IGenericDAO<DataPE>
             boolean lockForUpdate);
 
     /**
+     * Tries to get the full data sets for the specified ids with optional locking.
+     */
+    public List<DataPE> tryToFindFullDataSetsByIds(Collection<Long> ids, boolean withPropertyTypes,
+            boolean lockForUpdate);
+
+    /**
      * Tries to get the full data sets for the specified codes with optional locking.
      */
     public List<DataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
