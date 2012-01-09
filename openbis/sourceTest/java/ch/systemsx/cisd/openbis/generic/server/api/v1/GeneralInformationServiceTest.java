@@ -330,7 +330,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     will(returnValue(Collections.singletonList(returnSampleType)));
 
                     one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
-                            with(any(DataSetRelatedEntities.class)));
+                            with(any(DataSetRelatedEntities.class)), with(true));
                     DataSetBuilder dataSet =
                             new DataSetBuilder()
                                     .type("ds-type")
@@ -377,7 +377,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     will(returnValue(Collections.singletonList(sampleType.getSampleType())));
 
                     one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
-                            with(any(DataSetRelatedEntities.class)));
+                            with(any(DataSetRelatedEntities.class)), with(true));
                     will(returnValue(new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData>()));
                 }
             });

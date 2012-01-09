@@ -119,6 +119,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.sampleInternal " + "left join fetch e.parents "
+                        + "left join fetch e.containedDataSets "
                         + "left join fetch e.dataSetProperties " + "where e.%sInternal.id = ?",
                         TABLE_NAME, entityName);
         final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(entity.getId())));

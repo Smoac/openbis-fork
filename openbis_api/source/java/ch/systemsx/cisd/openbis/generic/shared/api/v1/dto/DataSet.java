@@ -225,14 +225,9 @@ public final class DataSet implements Serializable
         InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        InitializingChecks.checkValidString(initializer.getExperimentIdentifier(),
-                "Unspecified experiment.");
         this.experimentIdentifier = initializer.getExperimentIdentifier();
 
         this.sampleIdentifierOrNull = initializer.getSampleIdentifierOrNull();
-
-        // Either the sample identifier or experiment identifier should be non-null
-        assert sampleIdentifierOrNull != null || experimentIdentifier != null;
 
         InitializingChecks.checkValidString(initializer.getDataSetTypeCode(),
                 "Unspecified data set type code.");
@@ -260,6 +255,15 @@ public final class DataSet implements Serializable
         return code;
     }
 
+    /**
+     * Returns the identifier of the Experiment to which this data set belongs.
+     * 
+     * @return <code>null</code> if this data set is not completely filled with all information
+     *         available. That is, <code>{@link #getExperimentIdentifier()} == null</code> indicates
+     *         that {@link #getSampleIdentifierOrNull()}, {@link #getProperties()},
+     *         {@link #getChildrenCodes()}, {@link #getParentCodes()}, and
+     *         {@link #getContainedDataSets()} do not return correct results.
+     */
     public String getExperimentIdentifier()
     {
         return experimentIdentifier;

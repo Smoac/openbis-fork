@@ -1007,7 +1007,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            DataSetRelatedEntities relatedEntities)
+            DataSetRelatedEntities relatedEntities, boolean withDetails)
     {
         final Session session = getSession(sessionToken);
         final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
@@ -1016,7 +1016,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
-            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), false));
+            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails));
         }
         return list;
     }

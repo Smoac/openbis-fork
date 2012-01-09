@@ -514,9 +514,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            DataSetRelatedEntities entities)
+            DataSetRelatedEntities entities, boolean withDetails)
     {
-        logAccess(sessionToken, "list_related_datasets");
+        logAccess(sessionToken, "list_related_datasets", "WITH_DETAILS(%s)", withDetails);
         return null;
     }
 

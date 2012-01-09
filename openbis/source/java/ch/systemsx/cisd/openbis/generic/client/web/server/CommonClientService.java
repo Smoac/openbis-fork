@@ -518,7 +518,7 @@ public final class CommonClientService extends AbstractClientService implements
                 @Override
                 protected List<ExternalData> getDataSets()
                 {
-                    return commonServer.listRelatedDataSets(sessionToken, entities);
+                    return commonServer.listRelatedDataSets(sessionToken, entities, false);
                 }
             }, resultSetConfig);
     }
@@ -1727,7 +1727,8 @@ public final class CommonClientService extends AbstractClientService implements
 
         DataSetRelatedEntities dataSetRelatedExperiments = new DataSetRelatedEntities(experiments);
         List<ExternalData> relatedDataSets =
-                commonServer.listRelatedDataSets(getSessionToken(), dataSetRelatedExperiments);
+                commonServer.listRelatedDataSets(getSessionToken(), dataSetRelatedExperiments,
+                        false);
         return Code.extractCodes(relatedDataSets);
 
     }

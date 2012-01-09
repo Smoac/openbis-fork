@@ -32,7 +32,8 @@ final class ListRelatedDataSetOriginalDataProvider extends
     @Override
     public final List<ExternalData> getFullOriginalData()
     {
-        final List<ExternalData> hits = commonServer.listRelatedDataSets(sessionToken, entities);
+        final List<ExternalData> hits =
+                commonServer.listRelatedDataSets(sessionToken, entities, false);
         return hits;
     }
 }

@@ -696,7 +696,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            DataSetRelatedEntities entities);
+            DataSetRelatedEntities entities, boolean withDetails);
 
     /**
      * List material types.

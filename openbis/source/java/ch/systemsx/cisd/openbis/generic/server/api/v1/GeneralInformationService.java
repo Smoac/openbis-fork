@@ -512,7 +512,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         SampleToDataSetRelatedEntitiesTranslator translator =
                 new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
+        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
         return Translator.translate(dataSets, connectionsToGet);
     }
 
@@ -533,7 +533,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         ExperimentToDataSetRelatedEntitiesTranslator translator =
                 new ExperimentToDataSetRelatedEntitiesTranslator(experimentTypes, experiments);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
+        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
         return Translator.translate(dataSets, connectionsToGet);
     }
 

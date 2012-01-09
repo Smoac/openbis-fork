@@ -50,6 +50,11 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -194,15 +199,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         s1.setSampleTypeId(3L);
         s1.setRegistrationDetails(new EntityRegistrationDetails(
                 new EntityRegistrationDetailsInitializer()));
+        Sample sample = new Sample(s1);
+        ExternalData dataSetInfo = genericServer.getDataSetInfo(sessionToken, new TechId(13));
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setVersion(dataSetInfo.getModificationDate());
+        updates.setDatasetId(new TechId(dataSetInfo.getId()));
+        updates.setProperties(dataSetInfo.getProperties());
+        updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(dataSetInfo
+                .getExperiment().getIdentifier()));
+        updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample.getIdentifier()));
+        commonServer.updateDataSet(sessionToken, updates);
         List<DataSet> dataSets =
-                generalInformationService.listDataSetsForSample(sessionToken, new Sample(s1), true);
+                generalInformationService.listDataSetsForSample(sessionToken, sample, true);
 
-        assertDataSets("[20081105092159111-1]", dataSets);
+        assertDataSets("[20081105092159111-1, 20110509092359990-10]", dataSets);
+        assertEquals("[DataSet[20110509092359990-11,<null>,<null>,HCS_IMAGE,{}], "
+                + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]", dataSets.get(1)
+                .getContainedDataSets().toString());
 
         loginAsObserver();
         try
         {
-            generalInformationService.listDataSetsForSample(sessionToken, new Sample(s1), false);
+            generalInformationService.listDataSetsForSample(sessionToken, sample, false);
             fail("AuthorizationFailureException expected");
         } catch (AuthorizationFailureException ex)
         {
@@ -306,6 +324,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<String> childrenCodes = new ArrayList<String>(dataSets.get(2).getChildrenCodes());
         Collections.sort(childrenCodes);
         assertEquals("[]", childrenCodes.toString());
+        DataSet dataSet = dataSets.get(6);
+        assertEquals(true, dataSet.isContainerDataSet());
+        assertEquals("[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
+                + "{COMMENT=non-virtual comment},[]], "
+                + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
+                + "{COMMENT=non-virtual comment},[]]]", dataSet.getContainedDataSets().toString());
+        assertEquals(
+                "DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{},[]]",
+                dataSet.toString());
 
         loginAsObserver();
         try
@@ -326,10 +353,12 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         List<DataSet> dataSets =
                 generalInformationService.getDataSetMetaData(sessionToken,
-                        Arrays.asList("20081105092159222-2"));
+                        Arrays.asList("20081105092159222-2", "20110509092359990-10"));
         assertEquals(
-                "[DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]]]",
+                "[DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
+                        + "DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{},[]]]",
                 dataSets.toString());
+        assertEquals("[]", dataSets.get(1).getContainedDataSets().toString());
 
         loginAsObserver();
         dataSets =
@@ -350,6 +379,11 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(
                 "[DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}]]",
                 dataSets.toString());
+        List<DataSet> containedDataSets = dataSets.get(0).getContainedDataSets();
+        assertEquals("[DataSet[20110509092359990-11,<null>,<null>,HCS_IMAGE,{}], "
+                + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]",
+                containedDataSets.toString());
+        assertEquals(1304929379313L, containedDataSets.get(0).getRegistrationDate().getTime());
 
         loginAsObserver();
         dataSets = generalInformationService.searchForDataSets(sessionToken, searchCriteria);

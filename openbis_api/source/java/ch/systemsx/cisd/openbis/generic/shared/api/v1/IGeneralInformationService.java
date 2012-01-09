@@ -155,7 +155,8 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
-     * Available since minor version 3.
+     * Note, that for returned container data sets the contained data sets have only code, type and
+     * registration date set. Available since minor version 3.
      * 
      * @param sample The sample for which we return attached data sets.
      * @param areOnlyDirectlyConnectedIncluded If true, only data sets that are directly connected
@@ -234,7 +235,9 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns meta data for all specified data sets. This contains data set type, properties, and
-     * codes of linked parent and children data sets. Available since minor version 12.
+     * codes of linked parent and children data sets. For container data sets the contained data
+     * sets are not returned. Thus, {@link DataSet#getContainedDataSets()} is always empty.
+     * Available since minor version 12.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @return result in the same order as the list of data set codes.
@@ -243,7 +246,9 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes);
 
     /**
-     * Return all data sets matching a specified search criteria. Available since minor version 8.
+     * Return all data sets matching a specified search criteria. Note, that for returned container
+     * data sets the contained data sets have only code, type and registration date set. Available since
+     * minor version 8.
      * 
      * @param searchCriteria the criteria used for searching.
      * @since 1.8
