@@ -1121,6 +1121,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                             with(equal(EntityKind.SAMPLE)), with(aNonNull(List.class)));
                     will(returnValue(Arrays.asList(new Long(1), new Long(2))));
 
+                    one(hibernateSearchDao).getResultSetSizeLimit();
+                    will(returnValue(100));
+
                     one(sampleLister).list(with(aNonNull(ListOrSearchSampleCriteria.class)));
                     SampleBuilder sample1 = new SampleBuilder().id(1);
                     SampleBuilder sample2 = new SampleBuilder().id(2);
