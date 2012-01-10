@@ -27,7 +27,10 @@ public interface ICellLevelSegmentationWritableDataset extends ICellLevelWritabl
         ICellLevelSegmentationDataset
 {
     /**
-     * Writes the image segmentation for one <var>id</var>.
+     * Writes the image segmentation for the given <var>id</var> and <var>objectType</var>.
+     * 
+     * @throws WrongObjectTypeException If <var>objectType</var> is not for this dataset.
      */
-    public void writeImageSegmentation(ImageId id, List<SegmentedObject> objects);
+    public void writeImageSegmentation(ImageId id, ObjectType objectType,
+            List<SegmentedObject> objects) throws WrongObjectTypeException;
 }

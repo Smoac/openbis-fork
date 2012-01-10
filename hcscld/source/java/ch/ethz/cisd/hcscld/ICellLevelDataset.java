@@ -77,7 +77,7 @@ public interface ICellLevelDataset
     public ObjectType tryGetObjectType(String objectTypeId);
 
     /**
-     * Returns all object ypes defined for this dataset.
+     * Returns all object types defined for this dataset.
      */
     public ObjectType[] getObjectTypes();
 

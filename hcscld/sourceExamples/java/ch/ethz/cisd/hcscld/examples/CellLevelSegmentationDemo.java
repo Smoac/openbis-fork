@@ -6,6 +6,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -17,10 +18,11 @@ import ch.ethz.cisd.hcscld.ICellLevelDataWriter;
 import ch.ethz.cisd.hcscld.ICellLevelSegmentationDataset;
 import ch.ethz.cisd.hcscld.ICellLevelSegmentationWritableDataset;
 import ch.ethz.cisd.hcscld.ImageGeometry;
+import ch.ethz.cisd.hcscld.ImageId;
+import ch.ethz.cisd.hcscld.ImageQuantityStructure;
+import ch.ethz.cisd.hcscld.ObjectType;
 import ch.ethz.cisd.hcscld.SegmentationImageUtilities;
 import ch.ethz.cisd.hcscld.SegmentedObject;
-import ch.ethz.cisd.hcscld.ImageQuantityStructure;
-import ch.ethz.cisd.hcscld.ImageId;
 
 /**
  * A demo program for writing and reading cell-level segmentation data.
@@ -33,13 +35,13 @@ public class CellLevelSegmentationDemo
     private static void showImage(final RenderedImage image, final String name)
     {
         // Requires the Java Advanced Imaging Library (JAI)
-         final Frame frame = new Frame("Image '" + name + "'");
-         final DisplayJAI panel = new DisplayJAI(image);
-         frame.add(panel);
-         frame.setLocationByPlatform(true);
-        
-         frame.pack();
-         frame.setVisible(true);
+        final Frame frame = new Frame("Image '" + name + "'");
+        final DisplayJAI panel = new DisplayJAI(image);
+        frame.add(panel);
+        frame.setLocationByPlatform(true);
+
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static void main(String[] args) throws IOException
@@ -52,25 +54,26 @@ public class CellLevelSegmentationDemo
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         long start = System.currentTimeMillis();
         ICellLevelSegmentationWritableDataset wds =
-                writer.addSegmentationDataset("789", "cell", new ImageQuantityStructure(16, 24, 9),
+                writer.addSegmentationDataset("789", new ImageQuantityStructure(16, 24, 9),
                         new ImageGeometry(image.getWidth(), image.getHeight()), true);
-        wds.writeImageSegmentation(new ImageId(15, 23, 8), Arrays.asList(cells));
+        ObjectType type = wds.addObjectType("cell");
+        wds.writeImageSegmentation(new ImageId(15, 23, 8), type, Arrays.asList(cells));
         writer.close();
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");
         start = System.currentTimeMillis();
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
-        final ICellLevelSegmentationDataset ds =
-                reader.getDataSet("789").toSegmentationDataset();
+        final ICellLevelSegmentationDataset ds = reader.getDataSet("789").toSegmentationDataset();
         ImageGeometry imageGeometry = ds.getImageGeometry();
         System.out.println("Image Geometry: " + imageGeometry);
-        String segmentedObjectTypeName = ds.getSegmentedObjectType();
-        System.out.println("Segmented Object Type: " + segmentedObjectTypeName);
-        SegmentedObject[] objects = ds.getObjects(new ImageId(15, 23, 8), true);
+        List<ObjectType> segmentedObjectTypes = Arrays.asList(ds.getObjectTypes());
+        System.out.println("Segmented Object Types: " + segmentedObjectTypes);
+        SegmentedObject[] objects =
+                ds.getObjects(new ImageId(15, 23, 8), segmentedObjectTypes.get(0), true);
         reader.close();
         final BufferedImage image2 =
                 SegmentationImageUtilities.createBinarySegmentationEdgesImage(imageGeometry,
                         objects);
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");
-        showImage(image2, "All " + segmentedObjectTypeName + "s");
+        showImage(image2, "All " + segmentedObjectTypes + "s");
     }
 }

@@ -18,8 +18,6 @@ package ch.ethz.cisd.hcscld;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,44 +39,21 @@ import java.util.Set;
 public class ObjectType
 {
     private final File file;
-    
+
     private final String datasetCode;
-    
+
     private final String id;
 
-    private final Set<ObjectType> companions;
+    private ObjectTypeCompanionGroup companionGroup;
 
     ObjectType(String id, File file, String datasetCode, ObjectType... companions)
     {
         this.id = id.toUpperCase();
         this.file = file;
         this.datasetCode = datasetCode;
-        this.companions = new HashSet<ObjectType>();
-        this.companions.add(this);
-        for (ObjectType c : companions)
-        {
-            if (c == null)
-            {
-                continue;
-            }
-            if (isSameDataset(c) == false)
-            {
-                throw new WrongDatasetException(datasetCode, c.datasetCode);
-            }
-            c.addCompanions(this);
-            c.addCompanions(companions);
-        }
-        this.addCompanions(companions);
-    }
-
-    void addCompanions(ObjectType... companionObjectType)
-    {
-        companions.addAll(Arrays.asList(companionObjectType));
-    }
-
-    void addCompanions(Collection<ObjectType> companionObjectTypes)
-    {
-        companions.addAll(companionObjectTypes);
+        final Set<ObjectType> companionSet = new HashSet<ObjectType>(Arrays.asList(companions));
+        companionSet.add(this);
+        this.companionGroup = new ObjectTypeCompanionGroup(file, datasetCode, id, companionSet);
     }
 
     /**
@@ -106,13 +81,26 @@ public class ObjectType
     }
 
     /**
+     * Returns the compaion group that this object type is a member of.
+     */
+    public ObjectTypeCompanionGroup getCompanionGroup()
+    {
+        return companionGroup;
+    }
+
+    void setCompanionGroup(ObjectTypeCompanionGroup companionGroup)
+    {
+        this.companionGroup = companionGroup;
+    }
+
+    /**
      * Returns the set of companion objects.
      */
     public Set<ObjectType> getCompanions()
     {
-        return Collections.unmodifiableSet(companions);
+        return companionGroup.getCompanions();
     }
-    
+
     /**
      * Returns <code>true</code> if <var>other</var> is an object type of the same dataset.
      */

@@ -43,9 +43,11 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE,
                 CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
-                        CellLevelDatasetType.FEATURES, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
-        this.featureGroupCompoundType = writer.getInferredCompoundType(FeatureGroupDescriptor.class);
+                new CellLevelBaseWritableDataset(writer, datasetCode, allObjectTypes, geometry,
+                        hdf5KindEnum, CellLevelDatasetType.FEATURES, FORMAT_TYPE,
+                        CURRENT_FORMAT_VERSION_NUMBER);
+        this.featureGroupCompoundType =
+                writer.getInferredCompoundType(FeatureGroupDescriptor.class);
         writer.createCompoundArray(getFeatureGroupsFilename(), featureGroupCompoundType, 0, 1);
     }
 
@@ -207,6 +209,22 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public ObjectType[] getObjectTypes()
     {
         return base.getObjectTypes();
+    }
+
+    IDatasetVerifyer getVerifyer()
+    {
+        return new IDatasetVerifyer()
+            {
+                public String verify()
+                {
+                    return null;
+                }
+
+                public String getDatasetCode()
+                {
+                    return datasetCode;
+                }
+            };
     }
 
 }

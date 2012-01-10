@@ -19,6 +19,7 @@ package ch.ethz.cisd.hcscld;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
@@ -42,13 +43,12 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     private final CellLevelDatasetTypeDescriptor datasetTypeDescriptor;
 
     CellLevelBaseWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final ImageQuantityStructure quantityStructure, final HDF5EnumerationType hdf5KindEnum,
-            final CellLevelDatasetType datasetType, final String formatType,
-            final int formatVersionNumber)
+            final Map<String, ObjectType> allObjectTypes, ImageQuantityStructure quantityStructure,
+            final HDF5EnumerationType hdf5KindEnum, final CellLevelDatasetType datasetType,
+            final String formatType, final int formatVersionNumber)
     {
-        super(writer, datasetCode, quantityStructure, formatVersionNumber);
+        super(writer, datasetCode, allObjectTypes, quantityStructure, formatVersionNumber);
         this.writer = writer;
-        addObjectType("MIXED");
         this.datasetTypeDescriptor =
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
@@ -138,10 +138,6 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
     {
         final String objectTypeIdUpper = objectTypeId.toUpperCase();
-        if (objectTypesPersisted)
-        {
-            throw new ObjectTypesSealedException(objectTypeIdUpper, getDatasetCode());
-        }
         if (allObjectTypes.containsKey(objectTypeIdUpper))
         {
             throw new UniqueObjectTypeViolationException(objectTypeIdUpper);
@@ -149,7 +145,18 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         final ObjectType result =
                 new ObjectType(objectTypeIdUpper, writer.getFile(), getDatasetCode(), companions);
         allObjectTypes.put(objectTypeIdUpper, result);
+        this.objectTypesPersisted = false;
         return result;
+    }
+
+    void checkCompatible(ObjectType objectType) throws WrongObjectTypeException
+    {
+        if (writer.getFile().equals(objectType.getFile()) == false
+                && getDatasetCode().equals(objectType.getDatasetCode()) == false)
+        {
+            throw new WrongObjectTypeException(getDatasetCode(), writer.getFile(),
+                    objectType.getDatasetCode(), objectType.getFile());
+        }
     }
 
     /**
@@ -171,8 +178,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
             int idx = 0;
             for (Set<ObjectType> cgroup : companionGroups)
             {
-                writer.writeEnumArray(
-                        getObjectTypesCompanionGroupsObjectPath(idx),
+                writer.writeEnumArray(getObjectTypesCompanionGroupsObjectPath(idx),
                         new HDF5EnumerationValueArray(objectTypesType, toString(cgroup)));
                 idx++;
             }
@@ -270,6 +276,11 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
         writer.writeStringVariableLength(getDatasetAnnotationObjectPath(annotationKey), annotation);
+    }
+
+    void verify() throws IllegalStateException
+    {
+        // Override this to check that the dataset is in correct state when closing.
     }
 
 }

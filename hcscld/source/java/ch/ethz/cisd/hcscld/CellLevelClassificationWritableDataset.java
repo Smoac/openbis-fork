@@ -58,8 +58,9 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     {
         super(writer, datasetCode, geometry, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
-                        CellLevelDatasetType.CLASSIFICATION, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
+                new CellLevelBaseWritableDataset(writer, datasetCode, allObjectTypes, geometry,
+                        hdf5KindEnum, CellLevelDatasetType.CLASSIFICATION, FORMAT_TYPE,
+                        CURRENT_FORMAT_VERSION_NUMBER);
         this.hdf5EnumType = hdf5EnumType;
     }
 
@@ -167,6 +168,22 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     public ObjectType[] getObjectTypes()
     {
         return base.getObjectTypes();
+    }
+
+    IDatasetVerifyer getVerifyer()
+    {
+        return new IDatasetVerifyer()
+            {
+                public String verify()
+                {
+                    return null;
+                }
+
+                public String getDatasetCode()
+                {
+                    return datasetCode;
+                }
+            };
     }
 
 }

@@ -16,7 +16,6 @@
 
 package ch.ethz.cisd.hcscld;
 
-
 /**
  * An interface for image segmentation datasets on the cell level.
  * 
@@ -30,22 +29,34 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The image geometry object.
      */
     public ImageGeometry getImageGeometry();
-    
-    /**
-     * Returns the name of the object type that was segmented for.
-     */
-    public String getSegmentedObjectType();
 
     /**
      * Returns the segmented object with given <var>objectId</var> in the given <var>wellId</var>.
      * 
      * @param wellId The well id to read the the object from.
+     * @param objectType The type of segmented object to get.
      * @param objectId The object id to read.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return The object as found by <code>segmentation</code>.
      */
-    public SegmentedObject getObject(ImageId wellId, int objectId, boolean withEdge);
+    public SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectId,
+            boolean withEdge);
+
+    /**
+     * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
+     * 
+     * @param wellId The well id to read the the object from.
+     * @param objectType The type of segmented object to look for.
+     * @param x The x coordinate to look up the object for.
+     * @param y The y coordinate to look up the object for.
+     * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
+     *            computed.
+     * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
+     *         , if no object was found at this point.
+     */
+    public SegmentedObject tryFindObject(ImageId wellId, ObjectType objectType, int x, int y,
+            boolean withEdge);
 
     /**
      * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
@@ -56,7 +67,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
-     *         , if no object was found at this point.
+     *         , if no object was found at this point. Returns the first object it finds.
      */
     public SegmentedObject tryFindObject(ImageId wellId, int x, int y, boolean withEdge);
 
@@ -64,10 +75,11 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * Returns all segmented objects in the given <var>wellId</var>.
      * 
      * @param wellId The well id to read the the object from.
+     * @param objectType The type of segmented objects to get.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return All objects as found by <code>segmentation</code>.
      */
-    public SegmentedObject[] getObjects(ImageId wellId, boolean withEdge);
+    public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge);
 
 }

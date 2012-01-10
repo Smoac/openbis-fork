@@ -29,19 +29,38 @@ public class SegmentedObject extends SegmentedObjectBox
 
     private BitSet edgeMaskOrNull;
 
+    private ObjectType objectType;
+
     public SegmentedObject()
     {
         super();
     }
 
+    public SegmentedObject(ObjectType objectType, short minx, short miny, short maxx, short maxy)
+    {
+        this(objectType, minx, miny, maxx, maxy, null, null);
+    }
+
+    public SegmentedObject(ObjectType objectType, short minx, short miny, short maxx, short maxy,
+            BitSet mask)
+    {
+        this(objectType, minx, miny, maxx, maxy, mask, null);
+    }
+
+    public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask,
+            BitSet edgeMaskOrNull)
+    {
+        this(null, minx, miny, maxx, maxy, mask, edgeMaskOrNull);
+    }
+
     public SegmentedObject(short minx, short miny, short maxx, short maxy)
     {
-        this(minx, miny, maxx, maxy, null, null);
+        this(null, minx, miny, maxx, maxy, null, null);
     }
 
     public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask)
     {
-        this(minx, miny, maxx, maxy, mask, null);
+        this(null, minx, miny, maxx, maxy, mask, null);
     }
 
     SegmentedObject(SegmentedObjectBox box, BitSet mask)
@@ -49,10 +68,11 @@ public class SegmentedObject extends SegmentedObjectBox
         this(box.minx, box.miny, box.maxx, box.maxy, mask);
     }
 
-    public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask,
-            BitSet edgeMaskOrNull)
+    public SegmentedObject(ObjectType objectTypeOrNull, short minx, short miny, short maxx,
+            short maxy, BitSet mask, BitSet edgeMaskOrNull)
     {
         super(minx, miny, maxx, maxy);
+        this.objectType = objectTypeOrNull;
         this.mask = mask;
         initializeMask();
         this.edgeMaskOrNull = edgeMaskOrNull;
@@ -64,13 +84,26 @@ public class SegmentedObject extends SegmentedObjectBox
     }
 
     /**
+     * Returns the object type of this segmented object. 
+     */
+    public ObjectType getObjectType()
+    {
+        return objectType;
+    }
+
+    void setObjectTypeOrNull(ObjectType objectTypeOrNull)
+    {
+        this.objectType = objectTypeOrNull;
+    }
+
+    /**
      * Returns the bit field mask of this segmented object.
      */
     public BitSet getMask()
     {
         return mask == null ? new BitSet() : mask;
     }
-    
+
     /**
      * Returns the mask point (<var>x</var>,<var>y</var>).
      */
@@ -94,6 +127,19 @@ public class SegmentedObject extends SegmentedObjectBox
     {
         initializeMask();
         this.mask.set(getRelativeBitIndex(x, y));
+    }
+
+    /**
+     * Sets all mask points in the bounding box.
+     */
+    public void setAllMaskPoints()
+    {
+        initializeMask();
+        final int len = getSizeInPixels();
+        for (int i = 0; i < len; ++i)
+        {
+            this.mask.set(i);
+        }
     }
 
     private void initializeMask()

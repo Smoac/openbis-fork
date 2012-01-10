@@ -19,9 +19,9 @@ package ch.ethz.cisd.hcscld;
 /**
  * An identifier for an image. Images of an image sequence within an HCS scren are identified by:
  * <ul>
- * <li> Well (row and column) </li>
- * <li> Field of sight </li>
- * <li> Sequence index </li>
+ * <li>Well (row and column)</li>
+ * <li>Field of sight</li>
+ * <li>Sequence index</li>
  * </ul>
  * All indices start with 0.
  * <p>
@@ -74,7 +74,7 @@ public class ImageId
     }
 
     /**
-     * Creates an identifier for the sequence index for a non-screening image sequence. 
+     * Creates an identifier for the sequence index for a non-screening image sequence.
      * 
      * @param seqIdx The sequence id, starting with 0.
      */
@@ -115,11 +115,23 @@ public class ImageId
         return seqIdx;
     }
 
-    String createObjectName(String prefixOrNull)
+    String createObjectName(String... prefixes)
     {
-        return (prefixOrNull == null) ? String.format("R%d_C%d_F%d_S%d", row, column,
-                field, seqIdx) : String.format("%s_R%d_C%d_F%dS%d",
-                prefixOrNull, row, column, field, seqIdx);
+        final String prefix;
+        if (prefixes.length == 0)
+        {
+            prefix = "";
+        } else
+        {
+            final StringBuilder builder = new StringBuilder();
+            for (String p : prefixes)
+            {
+                builder.append(p);
+                builder.append("__");
+            }
+            prefix = builder.toString();
+        }
+        return String.format("%sR%d_C%d_F%d_S%d", prefix, row, column, field, seqIdx);
     }
 
     @Override
@@ -172,8 +184,8 @@ public class ImageId
     @Override
     public String toString()
     {
-        return "ImageId [row=" + row + ", column=" + column + ", field=" + field
-                + ", seqIdx=" + seqIdx + "]";
+        return "ImageId [row=" + row + ", column=" + column + ", field=" + field + ", seqIdx="
+                + seqIdx + "]";
     }
 
 }

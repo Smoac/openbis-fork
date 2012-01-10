@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,21 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * An exception that indicates that a program tried to add an object type after object types were
- * sealed (that is: persisted to the CLD file) already.
- * 
+ * A role for checking that a dataset is in a consistent state.
+ *
  * @author Bernd Rinn
  */
-public class ObjectTypesSealedException extends RuntimeException
+interface IDatasetVerifyer
 {
-    private static final long serialVersionUID = 1L;
-
-    ObjectTypesSealedException(String objectTypeId, String datasetCode)
-    {
-        super("Tried to add new object type '" + objectTypeId + "' to dataset '" + datasetCode
-                + "' when object types were sealed already.");
-    }
-
+    /**
+     * Verifies that the dataset is in a consistent state.
+     * 
+     * @return <code>null</code> if the dataset is consistent, an error message otherwise.
+     */
+    public String verify() throws IllegalStateException;
+    
+    /**
+     * The code of the dataset of this verifyer.
+     */
+    public String getDatasetCode();
 }

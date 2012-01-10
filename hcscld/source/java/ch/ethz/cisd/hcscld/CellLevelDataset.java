@@ -46,6 +46,17 @@ abstract class CellLevelDataset implements ICellLevelDataset
     final Map<String, ObjectType> allObjectTypes;
 
     CellLevelDataset(IHDF5Reader reader, String datasetCode,
+            Map<String, ObjectType> allObjectTypes, ImageQuantityStructure quantityStructure,
+            int formatVersionNumber)
+    {
+        this.reader = reader;
+        this.datasetCode = datasetCode;
+        this.quantityStructure = quantityStructure;
+        this.formatVersionNumber = formatVersionNumber;
+        this.allObjectTypes = allObjectTypes;
+    }
+
+    CellLevelDataset(IHDF5Reader reader, String datasetCode,
             ImageQuantityStructure quantityStructure, int formatVersionNumber)
     {
         this.reader = reader;
@@ -70,28 +81,23 @@ abstract class CellLevelDataset implements ICellLevelDataset
         {
             result.put(id, new ObjectType(id, reader.getFile(), getDatasetCode()));
         }
-        final Set<Set<ObjectType>> companionGroups = new LinkedHashSet<Set<ObjectType>>();
+        final Set<ObjectTypeCompanionGroup> companionGroups =
+                new LinkedHashSet<ObjectTypeCompanionGroup>();
         int idx = 0;
         while (true)
         {
-            final String cgObjectPath = getObjectTypesCompanionGroupsObjectPath(idx++); 
+            final String cgObjectPath = getObjectTypesCompanionGroupsObjectPath(idx++);
             if (reader.isDataSet(cgObjectPath) == false)
             {
                 break;
             }
-            final Set<ObjectType> companionGroup = new HashSet<ObjectType>();
+            final Set<ObjectType> companions = new HashSet<ObjectType>();
             for (String id : reader.readEnumArray(cgObjectPath).getValues())
             {
-                companionGroup.add(result.get(id));
+                companions.add(result.get(id));
             }
-            companionGroups.add(companionGroup);
-        }
-        for (Set<ObjectType> cg : companionGroups)
-        {
-            for (ObjectType ot : cg)
-            {
-                ot.addCompanions(cg);
-            }
+            companionGroups.add(new ObjectTypeCompanionGroup(reader.getFile(), datasetCode, Integer
+                    .toString(idx), companions));
         }
         return result;
     }
@@ -159,7 +165,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     String getObjectTypesCompanionGroupsObjectPath(int idx)
     {
-        return getObjectPath(OBJECT_TYPE_DIR, String.format("CompanionGroup_%d", idx));
+        return getObjectPath(OBJECT_TYPE_DIR, String.format("ObjectTypeCompanionGroup_%d", idx));
     }
 
     String getObjectTypesObjectPath()
@@ -228,11 +234,6 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getDatasetPath(datasetCode) + "/" + dir + "/" + name;
     }
 
-    String getObjectPath(ImageId id)
-    {
-        return getObjectPath(id, null);
-    }
-
     String getTimeSeriesSequenceAnnotationObjectPath()
     {
         return getObjectPath("timeSeriesSequenceAnnotation");
@@ -258,10 +259,10 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getObjectPath("datasetAnnotations", annotationKey);
     }
 
-    String getObjectPath(ImageId id, String prefix)
+    String getObjectPath(ImageId id, String... prefixes)
     {
         quantityStructure.checkInBounds(id);
-        return getObjectPath() + "/" + id.createObjectName(prefix);
+        return getObjectPath() + "/" + id.createObjectName(prefixes);
     }
 
     String getImageQuantityStructureObjectPath()
