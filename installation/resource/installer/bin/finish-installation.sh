@@ -21,6 +21,9 @@ if [ -d "$INSTALL_TMPEXTRACT" ]; then
 fi
 
 if [ -d "$DATA_TMPEXTRACT" ]; then
-   cp -Rf "$DATA_TMPEXTRACT/data/" "$DSS_ROOT_DIR"
+   mkdir -p "$DSS_ROOT_DIR"
+   for f in `ls "$DATA_TMPEXTRACT/data/"`; do
+      cp -Rf "$DATA_TMPEXTRACT/data/$f" "$DSS_ROOT_DIR"
+   done
    rm -rf "$DATA_TMPEXTRACT"
 fi
