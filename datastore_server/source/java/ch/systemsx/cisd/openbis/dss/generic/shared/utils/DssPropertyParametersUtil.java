@@ -49,6 +49,11 @@ public class DssPropertyParametersUtil
      */
     static final String DSS_TEMP_DIR_PATH = "dss-temp-dir";
 
+    /**
+     * Directory for registration log files.
+     */
+    static final String DSS_REGISTRATION_LOG_DIR_PATH = "dss-registration-log-dir";
+
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
@@ -111,5 +116,25 @@ public class DssPropertyParametersUtil
                             + DSS_TEMP_DIR_PATH + " configuration setting");
         }
         return tempDir;
+    }
+
+    public static File getDssRegistrationLogDir(final Properties properties)
+    {
+        String defaultRegistrationLogDirPath =
+                new File(System.getProperty("user.dir"), "log-registrations").getAbsolutePath();
+        String registrationLogDirPath =
+                PropertyUtils.getProperty(properties, DSS_REGISTRATION_LOG_DIR_PATH,
+                        defaultRegistrationLogDirPath);
+        File registrationLogDir = new File(registrationLogDirPath);
+        registrationLogDir.mkdirs();
+        if (false == registrationLogDir.exists())
+        {
+            throw new ConfigurationFailureException(
+                    "Could not create a directory for storing for registration logs at path: "
+                            + registrationLogDir.getPath()
+                            + ". Please make sure this directory exists and is writable by the data store server or provide an alternate using directory for the "
+                            + DSS_REGISTRATION_LOG_DIR_PATH + " configuration setting");
+        }
+        return registrationLogDir;
     }
 }

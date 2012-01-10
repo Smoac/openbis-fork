@@ -233,8 +233,8 @@ public final class ETLDaemon
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             ITopLevelDataSetRegistrator topLevelRegistrator =
                     createProcessingThread(parameters, threadParameters, openBISService,
-                    highwaterMarkWatcher, mailClient, dataSetValidator, dataSourceQueryService,
-                    notifySuccessfulRegistration);
+                            highwaterMarkWatcher, mailClient, dataSetValidator, dataSourceQueryService,
+                            notifySuccessfulRegistration);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share "
                     + topLevelRegistrator.getGlobalState().getShareId() + ".");
@@ -302,7 +302,7 @@ public final class ETLDaemon
 
     private final static ITopLevelDataSetRegistrator createProcessingThread(
             final Parameters parameters,
- final ThreadParameters threadParameters,
+            final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator,
@@ -333,6 +333,36 @@ public final class ETLDaemon
         return pathHandler;
     }
 
+    /**
+     * Utility class for initializing top level data set registrators.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static class TopLevelDataSetRegistratorInititializationData
+    {
+        private final File storeRootDir;
+
+        private final File dssInternalTempDir;
+
+        private final File dssRegistrationLogDir;
+
+        private final String dssCode;
+
+        private final String shareId;
+
+        public TopLevelDataSetRegistratorInititializationData(
+                final Properties properties, final ThreadParameters threadParameters, final IEncapsulatedOpenBISService openBISService)
+        {
+            storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
+            migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
+
+            dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
+            dssRegistrationLogDir = DssPropertyParametersUtil.getDssRegistrationLogDir(properties);
+            dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
+            shareId = getShareId(threadParameters, storeRootDir);
+        }
+    }
+
     public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
             final Properties properties, final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
@@ -340,14 +370,11 @@ public final class ETLDaemon
             IDataSourceQueryService dataSourceQueryService,
             final boolean notifySuccessfulRegistration)
     {
-        final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
-        File dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
-        migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
-        String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
-        String shareId = getShareId(threadParameters, storeRootDir);
+        TopLevelDataSetRegistratorInititializationData initializationData = new TopLevelDataSetRegistratorInititializationData(properties, threadParameters, openBISService);
+
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
+                        initializationData.dssInternalTempDir, openBISService, mailClient, dataSetValidator,
                         dataSourceQueryService, new DynamicTransactionQueryFactory(),
                         notifySuccessfulRegistration, threadParameters);
 
@@ -372,15 +399,11 @@ public final class ETLDaemon
             String postRegistrationScriptOrNull, String[] validationScriptsOrNull,
             Class<?> defaultTopLevelDataSetRegistratorClass)
     {
-        final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
-        File dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
-        migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
-        String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
-        String shareId = getShareId(threadParameters, storeRootDir);
+        TopLevelDataSetRegistratorInititializationData initializationData = new TopLevelDataSetRegistratorInititializationData(properties, threadParameters, openBISService);
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
+                        initializationData.dssInternalTempDir, openBISService, mailClient, dataSetValidator,
                         dataSourceQueryService, new DynamicTransactionQueryFactory(),
                         notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
                         deleteUnidentified, preRegistrationScriptOrNull,
@@ -400,7 +423,7 @@ public final class ETLDaemon
     {
         File incomingDirectory = threadParams.getIncomingDataDirectory();
         return SegmentedStoreUtils.findIncomingShare(incomingDirectory, storeRoot,
-                        new Log4jSimpleLogger(operationLog));
+                new Log4jSimpleLogger(operationLog));
     }
 
     private static FileFilter createFileFilter(File incomingDataDirectory,

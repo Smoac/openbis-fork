@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -82,6 +84,14 @@ public class DssComponentTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet")
+    public void testRegistrationLog() throws Exception
+    {
+        File registrationLogDir = getRegistrationLogDir();
+        assertTrue(registrationLogDir.exists());
+
     }
 
     @Test
@@ -133,7 +143,7 @@ public class DssComponentTest extends SystemTestCase
         assertEquals(fileInfoString("original/my-data/data/1.data", 5), files[5].toString());
         assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
     }
-    
+
     private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
@@ -265,4 +275,8 @@ public class DssComponentTest extends SystemTestCase
         return output.toString();
     }
 
+    private File getRegistrationLogDir()
+    {
+        return DssPropertyParametersUtil.getDssRegistrationLogDir(new Properties());
+    }
 }
