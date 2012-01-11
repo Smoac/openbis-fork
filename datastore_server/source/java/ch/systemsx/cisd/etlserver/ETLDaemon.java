@@ -374,7 +374,7 @@ public final class ETLDaemon
 
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
-                        initializationData.dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                        initializationData.dssInternalTempDir, initializationData.dssRegistrationLogDir, openBISService, mailClient, dataSetValidator,
                         dataSourceQueryService, new DynamicTransactionQueryFactory(),
                         notifySuccessfulRegistration, threadParameters);
 
@@ -403,7 +403,7 @@ public final class ETLDaemon
 
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
-                        initializationData.dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                        initializationData.dssInternalTempDir, initializationData.dssRegistrationLogDir, openBISService, mailClient, dataSetValidator,
                         dataSourceQueryService, new DynamicTransactionQueryFactory(),
                         notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
                         deleteUnidentified, preRegistrationScriptOrNull,

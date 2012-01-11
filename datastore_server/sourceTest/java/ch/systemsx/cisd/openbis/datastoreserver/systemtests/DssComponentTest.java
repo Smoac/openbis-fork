@@ -92,6 +92,8 @@ public class DssComponentTest extends SystemTestCase
         File registrationLogDir = getRegistrationLogDir();
         assertTrue(registrationLogDir.exists());
 
+        File[] contents = registrationLogDir.listFiles();
+        assertTrue(contents.length > 0);
     }
 
     @Test

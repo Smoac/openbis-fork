@@ -287,7 +287,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRollbackWhereMoveCreatesIntermediateDirectories()
     {
@@ -445,7 +445,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, openBisService, mailClient,
+                        workingDirectory, workingDirectory, workingDirectory, openBisService, mailClient,
                         dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
                         threadParameters);
         return globalState;

@@ -50,6 +50,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File dssInternalTempDir;
 
+    private final File dssRegistrationLogDir;
+
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -87,13 +89,13 @@ public class TopLevelDataSetRegistratorGlobalState
      * @param threadParameters
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, IEncapsulatedOpenBISService openBisService,
+            File dssInternalTempDir, File dssRegistrationLogDir, IEncapsulatedOpenBISService openBisService,
             IMailClient mailClient, IDataSetValidator dataSetValidator,
             IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
             boolean notifySuccessfulRegistration, ThreadParameters threadParameters)
     {
-        this(dssCode, shareId, storeRootDir, dssInternalTempDir, openBisService, mailClient,
+        this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir, openBisService, mailClient,
                 dataSetValidator, dataSourceQueryService, dynamicTransactionQueryFactory,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
@@ -102,7 +104,7 @@ public class TopLevelDataSetRegistratorGlobalState
     }
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, IEncapsulatedOpenBISService openBisService,
+            File dssInternalTempDir, File dssRegistrationLogDir, IEncapsulatedOpenBISService openBisService,
             IMailClient mailClient, IDataSetValidator dataSetValidator,
             IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -116,6 +118,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.shareId = shareId;
         this.storeRootDir = storeRootDir;
         this.dssInternalTempDir = dssInternalTempDir;
+        this.dssRegistrationLogDir = dssRegistrationLogDir;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
