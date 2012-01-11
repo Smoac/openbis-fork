@@ -33,8 +33,10 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
@@ -67,6 +69,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File stagingDirectory;
 
     private final File incomingDataSetFile;
+
+    private final File dssRegistrationLog;
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
 
@@ -102,8 +106,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         this.dataSetRegistrationDetailsFactory = registrationDetailsFactory;
         this.delegate = delegate;
 
-        Properties properties =
-                registratorContext.getGlobalState().getThreadParameters().getThreadProperties();
+        ThreadParameters threadParameters = registratorContext.getGlobalState().getThreadParameters();
+        this.dssRegistrationLog = createDssRegistrationLog(incomingDataSetFile, registratorContext, threadParameters);
+
+        Properties properties = threadParameters.getThreadProperties();
 
         String stagingDirString = PropertyUtils.getProperty(properties, STAGING_DIR);
 
@@ -116,30 +122,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
 
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
-    }
-
-    /**
-     * Tries to create and return a staging directory in the corresponding incoming share. The
-     * default result is "[store-root]/[shareId]/staging". Returns "[store-root]", if no existing
-     * incoming directory can be detected.
-     */
-    private File getDefaultStagingDirectory(TopLevelDataSetRegistratorGlobalState globalState)
-    {
-        File storeRoot = globalState.getStoreRootDir();
-        if (false == StringUtils.isBlank(globalState.getShareId()))
-        {
-            File shareRoot = new File(storeRoot, globalState.getShareId());
-            if (shareRoot.isDirectory())
-            {
-                File stagingDir = new File(shareRoot, "staging");
-                stagingDir.mkdir();
-                if (stagingDir.isDirectory())
-                {
-                    return stagingDir;
-                }
-            }
-        }
-        return storeRoot;
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
@@ -281,6 +263,14 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
+     * Returns the log file for the dss registration log.
+     */
+    public File getDssRegistrationLog()
+    {
+        return dssRegistrationLog;
+    }
+
+    /**
      * Helper method to create a storage algorithm for storing an individual data set.
      */
     protected DataSetStorageAlgorithm<T> createStorageAlgorithmWithStrategy(File dataSetFile,
@@ -379,4 +369,35 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         return registrator;
     }
+
+    static private File createDssRegistrationLog(File incomingDataSetFile, OmniscientTopLevelDataSetRegistratorState registratorContext, ThreadParameters threadParameters)
+    {
+        DssRegistrationLogDirectoryHelper helper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
+        return helper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName());
+    }
+
+    /**
+     * Tries to create and return a staging directory in the corresponding incoming share. The
+     * default result is "[store-root]/[shareId]/staging". Returns "[store-root]", if no existing
+     * incoming directory can be detected.
+     */
+    private File getDefaultStagingDirectory(TopLevelDataSetRegistratorGlobalState globalState)
+    {
+        File storeRoot = globalState.getStoreRootDir();
+        if (false == StringUtils.isBlank(globalState.getShareId()))
+        {
+            File shareRoot = new File(storeRoot, globalState.getShareId());
+            if (shareRoot.isDirectory())
+            {
+                File stagingDir = new File(shareRoot, "staging");
+                stagingDir.mkdir();
+                if (stagingDir.isDirectory())
+                {
+                    return stagingDir;
+                }
+            }
+        }
+        return storeRoot;
+    }
+
 }

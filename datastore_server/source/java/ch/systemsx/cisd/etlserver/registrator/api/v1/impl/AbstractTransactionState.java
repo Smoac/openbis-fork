@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -123,6 +122,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         // The directory in which new data sets get staged
         private final File stagingDirectory;
 
+        // The registration log file for this transaction
+        private final File dssRegistrationLog;
+
         // The registration service that owns this transaction
         private final DataSetRegistrationService<T> registrationService;
 
@@ -164,6 +166,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             this.workingDirectory = workingDirectory;
             this.stagingDirectory = stagingDirectory;
             this.registrationService = registrationService;
+            this.dssRegistrationLog = registrationService.getDssRegistrationLog();
             this.openBisService =
                     this.registrationService.getRegistratorContext().getGlobalState()
                             .getOpenBisService();
@@ -615,16 +618,19 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 File contents = dataSet.tryDataSetContents();
                 DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
 
-                // The experiment/sample does not yet exist
+                // Decide how to create the storage algorithm depending on whether the
+                // experiment/sample exist or not
                 IExperimentImmutable experiment = dataSet.getExperiment();
                 ISampleImmutable sample = dataSet.getSample();
                 if (experimentsToBeRegistered.contains(experiment)
                         || samplesToBeRegistered.contains(sample))
                 {
+                    // Sample/Experiment exists
                     algorithms.add(registrationService
                             .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
                 } else
                 {
+                    // The experiment/sample does not yet exist
                     algorithms.add(registrationService.createStorageAlgorithm(contents, details));
                 }
             }

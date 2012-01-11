@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.GregorianCalendar;
+
+import org.apache.commons.lang.time.DateFormatUtils;
 
 /**
  * A utility class for working with the directory structure of the "log-registrations" directory
@@ -39,6 +42,9 @@ public class DssRegistrationLogDirectoryHelper
         this.dssRegistrationLogDir = dssRegistrationLogDir;
     }
 
+    /**
+     * Initialize the subdirectory structure for the logs
+     */
     public void initializeSubdirectories()
     {
         createDirectoryIfNecessary(getInProcessDir());
@@ -46,19 +52,62 @@ public class DssRegistrationLogDirectoryHelper
         createDirectoryIfNecessary(getFailedDir());
     }
 
+    /**
+     * Return the directory used for files that are still in process.
+     */
     public File getInProcessDir()
     {
         return new File(dssRegistrationLogDir, IN_PROCESS_DIR_NAME);
     }
 
+    /**
+     * Return the directory used for files that were successfully registered.
+     */
     public File getSucceededDir()
     {
         return new File(dssRegistrationLogDir, SUCCEEDED_DIR_NAME);
     }
 
+    /**
+     * Return the directory used for files that were not successfully registered.
+     */
     public File getFailedDir()
     {
         return new File(dssRegistrationLogDir, FAILED_DIR_NAME);
+    }
+
+    /**
+     * Create a new log file located in the inProcessDir.
+     */
+    public File createNewLogFile(String name, String threadName)
+    {
+        String logFilename = generateLogFileName(name, threadName);
+        return new File(getInProcessDir(), logFilename);
+    }
+
+    String generateLogFileName(String name, String threadName)
+    {
+        String sectionSeparator = "_";
+
+        // The log file name is YYYY-MM-DD_HH-mm-ss-SSS_threadName_name.log
+        StringBuilder logFilename = new StringBuilder();
+        GregorianCalendar calendar = new GregorianCalendar();
+
+        String dateSection = DateFormatUtils.ISO_DATE_FORMAT.format(calendar);
+        logFilename.append(dateSection);
+        logFilename.append(sectionSeparator);
+
+        String timeSection = DateFormatUtils.format(calendar, "HH-mm-ss-SSS");
+        logFilename.append(timeSection);
+        logFilename.append(sectionSeparator);
+
+        logFilename.append(threadName);
+        logFilename.append(sectionSeparator);
+
+        logFilename.append(name);
+        logFilename.append(".log");
+
+        return logFilename.toString();
     }
 
     private void createDirectoryIfNecessary(File dir)

@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -92,9 +93,14 @@ public class DssComponentTest extends SystemTestCase
         File registrationLogDir = getRegistrationLogDir();
         assertTrue(registrationLogDir.exists());
 
-        File[] contents = registrationLogDir.listFiles();
+        File[] logDirContents = registrationLogDir.listFiles();
         // The log directory should have 3 sub directories for in-process, succeeded, failed.
-        assertEquals(3, contents.length);
+        assertEquals(3, logDirContents.length);
+
+        File succeededDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
+        File[] succeededContents = succeededDir.listFiles();
+        assertEquals(1, succeededContents.length);
+
     }
 
     @Test
