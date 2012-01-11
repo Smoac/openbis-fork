@@ -30,11 +30,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -67,6 +69,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
     public static final String SHOWN_DATA_SET_PROPERTIES_KEY = "shown-data-set-properties";
 
     public static final String EMAIL_ADDRESSES_KEY = "email-addresses";
+
+    private static final String SEPARATOR = ",";
 
     private static final int NUMBER_OF_DATA_SET_CODES_PER_LINE = 4;
 
@@ -105,10 +109,12 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     private List<String> shownProperties;
 
-    private List<String> emailAddresses;
+    private List<EMailAddress> emailAddresses;
 
     public DataSetRegistrationSummaryTask()
     {
+        this(CommonServiceProvider.getCommonServer(), SystemTimeProvider.SYSTEM_TIME_PROVIDER,
+                CommonServiceProvider.createEMailClient());
     }
 
     DataSetRegistrationSummaryTask(ICommonServerForInternalUse server, ITimeProvider timeProvider,
@@ -121,29 +127,43 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     public void setUp(String pluginName, Properties properties)
     {
-        server = CommonServiceProvider.getCommonServer();
-        timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
         daysOfWeek = extractDays(properties, DAYS_OF_WEEK_KEY, "");
         daysOfMonth = extractDays(properties, DAYS_OF_MONTH_KEY, "1");
         shownProperties = getAsList(properties, SHOWN_DATA_SET_PROPERTIES_KEY);
-        emailAddresses = PropertyUtils.getMandatoryList(properties, EMAIL_ADDRESSES_KEY);
-        mailClient = CommonServiceProvider.createEMailClient();
+        emailAddresses = getEMailAddresses(properties);
         operationLog.info("Task " + pluginName + " initialized.");
+    }
+
+    private List<EMailAddress> getEMailAddresses(Properties properties)
+    {
+        String[] tokens =
+                PropertyUtils.getMandatoryProperty(properties, EMAIL_ADDRESSES_KEY)
+                        .split(SEPARATOR);
+        List<EMailAddress> addresses = new ArrayList<EMailAddress>();
+        for (String token : tokens)
+        {
+            addresses.add(new EMailAddress(token.trim()));
+        }
+        return addresses;
     }
 
     private Set<Integer> extractDays(Properties properties, String key, String defaultValue)
     {
         Set<Integer> result = new HashSet<Integer>();
-        for (String day : getAsList(properties, key))
+        String property = properties.getProperty(key, defaultValue).trim();
+        if (property.length() > 0)
         {
-            try
+
+            for (String day : property.split(SEPARATOR))
             {
-                result.add(new Integer(day));
-            } catch (NumberFormatException ex)
-            {
-                throw new IllegalArgumentException("Property '" + key
-                        + "' is not a list of numbers separated by commas: "
-                        + properties.getProperty(key));
+                try
+                {
+                    result.add(new Integer(day.trim()));
+                } catch (NumberFormatException ex)
+                {
+                    throw new IllegalArgumentException("Property '" + key
+                            + "' is not a list of numbers separated by commas: " + property);
+                }
             }
         }
         return result;
@@ -185,9 +205,9 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         template.bind("until-date", untilDate);
         template.bind("data-sets", dataSetsAsString);
         String report = template.createText();
-        for (String address : emailAddresses)
+        for (EMailAddress address : emailAddresses)
         {
-            mailClient.sendMessage(subject, report, null, null, address);
+            mailClient.sendEmailMessage(subject, report, null, null, address);
         }
         operationLog.info("Data set registration report for period from " + fromDate + " until "
                 + untilDate + " created and sent.");
@@ -342,7 +362,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         Calendar calendar = GregorianCalendar.getInstance();
         do
         {
-            time -= 24 * 60 * 60 * 1000;
+            time -= DateUtils.MILLIS_PER_DAY;
             calendar.setTimeInMillis(time);
         } while (isDay(calendar) == false);
         return getFirstMilliSecondOfTheDay(calendar);
