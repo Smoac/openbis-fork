@@ -361,7 +361,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     protected static enum Operation
     {
         ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"),
-        DELETE_FROM_ARCHIVE("Deleting from archive");
+        DELETE_FROM_ARCHIVE("Deleting from archive"),
+        MARK_AS_DELETED("Marking as deleted");
 
         private final String description;
 

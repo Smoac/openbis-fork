@@ -80,6 +80,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     @Private
     static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
+    private static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
+
     private final IDataSetFileOperationsExecutor executor;
 
     private final File destination;
@@ -204,6 +206,21 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
                         + "' don't exist in the destination '" + destinationFolder.getPath()
                         + "'. There is nothing to delete.");
             }
+            return Status.OK;
+        } catch (ExceptionWithStatus ex)
+        {
+            return ex.getStatus();
+        }
+    }
+
+    public Status markAsDeleted(DatasetLocation dataset)
+    {
+        try
+        {
+            File deletedFolder = new File(destination, FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
+            executor.createFolder(deletedFolder);
+            File markerFile = new File(deletedFolder, dataset.getCode());
+            executor.createMarkerFile(markerFile);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {

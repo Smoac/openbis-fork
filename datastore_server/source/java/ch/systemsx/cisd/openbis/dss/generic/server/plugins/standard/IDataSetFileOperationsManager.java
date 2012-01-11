@@ -36,16 +36,21 @@ public interface IDataSetFileOperationsManager
     public abstract Status copyToDestination(File originalData, DatasetDescription dataset);
 
     /**
-     * Retrieves specified datases's data from the destination specified in constructor. The path at
+     * Retrieves specified dataset's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
     public abstract Status retrieveFromDestination(File originalData, DatasetDescription dataset);
 
     /**
-     * Deletes specified datases's data from the destination specified in constructor. The path at
+     * Deletes specified dataset's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
     public abstract Status deleteFromDestination(DatasetLocation dataset);
+    
+    /**
+     * Marks the specified data set as deleted. Does not delete the dataset's data.
+     */
+    public abstract Status markAsDeleted(DatasetLocation dataset);
 
     /**
      * Checks if specified dataset's data are present and synchronized in the destination specified

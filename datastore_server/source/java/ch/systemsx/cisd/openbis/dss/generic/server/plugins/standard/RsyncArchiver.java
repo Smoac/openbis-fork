@@ -24,6 +24,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -42,9 +43,47 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 {
+    private static final String ONLY_MARK_AS_DELETED_KEY = "only-mark-as-deleted";
+
     private static final long serialVersionUID = 1L;
 
+    private enum DeleteAction
+    {
+        DELETE(Operation.DELETE_FROM_ARCHIVE)
+        {
+            @Override
+            public Status execute(IDataSetFileOperationsManager manager, DatasetLocation dataSet)
+            {
+                return manager.deleteFromDestination(dataSet);
+            }
+        },
+        MARK_AS_DELETED(Operation.MARK_AS_DELETED)
+        {
+            @Override
+            public Status execute(IDataSetFileOperationsManager manager, DatasetLocation dataSet)
+            {
+                return manager.markAsDeleted(dataSet);
+            }
+        };
+        private final Operation operation;
+
+        private DeleteAction(Operation operation)
+        {
+            this.operation = operation;
+        }
+
+        public Operation getOperation()
+        {
+            return operation;
+        }
+
+        public abstract Status execute(IDataSetFileOperationsManager manager,
+                DatasetLocation dataSet);
+    }
+
     private transient IDataSetFileOperationsManager fileOperationsManager;
+
+    private final DeleteAction deleteAction;
 
     public RsyncArchiver(Properties properties, File storeRoot)
     {
@@ -58,6 +97,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     {
         super(properties, storeRoot, null, null);
         this.fileOperationsManager = fileOperationsManager;
+        if (PropertyUtils.getBoolean(properties, ONLY_MARK_AS_DELETED_KEY, true))
+        {
+            deleteAction = DeleteAction.MARK_AS_DELETED;
+        } else
+        {
+            deleteAction = DeleteAction.DELETE;
+        }
     }
 
     @Override
@@ -97,13 +143,12 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (DatasetLocation dataset : datasets)
         {
-            Status status = doDeleteFromArchive(dataset);
-            statuses.addResult(dataset.getDataSetCode(), status, Operation.DELETE_FROM_ARCHIVE);
+            Status status = deleteAction.execute(fileOperationsManager, dataset);
+            statuses.addResult(dataset.getDataSetCode(), status, deleteAction.getOperation());
         }
-
         return statuses;
     }
-
+    
     @Override
     protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
@@ -126,11 +171,6 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     private Status doUnarchive(DatasetDescription dataset, File originalData)
     {
         return fileOperationsManager.retrieveFromDestination(originalData, dataset);
-    }
-
-    private Status doDeleteFromArchive(DatasetLocation dataset)
-    {
-        return fileOperationsManager.deleteFromDestination(dataset);
     }
 
     private File getDatasetDirectory(ArchiverTaskContext context, DatasetDescription dataset)
