@@ -25,12 +25,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import sun.tools.java.Environment;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -46,7 +47,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -70,6 +70,10 @@ public class DssComponentTest extends SystemTestCase
 
     private File store;
 
+    // Keep track of the number of times a data set was registered during the course of running the
+    // tests
+    private int putCount = 0;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -85,8 +89,14 @@ public class DssComponentTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
+        putCount++;
     }
 
+    /**
+     * Checks that the registration log is as we expect it to be. This test will break if new tests
+     * are added that register data with the DSS but do not increment the putCount instance
+     * variable. Make sure any tests that register data also increment this variable.
+     */
     @Test(dependsOnMethods = "testPutDataSet")
     public void testRegistrationLog() throws Exception
     {
@@ -99,8 +109,13 @@ public class DssComponentTest extends SystemTestCase
 
         File succeededDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
         File[] succeededContents = succeededDir.listFiles();
-        assertEquals(1, succeededContents.length);
 
+        StringBuilder msg = new StringBuilder();
+        for (File file : succeededContents)
+        {
+            msg.append(file.getAbsolutePath()).append("\n");
+        }
+        assertEquals(msg.toString(), putCount, succeededContents.length);
     }
 
     @Test
@@ -122,6 +137,7 @@ public class DssComponentTest extends SystemTestCase
         newDataset.setParentDataSetCodes(Arrays.asList(code));
         IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
+        putCount++;
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
@@ -282,10 +298,5 @@ public class DssComponentTest extends SystemTestCase
             IOUtils.closeQuietly(inputStream);
         }
         return output.toString();
-    }
-
-    private File getRegistrationLogDir()
-    {
-        return DssPropertyParametersUtil.getDssRegistrationLogDir(new Properties());
     }
 }

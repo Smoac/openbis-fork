@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 
 /**
@@ -143,9 +144,16 @@ public abstract class SystemTestCase extends AssertJUnit
                 rootDir.getAbsolutePath());
 
         setUpTestThread();
+        setUpDssRegistrationLog();
 
         DataStoreServer.main(new String[0]);
         ETLDaemon.runForTesting(new String[0]);
+    }
+
+    private void setUpDssRegistrationLog()
+    {
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH,
+                getRegistrationLogDir().getAbsolutePath());
     }
 
     /**
@@ -166,7 +174,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected void setUpTestThread()
     {
-        setUpTestThread(JythonTopLevelDataSetHandler.class, DefaultStorageProcessor.class, 
+        setUpTestThread(JythonTopLevelDataSetHandler.class, DefaultStorageProcessor.class,
                 "sourceTest/java/ch/systemsx/cisd/openbis/datastoreserver/systemtests/data-set-handler.py");
     }
 
@@ -203,5 +211,10 @@ public abstract class SystemTestCase extends AssertJUnit
     protected File getIncomingDirectory()
     {
         return new File(rootDir, "incoming");
+    }
+
+    protected File getRegistrationLogDir()
+    {
+        return new File(workingDirectory, "log-registrations");
     }
 }

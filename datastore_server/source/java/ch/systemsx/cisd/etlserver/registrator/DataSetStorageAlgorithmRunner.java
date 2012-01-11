@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -79,25 +80,20 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IRollbackDelegate<T> rollbackDelegate;
 
     private final IRollbackStack rollbackStack;
-
-    public DataSetStorageAlgorithmRunner(IEncapsulatedOpenBISService openBisService,
-            List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack)
-    {
-        this(dataSetStorageAlgorithms, rollbackDelegate,
-                new DefaultApplicationServerRegistrator<T>(openBisService), rollbackStack);
-    }
-
+    
+    private final DssRegistrationLogger dssRegistrationLog;
+    
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate,
             IDataSetInApplicationServerRegistrator<T> applicationServerRegistrator,
-            IRollbackStack rollbackStack)
+            IRollbackStack rollbackStack, DssRegistrationLogger dssRegistrationLog)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
         this.rollbackDelegate = rollbackDelegate;
         this.applicationServerRegistrator = applicationServerRegistrator;
         this.rollbackStack = rollbackStack;
+        this.dssRegistrationLog = dssRegistrationLog;
     }
 
     /**

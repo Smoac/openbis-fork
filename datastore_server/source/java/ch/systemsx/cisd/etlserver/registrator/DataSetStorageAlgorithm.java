@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
@@ -96,7 +97,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     // Used to create a staging directory for the storage processor
     private final File stagingDirectory;
-
+    
     // State that changes during execution
     private DataSetStorageAlgorithmState<T> state;
 
@@ -160,7 +161,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Prepare registration of a data set.
+     * Prepare registration of a data set. Expects initialized state, and changes into prepared state
      * 
      * @param rollbackStack
      */
@@ -174,7 +175,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Run the storage processor.
+     * Run the storage processor. Expects prepared state and leaves in stored state.
      */
     public void runStorageProcessor() throws Throwable
     {
@@ -228,7 +229,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Ask the storage processor to commit. Used by clients of the algorithm.
+     * Ask the storage processor to commit. Used by clients of the algorithm. Expects stored state, and changes to commited state.
      */
     public void commitStorageProcessor()
     {

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -70,7 +71,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final File incomingDataSetFile;
 
-    private final File dssRegistrationLog;
+    private final DssRegistrationLogger dssRegistrationLog;
 
     private final DssRegistrationLogDirectoryHelper dssRegistrationLogHelper;
 
@@ -110,7 +111,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         ThreadParameters threadParameters = registratorContext.getGlobalState().getThreadParameters();
         this.dssRegistrationLogHelper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
-        this.dssRegistrationLog = dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName());
+        this.dssRegistrationLog = dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName(), this.registratorContext.getFileOperations());
 
         Properties properties = threadParameters.getThreadProperties();
 
@@ -189,10 +190,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         if (0 == encounteredErrors.size())
         {
-            dssRegistrationLogHelper.moveLogFileToSucceeded(dssRegistrationLog, this.registratorContext.getFileOperations());
+            dssRegistrationLog.moveToSucceeded();
         } else
         {
-            dssRegistrationLogHelper.moveLogFileToFailed(dssRegistrationLog, this.registratorContext.getFileOperations());
+            dssRegistrationLog.moveToFailed();
         }
 
         globalCleanAfterwardsAction.execute();
@@ -272,14 +273,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         IDataStoreStrategy strategy = new IdentifiedDataStrategy();
         return createStorageAlgorithmWithStrategy(dataSetFile, dataSetDetails, strategy);
-    }
-
-    /**
-     * Returns the log file for the dss registration log.
-     */
-    public File getDssRegistrationLog()
-    {
-        return dssRegistrationLog;
     }
 
     /**
@@ -404,6 +397,14 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             }
         }
         return storeRoot;
+    }
+
+    /**
+     * @return the logger for this data set registration process
+     */
+    public DssRegistrationLogger getDssRegistrationLog()
+    {
+        return dssRegistrationLog;
     }
 
 }

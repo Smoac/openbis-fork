@@ -52,7 +52,7 @@ public class DssPropertyParametersUtil
     /**
      * Directory for registration log files.
      */
-    static final String DSS_REGISTRATION_LOG_DIR_PATH = "dss-registration-log-dir";
+    public static final String DSS_REGISTRATION_LOG_DIR_PATH = "dss-registration-log-dir";
 
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";

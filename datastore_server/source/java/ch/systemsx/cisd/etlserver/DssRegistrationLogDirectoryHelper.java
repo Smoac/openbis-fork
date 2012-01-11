@@ -83,7 +83,7 @@ public class DssRegistrationLogDirectoryHelper
     /**
      * Create a new log file located in the inProcessDir.
      */
-    public File createNewLogFile(String name, String threadName)
+    public DssRegistrationLogger createNewLogFile(String name, String threadName, IFileOperations fileOperations)
     {
         String logFilename = generateLogFileName(name, threadName);
         File logFile = new File(getInProcessDir(), logFilename);
@@ -94,23 +94,7 @@ public class DssRegistrationLogDirectoryHelper
         {
             throw new IOExceptionUnchecked(e);
         }
-        return logFile;
-    }
-
-    /**
-     * Moves the specified log file into the succeeded directory.
-     */
-    public void moveLogFileToSucceeded(File dssRegistrationLog, IFileOperations iFileOperations)
-    {
-        iFileOperations.move(dssRegistrationLog, getSucceededDir());
-    }
-
-    /**
-     * Moves the specified log file into the failed directory.
-     */
-    public void moveLogFileToFailed(File dssRegistrationLog, IFileOperations iFileOperations)
-    {
-        iFileOperations.move(dssRegistrationLog, getFailedDir());
+        return new DssRegistrationLogger(logFile, this, fileOperations);
     }
 
     /**
