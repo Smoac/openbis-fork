@@ -346,10 +346,6 @@ public class SegmentationDatasetRoundtripTest
             assertEquals("Dataset 789: Object types not written: NUCLEUS.", ex.getCause()
                     .getMessage());
         }
-
-        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
-        assertTrue(reader.getDataSets().isEmpty());
-        reader.close();
     }
 
     @Test
@@ -380,10 +376,6 @@ public class SegmentationDatasetRoundtripTest
             assertEquals("Dataset 789: Empty companion groups: EMPTY.", ex.getCause()
                     .getMessage());
         }
-
-        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
-        assertTrue(reader.getDataSets().isEmpty());
-        reader.close();
     }
 
     @Test(expectedExceptions = UninitalizedSegmentationException.class)

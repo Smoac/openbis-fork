@@ -119,7 +119,6 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
                 builder.append(": ");
                 builder.append(errorMsg);
                 builder.append('\n');
-                writer.delete(CellLevelDataset.getDatasetPath(verifyer.getDatasetCode()));
             }
         }
         super.close();
