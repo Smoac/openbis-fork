@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import org.springframework.context.ApplicationContext;
 
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
@@ -51,6 +54,14 @@ public class CommonServiceProvider
     {
         return (ICommonBusinessObjectFactory) applicationContext
                 .getBean(ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY);
+    }
+
+    public static IMailClient createEMailClient()
+    {
+        MailClientParameters mailClientParameters =
+                (MailClientParameters) applicationContext
+                        .getBean(ResourceNames.MAIL_CLIENT_PARAMETERS);
+        return new MailClient(mailClientParameters);
     }
 
     private CommonServiceProvider()
