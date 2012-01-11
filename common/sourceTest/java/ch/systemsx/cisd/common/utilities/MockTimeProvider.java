@@ -17,17 +17,34 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * A time provider which increases time by 1 second each call.
+ * A time provider which increases time from a start time by specified steps.
  *
  * @author Franz-Josef Elmer
  */
 public class MockTimeProvider implements ITimeProvider
 {
     private long time;
+    private final long timeStep;
+    
+    /**
+     * Creates an instance which increases from 0 in steps of one second.
+     */
+    public MockTimeProvider()
+    {
+        this(0, 1000);
+    }
+    
+    public MockTimeProvider(long startTime, long timeStep)
+    {
+        time = startTime;
+        this.timeStep = timeStep;
+    }
     
     public long getTimeInMilliseconds()
     {
-        return time++ * 1000L;
+        long result = time;
+        time += timeStep;
+        return result;
     }
 
 }
