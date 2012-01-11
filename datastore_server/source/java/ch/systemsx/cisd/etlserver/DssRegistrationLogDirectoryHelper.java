@@ -17,9 +17,13 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
  * A utility class for working with the directory structure of the "log-registrations" directory
@@ -82,9 +86,36 @@ public class DssRegistrationLogDirectoryHelper
     public File createNewLogFile(String name, String threadName)
     {
         String logFilename = generateLogFileName(name, threadName);
-        return new File(getInProcessDir(), logFilename);
+        File logFile = new File(getInProcessDir(), logFilename);
+        try
+        {
+            logFile.createNewFile();
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+        return logFile;
     }
 
+    /**
+     * Moves the specified log file into the succeeded directory.
+     */
+    public void moveLogFileToSucceeded(File dssRegistrationLog, IFileOperations iFileOperations)
+    {
+        iFileOperations.move(dssRegistrationLog, getSucceededDir());
+    }
+
+    /**
+     * Moves the specified log file into the failed directory.
+     */
+    public void moveLogFileToFailed(File dssRegistrationLog, IFileOperations iFileOperations)
+    {
+        iFileOperations.move(dssRegistrationLog, getFailedDir());
+    }
+
+    /**
+     * Generate a new log file name. Has default visibility for testing.
+     */
     String generateLogFileName(String name, String threadName)
     {
         String sectionSeparator = "_";

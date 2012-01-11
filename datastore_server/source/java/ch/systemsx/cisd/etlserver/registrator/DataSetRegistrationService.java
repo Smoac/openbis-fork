@@ -31,9 +31,9 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -72,6 +72,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final File dssRegistrationLog;
 
+    private final DssRegistrationLogDirectoryHelper dssRegistrationLogHelper;
+
     private final ITopLevelDataSetRegistratorDelegate delegate;
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -107,7 +109,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         this.delegate = delegate;
 
         ThreadParameters threadParameters = registratorContext.getGlobalState().getThreadParameters();
-        this.dssRegistrationLog = createDssRegistrationLog(incomingDataSetFile, registratorContext, threadParameters);
+        this.dssRegistrationLogHelper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
+        this.dssRegistrationLog = dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName());
 
         Properties properties = threadParameters.getThreadProperties();
 
@@ -183,6 +186,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         {
             new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
         }
+
+        if (0 == encounteredErrors.size())
+        {
+            dssRegistrationLogHelper.moveLogFileToSucceeded(dssRegistrationLog, this.registratorContext.getFileOperations());
+        } else
+        {
+            dssRegistrationLogHelper.moveLogFileToFailed(dssRegistrationLog, this.registratorContext.getFileOperations());
+        }
+
         globalCleanAfterwardsAction.execute();
     }
 
@@ -368,12 +380,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     protected AbstractOmniscientTopLevelDataSetRegistrator<T> getRegistrator()
     {
         return registrator;
-    }
-
-    static private File createDssRegistrationLog(File incomingDataSetFile, OmniscientTopLevelDataSetRegistratorState registratorContext, ThreadParameters threadParameters)
-    {
-        DssRegistrationLogDirectoryHelper helper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
-        return helper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName());
     }
 
     /**

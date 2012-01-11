@@ -58,8 +58,9 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
     @Test
     public void testFileCreation()
     {
+        dssRegistrationLogDirHelper.initializeSubdirectories();
         File logFile = dssRegistrationLogDirHelper.createNewLogFile("filename", "threadname");
         assertTrue(logFile.exists());
-        assertEquals("in-process", logFile.getParent());
+        assertEquals("in-process", logFile.getParentFile().getName());
     }
 }

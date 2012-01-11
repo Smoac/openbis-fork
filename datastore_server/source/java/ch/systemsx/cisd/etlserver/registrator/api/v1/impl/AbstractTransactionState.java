@@ -122,9 +122,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         // The directory in which new data sets get staged
         private final File stagingDirectory;
 
-        // The registration log file for this transaction
-        private final File dssRegistrationLog;
-
         // The registration service that owns this transaction
         private final DataSetRegistrationService<T> registrationService;
 
@@ -166,7 +163,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             this.workingDirectory = workingDirectory;
             this.stagingDirectory = stagingDirectory;
             this.registrationService = registrationService;
-            this.dssRegistrationLog = registrationService.getDssRegistrationLog();
             this.openBisService =
                     this.registrationService.getRegistratorContext().getGlobalState()
                             .getOpenBisService();
