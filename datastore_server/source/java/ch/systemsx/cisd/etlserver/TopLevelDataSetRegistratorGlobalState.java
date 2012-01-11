@@ -131,6 +131,9 @@ public class TopLevelDataSetRegistratorGlobalState
         this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
+
+        // Initialize the DSS Registration Log Directory
+        new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
     }
 
     public String getDssCode()
@@ -154,6 +157,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getDssInternalTempDir()
     {
         return dssInternalTempDir;
+    }
+
+    public File getDssRegistrationLogDir()
+    {
+        return dssRegistrationLogDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()

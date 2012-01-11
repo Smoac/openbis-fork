@@ -93,7 +93,8 @@ public class DssComponentTest extends SystemTestCase
         assertTrue(registrationLogDir.exists());
 
         File[] contents = registrationLogDir.listFiles();
-        assertTrue(contents.length > 0);
+        // The log directory should have 3 sub directories for in-process, succeeded, failed.
+        assertEquals(3, contents.length);
     }
 
     @Test
