@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -29,7 +30,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
@@ -53,8 +53,8 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, EventPE.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            EventPE.class);
 
     public EventDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
@@ -108,25 +108,28 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
+            Map<String, String> map = createIdentifierToLocationMap(event.getDescription());
             List<String> identifiers = event.getIdentifiers();
-            List<String> locations =
-                    Arrays.asList(event.getDescription().split(EventPE.IDENTIFIER_SEPARATOR));
-            if (identifiers.size() != locations.size())
+            for (String dataSetCode : identifiers)
             {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Number of deleted dataset codes %s does not match "
-                                + "the number of deleted data set locations %s in eventId='%s'",
-                                identifiers.size(), locations.size(), event.getId());
-            }
-            int pos = 0;
-            for (pos = 0; pos < identifiers.size(); pos++)
-            {
-                String dataSetCode = identifiers.get(pos);
-                String dataSetLocation = locations.get(pos);
+                String dataSetLocation = map.get(dataSetCode);
                 DeletedDataSet deletedDataSet =
                         new DeletedDataSet(dataSetCode, dataSetLocation, event.getId());
                 result.add(deletedDataSet);
             }
+        }
+        return result;
+    }
+
+    private Map<String, String> createIdentifierToLocationMap(String locations)
+    {
+        Map<String, String> result = new HashMap<String, String>();
+        for (String location : locations.split(EventPE.IDENTIFIER_SEPARATOR))
+        {
+            int lastIndexOfSlash = location.lastIndexOf('/');
+            String identifier =
+                    lastIndexOfSlash < 0 ? location : location.substring(lastIndexOfSlash + 1);
+            result.put(identifier, location);
         }
         return result;
     }

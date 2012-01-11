@@ -34,18 +34,19 @@ public class DeletedDataSet implements Serializable, ICodeHolder
 
     private final long eventId;
 
-    private final String location; // the location where the data set existed before deletion
+    private final String locationOrNull; // the location where the data set existed before deletion
+                                         // or null if it was a container data set
 
-    public DeletedDataSet(String identifier, String location, long eventId)
+    public DeletedDataSet(String identifier, String locationOrNull, long eventId)
     {
         this.eventId = eventId;
         this.identifier = identifier;
-        this.location = location;
+        this.locationOrNull = locationOrNull;
     }
 
-    public String getLocation()
+    public String getLocationOrNull()
     {
-        return location;
+        return locationOrNull;
     }
 
     public String getCode()

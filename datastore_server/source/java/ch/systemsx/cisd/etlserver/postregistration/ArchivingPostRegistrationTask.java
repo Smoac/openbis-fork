@@ -209,7 +209,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             
             IArchiverPlugin archiver = ServiceProvider.getDataStoreService().getArchiverPlugin();
             DatasetDescription dataSet = tryGetDatasetWithLocation(dataSetCode, openBISService);
-            if (archiver != null && dataSet != null)
+            if (archiver != null && dataSet != null && dataSet.getDataSetLocation() != null)
             {
                 DatasetLocation dataset = new DatasetLocation();
                 dataset.setDatasetCode(dataSetCode);

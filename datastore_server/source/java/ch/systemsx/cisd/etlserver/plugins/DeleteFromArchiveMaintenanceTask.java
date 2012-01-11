@@ -125,7 +125,7 @@ public class DeleteFromArchiveMaintenanceTask extends
         List<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (DeletedDataSet dataset : datasets) {
             if (dataset.getIdentifier() != null
-                    && false == dataset.getIdentifier().equals(dataset.getLocation()))
+                    && false == dataset.getIdentifier().equals(dataset.getLocationOrNull()))
             {
                 result.add(dataset);
             }
@@ -138,7 +138,10 @@ public class DeleteFromArchiveMaintenanceTask extends
         ArrayList<DatasetLocation> result = new ArrayList<DatasetLocation>(datasets.size());
         for (DeletedDataSet deletedDS : datasets)
         {
-            result.add(toDataSetLocations(deletedDS));
+            if (deletedDS.getLocationOrNull() != null)
+            {
+                result.add(toDataSetLocations(deletedDS));
+            }
         }
         return result;
     }
@@ -147,7 +150,7 @@ public class DeleteFromArchiveMaintenanceTask extends
     {
         DatasetLocation dsLocation = new DatasetLocation();
         dsLocation.setDatasetCode(deletedDS.getIdentifier());
-        dsLocation.setDataSetLocation(deletedDS.getLocation());
+        dsLocation.setDataSetLocation(deletedDS.getLocationOrNull());
         return dsLocation;
     }
 }
