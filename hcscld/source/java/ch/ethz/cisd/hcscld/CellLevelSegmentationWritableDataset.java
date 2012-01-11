@@ -218,10 +218,31 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         b.setLength(b.length() - 2);
                         b.append(".");
                         return b.toString();
-                    } else
-                    {
-                        return null;
                     }
+                    final Set<ObjectTypeCompanionGroup> emptyCompanionGroups =
+                            new HashSet<ObjectTypeCompanionGroup>();
+                    for (ObjectTypeCompanionGroup cgroup : objectTypeStore
+                            .getObjectTypeCompanionGroups())
+                    {
+                        if (cgroup.getCompanions().isEmpty())
+                        {
+                            emptyCompanionGroups.add(cgroup);
+                        }
+                    }
+                    if (emptyCompanionGroups.isEmpty() == false)
+                    {
+                        final StringBuilder b = new StringBuilder();
+                        b.append("Empty companion groups: ");
+                        for (ObjectTypeCompanionGroup cgroup : emptyCompanionGroups)
+                        {
+                            b.append(cgroup.getId());
+                            b.append(", ");
+                        }
+                        b.setLength(b.length() - 2);
+                        b.append(".");
+                        return b.toString();
+                    }
+                    return null;
                 }
 
                 public String getDatasetCode()

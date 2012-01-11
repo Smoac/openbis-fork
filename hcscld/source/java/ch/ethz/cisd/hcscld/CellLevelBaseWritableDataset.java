@@ -150,7 +150,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
     {
-        return new ObjectTypeCompanionGroup(writer.getFile(), getDatasetCode(), id);
+        return objectTypeStore.addObjectTypeCompanionGroup(id);
     }
 
     void checkCompatible(ObjectType objectType) throws WrongObjectTypeException

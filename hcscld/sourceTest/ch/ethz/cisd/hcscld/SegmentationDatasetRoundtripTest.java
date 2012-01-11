@@ -352,6 +352,40 @@ public class SegmentationDatasetRoundtripTest
         reader.close();
     }
 
+    @Test
+    public void testSegmentationObjectCompanionGroupEmpty()
+    {
+        File f = new File(workingDirectory, "segmentationObjectCompanionGroupEmpty.cld");
+        f.delete();
+        f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        ICellLevelSegmentationWritableDataset wds =
+                writer.addSegmentationDataset("789", new ImageQuantityStructure(2, 3, 4),
+                        new ImageGeometry(1024, 1024), true);
+        List<SegmentedObject> cells =
+                Arrays.asList(
+                        new SegmentedObject((short) 50, (short) 60, (short) 100, (short) 110),
+                        new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
+        cells.get(0).setMaskPoint(70, 80);
+        cells.get(1).setMaskPoint(220, 240);
+        final ObjectType cellObjects = wds.addObjectType("cell");
+        wds.addObjectTypeCompanionGroup("empty");
+        wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells);
+        try
+        {
+            writer.close();
+            fail("Empty companion group not spotted.");
+        } catch (IOExceptionUnchecked ex)
+        {
+            assertEquals("Dataset 789: Empty companion groups: EMPTY.", ex.getCause()
+                    .getMessage());
+        }
+
+        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        assertTrue(reader.getDataSets().isEmpty());
+        reader.close();
+    }
+
     @Test(expectedExceptions = UninitalizedSegmentationException.class)
     public void testUninitializedSegmentation()
     {
