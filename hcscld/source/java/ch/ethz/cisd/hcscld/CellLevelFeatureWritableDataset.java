@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
@@ -43,7 +44,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE,
                 CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, allObjectTypes, geometry,
+                new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore, geometry,
                         hdf5KindEnum, CellLevelDatasetType.FEATURES, FORMAT_TYPE,
                         CURRENT_FORMAT_VERSION_NUMBER);
         this.featureGroupCompoundType =
@@ -69,9 +70,20 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return (ICellLevelSegmentationWritableDataset) super.toSegmentationDataset();
     }
 
-    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    public ObjectType addObjectType(String id) throws UniqueViolationException
     {
-        return base.addObjectType(objectTypeId, companions);
+        return base.addObjectType(id);
+    }
+
+    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+            throws UniqueViolationException
+    {
+        return base.addObjectType(id, group);
+    }
+
+    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    {
+        return base.addObjectTypeCompanionGroup(id);
     }
 
     HDF5EnumerationType addEnum(String name, List<String> values)
@@ -206,7 +218,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     }
 
     @Override
-    public ObjectType[] getObjectTypes()
+    public Collection<ObjectType> getObjectTypes()
     {
         return base.getObjectTypes();
     }

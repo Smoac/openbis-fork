@@ -16,13 +16,11 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
@@ -35,6 +33,8 @@ abstract class CellLevelDataset implements ICellLevelDataset
 {
     static final String OBJECT_TYPE_DIR = "objectTypes";
 
+    static final String NUMBER_OF_ELEMENTS_ATTRIBUTE = "numberOfSegmentationElements";
+
     final IHDF5Reader reader;
 
     final String datasetCode;
@@ -43,17 +43,16 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     final int formatVersionNumber;
 
-    final Map<String, ObjectType> allObjectTypes;
+    final ObjectTypeStore objectTypeStore;
 
-    CellLevelDataset(IHDF5Reader reader, String datasetCode,
-            Map<String, ObjectType> allObjectTypes, ImageQuantityStructure quantityStructure,
-            int formatVersionNumber)
+    CellLevelDataset(IHDF5Reader reader, String datasetCode, ObjectTypeStore objectTypeStore,
+            ImageQuantityStructure quantityStructure, int formatVersionNumber)
     {
         this.reader = reader;
         this.datasetCode = datasetCode;
         this.quantityStructure = quantityStructure;
         this.formatVersionNumber = formatVersionNumber;
-        this.allObjectTypes = allObjectTypes;
+        this.objectTypeStore = objectTypeStore;
     }
 
     CellLevelDataset(IHDF5Reader reader, String datasetCode,
@@ -63,41 +62,40 @@ abstract class CellLevelDataset implements ICellLevelDataset
         this.datasetCode = datasetCode;
         this.quantityStructure = quantityStructure;
         this.formatVersionNumber = formatVersionNumber;
-        this.allObjectTypes = readObjectTypes();
+        this.objectTypeStore = readObjectTypeStore();
     }
 
     /**
      * Reads the object types from the HDF5 file.
      */
-    private Map<String, ObjectType> readObjectTypes()
+    private ObjectTypeStore readObjectTypeStore()
     {
-        final Map<String, ObjectType> result = new LinkedHashMap<String, ObjectType>();
+        final ObjectTypeStore result = new ObjectTypeStore(reader.getFile(), getDatasetCode());
+        if (reader.isDataType(getObjectTypeCompanionGroupsObjectPathObjectPath()) == false)
+        {
+            return result;
+        }
+        final List<String> objectTypeCompanionGroups =
+                reader.getEnumType(getObjectTypeCompanionGroupsObjectPathObjectPath()).getValues();
+        for (String id : objectTypeCompanionGroups)
+        {
+            result.addObjectTypeCompanionGroup(id);
+        }
         if (reader.isDataType(getObjectTypesObjectPath()) == false)
         {
             return result;
         }
-        final HDF5EnumerationType objectTypesType = reader.getEnumType(getObjectTypesObjectPath());
-        for (String id : objectTypesType.getValues())
+        for (String cgId : objectTypeCompanionGroups)
         {
-            result.put(id, new ObjectType(id, reader.getFile(), getDatasetCode()));
-        }
-        final Set<ObjectTypeCompanionGroup> companionGroups =
-                new LinkedHashSet<ObjectTypeCompanionGroup>();
-        int idx = 0;
-        while (true)
-        {
-            final String cgObjectPath = getObjectTypesCompanionGroupsObjectPath(idx++);
-            if (reader.isDataSet(cgObjectPath) == false)
+            final String cgObjectPath = getObjectTypeCompanionGroupObjectPath(cgId);
+            for (String otId : reader.readEnumArray(cgObjectPath).getValues())
             {
-                break;
+                final int numberOfElements =
+                        reader.getIntAttribute(cgObjectPath, NUMBER_OF_ELEMENTS_ATTRIBUTE);
+                final ObjectTypeCompanionGroup cgroup = result.tryGetObjectTypeCompanionGroup(cgId);
+                cgroup.setOrCheckNumberOfSegmentationElements(numberOfElements);
+                result.addObjectType(otId, cgroup);
             }
-            final Set<ObjectType> companions = new HashSet<ObjectType>();
-            for (String id : reader.readEnumArray(cgObjectPath).getValues())
-            {
-                companions.add(result.get(id));
-            }
-            companionGroups.add(new ObjectTypeCompanionGroup(reader.getFile(), datasetCode, Integer
-                    .toString(idx), companions));
         }
         return result;
     }
@@ -155,22 +153,32 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     public ObjectType tryGetObjectType(String objectTypeId)
     {
-        return allObjectTypes.get(objectTypeId.toUpperCase());
+        return objectTypeStore.tryGetObjectType(objectTypeId);
     }
 
-    public ObjectType[] getObjectTypes()
+    public Collection<ObjectType> getObjectTypes()
     {
-        return allObjectTypes.values().toArray(new ObjectType[allObjectTypes.size()]);
+        return objectTypeStore.getObjectTypes();
     }
 
-    String getObjectTypesCompanionGroupsObjectPath(int idx)
+    public Collection<ObjectTypeCompanionGroup> getObjectTypeCompanionGroups()
     {
-        return getObjectPath(OBJECT_TYPE_DIR, String.format("ObjectTypeCompanionGroup_%d", idx));
+        return objectTypeStore.getObjectTypeCompanionGroups();
+    }
+
+    String getObjectTypeCompanionGroupObjectPath(String id)
+    {
+        return getObjectPath(OBJECT_TYPE_DIR, String.format("ObjectTypeCompanionGroup__%s", id));
     }
 
     String getObjectTypesObjectPath()
     {
         return getObjectPath(OBJECT_TYPE_DIR, "Enum_ObjectTypes");
+    }
+
+    String getObjectTypeCompanionGroupsObjectPathObjectPath()
+    {
+        return getObjectPath(OBJECT_TYPE_DIR, "Enum_ObjectTypeCompanionGroups");
     }
 
     public Set<String> getDatasetAnnotationKeys()

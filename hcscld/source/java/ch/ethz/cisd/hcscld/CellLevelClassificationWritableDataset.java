@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
@@ -58,7 +59,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     {
         super(writer, datasetCode, geometry, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, allObjectTypes, geometry,
+                new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore, geometry,
                         hdf5KindEnum, CellLevelDatasetType.CLASSIFICATION, FORMAT_TYPE,
                         CURRENT_FORMAT_VERSION_NUMBER);
         this.hdf5EnumType = hdf5EnumType;
@@ -82,9 +83,20 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return this;
     }
 
-    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    public ObjectType addObjectType(String id) throws UniqueViolationException
     {
-        return base.addObjectType(objectTypeId, companions);
+        return base.addObjectType(id);
+    }
+
+    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+            throws UniqueViolationException
+    {
+        return base.addObjectType(id, group);
+    }
+
+    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    {
+        return base.addObjectTypeCompanionGroup(id);
     }
 
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
@@ -165,7 +177,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     @Override
-    public ObjectType[] getObjectTypes()
+    public Collection<ObjectType> getObjectTypes()
     {
         return base.getObjectTypes();
     }

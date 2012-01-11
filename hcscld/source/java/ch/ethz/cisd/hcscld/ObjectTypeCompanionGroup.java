@@ -18,28 +18,37 @@ package ch.ethz.cisd.hcscld;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * A class to represent an {@link ObjectType} companion group.
- *
+ * 
  * @author Bernd Rinn
  */
-public class ObjectTypeCompanionGroup
+public class ObjectTypeCompanionGroup implements IId
 {
     private final File file;
-    
+
     private final String datasetCode;
-    
+
     private final String id;
 
     private final Set<ObjectType> companions;
+
+    private int numberOfSegmentationElements;
+
+    ObjectTypeCompanionGroup(File file, String datasetCode, String id)
+    {
+        this(file, datasetCode, id, new HashSet<ObjectType>());
+    }
 
     ObjectTypeCompanionGroup(File file, String datasetCode, String id, Set<ObjectType> companions)
     {
         this.file = file;
         this.datasetCode = datasetCode;
         this.id = id.toUpperCase();
+        this.numberOfSegmentationElements = -1;
         for (ObjectType c : companions)
         {
             if (c == null)
@@ -70,9 +79,40 @@ public class ObjectTypeCompanionGroup
         return id;
     }
 
+    void add(ObjectType objectType)
+    {
+        if (isSameDataset(objectType) == false)
+        {
+            throw new WrongDatasetException(datasetCode, objectType.getDatasetCode());
+        }
+        objectType.setCompanionGroup(this);
+        companions.add(objectType);
+    }
+
     public Set<ObjectType> getCompanions()
     {
         return Collections.unmodifiableSet(companions);
+    }
+
+    /**
+     * Returns the number of elements that a segmentation of this companion group has, or -1, if not
+     * yet known.
+     */
+    public int getNumberOfSegmentationElements()
+    {
+        return numberOfSegmentationElements;
+    }
+
+    void setOrCheckNumberOfSegmentationElements(int segmentationNumberOfElements)
+    {
+        if (this.numberOfSegmentationElements == -1)
+        {
+            this.numberOfSegmentationElements = segmentationNumberOfElements;
+        } else if (this.numberOfSegmentationElements != segmentationNumberOfElements)
+        {
+            throw new WrongNumberOfSegmentationElementsException(datasetCode,
+                    this.numberOfSegmentationElements, segmentationNumberOfElements);
+        }
     }
 
     /**

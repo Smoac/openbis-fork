@@ -6,7 +6,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import javax.imageio.ImageIO;
 
@@ -65,10 +65,10 @@ public class CellLevelSegmentationDemo
         final ICellLevelSegmentationDataset ds = reader.getDataSet("789").toSegmentationDataset();
         ImageGeometry imageGeometry = ds.getImageGeometry();
         System.out.println("Image Geometry: " + imageGeometry);
-        List<ObjectType> segmentedObjectTypes = Arrays.asList(ds.getObjectTypes());
+        Collection<ObjectType> segmentedObjectTypes = ds.getObjectTypes();
         System.out.println("Segmented Object Types: " + segmentedObjectTypes);
         SegmentedObject[] objects =
-                ds.getObjects(new ImageId(15, 23, 8), segmentedObjectTypes.get(0), true);
+                ds.getObjects(new ImageId(15, 23, 8), segmentedObjectTypes.iterator().next(), true);
         reader.close();
         final BufferedImage image2 =
                 SegmentationImageUtilities.createBinarySegmentationEdgesImage(imageGeometry,

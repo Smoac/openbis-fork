@@ -17,24 +17,24 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * An exception indicating that an object type with 
+ * An exception indicating that an entity violates a uniqueness condition. 
  *
  * @author Bernd Rinn
  */
-public class UniqueObjectTypeViolationException extends RuntimeException
+public class UniqueViolationException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
-    private final String objectTypeId;
+    private final String id;
     
-    UniqueObjectTypeViolationException(String objectTypeId)
+    UniqueViolationException(String entityName, String id)
     {
-        super("Object type id '" + objectTypeId + "' already exists.");
-        this.objectTypeId = objectTypeId;
+        super(entityName + " id '" + id + "' already exists.");
+        this.id = id;
     }
 
-    public String getObjectTypeId()
+    public String getId()
     {
-        return objectTypeId;
+        return id;
     }
 
 }

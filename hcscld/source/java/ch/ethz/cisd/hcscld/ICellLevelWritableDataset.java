@@ -44,14 +44,34 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
     public ICellLevelSegmentationWritableDataset toSegmentationDataset();
 
     /**
-     * Adds a new object type to this dataset with the given <var>objectTypeId</var> and,
-     * optionally, the <var>compaions></var>.
+     * Adds a new object type to this dataset with the given <var>objectTypeId</var>.
      * 
      * @return The object type.
-     * @throws UniqueObjectTypeViolationException if the <var>objectTpeId</var> already exists.
+     * @throws UniqueViolationException if an object type with <var>id</var> already
+     *             exists.
      */
-    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
-            throws UniqueObjectTypeViolationException;
+    public ObjectType addObjectType(String id)
+            throws UniqueViolationException;
+
+    /**
+     * Adds a new object type to this dataset with the given <var>id</var> and the
+     * <var>group></var>.
+     * 
+     * @return The object type.
+     * @throws UniqueViolationException if an object type with <var>id</var> already
+     *             exists.
+     */
+    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+            throws UniqueViolationException;
+
+    /**
+     * Adds a new object type companion group to this dataset with the given <var>id</var>.
+     * 
+     * @return The object type companion group.
+     * @throws UniqueViolationException if a group with <var>id</var> already
+     *             exists.
+     */
+    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id);
 
     /**
      * Add annotations for a time series image sequence. The annotation is supposed to provide the

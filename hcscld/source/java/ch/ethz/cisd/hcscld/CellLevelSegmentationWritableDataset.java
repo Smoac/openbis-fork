@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         super(writer, datasetCode, quantityStructure, imageGeometry, FORMAT_TYPE,
                 CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, allObjectTypes,
+                new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore,
                         quantityStructure, hdf5KindEnum, CellLevelDatasetType.SEGMENTATION,
                         FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.storeEdgeMasks = storeEdgeMasks;
@@ -73,9 +74,20 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
     }
 
-    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    public ObjectType addObjectType(String id) throws UniqueViolationException
     {
-        return base.addObjectType(objectTypeId, companions);
+        return base.addObjectType(id);
+    }
+
+    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+            throws UniqueViolationException
+    {
+        return base.addObjectType(id, group);
+    }
+
+    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    {
+        return base.addObjectTypeCompanionGroup(id);
     }
 
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
@@ -112,6 +124,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
             List<SegmentedObject> objects)
     {
         base.checkCompatible(objectType);
+        objectType.getCompanionGroup().setOrCheckNumberOfSegmentationElements(objects.size());
         for (SegmentedObject so : objects)
         {
             so.setObjectTypeOrNull(objectType);
@@ -179,7 +192,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     }
 
     @Override
-    public ObjectType[] getObjectTypes()
+    public Collection<ObjectType> getObjectTypes()
     {
         return base.getObjectTypes();
     }
@@ -191,7 +204,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                 public String verify()
                 {
                     final Set<ObjectType> objectTypesNotWritten =
-                            new HashSet<ObjectType>(allObjectTypes.values());
+                            new HashSet<ObjectType>(objectTypeStore.getObjectTypes());
                     objectTypesNotWritten.removeAll(objectTypesWritten);
                     if (objectTypesNotWritten.isEmpty() == false)
                     {

@@ -36,7 +36,7 @@ import java.util.Set;
  * 
  * @author Bernd Rinn
  */
-public class ObjectType
+public class ObjectType implements IId
 {
     private final File file;
 
@@ -81,7 +81,7 @@ public class ObjectType
     }
 
     /**
-     * Returns the compaion group that this object type is a member of.
+     * Returns the companion group that this object type is a member of.
      */
     public ObjectTypeCompanionGroup getCompanionGroup()
     {

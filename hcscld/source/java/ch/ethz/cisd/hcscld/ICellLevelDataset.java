@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
 import java.util.Set;
 
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
@@ -79,8 +80,13 @@ public interface ICellLevelDataset
     /**
      * Returns all object types defined for this dataset.
      */
-    public ObjectType[] getObjectTypes();
+    public Collection<ObjectType> getObjectTypes();
 
+    /**
+     * Returns all object type companion groups defined for this dataset.
+     */
+    public Collection<ObjectTypeCompanionGroup> getObjectTypeCompanionGroups();
+    
     /**
      * Returns annotation for a time series image sequence.
      * 
