@@ -31,8 +31,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import sun.tools.java.Environment;
-
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
@@ -220,6 +218,7 @@ public class DssComponentTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "observer-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         dss.putDataSet(newDataset, exampleDataSet);
+        putCount++;
     }
 
     @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = AuthorizationFailureException.class)
