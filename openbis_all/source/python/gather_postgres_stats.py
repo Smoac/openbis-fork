@@ -144,7 +144,6 @@ def callCommandLine(args):
   Calls a command line program and returns the standard out
   '''
   SplitArgs = shlex.split(args)
-  print(args)
   p = subprocess.Popen(SplitArgs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
   out, err = p.communicate()
   return out
