@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
  * Interface for logging into the dss registration log.
- *
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DssRegistrationLogger
@@ -30,9 +34,9 @@ public class DssRegistrationLogger
     private final File file;
 
     private final DssRegistrationLogDirectoryHelper helper;
-    
+
     private final IFileOperations fileOperations;
-    
+
     File getFile()
     {
         return file;
@@ -47,18 +51,49 @@ public class DssRegistrationLogger
     }
 
     /**
-     *  Change the state to Failed
+     * Change the state to Failed
      */
-    public void moveToFailed(){
+    public void moveToFailed()
+    {
         fileOperations.move(file, helper.getFailedDir());
     }
 
     /**
-     *  Change the state to Succeeded
+     * Change the state to Succeeded
      */
-    public void moveToSucceeded(){
+    public void moveToSucceeded()
+    {
         fileOperations.move(file, helper.getSucceededDir());
     }
 
-    
+    /**
+     * Logs a message.
+     */
+    public void log(String message)
+    {
+        BufferedWriter bw = null;
+        try
+        {
+            FileWriter fw = new FileWriter(file);
+            bw = new BufferedWriter(fw);
+            bw.append(message);
+            bw.newLine();
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        } finally
+        {
+            if (null != bw)
+            {
+                try
+                {
+                    bw.close();
+                } catch (IOException e)
+                {
+                    //
+                }
+            }
+        }
+
+    }
 }

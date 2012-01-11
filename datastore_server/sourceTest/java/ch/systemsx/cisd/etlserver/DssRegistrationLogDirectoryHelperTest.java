@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -59,9 +60,24 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
     @Test
     public void testFileCreation()
     {
-        dssRegistrationLogDirHelper.initializeSubdirectories();
-        DssRegistrationLogger logFile = dssRegistrationLogDirHelper.createNewLogFile("filename", "threadname", FileOperations.getInstance());
+        DssRegistrationLogger logFile = createLogFile();
         assertTrue(logFile.getFile().exists());
         assertEquals("in-process", logFile.getFile().getParentFile().getName());
     }
+
+    @Test
+    public void testLogging()
+    {
+        DssRegistrationLogger logFile = createLogFile();
+        logFile.log("the message");
+        String contents = FileUtilities.loadToString(logFile.getFile());
+        assertEquals("the message\n", contents);
+    }
+
+    private DssRegistrationLogger createLogFile()
+    {
+        dssRegistrationLogDirHelper.initializeSubdirectories();
+        return dssRegistrationLogDirHelper.createNewLogFile("filename", "threadname", FileOperations.getInstance());
+    }
+
 }
