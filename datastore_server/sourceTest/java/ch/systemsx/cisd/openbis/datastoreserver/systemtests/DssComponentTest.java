@@ -94,7 +94,6 @@ public class DssComponentTest extends SystemTestCase
     @Test
     public void testFailingPutDataSet() throws Exception
     {
-
         try
         {
             File exampleDataSet = new File(workingDirectory, "my-data");
@@ -148,7 +147,7 @@ public class DssComponentTest extends SystemTestCase
         File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 1);
         logFile = failedContents[0];
         expectedContents = new String[]
-            { "^\\d{2}:\\d{2}:\\d{2} Processing failed : java.lang.AssertionError:  Unspecified experiment identifier.$" };
+            { "^\\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
         checkLogFileContents(logFile, expectedContents);
     }
 
