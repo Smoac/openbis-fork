@@ -64,11 +64,16 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         assertTrue(logFile.getFile().exists());
         assertEquals("in-process", logFile.getFile().getParentFile().getName());
 
-        logFile.moveToSucceeded();
+        logFile.registerSuccess();
         assertTrue(logFile.getFile().exists());
         assertEquals("succeeded", logFile.getFile().getParentFile().getName());
 
-        logFile.moveToFailed();
+        logFile.registerFailure();
+        assertTrue(logFile.getFile().exists());
+        assertEquals("failed", logFile.getFile().getParentFile().getName());
+
+        // Check that duplicating a registerFailure does not cause problems
+        logFile.registerFailure();
         assertTrue(logFile.getFile().exists());
         assertEquals("failed", logFile.getFile().getParentFile().getName());
     }
@@ -79,9 +84,12 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         DssRegistrationLogger logFile = createLogFile();
         logFile.log("1: The message");
         logFile.log("2: The message");
+        logFile.registerSuccess();
+        logFile.log("3: Succeeded");
         List<String> contents = FileUtilities.loadToStringList(logFile.getFile());
         assertTrue(contents.get(0), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 1: The message$", contents.get(0)));
         assertTrue(contents.get(1), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 2: The message$", contents.get(1)));
+        assertTrue(contents.get(2), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 3: Succeeded$", contents.get(2)));
     }
 
     @Test

@@ -53,7 +53,7 @@ public class DssRegistrationLogger
     /**
      * Change the state to Failed
      */
-    public void moveToFailed()
+    public void registerFailure()
     {
         moveToDir(helper.getFailedDir());
     }
@@ -61,7 +61,7 @@ public class DssRegistrationLogger
     /**
      * Change the state to Succeeded
      */
-    public void moveToSucceeded()
+    public void registerSuccess()
     {
         moveToDir(helper.getSucceededDir());
     }
