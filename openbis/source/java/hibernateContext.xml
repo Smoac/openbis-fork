@@ -180,10 +180,6 @@
         <constructor-arg ref="dynamic-property-scheduler" />
     </bean>
     
-    <bean id="maintenance-task-starter" 
-        class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarterRunnable">
-    </bean>
-
     <bean class="org.springframework.scheduling.timer.TimerFactoryBean">
         <property name="scheduledTimerTasks">
             <list>
@@ -192,12 +188,8 @@
                     <property name="runnable" ref="full-text-indexer" />
                 </bean>
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
-                    <property name="delay" value="0" />
+                    <property name="delay" value="1000" />
                     <property name="runnable" ref="dynamic-property-evaluator" />
-                </bean>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
-                    <property name="delay" value="0" />
-                    <property name="runnable" ref="maintenance-task-starter" />
                 </bean>
             </list>
         </property>

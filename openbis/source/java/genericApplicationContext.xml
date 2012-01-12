@@ -209,6 +209,16 @@
         <property name="smtpPassword" value="${mail.smtp.password}"/>
     </bean>
     
+    
+    <!--  
+       Maintenance Tasks
+     -->
+    
+    <bean id="maintenance-task-starter" 
+        class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarter">
+    </bean>
+
+    
     <!--  
        Core plugins registration
      -->

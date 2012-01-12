@@ -73,6 +73,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     @SuppressWarnings("unchecked")
     public final void run()
     {
+        operationLog.info("Start dynamic properties evaluator queue.");
         try
         {
             while (true)
