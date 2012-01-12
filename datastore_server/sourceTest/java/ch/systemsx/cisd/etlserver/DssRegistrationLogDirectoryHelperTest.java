@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,8 +71,9 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         DssRegistrationLogger logFile = createLogFile();
         logFile.log("1: The message");
         logFile.log("2: The message");
-        String contents = FileUtilities.loadToString(logFile.getFile());
-        assertEquals("1: The message\n2: The message\n", contents);
+        List<String> contents = FileUtilities.loadToStringList(logFile.getFile());
+        assertTrue(contents.get(0), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 1: The message$", contents.get(0)));
+        assertTrue(contents.get(1), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 2: The message$", contents.get(1)));
     }
 
     @Test
@@ -80,7 +82,10 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         DssRegistrationLogger logFile = createLogFile();
         logFile.logTruncatingIfNecessary("This is a very long string, in fact, a string that is longer than the limit for the length of an allowed string");
         String contents = FileUtilities.loadToString(logFile.getFile());
-        assertEquals("This is a very long string, in fact, a string that is longer than the limit for the length of an...\n", contents);
+        assertTrue(contents,
+                Pattern.matches(
+                        "^\\d{2}:\\d{2}:\\d{2} This is a very long string, in fact, a string that is longer than the limit for the length of an...\\n$",
+                        contents));
     }
 
     private DssRegistrationLogger createLogFile()

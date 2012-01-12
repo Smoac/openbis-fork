@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Date;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
@@ -73,23 +71,12 @@ public class DssRegistrationLogger
      */
     public void log(String message)
     {
-        BufferedWriter bw = null;
-        FileWriter fw = null;
-        try
-        {
-            fw = new FileWriter(file, true);
-            bw = new BufferedWriter(fw);
-            bw.append(message);
-            bw.newLine();
-            bw.flush();
-        } catch (final IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(fw);
-        }
-
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append(DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(new Date()));
+        logMessage.append(" ");
+        logMessage.append(message);
+        logMessage.append("\n");
+        FileUtilities.appendToFile(file, logMessage.toString(), false);
     }
 
     /**
