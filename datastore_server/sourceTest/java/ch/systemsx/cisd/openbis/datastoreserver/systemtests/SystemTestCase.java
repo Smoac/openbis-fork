@@ -37,9 +37,11 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
@@ -64,11 +66,15 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String ROOT_DIR_PREFIX = "${" + ROOT_DIR_KEY + "}/";
 
+    private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
+
     protected File workingDirectory;
 
     protected File rootDir;
 
     protected GenericWebApplicationContext applicationContext;
+
+    protected BufferedAppender logAppender;
 
     protected SystemTestCase()
     {
@@ -91,6 +97,12 @@ public abstract class SystemTestCase extends AssertJUnit
         }
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
+    }
+
+    @BeforeTest
+    public void setUpLogAppender()
+    {
+        logAppender = new BufferedAppender();
     }
 
     @BeforeSuite
@@ -216,5 +228,35 @@ public abstract class SystemTestCase extends AssertJUnit
     protected File getRegistrationLogDir()
     {
         return new File(workingDirectory, "log-registrations");
+    }
+
+    protected void waitUntilDataSetImported() throws Exception
+    {
+        boolean dataSetImported = false;
+        String logContent = "";
+        final int maxLoops = 20;
+        for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
+        {
+            Thread.sleep(1000);
+            logContent = logAppender.getLogContent();
+            if (logContent.contains(DATA_SET_IMPORTED_LOG_MARKER))
+            {
+                dataSetImported = true;
+            } else
+            {
+                assertFalse(logContent, logContent.contains("ERROR"));
+            }
+        }
+
+        if (dataSetImported == false)
+        {
+            fail("Failed to determine whether data set import was successful:" + logContent);
+        }
+
+    }
+
+    protected void moveFileToIncoming(File exampleDataSet) throws IOException
+    {
+        FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 }

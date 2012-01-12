@@ -377,6 +377,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
+
+            service.getDssRegistrationLog().log("Processing failed : " + ex.toString());
+            service.getDssRegistrationLog().registerFailure();
         }
 
         return service;

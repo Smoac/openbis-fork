@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -90,12 +91,25 @@ public class DssComponentTest extends SystemTestCase
         putCount++;
     }
 
+    @Test(expectedExceptions = AssertionError.class)
+    public void testFailingPutDataSet() throws Exception
+    {
+
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        createExampleDataSet(exampleDataSet);
+        moveFileToIncoming(exampleDataSet);
+        waitUntilDataSetImported();
+        // Do *not* increment the putCount because this test does not successfully register any data
+        // putCount++;
+    }
+
     /**
      * Checks that the registration log is as we expect it to be. This test will break if new tests
      * are added that register data with the DSS but do not increment the putCount instance
      * variable. Make sure any tests that register data also increment this variable.
      */
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test(dependsOnMethods =
+        { "testPutDataSet", "testFailingPutDataSet" })
     public void testRegistrationLog() throws Exception
     {
         File registrationLogDir = getRegistrationLogDir();
@@ -106,20 +120,49 @@ public class DssComponentTest extends SystemTestCase
         assertEquals(3, logDirContents.length);
 
         File succeededDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
-        File[] succeededContents = succeededDir.listFiles();
+        File[] succeededContents = checkDssRegistrationLogDirectoryCount(succeededDir, putCount);
+
+        // Check the log contents
+        File logFile = succeededContents[0];
+        String[] expectedContents =
+            {
+                    "^\\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
+                    "^\\t\\d+-\\d+$",
+                    "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the store.$",
+                    "^\\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
+                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have commited.$"
+        };
+        checkLogFileContents(logFile, expectedContents);
+
+        File failedDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getFailedDir();
+        File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 1);
+        logFile = failedContents[0];
+        expectedContents = new String[]
+            { "^\\d{2}:\\d{2}:\\d{2} Processing failed : java.lang.AssertionError:  Unspecified experiment identifier.$" };
+        checkLogFileContents(logFile, expectedContents);
+    }
+
+    private void checkLogFileContents(File logFile, String[] expectedContents)
+    {
+        List<String> logFileContents = FileUtilities.loadToStringList(logFile);
+        int i = 0;
+        for (String expected : expectedContents)
+        {
+            assertTrue(logFileContents.get(i), Pattern.matches(expected, logFileContents.get(i++)));
+        }
+    }
+
+    private File[] checkDssRegistrationLogDirectoryCount(File dir, int count)
+    {
+        File[] succeededContents = dir.listFiles();
 
         StringBuilder msg = new StringBuilder();
         for (File file : succeededContents)
         {
             msg.append(file.getAbsolutePath()).append("\n");
         }
-        assertEquals(msg.toString(), putCount, succeededContents.length);
-
-        // Check the log contents
-        File logFile = succeededContents[0];
-        // List<String> logFileContents = FileUtilities.loadToStringList(logFile);
-        String logFileContents = FileUtilities.loadToString(logFile);
-        System.out.println(logFileContents);
+        assertEquals(msg.toString(), count, succeededContents.length);
+        return succeededContents;
     }
 
     @Test
@@ -247,6 +290,17 @@ public class DssComponentTest extends SystemTestCase
     {
         DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, "CISD:/CISD/CP-TEST-1");
+        createExampleDataSet(exampleDataSet);
+        String rootPath = exampleDataSet.getCanonicalPath();
+        FileInfoDssBuilder builder = new FileInfoDssBuilder(rootPath, rootPath);
+        ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
+        builder.appendFileInfosForFile(exampleDataSet, list, true);
+        NewDataSetDTO newDataset = new NewDataSetDTO(dataSetOwner, exampleDataSet.getName(), list);
+        return newDataset;
+    }
+
+    private void createExampleDataSet(File exampleDataSet)
+    {
         exampleDataSet.mkdirs();
         FileUtilities.writeToFile(new File(exampleDataSet, "data.log"), "hello world");
         FileUtilities.writeToFile(new File(exampleDataSet, "data-set.properties"),
@@ -255,12 +309,6 @@ public class DssComponentTest extends SystemTestCase
         subFolder.mkdirs();
         FileUtilities.writeToFile(new File(subFolder, "1.data"), "1 2 3");
         FileUtilities.writeToFile(new File(subFolder, "2.data"), "4 5 6 7");
-        String rootPath = exampleDataSet.getCanonicalPath();
-        FileInfoDssBuilder builder = new FileInfoDssBuilder(rootPath, rootPath);
-        ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
-        builder.appendFileInfosForFile(exampleDataSet, list, true);
-        NewDataSetDTO newDataset = new NewDataSetDTO(dataSetOwner, exampleDataSet.getName(), list);
-        return newDataset;
     }
 
     private void assertContent(String expectedContent, File root, String path)

@@ -190,7 +190,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         if (0 == encounteredErrors.size())
         {
-            dssRegistrationLog.moveToSucceeded();
+            dssRegistrationLog.registerSuccess();
         } else
         {
             // Construct a message to add to the registration log
@@ -202,7 +202,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 logMessage.append(error.toString());
             }
             dssRegistrationLog.log(logMessage.toString());
-            dssRegistrationLog.moveToFailed();
+            dssRegistrationLog.registerFailure();
         }
 
         globalCleanAfterwardsAction.execute();
