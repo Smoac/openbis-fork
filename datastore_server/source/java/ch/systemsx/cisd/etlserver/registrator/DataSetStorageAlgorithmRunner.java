@@ -111,7 +111,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             registrationSummary.append(" data sets:");
         }
-        registrationSummary.append("\n");
+        registrationSummary.append("\n\t");
 
         // Do the prepare
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
@@ -188,7 +188,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return Collections.emptyList();
         }
 
-        dssRegistrationLog.log("Data has been registered to openBIS Application Server.");
+        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
 
         try
         {

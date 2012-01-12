@@ -193,6 +193,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             dssRegistrationLog.moveToSucceeded();
         } else
         {
+            // Construct a message to add to the registration log
+            StringBuilder logMessage = new StringBuilder();
+            logMessage.append("Registration failed with the following errors\n");
+            for (Throwable error : encounteredErrors)
+            {
+                logMessage.append("\t");
+                logMessage.append(error.toString());
+            }
+            dssRegistrationLog.log(logMessage.toString());
             dssRegistrationLog.moveToFailed();
         }
 
