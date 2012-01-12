@@ -24,6 +24,7 @@ import shlex
 import getpass
 import xmlrpclib
 import ConfigParser
+import os
 from datetime import datetime
 
 
@@ -61,7 +62,8 @@ PSQL_PROPERTIES = ["archive_mode",
                   ]
 
 SSH_BIN = "/usr/bin/ssh"
-SSH_PARAMETERS = "-oConnectTimeout=5"
+SSH_KEY = "id_rsa"
+SSH_PARAMETERS = "-o StrictHostKeyChecking=no -i"
 PSQL_BIN = "/usr/bin/psql"
 PSQL_PARAMETERS = " -Upostgres -c \\\"show all;\\\""
 
@@ -76,12 +78,19 @@ CONFIGFILE = "wikiPostgres.conf"
 ConfluenceToken = None
 ConfluenceServer = xmlrpclib.ServerProxy(SERVER)
 
+def getAbsolutePath():
+  '''
+  Returns the absolute path of the script itself
+  '''
+  return os.path.dirname(os.path.abspath(__file__))
+
 def parseConfigurationFile():
   '''
   Python 2.7 Style
   reads out the settings defined in the config file
   '''
   config = ConfigParser.ConfigParser()
+  config.read(os.path.join(getAbsolutePath(), CONFIGFILE))
   config.read(CONFIGFILE)
   return config
 
@@ -173,8 +182,9 @@ def  main():
   confluenceToken = logIntoConfluence(config)
   
   for (server, alias) in SERVERS.items():
-    args = SSH_BIN + SINGLE_SPACE + SSH_PARAMETERS + SINGLE_SPACE + server + SINGLE_SPACE + \
-      DOUBLE_QUOTE + PSQL_BIN + PSQL_PARAMETERS + DOUBLE_QUOTE
+    args = SSH_BIN + SINGLE_SPACE + SSH_PARAMETERS + SINGLE_SPACE + os.path.join(getAbsolutePath(), SSH_KEY) + \
+      SINGLE_SPACE + server + SINGLE_SPACE + DOUBLE_QUOTE + PSQL_BIN + PSQL_PARAMETERS + DOUBLE_QUOTE
+    print(args)
     commandLineOutput = callCommandLine(args)
     sDict = dictOutput (commandLineOutput)
     serverMap [server] = sDict
