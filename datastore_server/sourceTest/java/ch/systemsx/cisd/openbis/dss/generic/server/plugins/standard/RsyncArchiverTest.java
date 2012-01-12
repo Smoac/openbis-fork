@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -63,16 +64,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = {AbstractArchiverProcessingPlugin.class, RsyncArchiver.class})
+@Friend(toClasses =
+    { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
 public class RsyncArchiverTest extends AbstractFileSystemTestCase
 {
     private static final String LOCATION = "location";
+
     private static final String DATA_STORE_CODE = "dss1";
-    
+
     public static final class ShareFinder implements IShareFinder
     {
-        private static  Properties properties;
+        private static Properties properties;
+
         private static SimpleDataSetInformationDTO recordedDataSet;
+
         private static List<Share> recordedShares;
 
         private boolean alwaysReturnNull = false;
@@ -99,24 +104,41 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
             }
         }
     }
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IDataSetFileOperationsManager fileOperationsManager;
+
     private RsyncArchiver archiver;
+
     private IDataSetDirectoryProvider dataSetDirectoryProvider;
+
     private IUnarchivingPreparation unarchivingPreparation;
+
     private ArchiverTaskContext archiverTaskContext;
+
     private IDataSetStatusUpdater statusUpdater;
+
     private Properties properties;
+
     private BeanFactory beanFactory;
+
     private IConfigProvider configProvider;
+
     private IEncapsulatedOpenBISService service;
+
     private IShareIdManager shareIdManager;
+
     private File store;
+
     private File share1;
+
     private File share2;
+
     private IDataStoreServiceInternal dataStoreService;
+
     private IDataSetDeleter deleter;
 
     @BeforeMethod
@@ -149,13 +171,13 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     allowing(beanFactory).getBean("share-id-manager");
                     will(returnValue(shareIdManager));
-                    
+
                     allowing(beanFactory).getBean("data-store-service");
                     will(returnValue(adviced));
-                    
+
                     allowing(adviced).getTargetSource();
                     will(returnValue(targetSource));
-                    
+
                     try
                     {
                         allowing(targetSource).getTarget();
@@ -166,7 +188,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     }
                 }
             });
-        
+
         IncomingShareIdProviderTestWrapper.setShareIds(Arrays.asList("1"));
         store = new File(workingDirectory, "store");
         store.mkdirs();
@@ -182,11 +204,11 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         archiver.statusUpdater = statusUpdater;
         archiverTaskContext = new ArchiverTaskContext(dataSetDirectoryProvider);
     }
-    
+
     @AfterMethod
     public void afterMethod(Method method)
     {
-        System.out.println("======= Log content for " + method.getName()+"():");
+        System.out.println("======= Log content for " + method.getName() + "():");
         System.out.println(logRecorder.getLogContent());
         System.out.println("======================");
         logRecorder.reset();
@@ -201,7 +223,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testSuccessfulArchivingIfDataSetPresentInArchive()
     {
@@ -234,13 +256,12 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, true);
 
-        assertEquals(
-                "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
-    }    
-    
+    }
+
     @Test
     public void testSuccessfulArchiving()
     {
@@ -256,10 +277,10 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createFalse()));
-                    
+
                     one(fileOperationsManager).copyToDestination(file, ds1);
                     will(returnValue(Status.OK));
-                    
+
                     one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createTrue()));
 
@@ -270,13 +291,12 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, false);
 
-        assertEquals(
-                "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
     }
-    
+
     @Test
     public void testSuccessfulUnarchivingWithRealUnarchivingPreparation()
     {
@@ -308,23 +328,22 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     one(dataSetDirectoryProvider).getDataSetDirectory(ds1);
                     File file = new File(store, LOCATION);
                     will(returnValue(file));
-                    
+
                     one(service).updateShareIdAndSize("ds1", "1", 11L);
                     one(shareIdManager).setShareId("ds1", "1");
 
                     one(fileOperationsManager).retrieveFromDestination(file, ds1);
                     will(returnValue(Status.OK));
-                    
+
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);
                 }
             });
 
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
-        
-        assertEquals(
-                "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
+
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
@@ -343,7 +362,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         assertEquals(share2, ShareFinder.recordedShares.get(1).getShare());
         assertEquals(2, ShareFinder.recordedShares.size());
     }
-    
+
     @Test
     public void testFailingUnarchivingWhenNoShareHasBeenFound()
     {
@@ -409,13 +428,48 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     dataSet2.setDataSetSize(22L);
                     will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
-                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"), DataSetArchivingStatus.ARCHIVED,
-                            true);
+                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
+                            DataSetArchivingStatus.ARCHIVED, true);
                 }
             });
-        
+
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverTaskContext);
         assertEquals("[ERROR: \"Unarchiving failed: null\"]", status.getErrorStatuses().toString());
     }
+
+    @Test
+    public void testDeleteFromArchivePermanently()
+    {
+        properties.setProperty(RsyncArchiver.ONLY_MARK_AS_DELETED_KEY, "false");
+        final DatasetLocation datasetLocation = new DatasetLocation();
+        datasetLocation.setDataSetLocation("my-location");
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileOperationsManager).deleteFromDestination(datasetLocation);
+                    will(returnValue(Status.OK));
+                }
+            });
+
+        archiver = new RsyncArchiver(properties, store, fileOperationsManager);
+        archiver.deleteFromArchive(Arrays.asList(datasetLocation));
+    }
     
+    @Test
+    public void testDeleteFromArchiveOnlyMarkAsDeleted()
+    {
+        final DatasetLocation datasetLocation = new DatasetLocation();
+        datasetLocation.setDataSetLocation("my-location");
+        context.checking(new Expectations()
+        {
+            {
+                one(fileOperationsManager).markAsDeleted(datasetLocation);
+                will(returnValue(Status.OK));
+            }
+        });
+        
+        archiver = new RsyncArchiver(properties, store, fileOperationsManager);
+        archiver.deleteFromArchive(Arrays.asList(datasetLocation));
+    }
+
 }

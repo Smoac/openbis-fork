@@ -177,6 +177,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
         destination = new File(workingDirectory, "destination");
         destination.mkdirs();
+        deleted = new File(destination, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
 
         ds1ArchivedLocationFile = new File(destination, ds1.getDataSetLocation());
         ds1ArchivedDataFile1 =
@@ -880,7 +881,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRemoteViaSshDeleteFromDestination()
+    public void testRemoteViaSshMarkAsDeletedFromDestination()
     {
         Properties properties = createRemoteViaSshDestinationProperties();
         prepareRemoteCreateAndCheckCopier(HOST, null, true);
@@ -895,7 +896,10 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(sshExecutor).executeCommandRemotely(
-                            "rm -rf " + ds1ArchivedLocationFile.getPath(), timeoutMillis());
+                            "mkdir -p " + deleted.getPath(), timeoutMillis());
+                    will(returnValue(OK_RESULT));
+                    one(sshExecutor).executeCommandRemotely(
+                            "touch " + new File(deleted, ds1.getDataSetCode()).getPath(), timeoutMillis());
                     will(returnValue(OK_RESULT));
 
                     /*
@@ -905,11 +909,45 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createFalse()));
                 }
             });
+        Status status1 = dataSetCopier.markAsDeleted(datasetLocation(ds1));
+        Status status2 = dataSetCopier.markAsDeleted(datasetLocation(ds2));
+        assertSuccessful(status1);
+        assertSuccessful(status2);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRemoteViaSshDeleteFromDestination()
+    {
+        Properties properties = createRemoteViaSshDestinationProperties();
+        prepareRemoteCreateAndCheckCopier(HOST, null, true);
+        IDataSetFileOperationsManager dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+        context.checking(new Expectations()
+        {
+            {
+                /*
+                 * ds1: directory exists in archive -> delete from directory
+                 */
+                one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
+                will(returnValue(BooleanStatus.createTrue()));
+                one(sshExecutor).executeCommandRemotely(
+                        "rm -rf " + ds1ArchivedLocationFile.getPath(), timeoutMillis());
+                will(returnValue(OK_RESULT));
+                
+                /*
+                 * ds2: directory doesn't exist in archive -> nothing to do
+                 */
+                one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
+                will(returnValue(BooleanStatus.createFalse()));
+            }
+        });
         Status status1 = dataSetCopier.deleteFromDestination(datasetLocation(ds1));
         Status status2 = dataSetCopier.deleteFromDestination(datasetLocation(ds2));
         assertSuccessful(status1);
         assertSuccessful(status2);
-
+        
         context.assertIsSatisfied();
     }
 
@@ -1033,6 +1071,8 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     private static String HOST = "localhost";
 
     private static String RSYNC_MODULE = "abc";
+
+    private File deleted;
 
     private Properties createRemoteViaSshDestinationProperties()
     {

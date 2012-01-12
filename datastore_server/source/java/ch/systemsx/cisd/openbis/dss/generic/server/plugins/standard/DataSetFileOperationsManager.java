@@ -49,6 +49,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class DataSetFileOperationsManager implements IDataSetFileOperationsManager
 {
+    private static interface IDeleteAction
+    {
+        String getName();
+        void delete(File dataSetFolder, String dataSetCode);
+    }
+
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetFileOperationsManager.class);
@@ -80,7 +86,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     @Private
     static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
-    private static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
+    @Private static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
 
     private final IDataSetFileOperationsExecutor executor;
 
@@ -193,18 +199,54 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      */
     public Status deleteFromDestination(DatasetLocation dataset)
     {
+        return delete(dataset, new IDeleteAction()
+            {
+                public String getName()
+                {
+                    return "delete";
+                }
+
+                public void delete(File dataSetFolder, String dataSetCode)
+                {
+                    executor.deleteFolder(dataSetFolder);
+                }
+            });
+    }
+
+    public Status markAsDeleted(DatasetLocation dataset)
+    {
+        return delete(dataset, new IDeleteAction()
+            {
+                public String getName()
+                {
+                    return "mark as deleted";
+                }
+
+                public void delete(File dataSetFolder, String dataSetCode)
+                {
+                    File deletedFolder =
+                            new File(destination, FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
+                    executor.createFolder(deletedFolder);
+                    File markerFile = new File(deletedFolder, dataSetCode);
+                    executor.createMarkerFile(markerFile);
+                }
+            });
+    }
+    
+    private Status delete(DatasetLocation dataset, IDeleteAction action)
+    {
         try
         {
             File destinationFolder = new File(destination, dataset.getDataSetLocation());
             BooleanStatus destinationExists = destinationExists(destinationFolder);
             if (destinationExists.isSuccess())
             {
-                executor.deleteFolder(destinationFolder);
+                action.delete(destinationFolder, dataset.getDataSetCode());
             } else
             {
                 operationLog.info("Data of data set '" + dataset.getDataSetCode()
                         + "' don't exist in the destination '" + destinationFolder.getPath()
-                        + "'. There is nothing to delete.");
+                        + "'. There is nothing to " + action.getName() + ".");
             }
             return Status.OK;
         } catch (ExceptionWithStatus ex)
@@ -212,22 +254,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             return ex.getStatus();
         }
     }
-
-    public Status markAsDeleted(DatasetLocation dataset)
-    {
-        try
-        {
-            File deletedFolder = new File(destination, FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
-            executor.createFolder(deletedFolder);
-            File markerFile = new File(deletedFolder, dataset.getCode());
-            executor.createMarkerFile(markerFile);
-            return Status.OK;
-        } catch (ExceptionWithStatus ex)
-        {
-            return ex.getStatus();
-        }
-    }
-
+    
     /**
      * Checks if specified dataset's data are present and synchronized in the destination specified
      * in constructor. The path at the destination is defined by original location of the data set.

@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 {
-    private static final String ONLY_MARK_AS_DELETED_KEY = "only-mark-as-deleted";
+    @Private static final String ONLY_MARK_AS_DELETED_KEY = "only-mark-as-deleted";
 
     private static final long serialVersionUID = 1L;
 
