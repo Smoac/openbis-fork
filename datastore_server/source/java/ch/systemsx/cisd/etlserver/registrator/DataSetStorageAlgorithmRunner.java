@@ -80,9 +80,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IRollbackDelegate<T> rollbackDelegate;
 
     private final IRollbackStack rollbackStack;
-    
+
     private final DssRegistrationLogger dssRegistrationLog;
-    
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate,
             IDataSetInApplicationServerRegistrator<T> applicationServerRegistrator,
@@ -269,28 +269,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             storageAlgorithm.transitionToRolledbackState(ex);
             storageAlgorithm.transitionToUndoneState();
         }
-    }
-
-    private static class DefaultApplicationServerRegistrator<T extends DataSetInformation>
-            implements IDataSetInApplicationServerRegistrator<T>
-    {
-        private final IEncapsulatedOpenBISService openBisService;
-
-        DefaultApplicationServerRegistrator(IEncapsulatedOpenBISService openBisService)
-        {
-            this.openBisService = openBisService;
-        }
-
-        public void registerDataSetsInApplicationServer(List<DataSetRegistrationInformation<T>> data)
-                throws Throwable
-        {
-            for (DataSetRegistrationInformation<T> datum : data)
-            {
-                openBisService.registerDataSet(datum.getDataSetInformation(),
-                        datum.getExternalData());
-            }
-        }
-
     }
 
     private void logSuccessfulRegistration()
