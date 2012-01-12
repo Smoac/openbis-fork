@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -167,6 +173,29 @@ public class EventDAOTest extends AbstractDAOTest
         saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + 3, AFTER + 3, afterDate);
         List<DeletedDataSet> result = listDataDeletionEvents(SINCE, queryDate);
         assertCorrectResult(2, result);
+    }
+
+    @Test
+    public void testListDeletedDataSetsWithAContainerDataSet()
+    {
+        daoFactory.getDataDAO().delete(
+                Arrays.asList(new TechId(13), new TechId(14), new TechId(15)),
+                daoFactory.getPersonDAO().getByTechId(new TechId(1)),
+                "Test deletion of data set container");
+        List<DeletedDataSet> events = listDataDeletionEvents(null);
+        Collections.sort(events, new Comparator<DeletedDataSet>()
+            {
+                public int compare(DeletedDataSet s1, DeletedDataSet s2)
+                {
+                    return s1.getIdentifier().compareTo(s2.getIdentifier());
+                }
+            });
+        assertEquals("[DeletedDataSet [identifier=20110509092359990-10], "
+                + "DeletedDataSet [identifier=20110509092359990-11], "
+                + "DeletedDataSet [identifier=20110509092359990-12]]", events.toString());
+        assertEquals(null, events.get(0).getLocationOrNull());
+        assertEquals("contained/20110509092359990-11", events.get(1).getLocationOrNull());
+        assertEquals("contained/20110509092359990-12", events.get(2).getLocationOrNull());
     }
 
     private void saveEvent(EventType eventType, EntityType entityType, String identifiers,
