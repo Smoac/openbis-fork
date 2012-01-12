@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,7 +34,6 @@ import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
@@ -73,6 +73,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
     private static final String SEPARATOR = ",";
 
     private static final int NUMBER_OF_DATA_SET_CODES_PER_LINE = 4;
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final Template SUBJECT_TEMPLATE = new Template("New data sets registered "
             + "between ${from-date} and ${until-date}");
@@ -194,8 +196,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         long endTime = getEnd();
         String sessionToken = contextOrNull.getSessionToken();
         String dataSetsAsString = loadAndRenderDataSets(sessionToken, startTime, endTime);
-        String fromDate = Constants.DATE_FORMAT.get().format(new Date(startTime));
-        String untilDate = Constants.DATE_FORMAT.get().format(new Date(endTime));
+        String fromDate = DATE_FORMAT.format(new Date(startTime));
+        String untilDate = DATE_FORMAT.format(new Date(endTime));
         Template subjectTemplate = SUBJECT_TEMPLATE.createFreshCopy();
         subjectTemplate.bind("from-date", fromDate);
         subjectTemplate.bind("until-date", untilDate);

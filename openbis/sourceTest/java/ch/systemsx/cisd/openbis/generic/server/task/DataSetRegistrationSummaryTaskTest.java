@@ -174,20 +174,17 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         prepareForListDataSetTypes();
         EMailContentChecker checker =
                 prepareForSendingEMail("New data sets registered between "
-                        + "2012-01-02 00:00:00 +0100 and 2012-01-04 00:00:00 +0100", "Dear user\n"
-                        + "\n"
+                        + "2012-01-02 and 2012-01-04", "Dear user\n" + "\n"
                         + "This is a report from openBIS about data sets registered between "
-                        + "2012-01-02 00:00:00 +0100 and 2012-01-04 00:00:00 +0100. "
-                        + "The data sets are grouped by type.\n" + "\n" + "\n" + "\n"
-                        + "Regards,\n" + "openBIS", "a@bc.de", "x@y.z");
+                        + "2012-01-02 and 2012-01-04. " + "The data sets are grouped by type.\n"
+                        + "\n" + "\n" + "\n" + "Regards,\n" + "openBIS", "a@bc.de", "x@y.z");
 
         createTask(properties).execute();
 
         checker.assertContent();
         assertEquals("Task my-task initialized.\n"
                 + "Data set registration report for period from "
-                + "2012-01-02 00:00:00 +0100 until 2012-01-04 00:00:00 +0100 created and sent.",
-                logRecorder.getLogContent());
+                + "2012-01-02 until 2012-01-04 created and sent.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
@@ -242,18 +239,15 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         RecordingMatcher<DetailedSearchCriteria> yourTypeCriteriaMatcher =
                 prepareForSearchForDataSets("YOUR-TYPE", ds6, ds7, ds8, ds9, ds10);
         EMailContentChecker checker =
-                prepareForSendingEMail(
-                        "New data sets registered between "
-                                + "2012-01-01 00:00:00 +0100 and 2012-01-04 00:00:00 +0100",
-                        "Dear user\n\n"
-                                + "This is a report from openBIS about data sets registered between "
-                                + "2012-01-01 00:00:00 +0100 and 2012-01-04 00:00:00 +0100. "
-                                + "The data sets are grouped by type.\n\n"
-                                + "MY-TYPE: Total number: 5. Number of new data sets: 4\n"
-                                + "\tds1, ds2, ds3, ds4\n"
-                                + "YOUR-TYPE: Total number: 5. Number of new data sets: 5\n"
-                                + "\tds10, ds6, ds7, ds8, \n" + "\tds9\n\n\n" + "Regards,\n"
-                                + "openBIS", "a@bc.de");
+                prepareForSendingEMail("New data sets registered between "
+                        + "2012-01-01 and 2012-01-04", "Dear user\n\n"
+                        + "This is a report from openBIS about data sets registered between "
+                        + "2012-01-01 and 2012-01-04. " + "The data sets are grouped by type.\n\n"
+                        + "MY-TYPE: Total number: 5. Number of new data sets: 4\n"
+                        + "\tds1, ds2, ds3, ds4\n"
+                        + "YOUR-TYPE: Total number: 5. Number of new data sets: 5\n"
+                        + "\tds10, ds6, ds7, ds8, \n" + "\tds9\n\n\n" + "Regards,\n" + "openBIS",
+                        "a@bc.de");
 
         createTask(properties).execute();
 
@@ -262,8 +256,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         checker.assertContent();
         assertEquals("Task my-task initialized.\n"
                 + "Data set registration report for period from "
-                + "2012-01-01 00:00:00 +0100 until 2012-01-04 00:00:00 +0100 created and sent.",
-                logRecorder.getLogContent());
+                + "2012-01-01 until 2012-01-04 created and sent.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
@@ -299,17 +292,14 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         RecordingMatcher<DetailedSearchCriteria> yourTypeCriteriaMatcher =
                 prepareForSearchForDataSets("YOUR-TYPE");
         EMailContentChecker checker =
-                prepareForSendingEMail(
-                        "New data sets registered between "
-                                + "2011-12-04 00:00:00 +0100 and 2012-01-04 00:00:00 +0100",
-                        "Dear user\n\n"
-                                + "This is a report from openBIS about data sets registered between "
-                                + "2011-12-04 00:00:00 +0100 and 2012-01-04 00:00:00 +0100. "
-                                + "The data sets are grouped by type.\n\n"
-                                + "MY-TYPE: Total number: 5. Number of new data sets: 3\n"
-                                + "\tds1: ALPHA = 123, BETA = 456\n" + "\tds2: ALPHA = 42\n"
-                                + "\tds3\n" + "YOUR-TYPE: Total number: 0. No new data sets.\n"
-                                + "\n" + "\n" + "Regards,\n" + "openBIS", "a@bc.de");
+                prepareForSendingEMail("New data sets registered between "
+                        + "2011-12-04 and 2012-01-04", "Dear user\n\n"
+                        + "This is a report from openBIS about data sets registered between "
+                        + "2011-12-04 and 2012-01-04. " + "The data sets are grouped by type.\n\n"
+                        + "MY-TYPE: Total number: 5. Number of new data sets: 3\n"
+                        + "\tds1: ALPHA = 123, BETA = 456\n" + "\tds2: ALPHA = 42\n" + "\tds3\n"
+                        + "YOUR-TYPE: Total number: 0. No new data sets.\n" + "\n" + "\n"
+                        + "Regards,\n" + "openBIS", "a@bc.de");
 
         createTask(properties).execute();
 
@@ -318,8 +308,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         checker.assertContent();
         assertEquals("Task my-task initialized.\n"
                 + "Data set registration report for period from "
-                + "2011-12-04 00:00:00 +0100 until 2012-01-04 00:00:00 +0100 created and sent.",
-                logRecorder.getLogContent());
+                + "2011-12-04 until 2012-01-04 created and sent.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
