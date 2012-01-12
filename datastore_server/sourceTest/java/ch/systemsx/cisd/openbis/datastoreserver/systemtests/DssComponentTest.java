@@ -174,7 +174,7 @@ public class DssComponentTest extends SystemTestCase
 
         // This does not work on the CI server for some reason
         // assertEquals(msg.toString(), count, succeededContents.length);
-        assertTrue(msg.toString(), count >= succeededContents.length);
+        assertTrue(msg.toString(), count <= succeededContents.length);
         return succeededContents;
     }
 
