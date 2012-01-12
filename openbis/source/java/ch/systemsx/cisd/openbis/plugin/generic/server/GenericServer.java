@@ -87,12 +87,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
@@ -431,38 +429,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         for (NewSample updatedSample : updatedSamples)
         {
-            final SampleIdentifier oldSampleIdentifier =
-                    SampleIdentifierFactory.parse(updatedSample);
+            IdentifersExtractor extractor = new IdentifersExtractor(updatedSample);
             final List<IEntityProperty> properties = Arrays.asList(updatedSample.getProperties());
-            final ExperimentIdentifier experimentIdentifierOrNull;
-            final SampleIdentifier newSampleIdentifier;
-            if (updatedSample.getExperimentIdentifier() != null)
-            {
-                // experiment is provided - new sample identifier takes experiment space
-                experimentIdentifierOrNull =
-                        new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
-                                .createIdentifier(updatedSample.getDefaultSpaceIdentifier());
-                // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break?
-                newSampleIdentifier =
-                        new SampleIdentifier(new GroupIdentifier(
-                                experimentIdentifierOrNull.getDatabaseInstanceCode(),
-                                experimentIdentifierOrNull.getSpaceCode()),
-                                oldSampleIdentifier.getSampleCode());
-            } else
-            {
-                // no experiment - leave sample identifier unchanged
-                experimentIdentifierOrNull = null;
-                newSampleIdentifier = oldSampleIdentifier;
-            }
             final String[] parentsOrNull = updatedSample.getParentsOrNull();
-            final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
 
             samples.add(new SampleBatchUpdatesDTO(updatedSample.getDefaultSpaceIdentifier(),
-                    oldSampleIdentifier, properties, experimentIdentifierOrNull,
-                    newSampleIdentifier, containerIdentifierOrNull, parentsOrNull,
-                    batchUpdateDetails));
+                    extractor.getOldSampleIdentifier(), properties, extractor
+                            .getExperimentIdentifierOrNull(), extractor.getNewSampleIdentifier(),
+                    extractor.getContainerIdentifierOrNull(), parentsOrNull, batchUpdateDetails));
         }
         return samples;
     }
@@ -787,6 +763,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
     {
+        EntityExistenceChecker entityExistenceChecker = new EntityExistenceChecker(getDAOFactory());
+        NewSamplesChecker.check(entityExistenceChecker, newSamplesWithType);
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
         registerOrUpdateSamples(sessionToken, newSamplesWithType);
     }
