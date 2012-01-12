@@ -349,9 +349,9 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
         ANALYSIS_RESULT("analysis/result"),
 
-        CONTAINED_1("contained/1"),
+        CONTAINED_1("contained/20110509092359990-11"),
 
-        CONTAINED_2("contained/2"),
+        CONTAINED_2("contained/20110509092359990-12"),
 
         XML_RESULT_11("xml/result-11"),
 
