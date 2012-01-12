@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 
@@ -101,12 +100,34 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
      */
     public final void prepare()
     {
+        // Log information about the prepare
+        StringBuilder registrationSummary = new StringBuilder();
+        registrationSummary.append("Prepared registration of ");
+        registrationSummary.append(dataSetStorageAlgorithms.size());
+        if (1 == dataSetStorageAlgorithms.size())
+        {
+            registrationSummary.append(" data set:");
+        } else
+        {
+            registrationSummary.append(" data sets:");
+        }
+        registrationSummary.append("\n");
+
+        // Do the prepare
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
             IStorageProcessorTransaction transaction = storageAlgorithm.prepare(rollbackStack);
             ITransactionalCommand command = new StorageProcessorTransactionCommand(transaction);
             rollbackStack.pushAndExecuteCommand(command);
+
+            // Collect logging information
+            registrationSummary.append(storageAlgorithm.getDataSetInformation().getDataSetCode());
+            registrationSummary.append(",");
         }
+
+        registrationSummary.deleteCharAt(registrationSummary.length() - 1);
+
+        dssRegistrationLog.logTruncatingIfNecessary(registrationSummary.toString());
     }
 
     /**
@@ -154,6 +175,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return Collections.emptyList();
         }
 
+        dssRegistrationLog.log("Data has been moved to the store.");
+
         try
         {
             // Runs or throw a throwable
@@ -165,10 +188,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return Collections.emptyList();
         }
 
+        dssRegistrationLog.log("Data has been registered to openBIS Application Server.");
+
         try
         {
             // Should always succeed
             commitStorageProcessors();
+
+            dssRegistrationLog.log("Storage processors have commited.");
 
             logSuccessfulRegistration();
 
@@ -176,8 +203,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                     new ArrayList<DataSetInformation>();
             for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
             {
-                dataSetInformationCollection.add(storageAlgorithm.getDataSetInformation());
 
+                dataSetInformationCollection.add(storageAlgorithm.getDataSetInformation());
             }
 
             return dataSetInformationCollection;

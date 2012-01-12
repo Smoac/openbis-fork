@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +71,15 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         logFile.log("the message");
         String contents = FileUtilities.loadToString(logFile.getFile());
         assertEquals("the message\n", contents);
+    }
+
+    @Test
+    public void testLoggingWithTruncating()
+    {
+        DssRegistrationLogger logFile = createLogFile();
+        logFile.logTruncatingIfNecessary("This is a very long string, in fact, a string that is longer than the limit for the length of an allowed string");
+        String contents = FileUtilities.loadToString(logFile.getFile());
+        assertEquals("This is a very long string, in fact, a string that is longer than the limit for the length of an...\n", contents);
     }
 
     private DssRegistrationLogger createLogFile()

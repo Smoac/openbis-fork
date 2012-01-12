@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
@@ -71,29 +68,19 @@ public class DssRegistrationLogger
      */
     public void log(String message)
     {
-        BufferedWriter bw = null;
-        try
-        {
-            FileWriter fw = new FileWriter(file);
-            bw = new BufferedWriter(fw);
-            bw.append(message);
-            bw.newLine();
-        } catch (IOException e)
-        {
-            throw new IOExceptionUnchecked(e);
-        } finally
-        {
-            if (null != bw)
-            {
-                try
-                {
-                    bw.close();
-                } catch (IOException e)
-                {
-                    //
-                }
-            }
-        }
+        FileUtilities.writeToFile(file, message + "\n");
+    }
 
+    /**
+     * Logs a message, truncating the content if it exceeds the length limit.
+     */
+    public void logTruncatingIfNecessary(String message)
+    {
+        String truncatedMessage = message;
+        if (message.length() > 100)
+        {
+            truncatedMessage = message.substring(0, 96) + "...";
+        }
+        log(truncatedMessage);
     }
 }
