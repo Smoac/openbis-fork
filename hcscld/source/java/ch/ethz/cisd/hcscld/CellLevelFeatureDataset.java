@@ -43,9 +43,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
 
-    static final String DEFAULT_FEATURE_GROUP_NAME = "default";
+    static final String VALUES_PREFIX = "Values";
 
-    static final String ALL_FEATURE_GROUP_NAME = "all";
+    static final String DEFAULT_FEATURE_GROUP_NAME = "DEFAULT";
+
+    static final String ALL_FEATURE_GROUP_NAME = "ALL";
 
     /**
      * The storage representation of a feature group.
@@ -54,30 +56,38 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         @CompoundElement(dimensions =
             { 100 })
-        String name;
+        String id;
 
         @CompoundElement(dimensions =
-            { 100 }, memberName = "objectType")
-        String objectType;
+            { 100 })
+        String namespaceId;
+
+        FeatureNamespaceKind namespaceKind;
 
         FeatureGroupDescriptor()
         {
         }
 
-        FeatureGroupDescriptor(String name, String objectTypeOrNull)
+        FeatureGroupDescriptor(String id, String namespaceId, FeatureNamespaceKind namespaceKind)
         {
-            this.name = name;
-            this.objectType = (objectTypeOrNull == null) ? "" : objectTypeOrNull;
+            this.id = id;
+            this.namespaceId = namespaceId;
+            this.namespaceKind = namespaceKind;
         }
 
-        String getName()
+        String getId()
         {
-            return name;
+            return id;
         }
 
-        String getObjectType()
+        String getNamespaceId()
         {
-            return objectType;
+            return namespaceId;
+        }
+
+        FeatureNamespaceKind getNamespaceKind()
+        {
+            return namespaceKind;
         }
     }
 
@@ -88,19 +98,23 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         private final HDF5CompoundType<Object[]> type;
 
-        private final String name;
+        private final String featureGroupId;
 
-        private final String objectTypeOrNull;
+        private final String namespaceId;
+
+        private final FeatureNamespaceKind namespaceKind;
 
         private final List<Feature> features;
 
         private final List<String> featureNames;
 
-        FeatureGroup(String name)
+        // TODO: get rid of this once we know what to do with synthetic feature group ALL
+        FeatureGroup(String id)
         {
-            this.name = name;
+            this.featureGroupId = id;
             this.type = null;
-            this.objectTypeOrNull = null;
+            this.namespaceId = null;
+            this.namespaceKind = null;
             this.featureNames = new ArrayList<String>(totalNumberOfFeatures);
             this.features = new ArrayList<Feature>(totalNumberOfFeatures);
             for (FeatureGroup fg : featureGroups.values())
@@ -110,11 +124,12 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
         }
 
-        FeatureGroup(String name, String objectType, HDF5CompoundType<Object[]> type)
+        FeatureGroup(String idfeatureGroupId, String namespaceId,
+                FeatureNamespaceKind namespaceKind, HDF5CompoundType<Object[]> type)
         {
-            this.name = name;
-            this.objectTypeOrNull =
-                    (objectType != null && objectType.length() == 0) ? null : objectType;
+            this.featureGroupId = idfeatureGroupId;
+            this.namespaceId = namespaceId;
+            this.namespaceKind = namespaceKind;
             this.type = type;
             final List<HDF5CompoundMemberInformation> members =
                     Arrays.asList(type.getCompoundMemberInformation());
@@ -129,14 +144,15 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             this.featureNames = Arrays.asList(memberNameArray);
         }
 
-        public String getName()
+        public String getFeatureGroupId()
         {
-            return name;
+            return featureGroupId;
         }
 
-        String getObjectPath(ImageId id)
+        String getObjectPath(ImageId imageId)
         {
-            return CellLevelFeatureDataset.this.getObjectPath(id) + "_" + name;
+            return CellLevelFeatureDataset.this.getObjectPath(imageId, VALUES_PREFIX,
+                    featureGroupId);
         }
 
         HDF5CompoundType<Object[]> getType()
@@ -154,9 +170,14 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return features;
         }
 
-        public String tryGetObjectType()
+        public String getNamespaceId()
         {
-            return objectTypeOrNull;
+            return namespaceId;
+        }
+
+        public FeatureNamespaceKind getNamespaceKind()
+        {
+            return namespaceKind;
         }
 
         public int getNumberOfFeatures()
@@ -211,7 +232,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     void addFeatureGroupToInternalList(FeatureGroup newFeatureGroup)
     {
-        featureGroups.put(newFeatureGroup.getName(), newFeatureGroup);
+        featureGroups.put(newFeatureGroup.getFeatureGroupId(), newFeatureGroup);
     }
 
     private Map<String, FeatureGroup> readFeatureGroups()
@@ -227,9 +248,10 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         for (FeatureGroupDescriptor fg : featureGroupCpds)
         {
             final HDF5CompoundType<Object[]> type =
-                    reader.getNamedCompoundType(getDataTypeName(fg.getName()), Object[].class,
+                    reader.getNamedCompoundType(getDataTypeName(fg.getId()), Object[].class,
                             hintsOrNull);
-            result.put(fg.getName(), new FeatureGroup(fg.getName(), fg.getObjectType(), type));
+            result.put(fg.getId(),
+                    new FeatureGroup(fg.getId(), fg.getNamespaceId(), fg.getNamespaceKind(), type));
         }
         return result;
     }
@@ -426,14 +448,20 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return Collections.unmodifiableList(new ArrayList<IFeatureGroup>(featureGroups.values()));
     }
 
-    public IFeatureGroup getFeatureGroup(String name)
+    public IFeatureGroup getFeatureGroup(String id)
     {
-        return featureGroups.get(name);
+        final String idUpper = id.toUpperCase();
+        IFeatureGroup fg = featureGroups.get(idUpper);
+        if (fg == null)
+        {
+            throw new IllegalArgumentException("There is no feature group '" + idUpper + "'");
+        }
+        return fg;
     }
 
     String getFeatureGroupsFilename()
     {
-        return getDatasetCode() + "/featureGroups";
+        return getObjectPath("featureGroups");
     }
 
     FeatureGroup getFirstFeatureGroup()
@@ -444,7 +472,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     boolean usesDefaultFeatureGroup() throws IllegalStateException
     {
         return (featureGroups.size() == 1 && DEFAULT_FEATURE_GROUP_NAME
-                .equals(getFirstFeatureGroup().getName()));
+                .equals(getFirstFeatureGroup().getFeatureGroupId()));
     }
 
 }

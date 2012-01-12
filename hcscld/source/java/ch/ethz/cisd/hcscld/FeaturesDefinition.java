@@ -38,8 +38,10 @@ class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
     
-    private String objectTypeNameOrNull;
-
+    private String namespaceId;
+    
+    private FeatureNamespaceKind namespaceKind;
+    
     private final List<HDF5CompoundMemberMapping> members;
 
     private final List<Feature> memberDefinitions;
@@ -109,9 +111,17 @@ class FeaturesDefinition implements IFeaturesDefinition
                 new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
-    public IFeaturesDefinition objectTypeName(String objectTypeName)
+    public IFeaturesDefinition objectTypeId(String objectTypeId)
     {
-        this.objectTypeNameOrNull = objectTypeName;
+        this.namespaceId = objectTypeId.toUpperCase();
+        this.namespaceKind = FeatureNamespaceKind.OBJECT_TYPE;
+        return this;
+    }
+
+    public IFeaturesDefinition companionGroupId(String companionGroupId)
+    {
+        this.namespaceId = companionGroupId;
+        this.namespaceKind = FeatureNamespaceKind.COMPANION_GROUP;
         return this;
     }
 
@@ -201,14 +211,16 @@ class FeaturesDefinition implements IFeaturesDefinition
     public void create()
     {
         checkDataset();
+        checkNamespace();
         datasetOrNull.addFeatureGroupInternal(
                 CellLevelFeatureWritableDataset.DEFAULT_FEATURE_GROUP_NAME, this);
     }
 
-    public IFeatureGroup createFeatureGroup(String name)
+    public IFeatureGroup createFeatureGroup(String id)
     {
         checkDataset();
-        return datasetOrNull.addFeatureGroup(name, this);
+        checkNamespace();
+        return datasetOrNull.addFeatureGroup(id, this);
     }
 
     public List<Feature> getFeatures()
@@ -216,16 +228,33 @@ class FeaturesDefinition implements IFeaturesDefinition
         return Collections.unmodifiableList(memberDefinitions);
     }
 
-    String tryGetObjectTypeName()
+    String getNamespaceId()
     {
-        return objectTypeNameOrNull;
+        return namespaceId;
+    }
+    
+    FeatureNamespaceKind getNamespaceKind()
+    {
+        return namespaceKind;
     }
 
     private void checkDataset()
     {
         if (datasetOrNull == null)
         {
-            throw new IllegalStateException("This feature group is not writable");
+            throw new IllegalStateException("This feature group is not writable.");
+        }
+    }
+    
+    private void checkNamespace()
+    {
+        if (namespaceId == null)
+        {
+            throw new IllegalStateException("No namespace id set.");
+        }
+        if (namespaceKind == null)
+        {
+            throw new IllegalStateException("No namespace kind set.");
         }
     }
 

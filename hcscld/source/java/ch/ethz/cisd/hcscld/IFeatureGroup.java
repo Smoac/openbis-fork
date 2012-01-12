@@ -26,9 +26,9 @@ import java.util.List;
 public interface IFeatureGroup extends Iterable<ImageId>
 {
     /**
-     * Returns the name of this feature group.
+     * Returns the identifier of this feature group.
      */
-    public String getName();
+    public String getFeatureGroupId();
 
     /**
      * Returns the number of features in this group.
@@ -46,9 +46,15 @@ public interface IFeatureGroup extends Iterable<ImageId>
     public List<Feature> getFeatures();
 
     /**
-     * Returns the name of the types of objects that have been used to compute the features of this
-     * feature group, or <code>null</code>, if not set.
+     * Returns the id of the namespace that has been used to compute the features of this feature
+     * group.
      */
-    public String tryGetObjectType();
+    public String getNamespaceId();
+
+    /**
+     * Returns the kind of the namespace (type of object or companion group) that have been used to
+     * compute the features of this feature group.
+     */
+    public FeatureNamespaceKind getNamespaceKind();
 
 }

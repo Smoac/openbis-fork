@@ -31,10 +31,21 @@ public interface IFeaturesDefinition
 {
 
     /**
-     * Sets the name of the objects that the features of this group have been computed from.
+     * Sets the id of the objects that the features of this group have been computed from.
+     * <p>
+     * <i>Call either this method or {@link #companionGroupId(String)} or else the features
+     * definition will be invalid.</i>
      */
-    public IFeaturesDefinition objectTypeName(String objectTypeName);
-    
+    public IFeaturesDefinition objectTypeId(String objectTypeId);
+
+    /**
+     * Sets the id of the companion group that the features of this group have been computed from.
+     * <p>
+     * <i>Call either this method or {@link #objectTypeId(String)} or else the features
+     * definition will be invalid.</i>
+     */
+    public IFeaturesDefinition companionGroupId(String companionGroupId);
+
     /**
      * Adds a 8-bit integer feature (corresponding to the Java type <code>byte</code>).
      * 
@@ -133,10 +144,10 @@ public interface IFeaturesDefinition
      * <p>
      * <i>This method and {@link #create()} are mutual exclusive on a dataset.</i>
      * 
-     * @param name The name of the feature group.
+     * @param id The identifier of the feature group.
      * @return The feature group created.
      */
-    public IFeatureGroup createFeatureGroup(String name);
+    public IFeatureGroup createFeatureGroup(String id);
 
     /**
      * Returns the features defined.

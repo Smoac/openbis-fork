@@ -132,28 +132,32 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return new FeaturesDefinition(this);
     }
 
-    public IFeatureGroup addFeatureGroup(final String name, final IFeaturesDefinition features)
+    IFeatureGroup addFeatureGroup(final String id, final IFeaturesDefinition features)
     {
-        if (name.equals(DEFAULT_FEATURE_GROUP_NAME))
+        if (id.equals(DEFAULT_FEATURE_GROUP_NAME))
         {
             throw new IllegalArgumentException("Feature group name '" + DEFAULT_FEATURE_GROUP_NAME
                     + "' is reserved.");
         }
-        return addFeatureGroupInternal(name, (FeaturesDefinition) features);
+        return addFeatureGroupInternal(id, (FeaturesDefinition) features);
     }
 
-    FeatureGroup addFeatureGroupInternal(final String name, final FeaturesDefinition features)
+    FeatureGroup addFeatureGroupInternal(final String id, final FeaturesDefinition features)
     {
+        final String idUpperCase = id.toUpperCase();
         final HDF5CompoundType<Object[]> type =
-                base.writer.getCompoundType(getDataTypeName(name), Object[].class,
+                base.writer.getCompoundType(getDataTypeName(idUpperCase), Object[].class,
                         features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup =
-                new FeatureGroup(name, features.tryGetObjectTypeName(), type);
+                new FeatureGroup(idUpperCase, features.getNamespaceId(),
+                        features.getNamespaceKind(), type);
         final String featureGroupsFile = getFeatureGroupsFilename();
+
         base.writer.writeCompoundArrayBlock(featureGroupsFile, featureGroupCompoundType,
                 new FeatureGroupDescriptor[]
-                    { new FeatureGroupDescriptor(name, features.tryGetObjectTypeName()) },
-                base.writer.getNumberOfElements(featureGroupsFile));
+                    { new FeatureGroupDescriptor(idUpperCase, features.getNamespaceId(),
+                            features.getNamespaceKind()) }, base.writer
+                        .getNumberOfElements(featureGroupsFile));
         addFeatureGroupToInternalList(featureGroup);
         return featureGroup;
     }

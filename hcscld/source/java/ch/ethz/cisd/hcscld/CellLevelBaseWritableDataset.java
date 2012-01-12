@@ -171,18 +171,21 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         if (objectTypesPersisted == false)
         {
-            final HDF5EnumerationType objectTypesType =
-                    writer.getEnumType(getObjectTypesObjectPath(),
-                            toString(objectTypeStore.getObjectTypes()));
-            writer.getEnumType(getObjectTypeCompanionGroupsObjectPathObjectPath(),
-                    toString(objectTypeStore.getObjectTypeCompanionGroups()));
-            for (ObjectTypeCompanionGroup cgroup : objectTypeStore.getObjectTypeCompanionGroups())
+            if (objectTypeStore.getObjectTypes().isEmpty() == false)
             {
-                final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
-                writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
-                        toString(cgroup.getCompanions())));
-                writer.setIntAttribute(path, NUMBER_OF_ELEMENTS_ATTRIBUTE,
-                        cgroup.getNumberOfSegmentationElements());
+                final HDF5EnumerationType objectTypesType =
+                        writer.getEnumType(getObjectTypesObjectPath(),
+                                toString(objectTypeStore.getObjectTypes()));
+                writer.getEnumType(getObjectTypeCompanionGroupsObjectPathObjectPath(),
+                        toString(objectTypeStore.getObjectTypeCompanionGroups()));
+                for (ObjectTypeCompanionGroup cgroup : objectTypeStore.getObjectTypeCompanionGroups())
+                {
+                    final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
+                    writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
+                            toString(cgroup.getCompanions())));
+                    writer.setIntAttribute(path, NUMBER_OF_ELEMENTS_ATTRIBUTE,
+                            cgroup.getNumberOfSegmentationElements());
+                }
             }
             this.objectTypesPersisted = true;
         }

@@ -280,7 +280,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     static String getDatasetPath(String datasetCode)
     {
-        return "/DataSet_" + datasetCode;
+        return "/Dataset_" + datasetCode;
     }
 
     static String getImageQuantityStructureObjectPath(String datasetCode)
