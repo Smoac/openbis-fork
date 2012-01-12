@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -216,6 +217,40 @@ public final class FileUtilities
         } finally
         {
             IOUtils.closeQuietly(fileWriter);
+        }
+    }
+
+    /**
+     * Append the specified string to the specified file.
+     * 
+     * @param file The file to append to.
+     * @param str The string to append to the file.
+     * @param shouldAppendNewline If true, a newline will be appended after the string.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
+     */
+    public static void appendToFile(final File file, final String str, final boolean shouldAppendNewline) throws IOExceptionUnchecked
+    {
+        assert file != null : "Unspecified file.";
+        assert str != null : "Unspecified string.";
+
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        try
+        {
+            fw = new FileWriter(file, true);
+            bw = new BufferedWriter(fw);
+            bw.append(str);
+            if (shouldAppendNewline)
+            {
+                bw.newLine();
+            }
+            bw.flush();
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fw);
         }
     }
 
