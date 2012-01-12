@@ -107,6 +107,9 @@ public class DssComponentTest extends SystemTestCase
         } catch (AssertionError ex)
         {
             // ignore this
+        } catch (NullPointerException ex)
+        {
+            // ignore this
         }
     }
 
