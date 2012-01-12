@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import org.apache.commons.io.IOUtils;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
@@ -68,7 +73,23 @@ public class DssRegistrationLogger
      */
     public void log(String message)
     {
-        FileUtilities.writeToFile(file, message + "\n");
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        try
+        {
+            fw = new FileWriter(file, true);
+            bw = new BufferedWriter(fw);
+            bw.append(message);
+            bw.newLine();
+            bw.flush();
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fw);
+        }
+
     }
 
     /**

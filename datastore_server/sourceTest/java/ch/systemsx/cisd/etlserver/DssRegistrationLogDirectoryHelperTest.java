@@ -68,9 +68,10 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
     public void testLogging()
     {
         DssRegistrationLogger logFile = createLogFile();
-        logFile.log("the message");
+        logFile.log("1: The message");
+        logFile.log("2: The message");
         String contents = FileUtilities.loadToString(logFile.getFile());
-        assertEquals("the message\n", contents);
+        assertEquals("1: The message\n2: The message\n", contents);
     }
 
     @Test

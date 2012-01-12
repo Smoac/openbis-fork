@@ -114,6 +114,12 @@ public class DssComponentTest extends SystemTestCase
             msg.append(file.getAbsolutePath()).append("\n");
         }
         assertEquals(msg.toString(), putCount, succeededContents.length);
+
+        // Check the log contents
+        File logFile = succeededContents[0];
+        // List<String> logFileContents = FileUtilities.loadToStringList(logFile);
+        String logFileContents = FileUtilities.loadToString(logFile);
+        System.out.println(logFileContents);
     }
 
     @Test
