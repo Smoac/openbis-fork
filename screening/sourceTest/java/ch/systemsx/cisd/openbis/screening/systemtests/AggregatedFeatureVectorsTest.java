@@ -21,12 +21,10 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
@@ -51,14 +49,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
     { "slow", "systemtest" })
 public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCase
 {
-    private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
-
     private String sessionToken;
 
     private ICommonServer commonServer;
     private IScreeningServer screeningServer;
-
-    private BufferedAppender logAppender;
 
     @Override
     protected void setUpTestThread()
@@ -75,7 +69,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @BeforeMethod
     public void setUp()
     {
-        logAppender = new BufferedAppender();
         commonServer =
                 (ICommonServer) applicationContext
                         .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
@@ -91,7 +84,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     public void testDummy() throws Exception
     {
         File exampleDataSet = createExampleIncoming();
-        FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
+        moveFileToIncoming(exampleDataSet);
         // get feature vector information
         waitUntilDataSetImported();
         Material geneG = commonServer.getMaterialInfo(sessionToken, new MaterialIdentifier("G", "GENE"));
@@ -109,31 +102,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         assertFeatureSummary("Y", 2.5, summaryResult);
         assertFeatureSummary("A", 15.0, summaryResult);
         assertFeatureSummary("B", 2.0, summaryResult);
-    }
-
-    private void waitUntilDataSetImported() throws Exception
-    {
-        boolean dataSetImported = false;
-        String logContent = "";
-        final int maxLoops = 20;
-        for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
-        {
-            Thread.sleep(1000);
-            logContent = logAppender.getLogContent();
-            if (logContent.contains(DATA_SET_IMPORTED_LOG_MARKER))
-            {
-                dataSetImported = true;
-            } else
-            {
-                assertFalse(logContent, logContent.contains("ERROR"));
-            }
-        }
-
-        if (dataSetImported == false)
-        {
-            fail("Failed to determine whether data set import was successful:" + logContent);
-        }
-
     }
 
     private void assertFeatureSummary(String feature, double featureMedianValue,
