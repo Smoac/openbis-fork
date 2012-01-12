@@ -58,11 +58,19 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
     }
 
     @Test
-    public void testFileCreation()
+    public void testFileCreationAndMove()
     {
         DssRegistrationLogger logFile = createLogFile();
         assertTrue(logFile.getFile().exists());
         assertEquals("in-process", logFile.getFile().getParentFile().getName());
+
+        logFile.moveToSucceeded();
+        assertTrue(logFile.getFile().exists());
+        assertEquals("succeeded", logFile.getFile().getParentFile().getName());
+
+        logFile.moveToFailed();
+        assertTrue(logFile.getFile().exists());
+        assertEquals("failed", logFile.getFile().getParentFile().getName());
     }
 
     @Test

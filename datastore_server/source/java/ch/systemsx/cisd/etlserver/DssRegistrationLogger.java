@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  */
 public class DssRegistrationLogger
 {
-    private final File file;
+    private File file;
 
     private final DssRegistrationLogDirectoryHelper helper;
 
@@ -55,7 +55,7 @@ public class DssRegistrationLogger
      */
     public void moveToFailed()
     {
-        fileOperations.move(file, helper.getFailedDir());
+        moveToDir(helper.getFailedDir());
     }
 
     /**
@@ -63,7 +63,7 @@ public class DssRegistrationLogger
      */
     public void moveToSucceeded()
     {
-        fileOperations.move(file, helper.getSucceededDir());
+        moveToDir(helper.getSucceededDir());
     }
 
     /**
@@ -90,5 +90,13 @@ public class DssRegistrationLogger
             truncatedMessage = message.substring(0, 96) + "...";
         }
         log(truncatedMessage);
+    }
+
+    private void moveToDir(File dir)
+    {
+        assert dir.isDirectory();
+
+        fileOperations.move(file, dir);
+        file = new File(dir, file.getName());
     }
 }
