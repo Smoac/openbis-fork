@@ -23,6 +23,7 @@ import java.io.Serializable;
  * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class MaterialTypeIdentifier implements Serializable
 {
 
@@ -101,4 +102,18 @@ public class MaterialTypeIdentifier implements Serializable
     {
         return "MaterialTypeIdentifier [materialTypeCode=" + materialTypeCode + "]";
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private MaterialTypeIdentifier()
+    {
+    }
+
+    private void setMaterialTypeCode(String materialTypeCode)
+    {
+        this.materialTypeCode = materialTypeCode;
+    }
+
 }

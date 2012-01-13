@@ -57,6 +57,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 // Non-compatible changes without consultation are forbidden.
 public interface IDssServiceRpcScreening extends IRpcService
 {
+    
+    /**
+     * Name of this service for which it is registered at the RPC name server.
+     */
+    public static final String SERVICE_NAME = "screening-dss";
+
+    /**
+     * Application part of the URL to access this service remotely.
+     */
+    public static final String SERVICE_URL = "/rmi-datastore-server-screening-api-v1";
+
+    public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
+
+    
     /**
      * The major version of this service.
      */

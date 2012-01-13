@@ -2,19 +2,25 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
 /**
  * Contains data which uniquely define a dataset.
  * 
  * @author Tomasz Pylak
  */
+
+@SuppressWarnings("unused")
 public class DatasetIdentifier implements Serializable, IDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final String datasetCode;
+    private String datasetCode;
 
     // a.k.a. downloadURL
-    private final String datastoreServerUrl;
+    private String datastoreServerUrl;
 
     public DatasetIdentifier(String datasetCode, String datastoreServerUrl)
     {
@@ -22,8 +28,8 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
         this.datastoreServerUrl = datastoreServerUrl;
     }
 
-    /** 
-     *  The code of this dataset. 
+    /**
+     * The code of this dataset.
      */
     public String getDatasetCode()
     {
@@ -34,7 +40,7 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
     {
         return datasetCode;
     }
-    
+
     public String getDatastoreServerUrl()
     {
         return datastoreServerUrl;
@@ -65,6 +71,29 @@ public class DatasetIdentifier implements Serializable, IDatasetIdentifier
     public int hashCode()
     {
         return datasetCode.hashCode();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private DatasetIdentifier()
+    {
+    }
+
+    private void setDatasetCode(String datasetCode)
+    {
+        this.datasetCode = datasetCode;
+    }
+
+    private void setPermId(String permId)
+    {
+        this.datasetCode = permId;
+    }
+
+    private void setDatastoreServerUrl(String datastoreServerUrl)
+    {
+        this.datastoreServerUrl = datastoreServerUrl;
     }
 
 }

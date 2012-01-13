@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.Modifiable;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -369,25 +370,29 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
+        return new FeatureVectorDatasetReferenceList(createScreeningApiImpl(sessionToken)
+                .listFeatureVectorDatasets(plates));
     }
 
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
+        return new ImageDatasetReferenceList(createScreeningApiImpl(sessionToken)
+                .listImageDatasets(plates));
     }
 
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        return createScreeningApiImpl(sessionToken).listRawImageDatasets(plates);
+        return new ImageDatasetReferenceList(createScreeningApiImpl(sessionToken)
+                .listRawImageDatasets(plates));
     }
 
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
-        return createScreeningApiImpl(sessionToken).listSegmentationImageDatasets(plates);
+        return new ImageDatasetReferenceList(createScreeningApiImpl(sessionToken)
+                .listSegmentationImageDatasets(plates));
     }
 
     public List<PlateWellReferenceWithDatasets> listPlateWells(
@@ -395,20 +400,21 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
-        return createScreeningApiImpl(sessionToken).listPlateWells(experimentIdentifer,
-                materialIdentifier, findDatasets);
+        return new PlateWellReferenceWithDatasetsList(createScreeningApiImpl(sessionToken)
+                .listPlateWells(experimentIdentifer, materialIdentifier, findDatasets));
     }
 
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
-        return createScreeningApiImpl(sessionToken)
-                .listPlateWells(materialIdentifier, findDatasets);
+        return new PlateWellReferenceWithDatasetsList(createScreeningApiImpl(sessionToken)
+                .listPlateWells(materialIdentifier, findDatasets));
     }
 
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
-        return createScreeningApiImpl(sessionToken).listPlateWells(plateIdentifier);
+        return new WellIdentifierList(createScreeningApiImpl(sessionToken).listPlateWells(
+                plateIdentifier));
     }
 
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
@@ -423,30 +429,32 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public List<Plate> listPlates(String sessionToken)
     {
-        return createScreeningApiImpl(sessionToken).listPlates();
+        return new PlateList(createScreeningApiImpl(sessionToken).listPlates());
     }
 
     public List<Plate> listPlates(String sessionToken, ExperimentIdentifier experiment)
     {
-        return createScreeningApiImpl(sessionToken).listPlates(experiment);
+        return new PlateList(createScreeningApiImpl(sessionToken).listPlates(experiment));
     }
 
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
             String sessionToken)
     {
-        return createScreeningApiImpl(sessionToken).listExperiments();
+        return new ExperimentIdentifierList(createScreeningApiImpl(sessionToken).listExperiments());
     }
 
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
             String sessionToken, String userId)
     {
-        return createScreeningApiImpl(sessionToken).listExperiments(userId);
+        return new ExperimentIdentifierList(createScreeningApiImpl(sessionToken).listExperiments(
+                userId));
     }
 
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {
-        return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
+        return new IDatasetIdentifierList(createScreeningApiImpl(sessionToken)
+                .getDatasetIdentifiers(datasetCodes));
     }
 
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
@@ -475,8 +483,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
     {
-        return createScreeningApiImpl(sessionToken).listPlateMaterialMapping(plates,
-                materialTypeIdentifierOrNull);
+        return new PlateWellMaterialMappingList(createScreeningApiImpl(sessionToken)
+                .listPlateMaterialMapping(plates, materialTypeIdentifierOrNull));
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)
@@ -521,7 +529,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             List<? extends PlateIdentifier> plateIdentifiers) throws IllegalArgumentException
     {
-        return createScreeningApiImpl(sessionToken).getPlateMetadata(plateIdentifiers);
+        return new PlateMetadataList(createScreeningApiImpl(sessionToken).getPlateMetadata(
+                plateIdentifiers));
     }
 
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
@@ -529,6 +538,108 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         checkSession(sessionToken);
         return createScreeningApiImpl(sessionToken).getExperimentImageMetadata(experimentIdentifer);
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private static class FeatureVectorDatasetReferenceList extends
+            ArrayList<FeatureVectorDatasetReference> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureVectorDatasetReferenceList(
+                Collection<? extends FeatureVectorDatasetReference> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class PlateList extends ArrayList<Plate> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PlateList(Collection<? extends Plate> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class PlateMetadataList extends ArrayList<PlateMetadata> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PlateMetadataList(Collection<? extends PlateMetadata> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class ExperimentIdentifierList extends ArrayList<ExperimentIdentifier> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ExperimentIdentifierList(Collection<? extends ExperimentIdentifier> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class ImageDatasetReferenceList extends ArrayList<ImageDatasetReference>
+            implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ImageDatasetReferenceList(Collection<? extends ImageDatasetReference> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class IDatasetIdentifierList extends ArrayList<IDatasetIdentifier> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public IDatasetIdentifierList(Collection<? extends IDatasetIdentifier> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class PlateWellReferenceWithDatasetsList extends
+            ArrayList<PlateWellReferenceWithDatasets> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PlateWellReferenceWithDatasetsList(
+                Collection<? extends PlateWellReferenceWithDatasets> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public WellIdentifierList(Collection<? extends WellIdentifier> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class PlateWellMaterialMappingList extends ArrayList<PlateWellMaterialMapping>
+            implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PlateWellMaterialMappingList(Collection<? extends PlateWellMaterialMapping> c)
+        {
+            super(c);
+        }
     }
 
 }

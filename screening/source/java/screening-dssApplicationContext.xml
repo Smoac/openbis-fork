@@ -22,6 +22,10 @@
         // Screening specific configuration
     -->
     
+    <bean id="data-store-rpc-service-screening-logic" class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening">
+      <constructor-arg value="${storeroot-dir}" />
+    </bean>
+    
     <bean id="data-store-rpc-service-screening"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
@@ -38,13 +42,20 @@
                     </list>
                 </property>
                 <property name="target">
-                  <bean class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening" >
-                    <constructor-arg value="${storeroot-dir}" />
-                  </bean>
+                  <ref bean="data-store-rpc-service-screening-logic" />
                 </property>
              </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening" />
+    </bean>
+
+    <bean id="data-store-rpc-service-screening-json" class="com.googlecode.jsonrpc4j.spring.JsonServiceExporter">
+        <property name="service">
+            <ref bean="data-store-rpc-service-screening-logic" />
+        </property>
+        <property name="serviceInterface" >
+            <value>ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening</value>
+        </property>
     </bean>
     
     <!-- 

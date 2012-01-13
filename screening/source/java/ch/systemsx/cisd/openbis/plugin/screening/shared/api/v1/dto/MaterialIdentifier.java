@@ -18,19 +18,26 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
 /**
- * A unique identifier for a material like e.g. a gene. 
- *
+ * A unique identifier for a material like e.g. a gene.
+ * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
+@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
 public class MaterialIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private MaterialTypeIdentifier materialTypeIdentifier;
-    
+
     private String materialCode;
-    
+
     public MaterialIdentifier(MaterialTypeIdentifier materialTypeIdentifier, String materialCode)
     {
         this.materialTypeIdentifier = materialTypeIdentifier;
@@ -46,7 +53,8 @@ public class MaterialIdentifier implements Serializable
     {
         return materialCode;
     }
-    
+
+    @JsonIgnore
     public String getAugmentedCode()
     {
         return materialCode + " (" + materialTypeIdentifier.getMaterialTypeCode() + ")";
@@ -110,4 +118,23 @@ public class MaterialIdentifier implements Serializable
         return "MaterialIdentifier [materialCode=" + materialCode + ", materialTypeIdentifier="
                 + materialTypeIdentifier + "]";
     }
+    
+    //
+    // JSON-RPC
+    //
+
+    private MaterialIdentifier()
+    {
+    }
+    
+    private void setMaterialTypeIdentifier(MaterialTypeIdentifier materialTypeIdentifier)
+    {
+        this.materialTypeIdentifier = materialTypeIdentifier;
+    }
+    
+    private void setMaterialCode(String materialCode)
+    {
+        this.materialCode = materialCode;
+    }
+    
 }

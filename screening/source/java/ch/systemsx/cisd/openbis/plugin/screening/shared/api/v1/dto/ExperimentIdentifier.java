@@ -16,20 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * Unique identifier for an experiment in openBIS.
  * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class ExperimentIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final String spaceCode;
+    private String spaceCode;
 
-    private final String projectCode;
+    private String projectCode;
 
-    private final String experimentCode;
+    private String experimentCode;
 
     /**
      * Creates an {@link ExperimentIdentifier} from the given <var>augmentedCode</code>.
@@ -107,6 +110,7 @@ public class ExperimentIdentifier extends PermanentIdentifier
     /**
      * Returns the augmented (full) code of this experiment.
      */
+    @JsonIgnore
     public String getAugmentedCode()
     {
         if (spaceCode != null)
@@ -128,6 +132,30 @@ public class ExperimentIdentifier extends PermanentIdentifier
         {
             return getAugmentedCode() + " [" + getPermId() + "]";
         }
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ExperimentIdentifier()
+    {
+        super(null);
+    }
+
+    private void setSpaceCode(String spaceCode)
+    {
+        this.spaceCode = spaceCode;
+    }
+
+    private void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
+    }
+
+    private void setExperimentCode(String experimentCode)
+    {
+        this.experimentCode = experimentCode;
     }
 
 }

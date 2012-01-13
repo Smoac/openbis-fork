@@ -19,16 +19,21 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.Date;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
 /**
  * Description of one image dataset.
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class ImageDatasetReference extends DatasetReference implements IImageDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final ImageDatasetReference parentImageDatasetReference;
+    private ImageDatasetReference parentImageDatasetReference;
 
     @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
@@ -63,14 +68,15 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
         this(datasetCode, null, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
                 registrationDate, propertiesOrNull, parentImageSetsetReference);
     }
-    
-    public ImageDatasetReference(String datasetCode, String dataSetTypeOrNull, String datastoreServerUrl,
-            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
-            Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull,
+
+    public ImageDatasetReference(String datasetCode, String dataSetTypeOrNull,
+            String datastoreServerUrl, PlateIdentifier plate,
+            ExperimentIdentifier experimentIdentifier, Geometry plateGemoetry,
+            Date registrationDate, Map<String, String> propertiesOrNull,
             ImageDatasetReference parentImageSetsetReference)
     {
-        super(datasetCode, dataSetTypeOrNull, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
-                registrationDate, propertiesOrNull);
+        super(datasetCode, dataSetTypeOrNull, datastoreServerUrl, plate, experimentIdentifier,
+                plateGemoetry, registrationDate, propertiesOrNull);
         this.parentImageDatasetReference = parentImageSetsetReference;
     }
 
@@ -83,6 +89,20 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
     public ImageDatasetReference getParentImageDatasetReference()
     {
         return parentImageDatasetReference;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageDatasetReference()
+    {
+        super(null, null, null, null, null, null, null, null);
+    }
+
+    private void setParentImageDatasetReference(ImageDatasetReference parentImageDatasetReference)
+    {
+        this.parentImageDatasetReference = parentImageDatasetReference;
     }
 
 }

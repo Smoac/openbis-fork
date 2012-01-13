@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import java.util.Date;
+import java.util.Date; 
 import java.util.Map;
 
 /**
@@ -24,12 +24,13 @@ import java.util.Map;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class FeatureVectorDatasetReference extends DatasetReference implements
         IFeatureVectorDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final IImageDatasetIdentifier imageDatasetIdentifierOrNull;
+    private IImageDatasetIdentifier imageDatasetIdentifierOrNull;
 
     @Deprecated
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
@@ -83,4 +84,19 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
                     + imageDatasetIdentifierOrNull.getDatasetCode();
         }
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private FeatureVectorDatasetReference()
+    {
+        super(null, null, null, null, null, null, null, null);
+    }
+
+    private void setParentImageDataset(IImageDatasetIdentifier imageDatasetIdentifierOrNull)
+    {
+        this.imageDatasetIdentifierOrNull = imageDatasetIdentifierOrNull;
+    }
+
 }

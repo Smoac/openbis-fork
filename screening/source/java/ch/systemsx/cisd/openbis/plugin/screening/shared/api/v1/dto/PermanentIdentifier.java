@@ -18,17 +18,22 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
 /**
  * A class representing a permanent identifier in openBIS.
  * 
  * @since 1.1
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class PermanentIdentifier implements Serializable, IPermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final String permId;
+    private String permId;
 
     public PermanentIdentifier(String permId)
     {
@@ -82,6 +87,19 @@ public class PermanentIdentifier implements Serializable, IPermanentIdentifier
             return false;
         }
         return true;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PermanentIdentifier()
+    {
+    }
+
+    private void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
 }

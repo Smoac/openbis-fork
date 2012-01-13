@@ -5,13 +5,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class MicroscopyImageReference extends DatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final int tile;
+    private int tile;
 
-    private final String channel;
+    private String channel;
 
     /**
      * Reference to image dataset which has no wells (like e.g. in microscopy).
@@ -85,6 +86,25 @@ public class MicroscopyImageReference extends DatasetIdentifier
             return false;
         }
         return true;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private MicroscopyImageReference()
+    {
+        super(null, null);
+    }
+
+    private void setTile(int tile)
+    {
+        this.tile = tile;
+    }
+
+    private void setChannel(String channel)
+    {
+        this.channel = channel;
     }
 
 }

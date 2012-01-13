@@ -18,23 +18,27 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * A class that represents an image transformation.
  * 
  * @since 1.9
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class ImageTransformationInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
 
-    private final String description;
+    @JsonProperty
+    private String description;
 
-    private final boolean defaultTransformation;
+    private boolean defaultTransformation;
 
     public ImageTransformationInfo(String code, String label, String description,
             boolean defaultTransformation)
@@ -122,6 +126,39 @@ public class ImageTransformationInfo implements Serializable
     {
         return "ImageTransformationInfo [code=" + code + ", label=" + label + ", description="
                 + description + ", defaultTransformation=" + defaultTransformation + "]";
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageTransformationInfo()
+    {
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    private String getDescription()
+    {
+        return description;
+    }
+
+    private void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    private void setDefaultTransformation(boolean defaultTransformation)
+    {
+        this.defaultTransformation = defaultTransformation;
     }
 
 }

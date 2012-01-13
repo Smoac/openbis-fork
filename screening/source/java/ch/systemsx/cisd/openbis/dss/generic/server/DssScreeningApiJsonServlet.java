@@ -19,18 +19,18 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 
 /**
- * A servlet which exposes the spring bean with the HTTP Invoker
+ * A servlet which exposes DSS API with JSON
  * 
- * @author Tomasz Pylak
+ * @author Piotr Kupczyk
  */
-public class DssScreeningApiServlet extends HttpInvokerServlet
+public class DssScreeningApiJsonServlet extends HttpInvokerServlet
 {
     private static final long serialVersionUID = 1L;
 
-    public DssScreeningApiServlet()
+    public DssScreeningApiJsonServlet()
     {
-        super(DssScreeningApplicationContext.getDssRpcService(),
-                IDssServiceRpcScreening.SERVICE_URL);
+        super(DssScreeningApplicationContext.getDssRpcServiceJson(),
+                IDssServiceRpcScreening.JSON_SERVICE_URL);
     }
 
 }

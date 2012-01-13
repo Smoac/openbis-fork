@@ -28,16 +28,17 @@ import java.util.Map;
  * @since 1.8
  * @author Kaloyan Enimanev
  */
+@SuppressWarnings("unused")
 public class PlateMetadata extends PlateIdentifier
 {
 
     private static final long serialVersionUID = 1L;
 
-    private final Geometry plateGeometry;
+    private Geometry plateGeometry;
 
-    private final Map<String, String> properties;
+    private Map<String, String> properties;
     
-    private final List<WellMetadata> wells;
+    private List<WellMetadata> wells;
 
     public PlateMetadata(PlateIdentifier identifier, Geometry plateGeometry, Map<String, String> properties,
             List<WellMetadata> unsortedWells)
@@ -85,6 +86,30 @@ public class PlateMetadata extends PlateIdentifier
             wellsArray[getWellIndexForRowAndCol(row, col)] = well;
         }
         return Arrays.asList(wellsArray);
+    }
+    
+    //
+    // JSON-RPC
+    //
+
+    private PlateMetadata()
+    {
+        super(null,  null);
+    }
+    
+    private void setPlateGeometry(Geometry plateGeometry)
+    {
+        this.plateGeometry = plateGeometry;
+    }
+    
+    private void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+    
+    private void setWells(List<WellMetadata> wells)
+    {
+        this.wells = wells;
     }
 
 }

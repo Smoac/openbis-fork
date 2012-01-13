@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class Plate extends PlateIdentifier
 {
     private static final long serialVersionUID = 1L;
@@ -76,7 +77,32 @@ public class Plate extends PlateIdentifier
     @Override
     public String toString()
     {
-        return super.toString() + " { Experiment: "
-                + experimentIdentifier.getAugmentedCode() + " }";
+        return super.toString() + " { Experiment: " + experimentIdentifier.getAugmentedCode()
+                + " }";
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private Plate()
+    {
+        super(null, null);
+    }
+
+    private void setExperimentCode(String experimentCode)
+    {
+        this.experimentCode = experimentCode;
+    }
+
+    private void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
+    }
+
+    private void setExperimentIdentifier(ExperimentIdentifier experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
 }

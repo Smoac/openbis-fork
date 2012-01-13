@@ -18,25 +18,28 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * Immutable class defining the width and height of something. Two instances are equal if and only
  * if the widths and heights are equal.
  * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public final class Geometry implements Serializable
 {
     public static final Geometry GEOMETRY_96_8X12 = new Geometry(12, 8);
-    
+
     public static final Geometry GEOMETRY_384_16X24 = new Geometry(24, 16);
-    
+
     public static final Geometry GEOMETRY_1536_32X48 = new Geometry(48, 32);
-    
+
     private static final long serialVersionUID = 1L;
 
-    private final int width;
+    private int width;
 
-    private final int height;
+    private int height;
 
     /**
      * Creates a new instance from the given cartesian dimensions.
@@ -53,7 +56,7 @@ public final class Geometry implements Serializable
     {
         assert cartesianDims != null;
         assert cartesianDims.length == 2;
-        
+
         return new Geometry(cartesianDims[0], cartesianDims[1]);
     }
 
@@ -135,6 +138,7 @@ public final class Geometry implements Serializable
      * 
      * @return a non-negative number.
      */
+    @JsonIgnore
     public final int getNumberOfColumns()
     {
         return width;
@@ -145,6 +149,7 @@ public final class Geometry implements Serializable
      * 
      * @return a non-negative number.
      */
+    @JsonIgnore
     public final int getNumberOfRows()
     {
         return height;
@@ -155,6 +160,7 @@ public final class Geometry implements Serializable
      * 
      * @return a non-negative number.
      */
+    @JsonIgnore
     public final int getDimX()
     {
         return width;
@@ -165,6 +171,7 @@ public final class Geometry implements Serializable
      * 
      * @return a non-negative number.
      */
+    @JsonIgnore
     public final int getDimY()
     {
         return height;
@@ -174,6 +181,7 @@ public final class Geometry implements Serializable
      * Returns the cartesian coordinates as an <code>int[]</code>. The width is the x-dimension and
      * the height is the y-dimension.
      */
+    @JsonIgnore
     public final int[] getCartesianDimensions()
     {
         return new int[]
@@ -216,6 +224,32 @@ public final class Geometry implements Serializable
     public String toString()
     {
         return "{" + width + "," + height + "}";
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private Geometry()
+    {
+    }
+
+    private void setWidth(int width)
+    {
+        if (width < 0)
+        {
+            throw new IllegalArgumentException("Negative width: " + width);
+        }
+        this.width = width;
+    }
+
+    private void setHeight(int height)
+    {
+        if (height < 0)
+        {
+            throw new IllegalArgumentException("Negative height: " + height);
+        }
+        this.height = height;
     }
 
 }

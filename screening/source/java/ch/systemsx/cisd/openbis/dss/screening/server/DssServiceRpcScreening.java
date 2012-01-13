@@ -148,14 +148,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             // Register the service with the name server
             RpcServiceInterfaceVersionDTO ifaceVersion =
-                    new RpcServiceInterfaceVersionDTO("screening-dss",
-                            "/rmi-datastore-server-screening-api-v1", getMajorVersion(),
+                    new RpcServiceInterfaceVersionDTO(IDssServiceRpcScreening.SERVICE_NAME,
+                            IDssServiceRpcScreening.SERVICE_URL, getMajorVersion(),
                             getMinorVersion());
+            RpcServiceInterfaceVersionDTO jsonVersion =
+                    new RpcServiceInterfaceVersionDTO(IDssServiceRpcScreening.SERVICE_NAME,
+                            IDssServiceRpcScreening.JSON_SERVICE_URL, getMajorVersion(),
+                            getMinorVersion());
+
             HttpInvokerServiceExporter nameServiceExporter =
                     ServiceProvider.getRpcNameServiceExporter();
             RpcServiceNameServer nameServer =
                     (RpcServiceNameServer) nameServiceExporter.getService();
             nameServer.addSupportedInterfaceVersion(ifaceVersion);
+            nameServer.addSupportedInterfaceVersion(jsonVersion);
 
             operationLog.info("[rpc] Started DSS RPC screening service V1.");
         }
@@ -515,7 +521,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 configuration.isDesiredImageFormatPng(),
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
     }
-    
+
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             final ImageRepresentationFormat format)
     {
@@ -627,9 +633,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         final String channelCode = imageReference.getChannel();
 
         imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
-                tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode,
-                        sizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
-                        transform)));
+                tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode, sizeOrNull,
+                        singleChannelImageTransformationCodeOrNull, convertToPng, transform)));
     }
 
     private InputStream loadThumbnailImages(List<PlateImageReference> imageReferences,
@@ -827,7 +832,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return result;
     }
 
-    private List<ImageRepresentationFormat> getImageRepresentationFormats(ImgImageDatasetDTO imageDataSet)
+    private List<ImageRepresentationFormat> getImageRepresentationFormats(
+            ImgImageDatasetDTO imageDataSet)
     {
         List<ImgImageZoomLevelDTO> zoomLevels = getDAO().listImageZoomLevels(imageDataSet.getId());
         return convertZoomLevelsToRepresentationFormats(imageDataSet.getPermId(), zoomLevels);
@@ -861,9 +867,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
         {
             ImageRepresentationFormat result =
-                    new ImageRepresentationFormat(dataSetCode, zoomLevel.getId(), zoomLevel.getIsOriginal(),
-                            zoomLevel.getWidth(), zoomLevel.getHeight(), zoomLevel.getColorDepth(),
-                            zoomLevel.getFileType());
+                    new ImageRepresentationFormat(dataSetCode, zoomLevel.getId(),
+                            zoomLevel.getIsOriginal(), zoomLevel.getWidth(), zoomLevel.getHeight(),
+                            zoomLevel.getColorDepth(), zoomLevel.getFileType());
             results.add(result);
         }
 

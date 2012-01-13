@@ -51,5 +51,8 @@
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

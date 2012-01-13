@@ -30,25 +30,27 @@ import java.util.List;
  * 
  * @author Kaloyan Enimanev
  */
+@SuppressWarnings("unused")
 public class ExperimentImageMetadata implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    private final ExperimentIdentifier identifier;
+    private ExperimentIdentifier identifier;
 
-    private final List<ImageChannel> channels;
+    private List<ImageChannel> channels;
 
-    private final Geometry plateGeometry;
+    private Geometry plateGeometry;
 
-    private final Geometry tileGeometry;
+    private Geometry tileGeometry;
 
-    private final ImageSize originalImageSize;
+    private ImageSize originalImageSize;
 
-    private final List<ImageSize> thumbnailImageSizes;
+    private List<ImageSize> thumbnailImageSizes;
 
     public ExperimentImageMetadata(ExperimentIdentifier identifier, Geometry plateGeometry,
-            Geometry tileGeometry, List<ImageChannel> channels, ImageSize originalImageSize, List<ImageSize> thumbnailImageSizes)
+            Geometry tileGeometry, List<ImageChannel> channels, ImageSize originalImageSize,
+            List<ImageSize> thumbnailImageSizes)
     {
         this.identifier = identifier;
         this.originalImageSize = originalImageSize;
@@ -111,4 +113,43 @@ public class ExperimentImageMetadata implements Serializable
     {
         return thumbnailImageSizes;
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private ExperimentImageMetadata()
+    {
+    }
+
+    private void setIdentifier(ExperimentIdentifier identifier)
+    {
+        this.identifier = identifier;
+    }
+
+    private void setChannels(List<ImageChannel> channels)
+    {
+        this.channels = channels;
+    }
+
+    private void setPlateGeometry(Geometry plateGeometry)
+    {
+        this.plateGeometry = plateGeometry;
+    }
+
+    private void setTileGeometry(Geometry tileGeometry)
+    {
+        this.tileGeometry = tileGeometry;
+    }
+
+    private void setOriginalImageSize(ImageSize originalImageSize)
+    {
+        this.originalImageSize = originalImageSize;
+    }
+
+    private void setThumbnailImageSizes(List<ImageSize> thumbnailImageSizes)
+    {
+        this.thumbnailImageSizes = thumbnailImageSizes;
+    }
+
 }

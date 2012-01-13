@@ -5,15 +5,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class PlateImageReference extends DatasetIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final WellPosition wellPosition;
+    private WellPosition wellPosition;
 
-    private final int tile;
+    private int tile;
 
-    private final String channelOrNull;
+    private String channelOrNull;
 
     /**
      * @param dataset if image dataset is specified, image will be fetched from it. If a feature
@@ -98,7 +99,8 @@ public class PlateImageReference extends DatasetIdentifier
         }
 
         final PlateImageReference other = (PlateImageReference) obj;
-        if ((channelOrNull == null && other.channelOrNull != null) ||  channelOrNull.equals(other.channelOrNull) == false)
+        if ((channelOrNull == null && other.channelOrNull != null)
+                || channelOrNull.equals(other.channelOrNull) == false)
         {
             return false;
         }
@@ -111,6 +113,30 @@ public class PlateImageReference extends DatasetIdentifier
             return false;
         }
         return true;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PlateImageReference()
+    {
+        super(null, null);
+    }
+
+    private void setWellPosition(WellPosition wellPosition)
+    {
+        this.wellPosition = wellPosition;
+    }
+
+    private void setTile(int tile)
+    {
+        this.tile = tile;
+    }
+
+    private void setChannel(String channelOrNull)
+    {
+        this.channelOrNull = channelOrNull;
     }
 
 }

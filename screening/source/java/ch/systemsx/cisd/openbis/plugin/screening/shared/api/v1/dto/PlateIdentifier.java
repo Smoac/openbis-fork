@@ -1,15 +1,22 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Contains data which uniquely define a plate.
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class PlateIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final String plateCode, spaceCodeOrNull;
+    private String plateCode;
+
+    @JsonProperty
+    private String spaceCodeOrNull;
 
     /**
      * Creates a {@link PlateIdentifier} from the given <var>augmentedCode</code>.
@@ -90,6 +97,7 @@ public class PlateIdentifier extends PermanentIdentifier
     /**
      * Returns the augmented (full) code of this plate.
      */
+    @JsonIgnore
     public String getAugmentedCode()
     {
         if (spaceCodeOrNull != null)
@@ -107,6 +115,7 @@ public class PlateIdentifier extends PermanentIdentifier
         }
     }
 
+    @JsonIgnore
     public boolean isSharedPlate()
     {
         return "".equals(spaceCodeOrNull);
@@ -179,6 +188,30 @@ public class PlateIdentifier extends PermanentIdentifier
         {
             return getAugmentedCode() + " [" + getPermId() + "]";
         }
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PlateIdentifier()
+    {
+        super(null);
+    }
+
+    private void setPlateCode(String plateCode)
+    {
+        this.plateCode = plateCode;
+    }
+
+    private String getSpaceCodeOrNull()
+    {
+        return spaceCodeOrNull;
+    }
+
+    private void setSpaceCodeOrNull(String spaceCodeOrNull)
+    {
+        this.spaceCodeOrNull = spaceCodeOrNull;
     }
 
 }

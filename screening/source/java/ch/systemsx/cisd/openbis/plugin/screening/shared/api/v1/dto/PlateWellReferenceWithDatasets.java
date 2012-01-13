@@ -25,9 +25,9 @@ import java.util.List;
  * screening plate.
  * 
  * @since 1.1
- * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class PlateWellReferenceWithDatasets implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -149,6 +149,35 @@ public class PlateWellReferenceWithDatasets implements Serializable
                 + experimentPlateIdentifier + ", wellPosition=" + wellPosition
                 + ", #imageDatasets=" + imageDatasetReferences.size() + ", #featureVectorDatasets="
                 + featureVectorDatasetReferences.size() + "]";
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PlateWellReferenceWithDatasets()
+    {
+    }
+
+    private void setExperimentPlateIdentifier(Plate experimentPlateIdentifier)
+    {
+        this.experimentPlateIdentifier = experimentPlateIdentifier;
+    }
+
+    private void setWellPosition(WellPosition wellPosition)
+    {
+        this.wellPosition = wellPosition;
+    }
+
+    private void setImageDatasetReferences(List<ImageDatasetReference> imageDatasetReferences)
+    {
+        this.imageDatasetReferences = imageDatasetReferences;
+    }
+
+    private void setFeatureVectorDatasetReferences(
+            List<FeatureVectorDatasetReference> featureVectorDatasetReferences)
+    {
+        this.featureVectorDatasetReferences = featureVectorDatasetReferences;
     }
 
 }

@@ -20,25 +20,30 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * A class that represents an image channel.
  * 
  * @since 1.9
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class ImageChannel implements Serializable, Comparable<ImageChannel>
 {
     private static final long serialVersionUID = 1L;
 
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
 
-    private final String description;
+    @JsonProperty
+    private String description;
 
-    private final Integer wavelength;
+    @JsonProperty
+    private Integer wavelength;
 
-    private final List<ImageTransformationInfo> transformations;
+    private List<ImageTransformationInfo> transformations;
 
     public ImageChannel(String code, String label)
     {
@@ -148,6 +153,49 @@ public class ImageChannel implements Serializable, Comparable<ImageChannel>
     public int compareTo(ImageChannel imageChannel)
     {
         return code.compareTo(imageChannel.code);
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageChannel()
+    {
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    private String getDescription()
+    {
+        return description;
+    }
+
+    private void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    private Integer getWavelength()
+    {
+        return wavelength;
+    }
+
+    private void setWavelength(Integer wavelength)
+    {
+        this.wavelength = wavelength;
+    }
+
+    private void setTransformations(List<ImageTransformationInfo> transformations)
+    {
+        this.transformations = transformations;
     }
 
 }

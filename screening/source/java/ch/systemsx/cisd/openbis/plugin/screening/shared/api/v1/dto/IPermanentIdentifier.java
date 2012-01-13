@@ -16,11 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
+
 /**
  * A role that represents a permanent identifier in openBIS.
- *
+ * 
  * @author Bernd Rinn
  */
+@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
 public interface IPermanentIdentifier
 {
 

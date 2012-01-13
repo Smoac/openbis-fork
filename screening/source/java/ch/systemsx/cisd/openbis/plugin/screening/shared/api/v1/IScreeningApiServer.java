@@ -71,6 +71,8 @@ public interface IScreeningApiServer extends IRpcService
      * Service part of the URL to access this service remotely.
      */
     public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-api-v1";
+    
+    public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
     /**
      * Authenticates the user with a given password.

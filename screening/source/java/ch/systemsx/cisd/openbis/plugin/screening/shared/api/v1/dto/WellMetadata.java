@@ -21,22 +21,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of wells 
- * are given a special treatment - API users can retrieve {@link Material} property values via the method {@link #getMaterialProperties()}. All other property values are available via {@link #getProperties()}.
+ * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of
+ * wells are given a special treatment - API users can retrieve {@link Material} property values via
+ * the method {@link #getMaterialProperties()}. All other property values are available via
+ * {@link #getProperties()}.
+ * 
  * @since 1.8
  * @author Kaloyan Enimanev
  */
+@SuppressWarnings("unused")
 public class WellMetadata extends WellIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final String code;
+    private String code;
 
-    private final String type;
+    private String type;
 
-    private final Map<String, String> properties;
+    private Map<String, String> properties;
 
-    private final Map<String, Material> materialProperties;
+    private Map<String, Material> materialProperties;
 
     public WellMetadata(PlateIdentifier plateIdentifier, String code, String permId, String type,
             WellPosition wellPosition, Map<String, String> properties,
@@ -112,6 +116,35 @@ public class WellMetadata extends WellIdentifier
     public String getType()
     {
         return type;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private WellMetadata()
+    {
+        super(null, null, null);
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setType(String type)
+    {
+        this.type = type;
+    }
+
+    private void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    private void setMaterialProperties(Map<String, Material> materialProperties)
+    {
+        this.materialProperties = materialProperties;
     }
 
 }

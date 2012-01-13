@@ -20,16 +20,18 @@ import java.io.Serializable;
 
 /**
  * Width and height of an image.
- *
+ * 
  * @since 1.4
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public class ImageSize implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
-    private final int width;
-    private final int height;
+
+    private int width;
+
+    private int height;
 
     /**
      * Creates an instance for specified width and height.
@@ -82,5 +84,23 @@ public class ImageSize implements Serializable
             return false;
         return true;
     }
-    
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageSize()
+    {
+    }
+
+    private void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    private void setHeight(int height)
+    {
+        this.height = height;
+    }
+
 }

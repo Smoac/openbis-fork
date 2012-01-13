@@ -26,11 +26,12 @@ import java.util.Map;
  * @since 1.8
  * @author Kaloyan Enimanev
  */
+@SuppressWarnings("unused")
 public class Material extends MaterialIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final Map<String, String> properties;
+    private Map<String, String> properties;
 
     public Material(MaterialTypeIdentifier materialTypeIdentifier, String materialCode,
             Map<String, String> properties)
@@ -45,6 +46,20 @@ public class Material extends MaterialIdentifier
     public Map<String, String> getProperties()
     {
         return Collections.unmodifiableMap(properties);
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private Material()
+    {
+        super(null, null);
+    }
+
+    private void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
     }
 
 }

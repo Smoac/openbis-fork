@@ -24,11 +24,12 @@ import java.util.Map;
  * 
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetReference
 {
     private static final long serialVersionUID = 1L;
 
-    private final WellPosition wellPosition;
+    private WellPosition wellPosition;
 
     @Deprecated
     public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
@@ -59,7 +60,7 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
         this(datasetCode, null, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
                 registrationDate, imageDatasetIdentifier, propertiesOrNull, wellPosition);
     }
-    
+
     public FeatureVectorDatasetWellReference(String datasetCode, String dataSetTypeOrNull,
             String datastoreServerUrl, PlateIdentifier plate,
             ExperimentIdentifier experimentIdentifier, Geometry plateGeometry,
@@ -108,4 +109,19 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
     {
         return super.toString() + " " + wellPosition.toString();
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private FeatureVectorDatasetWellReference()
+    {
+        super(null, null, null, null, null, null, null, null, null);
+    }
+
+    private void setWellPosition(WellPosition wellPosition)
+    {
+        this.wellPosition = wellPosition;
+    }
+
 }

@@ -20,18 +20,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class PlateWellMaterialMapping implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final PlateIdentifier plateIdentifier;
+    private PlateIdentifier plateIdentifier;
 
-    private final Geometry plateGeometry;
+    private Geometry plateGeometry;
 
-    private final List<MaterialIdentifier>[] mapping;
+    @JsonProperty
+    private List<MaterialIdentifier>[] mapping;
 
     public PlateWellMaterialMapping(PlateIdentifier plateIdentifier, Geometry plateGeometry,
             List<MaterialIdentifier>[] mapping)
@@ -86,6 +90,34 @@ public class PlateWellMaterialMapping implements Serializable
     public List<MaterialIdentifier> getMaterialsForWell(int row, int col)
     {
         return mapping[(row - 1) * plateGeometry.getNumberOfColumns() + (col - 1)];
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PlateWellMaterialMapping()
+    {
+    }
+
+    private void setPlateIdentifier(PlateIdentifier plateIdentifier)
+    {
+        this.plateIdentifier = plateIdentifier;
+    }
+
+    private void setPlateGeometry(Geometry plateGeometry)
+    {
+        this.plateGeometry = plateGeometry;
+    }
+
+    private List<MaterialIdentifier>[] getMapping()
+    {
+        return mapping;
+    }
+
+    private void setMapping(List<MaterialIdentifier>[] mapping)
+    {
+        this.mapping = mapping;
     }
 
 }

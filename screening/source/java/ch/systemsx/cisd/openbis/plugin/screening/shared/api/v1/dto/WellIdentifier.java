@@ -5,13 +5,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
  * 
  * @author Piotr Buczek
  */
+@SuppressWarnings("unused")
 public class WellIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
 
-    private final PlateIdentifier plateIdentifier;
+    private PlateIdentifier plateIdentifier;
 
-    private final WellPosition wellPosition;
+    private WellPosition wellPosition;
 
     public WellIdentifier(PlateIdentifier plateIdentifier, WellPosition wellPosition, String permId)
     {
@@ -83,6 +84,25 @@ public class WellIdentifier extends PermanentIdentifier
             return false;
         }
         return true;
+    }
+    
+    //
+    // JSON-RPC
+    //
+
+    private WellIdentifier()
+    {
+        super(null);
+    }
+    
+    private void setPlateIdentifier(PlateIdentifier plateIdentifier)
+    {
+        this.plateIdentifier = plateIdentifier;
+    }
+    
+    private void setWellPosition(WellPosition wellPosition)
+    {
+        this.wellPosition = wellPosition;
     }
 
 }

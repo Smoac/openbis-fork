@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.FilteredList;
+import ch.systemsx.cisd.common.collections.Modifiable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
@@ -110,9 +111,19 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         {
             return returnValue;
         }
-        // We are on the safe side if we wrap the list in a new one (could be an
-        // unmodifiable one).
-        final List<T> list = new ArrayList<T>(returnValue);
+
+        final List<T> list;
+
+        if (returnValue instanceof Modifiable)
+        {
+            list = returnValue;
+        } else
+        {
+            // We are on the safe side if we wrap the list in a new one (could be an
+            // unmodifiable one).
+            list = new ArrayList<T>(returnValue);
+        }
+
         final int oldSize = list.size();
         // Does not create a new list but might modify the original one.
         FilteredList.decorate(list, new ValidatorAdapter<T>(validator, person));

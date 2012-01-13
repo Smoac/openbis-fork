@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
-
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+package ch.systemsx.cisd.common.collections;
 
 /**
- * A servlet which exposes the spring bean with the HTTP Invoker
+ * Interface used for marking modifiable collections and maps.
  * 
- * @author Tomasz Pylak
+ * @author pkupczyk
  */
-public class DssScreeningApiServlet extends HttpInvokerServlet
+public interface Modifiable
 {
-    private static final long serialVersionUID = 1L;
-
-    public DssScreeningApiServlet()
-    {
-        super(DssScreeningApplicationContext.getDssRpcService(),
-                IDssServiceRpcScreening.SERVICE_URL);
-    }
 
 }

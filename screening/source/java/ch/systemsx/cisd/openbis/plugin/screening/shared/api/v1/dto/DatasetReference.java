@@ -12,6 +12,7 @@ import java.util.Map;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class DatasetReference extends DatasetIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -26,7 +27,7 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
 
     private Map<String, String> properties = Collections.<String, String> emptyMap();
 
-    private final String dataSetType;
+    private String dataSetType;
 
     @Deprecated
     public DatasetReference(String datasetCode, String datastoreServerUrl, PlateIdentifier plate)
@@ -49,10 +50,11 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
         this(datasetCode, null, datastoreServerUrl, plateWithExperiment, experiment, plateGeometry,
                 registrationDate, propertiesOrNull);
     }
-    
-    public DatasetReference(String datasetCode, String dataSetTypeOrNull, String datastoreServerUrl,
-            PlateIdentifier plateWithExperiment, ExperimentIdentifier experiment,
-            Geometry plateGeometry, Date registrationDate, Map<String, String> propertiesOrNull)
+
+    public DatasetReference(String datasetCode, String dataSetTypeOrNull,
+            String datastoreServerUrl, PlateIdentifier plateWithExperiment,
+            ExperimentIdentifier experiment, Geometry plateGeometry, Date registrationDate,
+            Map<String, String> propertiesOrNull)
     {
         super(datasetCode, datastoreServerUrl);
         this.dataSetType = dataSetTypeOrNull;
@@ -143,4 +145,44 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
     {
         return super.toString() + " (plate: " + plate + ")";
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private DatasetReference()
+    {
+        super(null, null);
+    }
+
+    private void setPlate(PlateIdentifier plate)
+    {
+        this.plate = plate;
+    }
+
+    private void setExperimentIdentifier(ExperimentIdentifier experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
+    private void setPlateGeometry(Geometry plateGeometry)
+    {
+        this.plateGeometry = plateGeometry;
+    }
+
+    private void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    private void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    private void setDataSetType(String dataSetType)
+    {
+        this.dataSetType = dataSetType;
+    }
+
 }

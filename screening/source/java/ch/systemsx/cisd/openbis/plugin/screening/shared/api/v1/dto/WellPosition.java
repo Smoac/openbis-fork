@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class WellPosition implements Serializable, Comparable<WellPosition>
 {
     private static final long serialVersionUID = 1L;
@@ -88,10 +89,11 @@ public class WellPosition implements Serializable, Comparable<WellPosition>
 
     private static IllegalArgumentException createException(String description, String well)
     {
-        return new IllegalArgumentException("Invalid well description: " + description + ": " + well);
+        return new IllegalArgumentException("Invalid well description: " + description + ": "
+                + well);
     }
 
-    private final int wellRow, wellColumn;
+    private int wellRow, wellColumn;
 
     public WellPosition(int wellRow, int wellColumn)
     {
@@ -158,6 +160,24 @@ public class WellPosition implements Serializable, Comparable<WellPosition>
     {
         int diff = wellRow - other.wellRow;
         return diff != 0 ? diff : wellColumn - other.wellColumn;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private WellPosition()
+    {
+    }
+
+    private void setWellRow(int wellRow)
+    {
+        this.wellRow = wellRow;
+    }
+
+    private void setWellColumn(int wellColumn)
+    {
+        this.wellColumn = wellColumn;
     }
 
 }
