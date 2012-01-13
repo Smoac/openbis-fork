@@ -16,76 +16,106 @@
         
         var o = new openbis(openbisHost, openbisContext, dssHost);
           o.screening_tryLoginScreening('admin','password', function(response){
-        	  
-		          o.screening_listPlates(function(response){
-		              o.screening_listFeatureVectorDatasets(response.result, function(){});
-		              o.screening_listImageDatasets(response.result, function(){});
-		              o.screening_listRawImageDatasets(response.result, function(){});
-		              o.screening_listSegmentationImageDatasets(response.result, function(){});
-		              o.screening_listPlateWellsForPlate(response.result[0], function(){});
-		              o.screening_getPlateSample(response.result[0], function(){});
-		              o.screening_listPlateMaterialMapping(response.result, null, function(){});
-		          });
-		          
-		          o.screening_listPlatesForExperiment({
-		        	    "@class": ".ExperimentIdentifier",
-		        	    permId: "20100910161306692-5",
-		        	    spaceCode: "HCS-LAB-BRAGGER",
-		        	    projectCode: "MARTA-PROJECT",
-		        	    experimentCode: "DEMO_SCREEN_01"
-		          }, function(response){
-		        	    o.screening_listFeatureVectorDatasets(response.result, function(){});
-		          });
-		          
-		          o.screening_getPlateMetadataList([{
-		        	  "@class": ".PlateIdentifier",
-		        	  permId: "20100917094502305-79298",
-		        	  plateCode: "PLATE-132-B", 
-		        	  spaceCodeOrNull: "HCS-LAB-BRAGGER"
-		        	}], function(response){
-		        	  o.screening_listFeatureVectorDatasets(response.result, function(){});
-		          });
-		          
-		          o.screening_listExperiments(function(response){
-		        	  for(var index in response.result){
-		        		  var experiment = response.result[index];
-		        		  if(experiment.experimentCode == 'DEMO_SCREEN_02'){
-		        			  o.screening_listPlatesForExperiment(experiment, function(){});	  
-		        			  o.screening_listPlateWellsForExperimentAndMaterial(experiment, {
-		        				    "@class": ".MaterialIdentifier",
-		        				    materialTypeIdentifier: {materialTypeCode: "SIRNA"},
-		        				    materialCode: "10280_1"
-		        			  }, function(){});
-		        			  o.screening_getExperimentImageMetadata(experiment, function(){});
-		        		  }
-		        	  }
-		          });
-		          
-		          o.screening_listExperimentsForUser('admin', function(response){
+
+            var datasetIdentifier = {
+              "@class":".FeatureVectorDatasetReference",
+              "permId":"20100925142438333-158190"
+            }
+            
+            var datasetWellReference = {
+              "@class": ".FeatureVectorDatasetWellReference",
+              "permId":"20100925142438333-158190",
+              "wellPosition": {
+                "wellColumn": 1,
+                "wellRow": 1
+              }
+            }
+            
+            var plateDatasetIdentifier = {
+                "@class": ".DatasetIdentifier",
+                "permId": "20111222081950963-158742"                
+            }
+
+            o.dss_listAvailableFeatureNames([datasetIdentifier]);   
+            o.dss_listAvailableFeatureCodes([datasetIdentifier], function(response){
+              o.dss_loadFeatures([datasetIdentifier], response.result);
+              o.dss_loadFeaturesForDatasetWellReferences([datasetWellReference], response.result);
+              o.dss_listPlateImageReferencesForChannel(plateDatasetIdentifier, [{wellColumn: 1, wellRow: 1}], null);
+            });
+            o.dss_listAvailableFeatures([datasetIdentifier]);
+
+            /*
+              o.screening_listPlates(function(response){
+                  o.screening_listFeatureVectorDatasets(response.result, function(){});
+                  o.screening_listImageDatasets(response.result, function(){});
+                  o.screening_listRawImageDatasets(response.result, function(){});
+                  o.screening_listSegmentationImageDatasets(response.result, function(){});
+                  o.screening_listPlateWellsForPlate(response.result[0], function(){});
+                  o.screening_getPlateSample(response.result[0], function(){});
+                  o.screening_listPlateMaterialMapping(response.result, null, function(){});
+              });
+              
+              o.screening_listPlatesForExperiment({
+                  "@class": ".ExperimentIdentifier",
+                  permId: "20100910161306692-5",
+                  spaceCode: "HCS-LAB-BRAGGER",
+                  projectCode: "MARTA-PROJECT",
+                  experimentCode: "DEMO_SCREEN_01"
+              }, function(response){
+                  o.screening_listFeatureVectorDatasets(response.result, function(){});
+              });
+              
+              o.screening_getPlateMetadataList([{
+                "@class": ".PlateIdentifier",
+                permId: "20100917094502305-79298",
+                plateCode: "PLATE-132-B", 
+                spaceCodeOrNull: "HCS-LAB-BRAGGER"
+              }], function(response){
+                o.screening_listFeatureVectorDatasets(response.result, function(){});
+              });
+              
+              o.screening_listExperiments(function(response){
+                for(var index in response.result){
+                  var experiment = response.result[index];
+                  if(experiment.experimentCode == 'DEMO_SCREEN_02'){
+                    o.screening_listPlatesForExperiment(experiment, function(){});    
+                    o.screening_listPlateWellsForExperimentAndMaterial(experiment, {
+                        "@class": ".MaterialIdentifier",
+                        materialTypeIdentifier: {materialTypeCode: "SIRNA"},
+                        materialCode: "10280_1"
+                    }, function(){});
+                    o.screening_getExperimentImageMetadata(experiment, function(){});
+                  }
+                }
+              });
+              
+              o.screening_listExperimentsForUser('admin', function(response){
                 for(var index in response.result){
                     var experiment = response.result[index];
                     if(experiment.experimentCode == 'DEMO_SCREEN_01'){
                       o.screening_listPlatesForExperiment(experiment, function(){});    
                     }
                 }
-		          });
-		          
-		          o.screening_listFeatureVectorDatasets([{
-		              "@class": ".PlateIdentifier",
-		              permId: "20100917094502305-79298",
-		              plateCode: "PLATE-132-B", 
-		              spaceCodeOrNull: "HCS-LAB-BRAGGER"
-		          }], function(){});
-		          
-		          o.screening_getDatasetIdentifiers(['20100917120747867-157707', '20100917120809240-157708'], function(){});
-		          o.screening_listPlateWellsForMaterial({
+              });
+              
+              o.screening_listFeatureVectorDatasets([{
+                  "@class": ".PlateIdentifier",
+                  permId: "20100917094502305-79298",
+                  plateCode: "PLATE-132-B", 
+                  spaceCodeOrNull: "HCS-LAB-BRAGGER"
+              }], function(){});
+              
+              o.screening_getDatasetIdentifiers(['20100917120747867-157707', '20100917120809240-157708'], function(){});
+              o.screening_listPlateWellsForMaterial({
                       "@class": ".MaterialIdentifier",
                       materialTypeIdentifier: {materialTypeCode: "SIRNA"},
                       materialCode: "10280_1"
               }, function(){});
-		          
-		          
-		    });
+              
+              */
+              
+              
+        });
       });
     </script>
   

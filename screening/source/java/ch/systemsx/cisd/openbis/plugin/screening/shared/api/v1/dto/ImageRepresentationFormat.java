@@ -29,14 +29,15 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @since 1.10
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class ImageRepresentationFormat implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String dataSetCode;
-    
-    private final long id;
-    
+    private String dataSetCode;
+
+    private long id;
+
     private boolean original;
 
     private Integer width;
@@ -50,16 +51,16 @@ public class ImageRepresentationFormat implements Serializable
     /**
      * Constructor.
      * 
-     * @param dataSetCode 
-     * @param id 
+     * @param dataSetCode
+     * @param id
      * @param original
      * @param width
      * @param height
      * @param colorDepth
      * @param fileType
      */
-    public ImageRepresentationFormat(String dataSetCode, long id, boolean original, Integer width, Integer height,
-            Integer colorDepth, String fileType)
+    public ImageRepresentationFormat(String dataSetCode, long id, boolean original, Integer width,
+            Integer height, Integer colorDepth, String fileType)
     {
         super();
         this.dataSetCode = dataSetCode;
@@ -80,7 +81,7 @@ public class ImageRepresentationFormat implements Serializable
     }
 
     /**
-     * Return the ID of this image representation format. 
+     * Return the ID of this image representation format.
      */
     public long getId()
     {
@@ -175,6 +176,49 @@ public class ImageRepresentationFormat implements Serializable
         builder.append(colorDepth);
         builder.append(fileType);
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageRepresentationFormat()
+    {
+    }
+
+    private void setDataSetCode(String dataSetCode)
+    {
+        this.dataSetCode = dataSetCode;
+    }
+
+    private void setId(long id)
+    {
+        this.id = id;
+    }
+
+    private void setOriginal(boolean original)
+    {
+        this.original = original;
+    }
+
+    private void setWidth(Integer width)
+    {
+        this.width = width;
+    }
+
+    private void setHeight(Integer height)
+    {
+        this.height = height;
+    }
+
+    private void setColorDepth(Integer colorDepth)
+    {
+        this.colorDepth = colorDepth;
+    }
+
+    private void setFileType(String fileType)
+    {
+        this.fileType = fileType;
     }
 
 }

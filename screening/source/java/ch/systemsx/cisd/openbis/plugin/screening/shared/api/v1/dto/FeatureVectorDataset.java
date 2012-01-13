@@ -8,19 +8,20 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
 {
     private static final long serialVersionUID = 1L;
 
-    private final FeatureVectorDatasetReference dataset;
+    private FeatureVectorDatasetReference dataset;
 
-    private final List<String> featureNames;
-    
-    private final List<String> featureCodes;
+    private List<String> featureNames;
 
-    private final List<String> featureLabels;
-    
-    private final List<FeatureVector> featureVectors;
+    private List<String> featureCodes;
+
+    private List<String> featureLabels;
+
+    private List<FeatureVector> featureVectors;
 
     public FeatureVectorDataset(FeatureVectorDatasetReference dataset, List<String> featureCodes,
             List<String> featureLabels, List<FeatureVector> featureVectors)
@@ -31,7 +32,7 @@ public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
         this.featureLabels = featureLabels;
         this.featureVectors = featureVectors;
     }
-    
+
     /** identifier of the dataset containing feature vectors */
     public FeatureVectorDatasetReference getDataset()
     {
@@ -62,7 +63,7 @@ public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
     {
         return featureLabels == null ? featureNames : featureLabels;
     }
-    
+
     /** all feature vectors for a dataset */
     public List<FeatureVector> getFeatureVectors()
     {
@@ -103,4 +104,38 @@ public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
     {
         return dataset.getDatasetCode().hashCode();
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private FeatureVectorDataset()
+    {
+    }
+
+    private void setDataset(FeatureVectorDatasetReference dataset)
+    {
+        this.dataset = dataset;
+    }
+
+    private void setFeatureNames(List<String> featureNames)
+    {
+        this.featureNames = featureNames;
+    }
+
+    private void setFeatureCodes(List<String> featureCodes)
+    {
+        this.featureCodes = featureCodes;
+    }
+
+    private void setFeatureLabels(List<String> featureLabels)
+    {
+        this.featureLabels = featureLabels;
+    }
+
+    private void setFeatureVectors(List<FeatureVector> featureVectors)
+    {
+        this.featureVectors = featureVectors;
+    }
+
 }

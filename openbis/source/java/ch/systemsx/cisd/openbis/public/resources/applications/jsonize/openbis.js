@@ -298,11 +298,122 @@ openbis.prototype.screening_getExperimentImageMetadata = function(experimentIden
 /*
  * DSS Screening API methods
  */
-openbis.prototype.listImageMetadata = function(datasetIdentifiers, action) {
+
+openbis.prototype.dss_listAvailableFeatureNames = function(featureDatasetIdentifiers, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listAvailableFeatureNames",
+				"params" : [ this.sessionToken, featureDatasetIdentifiers ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listAvailableFeatureCodes = function(featureDatasetIdentifiers, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listAvailableFeatureCodes",
+				"params" : [ this.sessionToken, featureDatasetIdentifiers ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listAvailableFeatures = function(featureDatasetIdentifiers, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listAvailableFeatures",
+				"params" : [ this.sessionToken, featureDatasetIdentifiers ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_loadFeatures = function(featureDatasetReferences, featureCodes, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "loadFeatures",
+				"params" : [ this.sessionToken, featureDatasetReferences, featureCodes ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_loadFeaturesForDatasetWellReferences = function(datasetWellReferences, featureCodes, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "loadFeaturesForDatasetWellReferences",
+				"params" : [ this.sessionToken, datasetWellReferences, featureCodes ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listPlateImageReferencesForChannel = function(datasetIdentifier, wellPositions, channel, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listPlateImageReferences",
+				"params" : [ this.sessionToken, datasetIdentifier, wellPositions, channel ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listPlateImageReferencesForChannels = function(datasetIdentifier, wellPositions, channels, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listPlateImageReferences",
+				"params" : [ this.sessionToken, datasetIdentifier, wellPositions, channels ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listImageReferencesForChannel = function(datasetIdentifier, channel, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listImageReferences",
+				"params" : [ this.sessionToken, datasetIdentifier, channel ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listImageReferencesForChannels = function(datasetIdentifier, channels, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listImageReferences",
+				"params" : [ this.sessionToken, datasetIdentifier, channels ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listImageMetadata = function(datasetIdentifiers, action) {
 	openbisObj = this
 	ajaxRequest({
 		url: this.dssScreeningServiceUrl,
 		data: { "method" : "listImageMetadata",
+				"params" : [ this.sessionToken, datasetIdentifiers ] 
+			  },
+		success:  action
+	 });
+}
+
+openbis.prototype.dss_listAvailableImageRepresentationFormats = function(datasetIdentifiers, action) {
+	openbisObj = this
+	ajaxRequest({
+		url: this.dssScreeningServiceUrl,
+		data: { "method" : "listAvailableImageRepresentationFormats",
 				"params" : [ this.sessionToken, datasetIdentifiers ] 
 			  },
 		success:  action

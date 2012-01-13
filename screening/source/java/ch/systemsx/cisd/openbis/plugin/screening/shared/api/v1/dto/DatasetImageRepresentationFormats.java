@@ -30,14 +30,15 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @since 1.10
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class DatasetImageRepresentationFormats implements Serializable,
         Comparable<DatasetImageRepresentationFormats>
 {
     private static final long serialVersionUID = 1L;
 
-    private final IDatasetIdentifier dataset;
+    private IDatasetIdentifier dataset;
 
-    private final ArrayList<ImageRepresentationFormat> imageRepresentationFormats;
+    private ArrayList<ImageRepresentationFormat> imageRepresentationFormats;
 
     /**
      * Constructor.
@@ -119,6 +120,25 @@ public class DatasetImageRepresentationFormats implements Serializable,
         builder.append(dataset);
         builder.append(imageRepresentationFormats);
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private DatasetImageRepresentationFormats()
+    {
+    }
+
+    private void setDataset(IDatasetIdentifier dataset)
+    {
+        this.dataset = dataset;
+    }
+
+    private void setImageRepresentationFormats(
+            ArrayList<ImageRepresentationFormat> imageRepresentationFormats)
+    {
+        this.imageRepresentationFormats = imageRepresentationFormats;
     }
 
 }

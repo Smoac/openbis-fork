@@ -7,16 +7,17 @@ import java.util.List;
  * Feature vectors of one well in one feature vector dataset.
  * 
  * @since 1.1
- * 
  * @author Bernd Rinn
  */
-public class FeatureVectorWithDescription extends FeatureVector implements IFeatureCodesProvider, Serializable
+@SuppressWarnings("unused")
+public class FeatureVectorWithDescription extends FeatureVector implements IFeatureCodesProvider,
+        Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final FeatureVectorDatasetWellReference datasetWellReference;
+    private FeatureVectorDatasetWellReference datasetWellReference;
 
-    private final List<String> featureNames;
+    private List<String> featureNames;
 
     public FeatureVectorWithDescription(FeatureVectorDatasetWellReference dataset,
             List<String> featureNames, double[] values)
@@ -41,7 +42,7 @@ public class FeatureVectorWithDescription extends FeatureVector implements IFeat
     {
         return featureNames;
     }
-    
+
     /**
      * @since 1.7
      */
@@ -97,6 +98,30 @@ public class FeatureVectorWithDescription extends FeatureVector implements IFeat
         sb.append("\n");
         sb.append(super.toString());
         return sb.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private FeatureVectorWithDescription()
+    {
+        super(null, new double[] {});
+    }
+
+    private void setDatasetWellReference(FeatureVectorDatasetWellReference datasetWellReference)
+    {
+        this.datasetWellReference = datasetWellReference;
+    }
+
+    private void setFeatureNames(List<String> featureNames)
+    {
+        this.featureNames = featureNames;
+    }
+
+    private void setFeatureCodes(List<String> featureCodes)
+    {
+        this.featureNames = featureCodes;
     }
 
 }

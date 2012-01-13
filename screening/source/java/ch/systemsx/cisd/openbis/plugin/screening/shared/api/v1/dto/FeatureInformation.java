@@ -24,14 +24,15 @@ import java.io.Serializable;
  * @since 1.9
  * @author Bernd Rinn
  */
+@SuppressWarnings("unused")
 public class FeatureInformation implements Serializable, Comparable<FeatureInformation>
 {
 
     private static final long serialVersionUID = 1L;
 
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
 
     public FeatureInformation(String code, String label, String description)
     {
@@ -41,7 +42,7 @@ public class FeatureInformation implements Serializable, Comparable<FeatureInfor
         this.description = description;
     }
 
-    private final String description;
+    private String description;
 
     /**
      * Returns the code of the feature.
@@ -115,6 +116,29 @@ public class FeatureInformation implements Serializable, Comparable<FeatureInfor
     {
         return "FeatureDescription [code=" + code + ", label=" + label + ", description="
                 + description + "]";
+    }
+    
+    //
+    // JSON-RPC
+    //
+
+    private FeatureInformation()
+    {
+    }
+    
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+    
+    private void setLabel(String label)
+    {
+        this.label = label;
+    }
+    
+    private void setDescription(String description)
+    {
+        this.description = description;
     }
 
 }

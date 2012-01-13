@@ -36,6 +36,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
+import ch.systemsx.cisd.common.collections.Modifiable;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
@@ -215,7 +216,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 result.add(description);
             }
         }
-        return result;
+        return new FeatureInformationList(result);
     }
 
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
@@ -242,7 +243,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     content.close();
                 }
             }
-            return result;
+            return new ImageDatasetMetadataList(result);
         } finally
         {
             shareIdManager.releaseLocks();
@@ -401,7 +402,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             result.add(createFeatureVectorDataset(sessionToken, dataset, codes));
         }
-        return result;
+        return new FeatureVectorDatasetList(result);
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
@@ -463,7 +464,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         WellFeatureCollection<FeatureTableRow> features =
                 FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
                         createMetadataProvider());
-        return createFeatureVectorList(features);
+        return new FeatureVectorWithDescriptionList(createFeatureVectorList(features));
     }
 
     private IMetadataProvider createMetadataProvider()
@@ -745,14 +746,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return listImageReferences(dataSetIdentifier, channel, imageAccessor);
+        return new MicroscopyImageReferenceList(listImageReferences(dataSetIdentifier, channel,
+                imageAccessor));
     }
 
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return listImageReferences(dataSetIdentifier, channels, imageAccessor);
+        return new MicroscopyImageReferenceList(listImageReferences(dataSetIdentifier, channels,
+                imageAccessor));
     }
 
     private List<MicroscopyImageReference> listImageReferences(
@@ -789,7 +792,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
+        return new PlateImageReferenceList(createPlateImageReferences(imageAccessor,
+                dataSetIdentifier, wellPositions, channel));
     }
 
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
@@ -797,7 +801,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channels);
+        return new PlateImageReferenceList(createPlateImageReferences(imageAccessor,
+                dataSetIdentifier, wellPositions, channels));
     }
 
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
@@ -829,7 +834,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 result.add(datasetResult);
             }
         }
-        return result;
+        return new DatasetImageRepresentationFormatsList(result);
     }
 
     private List<ImageRepresentationFormat> getImageRepresentationFormats(
@@ -1379,4 +1384,87 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         return MINOR_VERSION;
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private static class FeatureInformationList extends ArrayList<FeatureInformation> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureInformationList(Collection<? extends FeatureInformation> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class FeatureVectorDatasetList extends ArrayList<FeatureVectorDataset> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureVectorDatasetList(Collection<? extends FeatureVectorDataset> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class FeatureVectorWithDescriptionList extends
+            ArrayList<FeatureVectorWithDescription> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureVectorWithDescriptionList(Collection<? extends FeatureVectorWithDescription> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PlateImageReferenceList(Collection<? extends PlateImageReference> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class MicroscopyImageReferenceList extends ArrayList<MicroscopyImageReference>
+            implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public MicroscopyImageReferenceList(Collection<? extends MicroscopyImageReference> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class ImageDatasetMetadataList extends ArrayList<ImageDatasetMetadata> implements
+            Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ImageDatasetMetadataList(Collection<? extends ImageDatasetMetadata> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class DatasetImageRepresentationFormatsList extends
+            ArrayList<DatasetImageRepresentationFormats> implements Modifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public DatasetImageRepresentationFormatsList(
+                Collection<? extends DatasetImageRepresentationFormats> c)
+        {
+            super(c);
+        }
+    }
+
 }

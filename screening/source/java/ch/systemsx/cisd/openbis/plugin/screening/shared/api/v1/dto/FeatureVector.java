@@ -4,22 +4,29 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+
 /**
  * Feature vector for one well.
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
+@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
 public class FeatureVector implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final WellPosition wellPosition;
+    private WellPosition wellPosition;
 
-    private final double[] values;
-    
-    private final boolean[] vocabularyFeatureFlags;
-    
-    private final String[] vocabularyTerms;
+    private double[] values;
+
+    private boolean[] vocabularyFeatureFlags;
+
+    private String[] vocabularyTerms;
 
     /**
      * Creates an instance for the specified well assuming all features are numbers.
@@ -59,15 +66,15 @@ public class FeatureVector implements Serializable
         return wellPosition;
     }
 
-    /** 
+    /**
      * Returns the array of numerical features. If the value is {@link Double#NaN} it means either
-     * an unknown value of the numerical feature or a vocabulary-based feature. 
+     * an unknown value of the numerical feature or a vocabulary-based feature.
      */
     public double[] getValues()
     {
         return values;
     }
-    
+
     /**
      * Return the array of flags specifying the type of feature where <code>true</code> means
      * vocabulary-based feature and <code>false</code> numerical feature.
@@ -91,6 +98,7 @@ public class FeatureVector implements Serializable
      * String (vocabulary-based feature), an instance of Double (numerical feature), or
      * <code>null</code> if the feature is unknown.
      */
+    @JsonIgnore
     public List<Object> getValueObjects()
     {
         ArrayList<Object> result = new ArrayList<Object>();
@@ -113,4 +121,33 @@ public class FeatureVector implements Serializable
     {
         return "wellPosition: " + wellPosition + ", values: " + getValueObjects();
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private FeatureVector()
+    {
+    }
+
+    private void setWellPosition(WellPosition wellPosition)
+    {
+        this.wellPosition = wellPosition;
+    }
+
+    private void setValues(double[] values)
+    {
+        this.values = values;
+    }
+
+    private void setVocabularyFeatureFlags(boolean[] vocabularyFeatureFlags)
+    {
+        this.vocabularyFeatureFlags = vocabularyFeatureFlags;
+    }
+
+    private void setVocabularyTerms(String[] vocabularyTerms)
+    {
+        this.vocabularyTerms = vocabularyTerms;
+    }
+
 }

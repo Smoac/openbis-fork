@@ -12,35 +12,36 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class ImageDatasetMetadata implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final IImageDatasetIdentifier imageDataset;
+    private IImageDatasetIdentifier imageDataset;
 
-    private final int channelsNumber;
+    private int channelsNumber;
 
-    private final List<String> channelNames;
+    private List<String> channelNames;
 
-    private final List<String> channelCodes;
+    private List<String> channelCodes;
 
-    private final List<String> channelLabels;
+    private List<String> channelLabels;
 
     private List<ImageChannel> channels;
 
-    private final int tilesNumber;
+    private int tilesNumber;
 
-    private final int tilesRows;
+    private int tilesRows;
 
-    private final int tilesCols;
+    private int tilesCols;
 
-    private final int width;
+    private int width;
 
-    private final int height;
+    private int height;
 
-    private final int thumbnailWidth;
+    private int thumbnailWidth;
 
-    private final int thumbnailHeight;
+    private int thumbnailHeight;
 
     public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<ImageChannel> channels,
             int tilesRows, int tilesCols, int width, int height, int thumbnailWidth,
@@ -234,6 +235,79 @@ public class ImageDatasetMetadata implements Serializable
                 channels.add(new ImageChannel(codes.get(i), labels.get(i)));
             }
         }
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ImageDatasetMetadata()
+    {
+    }
+
+    private void setImageDataset(IImageDatasetIdentifier imageDataset)
+    {
+        this.imageDataset = imageDataset;
+    }
+
+    private void setNumberOfChannels(int numberOfChannels)
+    {
+        this.channelsNumber = numberOfChannels;
+    }
+
+    private void setChannelNames(List<String> channelNames)
+    {
+        this.channelNames = channelNames;
+    }
+
+    private void setChannelCodes(List<String> channelCodes)
+    {
+        this.channelCodes = channelCodes;
+    }
+
+    private void setChannelLabels(List<String> channelLabels)
+    {
+        this.channelLabels = channelLabels;
+    }
+
+    private void setChannels(List<ImageChannel> channels)
+    {
+        this.channels = channels;
+    }
+
+    private void setNumberOfTiles(int numberOfTiles)
+    {
+        this.tilesNumber = numberOfTiles;
+    }
+
+    private void setTilesRows(int tilesRows)
+    {
+        this.tilesRows = tilesRows;
+    }
+
+    private void setTilesCols(int tilesCols)
+    {
+        this.tilesCols = tilesCols;
+    }
+
+    private void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    private void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    private void setThumbnailWidth(int thumbnailWidth)
+    {
+        this.thumbnailWidth = thumbnailWidth;
+    }
+
+    private void setThumbnailHeight(int thumbnailHeight)
+    {
+        this.thumbnailHeight = thumbnailHeight;
     }
 
 }
