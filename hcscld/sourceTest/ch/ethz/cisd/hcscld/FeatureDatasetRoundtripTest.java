@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
+import ch.ethz.cisd.hcscld.FeatureGroupNamespace.FeatureNamespaceKind;
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
@@ -93,7 +94,28 @@ public class FeatureDatasetRoundtripTest
         writer.close();
     }
 
-    private void createTwoFeatureGroupsDataset(File file, String dsCode)
+    private void createTwoFeatureGroupsSameNamespaceDataset(File file, String dsCode)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        ICellLevelFeatureWritableDataset wds =
+                writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        IFeatureGroup fg1 =
+                wds.createFeaturesDefinition().objectTypeId("cell").addInt32Feature("one")
+                        .addFloat32Feature("two")
+                        .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
+                        .createFeatureGroup("main");
+        IFeatureGroup fg2 =
+                wds.createFeaturesDefinition().objectTypeId("cell").addBooleanFeature("ok")
+                        .addStringFeature("comment", 10).createFeatureGroup("quality");
+        for (ImageId id : wds.getImageQuantityStructure())
+        {
+            wds.writeFeatures(id, fg1, createStandardValue(id));
+            wds.writeFeatures(id, fg2, createQualityValue1(id));
+        }
+        writer.close();
+    }
+
+    private void createTwoFeatureGroupsDifferentNamespacesDataset(File file, String dsCode)
     {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
@@ -109,67 +131,9 @@ public class FeatureDatasetRoundtripTest
         for (ImageId id : wds.getImageQuantityStructure())
         {
             wds.writeFeatures(id, fg1, createStandardValue(id));
-            wds.writeFeatures(id, fg2, createQualityValue(id));
+            wds.writeFeatures(id, fg2, createQualityValue2(id));
         }
         writer.close();
-    }
-
-    private void createTwoFeatureGroupsDatasetDifferentLength(File file, String dsCode)
-    {
-        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
-        try
-        {
-            ICellLevelFeatureWritableDataset wds =
-                    writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
-            IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().companionGroupId("group_a").addInt32Feature("one")
-                            .addFloat32Feature("two")
-                            .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
-                            .createFeatureGroup("main");
-            IFeatureGroup fg2 =
-                    wds.createFeaturesDefinition().companionGroupId("group_b").addBooleanFeature("ok")
-                            .addStringFeature("comment", 10).createFeatureGroup("quality");
-            for (ImageId id : wds.getImageQuantityStructure())
-            {
-                wds.writeFeatures(id, fg1, createStandardValue(id));
-                Object[][] quality = createQualityValue(id);
-                Object[][] qualityTruncated = new Object[9][];
-                System.arraycopy(quality, 0, qualityTruncated, 0, qualityTruncated.length);
-                wds.writeFeatures(id, fg2, qualityTruncated);
-            }
-        } finally
-        {
-            writer.close();
-        }
-    }
-
-    private void createTwoFeatureGroupsDatasetInconsistentLength(File file, String dsCode)
-    {
-        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
-        try
-        {
-            ICellLevelFeatureWritableDataset wds =
-                    writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
-            IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().companionGroupId("main").addInt32Feature("one")
-                            .addFloat32Feature("two")
-                            .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
-                            .createFeatureGroup("main");
-            IFeatureGroup fg2 =
-                    wds.createFeaturesDefinition().companionGroupId("main").addBooleanFeature("ok")
-                            .addStringFeature("comment", 10).createFeatureGroup("quality");
-            for (ImageId id : wds.getImageQuantityStructure())
-            {
-                wds.writeFeatures(id, fg1, createStandardValue(id));
-                Object[][] quality = createQualityValue(id);
-                Object[][] qualityTruncated = new Object[9][];
-                System.arraycopy(quality, 0, qualityTruncated, 0, qualityTruncated.length);
-                wds.writeFeatures(id, fg2, qualityTruncated);
-            }
-        } finally
-        {
-            writer.close();
-        }
     }
 
     private Object[][] createStandardValue(ImageId id)
@@ -188,7 +152,7 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" } };
     }
 
-    private Object[][] createQualityValue(ImageId id)
+    private Object[][] createQualityValue1(ImageId id)
     {
         return new Object[][]
             {
@@ -202,6 +166,23 @@ public class FeatureDatasetRoundtripTest
                 { false, "7" },
                 { true, "" },
                 { false, "9" }, };
+    }
+
+    private Object[][] createQualityValue2(ImageId id)
+    {
+        return new Object[][]
+            {
+                { true, "" },
+                { false, "1" },
+                { true, "" },
+                { false, "3" },
+                { true, "" },
+                { false, "5" },
+                { true, "" },
+                { false, "7" },
+                { true, "" },
+                { false, "9" },
+                { true, "END" }, };
     }
 
     @Test
@@ -224,10 +205,10 @@ public class FeatureDatasetRoundtripTest
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
         {
-            assertEquals("DEFAULT", clf.getFeatureGroup().getFeatureGroupId());
+            assertEquals("DEFAULT", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
-            assertEquals("CELL", clf.getFeatureGroup().getNamespaceId());
+            assertEquals("CELL", clf.getFeatureGroup().getNamespace().getId());
             assertEquals(10, clf.getValues().length);
             for (int i = 0; i < clf.getValues().length; ++i)
             {
@@ -291,9 +272,10 @@ public class FeatureDatasetRoundtripTest
                 Arrays.asList(ds.tryGetCustomSequenceAnnotation()));
         for (CellLevelFeatures clf : ds.getValues())
         {
-            assertEquals("DEFAULT", clf.getFeatureGroup().getFeatureGroupId());
-            assertEquals("CELL", clf.getFeatureGroup().getNamespaceId());
-            assertEquals(FeatureNamespaceKind.OBJECT_TYPE, clf.getFeatureGroup().getNamespaceKind());
+            assertEquals("DEFAULT", clf.getFeatureGroup().getId());
+            assertEquals("CELL", clf.getFeatureGroup().getNamespace().getId());
+            assertEquals(FeatureNamespaceKind.OBJECT_TYPE, clf.getFeatureGroup().getNamespace()
+                    .getKind());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
             assertEquals(10, clf.getValues().length);
@@ -323,7 +305,7 @@ public class FeatureDatasetRoundtripTest
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
         {
-            assertEquals("ALL", clf.getFeatureGroup().getFeatureGroupId());
+            assertEquals("ALL", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
             assertEquals(10, clf.getValues().length);
@@ -339,18 +321,18 @@ public class FeatureDatasetRoundtripTest
     }
 
     @Test
-    public void testTwoFeatureGroups()
+    public void testTwoFeatureGroupsSameNamespace()
     {
         final String dsCode = "123";
-        final File f = new File(workingDirectory, "twogroups.cld");
+        final File f = new File(workingDirectory, "twoFeatureGroupsSameNamespace.cld");
         f.delete();
         f.deleteOnExit();
-        createTwoFeatureGroupsDataset(f, dsCode);
+        createTwoFeatureGroupsSameNamespaceDataset(f, dsCode);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
         {
-            assertEquals("ALL", clf.getFeatureGroup().getFeatureGroupId());
+            assertEquals("ALL", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three", "ok", "comment"), clf
                     .getFeatureGroup().getFeatureNames());
             assertEquals(Arrays.asList(new Feature("one", FeatureDataType.INT32), new Feature(
@@ -374,7 +356,7 @@ public class FeatureDatasetRoundtripTest
 
         for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("main")))
         {
-            assertEquals("MAIN", clf.getFeatureGroup().getFeatureGroupId());
+            assertEquals("MAIN", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
             assertEquals(Arrays.asList(new Feature("one", FeatureDataType.INT32), new Feature(
@@ -394,7 +376,7 @@ public class FeatureDatasetRoundtripTest
 
         for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("quality")))
         {
-            assertEquals("QUALITY", clf.getFeatureGroup().getFeatureGroupId());
+            assertEquals("QUALITY", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("ok", "comment"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(Arrays.asList(new Feature("ok", FeatureDataType.BOOL), new Feature(
                     "comment", 10)), clf.getFeatureGroup().getFeatures());
@@ -411,14 +393,85 @@ public class FeatureDatasetRoundtripTest
     }
 
     @Test
-    public void testTwoFeatureGroupsDifferentLength()
+    public void testTwoFeatureGroupsDifferentNamespaces()
     {
-        // FIXME: this needs to work as th two feature groups have a different namespace.
         final String dsCode = "123";
-        final File f = new File(workingDirectory, "twoFeatureGroupsDifferentLength.cld");
+        final File f = new File(workingDirectory, "twoFeatureGroupsDifferentNamespaces.cld");
         f.delete();
         f.deleteOnExit();
-        createTwoFeatureGroupsDatasetDifferentLength(f, dsCode);
+        createTwoFeatureGroupsDifferentNamespacesDataset(f, dsCode);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        for (CellLevelFeatures clf : ds.getValues(ds.getNamespace("cell_a")))
+        {
+            assertEquals("ALL", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
+                    .getFeatureNames());
+            assertEquals(Arrays.asList(new Feature("one", FeatureDataType.INT32), new Feature(
+                    "two", FeatureDataType.FLOAT32), new Feature("three", new String[]
+                { "A", "B", "C" })), clf.getFeatureGroup().getFeatures());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(Integer.toString(i), 3, clf.getValues()[i].length);
+                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                        clf.getValues()[i][0]);
+                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                        clf.getValues()[i][1]);
+                assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
+            }
+        }
+        for (CellLevelFeatures clf : ds.getValues(ds.getNamespace("cell_b")))
+        {
+            assertEquals("ALL", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("ok", "comment"), clf.getFeatureGroup().getFeatureNames());
+            assertEquals(Arrays.asList(new Feature("ok", FeatureDataType.BOOL), new Feature(
+                    "comment", 10)), clf.getFeatureGroup().getFeatures());
+            assertEquals(11, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(Integer.toString(i), 2, clf.getValues()[i].length);
+                assertEquals(Integer.toString(i), i % 2 == 0, clf.getValues()[i][0]);
+                assertEquals(Integer.toString(i), i % 2 != 0 ? Integer.toString(i)
+                        : (i == 10 ? "END" : ""), clf.getValues()[i][1]);
+            }
+        }
+        for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("main")))
+        {
+            assertEquals("MAIN", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
+                    .getFeatureNames());
+            assertEquals(Arrays.asList(new Feature("one", FeatureDataType.INT32), new Feature(
+                    "two", FeatureDataType.FLOAT32), new Feature("three", new String[]
+                { "A", "B", "C" })), clf.getFeatureGroup().getFeatures());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(Integer.toString(i), 3, clf.getValues()[i].length);
+                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                        clf.getValues()[i][0]);
+                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                        clf.getValues()[i][1]);
+                assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
+            }
+        }
+
+        for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("quality")))
+        {
+            assertEquals("QUALITY", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("ok", "comment"), clf.getFeatureGroup().getFeatureNames());
+            assertEquals(Arrays.asList(new Feature("ok", FeatureDataType.BOOL), new Feature(
+                    "comment", 10)), clf.getFeatureGroup().getFeatures());
+            assertEquals(11, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(Integer.toString(i), 2, clf.getValues()[i].length);
+                assertEquals(Integer.toString(i), i % 2 == 0, clf.getValues()[i][0]);
+                assertEquals(Integer.toString(i), i % 2 != 0 ? Integer.toString(i)
+                        : (i == 10 ? "END" : ""), clf.getValues()[i][1]);
+            }
+        }
+        reader.close();
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -428,7 +481,29 @@ public class FeatureDatasetRoundtripTest
         final File f = new File(workingDirectory, "twoFeatureGroupsInconsistentLength.cld");
         f.delete();
         f.deleteOnExit();
-        createTwoFeatureGroupsDatasetInconsistentLength(f, dsCode);
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        try
+        {
+            ICellLevelFeatureWritableDataset wds =
+                    writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+            IFeatureGroup fg1 =
+                    wds.createFeaturesDefinition().companionGroupId("main").addInt32Feature("one")
+                            .addFloat32Feature("two")
+                            .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
+                            .createFeatureGroup("main");
+            IFeatureGroup fg2 =
+                    wds.createFeaturesDefinition().companionGroupId("main").addBooleanFeature("ok")
+                            .addStringFeature("comment", 10).createFeatureGroup("quality");
+            for (ImageId id : wds.getImageQuantityStructure())
+            {
+                wds.writeFeatures(id, fg1, createStandardValue(id));
+                Object[][] quality = createQualityValue2(id);
+                wds.writeFeatures(id, fg2, quality);
+            }
+        } finally
+        {
+            writer.close();
+        }
     }
 
     @Test(expectedExceptions = UnsupportedFileFormatException.class)

@@ -149,15 +149,13 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 base.writer.getCompoundType(getDataTypeName(idUpperCase), Object[].class,
                         features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup =
-                new FeatureGroup(idUpperCase, features.getNamespaceId(),
-                        features.getNamespaceKind(), type);
+                new FeatureGroup(idUpperCase, features.getNamespace(), type);
         final String featureGroupsFile = getFeatureGroupsFilename();
 
         base.writer.writeCompoundArrayBlock(featureGroupsFile, featureGroupCompoundType,
                 new FeatureGroupDescriptor[]
-                    { new FeatureGroupDescriptor(idUpperCase, features.getNamespaceId(),
-                            features.getNamespaceKind()) }, base.writer
-                        .getNumberOfElements(featureGroupsFile));
+                    { new FeatureGroupDescriptor(idUpperCase, features.getNamespace()) },
+                base.writer.getNumberOfElements(featureGroupsFile));
         addFeatureGroupToInternalList(featureGroup);
         return featureGroup;
     }
@@ -166,7 +164,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         base.persistObjectTypes();
         final FeatureGroup fg = (FeatureGroup) featureGroup;
-        checkNumberOfElements(id, featureValues.length);
+        checkNumberOfElements(id, featureGroup.getNamespace(), featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),
@@ -175,13 +173,15 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         * fg.getType().getRecordSize()));
     }
 
-    private void checkNumberOfElements(ImageId id, int numberOfObjectsToWrite)
-            throws IllegalArgumentException
+    private void checkNumberOfElements(ImageId id, FeatureGroupNamespace namespace,
+            int numberOfObjectsToWrite) throws IllegalArgumentException
     {
-        if (featureGroups.isEmpty() == false && getFirstFeatureGroup().existsIn(id))
+        final FeatureGroup firstFeatureGroupWithValuesOrNull =
+                tryGetFirstFeatureGroup(id, namespace);
+        if (firstFeatureGroupWithValuesOrNull != null)
         {
             final long numberOfObjectsOnDisk =
-                    reader.getNumberOfElements(getFirstFeatureGroup().getObjectPath(id));
+                    reader.getNumberOfElements(firstFeatureGroupWithValuesOrNull.getObjectPath(id));
             if (numberOfObjectsOnDisk != numberOfObjectsToWrite)
             {
                 throw new IllegalArgumentException(

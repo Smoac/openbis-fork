@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
+import ch.ethz.cisd.hcscld.FeatureGroupNamespace.FeatureNamespaceKind;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
@@ -37,11 +38,9 @@ import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
-    
-    private String namespaceId;
-    
-    private FeatureNamespaceKind namespaceKind;
-    
+
+    private FeatureGroupNamespace namespace;
+
     private final List<HDF5CompoundMemberMapping> members;
 
     private final List<Feature> memberDefinitions;
@@ -107,21 +106,20 @@ class FeaturesDefinition implements IFeaturesDefinition
 
     HDF5CompoundMemberMapping[] getMembers(HDF5CompoundMappingHints hintsOrNull)
     {
-        return HDF5CompoundMemberMapping.addHints(members.toArray(
-                new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
+        return HDF5CompoundMemberMapping.addHints(
+                members.toArray(new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
     public IFeaturesDefinition objectTypeId(String objectTypeId)
     {
-        this.namespaceId = objectTypeId.toUpperCase();
-        this.namespaceKind = FeatureNamespaceKind.OBJECT_TYPE;
+        this.namespace = new FeatureGroupNamespace(objectTypeId, FeatureNamespaceKind.OBJECT_TYPE);
         return this;
     }
 
     public IFeaturesDefinition companionGroupId(String companionGroupId)
     {
-        this.namespaceId = companionGroupId;
-        this.namespaceKind = FeatureNamespaceKind.COMPANION_GROUP;
+        this.namespace =
+                new FeatureGroupNamespace(companionGroupId, FeatureNamespaceKind.COMPANION_GROUP);
         return this;
     }
 
@@ -228,14 +226,9 @@ class FeaturesDefinition implements IFeaturesDefinition
         return Collections.unmodifiableList(memberDefinitions);
     }
 
-    String getNamespaceId()
+    FeatureGroupNamespace getNamespace()
     {
-        return namespaceId;
-    }
-    
-    FeatureNamespaceKind getNamespaceKind()
-    {
-        return namespaceKind;
+        return namespace;
     }
 
     private void checkDataset()
@@ -245,16 +238,12 @@ class FeaturesDefinition implements IFeaturesDefinition
             throw new IllegalStateException("This feature group is not writable.");
         }
     }
-    
+
     private void checkNamespace()
     {
-        if (namespaceId == null)
+        if (namespace == null)
         {
-            throw new IllegalStateException("No namespace id set.");
-        }
-        if (namespaceKind == null)
-        {
-            throw new IllegalStateException("No namespace kind set.");
+            throw new IllegalStateException("No namespace set.");
         }
     }
 

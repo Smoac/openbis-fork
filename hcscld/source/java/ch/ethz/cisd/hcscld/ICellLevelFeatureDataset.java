@@ -31,24 +31,59 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     public List<IFeatureGroup> getFeatureGroups();
 
     /**
-     * Returns the feature group with the given <var>name</var>.
+     * Returns the feature group with the given <var>id</var>.
+     * 
+     * @throws IllegalArgumentException If a feature group with that id doesn't exist.
      */
-    public IFeatureGroup getFeatureGroup(String name);
+    public IFeatureGroup getFeatureGroup(String id)  throws IllegalArgumentException;
+
+    /**
+     * Returns all feature group name spaces in this dataset.
+     */
+    public List<FeatureGroupNamespace> getNamespaces();
+
+    /**
+     * Returns the name space with the given <var>id</var>.
+     * 
+     * @throws IllegalArgumentException If a feature group name space with that id doesn't exist.
+     */
+    public FeatureGroupNamespace getNamespace(String id)  throws IllegalArgumentException;
 
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      */
-    public Object[] getValues(ImageId id, int cellId);
+    public Object[] getValues(ImageId id, FeatureGroupNamespace namespace, int cellId);
 
     /**
      * Returns all feature values for all cells of field <var>id</var>.
      */
-    public Object[][] getValues(ImageId id);
+    public Object[][] getValues(ImageId id, FeatureGroupNamespace namespace);
+
+    /**
+     * Returns all feature values for all cells in all wells in the given <var>namespace</var>.
+     */
+    public Iterable<CellLevelFeatures> getValues(FeatureGroupNamespace namespace);
+
+    /**
+     * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one feature group name space.
+     */
+    public Object[] getValues(ImageId id, int cellId) throws IllegalStateException;
+
+    /**
+     * Returns all feature values for all cells of field <var>id</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one feature group name space.
+     */
+    public Object[][] getValues(ImageId id) throws IllegalStateException;
 
     /**
      * Returns all feature values for all cells in all wells.
+     * 
+     * @throws IllegalStateException If the dataset has more than one feature group name space.
      */
-    public Iterable<CellLevelFeatures> getValues();
+    public Iterable<CellLevelFeatures> getValues() throws IllegalStateException;
 
     /**
      * Returns the feature values for the given <var>cellId</var> of field <var>id</var> in the

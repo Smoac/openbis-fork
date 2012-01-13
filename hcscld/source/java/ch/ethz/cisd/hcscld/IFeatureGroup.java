@@ -28,7 +28,7 @@ public interface IFeatureGroup extends Iterable<ImageId>
     /**
      * Returns the identifier of this feature group.
      */
-    public String getFeatureGroupId();
+    public String getId();
 
     /**
      * Returns the number of features in this group.
@@ -46,15 +46,9 @@ public interface IFeatureGroup extends Iterable<ImageId>
     public List<Feature> getFeatures();
 
     /**
-     * Returns the id of the namespace that has been used to compute the features of this feature
+     * Returns the namespace that has been used to compute the features of this feature
      * group.
      */
-    public String getNamespaceId();
-
-    /**
-     * Returns the kind of the namespace (type of object or companion group) that have been used to
-     * compute the features of this feature group.
-     */
-    public FeatureNamespaceKind getNamespaceKind();
+    public FeatureGroupNamespace getNamespace();
 
 }
