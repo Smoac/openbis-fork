@@ -476,7 +476,7 @@ public class FeatureDatasetRoundtripTest
         reader.close();
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = WrongNumberOfSegmentedObjectsException.class)
     public void testTwoFeatureGroupsInconsistentLength()
     {
         final String dsCode = "123";

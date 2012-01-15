@@ -12,6 +12,7 @@ import ch.ethz.cisd.hcscld.ICellLevelDataReader;
 import ch.ethz.cisd.hcscld.ICellLevelDataWriter;
 import ch.ethz.cisd.hcscld.ImageQuantityStructure;
 import ch.ethz.cisd.hcscld.ImageId;
+import ch.ethz.cisd.hcscld.ObjectNamespace;
 
 /**
  * A demo program for writing and reading cell-level classification data. 
@@ -34,6 +35,7 @@ public class CellLevelClassificationDemo
         ICellLevelClassificationWritableDataset wds =
                 writer.addClassificationDataset("456", new ImageQuantityStructure(16, 24, 9),
                         CellState.class);
+        ObjectNamespace ns = wds.addObjectNamespace("main");
         Random rng = new Random();
         long start = System.currentTimeMillis();
         CellState[] state = new CellState[160];
@@ -43,18 +45,18 @@ public class CellLevelClassificationDemo
             {
                 state[i] = CellState.values()[rng.nextInt(CellState.values().length)];
             }
-            wds.writeClassification(id, state);
+            wds.writeClassification(id, ns, state);
         }
         writer.close();
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelClassificationDataset ds =
                 reader.getDataSet("456").toClassificationDataset();
-        for (CellLevelClassificationsEnum<CellState> cls : ds.getClassifications(CellState.class))
+        for (CellLevelClassificationsEnum<CellState> cls : ds.getClassifications(CellState.class, ns))
         {
             System.out.println(cls.getId() + ":" + Arrays.toString(cls.getData()));
         }
-        System.out.println(ds.getClassification(new ImageId(1, 0, 0), 2));
+        System.out.println(ds.getClassification(new ImageId(1, 0, 0), ns, 2));
         reader.close();
     }
 }

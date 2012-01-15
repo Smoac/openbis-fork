@@ -139,31 +139,33 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         base.addDatasetAnnotation(annotationKey, annotation);
     }
 
-    public void writeClassification(ImageId id, Enum<?>[] classifications)
+    public void writeClassification(ImageId id, ObjectNamespace namespace, Enum<?>[] classifications)
     {
         final int[] ordinals = new int[classifications.length];
         for (int i = 0; i < classifications.length; ++i)
         {
             ordinals[i] = classifications[i].ordinal();
         }
-        base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                ordinals), HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                .getStorageFeatures(classifications.length)));
+        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+                new HDF5EnumerationValueArray(hdf5EnumType, ordinals), HDF5IntStorageFeatures
+                        .createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(classifications.length)));
     }
 
-    public void writeClassification(ImageId id, String[] classifications)
+    public void writeClassification(ImageId id, ObjectNamespace namespace, String[] classifications)
     {
-        base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                classifications), HDF5IntStorageFeatures
-                .createFromGeneric(CellLevelBaseWritableDataset
+        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+                new HDF5EnumerationValueArray(hdf5EnumType, classifications),
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classifications.length)));
     }
 
-    public void writeClassification(ImageId id, int[] classificationOrdinals)
+    public void writeClassification(ImageId id, ObjectNamespace namespace,
+            int[] classificationOrdinals)
     {
-        base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                classificationOrdinals), HDF5IntStorageFeatures
-                .createFromGeneric(CellLevelBaseWritableDataset
+        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+                new HDF5EnumerationValueArray(hdf5EnumType, classificationOrdinals),
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classificationOrdinals.length)));
     }
 

@@ -34,9 +34,9 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         ICellLevelClassificationDataset
 {
     static final String FORMAT_TYPE = "EnumArray";
-    
+
     static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
-    
+
     CellLevelClassificationDataset(IHDF5Reader reader, String datasetCode,
             ImageQuantityStructure geometry, String formatType, int formatVersionNumber)
     {
@@ -66,30 +66,37 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return this;
     }
 
-    public String getClassification(ImageId id, int cellId)
+    public String getClassification(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getValue(0);
+        return reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()), 1, cellId)
+                .getValue(0);
     }
 
-    public <T extends Enum<T>> T getClassification(ImageId id, Class<T> enumClass, int cellId)
+    public <T extends Enum<T>> T getClassification(ImageId id, Class<T> enumClass,
+            ObjectNamespace namespace, int cellId)
     {
-        return Enum.valueOf(enumClass,
-                reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getValue(0));
+        return Enum
+                .valueOf(
+                        enumClass,
+                        reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()),
+                                1, cellId).getValue(0));
     }
 
-    public int getClassificationOrdinal(ImageId id, int cellId)
+    public int getClassificationOrdinal(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getOrdinal(0);
+        return reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()), 1, cellId)
+                .getOrdinal(0);
     }
 
-    public String[] getClassifications(ImageId id)
+    public String[] getClassifications(ImageId id, ObjectNamespace namespace)
     {
-        return reader.readEnumArrayAsString(getObjectPath(id));
+        return reader.readEnumArrayAsString(getObjectPath(id, namespace.getId()));
     }
 
-    public <T extends Enum<T>> T[] getClassifications(ImageId id, Class<T> enumClass)
+    public <T extends Enum<T>> T[] getClassifications(ImageId id, Class<T> enumClass,
+            ObjectNamespace namespace)
     {
-        final String[] clsStr = getClassifications(id);
+        final String[] clsStr = getClassifications(id, namespace);
         try
         {
             @SuppressWarnings("unchecked")
@@ -106,9 +113,10 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         }
     }
 
-    public int[] getClassificationsOrdinal(ImageId id)
+    public int[] getClassificationsOrdinal(ImageId id, ObjectNamespace namespace)
     {
-        final HDF5EnumerationValueArray array = reader.readEnumArray(getObjectPath(id));
+        final HDF5EnumerationValueArray array =
+                reader.readEnumArray(getObjectPath(id, namespace.getId()));
         final int[] ordinals = new int[array.getLength()];
         for (int i = 0; i < ordinals.length; ++i)
         {
@@ -117,7 +125,8 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return ordinals;
     }
 
-    public Iterable<CellLevelClassificationsString> getClassifications()
+    public Iterable<CellLevelClassificationsString> getClassifications(
+            final ObjectNamespace namespace)
     {
         return new Iterable<CellLevelClassificationsString>()
             {
@@ -130,7 +139,8 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id));
+                                                return reader.exists(getObjectPath(id,
+                                                        namespace.getId()));
                                             }
                                         });
 
@@ -147,7 +157,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     final ImageId id = idIterator.next();
                                     next =
                                             new CellLevelClassificationsString(id,
-                                                    getClassifications(id));
+                                                    getClassifications(id, namespace));
                                 }
                                 return true;
                             }
@@ -177,7 +187,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
     }
 
     public <T extends Enum<T>> Iterable<CellLevelClassificationsEnum<T>> getClassifications(
-            final Class<T> enumClass)
+            final Class<T> enumClass, final ObjectNamespace namespace)
     {
         return new Iterable<CellLevelClassificationsEnum<T>>()
             {
@@ -190,7 +200,8 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id));
+                                                return reader.exists(getObjectPath(id,
+                                                        namespace.getId()));
                                             }
                                         });
 
@@ -207,7 +218,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     final ImageId id = idIterator.next();
                                     next =
                                             new CellLevelClassificationsEnum<T>(id,
-                                                    getClassifications(id, enumClass));
+                                                    getClassifications(id, enumClass, namespace));
                                 }
                                 return true;
                             }
@@ -236,7 +247,8 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
             };
     }
 
-    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal()
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal(
+            final ObjectNamespace namespace)
     {
         return new Iterable<CellLevelClassificationsOrdinal>()
             {
@@ -249,7 +261,8 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id));
+                                                return reader.exists(getObjectPath(id,
+                                                        namespace.getId()));
                                             }
                                         });
 
@@ -265,8 +278,9 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     }
                                     final ImageId id = idIterator.next();
                                     next =
-                                            new CellLevelClassificationsOrdinal(id,
-                                                    getClassificationsOrdinal(id));
+                                            new CellLevelClassificationsOrdinal(
+                                                    id,
+                                                    getClassificationsOrdinal(id, namespace));
                                 }
                                 return true;
                             }

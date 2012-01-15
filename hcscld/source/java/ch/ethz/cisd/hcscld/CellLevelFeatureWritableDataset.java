@@ -185,7 +185,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
-        checkNumberOfElements(id, featureGroup.getNamespace(), featureValues.length);
+        fg.getNamespace().setOrCheckNumberOfSegmentedObjects(featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),
@@ -194,29 +194,11 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         * fg.getType().getRecordSize()));
     }
 
-    private void checkNumberOfElements(ImageId id, ObjectNamespace namespace,
-            int numberOfObjectsToWrite) throws IllegalArgumentException
-    {
-        final FeatureGroup firstFeatureGroupWithValuesOrNull =
-                tryGetFirstFeatureGroup(id, namespace);
-        if (firstFeatureGroupWithValuesOrNull != null)
-        {
-            final long numberOfObjectsOnDisk =
-                    reader.getNumberOfElements(firstFeatureGroupWithValuesOrNull.getObjectPath(id));
-            if (numberOfObjectsOnDisk != numberOfObjectsToWrite)
-            {
-                throw new IllegalArgumentException(
-                        "Wrong number of objects in feature values [found: "
-                                + numberOfObjectsToWrite + ", expected: " + numberOfObjectsOnDisk
-                                + "]");
-            }
-        }
-    }
-
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
         final FeatureGroup fg = getFirstFeatureGroup();
+        fg.getNamespace().setOrCheckNumberOfSegmentedObjects(featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),

@@ -24,51 +24,57 @@ package ch.ethz.cisd.hcscld;
 public interface ICellLevelClassificationDataset extends ICellLevelDataset
 {
     /**
-     * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
+     * Returns the classification of the given <var>cellId</var> in <var>namespace</var> of image
+     * <var>imageId</var>.
      */
-    public String getClassification(final ImageId id, int cellId);
+    public String getClassification(final ImageId imageId, ObjectNamespace namespace, int cellId);
 
     /**
-     * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
+     * Returns the classification of the given <var>cellId</var> in <var>namespace</var> of image
+     * <var>imageId</var>.
      */
     public <T extends Enum<T>> T getClassification(final ImageId id, Class<T> enumClass,
-            int cellId);
+            ObjectNamespace namespace, int cellId);
 
     /**
-     * Returns the ordinal of the classification of the given <var>cellId</var> of field
-     * <var>id</var>.
+     * Returns the ordinal of the classification of the given <var>cellId</var> in
+     * <var>namespace</var> of image <var>imageId</var>.
      */
-    public int getClassificationOrdinal(final ImageId id, int cellId);
+    public int getClassificationOrdinal(final ImageId imageId, ObjectNamespace namespace, int cellId);
 
     /**
-     * Returns the classifications of all cells of field <var>id</var>.
+     * Returns the classifications of all cells in <var>namespace</var> of image <var>imageId</var>.
      */
-    public String[] getClassifications(final ImageId id);
+    public String[] getClassifications(final ImageId imageId, ObjectNamespace namespace);
 
     /**
-     * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
+     * Returns the classification of the given <var>cellId</var> in <var>namespace</var> of image
+     * <var>imageId</var>.
      */
-    public <T extends Enum<T>> T[] getClassifications(final ImageId id, Class<T> enumClass);
+    public <T extends Enum<T>> T[] getClassifications(final ImageId imageId, Class<T> enumClass,
+            ObjectNamespace namespace);
 
     /**
-     * Returns the classification ordinals of all cells of field <var>id</var>.
+     * Returns the classification ordinals of all cells in <var>namespace</var> of image
+     * <var>imageId</var>.
      */
-    public int[] getClassificationsOrdinal(final ImageId id);
+    public int[] getClassificationsOrdinal(final ImageId imageId, ObjectNamespace namespace);
 
     /**
-     * Returns the classifications for all cells in all wells.
+     * Returns the classifications for all cells in <var>namespace</var> in all wells.
      */
-    public Iterable<CellLevelClassificationsString> getClassifications();
+    public Iterable<CellLevelClassificationsString> getClassifications(ObjectNamespace namespace);
 
     /**
-     * Returns the classifications for all cells in all wells.
+     * Returns the classifications for all cells in <var>namespace</var> in all wells.
      */
     public <T extends Enum<T>> Iterable<CellLevelClassificationsEnum<T>> getClassifications(
-            Class<T> enumClass);
+            Class<T> enumClass, ObjectNamespace namespace);
 
     /**
-     * Returns the classification ordinals for all cells in all wells.
+     * Returns the classification ordinals for all cells in <var>namespace</var> in all wells.
      */
-    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal();
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal(
+            ObjectNamespace namespace);
 
 }
