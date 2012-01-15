@@ -151,10 +151,10 @@ public class SegmentationDatasetRoundtripTest
         assertEquals("789", type.getDatasetCode());
         assertEquals("segmentationTwoObjectTypesAsCompanions.cld", type.getFile().getName());
         assertEquals(new HashSet<ObjectType>(objectTypes), type.getCompanions());
-        final Collection<ObjectNamespace> companionGroups =
+        final Collection<ObjectNamespace> namespaces =
                 rds.getObjectNamespaces();
-        assertEquals(1, companionGroups.size());
-        final ObjectNamespace cgroup = companionGroups.iterator().next();
+        assertEquals(1, namespaces.size());
+        final ObjectNamespace cgroup = namespaces.iterator().next();
         assertEquals("CELL", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(objectTypes), cgroup.getObjectTypes());
         assertEquals(2, cgroup.getNumberOfSegmentedObjects());
@@ -244,16 +244,16 @@ public class SegmentationDatasetRoundtripTest
                 .getName());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
                 nucleusType.getCompanions());
-        final Collection<ObjectNamespace> companionGroups =
+        final Collection<ObjectNamespace> namespaces =
                 rds.getObjectNamespaces();
-        assertEquals(2, companionGroups.size());
-        final Iterator<ObjectNamespace> companionGroupsIt = companionGroups.iterator();
-        ObjectNamespace cgroup = companionGroupsIt.next();
+        assertEquals(2, namespaces.size());
+        final Iterator<ObjectNamespace> namespaceIt = namespaces.iterator();
+        ObjectNamespace cgroup = namespaceIt.next();
         assertEquals("CELL_A", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(cellType)),
                 cgroup.getObjectTypes());
         assertEquals(2, cgroup.getNumberOfSegmentedObjects());
-        cgroup = companionGroupsIt.next();
+        cgroup = namespaceIt.next();
         assertEquals("CELL_B", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
                 cgroup.getObjectTypes());
@@ -349,9 +349,9 @@ public class SegmentationDatasetRoundtripTest
     }
 
     @Test
-    public void testSegmentationObjectCompanionGroupEmpty()
+    public void testSegmentationObjectNamespaceEmpty()
     {
-        File f = new File(workingDirectory, "segmentationObjectCompanionGroupEmpty.cld");
+        File f = new File(workingDirectory, "segmentationObjectNamespaceEmpty.cld");
         f.delete();
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
@@ -370,10 +370,10 @@ public class SegmentationDatasetRoundtripTest
         try
         {
             writer.close();
-            fail("Empty companion group not spotted.");
+            fail("Empty object namespace not spotted.");
         } catch (IOExceptionUnchecked ex)
         {
-            assertEquals("Dataset 789: Empty companion groups: EMPTY.", ex.getCause()
+            assertEquals("Dataset 789: Empty object namespaces: EMPTY.", ex.getCause()
                     .getMessage());
         }
     }

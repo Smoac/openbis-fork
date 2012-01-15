@@ -67,7 +67,7 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
     /**
      * Adds a new object namespace to this dataset with the given <var>id</var>.
      * 
-     * @return The object type companion group.
+     * @return The new object namespace.
      * @throws UniqueViolationException if a group with <var>id</var> already
      *             exists.
      */

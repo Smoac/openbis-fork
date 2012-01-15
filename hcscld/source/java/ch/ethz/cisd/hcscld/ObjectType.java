@@ -28,11 +28,8 @@ import java.util.Set;
  * <p>
  * Object types may be companions. Two companion object types are required to have the same number
  * of segmented objects and it is implied that objects with the same object id in the two object
- * types refer to each other. An example for companion objects are cells and cell nuclei.
- * <p>
- * Object types can only be added to a dataset before the first data object is written. At that
- * point, object types of a dataset are written to the CLD file and the object types are considered
- * <i>sealed</i>.
+ * types refer to each other. An example for companion objects are cells and cell nuclei. A
+ * companion set of object types forms an {@link ObjectNamespace}.
  * 
  * @author Bernd Rinn
  */
@@ -88,13 +85,13 @@ public class ObjectType implements IId
         return objectNamespace;
     }
 
-    void setObjectNamespace(ObjectNamespace companionGroup)
+    void setObjectNamespace(ObjectNamespace objectNamespace)
     {
-        this.objectNamespace = companionGroup;
+        this.objectNamespace = objectNamespace;
     }
 
     /**
-     * Returns the set of companion objects.
+     * Returns the set of companion objects types.
      */
     public Set<ObjectType> getCompanions()
     {

@@ -181,7 +181,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         final ObjectType result =
-                objectTypeStore.addObjectType(id, objectTypeStore.addObjectTypeCompanionGroup(id));
+                objectTypeStore.addObjectType(id, objectTypeStore.addObjectNamespace(id));
         return result;
     }
 
@@ -194,7 +194,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     public ObjectNamespace addObjectNamespace(String id)
     {
-        return objectTypeStore.addObjectTypeCompanionGroup(id);
+        return objectTypeStore.addObjectNamespace(id);
     }
 
     void checkCompatible(ObjectType objectType) throws WrongObjectTypeException

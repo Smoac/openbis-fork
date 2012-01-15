@@ -79,7 +79,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
                 reader.getEnumType(getObjectNamespacesObjectPath()).getValues();
         for (String id : objectTypeCompanionGroups)
         {
-            result.addObjectTypeCompanionGroup(id);
+            result.addObjectNamespace(id);
         }
         if (reader.isDataType(getObjectTypesObjectPath()) == false)
         {

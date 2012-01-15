@@ -231,7 +231,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                     if (emptyCompanionGroups.isEmpty() == false)
                     {
                         final StringBuilder b = new StringBuilder();
-                        b.append("Empty companion groups: ");
+                        b.append("Empty object namespaces: ");
                         for (ObjectNamespace cgroup : emptyCompanionGroups)
                         {
                             b.append(cgroup.getId());

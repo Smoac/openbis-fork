@@ -106,7 +106,7 @@ public interface ICellLevelDataset
             throws IllegalArgumentException;
 
     /**
-     * Returns all object type companion groups defined for this dataset.
+     * Returns all object namespaces defined for this dataset.
      */
     public Collection<ObjectNamespace> getObjectNamespaces();
 

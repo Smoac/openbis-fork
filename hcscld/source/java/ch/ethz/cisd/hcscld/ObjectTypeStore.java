@@ -76,13 +76,13 @@ class ObjectTypeStore
         return result;
     }
 
-    ObjectNamespace addObjectTypeCompanionGroup(String id)
+    ObjectNamespace addObjectNamespace(String id)
             throws UniqueViolationException
     {
         final String idUpperCase = id.toUpperCase();
         if (namespaces.containsKey(idUpperCase))
         {
-            throw new UniqueViolationException("Object type companion group", idUpperCase);
+            throw new UniqueViolationException("Object type namespace", idUpperCase);
         }
         final ObjectNamespace result =
                 new ObjectNamespace(cldFile, datasetCode, idUpperCase);
