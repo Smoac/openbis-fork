@@ -88,15 +88,15 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return base.addObjectType(id);
     }
 
-    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+    public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
-    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    public ObjectNamespace addObjectNamespace(String id)
     {
-        return base.addObjectTypeCompanionGroup(id);
+        return base.addObjectNamespace(id);
     }
 
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
@@ -141,7 +141,6 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, Enum<?>[] classifications)
     {
-        base.persistObjectTypes();
         final int[] ordinals = new int[classifications.length];
         for (int i = 0; i < classifications.length; ++i)
         {
@@ -154,7 +153,6 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, String[] classifications)
     {
-        base.persistObjectTypes();
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classifications), HDF5IntStorageFeatures
                 .createFromGeneric(CellLevelBaseWritableDataset
@@ -163,7 +161,6 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, int[] classificationOrdinals)
     {
-        base.persistObjectTypes();
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classificationOrdinals), HDF5IntStorageFeatures
                 .createFromGeneric(CellLevelBaseWritableDataset

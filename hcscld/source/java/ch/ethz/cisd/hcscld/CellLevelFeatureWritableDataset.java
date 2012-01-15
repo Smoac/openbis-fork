@@ -19,9 +19,13 @@ package ch.ethz.cisd.hcscld;
 import java.util.Collection;
 import java.util.List;
 
+import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
+import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.ObjectNamespaceContainer;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
+import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
@@ -35,8 +39,6 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 {
     private final CellLevelBaseWritableDataset base;
 
-    private final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType;
-
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
             final ImageQuantityStructure geometry, final HDF5CompoundMappingHints hintsOrNull,
             final HDF5EnumerationType hdf5KindEnum)
@@ -45,11 +47,38 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore, geometry,
-                        hdf5KindEnum, CellLevelDatasetType.FEATURES, FORMAT_TYPE,
-                        CURRENT_FORMAT_VERSION_NUMBER);
-        this.featureGroupCompoundType =
-                writer.getInferredCompoundType(FeatureGroupDescriptor.class);
-        writer.createCompoundArray(getFeatureGroupsFilename(), featureGroupCompoundType, 0, 1);
+                        getFlushable(writer), hdf5KindEnum, CellLevelDatasetType.FEATURES,
+                        FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
+    }
+
+    private IObjectNamespaceBasedFlushable getFlushable(final IHDF5Writer writer)
+    {
+        return new IObjectNamespaceBasedFlushable()
+            {
+                public void flush(ObjectNamespaceContainer namespaceTypeContainer)
+                {
+                    final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
+                            writer.getCompoundType(
+                                    getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),
+                                    FeatureGroupDescriptor.class,
+                                    HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
+                                        { 100 }),
+                                    HDF5CompoundMemberMapping.mapping("namespaceId").enumType(
+                                            namespaceTypeContainer.objectNamespacesType));
+                    final FeatureGroupDescriptor[] descriptors =
+                            new FeatureGroupDescriptor[featureGroups.size()];
+                    int idx = 0;
+                    for (FeatureGroup fg : featureGroups.values())
+                    {
+                        descriptors[idx++] =
+                                new FeatureGroupDescriptor(fg.getId(), new HDF5EnumerationValue(
+                                        namespaceTypeContainer.objectNamespacesType, fg
+                                                .getNamespace().getId()));
+                    }
+                    writer.writeCompoundArray(getFeatureGroupsFilename(), featureGroupCompoundType,
+                            descriptors);
+                }
+            };
     }
 
     @Override
@@ -75,15 +104,15 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return base.addObjectType(id);
     }
 
-    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+    public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
-    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    public ObjectNamespace addObjectNamespace(String id)
     {
-        return base.addObjectTypeCompanionGroup(id);
+        return base.addObjectNamespace(id);
     }
 
     HDF5EnumerationType addEnum(String name, List<String> values)
@@ -128,7 +157,6 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 
     public IFeaturesDefinition createFeaturesDefinition()
     {
-        base.persistObjectTypes();
         return new FeaturesDefinition(this);
     }
 
@@ -146,23 +174,16 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         final String idUpperCase = id.toUpperCase();
         final HDF5CompoundType<Object[]> type =
-                base.writer.getCompoundType(getDataTypeName(idUpperCase), Object[].class,
+                base.writer.getCompoundType(getFeatureGroupTypePath(idUpperCase), Object[].class,
                         features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup =
                 new FeatureGroup(idUpperCase, features.getNamespace(), type);
-        final String featureGroupsFile = getFeatureGroupsFilename();
-
-        base.writer.writeCompoundArrayBlock(featureGroupsFile, featureGroupCompoundType,
-                new FeatureGroupDescriptor[]
-                    { new FeatureGroupDescriptor(idUpperCase, features.getNamespace()) },
-                base.writer.getNumberOfElements(featureGroupsFile));
         addFeatureGroupToInternalList(featureGroup);
         return featureGroup;
     }
 
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
-        base.persistObjectTypes();
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         checkNumberOfElements(id, featureGroup.getNamespace(), featureValues.length);
         base.writer.writeCompoundArray(
@@ -173,7 +194,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         * fg.getType().getRecordSize()));
     }
 
-    private void checkNumberOfElements(ImageId id, FeatureGroupNamespace namespace,
+    private void checkNumberOfElements(ImageId id, ObjectNamespace namespace,
             int numberOfObjectsToWrite) throws IllegalArgumentException
     {
         final FeatureGroup firstFeatureGroupWithValuesOrNull =
@@ -195,7 +216,6 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
-        base.persistObjectTypes();
         final FeatureGroup fg = getFirstFeatureGroup();
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),

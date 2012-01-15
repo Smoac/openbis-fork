@@ -22,11 +22,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A class to represent an {@link ObjectType} companion group.
+ * A class to represent a namespace for segmented objects.
  * 
  * @author Bernd Rinn
  */
-public class ObjectTypeCompanionGroup implements IId
+public class ObjectNamespace implements IId
 {
     private final File file;
 
@@ -34,22 +34,22 @@ public class ObjectTypeCompanionGroup implements IId
 
     private final String id;
 
-    private final Set<ObjectType> companions;
+    private final Set<ObjectType> objectTypes;
 
-    private int numberOfSegmentationElements;
+    private int numberOfSegmentedObjects;
 
-    ObjectTypeCompanionGroup(File file, String datasetCode, String id)
+    ObjectNamespace(File file, String datasetCode, String id)
     {
         this(file, datasetCode, id, new HashSet<ObjectType>());
     }
 
-    ObjectTypeCompanionGroup(File file, String datasetCode, String id, Set<ObjectType> companions)
+    ObjectNamespace(File file, String datasetCode, String id, Set<ObjectType> objectTypes)
     {
         this.file = file;
         this.datasetCode = datasetCode;
         this.id = id.toUpperCase();
-        this.numberOfSegmentationElements = -1;
-        for (ObjectType c : companions)
+        this.numberOfSegmentedObjects = -1;
+        for (ObjectType c : objectTypes)
         {
             if (c == null)
             {
@@ -59,9 +59,9 @@ public class ObjectTypeCompanionGroup implements IId
             {
                 throw new WrongDatasetException(datasetCode, c.getDatasetCode());
             }
-            c.setCompanionGroup(this);
+            c.setObjectNamespace(this);
         }
-        this.companions = companions;
+        this.objectTypes = objectTypes;
     }
 
     public File getFile()
@@ -85,33 +85,33 @@ public class ObjectTypeCompanionGroup implements IId
         {
             throw new WrongDatasetException(datasetCode, objectType.getDatasetCode());
         }
-        objectType.setCompanionGroup(this);
-        companions.add(objectType);
+        objectType.setObjectNamespace(this);
+        objectTypes.add(objectType);
     }
 
-    public Set<ObjectType> getCompanions()
+    public Set<ObjectType> getObjectTypes()
     {
-        return Collections.unmodifiableSet(companions);
+        return Collections.unmodifiableSet(objectTypes);
     }
 
     /**
-     * Returns the number of elements that a segmentation of this companion group has, or -1, if not
+     * Returns the number of elements that a segmentation of this namespace has, or -1, if not
      * yet known.
      */
-    public int getNumberOfSegmentationElements()
+    public int getNumberOfSegmentedObjects()
     {
-        return numberOfSegmentationElements;
+        return numberOfSegmentedObjects;
     }
 
-    void setOrCheckNumberOfSegmentationElements(int segmentationNumberOfElements)
+    void setOrCheckNumberOfSegmentedObjects(int numberOfSegmentedObjects)
     {
-        if (this.numberOfSegmentationElements == -1)
+        if (this.numberOfSegmentedObjects == -1)
         {
-            this.numberOfSegmentationElements = segmentationNumberOfElements;
-        } else if (this.numberOfSegmentationElements != segmentationNumberOfElements)
+            this.numberOfSegmentedObjects = numberOfSegmentedObjects;
+        } else if (this.numberOfSegmentedObjects != numberOfSegmentedObjects)
         {
-            throw new WrongNumberOfSegmentationElementsException(datasetCode,
-                    this.numberOfSegmentationElements, segmentationNumberOfElements);
+            throw new WrongNumberOfSegmentedObjectsException(datasetCode,
+                    this.numberOfSegmentedObjects, numberOfSegmentedObjects);
         }
     }
 
@@ -121,6 +121,12 @@ public class ObjectTypeCompanionGroup implements IId
     boolean isSameDataset(ObjectType other)
     {
         return other.getFile().equals(file) && other.getDatasetCode().equals(datasetCode);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ObjectNamespace [datasetCode=" + datasetCode + ", id=" + id + "]";
     }
 
 }

@@ -79,15 +79,15 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         return base.addObjectType(id);
     }
 
-    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+    public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
-    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    public ObjectNamespace addObjectNamespace(String id)
     {
-        return base.addObjectTypeCompanionGroup(id);
+        return base.addObjectNamespace(id);
     }
 
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
@@ -124,12 +124,11 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
             List<SegmentedObject> objects)
     {
         base.checkCompatible(objectType);
-        objectType.getCompanionGroup().setOrCheckNumberOfSegmentationElements(objects.size());
+        objectType.getObjectNamespace().setOrCheckNumberOfSegmentedObjects(objects.size());
         for (SegmentedObject so : objects)
         {
             so.setObjectTypeOrNull(objectType);
         }
-        base.persistObjectTypes();
         int offset = 0;
         for (SegmentedObject o : objects)
         {
@@ -219,12 +218,12 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         b.append(".");
                         return b.toString();
                     }
-                    final Set<ObjectTypeCompanionGroup> emptyCompanionGroups =
-                            new HashSet<ObjectTypeCompanionGroup>();
-                    for (ObjectTypeCompanionGroup cgroup : objectTypeStore
-                            .getObjectTypeCompanionGroups())
+                    final Set<ObjectNamespace> emptyCompanionGroups =
+                            new HashSet<ObjectNamespace>();
+                    for (ObjectNamespace cgroup : objectTypeStore
+                            .getObjectNamespaces())
                     {
-                        if (cgroup.getCompanions().isEmpty())
+                        if (cgroup.getObjectTypes().isEmpty())
                         {
                             emptyCompanionGroups.add(cgroup);
                         }
@@ -233,7 +232,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                     {
                         final StringBuilder b = new StringBuilder();
                         b.append("Empty companion groups: ");
-                        for (ObjectTypeCompanionGroup cgroup : emptyCompanionGroups)
+                        for (ObjectNamespace cgroup : emptyCompanionGroups)
                         {
                             b.append(cgroup.getId());
                             b.append(", ");

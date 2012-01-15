@@ -44,7 +44,7 @@ public class ObjectType implements IId
 
     private final String id;
 
-    private ObjectTypeCompanionGroup companionGroup;
+    private ObjectNamespace objectNamespace;
 
     ObjectType(String id, File file, String datasetCode, ObjectType... companions)
     {
@@ -53,7 +53,7 @@ public class ObjectType implements IId
         this.datasetCode = datasetCode;
         final Set<ObjectType> companionSet = new HashSet<ObjectType>(Arrays.asList(companions));
         companionSet.add(this);
-        this.companionGroup = new ObjectTypeCompanionGroup(file, datasetCode, id, companionSet);
+        this.objectNamespace = new ObjectNamespace(file, datasetCode, id, companionSet);
     }
 
     /**
@@ -81,16 +81,16 @@ public class ObjectType implements IId
     }
 
     /**
-     * Returns the companion group that this object type is a member of.
+     * Returns the namespace that this object type is a member of.
      */
-    public ObjectTypeCompanionGroup getCompanionGroup()
+    public ObjectNamespace getObjectNamespace()
     {
-        return companionGroup;
+        return objectNamespace;
     }
 
-    void setCompanionGroup(ObjectTypeCompanionGroup companionGroup)
+    void setObjectNamespace(ObjectNamespace companionGroup)
     {
-        this.companionGroup = companionGroup;
+        this.objectNamespace = companionGroup;
     }
 
     /**
@@ -98,7 +98,7 @@ public class ObjectType implements IId
      */
     public Set<ObjectType> getCompanions()
     {
-        return companionGroup.getCompanions();
+        return objectNamespace.getObjectTypes();
     }
 
     /**

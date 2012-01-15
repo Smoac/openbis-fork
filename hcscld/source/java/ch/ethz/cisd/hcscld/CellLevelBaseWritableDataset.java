@@ -16,6 +16,8 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,9 +35,31 @@ import ch.systemsx.cisd.hdf5.IHDF5Writer;
  */
 class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLevelWritableDataset
 {
+    /**
+     * A container for the HDF5 enumeration types for object types and object namespaces.
+     */
+    static final class ObjectNamespaceContainer
+    {
+        final HDF5EnumerationType objectTypesType;
+
+        final HDF5EnumerationType objectNamespacesType;
+
+        ObjectNamespaceContainer(HDF5EnumerationType objectTypesType,
+                HDF5EnumerationType objectNamespacesType)
+        {
+            this.objectTypesType = objectTypesType;
+            this.objectNamespacesType = objectNamespacesType;
+        }
+    }
+
+    interface IObjectNamespaceBasedFlushable
+    {
+        public void flush(ObjectNamespaceContainer namespaceTypeContainer);
+    }
+
     final IHDF5Writer writer;
 
-    private boolean objectTypesPersisted;
+    final IObjectNamespaceBasedFlushable flushableOrNull;
 
     private final CellLevelDatasetTypeDescriptor datasetTypeDescriptor;
 
@@ -44,8 +68,30 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
             final HDF5EnumerationType hdf5KindEnum, final CellLevelDatasetType datasetType,
             final String formatType, final int formatVersionNumber)
     {
+        this(writer, datasetCode, objectTypeStore, quantityStructure, null, hdf5KindEnum,
+                datasetType, formatType, formatVersionNumber);
+    }
+
+    CellLevelBaseWritableDataset(final IHDF5Writer writer, final String datasetCode,
+            final ObjectTypeStore objectTypeStore, ImageQuantityStructure quantityStructure,
+            final IObjectNamespaceBasedFlushable flushableOrNull,
+            final HDF5EnumerationType hdf5KindEnum, final CellLevelDatasetType datasetType,
+            final String formatType, final int formatVersionNumber)
+    {
         super(writer, datasetCode, objectTypeStore, quantityStructure, formatVersionNumber);
         this.writer = writer;
+        this.flushableOrNull = flushableOrNull;
+        writer.addFlushable(new Flushable()
+            {
+                public void flush() throws IOException
+                {
+                    ObjectNamespaceContainer container = persistObjectNamespaces();
+                    if (flushableOrNull != null)
+                    {
+                        flushableOrNull.flush(container);
+                    }
+                }
+            });
         this.datasetTypeDescriptor =
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
@@ -136,19 +182,17 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         final ObjectType result =
                 objectTypeStore.addObjectType(id, objectTypeStore.addObjectTypeCompanionGroup(id));
-        this.objectTypesPersisted = false;
         return result;
     }
 
-    public ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+    public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         final ObjectType result = objectTypeStore.addObjectType(id, group);
-        this.objectTypesPersisted = false;
         return result;
     }
 
-    public ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    public ObjectNamespace addObjectNamespace(String id)
     {
         return objectTypeStore.addObjectTypeCompanionGroup(id);
     }
@@ -164,31 +208,39 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     }
 
     /**
-     * Persist object types to the HDF5 file. May be called multiple times, but will only be
-     * executed when the in-memory structure has changed compared to what is already persisted.
+     * Persist object types and object namespaces to the HDF5 file.
      */
-    void persistObjectTypes()
+    ObjectNamespaceContainer persistObjectNamespaces()
     {
-        if (objectTypesPersisted == false)
+        final HDF5EnumerationType objectNamespacesType;
+        if (objectTypeStore.hasObjectNamespaces())
         {
-            if (objectTypeStore.getObjectTypes().isEmpty() == false)
-            {
-                final HDF5EnumerationType objectTypesType =
-                        writer.getEnumType(getObjectTypesObjectPath(),
-                                toString(objectTypeStore.getObjectTypes()));
-                writer.getEnumType(getObjectTypeCompanionGroupsObjectPathObjectPath(),
-                        toString(objectTypeStore.getObjectTypeCompanionGroups()));
-                for (ObjectTypeCompanionGroup cgroup : objectTypeStore.getObjectTypeCompanionGroups())
-                {
-                    final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
-                    writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
-                            toString(cgroup.getCompanions())));
-                    writer.setIntAttribute(path, NUMBER_OF_ELEMENTS_ATTRIBUTE,
-                            cgroup.getNumberOfSegmentationElements());
-                }
-            }
-            this.objectTypesPersisted = true;
+            objectNamespacesType =
+                    writer.getEnumType(getObjectNamespacesObjectPath(),
+                            toString(objectTypeStore.getObjectNamespaces()));
+        } else
+        {
+            objectNamespacesType = null;
         }
+        final HDF5EnumerationType objectTypesType;
+        if (objectTypeStore.hasObjectTypes())
+        {
+            objectTypesType =
+                    writer.getEnumType(getObjectTypesObjectPath(),
+                            toString(objectTypeStore.getObjectTypes()));
+            for (ObjectNamespace cgroup : objectTypeStore.getObjectNamespaces())
+            {
+                final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
+                writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
+                        toString(cgroup.getObjectTypes())));
+                writer.setIntAttribute(path, NUMBER_OF_ELEMENTS_ATTRIBUTE,
+                        cgroup.getNumberOfSegmentedObjects());
+            }
+        } else
+        {
+            objectTypesType = null;
+        }
+        return new ObjectNamespaceContainer(objectTypesType, objectNamespacesType);
     }
 
     private String[] toString(Collection<? extends IId> objectTypes)

@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A store for {@link ObjectType}s and {@link ObjectTypeCompanionGroup}s.
+ * A store for {@link ObjectType}s and {@link ObjectNamespace}s.
  * 
  * @author Bernd Rinn
  */
@@ -32,8 +32,8 @@ class ObjectTypeStore
     /** objectTypeId -> objectType */
     private final Map<String, ObjectType> objectTypes;
 
-    /** companionGroupId -> companionGroup */
-    private final Map<String, ObjectTypeCompanionGroup> companionGroups;
+    /** namespaceId -> namespace */
+    private final Map<String, ObjectNamespace> namespaces;
 
     private final File cldFile;
 
@@ -42,7 +42,7 @@ class ObjectTypeStore
     ObjectTypeStore(File cldFile, String datasetCode)
     {
         this.objectTypes = new LinkedHashMap<String, ObjectType>();
-        this.companionGroups = new LinkedHashMap<String, ObjectTypeCompanionGroup>();
+        this.namespaces = new LinkedHashMap<String, ObjectNamespace>();
         this.cldFile = cldFile;
         this.datasetCode = datasetCode.toUpperCase();
     }
@@ -56,8 +56,13 @@ class ObjectTypeStore
     {
         return objectTypes.containsKey(id.toUpperCase());
     }
+    
+    boolean hasObjectTypes()
+    {
+        return objectTypes.isEmpty() == false;
+    }
 
-    ObjectType addObjectType(String id, ObjectTypeCompanionGroup group)
+    ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         final String idUpperCase = id.toUpperCase();
@@ -71,17 +76,17 @@ class ObjectTypeStore
         return result;
     }
 
-    ObjectTypeCompanionGroup addObjectTypeCompanionGroup(String id)
+    ObjectNamespace addObjectTypeCompanionGroup(String id)
             throws UniqueViolationException
     {
         final String idUpperCase = id.toUpperCase();
-        if (companionGroups.containsKey(idUpperCase))
+        if (namespaces.containsKey(idUpperCase))
         {
             throw new UniqueViolationException("Object type companion group", idUpperCase);
         }
-        final ObjectTypeCompanionGroup result =
-                new ObjectTypeCompanionGroup(cldFile, datasetCode, idUpperCase);
-        companionGroups.put(idUpperCase, result);
+        final ObjectNamespace result =
+                new ObjectNamespace(cldFile, datasetCode, idUpperCase);
+        namespaces.put(idUpperCase, result);
         return result;
     }
 
@@ -95,14 +100,19 @@ class ObjectTypeStore
         return objectTypes.values().toArray(new ObjectType[objectTypes.size()]);
     }
 
-    ObjectTypeCompanionGroup tryGetObjectTypeCompanionGroup(String id)
+    ObjectNamespace tryGetObjectNamespace(String id)
     {
-        return companionGroups.get(id.toUpperCase());
+        return namespaces.get(id.toUpperCase());
     }
 
-    Collection<ObjectTypeCompanionGroup> getObjectTypeCompanionGroups()
+    Collection<ObjectNamespace> getObjectNamespaces()
     {
-        return Collections.unmodifiableCollection(companionGroups.values());
+        return Collections.unmodifiableCollection(namespaces.values());
+    }
+    
+    boolean hasObjectNamespaces()
+    {
+        return namespaces.isEmpty() == false;
     }
 
 }

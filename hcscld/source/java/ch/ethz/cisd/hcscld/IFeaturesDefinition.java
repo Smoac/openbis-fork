@@ -29,22 +29,10 @@ import java.util.List;
  */
 public interface IFeaturesDefinition
 {
-
     /**
-     * Sets the id of the objects that the features of this group have been computed from.
-     * <p>
-     * <i>Call either this method or {@link #companionGroupId(String)} or else the features
-     * definition will be invalid.</i>
+     * Sets the object namespace that the features of this group have been computed from.
      */
-    public IFeaturesDefinition objectTypeId(String objectTypeId);
-
-    /**
-     * Sets the id of the companion group that the features of this group have been computed from.
-     * <p>
-     * <i>Call either this method or {@link #objectTypeId(String)} or else the features
-     * definition will be invalid.</i>
-     */
-    public IFeaturesDefinition companionGroupId(String companionGroupId);
+    public IFeaturesDefinition objectNamespace(ObjectNamespace namespace);
 
     /**
      * Adds a 8-bit integer feature (corresponding to the Java type <code>byte</code>).

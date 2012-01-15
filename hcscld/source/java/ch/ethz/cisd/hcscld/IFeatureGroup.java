@@ -49,6 +49,6 @@ public interface IFeatureGroup extends Iterable<ImageId>
      * Returns the namespace that has been used to compute the features of this feature
      * group.
      */
-    public FeatureGroupNamespace getNamespace();
+    public ObjectNamespace getNamespace();
 
 }

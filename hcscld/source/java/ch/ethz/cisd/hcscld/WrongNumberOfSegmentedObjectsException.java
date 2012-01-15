@@ -21,26 +21,26 @@ package ch.ethz.cisd.hcscld;
  * 
  * @author Bernd Rinn
  */
-public class WrongNumberOfSegmentationElementsException extends IllegalArgumentException
+public class WrongNumberOfSegmentedObjectsException extends IllegalArgumentException
 {
     private static final long serialVersionUID = 1L;
 
     private final String datasetCode;
 
-    private final int numberOfElementsExpected;
+    private final int numberOfObjectsExpected;
 
-    private final int numberOfElementsFound;
+    private final int numberOfObjectsFound;
 
-    WrongNumberOfSegmentationElementsException(String datasetCode, int numberOfElementsExpected,
-            int numberOfElementsFound)
+    WrongNumberOfSegmentedObjectsException(String datasetCode, int numberOfObjectsExpected,
+            int numberOfObjectsFound)
     {
         super(
                 String.format(
-                        "Dataset '%s [# segmentation elements expected: %d, # segmentation elements found: %d]",
-                        datasetCode, numberOfElementsExpected, numberOfElementsFound));
+                        "Dataset '%s [# segmented objects expected: %d, # segmented objects found: %d]",
+                        datasetCode, numberOfObjectsExpected, numberOfObjectsFound));
         this.datasetCode = datasetCode;
-        this.numberOfElementsExpected = numberOfElementsExpected;
-        this.numberOfElementsFound = numberOfElementsFound;
+        this.numberOfObjectsExpected = numberOfObjectsExpected;
+        this.numberOfObjectsFound = numberOfObjectsFound;
     }
 
     /**
@@ -52,19 +52,19 @@ public class WrongNumberOfSegmentationElementsException extends IllegalArgumentE
     }
 
     /**
-     * Returns the number of elements expected.
+     * Returns the number of objects expected.
      */
-    public int getNumberOfElementsExpected()
+    public int getNumberOfObjectsExpected()
     {
-        return numberOfElementsExpected;
+        return numberOfObjectsExpected;
     }
 
     /**
-     * Returns the number of elements found.
+     * Returns the number of objects found.
      */
-    public int getNumberOfElementsFound()
+    public int getNumberOfObjectsFound()
     {
-        return numberOfElementsFound;
+        return numberOfObjectsFound;
     }
 
 }

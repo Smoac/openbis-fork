@@ -31,7 +31,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 abstract class CellLevelDataset implements ICellLevelDataset
 {
-    static final String OBJECT_TYPE_DIR = "objectTypes";
+    static final String DATASET_TYPE_DIR = "__DATA_TYPES__";
 
     static final String NUMBER_OF_ELEMENTS_ATTRIBUTE = "numberOfSegmentationElements";
 
@@ -71,12 +71,12 @@ abstract class CellLevelDataset implements ICellLevelDataset
     private ObjectTypeStore readObjectTypeStore()
     {
         final ObjectTypeStore result = new ObjectTypeStore(reader.getFile(), getDatasetCode());
-        if (reader.isDataType(getObjectTypeCompanionGroupsObjectPathObjectPath()) == false)
+        if (reader.isDataType(getObjectNamespacesObjectPath()) == false)
         {
             return result;
         }
         final List<String> objectTypeCompanionGroups =
-                reader.getEnumType(getObjectTypeCompanionGroupsObjectPathObjectPath()).getValues();
+                reader.getEnumType(getObjectNamespacesObjectPath()).getValues();
         for (String id : objectTypeCompanionGroups)
         {
             result.addObjectTypeCompanionGroup(id);
@@ -92,8 +92,8 @@ abstract class CellLevelDataset implements ICellLevelDataset
             {
                 final int numberOfElements =
                         reader.getIntAttribute(cgObjectPath, NUMBER_OF_ELEMENTS_ATTRIBUTE);
-                final ObjectTypeCompanionGroup cgroup = result.tryGetObjectTypeCompanionGroup(cgId);
-                cgroup.setOrCheckNumberOfSegmentationElements(numberOfElements);
+                final ObjectNamespace cgroup = result.tryGetObjectNamespace(cgId);
+                cgroup.setOrCheckNumberOfSegmentedObjects(numberOfElements);
                 result.addObjectType(otId, cgroup);
             }
         }
@@ -156,29 +156,56 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return objectTypeStore.tryGetObjectType(objectTypeId);
     }
 
+    public ObjectType getObjectType(String objectTypeId) throws IllegalArgumentException
+    {
+        final ObjectType objectType = objectTypeStore.tryGetObjectType(objectTypeId);
+        if (objectType == null)
+        {
+            throw new IllegalArgumentException("Dataset '" + datasetCode
+                    + "' doesn't have an object type '" + objectTypeId + "'.");
+        }
+        return objectType;
+    }
+
     public Collection<ObjectType> getObjectTypes()
     {
         return objectTypeStore.getObjectTypes();
     }
 
-    public Collection<ObjectTypeCompanionGroup> getObjectTypeCompanionGroups()
+    public ObjectNamespace tryGetObjectNamespace(String objectNamespaceId)
     {
-        return objectTypeStore.getObjectTypeCompanionGroups();
+        return objectTypeStore.tryGetObjectNamespace(objectNamespaceId);
+    }
+
+    public ObjectNamespace getObjectNamespace(String objectNamespaceId)
+    {
+        final ObjectNamespace objectNamespace = objectTypeStore.tryGetObjectNamespace(objectNamespaceId);
+        if (objectNamespace == null)
+        {
+            throw new IllegalArgumentException("Dataset '" + datasetCode
+                    + "' doesn't have an object namespace '" + objectNamespace + "'.");
+        }
+        return objectNamespace;
+    }
+
+    public Collection<ObjectNamespace> getObjectNamespaces()
+    {
+        return objectTypeStore.getObjectNamespaces();
     }
 
     String getObjectTypeCompanionGroupObjectPath(String id)
     {
-        return getObjectPath(OBJECT_TYPE_DIR, String.format("ObjectTypeCompanionGroup__%s", id));
+        return getObjectPath(DATASET_TYPE_DIR, String.format("ObjectTypeCompanionGroup__%s", id));
     }
 
     String getObjectTypesObjectPath()
     {
-        return getObjectPath(OBJECT_TYPE_DIR, "Enum_ObjectTypes");
+        return getObjectPath(DATASET_TYPE_DIR, "Enum_ObjectTypes");
     }
 
-    String getObjectTypeCompanionGroupsObjectPathObjectPath()
+    String getObjectNamespacesObjectPath()
     {
-        return getObjectPath(OBJECT_TYPE_DIR, "Enum_ObjectTypeCompanionGroups");
+        return getObjectPath(DATASET_TYPE_DIR, "Enum_ObjectNamespaces");
     }
 
     public Set<String> getDatasetAnnotationKeys()

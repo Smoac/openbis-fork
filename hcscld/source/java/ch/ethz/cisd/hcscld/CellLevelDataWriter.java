@@ -36,6 +36,8 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     private final IHDF5Writer writer;
 
     private final Set<IDatasetVerifyer> datasetsWritten;
+    
+    private final boolean manageWriter;
 
     CellLevelDataWriter(File file)
     {
@@ -51,6 +53,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     {
         super(writer, manageWriter, false);
         this.writer = writer;
+        this.manageWriter = manageWriter;
         this.datasetsWritten = new HashSet<IDatasetVerifyer>();
         if (writer.hasAttribute("/", getCLDFormatTagAttributeName()) == false)
         {
@@ -124,7 +127,14 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
                 builder.append('\n');
             }
         }
-        super.close();
+        
+        if (manageWriter)
+        {
+            writer.close();
+        } else
+        {
+            writer.flush();
+        }
         if (builder != null)
         {
             builder.setLength(builder.length() - 1);

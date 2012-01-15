@@ -131,7 +131,7 @@ public class SegmentationDatasetRoundtripTest
         nuclei.get(0).setMaskPoint(71, 81);
         nuclei.get(1).setMaskPoint(210, 230);
         final ObjectType nucleusObjects =
-                wds.addObjectType("nucleus", cellObjects.getCompanionGroup());
+                wds.addObjectType("nucleus", cellObjects.getObjectNamespace());
         wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells);
         wds.writeImageSegmentation(new ImageId(1, 2, 3), nucleusObjects, nuclei);
         writer.close();
@@ -151,13 +151,13 @@ public class SegmentationDatasetRoundtripTest
         assertEquals("789", type.getDatasetCode());
         assertEquals("segmentationTwoObjectTypesAsCompanions.cld", type.getFile().getName());
         assertEquals(new HashSet<ObjectType>(objectTypes), type.getCompanions());
-        final Collection<ObjectTypeCompanionGroup> companionGroups =
-                rds.getObjectTypeCompanionGroups();
+        final Collection<ObjectNamespace> companionGroups =
+                rds.getObjectNamespaces();
         assertEquals(1, companionGroups.size());
-        final ObjectTypeCompanionGroup cgroup = companionGroups.iterator().next();
+        final ObjectNamespace cgroup = companionGroups.iterator().next();
         assertEquals("CELL", cgroup.getId());
-        assertEquals(new HashSet<ObjectType>(objectTypes), cgroup.getCompanions());
-        assertEquals(2, cgroup.getNumberOfSegmentationElements());
+        assertEquals(new HashSet<ObjectType>(objectTypes), cgroup.getObjectTypes());
+        assertEquals(2, cgroup.getNumberOfSegmentedObjects());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] cellsRead =
@@ -244,20 +244,20 @@ public class SegmentationDatasetRoundtripTest
                 .getName());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
                 nucleusType.getCompanions());
-        final Collection<ObjectTypeCompanionGroup> companionGroups =
-                rds.getObjectTypeCompanionGroups();
+        final Collection<ObjectNamespace> companionGroups =
+                rds.getObjectNamespaces();
         assertEquals(2, companionGroups.size());
-        final Iterator<ObjectTypeCompanionGroup> companionGroupsIt = companionGroups.iterator();
-        ObjectTypeCompanionGroup cgroup = companionGroupsIt.next();
+        final Iterator<ObjectNamespace> companionGroupsIt = companionGroups.iterator();
+        ObjectNamespace cgroup = companionGroupsIt.next();
         assertEquals("CELL_A", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(cellType)),
-                cgroup.getCompanions());
-        assertEquals(2, cgroup.getNumberOfSegmentationElements());
+                cgroup.getObjectTypes());
+        assertEquals(2, cgroup.getNumberOfSegmentedObjects());
         cgroup = companionGroupsIt.next();
         assertEquals("CELL_B", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
-                cgroup.getCompanions());
-        assertEquals(1, cgroup.getNumberOfSegmentationElements());
+                cgroup.getObjectTypes());
+        assertEquals(1, cgroup.getNumberOfSegmentedObjects());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] cellsARead =
@@ -290,7 +290,7 @@ public class SegmentationDatasetRoundtripTest
         reader.close();
     }
 
-    @Test(expectedExceptions = WrongNumberOfSegmentationElementsException.class)
+    @Test(expectedExceptions = WrongNumberOfSegmentedObjectsException.class)
     public void testSegmentationTwoCompanionObjectTypesInconsistentLength()
     {
         File f =
@@ -313,7 +313,7 @@ public class SegmentationDatasetRoundtripTest
                 Arrays.asList(new SegmentedObject((short) 55, (short) 65, (short) 95, (short) 105));
         nuclei.get(0).setMaskPoint(71, 81);
         final ObjectType nucleusObjects =
-                wds.addObjectType("nucleus", cellObjects.getCompanionGroup());
+                wds.addObjectType("nucleus", cellObjects.getObjectNamespace());
         wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells);
         wds.writeImageSegmentation(new ImageId(1, 2, 3), nucleusObjects, nuclei);
     }
@@ -335,7 +335,7 @@ public class SegmentationDatasetRoundtripTest
         cells.get(0).setMaskPoint(70, 80);
         cells.get(1).setMaskPoint(220, 240);
         final ObjectType cellObjects = wds.addObjectType("cell");
-        wds.addObjectType("nucleus", cellObjects.getCompanionGroup());
+        wds.addObjectType("nucleus", cellObjects.getObjectNamespace());
         wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells);
         try
         {
@@ -365,7 +365,7 @@ public class SegmentationDatasetRoundtripTest
         cells.get(0).setMaskPoint(70, 80);
         cells.get(1).setMaskPoint(220, 240);
         final ObjectType cellObjects = wds.addObjectType("cell");
-        wds.addObjectTypeCompanionGroup("empty");
+        wds.addObjectNamespace("empty");
         wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells);
         try
         {

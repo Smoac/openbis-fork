@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
-import ch.ethz.cisd.hcscld.FeatureGroupNamespace.FeatureNamespaceKind;
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
@@ -63,11 +62,12 @@ public class FeatureDatasetRoundtripTest
     }
 
     private ICellLevelFeatureWritableDataset createDefaultFeatureGroupDataset(
-            ICellLevelDataWriter writer, String dsCode, String objectType,
+            ICellLevelDataWriter writer, String dsCode, String objectNamespaceId,
             ImageQuantityStructure structure)
     {
         ICellLevelFeatureWritableDataset wds = writer.addFeatureDataset(dsCode, structure);
-        wds.createFeaturesDefinition().objectTypeId(objectType).addInt32Feature("one")
+        ObjectNamespace namespace = wds.addObjectNamespace(objectNamespaceId);
+        wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
                 .addFloat32Feature("two")
                 .addEnumFeature("three", "State", Arrays.asList("A", "B", "C")).create();
         for (ImageId id : wds.getImageQuantityStructure())
@@ -82,8 +82,9 @@ public class FeatureDatasetRoundtripTest
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("main");
         IFeatureGroup fg =
-                wds.createFeaturesDefinition().companionGroupId("main").addInt32Feature("one")
+                wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("main");
@@ -99,13 +100,14 @@ public class FeatureDatasetRoundtripTest
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("cell");
         IFeatureGroup fg1 =
-                wds.createFeaturesDefinition().objectTypeId("cell").addInt32Feature("one")
+                wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("main");
         IFeatureGroup fg2 =
-                wds.createFeaturesDefinition().objectTypeId("cell").addBooleanFeature("ok")
+                wds.createFeaturesDefinition().objectNamespace(namespace).addBooleanFeature("ok")
                         .addStringFeature("comment", 10).createFeatureGroup("quality");
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -120,13 +122,15 @@ public class FeatureDatasetRoundtripTest
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespaceA = wds.addObjectNamespace("cell_a");
+        ObjectNamespace namespaceB = wds.addObjectNamespace("cell_b");
         IFeatureGroup fg1 =
-                wds.createFeaturesDefinition().objectTypeId("cell_a").addInt32Feature("one")
+                wds.createFeaturesDefinition().objectNamespace(namespaceA).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("main");
         IFeatureGroup fg2 =
-                wds.createFeaturesDefinition().objectTypeId("cell_b").addBooleanFeature("ok")
+                wds.createFeaturesDefinition().objectNamespace(namespaceB).addBooleanFeature("ok")
                         .addStringFeature("comment", 10).createFeatureGroup("quality");
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -274,8 +278,6 @@ public class FeatureDatasetRoundtripTest
         {
             assertEquals("DEFAULT", clf.getFeatureGroup().getId());
             assertEquals("CELL", clf.getFeatureGroup().getNamespace().getId());
-            assertEquals(FeatureNamespaceKind.OBJECT_TYPE, clf.getFeatureGroup().getNamespace()
-                    .getKind());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
             assertEquals(10, clf.getValues().length);
@@ -402,7 +404,7 @@ public class FeatureDatasetRoundtripTest
         createTwoFeatureGroupsDifferentNamespacesDataset(f, dsCode);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
-        for (CellLevelFeatures clf : ds.getValues(ds.getNamespace("cell_a")))
+        for (CellLevelFeatures clf : ds.getValues(ds.getObjectNamespace("cell_a")))
         {
             assertEquals("ALL", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
@@ -421,7 +423,7 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
             }
         }
-        for (CellLevelFeatures clf : ds.getValues(ds.getNamespace("cell_b")))
+        for (CellLevelFeatures clf : ds.getValues(ds.getObjectNamespace("cell_b")))
         {
             assertEquals("ALL", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("ok", "comment"), clf.getFeatureGroup().getFeatureNames());
@@ -486,13 +488,14 @@ public class FeatureDatasetRoundtripTest
         {
             ICellLevelFeatureWritableDataset wds =
                     writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+            ObjectNamespace namespace = wds.addObjectNamespace("main");
             IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().companionGroupId("main").addInt32Feature("one")
+                    wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
                             .addFloat32Feature("two")
                             .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                             .createFeatureGroup("main");
             IFeatureGroup fg2 =
-                    wds.createFeaturesDefinition().companionGroupId("main").addBooleanFeature("ok")
+                    wds.createFeaturesDefinition().objectNamespace(namespace).addBooleanFeature("ok")
                             .addStringFeature("comment", 10).createFeatureGroup("quality");
             for (ImageId id : wds.getImageQuantityStructure())
             {

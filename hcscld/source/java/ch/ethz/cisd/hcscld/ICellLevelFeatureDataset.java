@@ -38,31 +38,19 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     public IFeatureGroup getFeatureGroup(String id)  throws IllegalArgumentException;
 
     /**
-     * Returns all feature group name spaces in this dataset.
-     */
-    public List<FeatureGroupNamespace> getNamespaces();
-
-    /**
-     * Returns the name space with the given <var>id</var>.
-     * 
-     * @throws IllegalArgumentException If a feature group name space with that id doesn't exist.
-     */
-    public FeatureGroupNamespace getNamespace(String id)  throws IllegalArgumentException;
-
-    /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      */
-    public Object[] getValues(ImageId id, FeatureGroupNamespace namespace, int cellId);
+    public Object[] getValues(ImageId id, ObjectNamespace namespace, int cellId);
 
     /**
      * Returns all feature values for all cells of field <var>id</var>.
      */
-    public Object[][] getValues(ImageId id, FeatureGroupNamespace namespace);
+    public Object[][] getValues(ImageId id, ObjectNamespace namespace);
 
     /**
      * Returns all feature values for all cells in all wells in the given <var>namespace</var>.
      */
-    public Iterable<CellLevelFeatures> getValues(FeatureGroupNamespace namespace);
+    public Iterable<CellLevelFeatures> getValues(ObjectNamespace namespace);
 
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.

@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
-import ch.ethz.cisd.hcscld.FeatureGroupNamespace.FeatureNamespaceKind;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
@@ -39,7 +38,7 @@ class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
 
-    private FeatureGroupNamespace namespace;
+    private ObjectNamespace namespace;
 
     private final List<HDF5CompoundMemberMapping> members;
 
@@ -110,19 +109,12 @@ class FeaturesDefinition implements IFeaturesDefinition
                 members.toArray(new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
-    public IFeaturesDefinition objectTypeId(String objectTypeId)
+    public IFeaturesDefinition objectNamespace(@SuppressWarnings("hiding") ObjectNamespace namespace)
     {
-        this.namespace = new FeatureGroupNamespace(objectTypeId, FeatureNamespaceKind.OBJECT_TYPE);
+        this.namespace = namespace;
         return this;
     }
-
-    public IFeaturesDefinition companionGroupId(String companionGroupId)
-    {
-        this.namespace =
-                new FeatureGroupNamespace(companionGroupId, FeatureNamespaceKind.COMPANION_GROUP);
-        return this;
-    }
-
+    
     public FeaturesDefinition addInt8Feature(String name)
     {
         checkDataset();
@@ -226,7 +218,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return Collections.unmodifiableList(memberDefinitions);
     }
 
-    FeatureGroupNamespace getNamespace()
+    ObjectNamespace getNamespace()
     {
         return namespace;
     }

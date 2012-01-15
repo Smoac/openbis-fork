@@ -78,15 +78,38 @@ public interface ICellLevelDataset
     public ObjectType tryGetObjectType(String objectTypeId);
 
     /**
+     * Returns the object type with the given <var>objectTypeId</var>.
+     * 
+     * @throws IllegalArgumentException If this dataset doesn't have an object type with
+     *             <var>objectTypeId</var>.
+     */
+    public ObjectType getObjectType(String objectTypeId) throws IllegalArgumentException;
+
+    /**
      * Returns all object types defined for this dataset.
      */
     public Collection<ObjectType> getObjectTypes();
 
     /**
+     * Returns the object namespace with the given <var>objectNamespaceId</var>, or
+     * <code>null</code>, if this dataset doesn't have an object namespace with this id.
+     */
+    public ObjectNamespace tryGetObjectNamespace(String objectNamespaceId);
+
+    /**
+     * Returns the object namespace with the given <var>objectNamespaceId</var>.
+     * 
+     * @throws IllegalArgumentException If this dataset doesn't have an object namespace with
+     *             <var>objectNamespaceId</var>.
+     */
+    public ObjectNamespace getObjectNamespace(String objectNamespaceId)
+            throws IllegalArgumentException;
+
+    /**
      * Returns all object type companion groups defined for this dataset.
      */
-    public Collection<ObjectTypeCompanionGroup> getObjectTypeCompanionGroups();
-    
+    public Collection<ObjectNamespace> getObjectNamespaces();
+
     /**
      * Returns annotation for a time series image sequence.
      * 
