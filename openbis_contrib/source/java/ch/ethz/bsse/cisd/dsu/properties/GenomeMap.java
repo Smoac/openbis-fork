@@ -31,7 +31,7 @@ public class GenomeMap
     static
     {
         genomePaths.put("10847", PATH_TO_GENOMES + "PhiX");
-        genomePaths.put("10090", PATH_TO_GENOMES + "MusMus/Ncbi37_Ensembl49");
+        genomePaths.put("10090", PATH_TO_GENOMES + "MusMus/Originals");
         genomePaths.put("9606", PATH_TO_GENOMES + "HomSap/Release36.50");
         genomePaths.put("7227", PATH_TO_GENOMES + "DrosMel/Release5");
         genomePaths.put("6239", PATH_TO_GENOMES + "Celegans/Release112708");

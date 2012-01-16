@@ -48,49 +48,68 @@ public class GetSampleProperties
 {
     private static final String SERVICE_PROPERTIES = "etc/service.properties";
 
-    private static final String END_TYPE = "END_TYPE";
+    private static final String ELAND_CONFIG_FILE = "eland_config_file";
 
-    private static final String ELAND_CONFIG_FILE = "config.txt";
+    private static final String BOWTIE_CONFIG_FILE = "bowtie_config_file";
 
-    private static final String BOWTIE_CONFIG_FILE = "bowtie.txt";
+    private static final String BCL2FASTQ_CONFIG_FILE = "bcl2fastq_config_file";
 
-    private static final String BCL2FASTQ_CONFIG_FILE = "SampleSheet.csv";
+    private static final String DEFAULT_FLOW_CELL_SPACE = "default_flow_cell_space";
 
-    private static final String DEFAULT_FLOW_CELL_SPACE = "CISD:/BSSE_FLOWCELLS/";
-
-    private static final String ORGANISM_PROPERTY = "NCBI_ORGANISM_TAXONOMY";
-
-    private static final String BARCODE_PROPERTY = "BARCODE";
-    
-    private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
-
-    private static final String CYCLES = "CYCLES_REQUESTED_BY_CUSTOMER";
-  
-    private static final String SEPARATOR = ",";
-    
-    private static final String PHIX_NAME = "phiX";
-
-    private static final String OPERATOR = "ETHZ_BSSE_DSU";
-    
-    private static final String HEADER = "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Operator,SampleProject\n";   
-    
     private static final String USERNAME = "username";
 
     private static final String PASSWORD = "password";
-    
-    private enum sampleProperties {ORGANISM_PROPERTY1, BARCODE_PROPERTY1, ISPHIX, EXTERNAL_SAMPLE_NAME1, CYCLES1}
+
+    private static final String BCL2FASTQ_SEPARATOR = "bcl2fastq_separator";
+
+    private static final String PHIX_NAME = "phix_name";
+
+    private static final String OPERATOR = "operator";
+
+    private static final String MAIL = "mail";
+
+    private static final String HEADER = "header";
+
+    // Flow Cell properties read out
+    private static final String END_TYPE = "END_TYPE";
+
+    private static final String CYCLES = "CYCLES_REQUESTED_BY_CUSTOMER";
+
+    // Biological Sample properties read out ?
+    private static final String ORGANISM_PROPERTY = "NCBI_ORGANISM_TAXONOMY";
+
+    private static final String BARCODE_PROPERTY = "BARCODE";
+
+    private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
+
+    private enum sampleProperties
+    {
+        ORGANISM_PROPERTY1, BARCODE_PROPERTY1, ISPHIX, EXTERNAL_SAMPLE_NAME1, CYCLES1
+    }
 
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             GetSampleProperties.class);
 
     public static void main(String[] args) throws IOException
     {
-        FileWriter writer = new FileWriter(ELAND_CONFIG_FILE);
-        FileWriter bowtieWriter = new FileWriter(BOWTIE_CONFIG_FILE);
         Properties prop = PropertyUtils.loadProperties(SERVICE_PROPERTIES);
+
+        // get all values from service.properties
+        FileWriter elandWriter = new FileWriter(prop.getProperty(ELAND_CONFIG_FILE));
+        FileWriter bowtieWriter = new FileWriter(prop.getProperty(BOWTIE_CONFIG_FILE));
+        FileWriter bcl2fastqWriter = new FileWriter(prop.getProperty(BCL2FASTQ_CONFIG_FILE));
+        String user = prop.getProperty(USERNAME);
+        String password = prop.getProperty(PASSWORD);
+        String default_flow_cell_space = prop.getProperty(DEFAULT_FLOW_CELL_SPACE);
+        String bcl2fastqSeparator = prop.getProperty(BCL2FASTQ_SEPARATOR);
+        String phixName = prop.getProperty(PHIX_NAME);
+        String operator = prop.getProperty(OPERATOR);
+        String mail = prop.getProperty(MAIL);
+        String header = prop.getProperty(HEADER);
+
         Long techId = 0L;
-        ArrayList <String> bcl2fastqList = new ArrayList <String>();
-        List <ArrayList<String>> fullList = new ArrayList <ArrayList<String>>();
+        ArrayList<String> bcl2fastqList = new ArrayList<String>();
+        List<ArrayList<String>> fullList = new ArrayList<ArrayList<String>>();
         String endType = "";
         String cycles = "";
 
@@ -102,9 +121,7 @@ public class GetSampleProperties
         }
 
         String serverURL = args[0];
-        String user = prop.getProperty(USERNAME);
-        String password = prop.getProperty(PASSWORD);
-        String sampleIdendtifier = DEFAULT_FLOW_CELL_SPACE + args[1];
+        String sampleIdendtifier = default_flow_cell_space + args[1];
 
         IETLLIMSService service =
                 HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverURL + "/rmi-etl",
@@ -121,13 +138,13 @@ public class GetSampleProperties
 
         } catch (Exception ex)
         {
-            System.err.println("Unknown FlowCell!");
+            System.err.println("Unknown FlowCell " + sampleIdendtifier);
             System.exit(1);
         }
 
-        System.out.println("Found "+ sample.getCode() + " with Id " + sample.getId());
+        operationLog.info("Found Sample " + sample.getCode() + " with Id " + sample.getId());
         String flowCellId = extractFlowCellId(sample.getCode());
-       
+
         // which end type: single read or paired end?
         List<IEntityProperty> p = sample.getProperties();
         for (IEntityProperty property : p)
@@ -136,10 +153,11 @@ public class GetSampleProperties
             {
                 endType = GenomeMap.getEndType(property.tryGetAsString());
             }
-            if (property.getPropertyType().getCode().equals(CYCLES)) {
+            if (property.getPropertyType().getCode().equals(CYCLES))
+            {
                 cycles = GenomeMap.getNumberOfCycles(Integer.parseInt(property.tryGetAsString()));
             }
-            
+
         }
 
         List<Sample> flowLaneSample =
@@ -151,7 +169,7 @@ public class GetSampleProperties
         for (Sample fl : flowLaneSample)
         {
             // Just extract the lane number
-      
+
             Integer ii = Integer.parseInt(fl.getIdentifier().split(":")[1]);
             parentSamples.put(
                     ii,
@@ -162,22 +180,21 @@ public class GetSampleProperties
         for (Entry<Integer, List<Sample>> entry : parentSamples.entrySet())
         {
             Integer laneNumber = entry.getKey();
-            System.out.println("Processing Lane "+ laneNumber);
             String propertyString = "";
             String pathToGenome = "";
             String bowtieIndexName = "";
             List<Sample> samples = entry.getValue();
-            
-      
+
             // get the properties of the first parent
             List<IEntityProperty> properties = samples.get(0).getProperties();
 
-            for (int i=0; i < samples.size(); i++ ) {
-                List <IEntityProperty> properties1 = samples.get(i).getProperties();
+            for (int i = 0; i < samples.size(); i++)
+            {
+                List<IEntityProperty> properties1 = samples.get(i).getProperties();
                 String sampleCode = samples.get(i).getCode();
-                HashMap <sampleProperties, String> propertiesPerSample = new HashMap<sampleProperties, String>();
-                
-                
+                HashMap<sampleProperties, String> propertiesPerSample =
+                        new HashMap<sampleProperties, String>();
+
                 for (IEntityProperty property : properties1)
                 {
                     if (property.getPropertyType().getCode().equals(ORGANISM_PROPERTY))
@@ -186,63 +203,103 @@ public class GetSampleProperties
                         bowtieIndexName = GenomeMap.getBowtieIndex(propertyString);
                         if (bowtieIndexName != null)
                         {
-                          propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,bowtieIndexName);
+                            propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,
+                                    bowtieIndexName);
+                            if (bowtieIndexName.equals(phixName))
+                            {
+                                propertiesPerSample.put(sampleProperties.ISPHIX, "Y");
+                            } else
+                            {
+                                propertiesPerSample.put(sampleProperties.ISPHIX, "N");
+                            }
+                        } else
+                        {
+                            propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,
+                                    "NO_REFERENCE_GENOME_AVAILABLE");
+                            propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,
+                                    bowtieIndexName);
                         }
-                        if (PHIX_NAME.equals(bowtieIndexName)) {
-                          propertiesPerSample.put(sampleProperties.ISPHIX,"Y");
-                        }
-                        else {
-                            propertiesPerSample.put(sampleProperties.ISPHIX,"N");
+                        if (PHIX_NAME.equals(bowtieIndexName))
+                        {
+                            propertiesPerSample.put(sampleProperties.ISPHIX, "Y");
+                        } else
+                        {
+                            propertiesPerSample.put(sampleProperties.ISPHIX, "N");
                         }
                     }
 
-                    if (property.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME)) {
-                        propertiesPerSample.put(sampleProperties.EXTERNAL_SAMPLE_NAME1,property.tryGetAsString());
+                    if (property.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME))
+                    {
+                        propertiesPerSample.put(sampleProperties.EXTERNAL_SAMPLE_NAME1,
+                                property.tryGetAsString());
                     }
 
-                    if (property.getPropertyType().getCode().equals(BARCODE_PROPERTY)) {
-                        propertiesPerSample.put(sampleProperties.BARCODE_PROPERTY1, property.tryGetAsString());
+                    if (property.getPropertyType().getCode().equals(BARCODE_PROPERTY))
+                    {
+                        // only take the first six nucleotides of the barcode
+                        String barcode = property.tryGetAsString();
+                        String strippedBarcode = barcode.substring(0, barcode.length() - 1);
+                        propertiesPerSample
+                                .put(sampleProperties.BARCODE_PROPERTY1, strippedBarcode);
                     }
-                  
-                 }
-                
-                 // when not barcoded
-                 if (propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1) == null) {
-                     // when it is a single sample in a single lane 
-                     if (samples.size() < 2) {
-                         bcl2fastqList.add(flowCellId + SEPARATOR + laneNumber + SEPARATOR + sampleCode + 
-                                 SEPARATOR + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1) + SEPARATOR + 
-                                 SEPARATOR + propertiesPerSample.get(sampleProperties.EXTERNAL_SAMPLE_NAME1) + 
-                                 SEPARATOR + propertiesPerSample.get(sampleProperties.ISPHIX) +
-                                 SEPARATOR + cycles + 
-                                 SEPARATOR + OPERATOR +
-                                 SEPARATOR + sample.getCode() + "_" + laneNumber + "\n");
-                     }
-                 }
-                 else {
-                     bcl2fastqList.add(flowCellId + SEPARATOR + laneNumber + SEPARATOR + sampleCode + 
-                         SEPARATOR + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1) +
-                         SEPARATOR + propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1) +
-                         SEPARATOR + propertiesPerSample.get(sampleProperties.EXTERNAL_SAMPLE_NAME1) +
-                         SEPARATOR + propertiesPerSample.get(sampleProperties.ISPHIX) +
-                         SEPARATOR + cycles + 
-                         SEPARATOR + OPERATOR +
-                         SEPARATOR + sample.getCode() + "_" + laneNumber + "\n");
-                 }
+
+                }
+
+                // when not barcoded
+                if (propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1) == null)
+                {
+                    // when it is a single sample in a single lane
+                    if (samples.size() < 2)
+                    {
+                        bcl2fastqList.add(flowCellId
+                                + bcl2fastqSeparator
+                                + laneNumber
+                                + bcl2fastqSeparator
+                                + sampleCode
+                                + "_"
+                                + flowCellId
+                                + bcl2fastqSeparator
+                                + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1)
+                                + bcl2fastqSeparator
+                                + bcl2fastqSeparator
+                                + cleanString(propertiesPerSample
+                                        .get(sampleProperties.EXTERNAL_SAMPLE_NAME1))
+                                + bcl2fastqSeparator
+                                + propertiesPerSample.get(sampleProperties.ISPHIX)
+                                + bcl2fastqSeparator + cycles + bcl2fastqSeparator + operator
+                                + bcl2fastqSeparator + sample.getCode() + "_" + laneNumber + "\n");
+                    }
+                } else
+                {
+                    bcl2fastqList.add(flowCellId
+                            + bcl2fastqSeparator
+                            + laneNumber
+                            + bcl2fastqSeparator
+                            + sampleCode
+                            + "_"
+                            + flowCellId
+                            + bcl2fastqSeparator
+                            + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1)
+                            + bcl2fastqSeparator
+                            + propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1)
+                            + bcl2fastqSeparator
+                            + cleanString(propertiesPerSample
+                                    .get(sampleProperties.EXTERNAL_SAMPLE_NAME1))
+                            + bcl2fastqSeparator + propertiesPerSample.get(sampleProperties.ISPHIX)
+                            + bcl2fastqSeparator + cycles + bcl2fastqSeparator + operator
+                            + bcl2fastqSeparator + sample.getCode() + "_" + laneNumber + "\n");
+                }
             }
             fullList.add(bcl2fastqList);
             bcl2fastqList = new ArrayList<String>();
 
-            
-            
             for (IEntityProperty property : properties)
             {
-                
-                if (property.getPropertyType().getCode().equals(BARCODE_PROPERTY)) {
+                if (property.getPropertyType().getCode().equals(BARCODE_PROPERTY))
+                {
                     propertyString = property.tryGetAsString();
-                    //System.out.println("Barcode: " + propertyString);
                 }
-                
+
                 if (property.getPropertyType().getCode().equals(ORGANISM_PROPERTY))
                 {
                     try
@@ -251,9 +308,10 @@ public class GetSampleProperties
                         pathToGenome = GenomeMap.getGenomePath(propertyString);
                         bowtieIndexName = GenomeMap.getBowtieIndex(propertyString);
                         if (pathToGenome != null)
+                        // TODO: if null then handle properly
                         {
-                            writer.write(laneNumber + ":ELAND_GENOME " + pathToGenome + "\n");
-                            writer.write(laneNumber + ":ANALYSIS " + endType + "\n");
+                            elandWriter.write(laneNumber + ":ELAND_GENOME " + pathToGenome + "\n");
+                            elandWriter.write(laneNumber + ":ANALYSIS " + endType + "\n");
                             bowtieWriter.write(bowtieIndexName + "\n");
                         }
 
@@ -264,23 +322,28 @@ public class GetSampleProperties
                 }
             }
         }
-        writer.write("ELAND_SET_SIZE 20\n" + "EMAIL_LIST manuel.kohler@bsse.ethz.ch");
-        writer.close();
+        elandWriter.write("ELAND_FASTQ_FILES_PER_PROCESS 8\n" + "EMAIL_LIST " + mail);
+        elandWriter.close();
         bowtieWriter.close();
-        operationLog.info("Writing " + ELAND_CONFIG_FILE);
-        operationLog.info("Writing " + BOWTIE_CONFIG_FILE);
-        
-        writebcl2fastqList(fullList);
+        writebcl2fastqList(bcl2fastqWriter, fullList, header);
+        operationLog.info("Writing " + prop.getProperty(BCL2FASTQ_CONFIG_FILE)
+                + " for BCL to FASTQ conversion");
+        operationLog
+                .info("Writing " + prop.getProperty(ELAND_CONFIG_FILE) + " for Eland Alignment");
+        operationLog.info("Writing " + prop.getProperty(BOWTIE_CONFIG_FILE)
+                + " for Bowtie Alignment");
         service.logout(sessionToken);
     }
 
-    private static void writebcl2fastqList(List<ArrayList<String>> fullList) throws IOException
+    private static void writebcl2fastqList(FileWriter bcl2fastqWriter,
+            List<ArrayList<String>> fullList, String header) throws IOException
     {
-        FileWriter bcl2fastqWriter = new FileWriter(BCL2FASTQ_CONFIG_FILE);
-        bcl2fastqWriter.write(HEADER);
-        
-        for (List<String> element  : fullList) {
-            for (String e : element) {
+        bcl2fastqWriter.write(header + "\n");
+
+        for (List<String> element : fullList)
+        {
+            for (String e : element)
+            {
                 operationLog.debug(e);
                 bcl2fastqWriter.write(e);
             }
@@ -301,11 +364,29 @@ public class GetSampleProperties
         String jarName = tokens[tokens.length - 1] + ".jar";
         return jarName;
     }
-    
-    private static String extractFlowCellId(String flowCellName) {
-        String flowCell [] = flowCellName.split("_");
-        // substring removes the A or B which is the Flow Cell tray in the HiSeq
-        return (flowCell[flowCell.length-1].substring(1));
+
+    private static String extractFlowCellId(String flowCellName)
+    {
+        String flowCell[] = flowCellName.split("_");
+        // this is a GA
+        if (flowCell.length == 2)
+        {
+            return (flowCell[flowCell.length - 1]);
+        } else
+        {
+            // substring removes the A or B which is the Flow Cell tray in the HiSeq
+            return (flowCell[flowCell.length - 1].substring(1));
+        }
+    }
+
+    public static String cleanString(String dirtyString)
+    /*
+     * Replace all (Unicode) characters that are neither letters nor numbers with a "_"
+     */
+    {
+        String cleanString = dirtyString.replaceAll("[^\\p{L}\\p{N}]", "_");
+        return cleanString;
+
     }
 
 }
