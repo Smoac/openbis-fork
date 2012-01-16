@@ -36,7 +36,6 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
-import ch.systemsx.cisd.common.collections.Modifiable;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
@@ -68,23 +67,30 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormatsList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformationList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescriptionList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadataList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -1383,88 +1389,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public int getMinorVersion()
     {
         return MINOR_VERSION;
-    }
-
-    //
-    // JSON-RPC
-    //
-
-    private static class FeatureInformationList extends ArrayList<FeatureInformation> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public FeatureInformationList(Collection<? extends FeatureInformation> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class FeatureVectorDatasetList extends ArrayList<FeatureVectorDataset> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public FeatureVectorDatasetList(Collection<? extends FeatureVectorDataset> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class FeatureVectorWithDescriptionList extends
-            ArrayList<FeatureVectorWithDescription> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public FeatureVectorWithDescriptionList(Collection<? extends FeatureVectorWithDescription> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public PlateImageReferenceList(Collection<? extends PlateImageReference> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class MicroscopyImageReferenceList extends ArrayList<MicroscopyImageReference>
-            implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public MicroscopyImageReferenceList(Collection<? extends MicroscopyImageReference> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class ImageDatasetMetadataList extends ArrayList<ImageDatasetMetadata> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public ImageDatasetMetadataList(Collection<? extends ImageDatasetMetadata> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class DatasetImageRepresentationFormatsList extends
-            ArrayList<DatasetImageRepresentationFormats> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public DatasetImageRepresentationFormatsList(
-                Collection<? extends DatasetImageRepresentationFormats> c)
-        {
-            super(c);
-        }
     }
 
 }

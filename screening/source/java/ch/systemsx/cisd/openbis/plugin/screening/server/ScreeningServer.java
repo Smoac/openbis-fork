@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.collections.Modifiable;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -78,18 +77,27 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifierList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifierList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadataList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMappingList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasetsList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifierList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
@@ -538,108 +546,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         checkSession(sessionToken);
         return createScreeningApiImpl(sessionToken).getExperimentImageMetadata(experimentIdentifer);
-    }
-
-    //
-    // JSON-RPC
-    //
-
-    private static class FeatureVectorDatasetReferenceList extends
-            ArrayList<FeatureVectorDatasetReference> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public FeatureVectorDatasetReferenceList(
-                Collection<? extends FeatureVectorDatasetReference> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class PlateList extends ArrayList<Plate> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public PlateList(Collection<? extends Plate> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class PlateMetadataList extends ArrayList<PlateMetadata> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public PlateMetadataList(Collection<? extends PlateMetadata> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class ExperimentIdentifierList extends ArrayList<ExperimentIdentifier> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public ExperimentIdentifierList(Collection<? extends ExperimentIdentifier> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class ImageDatasetReferenceList extends ArrayList<ImageDatasetReference>
-            implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public ImageDatasetReferenceList(Collection<? extends ImageDatasetReference> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class IDatasetIdentifierList extends ArrayList<IDatasetIdentifier> implements
-            Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public IDatasetIdentifierList(Collection<? extends IDatasetIdentifier> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class PlateWellReferenceWithDatasetsList extends
-            ArrayList<PlateWellReferenceWithDatasets> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public PlateWellReferenceWithDatasetsList(
-                Collection<? extends PlateWellReferenceWithDatasets> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public WellIdentifierList(Collection<? extends WellIdentifier> c)
-        {
-            super(c);
-        }
-    }
-
-    private static class PlateWellMaterialMappingList extends ArrayList<PlateWellMaterialMapping>
-            implements Modifiable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public PlateWellMaterialMappingList(Collection<? extends PlateWellMaterialMapping> c)
-        {
-            super(c);
-        }
     }
 
 }
