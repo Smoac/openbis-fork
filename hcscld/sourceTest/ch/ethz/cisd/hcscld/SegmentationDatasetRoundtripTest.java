@@ -32,6 +32,7 @@ import java.util.List;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
 /**
@@ -151,13 +152,11 @@ public class SegmentationDatasetRoundtripTest
         assertEquals("789", type.getDatasetCode());
         assertEquals("segmentationTwoObjectTypesAsCompanions.cld", type.getFile().getName());
         assertEquals(new HashSet<ObjectType>(objectTypes), type.getCompanions());
-        final Collection<ObjectNamespace> namespaces =
-                rds.getObjectNamespaces();
+        final Collection<ObjectNamespace> namespaces = rds.getObjectNamespaces();
         assertEquals(1, namespaces.size());
         final ObjectNamespace cgroup = namespaces.iterator().next();
         assertEquals("CELL", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(objectTypes), cgroup.getObjectTypes());
-        assertEquals(2, cgroup.getNumberOfSegmentedObjects());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] cellsRead =
@@ -244,20 +243,17 @@ public class SegmentationDatasetRoundtripTest
                 .getName());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
                 nucleusType.getCompanions());
-        final Collection<ObjectNamespace> namespaces =
-                rds.getObjectNamespaces();
+        final Collection<ObjectNamespace> namespaces = rds.getObjectNamespaces();
         assertEquals(2, namespaces.size());
         final Iterator<ObjectNamespace> namespaceIt = namespaces.iterator();
         ObjectNamespace cgroup = namespaceIt.next();
         assertEquals("CELL_A", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(cellType)),
                 cgroup.getObjectTypes());
-        assertEquals(2, cgroup.getNumberOfSegmentedObjects());
         cgroup = namespaceIt.next();
         assertEquals("CELL_B", cgroup.getId());
         assertEquals(new HashSet<ObjectType>(Collections.singleton(nucleusType)),
                 cgroup.getObjectTypes());
-        assertEquals(1, cgroup.getNumberOfSegmentedObjects());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] cellsARead =
@@ -288,6 +284,65 @@ public class SegmentationDatasetRoundtripTest
         assertTrue(cellsBRead[0].getMaskPoint(71, 81));
         assertFalse(cellsBRead[0].getMaskPoint(70, 80));
         reader.close();
+    }
+
+    @Test
+    public void testSegmentationTwoImages()
+    {
+        File f = new File(workingDirectory, "segmentationTwoImages.cld");
+        f.delete();
+        f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        ICellLevelSegmentationWritableDataset wds =
+                writer.addSegmentationDataset("789", new ImageQuantityStructure(2, 3, 4),
+                        new ImageGeometry(1024, 1024), true);
+        List<SegmentedObject> cells1 =
+                Arrays.asList(
+                        new SegmentedObject((short) 50, (short) 60, (short) 100, (short) 110),
+                        new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
+        cells1.get(0).setMaskPoint(70, 80);
+        cells1.get(1).setMaskPoint(220, 240);
+        final ObjectType cellObjects = wds.addObjectType("cell");
+        List<SegmentedObject> cells2 =
+                Arrays.asList(new SegmentedObject((short) 55, (short) 65, (short) 95, (short) 105));
+        cells2.get(0).setMaskPoint(71, 81);
+        // Here we check that the length consistency check is done per image.
+        wds.writeImageSegmentation(new ImageId(1, 1, 1), cellObjects, cells1);
+        wds.writeImageSegmentation(new ImageId(1, 2, 3), cellObjects, cells2);
+        writer.close();
+
+        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        ICellLevelSegmentationDataset rds = reader.getDataSet("789").toSegmentationDataset();
+        assertEquals(cells1,
+                Arrays.asList(rds.getObjects(new ImageId(1, 1, 1), cellObjects, false)));
+        assertEquals(cells2,
+                Arrays.asList(rds.getObjects(new ImageId(1, 2, 3), cellObjects, false)));
+        reader.close();
+    }
+
+    @Test(expectedExceptions = WrongNumberOfSegmentedObjectsException.class)
+    public void testSegmentationTwoImagesInSequence()
+    {
+        File f = new File(workingDirectory, "segmentationTwoImagesInSequence.cld");
+        f.delete();
+        f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        ICellLevelSegmentationWritableDataset wds =
+                writer.addSegmentationDataset("789", new ImageQuantityStructure(2,
+                        SequenceType.TIMESERIES, true), new ImageGeometry(1024, 1024), true);
+        List<SegmentedObject> cells1 =
+                Arrays.asList(
+                        new SegmentedObject((short) 50, (short) 60, (short) 100, (short) 110),
+                        new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
+        cells1.get(0).setMaskPoint(70, 80);
+        cells1.get(1).setMaskPoint(220, 240);
+        final ObjectType cellObjects = wds.addObjectType("cell");
+        List<SegmentedObject> cells2 =
+                Arrays.asList(new SegmentedObject((short) 55, (short) 65, (short) 95, (short) 105));
+        cells2.get(0).setMaskPoint(71, 81);
+        // Here we check that the length consistency check is done per sequence.
+        wds.writeImageSegmentation(new ImageId(0), cellObjects, cells1);
+        wds.writeImageSegmentation(new ImageId(1), cellObjects, cells2);
     }
 
     @Test(expectedExceptions = WrongNumberOfSegmentedObjectsException.class)
@@ -373,8 +428,7 @@ public class SegmentationDatasetRoundtripTest
             fail("Empty object namespace not spotted.");
         } catch (IOExceptionUnchecked ex)
         {
-            assertEquals("Dataset 789: Empty object namespaces: EMPTY.", ex.getCause()
-                    .getMessage());
+            assertEquals("Dataset 789: Empty object namespaces: EMPTY.", ex.getCause().getMessage());
         }
     }
 

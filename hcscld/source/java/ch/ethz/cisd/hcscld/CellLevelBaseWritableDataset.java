@@ -233,8 +233,6 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
                 final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
                 writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
                         toString(cgroup.getObjectTypes())));
-                writer.setIntAttribute(path, NUMBER_OF_ELEMENTS_ATTRIBUTE,
-                        cgroup.getNumberOfSegmentedObjects());
             }
         } else
         {

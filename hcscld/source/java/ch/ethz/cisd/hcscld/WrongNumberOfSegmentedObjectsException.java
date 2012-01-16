@@ -26,19 +26,21 @@ public class WrongNumberOfSegmentedObjectsException extends IllegalArgumentExcep
     private static final long serialVersionUID = 1L;
 
     private final String datasetCode;
+    
+    private final ImageId imageId;
 
     private final int numberOfObjectsExpected;
 
     private final int numberOfObjectsFound;
 
-    WrongNumberOfSegmentedObjectsException(String datasetCode, int numberOfObjectsExpected,
-            int numberOfObjectsFound)
+    WrongNumberOfSegmentedObjectsException(String datasetCode, ImageId imageId,
+            int numberOfObjectsExpected, int numberOfObjectsFound)
     {
-        super(
-                String.format(
-                        "Dataset '%s [# segmented objects expected: %d, # segmented objects found: %d]",
-                        datasetCode, numberOfObjectsExpected, numberOfObjectsFound));
+        super(String.format(
+                "Dataset '%s', %s [# segmented objects expected: %d, # segmented objects found: %d]",
+                datasetCode, imageId, numberOfObjectsExpected, numberOfObjectsFound));
         this.datasetCode = datasetCode;
+        this.imageId = imageId;
         this.numberOfObjectsExpected = numberOfObjectsExpected;
         this.numberOfObjectsFound = numberOfObjectsFound;
     }
@@ -49,6 +51,14 @@ public class WrongNumberOfSegmentedObjectsException extends IllegalArgumentExcep
     public String getDatasetCode()
     {
         return datasetCode;
+    }
+
+    /**
+     * Returns the image id where the exception occurred.
+     */
+    public ImageId getImageId()
+    {
+        return imageId;
     }
 
     /**

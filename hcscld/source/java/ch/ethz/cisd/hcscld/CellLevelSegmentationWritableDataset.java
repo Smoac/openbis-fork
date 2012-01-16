@@ -124,7 +124,8 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
             List<SegmentedObject> objects)
     {
         base.checkCompatible(objectType);
-        objectType.getObjectNamespace().setOrCheckNumberOfSegmentedObjects(objects.size());
+        objectType.getObjectNamespace().checkNumberOfSegmentedObjects(
+                getImageQuantityStructure(), id, objects.size());
         for (SegmentedObject so : objects)
         {
             so.setObjectTypeOrNull(objectType);
@@ -220,8 +221,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                     }
                     final Set<ObjectNamespace> emptyCompanionGroups =
                             new HashSet<ObjectNamespace>();
-                    for (ObjectNamespace cgroup : objectTypeStore
-                            .getObjectNamespaces())
+                    for (ObjectNamespace cgroup : objectTypeStore.getObjectNamespaces())
                     {
                         if (cgroup.getObjectTypes().isEmpty())
                         {

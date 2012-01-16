@@ -185,7 +185,8 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
-        fg.getNamespace().setOrCheckNumberOfSegmentedObjects(featureValues.length);
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),
@@ -198,7 +199,8 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         checkDefaultFeatureGroup();
         final FeatureGroup fg = getFirstFeatureGroup();
-        fg.getNamespace().setOrCheckNumberOfSegmentedObjects(featureValues.length);
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),

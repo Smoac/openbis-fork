@@ -156,6 +156,23 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" } };
     }
 
+    private Object[][] createNonStandardValue(ImageId id)
+    {
+        return new Object[][]
+            {
+                { id.getRow(), 0 + id.getColumn() / 10f, State.A },
+                { id.getRow() + 1, 1 + id.getColumn() / 10f, "B" },
+                { id.getRow() + 2, 2 + id.getColumn() / 10f, "C" },
+                { id.getRow() + 3, 3 + id.getColumn() / 10f, "A" },
+                { id.getRow() + 4, 4 + id.getColumn() / 10f, 1 },
+                { id.getRow() + 5, 5 + id.getColumn() / 10f, "C" },
+                { id.getRow() + 6, 6 + id.getColumn() / 10f, 0 },
+                { id.getRow() + 7, 7 + id.getColumn() / 10f, "B" },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, State.C },
+                { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" },
+                { id.getRow() + 10, 10 + id.getColumn() / 10f, 1 } };
+    }
+
     private Object[][] createQualityValue1(ImageId id)
     {
         return new Object[][]
@@ -490,19 +507,47 @@ public class FeatureDatasetRoundtripTest
                     writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
             ObjectNamespace namespace = wds.addObjectNamespace("main");
             IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
-                            .addFloat32Feature("two")
+                    wds.createFeaturesDefinition().objectNamespace(namespace)
+                            .addInt32Feature("one").addFloat32Feature("two")
                             .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                             .createFeatureGroup("main");
             IFeatureGroup fg2 =
-                    wds.createFeaturesDefinition().objectNamespace(namespace).addBooleanFeature("ok")
-                            .addStringFeature("comment", 10).createFeatureGroup("quality");
+                    wds.createFeaturesDefinition().objectNamespace(namespace)
+                            .addBooleanFeature("ok").addStringFeature("comment", 10)
+                            .createFeatureGroup("quality");
             for (ImageId id : wds.getImageQuantityStructure())
             {
                 wds.writeFeatures(id, fg1, createStandardValue(id));
                 Object[][] quality = createQualityValue2(id);
                 wds.writeFeatures(id, fg2, quality);
             }
+        } finally
+        {
+            writer.close();
+        }
+    }
+
+    @Test
+    public void testFeaturesTwoImages()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "twoFeaturesTwoImages.cld");
+        f.delete();
+        f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        try
+        {
+            ICellLevelFeatureWritableDataset wds =
+                    writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+            ObjectNamespace namespace = wds.addObjectNamespace("main");
+            IFeatureGroup fg1 =
+                    wds.createFeaturesDefinition().objectNamespace(namespace)
+                            .addInt32Feature("one").addFloat32Feature("two")
+                            .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
+                            .createFeatureGroup("main");
+            wds.writeFeatures(new ImageId(1, 1, 1), fg1, createStandardValue(new ImageId(1, 1, 1)));
+            wds.writeFeatures(new ImageId(1, 1, 2), fg1,
+                    createNonStandardValue(new ImageId(1, 1, 2)));
         } finally
         {
             writer.close();

@@ -18,7 +18,9 @@ package ch.ethz.cisd.hcscld;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,7 +38,7 @@ public class ObjectNamespace implements IId
 
     private final Set<ObjectType> objectTypes;
 
-    private int numberOfSegmentedObjects;
+    private final Map<ImageId, Integer> numberOfSegmentedObjects;
 
     ObjectNamespace(File file, String datasetCode, String id)
     {
@@ -48,7 +50,7 @@ public class ObjectNamespace implements IId
         this.file = file;
         this.datasetCode = datasetCode;
         this.id = id.toUpperCase();
-        this.numberOfSegmentedObjects = -1;
+        this.numberOfSegmentedObjects = new HashMap<ImageId, Integer>();
         for (ObjectType c : objectTypes)
         {
             if (c == null)
@@ -94,24 +96,25 @@ public class ObjectNamespace implements IId
         return Collections.unmodifiableSet(objectTypes);
     }
 
-    /**
-     * Returns the number of elements that a segmentation of this namespace has, or -1, if not
-     * yet known.
-     */
-    public int getNumberOfSegmentedObjects()
+    void checkNumberOfSegmentedObjects(ImageQuantityStructure structure, ImageId imageId,
+            @SuppressWarnings("hiding") int numberOfSegmentedObjects)
     {
-        return numberOfSegmentedObjects;
-    }
-
-    void setOrCheckNumberOfSegmentedObjects(int numberOfSegmentedObjects)
-    {
-        if (this.numberOfSegmentedObjects == -1)
+        final ImageId imageIdRef;
+        if (structure.isObjectsIdenticalInSequence() && structure.getSequenceLength() > 1)
         {
-            this.numberOfSegmentedObjects = numberOfSegmentedObjects;
-        } else if (this.numberOfSegmentedObjects != numberOfSegmentedObjects)
+            imageIdRef = new ImageId(imageId.getRow(), imageId.getColumn(), imageId.getField(), 0);
+        } else
         {
-            throw new WrongNumberOfSegmentedObjectsException(datasetCode,
-                    this.numberOfSegmentedObjects, numberOfSegmentedObjects);
+            imageIdRef = imageId;
+        }
+        final Integer segObjects = this.numberOfSegmentedObjects.get(imageIdRef);
+        if (segObjects == null)
+        {
+            this.numberOfSegmentedObjects.put(imageIdRef, numberOfSegmentedObjects);
+        } else if (segObjects != numberOfSegmentedObjects)
+        {
+            throw new WrongNumberOfSegmentedObjectsException(datasetCode, imageId, segObjects,
+                    numberOfSegmentedObjects);
         }
     }
 

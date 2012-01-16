@@ -35,12 +35,13 @@ class SegmentedObjectBox
         this.miny = Short.MAX_VALUE;
     }
     
-    public SegmentedObjectBox(short minx, short miny, short maxx, short maxy)
+    public SegmentedObjectBox(short minx, short miny, short maxx, short maxy, int offsetInPixels)
     {
         this.minx = minx;
         this.miny = miny;
         this.maxx = maxx;
         this.maxy = maxy;
+        this.offsetInPixels = offsetInPixels;
     }
 
     /**
@@ -187,9 +188,61 @@ class SegmentedObjectBox
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + maxx;
+        result = prime * result + maxy;
+        result = prime * result + minx;
+        result = prime * result + miny;
+        result = prime * result + offsetInPixels;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        SegmentedObjectBox other = (SegmentedObjectBox) obj;
+        if (maxx != other.maxx)
+        {
+            return false;
+        }
+        if (maxy != other.maxy)
+        {
+            return false;
+        }
+        if (minx != other.minx)
+        {
+            return false;
+        }
+        if (miny != other.miny)
+        {
+            return false;
+        }
+        if (offsetInPixels != other.offsetInPixels)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public String toString()
     {
-        return "ImageSegmentedObjectBox [minx=" + minx + ", miny=" + miny + ", maxx=" + maxx
+        return "SegmentedObjectBox [minx=" + minx + ", miny=" + miny + ", maxx=" + maxx
                 + ", maxy=" + maxy + ", offsetInPixels=" + offsetInPixels + "]";
     }
 }

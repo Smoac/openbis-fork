@@ -33,8 +33,6 @@ abstract class CellLevelDataset implements ICellLevelDataset
 {
     static final String DATASET_TYPE_DIR = "__DATA_TYPES__";
 
-    static final String NUMBER_OF_ELEMENTS_ATTRIBUTE = "numberOfSegmentationElements";
-
     final IHDF5Reader reader;
 
     final String datasetCode;
@@ -90,10 +88,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
             final String cgObjectPath = getObjectTypeCompanionGroupObjectPath(cgId);
             for (String otId : reader.readEnumArray(cgObjectPath).getValues())
             {
-                final int numberOfElements =
-                        reader.getIntAttribute(cgObjectPath, NUMBER_OF_ELEMENTS_ATTRIBUTE);
                 final ObjectNamespace cgroup = result.tryGetObjectNamespace(cgId);
-                cgroup.setOrCheckNumberOfSegmentedObjects(numberOfElements);
                 result.addObjectType(otId, cgroup);
             }
         }

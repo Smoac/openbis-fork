@@ -38,49 +38,66 @@ public class SegmentedObject extends SegmentedObjectBox
 
     public SegmentedObject(ObjectType objectType, short minx, short miny, short maxx, short maxy)
     {
-        this(objectType, minx, miny, maxx, maxy, null, null);
+        this(objectType, minx, miny, maxx, maxy, 0, null, null);
     }
 
     public SegmentedObject(ObjectType objectType, short minx, short miny, short maxx, short maxy,
             BitSet mask)
     {
-        this(objectType, minx, miny, maxx, maxy, mask, null);
+        this(objectType, minx, miny, maxx, maxy, 0, mask, null);
     }
 
     public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask,
             BitSet edgeMaskOrNull)
     {
-        this(null, minx, miny, maxx, maxy, mask, edgeMaskOrNull);
+        this(null, minx, miny, maxx, maxy, 0, mask, edgeMaskOrNull);
+    }
+
+    SegmentedObject(short minx, short miny, short maxx, short maxy, int offsetInPixels, BitSet mask,
+            BitSet edgeMaskOrNull)
+    {
+        this(null, minx, miny, maxx, maxy, offsetInPixels, mask, edgeMaskOrNull);
     }
 
     public SegmentedObject(short minx, short miny, short maxx, short maxy)
     {
-        this(null, minx, miny, maxx, maxy, null, null);
+        this(null, minx, miny, maxx, maxy, 0, null, null);
     }
 
     public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask)
     {
-        this(null, minx, miny, maxx, maxy, mask, null);
+        this(null, minx, miny, maxx, maxy, 0, mask, null);
+    }
+
+    SegmentedObject(short minx, short miny, short maxx, short maxy, int offsetInPixels, BitSet mask)
+    {
+        this(null, minx, miny, maxx, maxy, offsetInPixels, mask, null);
     }
 
     SegmentedObject(SegmentedObjectBox box, BitSet mask)
     {
-        this(box.minx, box.miny, box.maxx, box.maxy, mask);
+        this(box.minx, box.miny, box.maxx, box.maxy, box.offsetInPixels, mask);
+    }
+
+    SegmentedObject(SegmentedObjectBox box, BitSet mask, BitSet edgeMaskOrNull)
+    {
+        this(box.minx, box.miny, box.maxx, box.maxy, box.offsetInPixels, mask, edgeMaskOrNull);
     }
 
     public SegmentedObject(ObjectType objectTypeOrNull, short minx, short miny, short maxx,
             short maxy, BitSet mask, BitSet edgeMaskOrNull)
     {
-        super(minx, miny, maxx, maxy);
+        this(objectTypeOrNull, minx, miny, maxx, maxy, 0, mask, edgeMaskOrNull);
+    }
+    
+    SegmentedObject(ObjectType objectTypeOrNull, short minx, short miny, short maxx,
+            short maxy, int offsetInPixels, BitSet mask, BitSet edgeMaskOrNull)
+    {
+        super(minx, miny, maxx, maxy, offsetInPixels);
         this.objectType = objectTypeOrNull;
         this.mask = mask;
         initializeMask();
         this.edgeMaskOrNull = edgeMaskOrNull;
-    }
-
-    SegmentedObject(SegmentedObjectBox box, BitSet mask, BitSet edgeMaskOrNull)
-    {
-        this(box.minx, box.miny, box.maxx, box.maxy, mask, edgeMaskOrNull);
     }
 
     /**
