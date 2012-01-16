@@ -80,6 +80,8 @@ public final class ExternalDataPE extends DataPE
 
     private boolean isPresentInArchive;
 
+    private boolean storageConfirmation;
+
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
     /**
@@ -221,6 +223,17 @@ public final class ExternalDataPE extends DataPE
     public void setPresentInArchive(boolean isPresentInArchive)
     {
         this.isPresentInArchive = isPresentInArchive;
+    }
+
+    @Column(name = ColumnNames.STORAGE_CONFIRMATION)
+    public boolean isStorageConfirmation()
+    {
+        return storageConfirmation;
+    }
+
+    public void setStorageConfirmation(boolean storageConfirmation)
+    {
+        this.storageConfirmation = storageConfirmation;
     }
 
     @Column(name = ColumnNames.SPEED_HINT)

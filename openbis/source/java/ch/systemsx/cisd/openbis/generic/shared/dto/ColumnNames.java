@@ -284,6 +284,8 @@ public final class ColumnNames
 
     public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
 
+    public static final String STORAGE_CONFIRMATION = "storage_confirmation";
+
     public static final String SPEED_HINT = "speed_hint";
 
     public static final String IS_SHOWN_EDIT = "is_shown_edit";
