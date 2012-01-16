@@ -764,7 +764,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
     {
         EntityExistenceChecker entityExistenceChecker = new EntityExistenceChecker(getDAOFactory());
-        NewSamplesChecker.check(entityExistenceChecker, newSamplesWithType);
+        entityExistenceChecker.checkNewMaterials(newMaterialsWithType);
+        entityExistenceChecker.checkNewSamples(newSamplesWithType);
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
         registerOrUpdateSamples(sessionToken, newSamplesWithType);
     }

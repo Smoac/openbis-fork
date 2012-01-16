@@ -18,22 +18,35 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Checker of entities. Asks DAO for existing entities and chaches already asked entities.
@@ -47,7 +60,11 @@ class EntityExistenceChecker
     private final Set<ExperimentIdentifier> experimentIdentifers =
             new HashSet<ExperimentIdentifier>();
 
-    private final Set<String> sampleTypes = new HashSet<String>();
+    private final Map<String, Set<String>> materialTypeToPropertyTypesMap =
+            new HashMap<String, Set<String>>();
+
+    private final Map<String, Set<String>> sampleTypeToPropertyTypesMap =
+            new HashMap<String, Set<String>>();
 
     private final Map<SpaceIdentifier, SpacePE> spaceIdentifiers =
             new HashMap<SpaceIdentifier, SpacePE>();
@@ -60,7 +77,94 @@ class EntityExistenceChecker
         this.daoFactory = daoFactory;
     }
 
-    void assertExperimentExists(ExperimentIdentifier experimentIdentifier)
+    /**
+     * Checks specified materials.A {@link UserFailureException} is thrown if
+     * <ul>
+     * <li>specified material type is not known or
+     * <li>at least one material has a property which is not assigned to specified material type.
+     * </ul>
+     */
+    void checkNewMaterials(List<NewMaterialsWithTypes> newMaterialsWithType)
+    {
+        for (NewMaterialsWithTypes newMaterialsWithTypes : newMaterialsWithType)
+        {
+            MaterialType materialType = newMaterialsWithTypes.getEntityType();
+            assertMaterialTypeExists(materialType);
+            List<NewMaterial> newMaterials = newMaterialsWithTypes.getNewEntities();
+            for (NewMaterial newMaterial : newMaterials)
+            {
+                IEntityProperty[] properties = newMaterial.getProperties();
+                assertValidPropertyTypes(materialType, materialTypeToPropertyTypesMap, properties);
+            }
+        }
+    }
+
+    private void assertMaterialTypeExists(MaterialType materialType)
+    {
+        String materialTypeCode = materialType.getCode();
+        if (materialTypeToPropertyTypesMap.containsKey(materialTypeCode) == false)
+        {
+            MaterialTypePE type =
+                    (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
+                            .tryToFindEntityTypeByCode(materialTypeCode);
+            if (type == null)
+            {
+                throw new UserFailureException("Unknown material type: " + materialTypeCode);
+            }
+            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes =
+                    type.getMaterialTypePropertyTypes();
+            Set<String> propertyTypes = new HashSet<String>();
+            for (MaterialTypePropertyTypePE sampleTypePropertyType : materialTypePropertyTypes)
+            {
+                propertyTypes.add(sampleTypePropertyType.getPropertyType().getCode());
+            }
+            materialTypeToPropertyTypesMap.put(materialTypeCode, propertyTypes);
+        }
+    }
+
+    /**
+     * Checks specified samples. A {@link UserFailureException} is thrown if
+     * <ul>
+     * <li>specified sample type is not known,
+     * <li>at least one sample has a property which is not assigned to the specified sample type,
+     * <li>at least one sample is linked to an unknown experiment or an unknown container.
+     * </ul>
+     * Note, that the new samples are stored in the cache as known samples. Thus, they can be
+     * referred as container samples in a second call of this method.
+     */
+    void checkNewSamples(List<NewSamplesWithTypes> newSamplesWithType)
+    {
+        for (NewSamplesWithTypes newSamplesWithTypes : newSamplesWithType)
+        {
+            SampleType sampleType = newSamplesWithTypes.getEntityType();
+            assertSampleTypeExists(sampleType);
+            List<NewSample> newSamples = newSamplesWithTypes.getNewEntities();
+            for (NewSample newSample : newSamples)
+            {
+                IdentifersExtractor extractor = new IdentifersExtractor(newSample);
+                ExperimentIdentifier experimentIdentifier =
+                        extractor.getExperimentIdentifierOrNull();
+                if (experimentIdentifier != null)
+                {
+                    assertExperimentExists(experimentIdentifier);
+                }
+                String containerIdentifier = newSample.getContainerIdentifierForNewSample();
+                if (containerIdentifier != null)
+                {
+                    String defaultSpaceIdentifier = newSample.getDefaultSpaceIdentifier();
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(containerIdentifier,
+                                    defaultSpaceIdentifier);
+                    assertSampleExists(sampleIdentifier);
+                }
+                addSample(extractor.getNewSampleIdentifier());
+                IEntityProperty[] properties = newSample.getProperties();
+                assertValidPropertyTypes(sampleType, sampleTypeToPropertyTypesMap, properties);
+            }
+        }
+    }
+
+    private void assertExperimentExists(ExperimentIdentifier experimentIdentifier)
     {
         if (experimentIdentifers.contains(experimentIdentifier) == false)
         {
@@ -71,7 +175,8 @@ class EntityExistenceChecker
                             experimentIdentifier.getProjectCode());
             if (project == null)
             {
-                throw new UserFailureException("Unknown experiment: " + experimentIdentifier);
+                throw new UserFailureException("Unknown experiment because of unknown project: "
+                        + experimentIdentifier);
             }
             ExperimentPE experiment =
                     daoFactory.getExperimentDAO().tryFindByCodeAndProject(project,
@@ -84,10 +189,10 @@ class EntityExistenceChecker
         }
     }
 
-    void assertSampleTypeExists(SampleType sampleType)
+    private void assertSampleTypeExists(SampleType sampleType)
     {
         String sampleTypeCode = sampleType.getCode();
-        if (sampleTypes.contains(sampleTypeCode) == false)
+        if (sampleTypeToPropertyTypesMap.containsKey(sampleTypeCode) == false)
         {
             SampleTypePE type =
                     daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
@@ -95,11 +200,18 @@ class EntityExistenceChecker
             {
                 throw new UserFailureException("Unknown sample type: " + sampleTypeCode);
             }
-            sampleTypes.add(sampleTypeCode);
+            Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+                    type.getSampleTypePropertyTypes();
+            Set<String> propertyTypes = new HashSet<String>();
+            for (SampleTypePropertyTypePE sampleTypePropertyType : sampleTypePropertyTypes)
+            {
+                propertyTypes.add(sampleTypePropertyType.getPropertyType().getCode());
+            }
+            sampleTypeToPropertyTypesMap.put(sampleTypeCode, propertyTypes);
         }
     }
 
-    SpacePE assertSpaceExists(SpaceIdentifier spaceIdentifier)
+    private SpacePE assertSpaceExists(SpaceIdentifier spaceIdentifier)
     {
         SpacePE space = spaceIdentifiers.get(spaceIdentifier);
         if (spaceIdentifiers.containsKey(spaceIdentifier) == false)
@@ -117,7 +229,7 @@ class EntityExistenceChecker
         return space;
     }
 
-    SamplePE assertSampleExists(SampleIdentifier sampleIdentifier)
+    private SamplePE assertSampleExists(SampleIdentifier sampleIdentifier)
     {
         SamplePE sample = identifierToSampleMap.get(sampleIdentifier);
         if (sample == null)
@@ -138,15 +250,33 @@ class EntityExistenceChecker
             identifierToSampleMap.put(sampleIdentifier, sample);
             if (sample == null)
             {
-                throw new UserFailureException("Unkown sample; " + sampleIdentifier);
+                throw new UserFailureException("Unknown sample: " + sampleIdentifier);
             }
         }
         return sample;
     }
 
-    void addSample(SampleIdentifier newSampleIdentifier)
+    private void addSample(SampleIdentifier newSampleIdentifier)
     {
         identifierToSampleMap.put(newSampleIdentifier, new SamplePE());
 
     }
+
+    private void assertValidPropertyTypes(EntityType entityType,
+            Map<String, Set<String>> entityTypeToPropertyTypesMap, IEntityProperty[] properties)
+    {
+        String entityTypeCode = entityType.getCode();
+        Set<String> propertyTypes = entityTypeToPropertyTypesMap.get(entityTypeCode);
+        for (IEntityProperty property : properties)
+        {
+            String propertyTypeCode = property.getPropertyType().getCode().toUpperCase();
+            if (propertyTypes.contains(propertyTypeCode) == false)
+            {
+                String typeName = entityType instanceof SampleType ? "Sample" : "Material";
+                throw new UserFailureException(typeName + " type " + entityTypeCode
+                        + " has no property type " + propertyTypeCode + " assigned.");
+            }
+        }
+    }
+
 }
