@@ -67,30 +67,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormatsList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformationList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescriptionList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadataList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReferenceList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -222,7 +215,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 result.add(description);
             }
         }
-        return new FeatureInformationList(result);
+        return result;
     }
 
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
@@ -249,7 +242,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     content.close();
                 }
             }
-            return new ImageDatasetMetadataList(result);
+            return result;
         } finally
         {
             shareIdManager.releaseLocks();
@@ -408,7 +401,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             result.add(createFeatureVectorDataset(sessionToken, dataset, codes));
         }
-        return new FeatureVectorDatasetList(result);
+        return result;
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
@@ -470,7 +463,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         WellFeatureCollection<FeatureTableRow> features =
                 FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
                         createMetadataProvider());
-        return new FeatureVectorWithDescriptionList(createFeatureVectorList(features));
+        return createFeatureVectorList(features);
     }
 
     private IMetadataProvider createMetadataProvider()
@@ -752,16 +745,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return new MicroscopyImageReferenceList(listImageReferences(dataSetIdentifier, channel,
-                imageAccessor));
+        return listImageReferences(dataSetIdentifier, channel,
+                imageAccessor);
     }
 
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return new MicroscopyImageReferenceList(listImageReferences(dataSetIdentifier, channels,
-                imageAccessor));
+        return listImageReferences(dataSetIdentifier, channels,
+                imageAccessor);
     }
 
     private List<MicroscopyImageReference> listImageReferences(
@@ -798,8 +791,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return new PlateImageReferenceList(createPlateImageReferences(imageAccessor,
-                dataSetIdentifier, wellPositions, channel));
+        return createPlateImageReferences(imageAccessor,
+                dataSetIdentifier, wellPositions, channel);
     }
 
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
@@ -807,8 +800,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return new PlateImageReferenceList(createPlateImageReferences(imageAccessor,
-                dataSetIdentifier, wellPositions, channels));
+        return createPlateImageReferences(imageAccessor,
+                dataSetIdentifier, wellPositions, channels);
     }
 
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
@@ -840,7 +833,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 result.add(datasetResult);
             }
         }
-        return new DatasetImageRepresentationFormatsList(result);
+        return result;
     }
 
     private List<ImageRepresentationFormat> getImageRepresentationFormats(

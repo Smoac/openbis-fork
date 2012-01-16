@@ -39,8 +39,8 @@ public class ScreeningApiServiceJsonServer extends AbstractApiJsonServiceExporte
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        establishService(IScreeningApiServer.class, server, IScreeningApiServer.SERVICE_NAME,
-                IScreeningApiServer.JSON_SERVICE_URL);
+        establishService(IScreeningApiServer.class, new ScreeningServerJson(server),
+                IScreeningApiServer.SERVICE_NAME, IScreeningApiServer.JSON_SERVICE_URL);
         super.afterPropertiesSet();
     }
 }
