@@ -37,6 +37,9 @@ public class DssRegistrationLogger
 
     private final IFileOperations fileOperations;
 
+    /**
+     * gets the handle to the file where this logger is logging
+     */
     File getFile()
     {
         return file;
