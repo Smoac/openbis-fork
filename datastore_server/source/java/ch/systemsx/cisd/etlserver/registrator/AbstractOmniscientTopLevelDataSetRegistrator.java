@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -185,11 +186,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
     }
 
-    public static class DoNothingDelegatedAction implements IDelegatedActionWithResult<Boolean>
+    public static class DoNothingDelegatedAction extends AbstractDelegatedActionWithResult<Boolean>
     {
-        public Boolean execute()
+        public DoNothingDelegatedAction()
         {
-            return true; // do nothing
+            super(true);
         }
     }
 
@@ -263,16 +264,20 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             return;
         }
+
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
         final File incomingDataSetFile;
         final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction;
 
+        // Figure out what the real incoming data is -- if we use a marker file, it will tell us the
+        // name
         if (getGlobalState().isUseIsFinishedMarkerFile())
         {
             incomingDataSetFile =
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
-            cleanAfterwardsAction = new IDelegatedActionWithResult<Boolean>()
+            cleanAfterwardsAction = new AbstractDelegatedActionWithResult<Boolean>(false)
                 {
+                    @Override
                     public Boolean execute()
                     {
                         return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
@@ -284,6 +289,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             incomingDataSetFile = incomingDataSetFileOrIsFinishedFile;
             cleanAfterwardsAction = new DoNothingDelegatedAction();
         }
+
+        // Make a hardlink copy of the file
 
         handle(incomingDataSetFile, null, new NoOpDelegate(), cleanAfterwardsAction);
     }
@@ -300,6 +307,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             return;
         }
+
+        // In this case, don't make a hardlink copy, since the user has the file on their local
+        // machine
 
         DataSetRegistrationService<T> service =
                 handle(incomingDataSetFile, callerDataSetInformation, delegate,

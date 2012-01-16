@@ -64,8 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 {
     private static final int SPEED_HINT =
-            (ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT 
-                    + ch.systemsx.cisd.openbis.generic.shared.Constants.MAX_SPEED) / 2;
+            (ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT
+            + ch.systemsx.cisd.openbis.generic.shared.Constants.MAX_SPEED) / 2;
 
     private static final String DATA_STORE_CODE = "data-store";
 
@@ -454,7 +454,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(cleanAfterwardsAction).execute();
+                    exactly(2).of(cleanAfterwardsAction).execute(true);
                     will(returnValue(Boolean.TRUE));
                 }
             });

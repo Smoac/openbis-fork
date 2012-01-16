@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner.IDataSetRegistrationAlgorithmRunnerDelegate;
@@ -314,8 +315,9 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
 
         File incomingDataSetFile = getIncomingDataSetPathFromMarker(isFinishedFile);
         IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
-                new IDelegatedActionWithResult<Boolean>()
+                new AbstractDelegatedActionWithResult<Boolean>(false)
                     {
+                        @Override
                         public Boolean execute()
                         {
                             return deleteAndLogIsFinishedMarkerFile(isFinishedFile);
@@ -345,14 +347,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             File incomingDataSetFile, final DataSetInformation dsInfo,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
-        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
-                new IDelegatedActionWithResult<Boolean>()
-                    {
-                        public Boolean execute()
-                        {
-                            return true; // do nothing
-                        }
-                    };
+        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction = new AbstractDelegatedActionWithResult<Boolean>(true);
         if (registrator != null)
         {
             return new OverridingRegistrationHelper(this, incomingDataSetFile, getGlobalState()

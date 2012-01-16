@@ -205,7 +205,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             dssRegistrationLog.registerFailure();
         }
 
-        globalCleanAfterwardsAction.execute();
+        globalCleanAfterwardsAction.execute(0 == encounteredErrors.size());
     }
 
     /**

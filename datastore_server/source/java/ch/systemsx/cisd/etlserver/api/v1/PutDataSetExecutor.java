@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationHelper;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
@@ -198,7 +198,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     public String tryGetDataSetTypeCode(final DataSetInformation newOverride)
     {
-        String dataSetTypeCodeOrNull = (newOverride != null && newOverride.getDataSetType() != null) ?  newOverride.getDataSetType().getCode() : null;
+        String dataSetTypeCodeOrNull = (newOverride != null && newOverride.getDataSetType() != null) ? newOverride.getDataSetType().getCode() : null;
         return dataSetTypeCodeOrNull;
     }
 
@@ -496,11 +496,11 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
     }
 
-    private static class CleanAfterwardsAction implements IDelegatedActionWithResult<Boolean>
+    private static class CleanAfterwardsAction extends AbstractDelegatedActionWithResult<Boolean>
     {
-        public Boolean execute()
+        private CleanAfterwardsAction()
         {
-            return true; // do nothing
+            super(true);
         }
     }
 

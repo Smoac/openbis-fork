@@ -354,7 +354,7 @@ public class DataSetRegistrationAlgorithm
 
     protected boolean clean()
     {
-        return state.cleanAfterwardsAction.execute();
+        return state.cleanAfterwardsAction.execute(true);
     }
 
     private static class DefaultApplicationServerRegistrator implements
