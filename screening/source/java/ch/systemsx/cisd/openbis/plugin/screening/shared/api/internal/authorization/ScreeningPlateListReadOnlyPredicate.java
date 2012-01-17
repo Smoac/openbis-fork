@@ -70,17 +70,18 @@ public class ScreeningPlateListReadOnlyPredicate extends
                 {
                     return status;
                 }
-            }
-
-            final String spaceCode = SpaceCodeHelper.getSpaceCode(person, plate.tryGetSpaceCode());
-            if (plate.isSharedPlate() == false)
+            } else
             {
-                final Status status =
-                        evaluate(person, allowedRoles, authorizationDataProvider
-                                .getHomeDatabaseInstance(), spaceCode);
-                if (Status.OK.equals(status) == false)
+                final String spaceCode = SpaceCodeHelper.getSpaceCode(person, plate.tryGetSpaceCode());
+                if (plate.isSharedPlate() == false)
                 {
-                    return status;
+                    final Status status =
+                            evaluate(person, allowedRoles, authorizationDataProvider
+                                    .getHomeDatabaseInstance(), spaceCode);
+                    if (Status.OK.equals(status) == false)
+                    {
+                        return status;
+                    }
                 }
             }
         }
