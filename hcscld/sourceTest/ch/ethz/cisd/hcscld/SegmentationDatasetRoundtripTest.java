@@ -19,6 +19,8 @@ package ch.ethz.cisd.hcscld;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -70,7 +72,8 @@ public class SegmentationDatasetRoundtripTest
         List<SegmentedObject> cells =
                 Arrays.asList(
                         new SegmentedObject((short) 50, (short) 60, (short) 100, (short) 110),
-                        new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
+                        new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240),
+                        new SegmentedObject((short) 400, (short) 300, (short) 500, (short) 600));
         cells.get(0).setMaskPoint(70, 80);
         cells.get(1).setMaskPoint(220, 240);
         final ObjectType cellObjects = wds.addObjectType("cell");
@@ -91,7 +94,16 @@ public class SegmentationDatasetRoundtripTest
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] objects = rds.getObjects(new ImageId(1, 2, 3), type, true);
-        assertEquals(2, objects.length);
+        for (int i = 0; i < objects.length; ++i)
+        {
+            assertEquals(i, i, objects[i].getObjectIndex());
+        }
+        SegmentedObject so1 = rds.tryFindObject(new ImageId(1, 2, 3), 220, 240, false);
+        assertNotNull(so1);
+        assertEquals(1, so1.getObjectIndex());
+        SegmentedObject so2 = rds.tryFindObject(new ImageId(1, 2, 3), 500, 600, false);
+        assertNull(so2);
+        assertEquals(3, objects.length);
         assertEquals(50, objects[0].getLeftUpperX());
         assertEquals(60, objects[0].getLeftUpperY());
         assertEquals(100, objects[0].getRightLowerX());
@@ -106,6 +118,10 @@ public class SegmentationDatasetRoundtripTest
         assertTrue(objects[1].getMaskPoint(220, 240));
         assertFalse(objects[1].getMaskPoint(200, 220));
         assertFalse(objects[1].getMaskPoint(0, 0));
+        assertEquals(400, objects[2].getLeftUpperX());
+        assertEquals(300, objects[2].getLeftUpperY());
+        assertEquals(500, objects[2].getRightLowerX());
+        assertEquals(600, objects[2].getRightLowerY());
         reader.close();
     }
 

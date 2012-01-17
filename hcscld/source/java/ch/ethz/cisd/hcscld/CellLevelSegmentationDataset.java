@@ -93,7 +93,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
                 reader.readCompoundArrayBlock(
                         getObjectPath(wellId, INDEX_PREFIX, objectType.getId()), indexType, 1,
                         objectId)[0];
-        return getObject(wellId, objectType, objectBox, withEdge);
+        return getObject(wellId, objectType, objectId, objectBox, withEdge);
     }
 
     public SegmentedObject tryFindObject(ImageId wellId, ObjectType objectType, int x, int y,
@@ -107,9 +107,10 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             if (box.inBox(x, y))
             {
                 final int bitIndex = box.getAbsoluteBitIndex(x, y);
-                if (reader.isBitSetInBitField(objectPath, bitIndex))
+                if (reader.isBitSetInBitField(
+                        getObjectPath(wellId, MASKS_PREFIX, objectType.getId()), bitIndex))
                 {
-                    return getObject(wellId, objectType, box, withEdge);
+                    return getObject(wellId, objectType, id, box, withEdge);
                 }
             }
         }
@@ -129,8 +130,8 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return null;
     }
 
-    SegmentedObject getObject(ImageId wellId, ObjectType objectType, SegmentedObjectBox objectBox,
-            boolean withEdge)
+    SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectIndex,
+            SegmentedObjectBox objectBox, boolean withEdge)
     {
         final BitSet mask =
                 reader.readBitFieldBlockWithOffset(
@@ -158,7 +159,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         {
             edgeMask = null;
         }
-        return new SegmentedObject(objectBox, mask, edgeMask);
+        return new SegmentedObject(objectBox, objectIndex, mask, edgeMask);
     }
 
     public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge)
@@ -176,15 +177,15 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             final BitSet[] edgeMasks =
                     (reader.exists(edgeMasksPath)) ? getMasks(wellId, edgeMasksPath, objectBoxes)
                             : computeEdgeMasks(objectBoxes, masks);
-            for (int i = 0; i < objectBoxes.length; ++i)
+            for (int id = 0; id < objectBoxes.length; ++id)
             {
-                results[i] = new SegmentedObject(objectBoxes[i], masks[i], edgeMasks[i]);
+                results[id] = new SegmentedObject(objectBoxes[id], id, masks[id], edgeMasks[id]);
             }
         } else
         {
-            for (int i = 0; i < objectBoxes.length; ++i)
+            for (int id = 0; id < objectBoxes.length; ++id)
             {
-                results[i] = new SegmentedObject(objectBoxes[i], masks[i]);
+                results[id] = new SegmentedObject(objectBoxes[id], id, masks[id]);
             }
         }
         return results;

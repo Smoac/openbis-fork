@@ -126,9 +126,11 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         base.checkCompatible(objectType);
         objectType.getObjectNamespace().checkNumberOfSegmentedObjects(
                 getImageQuantityStructure(), id, objects.size());
+        int idx = 0;
         for (SegmentedObject so : objects)
         {
             so.setObjectTypeOrNull(objectType);
+            so.setObjectIndex(idx++);
         }
         int offset = 0;
         for (SegmentedObject o : objects)
@@ -140,7 +142,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         ++offset;
         final long[] allMasksArray = new long[offset];
         final long[] allEdgeMasksArray = storeEdgeMasks ? new long[offset] : null;
-        int idx = 0;
+        idx = 0;
         for (SegmentedObject o : objects)
         {
             final long[] maskArray = BitSetConversionUtils.toStorageForm(o.getMask());
