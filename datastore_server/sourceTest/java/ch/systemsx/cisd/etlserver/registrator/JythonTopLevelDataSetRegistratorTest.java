@@ -158,6 +158,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
+    private void checkStagingDirIsEmpty()
+    {
+        // assertEquals("[]",
+        // Arrays.asList(handler.getGlobalState().getPreStagingDir().list()).toString());
+        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list()).toString());
+    }
+
     @Test
     public void testFileNotFound()
     {
@@ -213,7 +220,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         handler.handle(markerFile);
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+        checkStagingDirIsEmpty();
         assertEquals(
                 "hello world1",
                 FileUtilities.loadToString(
@@ -652,6 +659,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
+        checkStagingDirIsEmpty();
+
         assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
 
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
@@ -686,6 +695,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         createData();
 
         handler.handle(markerFile);
+
+        checkStagingDirIsEmpty();
 
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);

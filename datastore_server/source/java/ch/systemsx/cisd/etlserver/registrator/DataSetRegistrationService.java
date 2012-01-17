@@ -19,16 +19,13 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
@@ -54,7 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetRegistrationService<T extends DataSetInformation> implements
         IDataSetRegistrationService
 {
-    static final String STAGING_DIR = "staging-dir";
+    static final String STAGING_DIR = TopLevelDataSetRegistratorGlobalState.STAGING_DIR;
 
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
@@ -112,18 +109,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         ThreadParameters threadParameters = registratorContext.getGlobalState().getThreadParameters();
         this.dssRegistrationLogHelper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
         this.dssRegistrationLog = dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName(), this.registratorContext.getFileOperations());
-
-        Properties properties = threadParameters.getThreadProperties();
-
-        String stagingDirString = PropertyUtils.getProperty(properties, STAGING_DIR);
-
-        if (null == stagingDirString)
-        {
-            stagingDirectory = getDefaultStagingDirectory(registratorContext.getGlobalState());
-        } else
-        {
-            stagingDirectory = new File(stagingDirString);
-        }
+        this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
 
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
     }
@@ -183,9 +169,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         // If a transaction is hanging around, commit it
         commitExtantTransactions();
 
+        int registeredDataSetCount = 0;
         for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
         {
-            new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+            List<DataSetInformation> registeredDataSets = new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+            registeredDataSetCount += registeredDataSets.size();
         }
 
         if (0 == encounteredErrors.size())
@@ -205,7 +193,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             dssRegistrationLog.registerFailure();
         }
 
-        globalCleanAfterwardsAction.execute(0 == encounteredErrors.size());
+        // Execute the clean afterwards action as successful only if no errors occurred and we
+        // registered data sets
+        globalCleanAfterwardsAction.execute(0 == encounteredErrors.size() && registeredDataSetCount > 0);
     }
 
     /**
@@ -216,6 +206,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         encounteredErrors.add(t);
         rollbackExtantTransactions();
         dataSetRegistrations.clear();
+        globalCleanAfterwardsAction.execute(false);
     }
 
     public File moveIncomingToError(String dataSetTypeCodeOrNull)
@@ -382,30 +373,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     protected AbstractOmniscientTopLevelDataSetRegistrator<T> getRegistrator()
     {
         return registrator;
-    }
-
-    /**
-     * Tries to create and return a staging directory in the corresponding incoming share. The
-     * default result is "[store-root]/[shareId]/staging". Returns "[store-root]", if no existing
-     * incoming directory can be detected.
-     */
-    private File getDefaultStagingDirectory(TopLevelDataSetRegistratorGlobalState globalState)
-    {
-        File storeRoot = globalState.getStoreRootDir();
-        if (false == StringUtils.isBlank(globalState.getShareId()))
-        {
-            File shareRoot = new File(storeRoot, globalState.getShareId());
-            if (shareRoot.isDirectory())
-            {
-                File stagingDir = new File(shareRoot, "staging");
-                stagingDir.mkdir();
-                if (stagingDir.isDirectory())
-                {
-                    return stagingDir;
-                }
-            }
-        }
-        return storeRoot;
     }
 
     /**

@@ -30,9 +30,13 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
@@ -194,6 +198,51 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
     }
 
+    /**
+     * The clean-up action after registration.
+     * <p>
+     * If registration succeeded, the originalInboxFile is deleted. If registration failed, the
+     * hardlink copy is deleted, leaving the orignalInboxFile.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static class PostRegistrationCleanUpAction extends AbstractDelegatedActionWithResult<Boolean>
+    {
+        private final File originalInboxFile;
+
+        private final File hardlinkCopyFile;
+
+        private final IDelegatedActionWithResult<Boolean> wrappedAction;
+
+        public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile, IDelegatedActionWithResult<Boolean> wrappedAction)
+        {
+            super(true);
+            this.originalInboxFile = originalInboxFile;
+            this.hardlinkCopyFile = hardlinkCopyFile;
+            this.wrappedAction = wrappedAction;
+        }
+
+        @Override
+        public Boolean execute(boolean didOperationSucceed)
+        {
+            File fileToDelete = null;
+            if (didOperationSucceed)
+            {
+                // Registration succeeded -- no need to keep the original file around
+                fileToDelete = originalInboxFile;
+            } else
+            {
+                // Registration failed -- remove the copy, leaving the original.
+                fileToDelete = hardlinkCopyFile;
+            }
+            boolean deleteSucceeded = FileUtilities.deleteRecursively(fileToDelete);
+            boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
+
+            return deleteSucceeded && wrappedActionResult;
+        }
+
+    }
+
     public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
     {
 
@@ -267,7 +316,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
         final File incomingDataSetFile;
-        final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction;
+        final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
 
         // Figure out what the real incoming data is -- if we use a marker file, it will tell us the
         // name
@@ -275,7 +324,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             incomingDataSetFile =
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
-            cleanAfterwardsAction = new AbstractDelegatedActionWithResult<Boolean>(false)
+            markerFileCleanupAction = new AbstractDelegatedActionWithResult<Boolean>(false)
                 {
                     @Override
                     public Boolean execute()
@@ -287,12 +336,35 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         } else
         {
             incomingDataSetFile = incomingDataSetFileOrIsFinishedFile;
-            cleanAfterwardsAction = new DoNothingDelegatedAction();
+            markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
         // Make a hardlink copy of the file
+        File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
+        PostRegistrationCleanUpAction cleanupAction = new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming, markerFileCleanupAction);
 
-        handle(incomingDataSetFile, null, new NoOpDelegate(), cleanAfterwardsAction);
+        handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
+    }
+
+    private File copyIncomingFileToPreStaging(File incomingDataSetFile)
+    {
+        File preStagingDir = state.getGlobalState().getPreStagingDir();
+        // Try to find a hardlink maker
+        IImmutableCopier hardlinkMaker = FastRecursiveHardLinkMaker.tryCreate();
+        boolean linkWasMade = false;
+        if (null != hardlinkMaker)
+        {
+            // Use the hardlink maker if we got one
+            Status status = hardlinkMaker.copyImmutably(incomingDataSetFile, preStagingDir, null);
+            linkWasMade = status.isOK();
+        }
+
+        if (false == linkWasMade)
+        {
+            FileUtilities.copyFileTo(incomingDataSetFile, preStagingDir, true);
+        }
+
+        return new File(preStagingDir, incomingDataSetFile.getName());
     }
 
     /**

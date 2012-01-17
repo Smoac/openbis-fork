@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
@@ -51,6 +53,10 @@ public class TopLevelDataSetRegistratorGlobalState
     private final File dssInternalTempDir;
 
     private final File dssRegistrationLogDir;
+
+    private final File preStagingDir;
+
+    private final File stagingDir;
 
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -119,6 +125,8 @@ public class TopLevelDataSetRegistratorGlobalState
         this.storeRootDir = storeRootDir;
         this.dssInternalTempDir = dssInternalTempDir;
         this.dssRegistrationLogDir = dssRegistrationLogDir;
+        this.preStagingDir = getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
+        this.stagingDir = getStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
@@ -159,9 +167,28 @@ public class TopLevelDataSetRegistratorGlobalState
         return dssInternalTempDir;
     }
 
+    /**
+     * Get the directory that hold the DSS registration logs
+     */
     public File getDssRegistrationLogDir()
     {
         return dssRegistrationLogDir;
+    }
+
+    /**
+     * Get the directory used for pre-staging. This holds a hardlink copy of the incoming data.
+     */
+    public File getPreStagingDir()
+    {
+        return preStagingDir;
+    }
+
+    /**
+     * Get the staging directory used in registration.
+     */
+    public File getStagingDir()
+    {
+        return stagingDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()
@@ -241,5 +268,77 @@ public class TopLevelDataSetRegistratorGlobalState
             }
         }
         return emails;
+    }
+
+    public static final String STAGING_DIR = "staging-dir";
+
+    public static final String PRE_STAGING_DIR = "pre-staging-dir";
+
+    private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
+    {
+        return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
+    }
+
+    private static File getPreStagingDir(File storeRoot, String shareId, Properties threadProperties)
+    {
+        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_STAGING_DIR, "pre-staging");
+    }
+
+    /**
+     * Get a directory local to the share, respecting the user override, if one is specified, and
+     * defaulting to the defaultDirName.
+     * 
+     * @param storeRoot The root of the DSS store
+     * @param shareId The shareId the directory should be local to
+     * @param threadProperties The properties where the the override might be specified
+     * @param overridePropertyName The name of the property that specifies the override
+     * @param defaultDirName The default name of the directory to use if no override has been
+     *            specified
+     * @return The directory to use
+     */
+    private static File getShareLocalDir(File storeRoot, String shareId, Properties threadProperties, String overridePropertyName, String defaultDirName)
+    {
+        String shareLocalDirPath = PropertyUtils.getProperty(threadProperties, overridePropertyName);
+        if (null == shareLocalDirPath)
+        {
+            return getDefaultShareLocalDir(storeRoot, shareId, defaultDirName);
+        } else
+        {
+            File shareLocalDir = new File(shareLocalDirPath);
+            shareLocalDir.mkdirs();
+            return shareLocalDir;
+        }
+    }
+
+    /**
+     * Get and create a directory that is on the
+     */
+    private static File getDefaultShareLocalDir(File storeRoot, String shareId, String dirName)
+    {
+        File shareRoot;
+        if (false == StringUtils.isBlank(shareId))
+        {
+            shareRoot = new File(storeRoot, shareId);
+        }
+        else
+        {
+            shareRoot = storeRoot;
+        }
+
+        File stagingDir;
+        if (shareRoot.isDirectory())
+        {
+            stagingDir = new File(shareRoot, dirName);
+        } else
+        {
+            stagingDir = new File(storeRoot, dirName);
+        }
+        stagingDir.mkdir();
+        if (stagingDir.isDirectory())
+        {
+            return stagingDir;
+        }
+
+        return storeRoot;
     }
 }
