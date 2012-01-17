@@ -26,13 +26,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Utility methods to test subclasses of {@link TypedTableGrid}
@@ -132,9 +129,8 @@ public class GridTestUtils
             boolean internalNamespace)
     {
         final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String identifier =
-                new EntityPropertyColDef<Sample>(propertyType, true, null).getIdentifier();
-        return identifier;
+        return "property-" + (internalNamespace ? "INTERN" : "USER") + "-"
+                + propertyType.getSimpleCode();
     }
 
     public final static PropertyType createPropertyType(final String propertyCode,
@@ -149,10 +145,6 @@ public class GridTestUtils
     public static String getDataSetPropertyColumnIdentifier(final String propertyCode,
             boolean internalNamespace)
     {
-        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
-        final String identifier =
-                new DataSetPropertyColDef(propertyType, false, 10, propertyType.getLabel())
-                        .getIdentifier();
-        return identifier;
+        return getPropertyColumnIdentifier(propertyCode, internalNamespace);
     }
 }

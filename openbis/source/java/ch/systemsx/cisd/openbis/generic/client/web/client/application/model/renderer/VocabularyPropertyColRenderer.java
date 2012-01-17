@@ -16,43 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
- * An {@link AbstractPropertyColRenderer} which renders vocabulary term with link.
+ * Rendering methods for {@link VocabularyTerm} with link.
  * 
  * @author Izabela Adamczyk
  */
-public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> extends
-        AbstractPropertyColRenderer<T>
+public class VocabularyPropertyColRenderer
 {
-    public VocabularyPropertyColRenderer(EntityPropertyColDef<T> colDef)
-    {
-        super(colDef);
-    }
-
-    @Override
-    protected String renderValue(GridRowModel<T> entity)
-    {
-        final IEntityProperty property = colDef.tryGetProperty(entity.getOriginalObject());
-        String result = "";
-        if (property != null)
-        {
-            final VocabularyTerm term = property.getVocabularyTerm();
-            if (term != null)
-            {
-                result = renderTerm(term);
-            }
-        }
-        return result;
-    }
-
     public static final String renderTerm(VocabularyTerm term)
     {
         assert term != null : "term is not set";
