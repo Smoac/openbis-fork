@@ -24,9 +24,6 @@ package ch.systemsx.cisd.common.utilities;
  */
 public interface IDelegatedActionWithResult<T>
 {
-    // Execute the action regardless of whether or not the action succeeded
-    T execute();
-
     // Execute the action, allowing the implementation to branch on whether or not the action
     // succeeded
     T execute(boolean didOperationSucceed);
