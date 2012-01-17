@@ -32,6 +32,62 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 class ColumnSortUtils
 {
 
+    private static class GridRowModelComparator<T> implements Comparator<GridRowModel<T>>
+    {
+        private final IColumnDefinition<T> sortField;
+
+        /**
+         * @param sortField
+         */
+        private GridRowModelComparator(IColumnDefinition<T> sortField)
+        {
+            this.sortField = sortField;
+        }
+
+        @SuppressWarnings("rawtypes")
+        public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
+        {
+            Comparable v1 = sortField.tryGetComparableValue(o1);
+            Comparable v2 = sortField.tryGetComparableValue(o2);
+            // treat null as minimal value
+            if (v1 == null)
+            {
+                // error messages are bigger
+                if (v2 == null)
+                {
+                    String s1 = sortField.getValue(o1);
+                    String s2 = sortField.getValue(o2);
+                    if (s1 == null)
+                    {
+                        return -1;
+                    } else if (s2 == null)
+                    {
+                        return -1;
+                    } else
+                    {
+                        return s1.compareTo(s2);
+                    }
+                } else
+                {
+                    return -1;
+                }
+            } else if (v2 == null)
+            {
+                return 1;
+            } else
+            {
+                return compare(v1, v2);
+            }
+        }
+
+        @SuppressWarnings(
+            { "rawtypes", "unchecked" })
+        protected int compare(Comparable v1, Comparable v2)
+        {
+            return v1.compareTo(v2);
+        }
+    }
+
     private static final Comparator<String> alphanumComparator = new AlphanumComparator();
 
     static <T> Comparator<GridRowModel<T>> createComparator(final SortDir sortDir,
@@ -52,94 +108,23 @@ class ColumnSortUtils
                 || field.getIdentifier().contains("IDENTIFIER");
     }
 
-    // TODO 2010-10-19, Piotr Buczek: extract common part with createAlphanumComparator
-    @SuppressWarnings("unchecked")
     private static <T> Comparator<GridRowModel<T>> createDefaultComparator(
             final IColumnDefinition<T> sortField)
     {
-        return new Comparator<GridRowModel<T>>()
-            {
-
-                @SuppressWarnings("rawtypes")
-                public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
-                {
-                    Comparable v1 = sortField.tryGetComparableValue(o1);
-                    Comparable v2 = sortField.tryGetComparableValue(o2);
-                    // treat null as minimal value
-                    if (v1 == null)
-                    {
-                        // error messages are bigger
-                        if (v2 == null)
-                        {
-                            String s1 = sortField.getValue(o1);
-                            String s2 = sortField.getValue(o2);
-                            if (s1 == null)
-                            {
-                                return -1;
-                            } else if (s2 == null)
-                            {
-                                return -1;
-                            } else
-                            {
-                                return s1.compareTo(s2);
-                            }
-                        } else
-                        {
-                            return -1;
-                        }
-                    } else if (v2 == null)
-                    {
-                        return 1;
-                    } else
-                    {
-                        return v1.compareTo(v2);
-                    }
-                }
-
-            };
+        return new GridRowModelComparator<T>(sortField);
     }
 
     private static <T> Comparator<GridRowModel<T>> createAlphanumComparator(
             final IColumnDefinition<T> sortField)
     {
-        return new Comparator<GridRowModel<T>>()
+        return new GridRowModelComparator<T>(sortField)
             {
-
-                public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
+                @SuppressWarnings("rawtypes")
+                @Override
+                protected int compare(Comparable v1, Comparable v2)
                 {
-                    Comparable<?> v1 = sortField.tryGetComparableValue(o1);
-                    Comparable<?> v2 = sortField.tryGetComparableValue(o2);
-                    // treat null as minimal value
-                    if (v1 == null)
-                    {
-                        // error messages are bigger
-                        if (v2 == null)
-                        {
-                            String s1 = sortField.getValue(o1);
-                            String s2 = sortField.getValue(o2);
-                            if (s1 == null)
-                            {
-                                return -1;
-                            } else if (s2 == null)
-                            {
-                                return -1;
-                            } else
-                            {
-                                return s1.compareTo(s2);
-                            }
-                        } else
-                        {
-                            return -1;
-                        }
-                    } else if (v2 == null)
-                    {
-                        return 1;
-                    } else
-                    {
-                        return alphanumComparator.compare(v1.toString(), v2.toString());
-                    }
+                    return alphanumComparator.compare(v1.toString(), v2.toString());
                 }
-
             };
     }
 

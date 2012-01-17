@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
@@ -40,20 +39,10 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
     public BaseEntityModel(final GridRowModel<T> entity,
             List<? extends IColumnDefinition<T>> columnDefinitions)
     {
-        this(entity, columnDefinitions, false);
-    }
-
-    public BaseEntityModel(final GridRowModel<T> entity,
-            List<? extends IColumnDefinition<T>> columnDefinitions, boolean ignoreCustomColumns)
-    {
         set(ModelDataPropertyNames.OBJECT, entity.getOriginalObject());
 
         for (IColumnDefinition<T> column : columnDefinitions)
         {
-            if (ignoreCustomColumns && column instanceof GridCustomColumnDefinition)
-            {
-                continue;
-            }
             String value = column.getValue(entity);
             set(column.getIdentifier(), value);
             if (column instanceof IColumnDefinitionUI<?>)
