@@ -127,6 +127,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             });
 
         handler.handle(markerFile);
+        checkDirContentsAfterSuccessfulRegistration();
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
@@ -158,10 +159,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
+    private void checkDirContentsAfterSuccessfulRegistration()
+    {
+        assertFalse("The incoming data set should have been removed", incomingDataSetFile.exists());
+    }
+
     private void checkStagingDirIsEmpty()
     {
-        // assertEquals("[]",
-        // Arrays.asList(handler.getGlobalState().getPreStagingDir().list()).toString());
         assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list()).toString());
     }
 
@@ -341,6 +345,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             });
 
         handler.handle(markerFile);
+        checkDirContentsAfterSuccessfulRegistration();
 
         assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
@@ -416,6 +421,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
+        checkDirContentsAfterSuccessfulRegistration();
         assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
 
