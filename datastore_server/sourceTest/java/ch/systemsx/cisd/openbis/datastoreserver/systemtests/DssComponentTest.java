@@ -139,7 +139,7 @@ public class DssComponentTest extends SystemTestCase
                     "^\\t\\d+-\\d+$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the store.$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
-                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have commited.$"
+                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have committed.$"
         };
         checkLogFileContents(logFile, expectedContents);
 
