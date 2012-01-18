@@ -358,6 +358,9 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return isDay(calendar);
     }
 
+    /**
+     * The start time is the beginning of the first day of the report's period.
+     */
     private long getStart()
     {
         long time = timeProvider.getTimeInMilliseconds();
@@ -370,11 +373,14 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return getFirstMilliSecondOfTheDay(calendar);
     }
 
+    /**
+     * The end time is right now.
+     */
     private long getEnd()
     {
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTimeInMillis(timeProvider.getTimeInMilliseconds());
-        return getFirstMilliSecondOfTheDay(calendar);
+        return calendar.getTimeInMillis();
     }
 
     private boolean isDay(Calendar calendar)

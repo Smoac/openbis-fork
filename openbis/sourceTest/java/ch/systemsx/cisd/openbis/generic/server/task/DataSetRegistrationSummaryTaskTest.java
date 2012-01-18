@@ -210,10 +210,10 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
                         .getDataSet();
         DataSet ds4 =
                 new DataSetBuilder().code("ds4")
-                        .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
+                        .registrationDate(new Date(nowDate))
                         .getDataSet();
         DataSet ds5 =
-                new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate)).getDataSet();
+                new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY * 10)).getDataSet();
         RecordingMatcher<DetailedSearchCriteria> myTypeCriteriaMatcher =
                 prepareForSearchForDataSets("MY-TYPE", ds2, ds3, ds5, ds1, ds4);
         DataSet ds6 =
@@ -271,7 +271,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         prepareForListDataSetTypes("MY-TYPE", "YOUR-TYPE");
         DataSet ds1 =
                 new DataSetBuilder().code("ds1").property("BETA", "456").property("ALPHA", "123")
-                        .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
+                        .registrationDate(new Date(nowDate))
                         .getDataSet();
         DataSet ds2 =
                 new DataSetBuilder().code("ds2").property("GAMMA", "4").property("ALPHA", "42")
@@ -286,7 +286,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
                         .registrationDate(new Date(nowDate - 40 * DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
         DataSet ds5 =
-                new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate)).getDataSet();
+                new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate - 50 * DateUtils.MILLIS_PER_DAY)).getDataSet();
         RecordingMatcher<DetailedSearchCriteria> myTypeCriteriaMatcher =
                 prepareForSearchForDataSets("MY-TYPE", ds2, ds3, ds5, ds1, ds4);
         RecordingMatcher<DetailedSearchCriteria> yourTypeCriteriaMatcher =
