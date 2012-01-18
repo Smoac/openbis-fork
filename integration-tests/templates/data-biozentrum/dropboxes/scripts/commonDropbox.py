@@ -23,10 +23,10 @@ class AbstractPropertiesParser(object):
 
 	# Parses the metadata file from the given incoming directory.
 	# Each line should have a form:
-	#   key = value
+	#		key = value
 	# Keys should be unique in the file.
 	# Returns: 
-	#	a dictionary with keys and values from the file.
+	# a dictionary with keys and values from the file.
 	def _parseMetadata(self, path):		
 		f = open(path)
 		myDict = {}
@@ -50,13 +50,13 @@ class AbstractPropertiesParser(object):
 
 	# All properties in the file.
 	# Returns:
-	#	an iterator which yields (propertyName, propertyValue) pairs 
+	# an iterator which yields (propertyName, propertyValue) pairs 
 	def getPropertiesIter(self):
 		return [ (key, value) for key, value in self._propertiesDict.iteritems() ]
 
 	# All dataset properties.
 	# Returns:
-	#	an iterator which yields (propertyCode, propertyValue) pairs 
+	# an iterator which yields (propertyCode, propertyValue) pairs 
 	def getDatasetPropertiesIter(self):
 		return [ (key, value) for key, value in self._propertiesDict.iteritems() if key.startswith(self.DATASET_PROPERTY_PREFIX) ]
 
@@ -98,12 +98,12 @@ class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 	
 	# All dataset properties.
 	# Returns:
-	#	an iterator which yields (propertyCode, propertyValue) pairs 
+	# an iterator which yields (propertyCode, propertyValue) pairs 
 	def getDatasetPropertiesIter(self):
 		properties = AbstractPropertiesParser.getDatasetPropertiesIter(self)
 		properties = [ (key, value) for (key, value) in properties if key != "ibrain2.assay.id" ]
 		properties.append((self.INSTRUMENT_PROPERTY, self.get(self.INSTRUMENT_PROPERTY)))
-		properties.append((self.TIMESTAMP_PROPERTY, self.get(self.TIMESTAMP_PROPERTY)))	
+		properties.append((self.TIMESTAMP_PROPERTY, self.get(self.TIMESTAMP_PROPERTY))) 
 		return properties
 	
 	def getPlateCode(self):
@@ -184,10 +184,10 @@ class RegistrationConfirmationUtils(object):
 
 	""" Returns a directory 3 levels above the incoming directory """
 	def _getTopLevelDir(self, incoming):
-	  global service
-	  threadParameters = service.getRegistratorContext().getGlobalState().getThreadParameters()
-	  incomingDirectory = threadParameters.getIncomingDataDirectory()
-	  return incomingDirectory.getParentFile().getParent()
+		global service
+		threadParameters = service.getRegistratorContext().getGlobalState().getThreadParameters()
+		incomingDirectory = threadParameters.getIncomingDataDirectory()
+		return incomingDirectory.getParentFile().getParent()
 #		return File(incoming).getParentFile().getParentFile().getParent()
 
 	def _getDuplicatedDatasetsDir(self, incoming):
@@ -288,41 +288,41 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
 
 """
 param ensureSingleChild - if true, then it will be ensured that the parent dataset 
-          had no children of 'datasetType' and if it is not the case an exception will be thrown.
+					had no children of 'datasetType' and if it is not the case an exception will be thrown.
 """
 def registerDerivedBlackBoxDataset(state, aService, factory, incoming, metadataParser, datasetType, fileFormatType, ensureSingleChild=False):
-    global service
-    service = aService
-    transaction = service.transaction(incoming, factory)
-    if ensureSingleChild:
-		for parentDatasetPermId in metadataParser.getParentDatasetPermId():
-			ensureOrDieNoChildrenOfType(parentDatasetPermId, datasetType, incoming.getPath(), transaction)
+		global service
+		service = aService
+		transaction = service.transaction(incoming, factory)
+		if ensureSingleChild:
+		  for parentDatasetPermId in metadataParser.getParentDatasetPermId():
+			  ensureOrDieNoChildrenOfType(parentDatasetPermId, datasetType, incoming.getPath(), transaction)
 			
-    dataset = transaction.createNewDataSet()
-    dataset.setDataSetType(datasetType)
-    dataset.setFileFormatType(fileFormatType)
-    registerDerivedDataset(state, transaction, dataset, incoming, metadataParser)
-    
+		dataset = transaction.createNewDataSet()
+		dataset.setDataSetType(datasetType)
+		dataset.setFileFormatType(fileFormatType)
+		registerDerivedDataset(state, transaction, dataset, incoming, metadataParser)
+		
 def registerDerivedDataset(state, transaction, dataset, incoming, metadataParser):
-    iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
+		iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
 	# Find a parent which is connected to a plate
-    for openbisDatasetParentPermId in metadataParser.getParentDatasetPermId():
-    	(space, plate) = tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incoming.getPath())
-     	if plate != None:
-     		break
-    
-    if plate == None:
-    	return
-       
-    dataset.setSample(transaction.getSample('/' + space + '/' + plate))
-    dataset.setMeasuredData(False)
-    for propertyCode, value in metadataParser.getDatasetPropertiesIter():
-        dataset.setPropertyValue(propertyCode, value)
-    dataset.setParentDatasets(metadataParser.getParentDatasetPermId())
+		for openbisDatasetParentPermId in metadataParser.getParentDatasetPermId():
+			(space, plate) = tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incoming.getPath())
+			if plate != None:
+				break
+		
+		if plate == None:
+			return
+			 
+		dataset.setSample(transaction.getSample('/' + space + '/' + plate))
+		dataset.setMeasuredData(False)
+		for propertyCode, value in metadataParser.getDatasetPropertiesIter():
+				dataset.setPropertyValue(propertyCode, value)
+		dataset.setParentDatasets(metadataParser.getParentDatasetPermId())
 
-    transaction.moveFile(incoming.getPath(), dataset)
-    if transaction.commit():
-        createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
+		transaction.moveFile(incoming.getPath(), dataset)
+		if transaction.commit():
+				createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
 
 def findCSVFile(dir):
 	for file in os.listdir(dir):
@@ -332,8 +332,8 @@ def findCSVFile(dir):
 
 """
 Returns:
-   (plateSpace, plateCode) tuple for the plate connected with the specified dataset
-   or (None, None) if the dataset does not exist or is not connected to the plate.
+	 (plateSpace, plateCode) tuple for the plate connected with the specified dataset
+	 or (None, None) if the dataset does not exist or is not connected to the plate.
 """
 def tryGetConnectedPlate(state, openbisDatasetPermId, iBrain2DatasetId, incomingPath):
 	openbis = state.getOpenBisService()
@@ -395,7 +395,7 @@ def createFailureStatus(datasetMetadataParser, throwable, incoming):
 			newPath = RegistrationConfirmationUtils().moveDuplicatedDataset(throwable.value)
 			msg += "\nMoving " + throwable.value.incomingPath + " to " + newPath
 	except AttributeError:
-	    pass
+			pass
 	
 	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, msg, incomingPath)
 	
@@ -403,10 +403,10 @@ def createFailureStatus(datasetMetadataParser, throwable, incoming):
 Returns: all children of 'typeCode' type having dataset with code 'parentDataSetCode' as a parent
 """
 def fetchChildrenOfType(dataSetCode, typeCode, transaction):
-    container = transaction.getDataSet(dataSetCode)
-    if None == container:
-        return []
-    return [dataSet for dataSet in container.getChildrenDataSets() if typeCode == dataSet.getDataSetType()]
+		container = transaction.getDataSet(dataSetCode)
+		if None == container:
+				return []
+		return [dataSet for dataSet in container.getChildrenDataSets() if typeCode == dataSet.getDataSetType()]
 
 """ 
 If dataset with code 'parentDataSetCode' has already children datasets of type 'typeCode', 
@@ -421,44 +421,44 @@ def ensureOrDieNoChildrenOfType(dataSetCode, typeCode, incomingPath, transaction
 # Specific code which defines the feature vector values for the dataset.
 # It assumes that values are in the matrix, where first row and column contain well labels.
 # Parameters
-#    incomingCsvPath: path which points to the incoming CSV file
+#		 incomingCsvPath: path which points to the incoming CSV file
 # Returns
-#    featuresBuilder with defined features
+#		 featuresBuilder with defined features
 def defineFeaturesFromCsvMatrix(incomingCsvFile, factory):
-    SEPARATOR = ","
-    
-    featuresBuilder = factory.createFeaturesBuilder()
-    file = open(incomingCsvFile)
-    for header in file:
-        headerTokens = header.split(SEPARATOR)
-        featureCode = headerTokens[0]
-        featureValues = featuresBuilder.defineFeature(featureCode)
-        for rowValues in file:
-            rowTokens = rowValues.split(SEPARATOR)
-            rowLabel = rowTokens[0].strip()
-            if len(rowLabel) == 0:
-                break
-            for column in range(1, len(headerTokens)):
-                value = rowTokens[column].strip()
-                well = rowLabel + str(column)
-                featureValues.addValue(well, value)
-    return featuresBuilder
+		SEPARATOR = ","
+		
+		featuresBuilder = factory.createFeaturesBuilder()
+		file = open(incomingCsvFile)
+		for header in file:
+				headerTokens = header.split(SEPARATOR)
+				featureCode = headerTokens[0]
+				featureValues = featuresBuilder.defineFeature(featureCode)
+				for rowValues in file:
+						rowTokens = rowValues.split(SEPARATOR)
+						rowLabel = rowTokens[0].strip()
+						if len(rowLabel) == 0:
+								break
+						for column in range(1, len(headerTokens)):
+								value = rowTokens[column].strip()
+								well = rowLabel + str(column)
+								featureValues.addValue(well, value)
+		return featuresBuilder
 
 def registerFeaturesFromCsvMatrix(aService, factory, state, incoming, datasetMetadataParser, datasetTypeCode):
-    global service
-    service = aService
-    incomingCsvFile = findCSVFile(incoming.getPath())
+		global service
+		service = aService
+		incomingCsvFile = findCSVFile(incoming.getPath())
 
-    transaction = service.transaction()
-    featuresBuilder = defineFeaturesFromCsvMatrix(incomingCsvFile, factory)
-    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(featuresBuilder, incoming)
-    analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
-    analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
-    dataset = transaction.createNewDataSet(analysisRegistrationDetails)
-    dataset.setDataSetType(datasetTypeCode)
-    dataset.setFileFormatType('CSV')
-    registerDerivedDataset(state, transaction, dataset, incoming, datasetMetadataParser)
-    
+		transaction = service.transaction()
+		featuresBuilder = defineFeaturesFromCsvMatrix(incomingCsvFile, factory)
+		analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(featuresBuilder, incoming)
+		analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
+		analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
+		dataset = transaction.createNewDataSet(analysisRegistrationDetails)
+		dataset.setDataSetType(datasetTypeCode)
+		dataset.setFileFormatType('CSV')
+		registerDerivedDataset(state, transaction, dataset, incoming, datasetMetadataParser)
+		
 # -------------- TODO: remove tests
 
 
