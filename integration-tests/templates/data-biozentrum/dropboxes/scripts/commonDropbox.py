@@ -182,7 +182,10 @@ class RegistrationConfirmationUtils(object):
 
 	""" Returns a directory 3 levels above the incoming directory """
 	def _getTopLevelDir(self, incoming):
-		return File(incoming).getParentFile().getParentFile().getParent()
+	  threadParameters = service.getRegistratorContext().getGlobalState().getThreadParameters()
+	  incomingDirectory = threadParameters.getIncomingDataDirectory()
+	  return incomingDirectory.getParentFile().getParent()
+#		return File(incoming).getParentFile().getParentFile().getParent()
 
 	def _getDuplicatedDatasetsDir(self, incoming):
 		return self._getTopLevelDir(incoming) + "/" + self.DUPLICATED_DATASETS_DIRECTORY
