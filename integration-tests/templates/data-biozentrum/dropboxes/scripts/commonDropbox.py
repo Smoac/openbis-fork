@@ -269,14 +269,14 @@ class RegistrationConfirmationUtils(object):
 # --------------
 
 def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, aService, factory, tr=None, includeAnalysisProcedure=False):
-  global service
-  service = aService
+	global service
+	service = aService
 	iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
-   	imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-   	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
-   		imageRegistrationDetails.setPropertyValue(propertyCode, value)
-   	if includeAnalysisProcedure:
-   		imageRegistrationDetails.setPropertyValue('$ANALYSIS_PROCEDURE', metadataParser.getAnalysisProcedure())
+	imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
+		imageRegistrationDetails.setPropertyValue(propertyCode, value)
+	if includeAnalysisProcedure:
+		imageRegistrationDetails.setPropertyValue('$ANALYSIS_PROCEDURE', metadataParser.getAnalysisProcedure())
 
 	if tr is None: 
 		tr = service.transaction(incoming, factory)
