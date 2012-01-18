@@ -52,7 +52,7 @@ if incoming.isDirectory():
     incomingPath = incoming.getPath()
     datasetMetadataParser = commonDropbox.AcquiredDatasetMetadataParser(incomingPath)
     iBrain2DatasetId = datasetMetadataParser.getIBrain2DatasetId()
-    assayParser = commonDropbox.AssayParser(incomingPath, service)
+    assayParser = commonDropbox.AssayParser(incomingPath)
 
     imageDataset = commonImageDropbox.IBrain2ImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
