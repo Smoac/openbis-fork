@@ -182,6 +182,7 @@ class RegistrationConfirmationUtils(object):
 
 	""" Returns a directory 3 levels above the incoming directory """
 	def _getTopLevelDir(self, incoming):
+	  global service
 	  threadParameters = service.getRegistratorContext().getGlobalState().getThreadParameters()
 	  incomingDirectory = threadParameters.getIncomingDataDirectory()
 	  return incomingDirectory.getParentFile().getParent()
