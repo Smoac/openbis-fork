@@ -236,7 +236,7 @@ class WellDataLoader extends AbstractContentLoader
      */
     public List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssaysBatch(
             TechId materialId, AnalysisProcedureCriteria analysisProcedureCriteria,
-            List<ExperimentReference> experiments)
+            boolean computeRanks, List<ExperimentReference> experiments)
     {
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
@@ -244,8 +244,16 @@ class WellDataLoader extends AbstractContentLoader
         int totalWellsLoaded = 0;
         int totalFeatureVectorsLoaded = 0;
 
-        List<BasicWellContentQueryResult> allWells =
-                fetchWellLocations(materialId, extractIds(experiments));
+        List<BasicWellContentQueryResult> allWells;
+
+        if (computeRanks)
+        {
+            allWells = fetchWellLocations(materialId, extractIds(experiments));
+        } else
+        {
+            allWells = fetchWellLocationsForMaterial(materialId, extractIds(experiments));
+        }
+
         totalWellsLoaded += allWells.size();
         WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
                 tryLoadWellSingleFeatureVectors(allWells, analysisProcedureCriteria);
@@ -281,6 +289,17 @@ class WellDataLoader extends AbstractContentLoader
                 "[%d msec] Experiments batch: %d, wells loaded: %d, feature vectors: %d.",
                 watch.getTime(), experiments.size(), totalWellsLoaded, totalFeatureVectorsLoaded));
         return summaries;
+    }
+
+    private List<BasicWellContentQueryResult> fetchWellLocationsForMaterial(TechId materialId,
+            long[] experimentIds)
+    {
+        StopWatch watch = createWatchAndStart();
+        List<BasicWellContentQueryResult> wells =
+                getScreeningDAO().getPlateLocationsForExperiment(experimentIds, materialId.getId());
+        operationLog.info("[" + watch.getTime() + " msec] Fetching " + wells.size()
+                + " wells for 1 material.");
+        return wells;
     }
 
     private static long[] extractIds(List<ExperimentReference> experiments)
@@ -530,7 +549,8 @@ class WellDataLoader extends AbstractContentLoader
 
         private final List<CodeAndLabel> featureNames;
 
-        public MaterialIdSummariesAndFeatures(List<MaterialIdFeatureVectorSummary> featureSummaries,
+        public MaterialIdSummariesAndFeatures(
+                List<MaterialIdFeatureVectorSummary> featureSummaries,
                 List<CodeAndLabel> featureNames)
         {
             this.featureSummaries = featureSummaries;

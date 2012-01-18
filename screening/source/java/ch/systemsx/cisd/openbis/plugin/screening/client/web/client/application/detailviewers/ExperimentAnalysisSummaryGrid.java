@@ -106,7 +106,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
         assert analysisProcedureCriteria != null : "analysisProcedureCriteria is not set yet, "
                 + "it should not happen because this field is set before the grid refreshes";
         ClientPluginFactory.openImagingMaterialViewer(material, getExperimentAsSearchCriteria(),
-                analysisProcedureCriteria, screeningViewContext);
+                analysisProcedureCriteria, false, screeningViewContext);
     }
 
     private ExperimentSearchCriteria getExperimentAsSearchCriteria()

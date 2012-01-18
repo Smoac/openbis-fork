@@ -66,14 +66,17 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
 
     private AnalysisProcedureCriteria analysisProcedureCriteria;
 
+    private boolean computeRanks;
+
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
     {
         return new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
-                experimentSearchCriteria, analysisProcedureCriteria).asDisposableWithoutToolbar();
+                experimentSearchCriteria, analysisProcedureCriteria, computeRanks)
+                .asDisposableWithoutToolbar();
     }
 
     public static IDisposableComponent create(
@@ -84,7 +87,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
     {
         MaterialFeaturesFromAllExperimentsGrid grid =
                 new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
-                        experimentSearchCriteria, null);
+                        experimentSearchCriteria, null, false);
         analysisProcedureListenerHolder.setAnalysisProcedureListener(grid
                 .createAnalysisProcedureListener());
         return grid.asDisposableWithoutToolbar();
@@ -93,7 +96,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
     MaterialFeaturesFromAllExperimentsGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria,
-            AnalysisProcedureCriteria analysisProcedureCriteriaOrNull)
+            AnalysisProcedureCriteria analysisProcedureCriteriaOrNull, boolean computeRanks)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID,
                 analysisProcedureCriteriaOrNull != null,
@@ -102,6 +105,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
         this.material = material;
         this.experimentSearchCriteria = experimentSearchCriteria;
         this.analysisProcedureCriteria = analysisProcedureCriteriaOrNull;
+        this.computeRanks = computeRanks;
         setBorders(true);
         linkExperiment();
         linkMaterialInExperiment();
@@ -208,7 +212,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
     {
         MaterialFeaturesManyExpCriteria criteria =
                 new MaterialFeaturesManyExpCriteria(new TechId(material),
-                        analysisProcedureCriteria, experimentSearchCriteria);
+                        analysisProcedureCriteria, experimentSearchCriteria, computeRanks);
         screeningViewContext.getService().listMaterialFeaturesFromAllExperiments(resultSetConfig,
                 criteria, callback);
     }

@@ -482,7 +482,7 @@ public class MaterialReplicaSummaryComponent
                 public void onClick(ClickEvent event)
                 {
                     ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
-                            analysisProcedureCriteria, screeningViewContext);
+                            analysisProcedureCriteria, false, screeningViewContext);
                 }
             }, linkUrl);
         return linkWidget;

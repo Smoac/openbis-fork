@@ -91,6 +91,8 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public static final String ANALYSIS_PROCEDURE_KEY = "analysisProcedure";
 
+    public static final String COMPUTE_RANKS_KEY = "computeRanks";
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");

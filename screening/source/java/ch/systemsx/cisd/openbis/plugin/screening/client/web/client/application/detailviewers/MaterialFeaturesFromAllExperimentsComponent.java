@@ -49,11 +49,11 @@ public class MaterialFeaturesFromAllExperimentsComponent
     public static IDisposableComponent createComponent(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             ExperimentSearchByProjectCriteria experimentCriteria,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
     {
         final IDisposableComponent gridComponent =
                 MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
-                        experimentCriteria, analysisProcedureCriteria);
+                        experimentCriteria, analysisProcedureCriteria, computeRanks);
         return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
                 .createComponent(gridComponent, material, experimentCriteria);
     }

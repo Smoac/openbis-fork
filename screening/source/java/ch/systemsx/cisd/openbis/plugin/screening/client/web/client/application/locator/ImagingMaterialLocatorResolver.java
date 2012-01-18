@@ -49,8 +49,12 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
         AnalysisProcedureCriteria analysisProcedureCriteria =
                 ScreeningResolverUtils.extractAnalysisProcedureCriteria(locator);
 
+        boolean computeRanks =
+                getOptionalBooleanParameter(locator, ScreeningLinkExtractor.COMPUTE_RANKS_KEY,
+                        false);
+
         openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentCriteriaOrNull,
-                analysisProcedureCriteria);
+                analysisProcedureCriteria, computeRanks);
     }
 
     private static ExperimentIdentifierSearchCriteria tryGetExperimentIdentifierSearchCriteria(
@@ -104,15 +108,17 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
      * in the viewer.
      * 
      * @param analysisProcedureCriteria
+     * @param computeRanks
      */
     protected void openInitialMaterialViewer(MaterialIdentifier identifier,
             ExperimentIdentifierSearchCriteria experimentCriteriaOrNull,
-            AnalysisProcedureCriteria analysisProcedureCriteria) throws UserFailureException
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
+            throws UserFailureException
     {
         viewContext.getCommonService().getMaterialInformationHolder(
                 identifier,
                 new OpenEntityDetailsTabCallback(viewContext, experimentCriteriaOrNull,
-                        analysisProcedureCriteria));
+                        analysisProcedureCriteria, computeRanks));
     }
 
     private static class OpenEntityDetailsTabCallback extends
@@ -122,14 +128,17 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 
         private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
+        private boolean computeRanks;
+
         private OpenEntityDetailsTabCallback(
                 final IViewContext<IScreeningClientServiceAsync> viewContext,
                 ExperimentIdentifierSearchCriteria scopeOrNull,
-                AnalysisProcedureCriteria analysisProcedureCriteria)
+                AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
         {
             super(viewContext);
             this.scopeOrNull = scopeOrNull;
             this.analysisProcedureCriteria = analysisProcedureCriteria;
+            this.computeRanks = computeRanks;
         }
 
         //
@@ -198,7 +207,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 final ExperimentSearchCriteria experimentSearchCriteriaOrNull)
         {
             ClientPluginFactory.openImagingMaterialViewer(material, experimentSearchCriteriaOrNull,
-                    analysisProcedureCriteria, getViewContext());
+                    analysisProcedureCriteria, computeRanks, getViewContext());
         }
 
         @SuppressWarnings("unchecked")

@@ -192,27 +192,40 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContentQueryResult> getPlateMappingForMaterialType(String spaceCode,
             String plateCode, String materialTypeCode);
 
+    final String MINIMAL_WELLS_FOR_MATERIAL_ID_QUERY =
+            "select "
+                    + "     well.code as well_code, "
+                    + "     pl.perm_id as plate_perm_id, "
+                    + "     exp.perm_id as exp_perm_id, "
+                    + "     well_props.mate_prop_id as material_content_id "
+                    + "from experiments exp "
+                    + "     join samples pl on pl.expe_id = exp.id "
+                    + "     join samples well on well.samp_id_part_of = pl.id "
+                    + "     join sample_properties well_props on well_props.samp_id = well.id "
+                    + "     join materials well_material on well_props.mate_prop_id = well_material.id "
+                    + "     join material_types well_material_type on well_material.maty_id = well_material_type.id "
+                    + "where pl.samp_id_part_of is null ";
+
     /**
      * @param materialTypesPattern only materials with a type matching to this pattern will be
      *            considered
      * @return the material to well plate mapping for all the wells of the specified experiment.
      */
-    @Select(sql = "select "
-            + "     well.code as well_code, "
-            + "     pl.perm_id as plate_perm_id, "
-            + "     exp.perm_id as exp_perm_id, "
-            + "     well_props.mate_prop_id as material_content_id "
-            + "from experiments exp "
-            + "     join samples pl on pl.expe_id = exp.id "
-            + "     join samples well on well.samp_id_part_of = pl.id "
-            + "     join sample_properties well_props on well_props.samp_id = well.id "
-            + "     join materials well_material on well_props.mate_prop_id = well_material.id "
-            + "     join material_types well_material_type on well_material.maty_id = well_material_type.id "
-            + "where pl.samp_id_part_of is null and exp.id = any(?{1}) "
+    @Select(sql = MINIMAL_WELLS_FOR_MATERIAL_ID_QUERY + " and exp.id = any(?{1}) "
             + "      and well_material_type.code similar to ?{2}", parameterBindings =
         { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
     public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long[] experimentId,
             String materialTypesPattern);
+
+    /**
+     * @return the material to well plate mapping for all the wells of the specified experiment
+     *         which contain specified material.
+     */
+    @Select(sql = MINIMAL_WELLS_FOR_MATERIAL_ID_QUERY + " and exp.id = any(?{1}) "
+            + "      and well_material.id = ?{2}", parameterBindings =
+        { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long[] experimentId,
+            long materialId);
 
     /**
      * @return the material to well plate mapping for the given <var>spaceCode</var> and

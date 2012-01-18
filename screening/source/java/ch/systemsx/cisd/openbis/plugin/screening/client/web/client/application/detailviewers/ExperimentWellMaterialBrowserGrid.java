@@ -109,7 +109,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
         {
             ClientPluginFactory.openImagingMaterialViewer(material,
                     createExperimentSearchCriteria(),
-                    AnalysisProcedureCriteria.createNoProcedures(), screeningViewContext);
+                    AnalysisProcedureCriteria.createNoProcedures(), false, screeningViewContext);
         } else
         {
             super.showEntityViewer(material, editMode, active);
@@ -120,6 +120,5 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         return ExperimentSearchCriteria.createExperiment(experiment);
     }
-
 
 }

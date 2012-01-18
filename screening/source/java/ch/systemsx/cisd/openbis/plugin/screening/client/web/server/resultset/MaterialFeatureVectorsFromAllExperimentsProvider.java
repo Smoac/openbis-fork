@@ -80,8 +80,11 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
             {
                 builder.column(getFeatureValueColumnId(codeAndLabel)).withTitle(
                         codeAndLabel.getLabel());
-                builder.column(getFeatureRankColumnId(codeAndLabel)).withTitle(
-                        ScreeningProviderMessages.RANK_COLUMN_MSG);
+                if (criteria.isComputeRanks())
+                {
+                    builder.column(getFeatureRankColumnId(codeAndLabel)).withTitle(
+                            ScreeningProviderMessages.RANK_COLUMN_MSG);
+                }
 
             }
         }
@@ -102,7 +105,10 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
         {
             CodeAndLabel description = descriptions.get(i);
             builder.column(getFeatureValueColumnId(description)).addDouble((double) features[i]);
-            builder.column(getFeatureRankColumnId(description)).addInteger(new Long(ranks[i]));
+            if (criteria.isComputeRanks())
+            {
+                builder.column(getFeatureRankColumnId(description)).addInteger(new Long(ranks[i]));
+            }
         }
     }
 

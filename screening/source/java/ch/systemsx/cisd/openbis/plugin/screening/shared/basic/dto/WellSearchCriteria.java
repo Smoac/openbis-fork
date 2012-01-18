@@ -498,6 +498,8 @@ public class WellSearchCriteria implements Serializable
 
         private ExperimentSearchByProjectCriteria experimentSearchCriteria;
 
+        private boolean computeRanks;
+
         // GWT only
         @SuppressWarnings("unused")
         private MaterialFeaturesManyExpCriteria()
@@ -506,15 +508,21 @@ public class WellSearchCriteria implements Serializable
 
         public MaterialFeaturesManyExpCriteria(TechId materialId,
                 AnalysisProcedureCriteria analysisProcedureCriteria,
-                ExperimentSearchByProjectCriteria experimentSearchCriteria)
+                ExperimentSearchByProjectCriteria experimentSearchCriteria, boolean computeRanks)
         {
             super(materialId, analysisProcedureCriteria);
             this.experimentSearchCriteria = experimentSearchCriteria;
+            this.computeRanks = computeRanks;
         }
 
         public ExperimentSearchByProjectCriteria getExperimentSearchCriteria()
         {
             return experimentSearchCriteria;
+        }
+
+        public boolean isComputeRanks()
+        {
+            return computeRanks;
         }
     }
 

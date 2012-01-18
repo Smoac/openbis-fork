@@ -50,8 +50,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             Session session, IScreeningBusinessObjectFactory businessObjectFactory,
             IDAOFactory daoFactory, TechId materialId,
-            AnalysisProcedureCriteria analysisProcedureCriteria, TechId projectTechIdOrNull,
-            MaterialSummarySettings settings)
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks,
+            TechId projectTechIdOrNull, MaterialSummarySettings settings)
     {
         MaterialFeaturesFromAllExperimentsLoader loader =
                 new MaterialFeaturesFromAllExperimentsLoader(session, businessObjectFactory,
@@ -59,7 +59,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
         List<ExperimentReference> experiments =
                 loader.fetchExperiments(materialId, projectTechIdOrNull);
         return loader.loadMaterialFeatureVectorsFromAllAssays(materialId,
-                analysisProcedureCriteria, experiments);
+                analysisProcedureCriteria, computeRanks, experiments);
     }
 
     private List<ExperimentReference> fetchExperiments(TechId materialId, TechId projectTechIdOrNull)
@@ -115,7 +115,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
      */
     private List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             TechId materialId, AnalysisProcedureCriteria analysisProcedureCriteria,
-            List<ExperimentReference> experiments)
+            boolean computeRanks, List<ExperimentReference> experiments)
     {
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
@@ -145,7 +145,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                         experimentsBatch.size(), datasetsInBatch, experimentsBatch));
                 List<MaterialSimpleFeatureVectorSummary> batchSummaries =
                         wellDataLoader.loadMaterialFeatureVectorsFromAllAssaysBatch(materialId,
-                                analysisProcedureCriteria, experimentsBatch);
+                                analysisProcedureCriteria, computeRanks, experimentsBatch);
                 summaries.addAll(batchSummaries);
                 experimentsBatch.clear();
                 datasetsInBatch = 0;

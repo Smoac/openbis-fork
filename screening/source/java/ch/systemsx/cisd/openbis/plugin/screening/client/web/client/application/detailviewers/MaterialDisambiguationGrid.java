@@ -260,7 +260,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
     {
         ClientPluginFactory.openImagingMaterialViewer(material,
                 searchCriteria.getExperimentCriteria(),
-                searchCriteria.getAnalysisProcedureCriteria(), screeningViewContext);
+                searchCriteria.getAnalysisProcedureCriteria(), false, screeningViewContext);
     }
 
     @Override

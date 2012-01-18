@@ -491,7 +491,8 @@ public class WellContentDialog extends Dialog
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openImagingMaterialViewer(material, getExperimentCriteria(),
-                                    AnalysisProcedureCriteria.createNoProcedures(), viewContext);
+                                    AnalysisProcedureCriteria.createNoProcedures(), false,
+                                    viewContext);
                 }
 
             };

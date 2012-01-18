@@ -229,11 +229,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * 
      * @param experimentCriteriaOrNull note that null does NOT mean searching in all experiments,
      *            but that single experiment should be specified by the user.
+     * @param computeRanks
      */
     public static final void openImagingMaterialViewer(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
-            final AnalysisProcedureCriteria analysisProcedureCriteria,
+            final AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (viewContext.getModel().isEmbeddedMode())
@@ -244,7 +245,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             if (multipleExperimentsScope != null)
             {
                 MaterialFeaturesFromAllExperimentsViewer.openTab(viewContext, materialIdentifier,
-                        multipleExperimentsScope, analysisProcedureCriteria);
+                        multipleExperimentsScope, analysisProcedureCriteria, computeRanks);
             } else
             {
                 assert experimentCriteriaOrNull != null;

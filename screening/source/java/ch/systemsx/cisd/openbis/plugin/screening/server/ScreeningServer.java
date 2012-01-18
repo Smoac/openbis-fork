@@ -320,7 +320,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 tryFetchProjectId(sessionToken, criteria.getExperimentSearchCriteria());
         return MaterialFeaturesFromAllExperimentsLoader.loadMaterialFeatureVectorsFromAllAssays(
                 session, businessObjectFactory, getDAOFactory(), criteria.getMaterialId(),
-                criteria.getAnalysisProcedureCriteria(), projectTechIdOrNull, settings);
+                criteria.getAnalysisProcedureCriteria(), criteria.isComputeRanks(),
+                projectTechIdOrNull, settings);
     }
 
     private TechId tryFetchProjectId(String sessionToken,

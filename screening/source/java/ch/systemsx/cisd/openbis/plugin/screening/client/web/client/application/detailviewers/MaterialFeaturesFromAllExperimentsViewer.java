@@ -48,11 +48,11 @@ public class MaterialFeaturesFromAllExperimentsViewer
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             MaterialIdentifier materialIdentifier,
             final ExperimentSearchByProjectCriteria experimentCriteria,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
     {
         final MaterialFeaturesFromAllExperimentsViewer viewer =
                 new MaterialFeaturesFromAllExperimentsViewer(screeningViewContext,
-                        analysisProcedureCriteria);
+                        analysisProcedureCriteria, computeRanks);
 
         screeningViewContext.getCommonService().getMaterialInfo(materialIdentifier,
                 new AbstractAsyncCallback<Material>(screeningViewContext)
@@ -70,12 +70,15 @@ public class MaterialFeaturesFromAllExperimentsViewer
 
     private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
+    private final boolean computeRanks;
+
     private MaterialFeaturesFromAllExperimentsViewer(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+            AnalysisProcedureCriteria analysisProcedureCriteria, boolean computeRanks)
     {
         this.screeningViewContext = screeningViewContext;
         this.analysisProcedureCriteria = analysisProcedureCriteria;
+        this.computeRanks = computeRanks;
     }
 
     private void openTab(Material material, ExperimentSearchByProjectCriteria experimentCriteria)
@@ -103,7 +106,7 @@ public class MaterialFeaturesFromAllExperimentsViewer
                     IDisposableComponent tabComponent =
                             MaterialFeaturesFromAllExperimentsComponent.createComponent(
                                     screeningViewContext, material, experimentCriteria,
-                                    analysisProcedureCriteria);
+                                    analysisProcedureCriteria, computeRanks);
 
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
