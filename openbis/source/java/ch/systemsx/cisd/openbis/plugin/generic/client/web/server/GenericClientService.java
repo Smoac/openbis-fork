@@ -295,7 +295,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         boolean updateExisting = (operationKind == BatchOperationKind.UPDATE);
         SampleCodeGenerator sampleCodeGeneratorOrNull =
-                tryGetSampleCodeGenerator(isAutoGenerateCodes);
+                tryGetSampleCodeGenerator(isAutoGenerateCodes, sampleType.getGeneratedCodePrefix());
         Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
         for (IUncheckedMultipartFile f : uploadedFiles.iterable())
         {
@@ -337,7 +337,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    private SampleCodeGenerator tryGetSampleCodeGenerator(boolean isAutoGenerateCodes)
+    private SampleCodeGenerator tryGetSampleCodeGenerator(boolean isAutoGenerateCodes,
+            final String codePrefix)
     {
         if (isAutoGenerateCodes)
         {
@@ -345,7 +346,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                 {
                     public List<String> generateCodes(int size)
                     {
-                        return genericServer.generateCodes(getSessionToken(), "S", size);
+                        return genericServer.generateCodes(getSessionToken(), codePrefix, size);
                     }
                 };
         } else
