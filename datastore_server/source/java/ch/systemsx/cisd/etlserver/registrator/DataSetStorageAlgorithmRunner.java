@@ -195,7 +195,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // Should always succeed
             commitStorageProcessors();
 
-            dssRegistrationLog.log("Storage processors have commited.");
+            dssRegistrationLog.log("Storage processors have been committed.");
 
             logSuccessfulRegistration();
 
