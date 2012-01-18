@@ -3,6 +3,8 @@
 import os
 from java.io import File
 
+service = None
+
 class AbstractPropertiesParser(object):
 	_propertiesDict = None
 	_propertiesFilePath = None
@@ -266,7 +268,9 @@ class RegistrationConfirmationUtils(object):
 
 # --------------
 
-def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory, tr=None, includeAnalysisProcedure=False):
+def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, aService, factory, tr=None, includeAnalysisProcedure=False):
+  global service
+  service = aService
 	iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
    	imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
    	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
@@ -286,7 +290,9 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
 param ensureSingleChild - if true, then it will be ensured that the parent dataset 
           had no children of 'datasetType' and if it is not the case an exception will be thrown.
 """
-def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataParser, datasetType, fileFormatType, ensureSingleChild=False):
+def registerDerivedBlackBoxDataset(state, aService, factory, incoming, metadataParser, datasetType, fileFormatType, ensureSingleChild=False):
+    global service
+    service = aService
     transaction = service.transaction(incoming, factory)
     if ensureSingleChild:
 		for parentDatasetPermId in metadataParser.getParentDatasetPermId():
@@ -438,7 +444,9 @@ def defineFeaturesFromCsvMatrix(incomingCsvFile, factory):
                 featureValues.addValue(well, value)
     return featuresBuilder
 
-def registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMetadataParser, datasetTypeCode):
+def registerFeaturesFromCsvMatrix(aService, factory, state, incoming, datasetMetadataParser, datasetTypeCode):
+    global service
+    service = aService
     incomingCsvFile = findCSVFile(incoming.getPath())
 
     transaction = service.transaction()
