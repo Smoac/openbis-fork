@@ -16,13 +16,13 @@
         
         var o = new openbis(openbisHost, openbisContext, dssHost);
           o.screening_tryLoginScreening('admin','password', function(response){
-
-            var datasetIdentifier = {
+            
+            var featureVectorDatasetReference = {
               "@class":".FeatureVectorDatasetReference",
               "permId":"20100925142438333-158190"
             }
             
-            var datasetWellReference = {
+            var featureVectorDatasetWellReference = {
               "@class": ".FeatureVectorDatasetWellReference",
               "permId":"20100925142438333-158190",
               "wellPosition": {
@@ -31,26 +31,30 @@
               }
             }
             
-            var plateDatasetIdentifier = {
-                "@class": ".DatasetIdentifier",
-                "permId": "20111222081950963-158742"                
+            var imageDatasetReference = {
+                "@class": ".ImageDatasetReference",
+                "permId":"20111222081950963-158742"
             }
 
-            o.dss_listAvailableFeatureNames([datasetIdentifier]);   
-            o.dss_listAvailableFeatureCodes([datasetIdentifier], function(response){
-              o.dss_loadFeatures([datasetIdentifier], response.result);
-              o.dss_loadFeaturesForDatasetWellReferences([datasetWellReference], response.result);
-              o.dss_listPlateImageReferencesForChannel(plateDatasetIdentifier, [{wellColumn: 1, wellRow: 1}], null);
+            o.dss_listAvailableFeatureNames([featureVectorDatasetReference]);   
+            o.dss_listAvailableFeatureCodes([featureVectorDatasetReference], function(response){
+              o.dss_loadFeatures([featureVectorDatasetReference], response.result);
+              o.dss_loadFeaturesForDatasetWellReferences([featureVectorDatasetWellReference], response.result);
             });
-            o.dss_listAvailableFeatures([datasetIdentifier]);
-
-            /*
+            o.dss_listPlateImageReferencesForChannel(imageDatasetReference, [{wellColumn: 1, wellRow: 1}], 'DAPI');
+            o.dss_listPlateImageReferencesForChannels(imageDatasetReference, [{wellColumn: 1, wellRow: 1}], ['DAPI','GFP','CY3']);
+            o.dss_listImageReferencesForChannel(imageDatasetReference, 'DAPI');
+            o.dss_listImageReferencesForChannels(imageDatasetReference, ['DAPI','GFP','CY3']);
+            o.dss_listAvailableFeatures([featureVectorDatasetReference]);
+            o.dss_listImageMetadata([imageDatasetReference]);
+            o.dss_listAvailableImageRepresentationFormats([imageDatasetReference]);
+            
               o.screening_listPlates(function(response){
                   o.screening_listFeatureVectorDatasets(response.result, function(){});
                   o.screening_listImageDatasets(response.result, function(){});
                   o.screening_listRawImageDatasets(response.result, function(){});
                   o.screening_listSegmentationImageDatasets(response.result, function(){});
-                  o.screening_listPlateWellsForPlate(response.result[0], function(){});
+                  o.screening_listPlateWellsForPlate(response.result[1], function(){});
                   o.screening_getPlateSample(response.result[0], function(){});
                   o.screening_listPlateMaterialMapping(response.result, null, function(){});
               });
@@ -111,9 +115,6 @@
                       materialTypeIdentifier: {materialTypeCode: "SIRNA"},
                       materialCode: "10280_1"
               }, function(){});
-              
-              */
-              
               
         });
       });
