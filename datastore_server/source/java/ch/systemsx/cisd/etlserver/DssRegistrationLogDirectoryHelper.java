@@ -18,9 +18,6 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.GregorianCalendar;
-
-import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
@@ -102,27 +99,7 @@ public class DssRegistrationLogDirectoryHelper
      */
     String generateLogFileName(String name, String threadName)
     {
-        String sectionSeparator = "_";
-
-        // The log file name is YYYY-MM-DD_HH-mm-ss-SSS_threadName_name.log
-        StringBuilder logFilename = new StringBuilder();
-        GregorianCalendar calendar = new GregorianCalendar();
-
-        String dateSection = DateFormatUtils.ISO_DATE_FORMAT.format(calendar);
-        logFilename.append(dateSection);
-        logFilename.append(sectionSeparator);
-
-        String timeSection = DateFormatUtils.format(calendar, "HH-mm-ss-SSS");
-        logFilename.append(timeSection);
-        logFilename.append(sectionSeparator);
-
-        logFilename.append(threadName);
-        logFilename.append(sectionSeparator);
-
-        logFilename.append(name);
-        logFilename.append(".log");
-
-        return logFilename.toString();
+        return new DssUniqueFilenameGenerator(threadName, name, ".log").generateFilename();
     }
 
     private void createDirectoryIfNecessary(File dir)

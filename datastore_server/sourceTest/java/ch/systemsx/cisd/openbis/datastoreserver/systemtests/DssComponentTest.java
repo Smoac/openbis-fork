@@ -139,7 +139,7 @@ public class DssComponentTest extends SystemTestCase
                     "^\\t\\d+-\\d+$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the store.$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
-                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have committed.$"
+                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have been committed.$"
         };
         checkLogFileContents(logFile, expectedContents);
 
@@ -158,7 +158,7 @@ public class DssComponentTest extends SystemTestCase
         int i = 0;
         for (String expected : expectedContents)
         {
-            assertTrue(logFileContents.get(i), Pattern.matches(expected, logFileContents.get(i++)));
+            assertTrue(expected + ".matches(" + logFileContents.get(i) + ")", Pattern.matches(expected, logFileContents.get(i++)));
         }
     }
 

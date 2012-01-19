@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
+import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
@@ -348,7 +349,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     private File copyIncomingFileToPreStaging(File incomingDataSetFile)
     {
-        File preStagingDir = state.getGlobalState().getPreStagingDir();
+        TopLevelDataSetRegistratorGlobalState globalState = state.getGlobalState();
+        File preStagingRootDir = globalState.getPreStagingDir();
+        String incomingDirName = new DssUniqueFilenameGenerator(globalState.getThreadParameters().getThreadName(), incomingDataSetFile.getName(), null).generateFilename();
+        File preStagingDir = new File(preStagingRootDir, incomingDirName);
+        preStagingDir.mkdir();
+
         // Try to find a hardlink maker
         IImmutableCopier hardlinkMaker = FastRecursiveHardLinkMaker.tryCreate();
         boolean linkWasMade = false;
