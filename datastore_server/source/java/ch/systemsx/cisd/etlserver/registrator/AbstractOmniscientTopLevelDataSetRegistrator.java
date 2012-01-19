@@ -244,6 +244,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     }
 
+    /**
+     * Should registration take advantage of the prestaging area?
+     */
+    private final static boolean USE_PRE_STAGING = false;
+
     public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
     {
 
@@ -340,11 +345,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
-        // Make a hardlink copy of the file
-        File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
-        PostRegistrationCleanUpAction cleanupAction = new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming, markerFileCleanupAction);
+        if (USE_PRE_STAGING)
+        {
 
-        handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
+            // Make a hardlink copy of the file
+            File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
+            PostRegistrationCleanUpAction cleanupAction = new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming, markerFileCleanupAction);
+
+            handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
+        } else
+        {
+            handle(incomingDataSetFile, null, new NoOpDelegate(), markerFileCleanupAction);
+        }
     }
 
     private File copyIncomingFileToPreStaging(File incomingDataSetFile)
