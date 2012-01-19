@@ -51,6 +51,9 @@ public final class LoggedUserMenu extends TopMenuItem
         this.viewContext = viewContext;
 
         Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_ABOUT_BOX, viewContext,
+                new AboutBoxAction(viewContext)));
+
         if (viewContext.getModel().isAnonymousLogin())
         {
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGIN, viewContext,
@@ -63,9 +66,6 @@ public final class LoggedUserMenu extends TopMenuItem
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
                     new LogoutAction(viewContext)));
         }
-
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_ABOUT_BOX, viewContext,
-                new AboutBoxAction(viewContext)));
 
         setMenu(submenu);
         refreshTitle();
