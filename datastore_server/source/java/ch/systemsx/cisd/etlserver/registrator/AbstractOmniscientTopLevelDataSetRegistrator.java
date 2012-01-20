@@ -207,7 +207,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static class PostRegistrationCleanUpAction extends AbstractDelegatedActionWithResult<Boolean>
+    public static class PostRegistrationCleanUpAction extends
+            AbstractDelegatedActionWithResult<Boolean>
     {
         private final File originalInboxFile;
 
@@ -215,7 +216,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
-        public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile, IDelegatedActionWithResult<Boolean> wrappedAction)
+        public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile,
+                IDelegatedActionWithResult<Boolean> wrappedAction)
         {
             super(true);
             this.originalInboxFile = originalInboxFile;
@@ -336,13 +338,21 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             incomingDataSetFile =
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
-            markerFileCleanupAction = new AbstractDelegatedActionWithResult<Boolean>(false)
+            markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
                     @Override
-                    public Boolean execute()
+                    public Boolean execute(boolean didOperationSucceed)
                     {
-                        return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
-                                isFinishedFile);
+                        boolean markerDeleteSucceeded =
+                                state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
+                                        isFinishedFile);
+
+                        if (didOperationSucceed)
+                        {
+                            return markerDeleteSucceeded
+                                    && FileUtilities.deleteRecursively(incomingDataSetFile);
+                        }
+                        return markerDeleteSucceeded;
                     }
                 };
         } else
@@ -356,7 +366,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
             // Make a hardlink copy of the file
             File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
-            PostRegistrationCleanUpAction cleanupAction = new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming, markerFileCleanupAction);
+            PostRegistrationCleanUpAction cleanupAction =
+                    new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming,
+                            markerFileCleanupAction);
 
             handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
         } else
@@ -369,7 +381,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         TopLevelDataSetRegistratorGlobalState globalState = state.getGlobalState();
         File preStagingRootDir = globalState.getPreStagingDir();
-        String incomingDirName = new DssUniqueFilenameGenerator(globalState.getThreadParameters().getThreadName(), incomingDataSetFile.getName(), null).generateFilename();
+        String incomingDirName =
+                new DssUniqueFilenameGenerator(globalState.getThreadParameters().getThreadName(),
+                        incomingDataSetFile.getName(), null).generateFilename();
         File preStagingDir = new File(preStagingRootDir, incomingDirName);
         preStagingDir.mkdir();
 
