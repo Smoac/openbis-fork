@@ -41,7 +41,7 @@ public class StringUtilitiesTest
         assertEquals("Test", StringUtilities.capitalize("test"));
         assertEquals("Test", StringUtilities.capitalize("TEST"));
         assertEquals("Test", StringUtilities.capitalize("tEsT"));
-        assertEquals("test test", StringUtilities.capitalize("Test Test"));
+        assertEquals("Test test", StringUtilities.capitalize("Test Test"));
     }
 
     @Test
