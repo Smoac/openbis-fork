@@ -226,17 +226,23 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         @Override
         public Boolean execute(boolean didOperationSucceed)
         {
-            File fileToDelete = null;
+            boolean deleteSucceeded = false;
             if (didOperationSucceed)
             {
                 // Registration succeeded -- no need to keep the original file around
-                fileToDelete = originalInboxFile;
+                deleteSucceeded = FileUtilities.deleteRecursively(originalInboxFile);
+                // If the parent of the hardlink copy file, which we generated, is empty, delete it
+                // too
+                File hardlinkCopyParent = hardlinkCopyFile.getParentFile();
+                if (hardlinkCopyParent.list().length < 1)
+                {
+                    hardlinkCopyParent.delete();
+                }
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.
-                fileToDelete = hardlinkCopyFile;
+                deleteSucceeded = FileUtilities.deleteRecursively(hardlinkCopyFile);
             }
-            boolean deleteSucceeded = FileUtilities.deleteRecursively(fileToDelete);
             boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
 
             return deleteSucceeded && wrappedActionResult;
