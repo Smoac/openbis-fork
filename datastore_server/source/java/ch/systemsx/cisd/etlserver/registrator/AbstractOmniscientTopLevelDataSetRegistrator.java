@@ -340,7 +340,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
-                    @Override
                     public Boolean execute(boolean didOperationSucceed)
                     {
                         boolean markerDeleteSucceeded =
