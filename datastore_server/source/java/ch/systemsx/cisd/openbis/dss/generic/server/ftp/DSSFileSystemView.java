@@ -34,6 +34,7 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -146,11 +147,12 @@ public class DSSFileSystemView implements FileSystemView
             return pathResolverRegistry.resolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {
+            Throwable realThrowable = CheckedExceptionTunnel.unwrapIfNecessary(rex);
             String message =
                     String.format("Error while resolving FTP path '%s' : %s", path,
-                            rex.getMessage());
+                            realThrowable.getMessage());
             operationLog.error(message);
-            throw new FtpException(message, rex);
+            throw new FtpException(message, realThrowable);
         }
     }
 
