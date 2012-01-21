@@ -143,7 +143,7 @@ public class DSSFileSystemView implements FileSystemView
             FtpPathResolverContext context =
                     new FtpPathResolverContext(sessionToken, service, generalInfoService,
                             pathResolverRegistry);
-            return pathResolverRegistry.tryResolve(normalizedPath, context);
+            return pathResolverRegistry.resolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {
             String message =

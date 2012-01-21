@@ -110,7 +110,7 @@ public class DSSFileSystemViewTest extends AssertJUnit
             {
                 {
                     RecordingMatcher<FtpPathResolverContext> recorder = new RecordingMatcher<FtpPathResolverContext>();
-                    one(registry).tryResolve(with(normalizedPath), with(recorder));
+                    one(registry).resolve(with(normalizedPath), with(recorder));
                     will(returnValue(new AbstractFtpFile(normalizedPath)
                         {
                             

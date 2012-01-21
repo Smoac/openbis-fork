@@ -70,7 +70,7 @@ public class SpaceFolderResolver implements IFtpPathResolver
                     {
                         String childPath = path + FtpConstants.FILE_SEPARATOR + childProject;
                         FtpFile childFile =
-                                resolverContext.getResolverRegistry().tryResolve(childPath,
+                                resolverContext.getResolverRegistry().resolve(childPath,
                                         resolverContext);
                         result.add(childFile);
                     }

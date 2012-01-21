@@ -64,7 +64,7 @@ public class RootFolderResolver implements IFtpPathResolver
                     {
                         String childPath = FtpConstants.ROOT_DIRECTORY + spaceCode;
                         FtpFile child =
-                                resolverContext.getResolverRegistry().tryResolve(childPath,
+                                resolverContext.getResolverRegistry().resolve(childPath,
                                         resolverContext);
                         if (child != null)
                         {

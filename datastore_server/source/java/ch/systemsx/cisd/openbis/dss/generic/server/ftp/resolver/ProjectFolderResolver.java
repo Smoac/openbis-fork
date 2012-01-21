@@ -63,7 +63,7 @@ public class ProjectFolderResolver implements IFtpPathResolver
                         String childPath =
                                 path + FtpConstants.FILE_SEPARATOR + experiment.getCode();
                         FtpFile childFile =
-                                resolverContext.getResolverRegistry().tryResolve(childPath,
+                                resolverContext.getResolverRegistry().resolve(childPath,
                                         resolverContext);
                         result.add(childFile);
                     }

@@ -24,6 +24,11 @@ import org.apache.ftpserver.ftplet.FtpFile;
 public interface IFtpPathResolverRegistry
 {
 
-    FtpFile tryResolve(String path, FtpPathResolverContext resolverContext);
+    /**
+     * Returns an {@link FtpFile} for <var>path</var>.
+     * <p>
+     * <i>You need to check {@link FtpFile#doesExist()} before using it!</i>
+     */
+    FtpFile resolve(String path, FtpPathResolverContext resolverContext);
 
 }

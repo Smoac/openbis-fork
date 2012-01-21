@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluationContext.EvaluatedElement;
@@ -58,9 +59,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 
 /**
  * Resolves paths like
+ * 
  * <pre>
  *  /&lt;space-code>/&lt;project-code>/&lt;experiment-code>/&lt;dataset-template>[/[PARENT-&lt;dataset-template>|CHILD-&lt;dataset-template>|&lt;sub-path>]]*
  * </pre>
+ * 
  * to {@link FtpFile} objects.
  * <p>
  * Subpaths are resolved as relative paths starting from the root of a dataset.
@@ -84,12 +87,12 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     private static final String DATA_SET_DATE_FORMAT = "yyyy-MM-dd-HH-mm";
 
     private static final String PARENT_PREFIX = "PARENT-";
-    
+
     private static final String CHILD_PREFIX = "CHILD-";
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             TemplateBasedDataSetResourceResolver.class);
-    
+
     private final class DataSetFtpFolder extends AbstractFtpFolder
     {
         private final ExternalData dataSet;
@@ -209,7 +212,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     private boolean fileNamePresent;
 
     private IHierarchicalContentProvider contentProvider;
-    
+
     public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
     {
         this.template = new Template(ftpServerConfig.getDataSetDisplayTemplate());
@@ -217,14 +220,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         fileNamePresent = template.getPlaceholderNames().contains(FILE_NAME_VARNAME);
         if (fileNamePresent && showParentsAndChildren)
         {
-            throw new ConfigurationFailureException(
-                    "Template contains file name variable and "
-                            + "the flag to show parents/children data sets is set.");
+            throw new ConfigurationFailureException("Template contains file name variable and "
+                    + "the flag to show parents/children data sets is set.");
         }
         this.dataSetTypeConfigs = initializeDataSetTypeConfigs(ftpServerConfig);
         this.defaultDSTypeConfig = new DataSetTypeConfig();
     }
-    
+
     void setContentProvider(IHierarchicalContentProvider contentProvider)
     {
         this.contentProvider = contentProvider;
@@ -248,14 +250,15 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         Experiment experiment = tryGetExperiment(experimentId, service, sessionToken);
         if (experiment == null)
         {
-            throw new IllegalArgumentException("Unknown experiment '" + experimentId + "'.");
+            return FtpPathResolverRegistry.getNonExistingFile(path, "Unknown experiment '"
+                    + experimentId + "'.");
         }
         List<ExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         if (fileNamePresent)
         {
             FtpFileEvaluationContext evalContext = evaluateDataSetPaths(dataSets);
-            
+
             try
             {
                 return extractMatchingFileOrNull(path, experimentId, evalContext);
@@ -282,7 +285,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 ExternalData dataSet = tryToFindDataSet(dataSets, dataSetPathElement);
                 if (dataSet == null)
                 {
-                    throw createException(dataSetPathElement);
+                    return FtpPathResolverRegistry.getNonExistingFile(path,
+                            "No match found for path element '" + dataSetPathElement + "'.");
                 }
                 String subPath =
                         StringUtils.join(pathElements, FtpConstants.FILE_SEPARATOR, 0, i + 1);
@@ -301,18 +305,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 }
                 if (matchingFile == null)
                 {
-                    throw createException(dataSetPathElement);
+                    return FtpPathResolverRegistry.getNonExistingFile(path,
+                            "No match found for path element '" + dataSetPathElement + "'.");
                 }
                 result = matchingFile;
             }
         }
         return result;
-    }
-
-    private IllegalArgumentException createException(String dataSetPathElement)
-    {
-        return new IllegalArgumentException("No match found for path element '"
-                + dataSetPathElement + "'.");
     }
 
     private ExternalData tryToFindDataSet(List<ExternalData> dataSets, String dataSetPathElement)
@@ -464,8 +463,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
                 String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContentProvider getContentProvider =
-                        getContentProvider();
+                IHierarchicalContentProvider getContentProvider = getContentProvider();
 
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath,
@@ -572,7 +570,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * @return all values to be used when evaluating the template "${fileName}" variable.
      */
-    private List<IHierarchicalContentNode> getFileNamesRequiredByTemplate(IHierarchicalContentNode rootNode)
+    private List<IHierarchicalContentNode> getFileNamesRequiredByTemplate(
+            IHierarchicalContentNode rootNode)
     {
         if (fileNamePresent)
         {
@@ -603,7 +602,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * Formats a date as it will appear after template evaluation.
      */
-    @Private static String extractDateValue(Date dataSetDate)
+    @Private
+    static String extractDateValue(Date dataSetDate)
     {
         return DateFormatUtils.format(dataSetDate, DATA_SET_DATE_FORMAT);
     }
@@ -692,5 +692,5 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
         return contentProvider;
     }
-    
+
 }
