@@ -119,10 +119,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Experiment tryToGetExperiment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException;
+    public Experiment tryToGetExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException;
 
     /**
      * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
@@ -161,10 +160,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Sample tryGetSampleWithExperiment(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
-            throws UserFailureException;
+    public Sample tryGetSampleWithExperiment(final String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class)
+            final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
      * Returns a list of terms belonging to given vocabulary.
@@ -199,10 +197,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<ExternalData> listDataSetsByExperimentID(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentID)
-            throws UserFailureException;
+    public List<ExternalData> listDataSetsByExperimentID(final String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            final TechId experimentID) throws UserFailureException;
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -210,10 +207,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId,
-            final boolean showOnlyDirectlyConnected) throws UserFailureException;
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+            throws UserFailureException;
 
     /**
      * Returns all data sets found for specified data set codes.
@@ -221,11 +220,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return plain data sets without properties, samples, and experiments.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listDataSetsByCode(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
-            throws UserFailureException;
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<ExternalData> listDataSetsByCode(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> dataSetCodes) throws UserFailureException;
 
     /**
      * Lists samples using given configuration.
@@ -233,11 +232,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return a sorted list of {@link Sample}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = SampleValidator.class)
-    public List<Sample> listSamples(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria);
+    public List<Sample> listSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
+            final ListSampleCriteria criteria);
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
@@ -249,11 +249,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      *         sample found with no properties.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
-            throws UserFailureException;
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
      * Registers/updates various entities in one transaction.
@@ -272,8 +272,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public long registerExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) NewExperiment experiment)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
+            NewExperiment experiment) throws UserFailureException;
 
     /**
      * Registers samples in batches.
@@ -281,10 +281,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void registerSamples(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType,
-            String userIdOrNull) throws UserFailureException;
+    public void registerSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType, String userIdOrNull)
+            throws UserFailureException;
 
     /**
      * Registers a new sample.
@@ -293,8 +293,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public long registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
-            String userIDOrNull) throws UserFailureException;
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            final NewSample newSample, String userIDOrNull) throws UserFailureException;
 
     /**
      * Saves changed sample.
@@ -303,7 +303,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            SampleUpdatesDTO updates);
 
     /**
      * Registers the specified data connected to a sample.
@@ -319,10 +320,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
-    public void registerDataSet(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier,
-            final NewExternalData externalData) throws UserFailureException;
+    public void registerDataSet(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            final SampleIdentifier sampleIdentifier, final NewExternalData externalData)
+            throws UserFailureException;
 
     /**
      * Registers the specified data connected to an experiment.
@@ -338,10 +339,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
-    public void registerDataSet(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final ExperimentIdentifier experimentIdentifier,
-            final NewExternalData externalData) throws UserFailureException;
+    public void registerDataSet(final String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            final ExperimentIdentifier experimentIdentifier, final NewExternalData externalData)
+            throws UserFailureException;
 
     /**
      * Checks that the user of specified session has INSTANCE_ADMIN access rights.
@@ -364,8 +365,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void checkDataSetAccess(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode) throws UserFailureException;
 
     /**
      * Check if the current user can access all the data sets in the list
@@ -375,9 +376,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public void checkDataSetCollectionAccess(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes);
+    public void checkDataSetCollectionAccess(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> dataSetCodes);
 
     /**
      * Tries to return the data set specified by its code.
@@ -386,8 +387,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public ExternalData tryGetDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode) throws UserFailureException;
 
     /**
      * Creates and returns a unique code for a new data set. TODO KE: 2011-04-19 remove this method.
@@ -417,15 +418,14 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * to see the details.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<Sample> listSamplesByCriteria(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class) final ListSamplesByPropertyCriteria criteria)
-            throws UserFailureException;
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Sample> listSamplesByCriteria(final String sessionToken,
+            @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class)
+            final ListSamplesByPropertyCriteria criteria) throws UserFailureException;
 
     /**
-     * Lists share ids of all data sets belonging to chosen data store (even the ones in trash!). //
-     * TODO
+     * Lists share ids of all data sets belonging to chosen data store (even the ones in trash!).
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
@@ -470,9 +470,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Experiment> listExperiments(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
+    public List<Experiment> listExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ProjectIdentifier projectIdentifier);
 
     /**
      * List all projects that the user can see.
@@ -500,12 +500,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void addPropertiesToDataSet(
-            String sessionToken,
-            List<NewProperty> properties,
-            String dataSetCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) final SpaceIdentifier identifier)
-            throws UserFailureException;
+    public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
+            String dataSetCode, @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            final SpaceIdentifier identifier) throws UserFailureException;
 
     /**
      * Updates share id and size of specified data set.
@@ -514,8 +511,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateShareIdAndSize(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
-            String shareId, long size) throws UserFailureException;
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode, String shareId, long size) throws UserFailureException;
 
     /**
      * Updates status of given data sets.
@@ -523,11 +520,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSetStatuses(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
-            final DataSetArchivingStatus newStatus, boolean presentInArchive)
-            throws UserFailureException;
+    public void updateDataSetStatuses(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> dataSetCodes, final DataSetArchivingStatus newStatus,
+            boolean presentInArchive) throws UserFailureException;
 
     /**
      * Set the status for a given dataset to the given new status value if the current status equals
@@ -553,10 +549,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int archiveDatasets(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes,
-            boolean removeFromDataStore);
+    public int archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes, boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of specified data sets.
@@ -566,9 +561,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public int unarchiveDatasets(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
+    public int unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes);
 
     /**
      * Check if the user has USER access on the space
@@ -579,7 +574,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void checkSpaceAccess(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceId);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            SpaceIdentifier spaceId);
 
     /**
      * For the ETL Server to get data sets.
@@ -587,8 +583,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public ExternalData tryGetDataSetForServer(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode) throws UserFailureException;
 
     /**
      * Returns a list of unique codes.
@@ -629,8 +625,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public Sample registerSampleAndDataSet(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
-            final NewExternalData externalData, String userIdOrNull) throws UserFailureException;
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            final NewSample newSample, final NewExternalData externalData, String userIdOrNull)
+            throws UserFailureException;
 
     /**
      * Updates a sample and registers a data set connected to that sample in one transaction.
@@ -647,10 +644,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
-    public Sample updateSampleAndRegisterDataSet(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates,
-            NewExternalData externalData);
+    public Sample updateSampleAndRegisterDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            SampleUpdatesDTO updates, NewExternalData externalData);
 
     /**
      * Updates a sample and registers a data set connected to that sample in one transaction.
@@ -667,9 +663,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
                 ObjectKind.DATA_SET })
-    public AtomicEntityOperationResult performEntityOperations(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class) AtomicEntityOperationDetails operationDetails);
+    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
+            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
+            AtomicEntityOperationDetails operationDetails);
 
     /**
      * Tries to return the space specified by its identifier.
@@ -677,9 +673,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Space tryGetSpace(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier);
+    public Space tryGetSpace(String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
+            SpaceIdentifier spaceIdentifier);
 
     /**
      * Tries to return the project specified by its identifier.
@@ -687,9 +683,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Project tryGetProject(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
+    public Project tryGetProject(String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
+            ProjectIdentifier projectIdentifier);
 
     /**
      * Search for samples matching the provided criteria.
@@ -722,10 +718,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
         { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DATA_SET })
-    public void removeDataSetsPermanently(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes,
-            String reason);
+    public void removeDataSetsPermanently(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> dataSetCodes, String reason);
 
     /**
      * updates a data set.
@@ -734,9 +729,9 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void updateDataSet(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO dataSetUpdates);
+    public void updateDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            DataSetUpdatesDTO dataSetUpdates);
 
     /**
      * Returns a list of configured trusted domains which can host external shared web resources.
