@@ -467,7 +467,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath,
-                                evalElement.contentNode, getContentProvider.asContent(dataSetCode),
+                                evalElement.contentNode, getContentProvider.asContent(evalElement.dataSet),
                                 fileFilter);
                 result.add(childFtpFile);
             }
