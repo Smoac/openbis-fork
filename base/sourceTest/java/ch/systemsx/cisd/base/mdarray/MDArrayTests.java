@@ -41,7 +41,7 @@ public class MDArrayTests
 
         protected TestMDArray(int[] shape)
         {
-            super(shape);
+            super(shape, 0, 0);
         }
 
         @Override
@@ -66,31 +66,52 @@ public class MDArrayTests
         {
             return null;
         }
+
+        @Override
+        public Object getCopyAsFlatArray()
+        {
+            return null;
+        }
+
+        @Override
+        protected void adaptCapacityHyperRows()
+        {
+        }
     }
 
     @Test
     public void testGetLength()
     {
         assertEquals(0, MDAbstractArray.getLength(new int[]
-            { 0 }));
+            { 0 }, 0));
         assertEquals(1, MDAbstractArray.getLength(new int[]
-            { 1 }));
+            { 1 }, 0));
+        assertEquals(2, MDAbstractArray.getLength(new int[]
+                { 1 }, 2));
         assertEquals(15, MDAbstractArray.getLength(new int[]
-            { 5, 3 }));
+            { 5, 3 }, 0));
+        assertEquals(21, MDAbstractArray.getLength(new int[]
+                { 5, 3 }, 7));
+        assertEquals(15, MDAbstractArray.getLength(new int[]
+                { 5, 3 }, 3));
         assertEquals(1, MDAbstractArray.getLength(new int[]
-            { 1, 1, 1 }));
+            { 1, 1, 1 }, 0));
+        assertEquals(3, MDAbstractArray.getLength(new int[]
+                { 1, 1, 1 }, 3));
         assertEquals(8, MDAbstractArray.getLength(new int[]
-            { 2, 2, 2 }));
+            { 2, 2, 2 }, 0));
+        assertEquals(20, MDAbstractArray.getLength(new int[]
+                { 2, 2, 2 }, 5));
         assertEquals(2, MDAbstractArray.getLength(new int[]
-            { 1, 1, 2 }));
+            { 1, 1, 2 }, 0));
         assertEquals(2, MDAbstractArray.getLength(new int[]
-            { 1, 2, 1 }));
+            { 1, 2, 1 }, 0));
         assertEquals(2, MDAbstractArray.getLength(new int[]
-            { 2, 1, 1 }));
+            { 2, 1, 1 }, 0));
         assertEquals(50, MDAbstractArray.getLength(new int[]
-            { 10, 1, 5 }));
+            { 10, 1, 5 }, 0));
         assertEquals(50, MDAbstractArray.getLength(new long[]
-            { 10, 1, 5 }));
+            { 10, 1, 5 }, 0));
     }
 
     @Test
@@ -156,6 +177,98 @@ public class MDArrayTests
             { 9, 1, 2 }), array.computeIndex(9, 1, 2));
     }
 
+    @Test
+    public void testEmptyMatrix()
+    {
+        final MDFloatArray arr = new MDFloatArray(new float[0][0]);
+        assertEquals(0, arr.dimensions()[0]);
+        assertEquals(0, arr.dimensions()[1]);
+    }
+    
+    @Test
+    public void testChangeHyperRowCountIntArray()
+    {
+        final MDIntArray arr = new MDIntArray(new int[] { 2, 2 }, 3);
+        assertEquals(2, arr.dimensions[0]);
+        assertEquals(2, arr.dimensions[1]);
+        arr.set(1, 0, 0);
+        arr.set(2, 0, 1);
+        arr.set(3, 1, 0);
+        arr.set(4, 1, 1);
+
+        final MDIntArray arr2 = new MDIntArray(arr.getCopyAsFlatArray(), arr.dimensions());
+        assertTrue(arr2.equals(arr));
+        
+        arr.incNumberOfHyperRows(1);
+        assertEquals(3, arr.dimensions[0]);
+        assertEquals(1, arr.get(0, 0));
+        assertEquals(2, arr.get(0, 1));
+        assertEquals(3, arr.get(1, 0));
+        assertEquals(4, arr.get(1, 1));
+        arr.set(5, 2, 0);
+        arr.set(6, 2, 1);
+        arr.incNumberOfHyperRows(2);
+        assertEquals(5, arr.dimensions[0]);
+        assertEquals(1, arr.get(0, 0));
+        assertEquals(2, arr.get(0, 1));
+        assertEquals(3, arr.get(1, 0));
+        assertEquals(4, arr.get(1, 1));
+        assertEquals(5, arr.get(2, 0));
+        assertEquals(6, arr.get(2, 1));
+        arr.set(7, 3, 0);
+        arr.set(8, 3, 1);
+        arr.decNumberOfHyperRows(1);
+        assertEquals(4, arr.dimensions[0]);
+        assertEquals(1, arr.get(0, 0));
+        assertEquals(2, arr.get(0, 1));
+        assertEquals(3, arr.get(1, 0));
+        assertEquals(4, arr.get(1, 1));
+        assertEquals(5, arr.get(2, 0));
+        assertEquals(6, arr.get(2, 1));
+        assertEquals(7, arr.get(3, 0));
+        assertEquals(8, arr.get(3, 1));
+    }
+    
+    @Test
+    public void testChangeHyperRowCountTArray()
+    {
+        final MDArray<Integer> arr = new MDArray<Integer>(Integer.class, new int[] { 2, 2 }, 3);
+        assertEquals(2, arr.dimensions[0]);
+        assertEquals(2, arr.dimensions[1]);
+        arr.set(1, 0, 0);
+        arr.set(2, 0, 1);
+        arr.set(3, 1, 0);
+        arr.set(4, 1, 1);
+        arr.incNumberOfHyperRows(1);
+        assertEquals(3, arr.dimensions[0]);
+        assertEquals(1, (int) arr.get(0, 0));
+        assertEquals(2, (int) arr.get(0, 1));
+        assertEquals(3, (int) arr.get(1, 0));
+        assertEquals(4, (int) arr.get(1, 1));
+        arr.set(5, 2, 0);
+        arr.set(6, 2, 1);
+        arr.incNumberOfHyperRows(2);
+        assertEquals(5, arr.dimensions[0]);
+        assertEquals(1, (int) arr.get(0, 0));
+        assertEquals(2, (int) arr.get(0, 1));
+        assertEquals(3, (int) arr.get(1, 0));
+        assertEquals(4, (int) arr.get(1, 1));
+        assertEquals(5, (int) arr.get(2, 0));
+        assertEquals(6, (int) arr.get(2, 1));
+        arr.set(7, 3, 0);
+        arr.set(8, 3, 1);
+        arr.decNumberOfHyperRows(1);
+        assertEquals(4, arr.dimensions[0]);
+        assertEquals(1, (int) arr.get(0, 0));
+        assertEquals(2, (int) arr.get(0, 1));
+        assertEquals(3, (int) arr.get(1, 0));
+        assertEquals(4, (int) arr.get(1, 1));
+        assertEquals(5, (int) arr.get(2, 0));
+        assertEquals(6, (int) arr.get(2, 1));
+        assertEquals(7, (int) arr.get(3, 0));
+        assertEquals(8, (int) arr.get(3, 1));
+    }
+    
     @Test
     public void testMDFloatArrayMatrix()
     {

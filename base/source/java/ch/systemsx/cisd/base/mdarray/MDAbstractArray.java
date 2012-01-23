@@ -24,6 +24,9 @@ import org.apache.commons.lang.ClassUtils;
 /**
  * Base class of a multi-dimensional array. The <var>dimensions</var> of an array are provided
  * separately from the data as a <code>int[]</code>.
+ * <p>
+ * The array can grow or shrink in the first dimension (<var>dimensions[0]</var>). Dimensions
+ * <code>1...n</code> are static. They are said to form a <i>hyper-row</i>.
  * 
  * @author Bernd Rinn
  */
@@ -31,14 +34,44 @@ public abstract class MDAbstractArray<T> implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     protected final int[] dimensions;
 
-    protected MDAbstractArray(int[] dimensions)
+    protected int hyperRowLength;
+
+    protected int capacityHyperRows;
+
+    protected MDAbstractArray(int[] dimensions, int arrayLength, int capacityHyperRows)
     {
         assert dimensions != null;
 
         this.dimensions = dimensions;
+        this.hyperRowLength = computeHyperRowLength(dimensions);
+        if (hyperRowLength == 0)
+        {
+            this.capacityHyperRows = 0;
+        } else
+        {
+            if (arrayLength % hyperRowLength != 0)
+            {
+                throw new IllegalArgumentException("Actual array length " + arrayLength
+                        + " does not match hyper-row length " + hyperRowLength + ".");
+            }
+            this.capacityHyperRows =
+                    (capacityHyperRows > 0) ? capacityHyperRows : Math.max(dimensions[0], arrayLength
+                            / hyperRowLength);
+        }
+    }
+
+    protected int computeHyperRowLength(@SuppressWarnings("hiding")
+    int[] dimensions)
+    {
+        int hyperRowLen = 1;
+        for (int i = 1; i < dimensions.length; ++i)
+        {
+            hyperRowLen *= dimensions[i];
+        }
+        return hyperRowLen;
     }
 
     /**
@@ -102,6 +135,35 @@ public abstract class MDAbstractArray<T> implements Serializable
      * multi-dimensional array directly.
      */
     public abstract Object getAsFlatArray();
+
+    /**
+     * Returns a copy of the array in flattened form. Changes to the returned object will <i>not</i>
+     * change the multi-dimensional array directly.
+     */
+    public abstract Object getCopyAsFlatArray();
+
+    protected abstract void adaptCapacityHyperRows();
+
+    /**
+     * Increase the number of hyper-rows by <var>count</var>. Doubles the capacity if needed.
+     */
+    public void incNumberOfHyperRows(int count)
+    {
+        dimensions[0] += count;
+        if (dimensions[0] > capacityHyperRows)
+        {
+            capacityHyperRows *= 2;
+            adaptCapacityHyperRows();
+        }
+    }
+
+    /**
+     * Decrease the number of hyper-rows by <var>count</var>.
+     */
+    public void decNumberOfHyperRows(int count)
+    {
+        dimensions[0] -= count;
+    }
 
     /**
      * Computes the linear index for the multi-dimensional <var>indices</var> provided.
@@ -183,13 +245,25 @@ public abstract class MDAbstractArray<T> implements Serializable
      */
     public static int getLength(final int[] dimensions)
     {
+        return getLength(dimensions, 0);
+    }
+
+    /**
+     * Returns the one-dimensional length of the multi-dimensional array defined by
+     * <var>dimensions</var>. If <code>capacityHyperRows > dimensions[0]</code>, then it will
+     * replace <var>dimensions[0]</var> by <var>capacityHyperRows</var>
+     * 
+     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
+     */
+    public static int getLength(final int[] dimensions, int capacityHyperRows)
+    {
         assert dimensions != null;
 
         if (dimensions.length == 0)
         {
             return 0;
         }
-        long length = dimensions[0];
+        long length = Math.max(capacityHyperRows, dimensions[0]);
         for (int i = 1; i < dimensions.length; ++i)
         {
             length *= dimensions[i];
@@ -210,13 +284,25 @@ public abstract class MDAbstractArray<T> implements Serializable
      */
     public static int getLength(final long[] dimensions)
     {
+        return getLength(dimensions, 0);
+    }
+
+    /**
+     * Returns the one-dimensional length of the multi-dimensional array defined by
+     * <var>dimensions</var>. If <code>capacityHyperRows > dimensions[0]</code>, then it will
+     * replace <var>dimensions[0]</var> by <var>capacityHyperRows</var>
+     * 
+     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
+     */
+    public static int getLength(final long[] dimensions, long capacityHyperRows)
+    {
         assert dimensions != null;
 
         if (dimensions.length == 0) // NULL data space needs to be treated differently
         {
             return 0;
         }
-        long length = dimensions[0];
+        long length = Math.max(capacityHyperRows, dimensions[0]);
         for (int i = 1; i < dimensions.length; ++i)
         {
             length *= dimensions[i];
@@ -232,11 +318,11 @@ public abstract class MDAbstractArray<T> implements Serializable
     //
     // Object
     //
-    
+
     @Override
     public String toString()
     {
-        final int length = getLength(dimensions);
+        final int length = getLength(dimensions, 0);
         final StringBuilder b = new StringBuilder();
         b.append(ClassUtils.getShortCanonicalName(this.getClass()));
         b.append('(');
@@ -245,7 +331,13 @@ public abstract class MDAbstractArray<T> implements Serializable
         if (length <= 100)
         {
             b.append(": ");
-            b.append(ArrayUtils.toString(getAsFlatArray()));
+            if (dimensions[0] < capacityHyperRows)
+            {
+                b.append(ArrayUtils.toString(getCopyAsFlatArray()));
+            } else
+            {
+                b.append(ArrayUtils.toString(getAsFlatArray()));
+            }
         }
         return b.toString();
     }

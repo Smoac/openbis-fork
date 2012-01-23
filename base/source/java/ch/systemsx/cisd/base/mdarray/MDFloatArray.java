@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.base.mdarray;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * A multi-dimensional <code>float</code> array.
@@ -26,22 +30,33 @@ import java.util.Arrays;
 public final class MDFloatArray extends MDAbstractArray<Float>
 {
     private static final long serialVersionUID = 1L;
-    
-    private final float[] flattenedArray;
+
+    private float[] flattenedArray;
 
     /**
-     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>. Convenience method if
+     * Creates an empty {@link MDIntArray} with the <var>dimensions</var>. Convenience method if
      * <var>dimensions</var> are available as {@code long[]}.
      */
     public MDFloatArray(long[] dimensions)
     {
-        this(new float[getLength(dimensions)], toInt(dimensions), false);
+        this(new float[getLength(dimensions, 0)], toInt(dimensions), false);
     }
 
     /**
-     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
-     * It is checked that the arguments are compatible. Convenience method if <var>dimensions</var>
-     * are available as {@code long[]}.
+     * Creates an empty {@link MDFloatArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
+     */
+    public MDFloatArray(long[] dimensions, long capacityHyperRows)
+    {
+        this(new float[getLength(dimensions, capacityHyperRows)], toInt(dimensions), false);
+    }
+
+    /**
+     * Creates a {@link MDFloatArray} from the given {@code flattenedArray} and {@code dimensions}. It
+     * is checked that the arguments are compatible. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
      */
     public MDFloatArray(float[] flattenedArray, long[] dimensions)
     {
@@ -49,7 +64,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     /**
-     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * Creates a {@link MDFloatArray} from the given <var>flattenedArray</var> and
      * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible. Convenience method if <var>dimensions</var> are available as
      * {@code long[]}.
@@ -60,16 +75,26 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     /**
-     * Creates an empty {@link MDDoubleArray} with the <var>dimensions</var>.
+     * Creates an empty {@link MDFloatArray} with the <var>dimensions</var>.
      */
     public MDFloatArray(int[] dimensions)
     {
-        this(new float[getLength(dimensions)], dimensions, false);
+        this(new float[getLength(dimensions, 0)], dimensions, false);
     }
 
     /**
-     * Creates a {@link MDDoubleArray} from the given {@code flattenedArray} and {@code dimensions}.
-     * It is checked that the arguments are compatible.
+     * Creates an empty {@link MDFloatArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows.
+     */
+    public MDFloatArray(int[] dimensions, int capacityHyperRows)
+    {
+        this(new float[getLength(dimensions, capacityHyperRows)], dimensions, false);
+    }
+
+    /**
+     * Creates a {@link MDFloatArray} from the given {@code flattenedArray} and {@code dimensions}. It
+     * is checked that the arguments are compatible.
      */
     public MDFloatArray(float[] flattenedArray, int[] dimensions)
     {
@@ -77,18 +102,18 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     /**
-     * Creates a {@link MDDoubleArray} from the given <var>flattenedArray</var> and
+     * Creates a {@link MDFloatArray} from the given <var>flattenedArray</var> and
      * <var>dimensions</var>. If <var>checkDimensions</var> is {@code true}, it is checked that the
      * arguments are compatible.
      */
     public MDFloatArray(float[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(dimensions);
+        super(dimensions, flattenedArray.length, 0);
         assert flattenedArray != null;
 
         if (checkdimensions)
         {
-            final int expectedLength = getLength(dimensions);
+            final int expectedLength = getLength(dimensions, 0);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -99,32 +124,28 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     /**
-     * Creates a {@link MDFloatArray} from the given <var>matrix</var> of rank 2. Note that the
-     * values in <var>matrix</var> will be copied and thus the created {@link MDFloatArray} will be
+     * Creates a {@link MDFloatArray} from the given <var>matrix</var> of rank 2. Note that the values
+     * in <var>matrix</var> will be copied and thus the created {@link MDIntArray} will be
      * independent from <var>matrix</var> after construction.
      */
     public MDFloatArray(float[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
-    
+
     /**
      * Creates a {@link MDFloatArray} from the given <var>matrix</var> of rank 2 and the
      * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
-     * that the values in <var>matrix</var> will be copied and thus the created
-     * {@link MDFloatArray} will be independent from <var>matrix</var> after construction.
+     * that the values in <var>matrix</var> will be copied and thus the created {@link MDIntArray}
+     * will be independent from <var>matrix</var> after construction.
      */
     public MDFloatArray(float[][] matrix, int[] dimensions)
     {
-        super(dimensions);
+        super(dimensions, 0, matrix.length);
 
         final int sizeX = dimensions[0];
         final int sizeY = dimensions[1];
-        int size = 1;
-        for (int i = 0; i < dimensions.length; ++i)
-        {
-            size *= dimensions[i];
-        }
+        int size = getLength(dimensions, 0);
         this.flattenedArray = new float[size];
         for (int i = 0; i < sizeX; ++i)
         {
@@ -135,8 +156,9 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     private static int[] getDimensions(float[][] matrix)
     {
         assert matrix != null;
-        
-        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
+
+        return new int[]
+            { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
     }
 
     @Override
@@ -157,14 +179,25 @@ public final class MDFloatArray extends MDAbstractArray<Float>
         set(value, indices);
     }
 
-    /**
-     * Returns the array in flattened form. Changes to the returned object will change the
-     * multi-dimensional array directly.
-     */
     @Override
     public float[] getAsFlatArray()
     {
         return flattenedArray;
+    }
+
+    @Override
+    public float[] getCopyAsFlatArray()
+    {
+        return ArrayUtils.subarray(flattenedArray, 0, dimensions[0] * hyperRowLength);
+    }
+
+    @Override
+    protected void adaptCapacityHyperRows()
+    {
+        final float[] oldArray = this.flattenedArray;
+        this.flattenedArray = new float[capacityHyperRows * hyperRowLength];
+        System.arraycopy(oldArray, 0, flattenedArray, 0,
+                Math.min(oldArray.length, flattenedArray.length));
     }
 
     /**
@@ -174,7 +207,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     {
         return flattenedArray[computeIndex(indices)];
     }
-    
+
     /**
      * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
      * <p>
@@ -264,17 +297,17 @@ public final class MDFloatArray extends MDAbstractArray<Float>
         }
         return result;
     }
-    
+
     //
     // Object
     //
-    
+
     @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(flattenedArray);
+        result = prime * result + Arrays.hashCode(getValuesAsFlatArray());
         result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
@@ -295,7 +328,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
             return false;
         }
         MDFloatArray other = (MDFloatArray) obj;
-        if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
+        if (Arrays.equals(getValuesAsFlatArray(), other.getValuesAsFlatArray()) == false)
         {
             return false;
         }
@@ -304,6 +337,24 @@ public final class MDFloatArray extends MDAbstractArray<Float>
             return false;
         }
         return true;
+    }
+
+    private float[] getValuesAsFlatArray()
+    {
+        return (dimensions[0] < capacityHyperRows) ? getCopyAsFlatArray() : getAsFlatArray(); 
+    }
+    
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+    {
+        stream.defaultReadObject();
+        if (hyperRowLength == 0)
+        {
+            this.hyperRowLength = computeHyperRowLength(dimensions);
+        }
+        if (capacityHyperRows == 0)
+        {
+            this.capacityHyperRows = dimensions[0];
+        }
     }
 
 }

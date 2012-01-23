@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.base.mdarray;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * A multi-dimensional array of generic type <code>T</code>.
@@ -25,19 +29,29 @@ import java.util.Arrays;
  */
 public class MDArray<T> extends MDAbstractArray<T>
 {
-
     private static final long serialVersionUID = 1L;
 
-    private final T[] flattenedArray;
+    private T[] flattenedArray;
 
     /**
-     * Creates an empty {@link MDArray} with the given <var>componentClass</var> and
-     * <var>dimensions</var>. Convenience method if <var>dimensions</var> are available as {@code
-     * long[]}.
+     * Creates an empty {@link MDArray} with the <var>dimensions</var>. Convenience method if
+     * <var>dimensions</var> are available as {@code long[]}.
      */
     public MDArray(Class<T> componentClass, long[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), false);
+        this(createArray(componentClass, getLength(dimensions, 0)), toInt(dimensions), false);
+    }
+
+    /**
+     * Creates an empty {@link MDArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
+     */
+    public MDArray(Class<T> componentClass, long[] dimensions, long capacityHyperRows)
+    {
+        this(createArray(componentClass, getLength(dimensions, capacityHyperRows)),
+                toInt(dimensions), false);
     }
 
     /**
@@ -61,12 +75,22 @@ public class MDArray<T> extends MDAbstractArray<T>
     }
 
     /**
-     * Creates an empty {@link MDArray} with the given <var>componentClass</var> and
-     * <var>dimensions</var>.
+     * Creates an empty {@link MDArray} with the <var>dimensions</var>.
      */
     public MDArray(Class<T> componentClass, int[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), dimensions, false);
+        this(createArray(componentClass, getLength(dimensions, 0)), dimensions, false);
+    }
+
+    /**
+     * Creates an empty {@link MDArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows.
+     */
+    public MDArray(Class<T> componentClass, int[] dimensions, int capacityHyperRows)
+    {
+        this(createArray(componentClass, getLength(dimensions, capacityHyperRows)), dimensions,
+                false);
     }
 
     /**
@@ -85,12 +109,12 @@ public class MDArray<T> extends MDAbstractArray<T>
      */
     public MDArray(T[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(dimensions);
+        super(dimensions, flattenedArray.length, 0);
         assert flattenedArray != null;
 
         if (checkdimensions)
         {
-            final int expectedLength = getLength(dimensions);
+            final int expectedLength = getLength(dimensions, 0);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -108,6 +132,12 @@ public class MDArray<T> extends MDAbstractArray<T>
     }
 
     @Override
+    public int size()
+    {
+        return flattenedArray.length;
+    }
+
+    @Override
     public T getAsObject(int... indices)
     {
         return get(indices);
@@ -116,23 +146,36 @@ public class MDArray<T> extends MDAbstractArray<T>
     @Override
     public void setToObject(T value, int... indices)
     {
-        set(indices, value);
+        set(value, indices);
     }
 
-    @Override
-    public int size()
-    {
-        return flattenedArray.length;
-    }
-
-    /**
-     * Returns the array in flattened form. Changes to the returned object will change the
-     * multi-dimensional array directly.
-     */
     @Override
     public T[] getAsFlatArray()
     {
         return flattenedArray;
+    }
+
+    @Override
+    public T[] getCopyAsFlatArray()
+    {
+        return toTArray(ArrayUtils.subarray(flattenedArray, 0, dimensions[0] * hyperRowLength));
+    }
+
+    @Override
+    protected void adaptCapacityHyperRows()
+    {
+        final T[] oldArray = this.flattenedArray;
+        this.flattenedArray =
+                toTArray(createArray(oldArray.getClass().getComponentType(), capacityHyperRows
+                        * hyperRowLength));
+        System.arraycopy(oldArray, 0, flattenedArray, 0,
+                Math.min(oldArray.length, flattenedArray.length));
+    }
+
+    @SuppressWarnings("unchecked")
+    private T[] toTArray(Object obj)
+    {
+        return (T[]) obj;
     }
 
     /**
@@ -178,7 +221,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, T value)
+    public void set(T value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -234,7 +277,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(flattenedArray);
+        result = prime * result + Arrays.hashCode(getValuesAsFlatArray());
         result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
@@ -255,7 +298,7 @@ public class MDArray<T> extends MDAbstractArray<T>
             return false;
         }
         final MDArray<T> other = toMDArray(obj);
-        if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
+        if (Arrays.equals(getValuesAsFlatArray(), other.getValuesAsFlatArray()) == false)
         {
             return false;
         }
@@ -266,10 +309,28 @@ public class MDArray<T> extends MDAbstractArray<T>
         return true;
     }
 
+    private T[] getValuesAsFlatArray()
+    {
+        return (dimensions[0] < capacityHyperRows) ? getCopyAsFlatArray() : getAsFlatArray(); 
+    }
+    
     @SuppressWarnings("unchecked")
     private MDArray<T> toMDArray(Object obj)
     {
         return (MDArray<T>) obj;
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+    {
+        stream.defaultReadObject();
+        if (hyperRowLength == 0)
+        {
+            this.hyperRowLength = computeHyperRowLength(dimensions);
+        }
+        if (capacityHyperRows == 0)
+        {
+            this.capacityHyperRows = dimensions[0];
+        }
     }
 
 }

@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.base.mdarray;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * A multi-dimensional <code>short</code> array.
@@ -26,22 +30,33 @@ import java.util.Arrays;
 public final class MDShortArray extends MDAbstractArray<Short>
 {
     private static final long serialVersionUID = 1L;
-    
-    private final short[] flattenedArray;
+
+    private short[] flattenedArray;
 
     /**
-     * Creates an empty {@link MDShortArray} with the <var>dimensions</var>. Convenience method if
+     * Creates an empty {@link MDIntArray} with the <var>dimensions</var>. Convenience method if
      * <var>dimensions</var> are available as {@code long[]}.
      */
     public MDShortArray(long[] dimensions)
     {
-        this(new short[getLength(dimensions)], toInt(dimensions), false);
+        this(new short[getLength(dimensions, 0)], toInt(dimensions), false);
     }
 
     /**
-     * Creates a {@link MDShortArray} from the given {@code flattenedArray} and {@code dimensions}.
-     * It is checked that the arguments are compatible. Convenience method if <var>dimensions</var>
-     * are available as {@code long[]}.
+     * Creates an empty {@link MDShortArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
+     */
+    public MDShortArray(long[] dimensions, long capacityHyperRows)
+    {
+        this(new short[getLength(dimensions, capacityHyperRows)], toInt(dimensions), false);
+    }
+
+    /**
+     * Creates a {@link MDShortArray} from the given {@code flattenedArray} and {@code dimensions}. It
+     * is checked that the arguments are compatible. Convenience method if <var>dimensions</var> are
+     * available as {@code long[]}.
      */
     public MDShortArray(short[] flattenedArray, long[] dimensions)
     {
@@ -64,12 +79,22 @@ public final class MDShortArray extends MDAbstractArray<Short>
      */
     public MDShortArray(int[] dimensions)
     {
-        this(new short[getLength(dimensions)], dimensions, false);
+        this(new short[getLength(dimensions, 0)], dimensions, false);
     }
 
     /**
-     * Creates a {@link MDShortArray} from the given {@code flattenedArray} and {@code dimensions}.
-     * It is checked that the arguments are compatible.
+     * Creates an empty {@link MDShortArray} with the <var>dimensions</var>. If
+     * <code>capacityHyperRows > dimensions[0]</code>, then it will create an array with a capacity
+     * of <var>capacityHyperRows</var> hyper-rows.
+     */
+    public MDShortArray(int[] dimensions, int capacityHyperRows)
+    {
+        this(new short[getLength(dimensions, capacityHyperRows)], dimensions, false);
+    }
+
+    /**
+     * Creates a {@link MDShortArray} from the given {@code flattenedArray} and {@code dimensions}. It
+     * is checked that the arguments are compatible.
      */
     public MDShortArray(short[] flattenedArray, int[] dimensions)
     {
@@ -83,12 +108,12 @@ public final class MDShortArray extends MDAbstractArray<Short>
      */
     public MDShortArray(short[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(dimensions);
+        super(dimensions, flattenedArray.length, 0);
         assert flattenedArray != null;
 
         if (checkdimensions)
         {
-            final int expectedLength = getLength(dimensions);
+            final int expectedLength = getLength(dimensions, 0);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -99,32 +124,28 @@ public final class MDShortArray extends MDAbstractArray<Short>
     }
 
     /**
-     * Creates a {@link MDShortArray} from the given <var>matrix</var> of rank 2. Note that the
-     * values in <var>matrix</var> will be copied and thus the created {@link MDShortArray} will be
+     * Creates a {@link MDShortArray} from the given <var>matrix</var> of rank 2. Note that the values
+     * in <var>matrix</var> will be copied and thus the created {@link MDIntArray} will be
      * independent from <var>matrix</var> after construction.
      */
     public MDShortArray(short[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
-    
+
     /**
      * Creates a {@link MDShortArray} from the given <var>matrix</var> of rank 2 and the
      * <var>dimension</var> which need to be less or equal the dimensions of <var>matrix</var>. Note
-     * that the values in <var>matrix</var> will be copied and thus the created
-     * {@link MDShortArray} will be independent from <var>matrix</var> after construction.
+     * that the values in <var>matrix</var> will be copied and thus the created {@link MDIntArray}
+     * will be independent from <var>matrix</var> after construction.
      */
     public MDShortArray(short[][] matrix, int[] dimensions)
     {
-        super(dimensions);
+        super(dimensions, 0, matrix.length);
 
         final int sizeX = dimensions[0];
         final int sizeY = dimensions[1];
-        int size = 1;
-        for (int i = 0; i < dimensions.length; ++i)
-        {
-            size *= dimensions[i];
-        }
+        int size = getLength(dimensions, 0);
         this.flattenedArray = new short[size];
         for (int i = 0; i < sizeX; ++i)
         {
@@ -135,8 +156,9 @@ public final class MDShortArray extends MDAbstractArray<Short>
     private static int[] getDimensions(short[][] matrix)
     {
         assert matrix != null;
-        
-        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
+
+        return new int[]
+            { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
     }
 
     @Override
@@ -157,14 +179,25 @@ public final class MDShortArray extends MDAbstractArray<Short>
         set(value, indices);
     }
 
-    /**
-     * Returns the array in flattened form. Changes to the returned object will change the
-     * multi-dimensional array directly.
-     */
     @Override
     public short[] getAsFlatArray()
     {
         return flattenedArray;
+    }
+
+    @Override
+    public short[] getCopyAsFlatArray()
+    {
+        return ArrayUtils.subarray(flattenedArray, 0, dimensions[0] * hyperRowLength);
+    }
+
+    @Override
+    protected void adaptCapacityHyperRows()
+    {
+        final short[] oldArray = this.flattenedArray;
+        this.flattenedArray = new short[capacityHyperRows * hyperRowLength];
+        System.arraycopy(oldArray, 0, flattenedArray, 0,
+                Math.min(oldArray.length, flattenedArray.length));
     }
 
     /**
@@ -174,7 +207,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
     {
         return flattenedArray[computeIndex(indices)];
     }
-    
+
     /**
      * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
      * <p>
@@ -248,10 +281,6 @@ public final class MDShortArray extends MDAbstractArray<Short>
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }
 
-    //
-    // Object
-    //
-    
     /**
      * Creates and returns a matrix from a two-dimensional array.
      * <p>
@@ -268,13 +297,17 @@ public final class MDShortArray extends MDAbstractArray<Short>
         }
         return result;
     }
-    
+
+    //
+    // Object
+    //
+
     @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(flattenedArray);
+        result = prime * result + Arrays.hashCode(getValuesAsFlatArray());
         result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
@@ -295,7 +328,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
             return false;
         }
         MDShortArray other = (MDShortArray) obj;
-        if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
+        if (Arrays.equals(getValuesAsFlatArray(), other.getValuesAsFlatArray()) == false)
         {
             return false;
         }
@@ -304,6 +337,24 @@ public final class MDShortArray extends MDAbstractArray<Short>
             return false;
         }
         return true;
+    }
+
+    private short[] getValuesAsFlatArray()
+    {
+        return (dimensions[0] < capacityHyperRows) ? getCopyAsFlatArray() : getAsFlatArray(); 
+    }
+    
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException
+    {
+        stream.defaultReadObject();
+        if (hyperRowLength == 0)
+        {
+            this.hyperRowLength = computeHyperRowLength(dimensions);
+        }
+        if (capacityHyperRows == 0)
+        {
+            this.capacityHyperRows = dimensions[0];
+        }
     }
 
 }
