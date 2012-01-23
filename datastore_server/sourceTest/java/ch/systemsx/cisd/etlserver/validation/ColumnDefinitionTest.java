@@ -256,7 +256,7 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("The value validator key 'NotARealClass' does not reference a valid class name -- should raise a ClassNotFoundException");
         } catch (CheckedExceptionTunnel ex)
         {
-            assertEquals("java.lang.ClassNotFoundException: NotARealClass", ex.getMessage());
+            assertEquals("java.lang.ClassNotFoundException: NotARealClass", ex.toString());
         }
     }
 

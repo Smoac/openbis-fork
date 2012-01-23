@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -46,8 +47,8 @@ public class DataSetValidator implements IDataSetValidator
 
     static final String VALIDATOR_KEY = "validator";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataSetValidator.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetValidator.class);
 
     private final Map<String, IDataSetValidator> validators;
 
@@ -79,11 +80,17 @@ public class DataSetValidator implements IDataSetValidator
                 {
                     operationLog.info("Validator for data set type '" + dataSetType + "' defined.");
                 }
+            } catch (CheckedExceptionTunnel ex)
+            {
+                throw new ConfigurationFailureException(
+                        "Error occured while creating data set validator '"
+                                + sectionProperties.getKey() + "': " + ex.toString(),
+                        ex.getCause());
             } catch (Exception ex)
             {
                 throw new ConfigurationFailureException(
                         "Error occured while creating data set validator '"
-                                + sectionProperties.getKey() + "': " + ex.getMessage(), ex);
+                                + sectionProperties.getKey() + "': " + ex.toString(), ex);
             }
         }
     }
