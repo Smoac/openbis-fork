@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.base.exceptions;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 
 /**
  * An exception for tunneling checked exception through code that doesn't expect it.
@@ -47,6 +49,148 @@ public class CheckedExceptionTunnel extends RuntimeException
 
     protected CheckedExceptionTunnel()
     {
+    }
+
+    @Override
+    public String getMessage()
+    {
+        if (getCause() != null && getCause().getMessage() != null)
+        {
+            return getCause().getMessage();
+        }
+        return super.getMessage();
+    }
+
+    @Override
+    public String toString()
+    {
+        if (getCause() != null)
+        {
+            return getCause().toString();
+        }
+        return super.toString();
+    }
+
+    @Override
+    public void printStackTrace(PrintStream s)
+    {
+        if (getCause() != null)
+        {
+            getCause().printStackTrace(s);
+        } else
+        {
+            super.printStackTrace(s);
+        }
+    }
+
+    @Override
+    public void printStackTrace(PrintWriter s)
+    {
+        if (getCause() != null)
+        {
+            getCause().printStackTrace(s);
+        } else
+        {
+            super.printStackTrace(s);
+        }
+    }
+
+    /**
+     * Like {@link #printStackTrace()}, but includes the tunnel's stacktrace as well.
+     */
+    public void printFullStackTrace()
+    {
+        printFullStackTrace(System.err);
+    }
+
+    /**
+     * Like {@link #printStackTrace(PrintStream)}, but includes the tunnel's stacktrace as well.
+     */
+    public void printFullStackTrace(PrintStream s)
+    {
+        synchronized (s) {
+            s.println(super.toString());
+            StackTraceElement[] trace = getStackTrace();
+            for (int i=0; i < trace.length; i++)
+                s.println("\tat " + trace[i]);
+
+            Throwable ourCause = getCause();
+            if (ourCause != null)
+            {
+                printStackTraceAsCause(ourCause, s, trace);
+            }
+        }
+    }
+
+    /**
+     * Print our stack trace as a cause for the specified stack trace.
+     */
+    private static void printStackTraceAsCause(Throwable cause, PrintStream s,
+                                        StackTraceElement[] causedTrace)
+    {
+        final StackTraceElement[] trace = cause.getStackTrace();
+        int m = trace.length-1, n = causedTrace.length-1;
+        while (m >= 0 && n >=0 && trace[m].equals(causedTrace[n])) {
+            m--; n--;
+        }
+        final int framesInCommon = trace.length - 1 - m;
+
+        s.println("Caused by: " + cause);
+        for (int i=0; i <= m; i++)
+            s.println("\tat " + trace[i]);
+        if (framesInCommon != 0)
+            s.println("\t... " + framesInCommon + " more");
+
+        final Throwable ourCauseesCause = cause.getCause();
+        if (ourCauseesCause != null)
+        {
+            printStackTraceAsCause(ourCauseesCause, s, trace);
+        }
+    }
+
+    /**
+     * Like {@link #printStackTrace(PrintWriter)}, but includes the tunnel's stacktrace as well.
+     */
+    public void printFullStackTrace(PrintWriter s)
+    {
+        synchronized (s) {
+            s.println(super.toString());
+            StackTraceElement[] trace = getStackTrace();
+            for (int i=0; i < trace.length; i++)
+                s.println("\tat " + trace[i]);
+
+            Throwable ourCause = getCause();
+            if (ourCause != null)
+            {
+                printStackTraceAsCause(ourCause, s, trace);
+            }
+        }
+    }
+
+    /**
+     * Print our stack trace as a cause for the specified stack trace.
+     */
+    private static void printStackTraceAsCause(Throwable cause, PrintWriter s,
+                                        StackTraceElement[] causedTrace)
+    {
+        final StackTraceElement[] trace = cause.getStackTrace();
+        int m = trace.length-1, n = causedTrace.length-1;
+        while (m >= 0 && n >=0 && trace[m].equals(causedTrace[n])) {
+            m--; n--;
+        }
+        final int framesInCommon = trace.length - 1 - m;
+
+        s.println("Caused by: " + cause);
+        for (int i=0; i <= m; i++)
+            s.println("\tat " + trace[i]);
+        if (framesInCommon != 0)
+            s.println("\t... " + framesInCommon + " more");
+
+        final Throwable ourCauseesCause = cause.getCause();
+        if (ourCauseesCause != null)
+        {
+            printStackTraceAsCause(ourCauseesCause, s, trace);
+        }
     }
 
     /**
