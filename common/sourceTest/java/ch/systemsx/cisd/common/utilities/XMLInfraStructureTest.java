@@ -156,7 +156,7 @@ public class XMLInfraStructureTest extends AssertJUnit
             fail("Exception expected");
         } catch (Exception ex)
         {
-            assertTrue(ex.getMessage(), ex.getMessage().indexOf(
+            assertTrue(ex.toString(), ex.toString().indexOf(
                     "org.xml.sax.SAXException: XML validation errors:\n"
                             + "Error in line 9 column 10:cvc-complex-type.2.4.b: "
                             + "The content of element 'n:note' is not complete. ") >= 0);
@@ -176,7 +176,7 @@ public class XMLInfraStructureTest extends AssertJUnit
         } catch (Exception ex)
         {
             assertEquals("org.xml.sax.SAXParseException: XML document structures must start "
-                    + "and end within the same entity.", ex.getMessage());
+                    + "and end within the same entity.", ex.toString());
         }
     }
 }
