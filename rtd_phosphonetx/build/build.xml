@@ -120,7 +120,7 @@
         -->
 	<target name="war" depends="openbis.war, make-api-dist" description="Creates project war file.">
 		<war warfile="${webapp.file}" update="true">
-			<classes prefix="WEB-INF/classes/proteomics" dir="source">
+			<classes dir="source/sql">
 				<include name="**/*.sql" />
 			</classes>
 			<classes dir="../openbis/${sources}">

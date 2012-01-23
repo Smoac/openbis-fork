@@ -25,7 +25,7 @@
         <property name="adminPassword" value="${proteomics.database.admin-password}" />
         <property name="databaseKind" value="${proteomics.database.kind}" />
         <property name="databaseEngineCode" value="${proteomics.database.engine}" />
-        <property name="scriptFolder" value="${proteomics.script-folder}/sql" />
+        <property name="scriptFolder" value="${proteomics.script-folder}" />
         <property name="databaseInstance" value="${proteomics.database-instance}" />
     </bean>
     
