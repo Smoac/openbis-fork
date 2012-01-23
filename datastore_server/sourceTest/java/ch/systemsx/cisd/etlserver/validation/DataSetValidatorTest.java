@@ -30,18 +30,18 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetValidatorTest extends AbstractFileSystemTestCase
 {
     private static final String EXPECTED_DATA_SET_TYPE_KEY = "expected-data-set-type";
+
     private static final String EXPECTED_FILE_KEY = "expected-file";
-    
+
     public static class MockValidator implements IDataSetValidator
     {
         private final String expectedDataSetType;
+
         private final String expectedFile;
 
         public MockValidator(Properties properties)
@@ -60,14 +60,14 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         {
         }
     }
-    
+
     @Test
     public void testNoValidatorsDefined()
     {
         DataSetValidator dataSetValidator = new DataSetValidator(new Properties());
         dataSetValidator.assertValidDataSet(new DataSetType(), new File("."));
     }
-    
+
     @Test
     public void testMissingDataSetTypeProperty()
     {
@@ -82,7 +82,7 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
             assertEquals("Missing mandatory property: v.data-set-type", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testUnknownValidatorClass()
     {
@@ -100,7 +100,7 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
                     + "java.lang.ClassNotFoundException: blabla", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testAssertValidDataSet()
     {
@@ -109,16 +109,17 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(DataSetValidator.DATA_SET_VALIDATORS_KEY, "v");
         properties.setProperty("v." + DataSetValidator.DATA_SET_TYPE_KEY, dataSetType1.getCode());
-        properties.setProperty("v." + DataSetValidator.VALIDATOR_KEY, MockValidator.class.getName());
+        properties
+                .setProperty("v." + DataSetValidator.VALIDATOR_KEY, MockValidator.class.getName());
         properties.setProperty("v." + EXPECTED_DATA_SET_TYPE_KEY, dataSetType1.getCode());
         File file = new File(".");
         properties.setProperty("v." + EXPECTED_FILE_KEY, file.toString());
         DataSetValidator validator = new DataSetValidator(properties);
-        
+
         validator.assertValidDataSet(dataSetType1, file);
         validator.assertValidDataSet(new DataSetType(), file);
     }
-    
+
     @Test
     public void testThatShowsWhichValidatorAndWhichColumnDefinitionAreInvalid()
     {
@@ -135,12 +136,13 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Error occured while creating data set validator 'v': " +
-            		"Couldn't create column definition 'col': " +
-            		"Invalid value-type: ??", ex.getMessage());
+            assertEquals("Error occured while creating data set validator 'v': "
+                    + "ch.systemsx.cisd.common.exceptions.ConfigurationFailureException: "
+                    + "Couldn't create column definition 'col': " + "Invalid value-type: ??",
+                    ex.getMessage());
         }
     }
-    
+
     @Test
     public void testAssertValidDataSetWithTSVFile()
     {
@@ -156,12 +158,12 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         properties.setProperty("v.c2." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
         properties.setProperty("v.c2." + AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
         DataSetValidator validator = new DataSetValidator(properties);
-        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n" +
-                "s1\n" + "s2\t42\n");
-        
+        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n" + "s1\n"
+                + "s2\t42\n");
+
         validator.assertValidDataSet(dataSetType1, workingDirectory);
     }
-    
+
     @Test
     public void testAssertValidDataSetWithInvalidTSVFile()
     {
@@ -176,9 +178,9 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         properties.setProperty("v.c2." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
         properties.setProperty("v.c2." + AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
         DataSetValidator validator = new DataSetValidator(properties);
-        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n" +
-                "s1\t42\n" + "s2\tabc\n");
-        
+        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n"
+                + "s1\t42\n" + "s2\tabc\n");
+
         try
         {
             validator.assertValidDataSet(dataSetType1, workingDirectory);
