@@ -89,6 +89,13 @@ public class ImageUrlUtils
 
         methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_STACK_ID_PARAM,
                 channelStackRef.getChannelStackTechId());
+
+        if (channelReferences.tryGetImageTransformationCode() != null)
+        {
+            methodWithParameters.addParameter(
+                    ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
+                    channelReferences.tryGetImageTransformationCode());
+        }
         addImageTransformerSignature(methodWithParameters, channelReferences);
         final String linkURL = methodWithParameters.toString();
         addThumbnailSize(methodWithParameters, width, height);
@@ -111,10 +118,10 @@ public class ImageUrlUtils
 
         // Set the url at the very end. This method triggers the image loading process
         // therefore it should be done after all image load handlers have been set.
-        // Setting the url before defining the load handlers may result in handlers not 
-        // being notified about the finished loading (when loading is finished before 
-        // handlers are added). Moreover we are deferring setting the url to make sure that 
-        // all actions that attach the image to DOM finish first. Otherwise again images 
+        // Setting the url before defining the load handlers may result in handlers not
+        // being notified about the finished loading (when loading is finished before
+        // handlers are added). Moreover we are deferring setting the url to make sure that
+        // all actions that attach the image to DOM finish first. Otherwise again images
         // are not displayed.
         GWTUtils.executeDelayed(new IDelegatedAction()
             {
