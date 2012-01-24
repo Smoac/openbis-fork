@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
+	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="output" path="targets/classes"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/screening"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-user.jar"/>
+	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

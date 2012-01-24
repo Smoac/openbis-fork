@@ -1,0 +1,9 @@
+<project name="openbis_standard_technologies" default="dist" basedir="..">
+  <import file="../../screening/build/build.xml" />
+  <import file="../../rtd_phosphonetx/build/build.xml" />
+  <project-classpath name="ecp" classes="${classes}" />
+	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
+
+	<target name="dist" depends="compile">
+	</target>
+</project>
