@@ -345,12 +345,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         boolean markerDeleteSucceeded =
                                 state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
                                         isFinishedFile);
-
-                        if (didOperationSucceed)
-                        {
-                            return markerDeleteSucceeded
-                                    && FileUtilities.deleteRecursively(incomingDataSetFile);
-                        }
                         return markerDeleteSucceeded;
                     }
                 };

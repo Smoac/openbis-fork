@@ -103,8 +103,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
         createHandler(properties, false, true);
-        createData();
-
+        createDataWithOneSubDataSet();
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
@@ -161,12 +160,20 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     private void checkDirContentsAfterSuccessfulRegistration()
     {
-        assertFalse("The incoming data set should have been removed", incomingDataSetFile.exists());
+        // we should not expect the dataset directory to be removed in general case. The
+        // responsibility for removing directory (if the marker files are being used) should be
+        // solely on the jython dropboxes side. This is required for backwards compatibility as we
+        // have users who use this behaviour and want to keep the files inside of the dropbox even
+        // after it has been registered.
+        assertEquals(
+                "The incoming data set directory should be cleared by the jython dropboxes after succesful registration",
+                incomingDataSetFile.listFiles().length, 0);
     }
 
     private void checkStagingDirIsEmpty()
     {
-        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list()).toString());
+        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
+                .toString());
     }
 
     @Test
@@ -400,7 +407,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-experiment.py");
         createHandler(properties, false, true);
-        createData();
+        createDataWithOneSubDataSet();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         context.checking(new Expectations()
@@ -678,11 +685,27 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         incomingDataSetFile = createDirectory(workingDirectory, "data_set");
 
+        assertTrue(incomingDataSetFile.isDirectory());
+
         subDataSet1 = createDirectory(incomingDataSetFile, "sub_data_set_1");
         subDataSet2 = createDirectory(incomingDataSetFile, "sub_data_set_2");
 
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
         FileUtilities.writeToFile(new File(subDataSet2, "read2.me"), "hello world2");
+
+        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+        FileUtilities.writeToFile(markerFile, "");
+    }
+
+    private void createDataWithOneSubDataSet()
+    {
+        incomingDataSetFile = createDirectory(workingDirectory, "data_set");
+
+        assertTrue(incomingDataSetFile.isDirectory());
+
+        subDataSet1 = createDirectory(incomingDataSetFile, "sub_data_set_1");
+
+        FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
