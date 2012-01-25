@@ -294,6 +294,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         private final FileSystemView fileView;
         private final String path;
         private final List<InputStream> inputStreams = new ArrayList<InputStream>();
+        private FtpFile file;
 
         FileView(FileSystemView fileView, String path)
         {
@@ -303,13 +304,17 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         
         private FtpFile getFile()
         {
-            try
+            if (file == null)
             {
-                return fileView.getFile(path);
-            } catch (FtpException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                try
+                {
+                    file = fileView.getFile(path);
+                } catch (FtpException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
             }
+            return file;
         }
 
         public String getAbsolutePath()
@@ -406,9 +411,9 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         {
             List<FtpFile> files = getFile().listFiles();
             List<SshFile> result = new ArrayList<SshFile>();
-            for (FtpFile file : files)
+            for (FtpFile child : files)
             {
-                result.add(new FileView(fileView, file.getAbsolutePath()));
+                result.add(new FileView(fileView, child.getAbsolutePath()));
             }
             return result;
         }
