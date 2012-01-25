@@ -67,7 +67,7 @@
 		</jar>
   </target>
 	
-  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum, dss-plugin-jar">
+  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum">
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
     <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
   	<copy todir="${dist.datastore_server}/data">
