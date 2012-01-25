@@ -837,9 +837,10 @@
   -->
   <target name="compile-module-test" description="Compile the module test mode">
     <delete dir="${targets.www}/${module-test.path}" />
+  	<echo>GWT-sources: ${gwt.sources}</echo>
     <java classpath="${ecp}:${ecp.gwt}:${gwt.sources}"
       classname="com.google.gwt.dev.Compiler" fork="true">
-      <jvmarg value="-Xmx512M" />
+      <jvmarg value="-Xmx1024M" />
       <arg value="-war" />
       <arg value="${targets.www}" />
       <arg value="${module-test.module}Safari" />
@@ -863,16 +864,8 @@
      <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" /> 
   -->
   <target name="run-module-test" description="Run the module test mode">
-    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
-      <classpath>
-        <pathelement location="${sources}" />
-        <pathelement location="../openbis/${sources}" />
-        <pathelement path="${ecp}" />
-        <pathelement path="${ecp.gwt}" />
-        <pathelement location="${gwt.lib}/gwt-dev.jar" />
-        <pathelement location="${gwt.lib}/gwt-user.jar" />
-      </classpath>
-      <jvmarg value="-Xmx512M" />
+    <java failonerror="true" fork="true" classpath="${ecp}:${ecp.gwt}:${gwt.sources}" classname="com.google.gwt.dev.DevMode">
+      <jvmarg value="-Xmx1024M" />
       <jvmarg value="-ea" />
       <sysproperty key="log4j.configuration" file="etc/log.xml" />
       <sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
