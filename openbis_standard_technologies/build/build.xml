@@ -1,22 +1,38 @@
 <project name="openbis_standard_technologies" default="dist" basedir="..">
-	<import file="../../openbis/build/build.xml" />
-  <!--import file="../../screening/build/build.xml" />
-  <import file="../../rtd_phosphonetx/build/build.xml" /-->
+  <import file="../../screening/build/build.xml" />
+  <import file="../../rtd_phosphonetx/build/build.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
   <property name="gwt.extended.sources" value="${gwt.sources}:../rtd_phosphonetx/${sources}:../screening/${sources}" />
 
-	<target name="dist" depends="compile">
+	<target name="dist" depends="openbis.make-dist">
+	</target>
+
+	<target name="war" depends="rtd_phosphonetx.war, screening.war">
 	</target>
 
 
+	<!--
+        // Compiles the javascript using GWT compiler.
+  -->
+	<target name="compile-javascript"
+	        depends="prepare-web-client"
+	        description="Compiles the javascript using GWT compiler.">
+		<antcall target="compile-gwt-module">
+			<param name="gwt.sources" value="${gwt.extended.sources}" />
+			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+		</antcall>
+	</target>
+	
+	<!--
+        // Targets for Eclipse environment
+  -->
 	<target name="compile-and-run-openbis-from-eclipse"
 	        description="Compile and run openbis from Eclipse">
 		<antcall target="compile-module-test">
 			<param name="gwt.sources" value="${gwt.extended.sources}" />
 			<param name="module-test.path" value="openbis-test" />
-			<param name="module-test.module"
-			       value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
 		<antcall target="run-openbis-from-eclipse" />
 	</target>
@@ -26,8 +42,7 @@
 		<antcall target="run-module-test">
 			<param name="gwt.sources" value="${gwt.extended.sources}" />
 			<param name="module-test.path" value="openbis-test" />
-			<param name="module-test.module"
-			       value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
 	</target>
 

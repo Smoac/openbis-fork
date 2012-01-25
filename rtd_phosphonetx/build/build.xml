@@ -120,7 +120,7 @@
         -->
 	<target name="war" depends="openbis.war, make-api-dist" description="Creates project war file.">
 		<war warfile="${webapp.file}" update="true">
-			<classes dir="source/sql">
+			<classes dir="../rtd_phosphonetx/source/sql">
 				<include name="**/*.sql" />
 			</classes>
 			<classes dir="../openbis/${sources}">
@@ -128,7 +128,12 @@
 				<exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
 			</classes>
-	    <zipfileset dir="${original.dist}/core-plugins" prefix="core-plugins">
+			<classes dir="../rtd_phosphonetx/${sources}">
+				<include name="**/*.xml" />
+				<exclude name="**/*.gwt.xml" />
+        <include name="**/*.xsd" />
+			</classes>
+	    <zipfileset dir="../rtd_phosphonetx/dist/core-plugins" prefix="core-plugins">
 	      <include name="**/*.*" />
 	      <exclude name="**/.svn/*.*" />
       </zipfileset>

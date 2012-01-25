@@ -153,7 +153,7 @@
 		<fail if="system.tests.failed" message="At least one system test failed." />
 	</target>
 	
-  <target name="ci" depends="run-tests, check-restrictions, dist, check-dependencies" />
+  <target name="ci" depends="check-dependencies, run-tests, check-restrictions, dist" />
 
   <!--
         // Compiles the javascript using GWT compiler.
@@ -267,7 +267,7 @@
 		<copy file="${dir}/${jar}" todir="${webapp.dist}" />
 		<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
 		<signjar jar="${webapp.dist}/${jar}"
-		         keystore="etc/dev.keystore"
+		         keystore="../screening/etc/dev.keystore"
 		         alias="openbis"
 		         storepass="openbistest"/>
 		<copy file="${webapp.dist}/${jar}" todir="${targets.www.openbis}"/>
@@ -280,10 +280,15 @@
   <target name="war" depends="openbis.war" description="Creates project war file.">
     <unzip src="${webapp.file}" dest="${webapp.file}.unpacked"/>
     <copy todir="${webapp.file}.unpacked/WEB-INF/classes" overwrite="true">
-      <fileset dir="source">
+      <fileset dir="../screening/source">
         <include name="**/*.sql" />
       </fileset>
       <fileset dir="../openbis/${sources}">
+        <include name="**/*.xml" />
+        <exclude name="**/*.gwt.xml" />
+        <include name="**/*.xsd" />
+      </fileset>
+      <fileset dir="../screening/${sources}">
         <include name="**/*.xml" />
         <exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
@@ -304,7 +309,7 @@
       </fileset>
     </copy>
     <copy todir="${webapp.file}.unpacked/core-plugins" overwrite="true">
-      <fileset dir="${original.dist}/core-plugins">
+      <fileset dir="../screening/dist/core-plugins">
         <include name="**/*.*" />
         <exclude name="**/.svn/*.*" />
       </fileset>

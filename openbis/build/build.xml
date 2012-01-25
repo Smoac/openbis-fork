@@ -333,6 +333,7 @@
     <delete includeEmptyDirs="true">
     	<fileset dir="${webapp.dist}" excludes="*.jar"/>
   	</delete>
+  	<echo>GWT-sources: ${gwt.sources}</echo>
     <java classpath="${ecp}:${gwt.sources}" 
     	classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx1024M" />
