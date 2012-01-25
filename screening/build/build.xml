@@ -53,7 +53,7 @@
     	<fileset dir="${lib}/unix">
     		<include name="native/**/*"/>
     	</fileset>
-			<fileset dir="source">
+			<fileset dir="../screening/source">
 				<include name="**/*.sql" />
 			</fileset>	
 			<fileset dir="${sources}">
@@ -71,10 +71,10 @@
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
     <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
   	<copy todir="${dist.datastore_server}/data">
-  		<fileset dir="${original.dist}/data" />
+  		<fileset dir="../screening/dist/data" />
   	</copy>
     <copy todir="${dist.datastore_server}/etc">
-      <fileset dir="${original.dist}/etc">
+      <fileset dir="../screening/dist/etc">
         <include name="tabular-data-graph.properties" />
       </fileset>
     </copy>
@@ -82,10 +82,10 @@
 		<mkdir dir="${dist}/data" />
 		<mkdir dir="${dist}/etc" />
   	<copy todir="${dist}/data">
-  		<fileset dir="dist/data" />
+  		<fileset dir="../screening/dist/data" />
   	</copy>
     <copy todir="${dist}/etc">
-      <fileset dir="dist/etc">
+      <fileset dir="../screening/dist/etc">
         <include name="tabular-data-graph.properties" />
       </fileset>
     </copy>
@@ -109,7 +109,7 @@
   -->
   <target name="compute-separate-dss-checksums">
     <checksum todir="${dist}" pattern="{0}  etc/{1}">
-      <fileset dir="dist/etc">
+      <fileset dir="../screening/dist/etc">
         <include name="service.properties" />
       	<include name="tabular-data-graph.properties" />
         <include name="log.xml" />
@@ -493,7 +493,7 @@
       <zipfileset src="${dist.screening-api.jar}" />
   	</recursive-jar>
     <copy todir="${dist.screening-api}">
-      <fileset dir="${original.dist}/api" />
+      <fileset dir="../screening/dist/api" />
     </copy>
   </target>
 
