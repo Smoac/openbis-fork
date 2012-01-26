@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
  */
 public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
-    private final static String BASE = "rtd_phosphonetx";
+    private final static String BASE = "proteomics";
     
     public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
     
