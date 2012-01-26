@@ -27,7 +27,7 @@
         // Task for creating distributions
   -->
 	
-  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
+  <target name="dist" depends="openbis.make-dist, dss-plugin-jar, make-full-dss-dist, datastore_server.make-plugin-dist, screening-api">
 		
   	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
