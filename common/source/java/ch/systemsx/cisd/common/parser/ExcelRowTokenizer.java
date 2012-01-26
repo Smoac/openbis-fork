@@ -40,6 +40,10 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
     public static String[] tokenizeRow(Row row)
     {
         String[] line = new String[row.getLastCellNum()];
+        for (int i = 0; i < line.length; i++)
+        {
+            line[i] = "";
+        }
         for (Cell cell : row)
         {
             String value = extractCellValue(cell).trim();

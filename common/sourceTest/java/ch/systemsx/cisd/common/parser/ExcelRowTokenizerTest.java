@@ -52,6 +52,14 @@ public class ExcelRowTokenizerTest extends AssertJUnit
         assertEquals("Meh blah & so on", line2[1]);
         assertEquals("no", line2[2]);
 
+        String[] line3 = ExcelRowTokenizer.tokenizeRow(row.get(2));
+        assertEquals("42", line3[0]);
+        assertEquals("The question", line3[1]);
+        assertEquals("", line3[2]);
+        assertEquals("", line3[3]);
+        assertEquals("", line3[4]);
+        assertEquals("hello", line3[5]);
+        assertEquals(6, line3.length);
     }
 
     private List<Row> getRows() throws Exception
@@ -65,7 +73,7 @@ public class ExcelRowTokenizerTest extends AssertJUnit
             POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
             HSSFWorkbook workbook = new HSSFWorkbook(poifsFileSystem);
             final HSSFSheet sheet = workbook.getSheetAt(0);
-            return Arrays.<Row> asList(sheet.getRow(0), sheet.getRow(1));
+            return Arrays.<Row> asList(sheet.getRow(0), sheet.getRow(1), sheet.getRow(2));
         } finally
         {
             IOUtils.closeQuietly(stream);

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -302,8 +303,8 @@ public class ExcelFileLoader<T>
         {
             if (unique.add(token.toLowerCase()) == false)
             {
-                throw new IllegalArgumentException(String.format("Duplicated column name '%s'.",
-                        token));
+                throw new IllegalArgumentException(String.format("Duplicated column name '%s': %s" ,
+                        token, Arrays.asList(tokens)));
             }
         }
     }
