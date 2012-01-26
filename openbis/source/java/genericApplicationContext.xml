@@ -15,9 +15,12 @@
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
 
+    <bean id="exception-translator" class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
+
     <bean id="transaction-manager"
         class="org.springframework.orm.hibernate3.HibernateTransactionManager">
         <property name="sessionFactory" ref="hibernate-session-factory" />
+        <property name="jdbcExceptionTranslator" ref="exception-translator" />
     </bean>
 
     <bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"
