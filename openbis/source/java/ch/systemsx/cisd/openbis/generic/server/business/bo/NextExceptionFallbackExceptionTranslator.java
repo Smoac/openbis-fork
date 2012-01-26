@@ -38,7 +38,7 @@ public class NextExceptionFallbackExceptionTranslator extends SQLStateSQLExcepti
             if (exNext != null)
             {
                 msg +=
-                        "{Next exception " + ex.getClass().getSimpleName() + ": "
+                        " {Next exception " + ex.getClass().getSimpleName() + ": "
                                 + exNext.getMessage() + "}";
             }
         }
