@@ -5,6 +5,8 @@
 	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
   <property name="gwt.extended.sources" value="${gwt.sources}:../rtd_phosphonetx/${sources}:../screening/${sources}" />
 
+	<target name="ci" depends="build-common.ci, dist" />
+
 	<target name="dist" depends="clean">
 		<antcall target="openbis.make-dist">
 			<param name="variant" value="-standard-technologies" />
