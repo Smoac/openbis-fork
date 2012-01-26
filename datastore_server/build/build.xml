@@ -45,6 +45,10 @@
 		<mkdir dir="${dist.datastore_server.lib}" />
 		<delete dir="tmp/test"/><!-- remove this directory in order to get a clean clean-flag -->
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<antcall target="make-dss-jar"/>
+	</target>
+		
+	<target name="make-dss-jar">
 		<echo file="${dss-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
 			<fileset dir="${nativesrc}">
@@ -108,6 +112,11 @@
     -->
   <target name="prepare-dist-libs" depends="dss-jar, dist-client, dist-upload-gui">
     <copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
+  	<antcall target="add-dss-dist-libs"/>
+  </target>	
+  	
+	<!-- Add libraries to DSS distribution. -->
+	<target name="add-dss-dist-libs">
   	<copy todir="${dist.datastore_server.lib}" flatten="true">
   		<fileset dir="${lib}/jetty7/lib">
   		  <include name="common/*.jar" />

@@ -20,6 +20,9 @@
   <property name="classes.openbis" value="../openbis/targets/ant/classes" />
   <property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
+	<property name="screening-build.info.filename" value="BUILD-screening.INFO" />
+	<property name="screening-build.info.file" value="${classes.screening}/BUILD-screening.INFO" />
+
 	
   <target name="compile" depends="build-common.compile, clean" />
 
@@ -38,14 +41,18 @@
     			
   <target name="dss-plugin-jar" depends="compile">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<antcall target="make-dss-plugin-jar"/>
+	</target>
+	
+	<target name="make-dss-plugin-jar">
+		<echo file="${screening-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
-			<fileset dir="${classes}">
+			<fileset dir="${classes.screening}">
 				<include name="ch/systemsx/cisd/openbis/dss/**/*.class" />
 				<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/**/*.class" />
 				<include name="ch/systemsx/cisd/utils/**/*.class" />
 				<include name="*.class" />
-				<include name="${build.info.filename}" />
+				<include name="${screening-build.info.filename}" />
 			</fileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
@@ -69,15 +76,7 @@
 	
   <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum">
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
-    <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
-  	<copy todir="${dist.datastore_server}/data">
-  		<fileset dir="../screening/dist/data" />
-  	</copy>
-    <copy todir="${dist.datastore_server}/etc">
-      <fileset dir="../screening/dist/etc">
-        <include name="tabular-data-graph.properties" />
-      </fileset>
-    </copy>
+  	<antcall target="add-stuff-to-dss-dist"/>
   	<antcall target="datastore_server.create-distribution" />
 		<mkdir dir="${dist}/data" />
 		<mkdir dir="${dist}/etc" />
@@ -90,6 +89,19 @@
       </fileset>
     </copy>
   </target>
+	
+	<!-- Add libraries and other stuff to DSS distribution. -->
+	<target name="add-stuff-to-dss-dist">
+    <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
+  	<copy todir="${dist.datastore_server}/data">
+  		<fileset dir="../screening/dist/data" />
+  	</copy>
+    <copy todir="${dist.datastore_server}/etc">
+      <fileset dir="../screening/dist/etc">
+        <include name="tabular-data-graph.properties" />
+      </fileset>
+    </copy>
+	</target>
 	
   <!-- 
       Build the checksum file.
