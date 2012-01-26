@@ -5,7 +5,26 @@
 	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
   <property name="gwt.extended.sources" value="${gwt.sources}:../rtd_phosphonetx/${sources}:../screening/${sources}" />
 
-	<target name="dist" depends="openbis.make-dist">
+	<target name="dist" depends="clean">
+		<antcall target="openbis.make-dist">
+			<param name="variant" value="-standard-technologies" />
+		</antcall>
+		<mkdir dir="${dist.datastore_server.lib}" />
+		<antcall target="dist-upload-gui">
+			<param name="variant" value="" />
+		</antcall>
+		<antcall target="datastore_server.add-dss-dist-libs"/>
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<antcall target="make-dss-jar"/>
+		<antcall target="rtd_phosphonetx.make-dss-plugin-jar"/>
+		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-proteomics.jar" />
+		<antcall target="screening.make-dss-plugin-jar"/>
+    <move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-screening.jar" />
+		<antcall target="screening.add-stuff-to-dss-dist"/>
+		<antcall target="screening.compute-dss-checksum"/>
+		<antcall target="datastore_server.create-distribution">
+			<param name="variant" value="-standard-technologies" />
+		</antcall>
 	</target>
 
 	<target name="war" depends="rtd_phosphonetx.war, screening.war">
