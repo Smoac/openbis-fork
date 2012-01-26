@@ -28,16 +28,8 @@ final class HistoryRowMapper implements ParameterizedRowMapper<PropertyHistory>
         PropertyHistory propertyHistory = new PropertyHistory();
         propertyHistory.setPropertyTypeCode(rs.getString("code"));
         propertyHistory.setValue(rs.getString("value"));
-        long id = rs.getLong("cvte_id");
-        if (rs.wasNull() == false)
-        {
-            propertyHistory.setTermID(id);
-        }
-        id = rs.getLong("mate_prop_id");
-        if (rs.wasNull() == false)
-        {
-            propertyHistory.setMaterialID(id);
-        }
+        propertyHistory.setTerm(rs.getString("vocabulary_term"));
+        propertyHistory.setMaterial(rs.getString("material"));
         propertyHistory.setValidFromTimeStamp(rs.getTimestamp("valid_from_timestamp"));
         propertyHistory.setValidUntilTimeStamp(rs.getTimestamp("valid_until_timestamp"));
         propertyHistory.setPersIdAuthor(rs.getLong("pers_id_author"));

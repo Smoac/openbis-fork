@@ -29,9 +29,9 @@ public class PropertyHistory
 
     private String value;
 
-    private Long termID;
+    private String term;
 
-    private Long materialID;
+    private String material;
 
     private Long persIdAuthor;
 
@@ -79,14 +79,14 @@ public class PropertyHistory
         this.value = value;
     }
 
-    public void setTermID(Long termID)
+    public void setTerm(String term)
     {
-        this.termID = termID;
+        this.term = term;
     }
 
-    public void setMaterialID(Long materialID)
+    public void setMaterial(String material)
     {
-        this.materialID = materialID;
+        this.material = material;
     }
 
     @Override
@@ -98,13 +98,13 @@ public class PropertyHistory
         {
             builder.append(' ').append(value);
         }
-        if (termID != null)
+        if (term != null)
         {
-            builder.append(" term:").append(termID);
+            builder.append(" term:").append(term);
         }
-        if (materialID != null)
+        if (material != null)
         {
-            builder.append(" material:").append(materialID);
+            builder.append(" material:").append(material);
         }
         builder.append("<a:" + persIdAuthor + ">");
         return builder.toString();

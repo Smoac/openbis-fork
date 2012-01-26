@@ -141,17 +141,17 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         List<PropertyHistory> history =
                 getMaterialPropertiesHistory(getMaterialOrNull("C1").getId());
         assertEquals(
-                "[BACTERIUM: material:22<a:2>, DESCRIPTION: compound 1<a:2>, GENDER: term:12<a:2>]",
+                "[BACTERIUM: material:BACTERIUM1 [BACTERIUM]<a:2>, DESCRIPTION: compound 1<a:2>, GENDER: term:FEMALE [GENDER]<a:2>]",
                 history.toString());
         assertCurrentValidUntilTimeStamp(history.get(0));
-        assertEquals("[BACTERIUM: material:34<a:2>]",
+        assertEquals("[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:2>]",
                 getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
 
         updateMaterials("code\tdescription\tgender\tbacterium\n"
                 + "c2\t--DELETE--\tfemale\tbacterium2\n", MATERIAL_TYPE, false);
 
         assertEquals(
-                "[BACTERIUM: material:34<a:2>, BACTERIUM: material:35<a:2>, DESCRIPTION: compound 2<a:2>, GENDER: term:11<a:2>]",
+                "[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:2>, BACTERIUM: material:BACTERIUM-Y [BACTERIUM]<a:2>, DESCRIPTION: compound 2<a:2>, GENDER: term:MALE [GENDER]<a:2>]",
                 getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
         deleteTestMaterials();
     }

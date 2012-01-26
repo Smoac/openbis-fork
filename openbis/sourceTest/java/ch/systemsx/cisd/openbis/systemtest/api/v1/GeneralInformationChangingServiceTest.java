@@ -96,7 +96,8 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 .getParent());
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
-        assertEquals("[ANY_MATERIAL: material:41<a:1>, ORGANISM: term:9<a:1>, SIZE: 321<a:1>]",
+        assertEquals(
+                "[ANY_MATERIAL: material:2 [GENE]<a:1>, ORGANISM: term:GORILLA [ORGANISM]<a:1>, SIZE: 321<a:1>]",
                 history.toString());
 
     }
