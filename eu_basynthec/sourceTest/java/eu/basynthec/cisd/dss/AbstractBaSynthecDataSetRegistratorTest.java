@@ -121,7 +121,10 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                             new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+
                     will(returnValue(new AtomicEntityOperationResult()));
+
+                    allowing(openBisService).setStorageConfirmed(with(any(String.class)));
                 }
             });
         return atomicatOperationDetails;
