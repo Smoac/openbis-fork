@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 
 /**
  * <i>ETL</i> thread specific parameters.
@@ -93,6 +94,9 @@ public final class ThreadParameters
     @Private
     public static final String ON_ERROR_DECISION_KEY = "on-error-decision";
 
+    private static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
+            "dataset-registration-prestaging-behavior";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -122,6 +126,8 @@ public final class ThreadParameters
     private final boolean deleteUnidentified;
 
     private final boolean reprocessFaultyDatasets;
+
+    private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
 
     /**
      * @param threadProperties parameters for one processing thread together with general
@@ -161,6 +167,8 @@ public final class ThreadParameters
         this.reprocessFaultyDatasets =
                 Boolean.parseBoolean(threadProperties.getProperty(REPROCESS_FAULTY_DATASETS_NAME,
                         "false"));
+        this.dataSetRegistrationPreStagingBehavior =
+                getOriginalnputDataSetBehaviour(threadProperties);
 
         this.threadName = threadName;
 
@@ -177,6 +185,21 @@ public final class ThreadParameters
         }
         this.onErrorDecisionClassOrNull = onErrorClass;
 
+    }
+
+    private DataSetRegistrationPreStagingBehavior getOriginalnputDataSetBehaviour(
+            final Properties threadProperties)
+    {
+        String property =
+                threadProperties.getProperty(DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR, "default");
+        DataSetRegistrationPreStagingBehavior retVal =
+                DataSetRegistrationPreStagingBehavior.fromString(property);
+        if (null == retVal)
+        {
+            throw new ConfigurationFailureException(DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR
+                    + " setting for a dropbox is invalid. Incorrect value " + property);
+        }
+        return retVal;
     }
 
     // true if marker file should be used, false if autodetection should be used, exceprion when the
@@ -386,4 +409,10 @@ public final class ThreadParameters
     {
         return reprocessFaultyDatasets;
     }
+
+    public DataSetRegistrationPreStagingBehavior getDataSetRegistrationPreStagingBehavior()
+    {
+        return dataSetRegistrationPreStagingBehavior;
+    }
+
 }

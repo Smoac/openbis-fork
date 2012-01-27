@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 
@@ -82,10 +84,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final DssRegistrationLogger dssRegistrationLog;
 
+    private final IEncapsulatedOpenBISService openBISService;
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate,
             IDataSetInApplicationServerRegistrator<T> applicationServerRegistrator,
-            IRollbackStack rollbackStack, DssRegistrationLogger dssRegistrationLog)
+            IRollbackStack rollbackStack, DssRegistrationLogger dssRegistrationLog,
+            IEncapsulatedOpenBISService openBISService)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
@@ -93,6 +98,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.applicationServerRegistrator = applicationServerRegistrator;
         this.rollbackStack = rollbackStack;
         this.dssRegistrationLog = dssRegistrationLog;
+        this.openBISService = openBISService;
     }
 
     /**
@@ -181,7 +187,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             // Runs or throw a throwable
             registerDataSetsInApplicationServer();
-
         } catch (final Throwable throwable)
         {
             rollbackDuringMetadataRegistration(throwable);
@@ -203,8 +208,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                     new ArrayList<DataSetInformation>();
             for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
             {
-
                 dataSetInformationCollection.add(storageAlgorithm.getDataSetInformation());
+                openBISService.setStorageConfirmed(storageAlgorithm.getDataSetInformation()
+                        .getDataSetCode());
             }
 
             return dataSetInformationCollection;

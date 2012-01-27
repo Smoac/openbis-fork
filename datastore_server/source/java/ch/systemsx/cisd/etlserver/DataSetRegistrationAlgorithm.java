@@ -424,7 +424,8 @@ public class DataSetRegistrationAlgorithm
             }
             File dataFolder = state.transaction.getStoredDataDirectory();
             assert dataFolder != null : "The folder that contains the stored data should not be null.";
-            final String relativePath = FileUtilities.getRelativeFilePath(state.storeRoot, dataFolder);
+            final String relativePath =
+                    FileUtilities.getRelativeFilePath(state.storeRoot, dataFolder);
             String absolutePath = dataFolder.getAbsolutePath();
             assert relativePath != null : String.format(
                     TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,
@@ -565,6 +566,7 @@ public class DataSetRegistrationAlgorithm
         updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
         // Finally: register the data set in the database.
         registerDataSetInApplicationServer(data);
+        state.openBisService.setStorageConfirmed(data.getCode());
     }
 
     private final NewExternalData updateExternalData(NewExternalData data,

@@ -57,7 +57,12 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final OmniscientTopLevelDataSetRegistratorState registratorContext;
 
+    /**
+     * Don't call explicitly, use executeCleanAction method instead. Should be called only once.
+     */
     private final IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction;
+
+    private boolean cleanActionExecuted = false;
 
     private final ArrayList<DataSetRegistrationAlgorithm> dataSetRegistrations =
             new ArrayList<DataSetRegistrationAlgorithm>();
@@ -106,9 +111,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         this.dataSetRegistrationDetailsFactory = registrationDetailsFactory;
         this.delegate = delegate;
 
-        ThreadParameters threadParameters = registratorContext.getGlobalState().getThreadParameters();
-        this.dssRegistrationLogHelper = new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState().getDssRegistrationLogDir());
-        this.dssRegistrationLog = dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(), threadParameters.getThreadName(), this.registratorContext.getFileOperations());
+        ThreadParameters threadParameters =
+                registratorContext.getGlobalState().getThreadParameters();
+        this.dssRegistrationLogHelper =
+                new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState()
+                        .getDssRegistrationLogDir());
+        this.dssRegistrationLog =
+                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(),
+                        threadParameters.getThreadName(),
+                        this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
 
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
@@ -182,7 +193,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         int numberOfLocallyRegisteredDataSets = 0;
         for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
         {
-            List<DataSetInformation> registeredDataSets = new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
+            List<DataSetInformation> registeredDataSets =
+                    new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
             numberOfLocallyRegisteredDataSets += registeredDataSets.size();
         }
 
@@ -212,7 +224,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         // Execute the clean afterwards action as successful only if no errors occurred and we
         // registered data sets
-        globalCleanAfterwardsAction.execute(0 == encounteredErrors.size() && serviceDidSucceed);
+        executeGlobalCleanAfterwardsAction(0 == encounteredErrors.size() && serviceDidSucceed);
     }
 
     /**
@@ -223,7 +235,25 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         encounteredErrors.add(t);
         rollbackExtantTransactions();
         dataSetRegistrations.clear();
-        globalCleanAfterwardsAction.execute(false);
+        executeGlobalCleanAfterwardsAction(false);
+    }
+
+    /**
+     * Call this method at the end of registration to make sure the clean action was executed even if neither commit nor abort happened.
+     * This method calls <code>globalCleanAfterwardsAction</code> action with <code>succeeded<code> parameter false.
+     */
+    public void cleanAfterRegistrationIfNecessary()
+    {
+        executeGlobalCleanAfterwardsAction(false);
+    }
+    
+    private void executeGlobalCleanAfterwardsAction(boolean success)
+    {
+        if (false == cleanActionExecuted)
+        {
+            globalCleanAfterwardsAction.execute(success);
+            cleanActionExecuted = true;
+        }
     }
 
     public File moveIncomingToError(String dataSetTypeCodeOrNull)

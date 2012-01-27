@@ -216,23 +216,29 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
+        private final boolean deleteOriginalFile;
+
         public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile,
-                IDelegatedActionWithResult<Boolean> wrappedAction)
+                boolean deleteOriginalFile, IDelegatedActionWithResult<Boolean> wrappedAction)
         {
             super(true);
             this.originalInboxFile = originalInboxFile;
             this.hardlinkCopyFile = hardlinkCopyFile;
+            this.deleteOriginalFile = deleteOriginalFile;
             this.wrappedAction = wrappedAction;
         }
 
         @Override
         public Boolean execute(boolean didOperationSucceed)
         {
-            boolean deleteSucceeded = false;
+            boolean operationSuccessful = true;
             if (didOperationSucceed)
             {
-                // Registration succeeded -- no need to keep the original file around
-                deleteSucceeded = FileUtilities.deleteRecursively(originalInboxFile);
+                // Registration succeeded -- delete original file if necessary
+                if (deleteOriginalFile)
+                {
+                    operationSuccessful = FileUtilities.deleteRecursively(originalInboxFile);
+                }
                 // If the parent of the hardlink copy file, which we generated, is empty, delete it
                 // too
                 File hardlinkCopyParent = hardlinkCopyFile.getParentFile();
@@ -243,19 +249,14 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.
-                deleteSucceeded = FileUtilities.deleteRecursively(hardlinkCopyFile);
+                operationSuccessful = FileUtilities.deleteRecursively(hardlinkCopyFile);
             }
             boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
 
-            return deleteSucceeded && wrappedActionResult;
+            return operationSuccessful && wrappedActionResult;
         }
 
     }
-
-    /**
-     * Should registration take advantage of the prestaging area?
-     */
-    private final static boolean USE_PRE_STAGING = false;
 
     public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
     {
@@ -354,19 +355,25 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
-        if (USE_PRE_STAGING)
-        {
+        DataSetRegistrationPreStagingBehavior preStagingUsage =
+                state.getGlobalState().getThreadParameters().getDataSetRegistrationPreStagingBehavior();
 
-            // Make a hardlink copy of the file
-            File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
-            PostRegistrationCleanUpAction cleanupAction =
-                    new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming,
-                            markerFileCleanupAction);
-
-            handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
-        } else
+        if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
             handle(incomingDataSetFile, null, new NoOpDelegate(), markerFileCleanupAction);
+        } else
+        {
+            // Make a hardlink copy of the file
+            File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
+
+            //the only other behaviour is LEAVE_UNTOUCHED
+            boolean deleteOriginalOnSuccess =
+                    preStagingUsage == DataSetRegistrationPreStagingBehavior.DELETE;
+
+            PostRegistrationCleanUpAction cleanupAction =
+                    new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming,
+                            deleteOriginalOnSuccess, markerFileCleanupAction);
+            handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
         }
     }
 
@@ -494,6 +501,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             service.getDssRegistrationLog().log("Processing failed : " + ex.toString());
             service.getDssRegistrationLog().registerFailure();
         }
+
+        service.cleanAfterRegistrationIfNecessary();
 
         return service;
     }
