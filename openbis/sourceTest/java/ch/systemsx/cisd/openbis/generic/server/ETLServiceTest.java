@@ -1139,6 +1139,13 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    public void testDataSetCofirmation()
+    {
+        // TODO:kuba
+        // call etlservice method setStorageConfirmed
+        // make sure the method setstorageConfirmed was claled on the databo object
+    }
+
     private SearchCriteria createSearchCriteriaForSample()
     {
         SearchCriteria sc = new SearchCriteria();

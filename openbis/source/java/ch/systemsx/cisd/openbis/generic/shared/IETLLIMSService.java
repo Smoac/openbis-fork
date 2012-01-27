@@ -743,4 +743,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> getTrustedCrossOriginDomains(String sessionToken);
 
+    /**
+     * Marks the storage of dataset as confirmed.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseUpdateModification(value =
+        { ObjectKind.DATA_SET })
+    public void setStorageConfirmed(String sessionToken, String dataSetCode);
 }

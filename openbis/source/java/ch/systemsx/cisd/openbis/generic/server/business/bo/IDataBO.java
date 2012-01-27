@@ -128,4 +128,12 @@ public interface IDataBO extends IEntityBusinessObject
      */
     public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData);
 
+    /**
+     * Indicate that the storage of the external data has been confirmed.
+     * 
+     * @throws UserFailureException
+     *             if the this is not external data
+     */
+    public void setStorageConfirmed();
+
 }

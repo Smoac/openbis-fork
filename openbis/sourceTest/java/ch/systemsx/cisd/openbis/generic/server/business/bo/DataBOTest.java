@@ -935,6 +935,18 @@ public class DataBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    public void testStorageConfirmed()
+    {
+        // TODO:KUBA
+        // create a new data object with external data.
+        // check that externaldataPE has isstorage confirmed set to false
+
+        // call dataBo. setstorageconfirmed on this instance of external data
+
+        // check that the isstorage confirmed is now true on this element
+
+    }
+
     @SuppressWarnings("unchecked")
     private void expectMandatoryPropertiesCheck(Expectations exp, final DataSetTypePE type)
     {

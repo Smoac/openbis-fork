@@ -83,7 +83,7 @@ public final class ExternalDataPE extends DataPE
     // TODO: Storage confirmation should be set to false.
     // At the moment however the logic is not yet implemented, and we want all objects in database
     // to have true initialy.
-    private boolean storageConfirmation = true;
+    private boolean storageConfirmation = false;
 
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 

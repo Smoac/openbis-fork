@@ -902,4 +902,22 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 type, managedProperty, registrator));
     }
 
+    public void setStorageConfirmed()
+    {
+        boolean confirmationSuceeded = false;
+        ExternalDataPE externalData = data.tryAsExternalData();
+        if (null != externalData)
+        {
+            externalData.setStorageConfirmation(true);
+            confirmationSuceeded = true;
+        }
+
+        if (false == confirmationSuceeded)
+        {
+            throw new UserFailureException(
+                    String.format(
+                            "Couldn't set the storageConfirmation for dataset %s. It is not an external data.",
+                            data.getCode()));
+        }
+    }
 }

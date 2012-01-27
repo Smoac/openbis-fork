@@ -1494,4 +1494,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return trustedOriginDomainProvider.getTrustedDomains();
     }
 
+    public void setStorageConfirmed(String sessionToken, String dataSetCode)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+
+        final Session session = getSession(sessionToken);
+
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+
+        dataBO.loadByCode(dataSetCode);
+        dataBO.setStorageConfirmed();
+    }
 }
