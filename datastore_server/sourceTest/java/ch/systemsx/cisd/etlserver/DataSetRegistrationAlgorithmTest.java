@@ -286,6 +286,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
                 {
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
+                
+                    allowing(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
     }
