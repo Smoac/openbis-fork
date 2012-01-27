@@ -352,6 +352,25 @@ public class DisplaySettingsManager
                         refreshNeeded = true;
                     }
                 }
+            } else
+            {
+                // LMS-2711
+                // For columns that are saved in the settings but are not found in the model
+                // create a column with a ColumnConfig object basing on a ColumnSetting object.
+                // Hide this column now but save the information whether it was originally hidden
+                // and had a filter in a style name. This information will be used for storing the
+                // settings back in the DB (see createColumnsSettings() method).
+
+                ColumnStyle columnStyle = new ColumnStyle();
+                columnStyle.setHidden(columnSetting.isHidden());
+                columnStyle.setHasFilter(columnSetting.hasFilter());
+
+                columnConfig = new ColumnConfig();
+                columnConfig.setColumnStyleName(ColumnStyle.format(columnStyle));
+                columnConfig.setId(columnSetting.getColumnID());
+                columnConfig.setWidth(columnSetting.getWidth());
+                columnConfig.setHidden(true);
+                newColumnConfigList.add(columnConfig);
             }
         }
         // add columns for which no settings were stored at the end
@@ -425,10 +444,19 @@ public class DisplaySettingsManager
             ColumnConfig columnConfig = columnModel.getColumn(i);
             ColumnSetting columnSetting = new ColumnSetting();
             columnSetting.setColumnID(columnConfig.getId());
-            columnSetting.setHidden(columnConfig.isHidden());
             columnSetting.setWidth(columnConfig.getWidth());
-            boolean hasFilter = filteredColumnIds.contains(columnConfig.getId());
-            columnSetting.setHasFilter(hasFilter);
+
+            ColumnStyle columnStyle = ColumnStyle.parse(columnConfig.getColumnStyleName());
+            if (columnStyle != null)
+            {
+                columnSetting.setHidden(columnStyle.isHidden());
+                columnSetting.setHasFilter(columnStyle.isHasFilter());
+            } else
+            {
+                columnSetting.setHidden(columnConfig.isHidden());
+                columnSetting.setHasFilter(filteredColumnIds.contains(columnConfig.getId()));
+            }
+
             if (sortInfo != null && sortInfo.getSortField() != null
                     && columnSetting.getColumnID().equals(sortInfo.getSortField()))
             {
@@ -613,4 +641,64 @@ public class DisplaySettingsManager
     {
         return displaySettings.getPortletConfigurations();
     }
+
+    private static class ColumnStyle
+    {
+
+        private static final String SEPARATOR = "&&";
+
+        private boolean hidden;
+
+        private boolean hasFilter;
+
+        public boolean isHidden()
+        {
+            return hidden;
+        }
+
+        public void setHidden(boolean hidden)
+        {
+            this.hidden = hidden;
+        }
+
+        public boolean isHasFilter()
+        {
+            return hasFilter;
+        }
+
+        public void setHasFilter(boolean hasFilter)
+        {
+            this.hasFilter = hasFilter;
+        }
+
+        public static String format(ColumnStyle styleObject)
+        {
+            if (styleObject == null)
+            {
+                return null;
+            }
+            return styleObject.isHidden() + SEPARATOR + styleObject.isHasFilter();
+        }
+
+        public static ColumnStyle parse(String styleString)
+        {
+            if (styleString == null)
+            {
+                return null;
+            }
+            String[] parts = styleString.split(SEPARATOR);
+            if (parts.length == 2)
+            {
+                ColumnStyle styleObject = new ColumnStyle();
+                styleObject.setHidden(Boolean.valueOf(parts[0]));
+                styleObject.setHasFilter(Boolean.valueOf(parts[1]));
+                return styleObject;
+            } else
+            {
+                return null;
+            }
+        }
+
+    }
+
 }

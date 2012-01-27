@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -177,12 +178,16 @@ public class ColumnSettingsConfigurer<T extends Serializable>
      */
     private ColumnModel createNewColumnModel(List<ColumnDataModel> newColumnDataModels)
     {
-        Map<String, ColumnConfig> oldColumns = getOldColumns();
-        List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+        List<ColumnConfig> oldColumnsList = getOldColumnsList();
+        Map<String, ColumnConfig> oldColumnsMap = getOldColumnsMap();
+
+        List<ColumnConfig> columnsList = new LinkedList<ColumnConfig>();
+        Map<String, ColumnConfig> columnsMap = new HashMap<String, ColumnConfig>();
+
         for (ColumnDataModel columnDataModel : newColumnDataModels)
         {
             String columnID = columnDataModel.getColumnID();
-            ColumnConfig column = oldColumns.get(columnID);
+            ColumnConfig column = oldColumnsMap.get(columnID);
             if (column == null)
             {
                 String header = columnDataModel.getHeader();
@@ -191,14 +196,36 @@ public class ColumnSettingsConfigurer<T extends Serializable>
                                 ColumnSettingsConfigurer.DEFAULT_COLUMN_WIDTH);
             }
             column.setHidden(columnDataModel.isVisible() == false);
-            columns.add(column);
+            columnsList.add(column);
+            columnsMap.put(column.getId(), column);
         }
-        return new ColumnModel(columns);
+
+        // LMS-2711
+        // Do not loose columns that are not available in a model of the grid but are in the
+        // settings. We have to remember their position for other views that may use the same
+        // settings but have a different model structure.
+
+        int index = 0;
+        for (ColumnConfig oldColumn : oldColumnsList)
+        {
+            if (!columnsMap.containsKey(oldColumn.getId()))
+            {
+                columnsList.add(index, oldColumn);
+            }
+            index++;
+        }
+
+        return new ColumnModel(columnsList);
     }
 
-    private Map<String, ColumnConfig> getOldColumns()
+    private List<ColumnConfig> getOldColumnsList()
     {
-        List<ColumnConfig> columns = browserGrid.getFullColumnModel().getColumns();
+        return browserGrid.getFullColumnModel().getColumns();
+    }
+
+    private Map<String, ColumnConfig> getOldColumnsMap()
+    {
+        List<ColumnConfig> columns = getOldColumnsList();
         HashMap<String, ColumnConfig> map = new HashMap<String, ColumnConfig>();
         for (ColumnConfig columnConfig : columns)
         {
