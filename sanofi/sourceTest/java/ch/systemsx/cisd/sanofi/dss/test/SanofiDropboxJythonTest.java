@@ -17,7 +17,6 @@
 
 package ch.systemsx.cisd.sanofi.dss.test;
 
-
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE;
@@ -343,7 +342,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         setUpDataSetExpectations();
         setUpListAdministratorExpectations();
 
-
         context.checking(new Expectations()
             {
                 {
@@ -417,9 +415,12 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         return (property != null) ? property.getValue() : null;
     }
 
-    private NewExternalData find(List<? extends NewExternalData> dataSets, String typeCode) {
-        for (NewExternalData dataSet : dataSets) {
-            if (dataSet.getDataSetType().getCode().equals(typeCode)) {
+    private NewExternalData find(List<? extends NewExternalData> dataSets, String typeCode)
+    {
+        for (NewExternalData dataSet : dataSets)
+        {
+            if (dataSet.getDataSetType().getCode().equals(typeCode))
+            {
                 return dataSet;
             }
         }
@@ -697,7 +698,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     }
 
-
     private void assertNegativeControl(List<NewSample> newSamples, String wellCode)
     {
         NewSample newSample = findByWellCode(newSamples, wellCode);
@@ -812,15 +812,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(openBisService).createDataSetCode();
                     will(returnValue("overlay-container"));
 
-                    final DataSetType thumnailsDataSetType = new DataSetType(DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
+                    final DataSetType thumnailsDataSetType =
+                            new DataSetType(DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
 
                     one(dataSetValidator).assertValidDataSet(
                             thumnailsDataSetType,
                             new File(new File(stagingDirectory, "image-raw-thumnails"),
                                     "thumbnails.h5"));
 
-                    one(dataSetValidator).assertValidDataSet(
-                            IMAGE_DATA_SET_TYPE,
+                    one(dataSetValidator).assertValidDataSet(IMAGE_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE), "original"));
 
                     one(dataSetValidator).assertValidDataSet(
@@ -831,8 +831,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             new File(new File(stagingDirectory, "overlay-thumnails"),
                                     "thumbnails.h5"));
 
-                    one(dataSetValidator).assertValidDataSet(
-                            OVERLAY_DATA_SET_TYPE,
+                    one(dataSetValidator)
+                            .assertValidDataSet(
+                                    OVERLAY_DATA_SET_TYPE,
                                     new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
                                             "original"));
 
@@ -844,6 +845,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             ANALYSIS_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
                                     ANALYSIS_DATA_SET_FILE_NAME));
+
+                    allowing(openBisService).setStorageConfirmed(with(any(String.class)));
                 }
             });
     }
