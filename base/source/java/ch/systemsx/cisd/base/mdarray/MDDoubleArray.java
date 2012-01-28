@@ -145,8 +145,8 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
 
         final int sizeX = dimensions[0];
         final int sizeY = dimensions[1];
-        int size = getLength(dimensions, 0);
-        this.flattenedArray = new double[size];
+        int length = getLength(dimensions, 0);
+        this.flattenedArray = new double[length];
         for (int i = 0; i < sizeX; ++i)
         {
             System.arraycopy(matrix[i], 0, flattenedArray, i * sizeY, sizeY);
@@ -162,7 +162,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     }
 
     @Override
-    public int size()
+    public int capacity()
     {
         return flattenedArray.length;
     }
@@ -354,6 +354,10 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         if (capacityHyperRows == 0)
         {
             this.capacityHyperRows = dimensions[0];
+        }
+        if (size == 0)
+        {
+            this.size = hyperRowLength * dimensions[0];
         }
     }
 

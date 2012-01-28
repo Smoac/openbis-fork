@@ -132,7 +132,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     }
 
     @Override
-    public int size()
+    public int capacity()
     {
         return flattenedArray.length;
     }
@@ -330,6 +330,10 @@ public class MDArray<T> extends MDAbstractArray<T>
         if (capacityHyperRows == 0)
         {
             this.capacityHyperRows = dimensions[0];
+        }
+        if (size == 0)
+        {
+            this.size = hyperRowLength * dimensions[0];
         }
     }
 

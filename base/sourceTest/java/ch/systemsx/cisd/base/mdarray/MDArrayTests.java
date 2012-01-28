@@ -62,6 +62,12 @@ public class MDArrayTests
         }
 
         @Override
+        public int capacity()
+        {
+            return 0;
+        }
+
+        @Override
         public Object getAsFlatArray()
         {
             return null;
@@ -227,6 +233,20 @@ public class MDArrayTests
         assertEquals(6, arr.get(2, 1));
         assertEquals(7, arr.get(3, 0));
         assertEquals(8, arr.get(3, 1));
+    }
+    
+    @Test
+    public void testChangeHyperRowCountIntArrayFromZero()
+    {
+        final MDIntArray arr = new MDIntArray(new int[] { 0 });
+        assertEquals(0, arr.size(0));
+        arr.incNumberOfHyperRows(1);
+        assertEquals(1, arr.size(0));
+        arr.set(17, 0);
+        assertEquals(17, arr.get(0));
+        arr.incNumberOfHyperRows(1);
+        arr.incNumberOfHyperRows(1);
+        assertEquals(3, arr.size());
     }
     
     @Test

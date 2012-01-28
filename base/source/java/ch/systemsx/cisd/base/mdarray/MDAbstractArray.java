@@ -40,6 +40,8 @@ public abstract class MDAbstractArray<T> implements Serializable
     protected int hyperRowLength;
 
     protected int capacityHyperRows;
+    
+    protected int size;
 
     protected MDAbstractArray(int[] dimensions, int arrayLength, int capacityHyperRows)
     {
@@ -50,6 +52,7 @@ public abstract class MDAbstractArray<T> implements Serializable
         if (hyperRowLength == 0)
         {
             this.capacityHyperRows = 0;
+            this.size = 0;
         } else
         {
             if (arrayLength % hyperRowLength != 0)
@@ -60,6 +63,7 @@ public abstract class MDAbstractArray<T> implements Serializable
             this.capacityHyperRows =
                     (capacityHyperRows > 0) ? capacityHyperRows : Math.max(dimensions[0], arrayLength
                             / hyperRowLength);
+            this.size = dimensions[0] * hyperRowLength;
         }
     }
 
@@ -116,7 +120,10 @@ public abstract class MDAbstractArray<T> implements Serializable
     /**
      * Returns the number of elements in the array.
      */
-    public abstract int size();
+    public int size()
+    {
+        return size;
+    }
 
     /**
      * Return an object which has the same value as the element of the array specified by
@@ -145,24 +152,37 @@ public abstract class MDAbstractArray<T> implements Serializable
     protected abstract void adaptCapacityHyperRows();
 
     /**
-     * Increase the number of hyper-rows by <var>count</var>. Doubles the capacity if needed.
+     * Returns the capacity of elements in the array.
      */
-    public void incNumberOfHyperRows(int count)
+    public abstract int capacity();
+
+    /**
+     * Increase the number of hyper-rows by <var>count</var>. Doubles the capacity if needed.
+     * 
+     * @return The new number of rows.
+     */
+    public int incNumberOfHyperRows(int count)
     {
         dimensions[0] += count;
         if (dimensions[0] > capacityHyperRows)
         {
-            capacityHyperRows *= 2;
+            capacityHyperRows = Math.max(capacityHyperRows * 2, dimensions[0]);
             adaptCapacityHyperRows();
         }
+        size += count * hyperRowLength;
+        return dimensions[0];
     }
 
     /**
      * Decrease the number of hyper-rows by <var>count</var>.
+     * 
+     * @return The new number of rows.
      */
-    public void decNumberOfHyperRows(int count)
+    public int decNumberOfHyperRows(int count)
     {
         dimensions[0] -= count;
+        size -= count * hyperRowLength;
+        return dimensions[0];
     }
 
     /**
