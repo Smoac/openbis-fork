@@ -50,13 +50,38 @@ class MDIntArray2DRowSort
      */
     static int binaryRowSearch(MDIntArray a, int column, int key)
     {
+        return binaryRowSearch(a, 0, a.dimensions()[0], column, key);
+    }
+
+    /**
+     * Searches the specified array of ints for the specified value using the binary search
+     * algorithm. The array <strong>must</strong> be of rank 2 and sorted on <var>column</var> (as
+     * by the <tt>sort</tt> method, below) prior to making this call. If it is not sorted, the
+     * results are undefined. If the array contains multiple elements with the specified value, it
+     * will return the lowest index.
+     * 
+     * @param a the array to be searched.
+     * @param startRow the first row to consider.
+     * @param endRow the last to consider plus 1.
+     * @param column the (sorted) column that is used for searching.
+     * @param key the value to be searched for.
+     * @return index of the search key, if it is contained in the list; otherwise,
+     *         <tt>(-(<i>insertion point</i>) - 1)</tt>. The <i>insertion point</i> is defined as
+     *         the point at which the key would be inserted into the list: the index of the first
+     *         element greater than the key, or <tt>list.size()</tt>, if all elements in the list
+     *         are less than the specified key. Note that this guarantees that the return value will
+     *         be &gt;= 0 if and only if the key is found.
+     * @see #rowSort(MDIntArray, int)
+     */
+    static int binaryRowSearch(MDIntArray a, int startRow, int endRow, int column, int key)
+    {
         if (a.rank() != 2)
         {
             throw new IllegalArgumentException("binarySearch expects MDIntArray of rank 2");
         }
 
-        int low = 0;
-        int high = a.dimensions()[column] - 1;
+        int low = startRow;
+        int high = endRow - 1;
 
         while (low <= high)
         {
@@ -90,7 +115,7 @@ class MDIntArray2DRowSort
         {
             return firstRow;
         }
-        final int numRows = a.dimensions()[column];
+        final int numRows = a.dimensions()[0];
         final int val = a.get(firstRow, column);
         int lastRow = firstRow;
         do

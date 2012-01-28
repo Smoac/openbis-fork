@@ -47,15 +47,22 @@ public class MDIntArray2DRowSortTest
     static Object[][] getLengths()
     {
         return new Object[][]
-            { new Object[]
-                { 10 }, new Object[]
-                { 100 }, new Object[]
-                { 1000 }, new Object[]
-                { 10000 } };
+            { 
+                new Object[]
+                { 10, 0, 1 }, new Object[]
+                { 100, 0, 1 }, new Object[]
+                { 1000, 0, 1 }, new Object[]
+                { 10000, 0, 1 }, 
+                new Object[]
+                { 10, 1, 0 }, new Object[]
+                { 100, 1, 0 }, new Object[]
+                { 1000, 1, 0 }, new Object[]
+                { 10000, 1, 0 } 
+                };
     }
 
     @Test(invocationCount = 3, dataProvider = "lengths")
-    public void testTwoStepSort(int n)
+    public void testTwoStepSort(int n, int primSortCol, int secSortCol)
     {
         final Random rng = new Random();
         final MDIntArray arr = new MDIntArray(new int[]
@@ -67,7 +74,6 @@ public class MDIntArray2DRowSortTest
                 arr.set(rng.nextInt(1000), x, y);
             }
         }
-        final int primSortCol = 0, secSortCol = 1;
         MDIntArray2DRowSort.twoStepRowSort(arr, primSortCol, secSortCol);
         checkSorted(arr, primSortCol, 0, arr.dimensions()[primSortCol]);
         int startIdx = 0;
@@ -83,7 +89,7 @@ public class MDIntArray2DRowSortTest
     }
 
     @Test(invocationCount = 3, dataProvider = "lengths")
-    public void testBinarySearch(int n)
+    public void testBinarySearch(int n, int primSortCol, int secSortCol)
     {
         final Random rng = new Random();
         final MDIntArray arr = new MDIntArray(new int[]
@@ -95,7 +101,6 @@ public class MDIntArray2DRowSortTest
                 arr.set(rng.nextInt(1000), x, y);
             }
         }
-        final int primSortCol = 0, secSortCol = 1;
         MDIntArray2DRowSort.twoStepRowSort(arr, primSortCol, secSortCol);
         checkSorted(arr, primSortCol, 0, arr.dimensions()[primSortCol]);
         final int searchKey = rng.nextInt(1000);
@@ -104,6 +109,15 @@ public class MDIntArray2DRowSortTest
         if (startIdx != endIdx)
         {
             checkSorted(arr, secSortCol, startIdx, endIdx);
+        } else
+        {
+            for (int row = 0; row < arr.size(0); ++row)
+            {
+                if (arr.get(row, primSortCol) == searchKey)
+                {
+                    throw new AssertionError(searchKey);
+                }
+            }
         }
     }
 
