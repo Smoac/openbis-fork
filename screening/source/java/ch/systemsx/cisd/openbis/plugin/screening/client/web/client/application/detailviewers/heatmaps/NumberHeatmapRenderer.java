@@ -35,7 +35,13 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         this.min = min;
         this.max = max;
         this.colors = ColorConstants.asColors(colors);
-        this.step = (max - min) / this.colors.size();
+        if (min == max)
+        {
+            this.step = 1.0f / this.colors.size();
+        } else
+        {
+            this.step = (max - min) / this.colors.size();
+        }
         this.realNumberRenderer = realNumberRenderer;
     }
 
