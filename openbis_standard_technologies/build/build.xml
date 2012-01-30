@@ -11,6 +11,7 @@
 		<antcall target="openbis.make-dist">
 			<param name="variant" value="-standard-technologies" />
 		</antcall>
+		<antcall target="screening.screening-api"/>
 		<mkdir dir="${dist.datastore_server.lib}" />
 		<antcall target="dist-upload-gui">
 			<param name="variant" value="" />
