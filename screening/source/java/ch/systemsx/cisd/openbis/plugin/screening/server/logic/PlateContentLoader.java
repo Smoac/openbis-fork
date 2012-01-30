@@ -22,7 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -68,6 +72,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  */
 public class PlateContentLoader
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlateContentLoader.class);
+
     /**
      * Loads data about the plate for a specified sample id. Attaches information about images and
      * image analysis datasets.
@@ -296,6 +303,17 @@ public class PlateContentLoader
         FeatureVectorDataset featureVectorDataset =
                 new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames,
                         property == null ? null : property.value);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("loadFeatureVector(%s,%s):",
+                    datasetReference.getPermId(), featureName.toString()));
+            for (int i = 0; i < featureVectorDataset.getDatasetFeatures().size(); ++i)
+            {
+                operationLog.debug(String.format("%d: %s -> %s", i, featureVectorDataset
+                        .getDatasetFeatures().get(i).getWellLocation(), featureVectorDataset
+                        .getDatasetFeatures().get(i).getFeatureMap()));
+            }
+        }
         return featureVectorDataset;
     }
 
