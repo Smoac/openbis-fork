@@ -185,7 +185,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
         {
-            final String normalizedRelativePath = relativePath.replaceAll("//", "/");
+            final String normalizedRelativePath = relativePath.replaceAll("/+", "/");
             DataSetFileRecord record =
                     dao.tryToGetRelativeDataSetFile(dataSetId, normalizedRelativePath);
             if (record != null)
