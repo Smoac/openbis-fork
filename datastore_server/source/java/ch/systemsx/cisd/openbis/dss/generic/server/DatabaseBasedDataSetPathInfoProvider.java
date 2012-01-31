@@ -54,7 +54,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public long size_in_bytes;
 
         public boolean is_directory;
-        
+
         public Date last_modified;
     }
 
@@ -185,7 +185,9 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
         {
-            DataSetFileRecord record = dao.tryToGetRelativeDataSetFile(dataSetId, relativePath);
+            final String normalizedRelativePath = relativePath.replaceAll("//", "/");
+            DataSetFileRecord record =
+                    dao.tryToGetRelativeDataSetFile(dataSetId, normalizedRelativePath);
             if (record != null)
             {
                 return asPathInfo(record);
