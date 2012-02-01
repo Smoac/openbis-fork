@@ -84,11 +84,11 @@ public class DSSFileSystemViewTest extends AssertJUnit
     @Test
     public void testGetFile() throws FtpException
     {
-        prepareTryResolve("/abc/ghi/jkl");
+        prepareTryResolve("/abc/g h_i/j  k l");
         
-        FtpFile file = view.getFile("abc/def/../ghi//jkl//");
+        FtpFile file = view.getFile("abc/def/../g h_i//j  k l//");
         
-        assertEquals("/abc/ghi/jkl", file.getAbsolutePath());
+        assertEquals("/abc/g h_i/j  k l", file.getAbsolutePath());
     }
     
     @Test

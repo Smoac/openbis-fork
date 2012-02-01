@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.Key;
  */
 public class DSSFileSystemView implements FileSystemView
 {
+    private static final String SPACE_ESCAPE = "__SPACE__";
+
     private static final Set<String> METHOD_NAMES = new HashSet<String>(Arrays.asList(
             "tryToGetExperiment", "listDataSetsByExperimentID"));
 
@@ -175,14 +176,15 @@ public class DSSFileSystemView implements FileSystemView
 
         try
         {
-            URI uri = new URI(fullPath);
+            URI uri = new URI(fullPath.replaceAll(" ", SPACE_ESCAPE));
             String normalizedPath = uri.normalize().toString();
             // remove trailing slashes
             normalizedPath = normalizedPath.replaceAll("/*$", "");
             // replace multiple adjacent slashes with a single slash
             normalizedPath = normalizedPath.replaceAll("/+", "/");
+            normalizedPath = normalizedPath.replaceAll(SPACE_ESCAPE, " ");
             return StringUtils.isBlank(normalizedPath) ? FtpConstants.ROOT_DIRECTORY : normalizedPath;
-        } catch (URISyntaxException ex)
+        } catch (Exception ex)
         {
             throw new FtpException("Cannot parse path " + fullPath, ex);
         }
