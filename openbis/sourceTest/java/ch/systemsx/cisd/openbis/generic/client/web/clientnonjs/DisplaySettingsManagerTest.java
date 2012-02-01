@@ -183,7 +183,11 @@ public class DisplaySettingsManagerTest extends AssertJUnit
     public void testPrepareForColumnNoLongerExist()
     {
         final ColumnConfig c1 = createColumnConfig("c1", false, 42);
+        // we expect that "c1" column will be in the settings but it will
+        // be marked as hidden as it is no longer in the config (LMS-2711)
+        final ColumnConfig c1Expected = createColumnConfig("c1", true, 42);
         final ColumnConfig c2 = createColumnConfig("c2", true, 4711);
+
         final ColumnModel columnModel = new ColumnModel(Arrays.asList(c2));
         ColumnSetting c1Setting = createColumnSetting(c1);
         ColumnSetting c2Setting = createColumnSetting(c2);
@@ -193,7 +197,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
                 manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
-        assertMatches(result.getColumnConfigs(), c2);
+        assertMatches(result.getColumnConfigs(), c1Expected, c2);
 
         context.assertIsSatisfied();
     }
