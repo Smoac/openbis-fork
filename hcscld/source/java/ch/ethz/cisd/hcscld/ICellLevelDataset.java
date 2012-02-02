@@ -142,7 +142,7 @@ public interface ICellLevelDataset
     /**
      * Returns the plate barcode.
      * 
-     * @returns The plate barcode, or <code>null</code>, if no plate barcode has been set for this
+     * @return The plate barcode, or <code>null</code>, if no plate barcode has been set for this
      *          dataset.
      */
     public String tryGetPlateBarcode();
@@ -150,7 +150,7 @@ public interface ICellLevelDataset
     /**
      * Returns the dataset code of the parent dataset.
      * 
-     * @returns The dataset code of the parent dataset, or <code>null</code>, if no parent dataset
+     * @return The dataset code of the parent dataset, or <code>null</code>, if no parent dataset
      *          code has been set for this dataset.
      */
     public String tryGetParentDatasetCode();
