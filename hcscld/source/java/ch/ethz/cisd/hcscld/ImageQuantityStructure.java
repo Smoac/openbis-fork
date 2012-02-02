@@ -123,6 +123,16 @@ public class ImageQuantityStructure implements Iterable<ImageId>
 
     }
 
+    void checkInBounds(ImageSequenceId id) throws IndexOutOfBoundsException
+    {
+        if (id.getRow() >= numberOfRows || id.getColumn() >= numberOfColumns
+                || id.getField() >= numberOfFields)
+        {
+            throw new IndexOutOfBoundsException(id + " out of bounds of " + this);
+        }
+
+    }
+
     public Iterator<ImageId> iterator()
     {
         return ImageRunner.iterator(ImageQuantityStructure.this, null);

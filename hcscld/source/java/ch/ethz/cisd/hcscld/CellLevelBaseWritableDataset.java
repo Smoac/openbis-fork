@@ -35,6 +35,8 @@ import ch.systemsx.cisd.hdf5.IHDF5Writer;
  */
 class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLevelWritableDataset
 {
+    private static final int SIZE_LIMIT_DEFLATE = 8192;
+
     /**
      * A container for the HDF5 enumeration types for object types and object namespaces.
      */
@@ -152,14 +154,19 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         return options;
     }
 
+    static boolean shouldDeflate(int size)
+    {
+        return size >= SIZE_LIMIT_DEFLATE;
+    }
+    
     static HDF5GenericStorageFeatures getStorageFeatures(int size)
     {
-        if (size < 8000)
-        {
-            return HDF5GenericStorageFeatures.GENERIC_COMPACT;
-        } else
+        if (shouldDeflate(size))
         {
             return HDF5GenericStorageFeatures.GENERIC_DEFLATE;
+        } else
+        {
+            return HDF5GenericStorageFeatures.GENERIC_COMPACT;
         }
     }
 
@@ -174,6 +181,11 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     }
 
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
     {
         throw new UnsupportedOperationException();
     }

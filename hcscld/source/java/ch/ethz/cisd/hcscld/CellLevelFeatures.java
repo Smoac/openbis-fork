@@ -57,9 +57,9 @@ public class CellLevelFeatures
     }
 
     /**
-     * Returns the well-field id of this block.
+     * Returns the image id of this block.
      */
-    public ImageId getWellFieldId()
+    public ImageId getImageId()
     {
         return id;
     }

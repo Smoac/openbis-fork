@@ -40,25 +40,25 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     private final CellLevelBaseWritableDataset base;
 
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final ImageQuantityStructure geometry, final HDF5CompoundMappingHints hintsOrNull,
-            final HDF5EnumerationType hdf5KindEnum)
+            final ImageQuantityStructure quantityStructure,
+            final HDF5CompoundMappingHints hintsOrNull, final HDF5EnumerationType hdf5KindEnum)
     {
-        super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE,
+        super(writer, datasetCode, quantityStructure, hintsOrNull, FORMAT_TYPE,
                 CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore, geometry,
-                        getFlushable(writer), hdf5KindEnum, CellLevelDatasetType.FEATURES,
-                        FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
+                new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore,
+                        quantityStructure, getFlushable(), hdf5KindEnum,
+                        CellLevelDatasetType.FEATURES, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
     }
 
-    private IObjectNamespaceBasedFlushable getFlushable(final IHDF5Writer writer)
+    private IObjectNamespaceBasedFlushable getFlushable()
     {
         return new IObjectNamespaceBasedFlushable()
             {
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
                     final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
-                            writer.getCompoundType(
+                            base.writer.getCompoundType(
                                     getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),
                                     FeatureGroupDescriptor.class,
                                     HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
@@ -75,8 +75,8 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                         namespaceTypeContainer.objectNamespacesType, fg
                                                 .getNamespace().getId()));
                     }
-                    writer.writeCompoundArray(getFeatureGroupsFilename(), featureGroupCompoundType,
-                            descriptors);
+                    base.writer.writeCompoundArray(getFeatureGroupsFilename(),
+                            featureGroupCompoundType, descriptors);
                 }
             };
     }
@@ -97,6 +97,12 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
         return (ICellLevelSegmentationWritableDataset) super.toSegmentationDataset();
+    }
+
+    @Override
+    public ICellLevelTrackingWritableDataset toTrackingDataset()
+    {
+        return (ICellLevelTrackingWritableDataset) super.toTrackingDataset();
     }
 
     public ObjectType addObjectType(String id) throws UniqueViolationException

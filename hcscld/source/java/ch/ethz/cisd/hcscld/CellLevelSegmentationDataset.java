@@ -81,6 +81,12 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
                 CellLevelDatasetType.SEGMENTATION);
     }
 
+    public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
+                CellLevelDatasetType.SEGMENTATION);
+    }
+
     public ICellLevelSegmentationDataset toSegmentationDataset()
     {
         return this;
@@ -189,6 +195,11 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             }
         }
         return results;
+    }
+
+    public boolean hasObjects(ImageId wellId, ObjectType objectType)
+    {
+        return reader.exists(getObjectPath(wellId, INDEX_PREFIX, objectType.getId()));
     }
 
     BitSet[] computeEdgeMasks(final SegmentedObjectBox[] objectBoxes, final BitSet[] masks)

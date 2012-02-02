@@ -93,6 +93,8 @@ public class SegmentationDatasetRoundtripTest
         assertEquals(Collections.singleton(type), type.getCompanions());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
+        assertTrue(rds.hasObjects(new ImageId(1, 2, 3), type));
+        assertFalse(rds.hasObjects(new ImageId(0, 0, 0), type));
         SegmentedObject[] objects = rds.getObjects(new ImageId(1, 2, 3), type, true);
         for (int i = 0; i < objects.length; ++i)
         {

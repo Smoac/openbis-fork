@@ -26,7 +26,12 @@ public enum CellLevelDatasetType
     /**
      * Image segmentation results.
      */
-    SEGMENTATION, 
+    SEGMENTATION,
+    
+    /**
+     * Object tracking lists.
+     */
+    TRACKING,
     
     /**
      * Cell-level feature vectors. 

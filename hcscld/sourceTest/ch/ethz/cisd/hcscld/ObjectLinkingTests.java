@@ -24,13 +24,13 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.cisd.hcscld.ObjectLinking.IndexIterator;
-import ch.ethz.cisd.hcscld.ObjectLinking.IndexList;
-import ch.ethz.cisd.hcscld.ObjectLinkingBuilder.StorageForm;
+import ch.ethz.cisd.hcscld.ObjectTracking.IndexIterator;
+import ch.ethz.cisd.hcscld.ObjectTracking.IndexList;
+import ch.ethz.cisd.hcscld.ObjectTrackingBuilder.StorageForm;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 
 /**
- * Test cases for {@link ObjectLinking}.
+ * Test cases for {@link ObjectTracking}.
  * 
  * @author Bernd Rinn
  */
@@ -39,17 +39,17 @@ public class ObjectLinkingTests
     @Test
     public void testBuildLinkingByte()
     {
-        final ObjectLinkingBuilder b = new ObjectLinkingBuilder();
+        final ObjectTrackingBuilder b = new ObjectTrackingBuilder();
 
-        b.add(0, 4);
-        b.add(0, 17);
-        b.add(0, 42);
-        b.add(1, 17);
-        b.add(1, 88);
-        b.add(1, 3);
-        b.add(2, 45);
-        b.add(2, 1);
-        b.add(2, 4);
+        b.addLink(0, 4);
+        b.addLink(0, 17);
+        b.addLink(0, 42);
+        b.addLink(1, 17);
+        b.addLink(1, 88);
+        b.addLink(1, 3);
+        b.addLink(2, 45);
+        b.addLink(2, 1);
+        b.addLink(2, 4);
 
         assertEquals(new MDIntArray(new int[]
             { 0, 4, 0, 17, 0, 42, 1, 3, 1, 17, 1, 88, 2, 1, 2, 4, 2, 45 }, new int[]
@@ -60,17 +60,17 @@ public class ObjectLinkingTests
     @Test
     public void testBuildLinkingShort()
     {
-        final ObjectLinkingBuilder b = new ObjectLinkingBuilder();
+        final ObjectTrackingBuilder b = new ObjectTrackingBuilder();
 
-        b.add(0, 4);
-        b.add(0, 17);
-        b.add(0, 42);
-        b.add(1, 17);
-        b.add(1, 256);
-        b.add(1, 3);
-        b.add(2, 45);
-        b.add(2, 1);
-        b.add(2, 4);
+        b.addLink(0, 4);
+        b.addLink(0, 17);
+        b.addLink(0, 42);
+        b.addLink(1, 17);
+        b.addLink(1, 256);
+        b.addLink(1, 3);
+        b.addLink(2, 45);
+        b.addLink(2, 1);
+        b.addLink(2, 4);
 
         assertEquals(new MDIntArray(new int[]
             { 0, 4, 0, 17, 0, 42, 1, 3, 1, 17, 1, 256, 2, 1, 2, 4, 2, 45 }, new int[]
@@ -81,17 +81,17 @@ public class ObjectLinkingTests
     @Test
     public void testBuildLinkingInt()
     {
-        final ObjectLinkingBuilder b = new ObjectLinkingBuilder();
+        final ObjectTrackingBuilder b = new ObjectTrackingBuilder();
 
-        b.add(0, 4);
-        b.add(0, 17);
-        b.add(0, 42);
-        b.add(1, 17);
-        b.add(1, 65536);
-        b.add(1, 3);
-        b.add(2, 45);
-        b.add(2, 1);
-        b.add(2, 4);
+        b.addLink(0, 4);
+        b.addLink(0, 17);
+        b.addLink(0, 42);
+        b.addLink(1, 17);
+        b.addLink(1, 65536);
+        b.addLink(1, 3);
+        b.addLink(2, 45);
+        b.addLink(2, 1);
+        b.addLink(2, 4);
 
         assertEquals(new MDIntArray(new int[]
             { 0, 4, 0, 17, 0, 42, 1, 3, 1, 17, 1, 65536, 2, 1, 2, 4, 2, 45 }, new int[]
@@ -102,20 +102,20 @@ public class ObjectLinkingTests
     @Test
     public void testBuildLinkingWithDuplicates()
     {
-        final ObjectLinkingBuilder b = new ObjectLinkingBuilder();
+        final ObjectTrackingBuilder b = new ObjectTrackingBuilder();
 
-        b.add(0, 4);
-        b.add(0, 17);
-        b.add(0, 42);
-        b.add(1, 17);
-        b.add(1, 88);
-        b.add(1, 3);
-        b.add(1, 3);
-        b.add(2, 45);
-        b.add(2, 1);
-        b.add(2, 4);
-        b.add(0, 42);
-        b.add(0, 42);
+        b.addLink(0, 4);
+        b.addLink(0, 17);
+        b.addLink(0, 42);
+        b.addLink(1, 17);
+        b.addLink(1, 88);
+        b.addLink(1, 3);
+        b.addLink(1, 3);
+        b.addLink(2, 45);
+        b.addLink(2, 1);
+        b.addLink(2, 4);
+        b.addLink(0, 42);
+        b.addLink(0, 42);
 
         assertEquals(new MDIntArray(new int[]
             { 0, 4, 0, 17, 0, 42, 1, 3, 1, 17, 1, 88, 2, 1, 2, 4, 2, 45 }, new int[]
@@ -126,18 +126,18 @@ public class ObjectLinkingTests
     @Test
     public void testQueryLinking()
     {
-        final ObjectLinkingBuilder b = new ObjectLinkingBuilder();
+        final ObjectTrackingBuilder b = new ObjectTrackingBuilder();
 
-        b.add(0, 4);
-        b.add(0, 17);
-        b.add(0, 42);
-        b.add(1, 17);
-        b.add(1, 88);
-        b.add(1, 3);
-        b.add(2, 45);
-        b.add(2, 1);
-        b.add(2, 4);
-        ObjectLinking l = new ObjectLinking(b.getLinking());
+        b.addLink(0, 4);
+        b.addLink(0, 17);
+        b.addLink(0, 42);
+        b.addLink(1, 17);
+        b.addLink(1, 88);
+        b.addLink(1, 3);
+        b.addLink(2, 45);
+        b.addLink(2, 1);
+        b.addLink(2, 4);
+        ObjectTracking l = new ObjectTracking(null, b.getLinking());
         assertTrue(Arrays.equals(new int[]
             { 4, 17, 42 }, l.getChildIds(0).toArray()));
         assertTrue(Arrays.equals(new int[]

@@ -19,11 +19,12 @@ package ch.ethz.cisd.hcscld;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 
 /**
- * A class that supports building a linking of parent to child objects.
+ * A class that supports building a tracking of objects, represented as a linking of parent to child
+ * objects.
  * 
  * @author Bernd Rinn
  */
-public class ObjectLinkingBuilder
+public class ObjectTrackingBuilder
 {
     private final static int INITIAL_CAPACITY = 200;
 
@@ -37,19 +38,31 @@ public class ObjectLinkingBuilder
 
     enum StorageForm
     {
-        UNSIGNED_BYTE, UNSIGNED_SHORT, UNSIGNED_INT
+        UNSIGNED_BYTE(1), UNSIGNED_SHORT(2), UNSIGNED_INT(2);
+
+        final int sizeInBytes;
+
+        StorageForm(int sizeInBytes)
+        {
+            this.sizeInBytes = sizeInBytes;
+        }
+
+        int getSizeInBytes()
+        {
+            return sizeInBytes;
+        }
     }
 
-    public ObjectLinkingBuilder()
+    public ObjectTrackingBuilder()
     {
         this.linking = new MDIntArray(new int[]
             { 0, 2 }, INITIAL_CAPACITY);
     }
 
     /**
-     * Add a new linking from <var>parentId</var> to <var>childId</var>.
+     * Add a new link from <var>parentId</var> to <var>childId</var>.
      */
-    public void add(int parentId, int childId)
+    public void addLink(int parentId, int childId)
     {
         linking.incNumberOfHyperRows(1);
         linking.set(parentId, linking.size(0) - 1, PARENT_COL);
@@ -100,7 +113,7 @@ public class ObjectLinkingBuilder
         }
         return linking;
     }
-    
+
     StorageForm getStorageForm()
     {
         if (largestIndex < 256)
@@ -113,4 +126,9 @@ public class ObjectLinkingBuilder
             return StorageForm.UNSIGNED_INT;
     }
 
+    int getTotalSizeInBytes()
+    {
+        return getLinking().size() * getStorageForm().getSizeInBytes();
+    }
+    
 }

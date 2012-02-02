@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -59,7 +60,7 @@ public class ClassificationDatasetRoundtripTest
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelClassificationWritableDataset wds =
-                writer.addClassificationDataset("456", new ImageQuantityStructure(1, 1, 2),
+                writer.addClassificationDataset("456", new ImageQuantityStructure(1, 1, 3),
                         CellState.class);
         ObjectNamespace ns = wds.addObjectNamespace("main");
         wds.writeClassification(new ImageId(0, 0, 0), ns, new CellState[]
@@ -70,15 +71,17 @@ public class ClassificationDatasetRoundtripTest
 
         ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         ICellLevelClassificationDataset rds = reader.getDataSet("456").toClassificationDataset();
-        final String[] cls1 = rds.getClassifications(new ImageId(0, 0, 0), ns);
+        final String[] cls1 = rds.getClassifications(new ImageId(0, 0, 0));
         assertTrue(Arrays.toString(cls1), Arrays.equals(new String[]
             { "STEADY", "APOPTOTIC", "DEAD" }, cls1));
-        final String[] cls2 = rds.getClassifications(new ImageId(0, 0, 1), ns);
+        final String[] cls2 = rds.getClassifications(new ImageId(0, 0, 1));
         assertTrue(Arrays.toString(cls2), Arrays.equals(new String[]
             { "MITOTIC", "DEAD", "APOPTOTIC", "STEADY" }, cls2));
 
-        for (CellLevelClassificationsEnum<CellState> clcs : rds.getClassifications(CellState.class,
-                ns))
+        assertTrue(rds.hasClassifications(new ImageId(0, 0, 0)));
+        assertTrue(rds.hasClassifications(new ImageId(0, 0, 1)));
+        assertFalse(rds.hasClassifications(new ImageId(0, 0, 2)));
+        for (CellLevelClassificationsEnum<CellState> clcs : rds.getClassifications(CellState.class))
         {
             if (clcs.getId().equals(new ImageId(0, 0, 0)))
             {

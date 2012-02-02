@@ -63,6 +63,12 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     }
 
     @Override
+    public ICellLevelTrackingWritableDataset toTrackingDataset()
+    {
+        return (ICellLevelTrackingWritableDataset) super.toTrackingDataset();
+    }
+
+    @Override
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
         return this;

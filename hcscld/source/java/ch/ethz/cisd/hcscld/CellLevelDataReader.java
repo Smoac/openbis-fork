@@ -183,23 +183,26 @@ class CellLevelDataReader implements ICellLevelDataReader
             case CLASSIFICATION:
                 return new CellLevelClassificationDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
-                        ImageQuantityStructure.class), desc.getFormatType(), desc
-                        .getFormatVersionNumber());
+                        ImageQuantityStructure.class), desc.getFormatType(),
+                        desc.getFormatVersionNumber());
             case FEATURES:
                 return new CellLevelFeatureDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
-                        ImageQuantityStructure.class), hints, desc.getFormatType(), desc
-                        .getFormatVersionNumber());
+                        ImageQuantityStructure.class), hints, desc.getFormatType(),
+                        desc.getFormatVersionNumber());
             case SEGMENTATION:
                 return new CellLevelSegmentationDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
                         ImageQuantityStructure.class), reader.readCompound(
                         CellLevelSegmentationDataset.getImageGeometryObjectPath(datasetCode),
-                        ImageGeometry.class), desc.getFormatType(), desc
-                        .getFormatVersionNumber());
-            default:
-                throw new Error("Unknown enum type.");
+                        ImageGeometry.class), desc.getFormatType(), desc.getFormatVersionNumber());
+            case TRACKING:
+                return new CellLevelTrackingDataset(reader, datasetCode, reader.readCompound(
+                        CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
+                        ImageQuantityStructure.class), desc.getFormatType(),
+                        desc.getFormatVersionNumber());
         }
+        throw new Error("Unknown enum type.");
     }
 
     HDF5EnumerationType getHdf5DatasetTypeEnum()

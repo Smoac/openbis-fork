@@ -29,41 +29,50 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      * Adds a new feature data set.
      * 
      * @param datasetCode The code of the new data set.
-     * @param geometry The geometry of the new data set.
+     * @param quantityStructure The quantity structure of the new data set.
      */
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
-            ImageQuantityStructure geometry);
+            ImageQuantityStructure quantityStructure);
 
     /**
      * Adds a new classification data set.
      * 
      * @param datasetCode The code of the new data set.
-     * @param geometry The geometry of the new data set.
+     * @param quantityStructure The quantity structure of the new data set.
      * @param enumType The type of the enumeration that represents the classification results.
      */
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            ImageQuantityStructure geometry, Class<? extends Enum<?>> enumType);
+            ImageQuantityStructure quantityStructure, Class<? extends Enum<?>> enumType);
 
     /**
      * Adds a new classification data set.
      * 
      * @param datasetCode The code of the new data set.
-     * @param geometry The geometry of the new data set.
+     * @param quantityStructure The quantity structure of the new data set.
      * @param options The options that represents the classification results.
      */
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            ImageQuantityStructure geometry, List<String> options);
+            ImageQuantityStructure quantityStructure, List<String> options);
 
     /**
      * Adds a new image segmentation data set.
      * 
      * @param datasetCode The code of the new data set.
-     * @param geometry The geometry of the new data set.
-     * @param imageGeometry The geometry of the images that have segmented.
+     * @param quantityStructure The quantity structure of the new data set.
+     * @param imageGeometry The geometry of the images that have been segmented.
      * @param storeEdgeMasks Store the edge masks (compute if necessary) so that they can be
      *            retrieved faster.
      */
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            ImageQuantityStructure geometry, ImageGeometry imageGeometry,
+            ImageQuantityStructure quantityStructure, ImageGeometry imageGeometry,
             boolean storeEdgeMasks);
+
+    /**
+     * Adds a new object tracking data set.
+     * 
+     * @param datasetCode The code of the new data set.
+     * @param quantityStructure The quantity structure of the new data set.
+     */
+    public ICellLevelTrackingWritableDataset addTrackingDataset(String datasetCode,
+            ImageQuantityStructure quantityStructure);
 }

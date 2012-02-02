@@ -78,6 +78,12 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     @Override
+    public ICellLevelTrackingWritableDataset toTrackingDataset()
+    {
+        return (ICellLevelTrackingWritableDataset) super.toTrackingDataset();
+    }
+
+    @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
         return this;

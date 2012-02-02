@@ -61,6 +61,12 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                 CellLevelDatasetType.CLASSIFICATION);
     }
 
+    public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
+                CellLevelDatasetType.CLASSIFICATION);
+    }
+
     public ICellLevelClassificationDataset toClassificationDataset()
     {
         return this;
@@ -93,6 +99,11 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return reader.readEnumArrayAsString(getObjectPath(id, namespace.getId()));
     }
 
+    public boolean hasClassifications(ImageId id, ObjectNamespace namespace)
+    {
+        return reader.exists(getObjectPath(id, namespace.getId()));
+    }
+
     public <T extends Enum<T>> T[] getClassifications(ImageId id, Class<T> enumClass,
             ObjectNamespace namespace)
     {
@@ -113,7 +124,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         }
     }
 
-    public int[] getClassificationsOrdinal(ImageId id, ObjectNamespace namespace)
+    public int[] getClassificationsOrdinals(ImageId id, ObjectNamespace namespace)
     {
         final HDF5EnumerationValueArray array =
                 reader.readEnumArray(getObjectPath(id, namespace.getId()));
@@ -247,7 +258,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
             };
     }
 
-    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal(
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinals(
             final ObjectNamespace namespace)
     {
         return new Iterable<CellLevelClassificationsOrdinal>()
@@ -280,7 +291,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     next =
                                             new CellLevelClassificationsOrdinal(
                                                     id,
-                                                    getClassificationsOrdinal(id, namespace));
+                                                    getClassificationsOrdinals(id, namespace));
                                 }
                                 return true;
                             }
@@ -307,6 +318,61 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                         };
                 }
             };
+    }
+
+    public String getClassification(ImageId imageId, int cellId) throws IllegalStateException
+    {
+        return getClassification(imageId, getOnlyNamespace(), cellId);
+    }
+
+    public <T extends Enum<T>> T getClassification(ImageId id, Class<T> enumClass, int cellId)
+            throws IllegalStateException
+    {
+        return getClassification(id,  enumClass, getOnlyNamespace(), cellId);
+    }
+
+    public int getClassificationOrdinal(ImageId imageId, int cellId) throws IllegalStateException
+    {
+        return getClassificationOrdinal(imageId, getOnlyNamespace(), cellId);
+    }
+
+    public String[] getClassifications(ImageId imageId) throws IllegalStateException
+    {
+        return getClassifications(imageId, getOnlyNamespace());
+    }
+
+    public <T extends Enum<T>> T[] getClassifications(ImageId imageId, Class<T> enumClass)
+            throws IllegalStateException
+    {
+        return getClassifications(imageId, enumClass, getOnlyNamespace());
+    }
+
+    public int[] getClassificationsOrdinals(ImageId imageId) throws IllegalStateException
+    {
+        return getClassificationsOrdinals(imageId, getOnlyNamespace());
+    }
+
+    public boolean hasClassifications(ImageId id) throws IllegalStateException
+    {
+        return hasClassifications(id, getOnlyNamespace());
+    }
+
+    public Iterable<CellLevelClassificationsString> getClassifications()
+            throws IllegalStateException
+    {
+        return getClassifications(getOnlyNamespace());
+    }
+
+    public <T extends Enum<T>> Iterable<CellLevelClassificationsEnum<T>> getClassifications(
+            Class<T> enumClass) throws IllegalStateException
+    {
+        return getClassifications(enumClass, getOnlyNamespace());
+    }
+
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinals()
+            throws IllegalStateException
+    {
+        return getClassificationsOrdinals(getOnlyNamespace());
     }
 
 }

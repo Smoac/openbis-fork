@@ -35,7 +35,7 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      * 
      * @throws IllegalArgumentException If a feature group with that id doesn't exist.
      */
-    public IFeatureGroup getFeatureGroup(String id)  throws IllegalArgumentException;
+    public IFeatureGroup getFeatureGroup(String id) throws IllegalArgumentException;
 
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
@@ -48,6 +48,12 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     public Object[][] getValues(ImageId id, ObjectNamespace namespace);
 
     /**
+     * Returns <code>true</code> if this dataset has values for the given parameter and
+     * <code>false</code> otherwise.
+     */
+    public boolean hasValues(ImageId id, ObjectNamespace namespace);
+
+    /**
      * Returns all feature values for all cells in all wells in the given <var>namespace</var>.
      */
     public Iterable<CellLevelFeatures> getValues(ObjectNamespace namespace);
@@ -55,16 +61,24 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      * 
-     * @throws IllegalStateException If the dataset has more than one feature group name space.
+     * @throws IllegalStateException If the dataset has more than one object name space.
      */
     public Object[] getValues(ImageId id, int cellId) throws IllegalStateException;
 
     /**
      * Returns all feature values for all cells of field <var>id</var>.
      * 
-     * @throws IllegalStateException If the dataset has more than one feature group name space.
+     * @throws IllegalStateException If the dataset has more than one object name space.
      */
     public Object[][] getValues(ImageId id) throws IllegalStateException;
+
+    /**
+     * Returns <code>true</code>, if this dataset has values for the given image id and
+     * <code>false</code> otherwise.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public boolean hasValues(ImageId id);
 
     /**
      * Returns all feature values for all cells in all wells.
@@ -87,6 +101,12 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      *         index.
      */
     public Object[][] getValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns <code>true</code>, if this dataset has values for the given parameters and
+     * <code>false</code> otherwise.
+     */
+    public boolean hasValues(ImageId id, IFeatureGroup featureGroup);
 
     /**
      * Returns the feature values for all cells in all wells in the given <var>featureGroup<var>.

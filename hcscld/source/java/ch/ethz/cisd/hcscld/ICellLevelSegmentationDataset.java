@@ -82,4 +82,14 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      */
     public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge);
 
+    /**
+     * Returns <code>true</code> if this dataset has objects for the given parameters and
+     * <code>false</code> otherwise.
+     * 
+     * @param wellId The well id to check for existing objects.
+     * @param objectType The type of segmented objects to check for existing objects.
+     * @return <code>true</code> if this dataset has objects for the given parameters.
+     */
+    public boolean hasObjects(ImageId wellId, ObjectType objectType);
+
 }

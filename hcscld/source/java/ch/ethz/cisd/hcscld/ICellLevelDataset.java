@@ -70,6 +70,8 @@ public interface ICellLevelDataset
      *             {@link CellLevelDatasetType#SEGMENTATION}.
      */
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
+    
+    public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException;
 
     /**
      * Returns the object type with the given <var>objectTypeId</var>, or <code>null</code>, if this

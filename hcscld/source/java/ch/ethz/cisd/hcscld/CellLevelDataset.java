@@ -174,7 +174,8 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     public ObjectNamespace getObjectNamespace(String objectNamespaceId)
     {
-        final ObjectNamespace objectNamespace = objectTypeStore.tryGetObjectNamespace(objectNamespaceId);
+        final ObjectNamespace objectNamespace =
+                objectTypeStore.tryGetObjectNamespace(objectNamespaceId);
         if (objectNamespace == null)
         {
             throw new IllegalArgumentException("Dataset '" + datasetCode
@@ -186,6 +187,22 @@ abstract class CellLevelDataset implements ICellLevelDataset
     public Collection<ObjectNamespace> getObjectNamespaces()
     {
         return objectTypeStore.getObjectNamespaces();
+    }
+
+    ObjectNamespace getOnlyNamespace()
+    {
+        final Collection<ObjectNamespace> namespaces = getObjectNamespaces();
+        if (namespaces.size() > 1)
+        {
+            throw new IllegalStateException(
+                    "getOnlyNamespace() may not be called on datasets with multiple object namespaces.");
+        }
+        if (namespaces.size() == 0)
+        {
+            throw new IllegalStateException(
+                    "getOnlyNamespace() may not be called on datasets with no object namespace.");
+        }
+        return namespaces.iterator().next();
     }
 
     String getObjectTypeCompanionGroupObjectPath(String id)
@@ -259,6 +276,18 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getDatasetPath(datasetCode) + "/" + name;
     }
 
+    String getObjectPath(ImageId id, String... prefixes)
+    {
+        quantityStructure.checkInBounds(id);
+        return getObjectPath() + "/" + id.createObjectName(prefixes);
+    }
+
+    String getObjectPath(ImageSequenceId id, String... prefixes)
+    {
+        quantityStructure.checkInBounds(id);
+        return getObjectPath() + "/" + id.createObjectName(prefixes);
+    }
+
     String getObjectPath(final String dir, final String name)
     {
         return getDatasetPath(datasetCode) + "/" + dir + "/" + name;
@@ -289,12 +318,6 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getObjectPath("datasetAnnotations", annotationKey);
     }
 
-    String getObjectPath(ImageId id, String... prefixes)
-    {
-        quantityStructure.checkInBounds(id);
-        return getObjectPath() + "/" + id.createObjectName(prefixes);
-    }
-
     String getImageQuantityStructureObjectPath()
     {
         return getImageQuantityStructureObjectPath(datasetCode);
@@ -308,6 +331,13 @@ abstract class CellLevelDataset implements ICellLevelDataset
     static String getImageQuantityStructureObjectPath(String datasetCode)
     {
         return getDatasetPath(datasetCode) + "/structure";
+    }
+
+    @Override
+    public String toString()
+    {
+        return "CellLevelDataset [type=" + getType() + ", datasetCode=" + datasetCode
+                + ", quantityStructure=" + quantityStructure + "]";
     }
 
 }

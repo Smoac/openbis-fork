@@ -36,7 +36,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     private final IHDF5Writer writer;
 
     private final Set<IDatasetVerifyer> datasetsWritten;
-    
+
     private final boolean manageWriter;
 
     CellLevelDataWriter(File file)
@@ -68,41 +68,52 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     }
 
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
-            ImageQuantityStructure geometry)
+            ImageQuantityStructure quantityStructure)
     {
         final CellLevelFeatureWritableDataset dataset =
-                new CellLevelFeatureWritableDataset(writer, datasetCode, geometry, getHints(),
-                        getHdf5DatasetTypeEnum());
+                new CellLevelFeatureWritableDataset(writer, datasetCode, quantityStructure,
+                        getHints(), getHdf5DatasetTypeEnum());
         datasetsWritten.add(dataset.getVerifyer());
         return dataset;
     }
 
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            ImageQuantityStructure geometry, Class<? extends Enum<?>> enumType)
+            ImageQuantityStructure quantityStructure, Class<? extends Enum<?>> enumType)
     {
         final CellLevelClassificationWritableDataset dataset =
-                new CellLevelClassificationWritableDataset(writer, datasetCode, geometry,
+                new CellLevelClassificationWritableDataset(writer, datasetCode, quantityStructure,
                         getHdf5DatasetTypeEnum(), enumType);
         datasetsWritten.add(dataset.getVerifyer());
         return dataset;
     }
 
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            ImageQuantityStructure geometry, List<String> options)
+            ImageQuantityStructure quantityStructure, List<String> options)
     {
         final CellLevelClassificationWritableDataset dataset =
-                new CellLevelClassificationWritableDataset(writer, datasetCode, geometry,
+                new CellLevelClassificationWritableDataset(writer, datasetCode, quantityStructure,
                         getHdf5DatasetTypeEnum(), options);
         datasetsWritten.add(dataset.getVerifyer());
         return dataset;
     }
 
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            ImageQuantityStructure geometry, ImageGeometry imageGeometry, boolean storeEdgeMasks)
+            ImageQuantityStructure quantityStructure, ImageGeometry imageGeometry,
+            boolean storeEdgeMasks)
     {
         final CellLevelSegmentationWritableDataset dataset =
-                new CellLevelSegmentationWritableDataset(writer, datasetCode, geometry,
+                new CellLevelSegmentationWritableDataset(writer, datasetCode, quantityStructure,
                         imageGeometry, getHdf5DatasetTypeEnum(), storeEdgeMasks);
+        datasetsWritten.add(dataset.getVerifyer());
+        return dataset;
+    }
+
+    public ICellLevelTrackingWritableDataset addTrackingDataset(String datasetCode,
+            ImageQuantityStructure quantityStructure)
+    {
+        final CellLevelTrackingWritableDataset dataset =
+                new CellLevelTrackingWritableDataset(writer, datasetCode, quantityStructure,
+                        getHdf5DatasetTypeEnum());
         datasetsWritten.add(dataset.getVerifyer());
         return dataset;
     }
@@ -127,7 +138,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
                 builder.append('\n');
             }
         }
-        
+
         if (manageWriter)
         {
             writer.close();

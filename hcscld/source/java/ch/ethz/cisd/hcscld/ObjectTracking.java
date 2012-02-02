@@ -22,11 +22,11 @@ import java.util.NoSuchElementException;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 
 /**
- * A class that represents a linking of parent to child objects.
+ * A class that provides a tracking of objects, represented by a linking of parent to child objects.
  * 
  * @author Bernd Rinn
  */
-public class ObjectLinking
+public class ObjectTracking
 {
     private final static int PARENT_COL = 0;
 
@@ -100,6 +100,8 @@ public class ObjectLinking
                 return -1;
             }
         };
+        
+        private final ObjectTrackingType objectTrackingType;
 
     private final MDIntArray linking;
 
@@ -240,14 +242,23 @@ public class ObjectLinking
         int previousIndex();
     }
 
-    ObjectLinking(MDIntArray linking)
+    ObjectTracking(ObjectTrackingType objectTrackingType, MDIntArray linking)
     {
+        this.objectTrackingType = objectTrackingType;
         if (linking.size(1) != 2)
         {
             throw new RuntimeException("linking needs to have exactly two columns, "
                     + linking.size(1) + " found.");
         }
         this.linking = linking;
+    }
+
+    /**
+     * Returns the object tracking type of this tracking.
+     */
+    public ObjectTrackingType getObjectTrackingType()
+    {
+        return objectTrackingType;
     }
 
     /**
@@ -359,6 +370,12 @@ public class ObjectLinking
         }
     }
 
+    /**
+     * Returns the list of parent ids for the given <var>childId</var>.
+     * 
+     * @param childId The id to get the parent id links for.
+     * @return The list of links.
+     */
     public IndexList getParentIds(int childId)
     {
         if (reverseSortedLinking == null)
@@ -468,5 +485,11 @@ public class ObjectLinking
                     }
                 };
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ObjectTracking [linking=" + linking + "]";
     }
 }

@@ -17,6 +17,7 @@
 package ch.ethz.cisd.hcscld;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -77,7 +78,7 @@ public class FeatureDatasetRoundtripTest
         return wds;
     }
 
-    private void createMainFeatureGroupDataset(File file, String dsCode)
+    private void createMainFeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
     {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
@@ -88,9 +89,15 @@ public class FeatureDatasetRoundtripTest
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("main");
-        for (ImageId id : wds.getImageQuantityStructure())
+        if (idOrNull != null)
         {
-            wds.writeFeatures(id, fg, createStandardValue(id));
+            wds.writeFeatures(idOrNull, fg, createStandardValue(idOrNull));
+        } else 
+        {
+            for (ImageId id : wds.getImageQuantityStructure())
+            {
+                wds.writeFeatures(id, fg, createStandardValue(id));
+            }
         }
         writer.close();
     }
@@ -234,8 +241,8 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(3, clf.getValues()[i].length);
-                assertEquals(clf.getWellFieldId().getRow() + i, clf.getValues()[i][0]);
-                assertEquals(i + clf.getWellFieldId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
                 assertEquals(i % 3, clf.getValues()[i][2]);
             }
         }
@@ -301,8 +308,8 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(3, clf.getValues()[i].length);
-                assertEquals(clf.getWellFieldId().getRow() + i, clf.getValues()[i][0]);
-                assertEquals(i + clf.getWellFieldId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
                 assertEquals(i % 3, clf.getValues()[i][2]);
             }
         }
@@ -319,7 +326,7 @@ public class FeatureDatasetRoundtripTest
         final File f = new File(workingDirectory, "main.cld");
         f.delete();
         f.deleteOnExit();
-        createMainFeatureGroupDataset(f, dsCode);
+        createMainFeatureGroupDataset(f, dsCode, null);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
@@ -331,8 +338,38 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(3, clf.getValues()[i].length);
-                assertEquals(clf.getWellFieldId().getRow() + i, clf.getValues()[i][0]);
-                assertEquals(i + clf.getWellFieldId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
+            }
+        }
+        reader.close();
+    }
+
+    @Test
+    public void testOneFeatureGroupMissingValues()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "OneFeatureGroupMissingValues.cld");
+        f.delete();
+        f.deleteOnExit();
+        createMainFeatureGroupDataset(f, dsCode, new ImageId(1, 2, 3));
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(ds.hasValues(new ImageId(1, 2, 3)));
+        assertFalse(ds.hasValues(new ImageId(0, 0, 0)));
+        for (CellLevelFeatures clf : ds.getValues())
+        {
+            assertEquals("ALL", clf.getFeatureGroup().getId());
+            assertEquals(new ImageId(1, 2, 3), clf.getImageId());
+            assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
+                    .getFeatureNames());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(3, clf.getValues()[i].length);
+                assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
                 assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
             }
         }
@@ -362,9 +399,9 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(Integer.toString(i), 5, clf.getValues()[i].length);
-                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                assertEquals(Integer.toString(i), clf.getImageId().getRow() + i,
                         clf.getValues()[i][0]);
-                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                assertEquals(Integer.toString(i), i + clf.getImageId().getColumn() / 10f,
                         clf.getValues()[i][1]);
                 assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
                 assertEquals(Integer.toString(i), i % 2 == 0, clf.getValues()[i][3]);
@@ -385,9 +422,9 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(Integer.toString(i), 3, clf.getValues()[i].length);
-                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                assertEquals(Integer.toString(i), clf.getImageId().getRow() + i,
                         clf.getValues()[i][0]);
-                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                assertEquals(Integer.toString(i), i + clf.getImageId().getColumn() / 10f,
                         clf.getValues()[i][1]);
                 assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
             }
@@ -433,9 +470,9 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(Integer.toString(i), 3, clf.getValues()[i].length);
-                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                assertEquals(Integer.toString(i), clf.getImageId().getRow() + i,
                         clf.getValues()[i][0]);
-                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                assertEquals(Integer.toString(i), i + clf.getImageId().getColumn() / 10f,
                         clf.getValues()[i][1]);
                 assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
             }
@@ -467,9 +504,9 @@ public class FeatureDatasetRoundtripTest
             for (int i = 0; i < clf.getValues().length; ++i)
             {
                 assertEquals(Integer.toString(i), 3, clf.getValues()[i].length);
-                assertEquals(Integer.toString(i), clf.getWellFieldId().getRow() + i,
+                assertEquals(Integer.toString(i), clf.getImageId().getRow() + i,
                         clf.getValues()[i][0]);
-                assertEquals(Integer.toString(i), i + clf.getWellFieldId().getColumn() / 10f,
+                assertEquals(Integer.toString(i), i + clf.getImageId().getColumn() / 10f,
                         clf.getValues()[i][1]);
                 assertEquals(Integer.toString(i), i % 3, clf.getValues()[i][2]);
             }

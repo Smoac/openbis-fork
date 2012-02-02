@@ -268,6 +268,12 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 CellLevelDatasetType.FEATURES);
     }
 
+    public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
+                CellLevelDatasetType.FEATURES);
+    }
+
     public ICellLevelFeatureDataset toFeatureDataset()
     {
         return this;
@@ -284,6 +290,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         return reader.readCompoundArray(((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType());
+    }
+
+    public boolean hasValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        return reader.exists(((FeatureGroup) featureGroup).getObjectPath(id));
     }
 
     public Iterable<CellLevelFeatures> getValues(final IFeatureGroup featureGroup)
@@ -394,6 +405,23 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return result;
     }
 
+    public boolean hasValues(ImageId id, ObjectNamespace namespace)
+    {
+        int featureGroupsWithValues = 0;
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            if (fg.hasWellFieldValues(id))
+            {
+                ++featureGroupsWithValues;
+            }
+        }
+        return featureGroupsWithValues > 0;
+    }
+
     public Iterable<CellLevelFeatures> getValues()
     {
         return getValues(getOnlyNamespace());
@@ -407,6 +435,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     public Object[][] getValues(ImageId id) throws IllegalStateException
     {
         return getValues(id, getOnlyNamespace());
+    }
+
+    public boolean hasValues(ImageId id)
+    {
+        return hasValues(id, getOnlyNamespace());
     }
 
     public Iterable<CellLevelFeatures> getValues(final ObjectNamespace namespace)
@@ -428,11 +461,15 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                             {
                                 if (next == null)
                                 {
-                                    if (idIterator.hasNext() == false)
+                                    ImageId id;
+                                    do
                                     {
-                                        return false;
-                                    }
-                                    final ImageId id = idIterator.next();
+                                        if (idIterator.hasNext() == false)
+                                        {
+                                            return false;
+                                        }
+                                        id = idIterator.next();
+                                    } while (all.hasWellFieldValues(id) == false); 
                                     final Object[][] data = getValues(id, namespace);
                                     next = new CellLevelFeatures(all, id, data);
                                 }
@@ -520,29 +557,6 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             throw new IllegalArgumentException("Unknown " + namespace);
         }
         return null;
-    }
-
-    ObjectNamespace getOnlyNamespace()
-    {
-        ObjectNamespace namespace = null;
-        for (FeatureGroup fg : featureGroups.values())
-        {
-            if (namespace == null)
-            {
-                namespace = fg.getNamespace();
-            }
-            if (namespace.equals(fg.getNamespace()) == false)
-            {
-                throw new IllegalStateException(
-                        "getOnlyNamespace() may not be called on datasets with multiple feature group namespaces.");
-            }
-        }
-        if (namespace == null)
-        {
-            throw new IllegalStateException(
-                    "getOnlyNamespace() may not be called on datasets with no feature group namespaces.");
-        }
-        return namespace;
     }
 
     boolean usesDefaultFeatureGroup() throws IllegalStateException

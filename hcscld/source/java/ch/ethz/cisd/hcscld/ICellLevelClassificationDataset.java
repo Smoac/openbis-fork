@@ -58,7 +58,13 @@ public interface ICellLevelClassificationDataset extends ICellLevelDataset
      * Returns the classification ordinals of all cells in <var>namespace</var> of image
      * <var>imageId</var>.
      */
-    public int[] getClassificationsOrdinal(final ImageId imageId, ObjectNamespace namespace);
+    public int[] getClassificationsOrdinals(final ImageId imageId, ObjectNamespace namespace);
+
+    /**
+     * Returns <code>true</code> if this dataset has classifications for the given parameters and
+     * <code>false</code> otherwise.
+     */
+    public boolean hasClassifications(ImageId id, ObjectNamespace namespace);
 
     /**
      * Returns the classifications for all cells in <var>namespace</var> in all wells.
@@ -74,7 +80,93 @@ public interface ICellLevelClassificationDataset extends ICellLevelDataset
     /**
      * Returns the classification ordinals for all cells in <var>namespace</var> in all wells.
      */
-    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal(
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinals(
             ObjectNamespace namespace);
+
+    //
+    // Single namespace versions
+    //
+
+    /**
+     * Returns the classification of the given <var>cellId</var> in image <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public String getClassification(final ImageId imageId, int cellId) throws IllegalStateException;
+
+    /**
+     * Returns the classification of the given <var>cellId</var> in <var>namespace</var> of image
+     * <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public <T extends Enum<T>> T getClassification(final ImageId id, Class<T> enumClass, int cellId)
+            throws IllegalStateException;
+
+    /**
+     * Returns the ordinal of the classification of the given <var>cellId</var> in image
+     * <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public int getClassificationOrdinal(final ImageId imageId, int cellId)
+            throws IllegalStateException;
+
+    /**
+     * Returns the classifications of all cells in image <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public String[] getClassifications(final ImageId imageId) throws IllegalStateException;
+
+    /**
+     * Returns the classification of the given <var>cellId</var> in image <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public <T extends Enum<T>> T[] getClassifications(final ImageId imageId, Class<T> enumClass)
+            throws IllegalStateException;
+
+    /**
+     * Returns the classification ordinals of all cells in image <var>imageId</var>.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public int[] getClassificationsOrdinals(final ImageId imageId) throws IllegalStateException;
+
+    /**
+     * Returns <code>true</code> if this dataset has classifications for the given
+     * <var>imageId</var> in the only object name space and <code>false</code> otherwise.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public boolean hasClassifications(ImageId id) throws IllegalStateException;
+
+    /**
+     * Returns the classifications for all cells in <var>namespace</var> in all wells in the only
+     * object name space.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public Iterable<CellLevelClassificationsString> getClassifications()
+            throws IllegalStateException;
+
+    /**
+     * Returns the classifications for all cells in <var>namespace</var> in all wells in the only
+     * object name space.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public <T extends Enum<T>> Iterable<CellLevelClassificationsEnum<T>> getClassifications(
+            Class<T> enumClass) throws IllegalStateException;
+
+    /**
+     * Returns the classification ordinals for all cells in <var>namespace</var> in all wells in the
+     * only object name space.
+     * 
+     * @throws IllegalStateException If the dataset has more than one object name space.
+     */
+    public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinals()
+            throws IllegalStateException;
 
 }
