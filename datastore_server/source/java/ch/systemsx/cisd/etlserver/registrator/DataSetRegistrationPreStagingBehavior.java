@@ -26,11 +26,11 @@ public enum DataSetRegistrationPreStagingBehavior
      */
     public static DataSetRegistrationPreStagingBehavior fromString(String text)
     {
-        if (text.equals("use_original"))
+        if (text.equalsIgnoreCase("use_original"))
         {
             return USE_ORIGINAL;
         }
-        if (text.equals("default") || text.equals("use_prestaging"))
+        if (text.equalsIgnoreCase("default") || text.equalsIgnoreCase("use_prestaging"))
         {
             return USE_PRESTAGING;
         }
