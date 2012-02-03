@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<!-- 
+		This is a simple Test app for openBIS. It strives to be the simplest non-trivial app. It logs into the sprint server and retrieves all samples of a particular type, and shows the first 50 of them.
+	 -->
+	<title>OpenBIS Simple Test</title>
+	<link type="text/css" rel="stylesheet" href="body-style.css" />
+	<link type="text/css" rel="stylesheet" href="button.css" />
+	<script type="text/javascript" src="d3.js"></script>
+	<script type="text/javascript" src="d3.layout.js"></script>
+	<script type="text/javascript" src="d3.time.js"></script>
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="openbis.js"></script>
+	<!-- To speed development, cache the requests -->
+	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
+<script>
+
+/// The openbisServer we use for our data
+openbisServer = new openbis('https://sprint-openbis.ethz.ch/openbis/openbis', 'https://sprint-openbis.ethz.ch:443/datastore_server');
+
+function getAppHeight(){
+	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
+}
+
+function getAppWidth(){
+	return $(window).width();
+}
+
+
+var didCreateVis = false;
+
+/// The visualization, referenced by functions that display content
+var vis;
+
+/**
+ * Create the DOM elements to store the visualization (tree + inspectors)
+ */
+function createVis()
+{ 
+	if (didCreateVis) return;
+	
+	// Create a div to house the tree visualization and the inspectors
+	vis = d3.select("#main").append("div").attr("id", "vis");
+
+	didCreateVis = true;
+}
+
+function translateSrc(d)
+{
+	var translate;
+	if (d.parent != undefined) {
+		var y0 = (null != d.parent.y0) ? d.parent.y0 : d.parent.y;
+		var x0 = (null != d.parent.x0) ? d.parent.x0 : d.parent.x;
+		translate = "translate(" + y0 + "," + x0 + ")";
+	} else {
+		translate = "translate(" + 0 + "," + 0 + ")";
+	}
+	
+	return translate;
+}
+
+function translateDst(d)
+{
+	d.x0 = d.x;
+	d.y0 = d.y;
+	var translate =	 "translate(" + d.y + "," + d.x + ")";
+	
+	return translate;
+}
+
+/**
+ * Convert properties to pairs
+ */
+function props_to_pairs(d)
+{
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	pairs.sort(function(a, b) { 
+		if (a[0] == b[0]) return 0;
+		// Sort in reverse lexicographical
+		return (a[0] < b[0]) ? -1 : 1;
+	});
+	return pairs;
+}
+
+/**
+ * Display the samples returned by the server
+ */
+function displayReturnedSamples(data)
+{
+	if (data.error) {
+		console.log(error);
+		vis.append("p").text("Could not retrieve data.");
+		return;
+	}
+	
+	// This will show the object in the log -- helpful for debugging
+	// console.log(data.result);
+	
+	// Restrict the display to 50 samples
+	var samplesToShow = data.result.splice(0, 50);
+	
+	// Pick all div elements of the visualization
+	vis.selectAll("div").data(samplesToShow)
+		// Code under enter is run if there is no HTML element for a data element
+		.enter()
+	.append("div")
+		.text(function(sample) { return sample.identifier + " : " + props_to_pairs(sample.properties).toString()})
+	
+	console.log(data);
+}
+
+/**
+ * Request samples matching some criteria from the server and show them in the Page.
+ */
+function showMatchingSamples()
+{
+	var sampleCriteria = 
+	{
+		matchClauses : 
+			[ {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "TYPE",
+				desiredValue : "SEKHAR" 
+			} ],
+		operator : "MATCH_ALL_CLAUSES"
+	};
+
+	openbisServer.searchForSamples(sampleCriteria, displayReturnedSamples);
+}
+
+
+function enterApp(data)
+{
+	if(data.result == null){
+		alert("Login or password incorrect");
+		$("#username").focus();
+		return;
+	}
+	
+	$("#login-form-div").hide();
+	$("#main").show();
+	
+	$('#openbis-logo').height(30);
+	
+	createVis()
+	showMatchingSamples();
+}
+
+
+$(document).ready(function() {
+	$('#main').hide();
+	
+	if(username.value.length==0) {
+		$("#username").focus();
+	}
+	else {
+		$("#login-button").focus();
+	}
+	
+	$('#logout-button').click(function() { 
+		openbisServer.logout(function(data) { 
+			$("#login-form-div").show();
+			$("#main").hide();
+			$("#username").focus();
+		});
+	});
+	
+	$('#login-form').submit(function() {
+		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
+	});
+	
+	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
+
+		// Make the ENTER key the default button
+	$("login-form input").keypress(function (e) {
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+			$('button[type=submit].default').click();
+			return false;
+		} else {
+			return true;
+		}
+	});
+});
+
+</script>
+
+</head>
+<body>
+	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
+	<div id="login-form-div">
+		<h1>openBIS My Installation</h1>
+		<form id="login-form" action="javascript:">
+			<input id="username" type="text" required="required"> 
+			<input id="password" type="password" required="required"> 
+			<button class="login-button" id="login-button" type="submit">Login</button>
+		</form>
+	</div>
+
+	<div id="main">
+		<div id="button-group">
+			<button id="logout-button">Logout</button>
+		</div>
+	</div>
+</body>
+</html>
