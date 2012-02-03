@@ -62,26 +62,26 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
             {
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
+                    final HDF5EnumerationType namespacesEnumType =
+                            namespaceTypeContainer.objectNamespacesType;
                     final ObjectTrackingType[] values =
                             objectTrackingTypes.toArray(new ObjectTrackingType[objectTrackingTypes
                                     .size()]);
-                    // Find max length of parent and child namespace ids
-                    int parentIdMaxSize = 0;
-                    int childIdMaxSize = 0;
-                    for (ObjectTrackingType ott : values)
+                    for (ObjectTrackingType type : values)
                     {
-                        parentIdMaxSize =
-                                Math.max(parentIdMaxSize, ott.getParentObjectNamespaceId().length());
-                        childIdMaxSize =
-                                Math.max(childIdMaxSize, ott.getChildObjectNamespaceId().length());
+                        type.setNamespacesEnumType(namespacesEnumType);
                     }
                     final HDF5CompoundType<ObjectTrackingType> type =
                             base.writer.getCompoundType(
                                     getObjectPath(DATASET_TYPE_DIR, "ObjectTrackingType"),
-                                    ObjectTrackingType.class, mapping("parentObjectNamespaceId")
-                                            .length(parentIdMaxSize),
+                                    ObjectTrackingType.class,
+                                    mapping("parentObjectNamespace").fieldName(
+                                            "parentObjectNamespaceEnum").enumType(
+                                            namespacesEnumType),
                                     mapping("parentImageSequenceIdx"),
-                                    mapping("childObjectNamespaceId").length(childIdMaxSize),
+                                    mapping("childObjectNamespace").fieldName(
+                                            "childObjectNamespaceEnum")
+                                            .enumType(namespacesEnumType),
                                     mapping("childImageSequenceIdx"));
                     base.writer.writeCompoundArray(
                             getObjectPath(OBJECT_TRACKING_TYPE_DATASET_NAME), type, values);

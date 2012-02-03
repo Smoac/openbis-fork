@@ -16,7 +16,10 @@
 
 package ch.ethz.cisd.hcscld;
 
+import ch.systemsx.cisd.hdf5.CompoundElement;
 import ch.systemsx.cisd.hdf5.CompoundType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 
 /**
  * A type of object tracking.
@@ -26,12 +29,16 @@ import ch.systemsx.cisd.hdf5.CompoundType;
 @CompoundType(mapAllFields = false)
 public class ObjectTrackingType
 {
-    private String parentObjectNamespaceId;
+    @CompoundElement(memberName = "parentObjectNamespace")
+    private HDF5EnumerationValue parentObjectNamespaceEnum;
 
-    private String childObjectNamespaceId;
+    @CompoundElement(memberName = "childObjectNamespace")
+    private HDF5EnumerationValue childObjectNamespaceEnum;
 
+    @CompoundElement
     private int parentImageSequenceIdx;
 
+    @CompoundElement
     private int childImageSequenceIdx;
 
     private ObjectNamespace parentObjectNamespace;
@@ -51,11 +58,17 @@ public class ObjectTrackingType
     {
         this.dataset = dataset;
         this.parentObjectNamespace = parentObjectNamespace;
-        this.parentObjectNamespaceId = parentObjectNamespace.getId();
         this.parentImageSequenceIdx = parentImageSequenceIdx;
         this.childObjectNamespace = childObjectNamespace;
-        this.childObjectNamespaceId = childObjectNamespace.getId();
         this.childImageSequenceIdx = childImageSequenceIdx;
+    }
+
+    void setNamespacesEnumType(HDF5EnumerationType namespacesEnumType)
+    {
+        parentObjectNamespaceEnum =
+                new HDF5EnumerationValue(namespacesEnumType, parentObjectNamespace.getId());
+        childObjectNamespaceEnum =
+                new HDF5EnumerationValue(namespacesEnumType, childObjectNamespace.getId());
     }
 
     /**
@@ -64,8 +77,9 @@ public class ObjectTrackingType
     void setDataset(CellLevelTrackingDataset dataset)
     {
         this.dataset = dataset;
-        this.parentObjectNamespace = dataset.getObjectNamespace(parentObjectNamespaceId);
-        this.childObjectNamespace = dataset.getObjectNamespace(childObjectNamespaceId);
+        this.parentObjectNamespace =
+                dataset.getObjectNamespace(parentObjectNamespaceEnum.getValue());
+        this.childObjectNamespace = dataset.getObjectNamespace(childObjectNamespaceEnum.getValue());
     }
 
     CellLevelTrackingDataset getDataset()
@@ -79,11 +93,6 @@ public class ObjectTrackingType
     public ObjectNamespace getParentObjectNamespace()
     {
         return parentObjectNamespace;
-    }
-
-    String getParentObjectNamespaceId()
-    {
-        return parentObjectNamespaceId;
     }
 
     /**
@@ -102,11 +111,6 @@ public class ObjectTrackingType
         return childObjectNamespace;
     }
 
-    String getChildObjectNamespaceId()
-    {
-        return childObjectNamespaceId;
-    }
-
     /**
      * Returns the image sequence index of the child objects.
      */
@@ -117,9 +121,10 @@ public class ObjectTrackingType
 
     String getObjectPath(ImageSequenceId imageSequenceId)
     {
-        return dataset.getObjectPath(imageSequenceId, "ParentNS", parentObjectNamespaceId,
-                "ParentSID", Integer.toString(parentImageSequenceIdx), "ChildNS",
-                childObjectNamespaceId, "ChildSID", Integer.toString(childImageSequenceIdx));
+        return dataset.getObjectPath(imageSequenceId, "ParentNS", parentObjectNamespace.getId(),
+                "ParentSeqIdx", Integer.toString(parentImageSequenceIdx), "ChildNS",
+                childObjectNamespace.getId(), "ChildSeqIdx",
+                Integer.toString(childImageSequenceIdx));
     }
 
     @Override
@@ -131,12 +136,13 @@ public class ObjectTrackingType
         result =
                 prime
                         * result
-                        + ((childObjectNamespaceId == null) ? 0 : childObjectNamespaceId.hashCode());
+                        + ((childObjectNamespace == null) ? 0 : childObjectNamespace.getId()
+                                .hashCode());
         result = prime * result + parentImageSequenceIdx;
         result =
                 prime
                         * result
-                        + ((parentObjectNamespaceId == null) ? 0 : parentObjectNamespaceId
+                        + ((parentObjectNamespace == null) ? 0 : parentObjectNamespace.getId()
                                 .hashCode());
         return result;
     }
@@ -161,13 +167,13 @@ public class ObjectTrackingType
         {
             return false;
         }
-        if (childObjectNamespaceId == null)
+        if (childObjectNamespace == null)
         {
-            if (other.childObjectNamespaceId != null)
+            if (other.childObjectNamespace != null)
             {
                 return false;
             }
-        } else if (childObjectNamespaceId.equals(other.childObjectNamespaceId) == false)
+        } else if (childObjectNamespace.getId().equals(other.childObjectNamespace.getId()) == false)
         {
             return false;
         }
@@ -175,13 +181,13 @@ public class ObjectTrackingType
         {
             return false;
         }
-        if (parentObjectNamespaceId == null)
+        if (parentObjectNamespace == null)
         {
-            if (other.parentObjectNamespaceId != null)
+            if (other.parentObjectNamespace != null)
             {
                 return false;
             }
-        } else if (parentObjectNamespaceId.equals(other.parentObjectNamespaceId) == false)
+        } else if (parentObjectNamespace.getId().equals(other.parentObjectNamespace.getId()) == false)
         {
             return false;
         }
@@ -192,9 +198,10 @@ public class ObjectTrackingType
     public String toString()
     {
         return "ObjectTrackingType [dataset=" + dataset + ", parentObjectNamespaceId="
-                + parentObjectNamespaceId + ", parentImageSequenceId=" + parentImageSequenceIdx
-                + ", childObjectNamespaceId=" + childObjectNamespaceId + ", childImageSequenceId="
-                + childImageSequenceIdx + "]";
+                + parentObjectNamespace.getId() + ", parentImageSequenceId="
+                + parentImageSequenceIdx + ", childObjectNamespaceId="
+                + childObjectNamespace.getId() + ", childImageSequenceId=" + childImageSequenceIdx
+                + "]";
     }
 
 }

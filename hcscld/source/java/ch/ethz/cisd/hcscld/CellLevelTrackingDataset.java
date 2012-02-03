@@ -27,7 +27,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 public class CellLevelTrackingDataset extends CellLevelDataset implements ICellLevelTrackingDataset
 {
-    static final String FORMAT_TYPE = "2DLinkingArray";
+    static final String FORMAT_TYPE = "2DLinkArray";
 
     static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
 
