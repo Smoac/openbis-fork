@@ -121,10 +121,12 @@ public class ObjectTrackingType
 
     String getObjectPath(ImageSequenceId imageSequenceId)
     {
-        return dataset.getObjectPath(imageSequenceId, "ParentNS", parentObjectNamespace.getId(),
-                "ParentSeqIdx", Integer.toString(parentImageSequenceIdx), "ChildNS",
-                childObjectNamespace.getId(), "ChildSeqIdx",
-                Integer.toString(childImageSequenceIdx));
+        return dataset.getObjectPath(
+                imageSequenceId,
+                "Links__Parent::" + parentObjectNamespace.getId() + "::"
+                        + Integer.toString(parentImageSequenceIdx),
+                "Child::" + childObjectNamespace.getId() + "::"
+                        + Integer.toString(childImageSequenceIdx));
     }
 
     @Override
