@@ -74,7 +74,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
 
     public String getClassification(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()), 1, cellId)
+        return reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
                 .getValue(0);
     }
 
@@ -84,24 +84,29 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return Enum
                 .valueOf(
                         enumClass,
-                        reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()),
+                        reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace),
                                 1, cellId).getValue(0));
     }
 
     public int getClassificationOrdinal(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getObjectPath(id, namespace.getId()), 1, cellId)
+        return reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
                 .getOrdinal(0);
     }
 
     public String[] getClassifications(ImageId id, ObjectNamespace namespace)
     {
-        return reader.readEnumArrayAsString(getObjectPath(id, namespace.getId()));
+        return reader.readEnumArrayAsString(getClassPath(id, namespace));
+    }
+
+    String getClassPath(ImageId id, ObjectNamespace namespace)
+    {
+        return getObjectPath(id, "Classes", namespace.getId());
     }
 
     public boolean hasClassifications(ImageId id, ObjectNamespace namespace)
     {
-        return reader.exists(getObjectPath(id, namespace.getId()));
+        return reader.exists(getClassPath(id, namespace));
     }
 
     public <T extends Enum<T>> T[] getClassifications(ImageId id, Class<T> enumClass,
@@ -127,7 +132,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
     public int[] getClassificationsOrdinals(ImageId id, ObjectNamespace namespace)
     {
         final HDF5EnumerationValueArray array =
-                reader.readEnumArray(getObjectPath(id, namespace.getId()));
+                reader.readEnumArray(getClassPath(id, namespace));
         final int[] ordinals = new int[array.getLength()];
         for (int i = 0; i < ordinals.length; ++i)
         {
@@ -150,8 +155,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id,
-                                                        namespace.getId()));
+                                                return reader.exists(getClassPath(id, namespace));
                                             }
                                         });
 
@@ -211,8 +215,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id,
-                                                        namespace.getId()));
+                                                return reader.exists(getClassPath(id, namespace));
                                             }
                                         });
 
@@ -272,8 +275,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                         {
                                             public boolean exists(ImageId id)
                                             {
-                                                return reader.exists(getObjectPath(id,
-                                                        namespace.getId()));
+                                                return reader.exists(getClassPath(id, namespace));
                                             }
                                         });
 

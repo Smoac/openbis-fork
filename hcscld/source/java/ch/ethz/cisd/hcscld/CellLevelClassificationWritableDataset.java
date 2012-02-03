@@ -154,7 +154,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         {
             ordinals[i] = classifications[i].ordinal();
         }
-        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+        base.writer.writeEnumArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, ordinals), HDF5IntStorageFeatures
                         .createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(classifications.length)));
@@ -164,7 +164,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     {
         namespace.checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 classifications.length);
-        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+        base.writer.writeEnumArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, classifications),
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classifications.length)));
@@ -175,7 +175,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     {
         namespace.checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 classificationOrdinals.length);
-        base.writer.writeEnumArray(getObjectPath(id, namespace.getId()),
+        base.writer.writeEnumArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, classificationOrdinals),
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classificationOrdinals.length)));
