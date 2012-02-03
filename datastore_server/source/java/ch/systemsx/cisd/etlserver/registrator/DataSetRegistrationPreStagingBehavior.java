@@ -15,11 +15,7 @@ public enum DataSetRegistrationPreStagingBehavior
     /**
      * Use the pre-staging dir and delete original file on success.
      */
-    DELETE,
-    /**
-     * Use pre-staging fir and leave the original file untouched on success.
-     */
-    LEAVE_UNTOUCHED;
+    USE_PRESTAGING;
 
     DataSetRegistrationPreStagingBehavior()
     {
@@ -30,17 +26,13 @@ public enum DataSetRegistrationPreStagingBehavior
      */
     public static DataSetRegistrationPreStagingBehavior fromString(String text)
     {
-        if (text.equals("default") || text.equals("use_original"))
+        if (text.equals("use_original"))
         {
             return USE_ORIGINAL;
         }
-        if (text.equals("delete"))
+        if (text.equals("default") || text.equals("use_prestaging"))
         {
-            return DELETE;
-        }
-        if (text.equals("leave-untouched"))
-        {
-            return LEAVE_UNTOUCHED;
+            return USE_PRESTAGING;
         }
         return null;
     }

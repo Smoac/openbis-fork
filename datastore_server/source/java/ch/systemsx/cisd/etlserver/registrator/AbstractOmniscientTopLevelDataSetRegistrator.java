@@ -216,15 +216,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
-        private final boolean deleteOriginalFile;
-
         public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile,
-                boolean deleteOriginalFile, IDelegatedActionWithResult<Boolean> wrappedAction)
+                IDelegatedActionWithResult<Boolean> wrappedAction)
         {
             super(true);
             this.originalInboxFile = originalInboxFile;
             this.hardlinkCopyFile = hardlinkCopyFile;
-            this.deleteOriginalFile = deleteOriginalFile;
             this.wrappedAction = wrappedAction;
         }
 
@@ -234,11 +231,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             boolean operationSuccessful = true;
             if (didOperationSucceed)
             {
-                // Registration succeeded -- delete original file if necessary
-                if (deleteOriginalFile)
-                {
-                    operationSuccessful = FileUtilities.deleteRecursively(originalInboxFile);
-                }
+                // Registration succeeded -- delete original file
+                operationSuccessful = FileUtilities.deleteRecursively(originalInboxFile);
+
                 // If the parent of the hardlink copy file, which we generated, is empty, delete it
                 // too
                 File hardlinkCopyParent = hardlinkCopyFile.getParentFile();
@@ -356,7 +351,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
 
         DataSetRegistrationPreStagingBehavior preStagingUsage =
-                state.getGlobalState().getThreadParameters().getDataSetRegistrationPreStagingBehavior();
+                state.getGlobalState().getThreadParameters()
+                        .getDataSetRegistrationPreStagingBehavior();
 
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
@@ -366,13 +362,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             // Make a hardlink copy of the file
             File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
 
-            //the only other behaviour is LEAVE_UNTOUCHED
-            boolean deleteOriginalOnSuccess =
-                    preStagingUsage == DataSetRegistrationPreStagingBehavior.DELETE;
-
             PostRegistrationCleanUpAction cleanupAction =
                     new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming,
-                            deleteOriginalOnSuccess, markerFileCleanupAction);
+                            markerFileCleanupAction);
             handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
         }
     }

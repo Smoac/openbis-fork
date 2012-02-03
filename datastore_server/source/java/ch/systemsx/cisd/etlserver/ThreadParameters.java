@@ -96,6 +96,7 @@ public final class ThreadParameters
 
     private static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
+    
 
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
