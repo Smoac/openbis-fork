@@ -94,7 +94,7 @@ public final class ThreadParameters
     @Private
     public static final String ON_ERROR_DECISION_KEY = "on-error-decision";
 
-    private static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
+    public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
     
 

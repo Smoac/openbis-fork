@@ -252,6 +252,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         }
         threadProperties.setProperty(DataSetRegistrationService.STAGING_DIR,
                 stagingDirectory.getPath());
+        
+        threadProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR, "use_original");
+        
         return threadProperties;
     }
 
