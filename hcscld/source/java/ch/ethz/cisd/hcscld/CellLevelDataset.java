@@ -179,7 +179,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
         if (objectNamespace == null)
         {
             throw new IllegalArgumentException("Dataset '" + datasetCode
-                    + "' doesn't have an object namespace '" + objectNamespace + "'.");
+                    + "' doesn't have an object namespace '" + objectNamespaceId + "'.");
         }
         return objectNamespace;
     }

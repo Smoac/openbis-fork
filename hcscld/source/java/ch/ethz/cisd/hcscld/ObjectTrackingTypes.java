@@ -206,4 +206,10 @@ public class ObjectTrackingTypes
         return typeOrNull;
     }
 
+    @Override
+    public String toString()
+    {
+        return "ObjectTrackingTypes [objectTrackingTypes=" + objectTrackingTypes + "]";
+    }
+
 }

@@ -34,9 +34,8 @@ public class ObjectTracking
 
     private final static int[] EMPTY = new int[0];
 
-    private final static IndexList EMPTY_INDEX_LIST = new IndexList()
+    private final static IIndexList EMPTY_INDEX_LIST = new IIndexList()
         {
-
             public int[] toArray()
             {
                 return EMPTY;
@@ -47,7 +46,7 @@ public class ObjectTracking
                 return 0;
             }
 
-            public IndexIterator iterator()
+            public IIndexIterator iterator()
             {
                 return EMPTY_INDEX_ITERATOR;
             }
@@ -66,9 +65,15 @@ public class ObjectTracking
             {
                 return false;
             }
+            
+            @Override
+            public String toString()
+            {
+                return "IndexList []";
+            }
         };
 
-    private final static IndexIterator EMPTY_INDEX_ITERATOR = new IndexIterator()
+    private final static IIndexIterator EMPTY_INDEX_ITERATOR = new IIndexIterator()
         {
             public int previous()
             {
@@ -100,8 +105,8 @@ public class ObjectTracking
                 return -1;
             }
         };
-        
-        private final ObjectTrackingType objectTrackingType;
+
+    private final ObjectTrackingType objectTrackingType;
 
     private final MDIntArray linking;
 
@@ -114,7 +119,7 @@ public class ObjectTracking
      * 
      * @author Bernd Rinn
      */
-    public interface IndexList
+    public interface IIndexList
     {
         /**
          * Returns the number of elements in this list. If this list contains more than
@@ -160,7 +165,7 @@ public class ObjectTracking
          * 
          * @return an iterator over the elements in this list in proper sequence.
          */
-        IndexIterator iterator();
+        IIndexIterator iterator();
 
         /**
          * Returns an array containing all of the elements in this list in proper sequence. Obeys
@@ -179,7 +184,7 @@ public class ObjectTracking
      * 
      * @author Bernd Rinn
      */
-    public interface IndexIterator
+    public interface IIndexIterator
     {
         /**
          * Returns <tt>true</tt> if this list iterator has more elements when traversing the list in
@@ -242,6 +247,137 @@ public class ObjectTracking
         int previousIndex();
     }
 
+    /**
+     * An implemention of {@link IIndexList}.
+     */
+    static class IndexList implements IIndexList
+    {
+        private final MDIntArray linking;
+
+        private final int startRow;
+
+        private final int endRow;
+
+        private final int size;
+
+        private final int column;
+
+        IndexList(MDIntArray linking, int startRow, int endRow, int column)
+        {
+            this.linking = linking;
+            this.startRow = startRow;
+            this.endRow = endRow;
+            this.size = endRow - startRow;
+            this.column = column;
+        }
+
+        public int[] toArray()
+        {
+            final int[] childIds = new int[size];
+            for (int i = 0; i < childIds.length; ++i)
+            {
+                childIds[i] = linking.get(startRow + i, column);
+            }
+            return childIds;
+        }
+
+        public int size()
+        {
+            return size;
+        }
+
+        public IIndexIterator iterator()
+        {
+            return new IIndexIterator()
+                {
+                    int row = startRow;
+
+                    public int previous()
+                    {
+                        if (hasPrevious())
+                        {
+                            return linking.get(--row, column);
+                        } else
+                        {
+                            throw new NoSuchElementException();
+                        }
+                    }
+
+                    public int next()
+                    {
+                        if (hasNext())
+                        {
+                            return linking.get(row++, column);
+                        } else
+                        {
+                            throw new NoSuchElementException();
+                        }
+                    }
+
+                    public boolean hasPrevious()
+                    {
+                        return row > startRow;
+                    }
+
+                    public boolean hasNext()
+                    {
+                        return row < endRow;
+                    }
+
+                    public int nextIndex()
+                    {
+                        return row;
+                    }
+
+                    public int previousIndex()
+                    {
+                        return row - 1;
+                    }
+                };
+        }
+
+        public boolean isEmpty()
+        {
+            return false;
+        }
+
+        public int get(int index)
+        {
+            if (index >= 0 && index < size)
+            {
+                return linking.get(startRow + index, column);
+            } else
+            {
+                throw new IndexOutOfBoundsException();
+            }
+        }
+
+        public boolean contains(int o)
+        {
+            return MDIntArray2DRowSort.binaryRowSearch(linking, startRow, endRow, column, o) >= 0;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder buf = new StringBuilder();
+            buf.append("IndexList [");
+            IIndexIterator i = iterator();
+            boolean hasNext = i.hasNext();
+            while (hasNext)
+            {
+                int o = i.next();
+                buf.append(Integer.toString(o));
+                hasNext = i.hasNext();
+                if (hasNext)
+                    buf.append(", ");
+            }
+
+            buf.append("]");
+            return buf.toString();
+        }
+    }
+
     ObjectTracking(ObjectTrackingType objectTrackingType, MDIntArray linking)
     {
         this.objectTrackingType = objectTrackingType;
@@ -267,7 +403,7 @@ public class ObjectTracking
      * @param parentId The id to get the child id links for.
      * @return The list of links.
      */
-    public IndexList getChildIds(int parentId)
+    public IIndexList getChildIds(int parentId)
     {
         final int startRow = MDIntArray2DRowSort.binaryRowSearch(linking, PARENT_COL, parentId);
         if (startRow < 0)
@@ -276,97 +412,7 @@ public class ObjectTracking
         } else
         {
             final int endRow = MDIntArray2DRowSort.findLastRow(linking, PARENT_COL, startRow);
-            return new IndexList()
-                {
-                    final int size = endRow - startRow;
-
-                    public int[] toArray()
-                    {
-                        final int[] childIds = new int[size];
-                        for (int i = 0; i < childIds.length; ++i)
-                        {
-                            childIds[i] = linking.get(startRow + i, CHILD_COL);
-                        }
-                        return childIds;
-                    }
-
-                    public int size()
-                    {
-                        return size;
-                    }
-
-                    public IndexIterator iterator()
-                    {
-                        return new IndexIterator()
-                            {
-                                int row = startRow;
-
-                                public int previous()
-                                {
-                                    if (hasPrevious())
-                                    {
-                                        return linking.get(--row, CHILD_COL);
-                                    } else
-                                    {
-                                        throw new NoSuchElementException();
-                                    }
-                                }
-
-                                public int next()
-                                {
-                                    if (hasNext())
-                                    {
-                                        return linking.get(row++, CHILD_COL);
-                                    } else
-                                    {
-                                        throw new NoSuchElementException();
-                                    }
-                                }
-
-                                public boolean hasPrevious()
-                                {
-                                    return row > startRow;
-                                }
-
-                                public boolean hasNext()
-                                {
-                                    return row < endRow;
-                                }
-
-                                public int nextIndex()
-                                {
-                                    return row;
-                                }
-
-                                public int previousIndex()
-                                {
-                                    return row - 1;
-                                }
-                            };
-                    }
-
-                    public boolean isEmpty()
-                    {
-                        return false;
-                    }
-
-                    public int get(int index)
-                    {
-                        if (index >= 0 && index < size)
-                        {
-                            return linking.get(startRow + index, CHILD_COL);
-                        } else
-                        {
-                            throw new IndexOutOfBoundsException();
-                        }
-                    }
-
-                    public boolean contains(int o)
-                    {
-                        return MDIntArray2DRowSort.binaryRowSearch(linking, startRow, endRow,
-                                CHILD_COL, o) >= 0;
-                    }
-                };
+            return new IndexList(linking, startRow, endRow, CHILD_COL);
         }
     }
 
@@ -376,7 +422,7 @@ public class ObjectTracking
      * @param childId The id to get the parent id links for.
      * @return The list of links.
      */
-    public IndexList getParentIds(int childId)
+    public IIndexList getParentIds(int childId)
     {
         if (reverseSortedLinking == null)
         {
@@ -393,97 +439,7 @@ public class ObjectTracking
         {
             final int endRow =
                     MDIntArray2DRowSort.findLastRow(reverseSortedLinking, CHILD_COL, startRow);
-            return new IndexList()
-                {
-                    final int size = endRow - startRow;
-
-                    public int[] toArray()
-                    {
-                        final int[] parentIds = new int[size];
-                        for (int i = 0; i < parentIds.length; ++i)
-                        {
-                            parentIds[i] = reverseSortedLinking.get(startRow + i, PARENT_COL);
-                        }
-                        return parentIds;
-                    }
-
-                    public int size()
-                    {
-                        return size;
-                    }
-
-                    public IndexIterator iterator()
-                    {
-                        return new IndexIterator()
-                            {
-                                int row = startRow;
-
-                                public int previous()
-                                {
-                                    if (hasPrevious())
-                                    {
-                                        return reverseSortedLinking.get(--row, PARENT_COL);
-                                    } else
-                                    {
-                                        throw new NoSuchElementException();
-                                    }
-                                }
-
-                                public int next()
-                                {
-                                    if (hasNext())
-                                    {
-                                        return reverseSortedLinking.get(row++, PARENT_COL);
-                                    } else
-                                    {
-                                        throw new NoSuchElementException();
-                                    }
-                                }
-
-                                public boolean hasPrevious()
-                                {
-                                    return row > startRow;
-                                }
-
-                                public boolean hasNext()
-                                {
-                                    return row < endRow;
-                                }
-
-                                public int nextIndex()
-                                {
-                                    return row;
-                                }
-
-                                public int previousIndex()
-                                {
-                                    return row - 1;
-                                }
-                            };
-                    }
-
-                    public boolean isEmpty()
-                    {
-                        return false;
-                    }
-
-                    public int get(int index)
-                    {
-                        if (index >= 0 && index < size)
-                        {
-                            return reverseSortedLinking.get(startRow + index, PARENT_COL);
-                        } else
-                        {
-                            throw new IndexOutOfBoundsException();
-                        }
-                    }
-
-                    public boolean contains(int o)
-                    {
-                        return MDIntArray2DRowSort.binaryRowSearch(reverseSortedLinking, startRow,
-                                endRow, PARENT_COL, o) >= 0;
-                    }
-                };
+            return new IndexList(reverseSortedLinking, startRow, endRow, PARENT_COL);
         }
     }
 
@@ -492,4 +448,5 @@ public class ObjectTracking
     {
         return "ObjectTracking [linking=" + linking + "]";
     }
+
 }

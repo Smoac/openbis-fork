@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.cisd.hcscld.ObjectTracking.IndexIterator;
-import ch.ethz.cisd.hcscld.ObjectTracking.IndexList;
+import ch.ethz.cisd.hcscld.ObjectTracking.IIndexIterator;
+import ch.ethz.cisd.hcscld.ObjectTracking.IIndexList;
 import ch.ethz.cisd.hcscld.ObjectTrackingBuilder.StorageForm;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 
@@ -145,7 +145,7 @@ public class ObjectLinkingTests
         assertTrue(Arrays.equals(new int[]
             { 1, 4, 45 }, l.getChildIds(2).toArray()));
         assertEquals(0, l.getChildIds(3).toArray().length);
-        IndexList list = l.getChildIds(0);
+        IIndexList list = l.getChildIds(0);
         assertEquals(3, list.size());
         assertFalse(list.isEmpty());
         assertEquals(4, list.get(0));
@@ -156,7 +156,7 @@ public class ObjectLinkingTests
         assertTrue(list.contains(42));
         assertFalse(list.contains(18));
         assertFalse(list.contains(88));
-        IndexIterator it = list.iterator();
+        IIndexIterator it = list.iterator();
         assertTrue(it.hasNext());
         assertEquals(4, it.next());
         assertTrue(it.hasNext());
