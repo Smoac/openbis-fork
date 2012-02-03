@@ -518,7 +518,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     String getFeatureGroupsFilename()
     {
-        return getObjectPath("featureGroups");
+        return getObjectPath("FeatureGroups");
     }
 
     FeatureGroup getFirstFeatureGroup()
