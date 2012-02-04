@@ -180,6 +180,18 @@ public final class MDShortArray extends MDAbstractArray<Short>
     }
 
     @Override
+    public Short getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Short value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public short[] getAsFlatArray()
     {
         return flattenedArray;

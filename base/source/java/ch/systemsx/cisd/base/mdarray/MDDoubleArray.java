@@ -180,6 +180,18 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     }
 
     @Override
+    public Double getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Double value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public double[] getAsFlatArray()
     {
         return flattenedArray;

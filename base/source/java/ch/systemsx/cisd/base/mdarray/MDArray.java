@@ -150,6 +150,18 @@ public class MDArray<T> extends MDAbstractArray<T>
     }
 
     @Override
+    public T getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(T value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public T[] getAsFlatArray()
     {
         return flattenedArray;

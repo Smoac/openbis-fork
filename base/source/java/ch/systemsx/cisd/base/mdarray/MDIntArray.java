@@ -180,6 +180,18 @@ public final class MDIntArray extends MDAbstractArray<Integer>
     }
 
     @Override
+    public Integer getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Integer value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public int[] getAsFlatArray()
     {
         return flattenedArray;

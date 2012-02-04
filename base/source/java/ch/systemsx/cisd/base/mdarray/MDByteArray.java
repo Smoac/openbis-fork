@@ -180,6 +180,18 @@ public final class MDByteArray extends MDAbstractArray<Byte>
     }
 
     @Override
+    public Byte getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Byte value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public byte[] getAsFlatArray()
     {
         return flattenedArray;

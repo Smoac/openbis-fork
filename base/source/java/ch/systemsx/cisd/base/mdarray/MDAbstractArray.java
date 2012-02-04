@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.base.mdarray;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
@@ -30,9 +31,9 @@ import org.apache.commons.lang.ClassUtils;
  * 
  * @author Bernd Rinn
  */
-public abstract class MDAbstractArray<T> implements Serializable
+public abstract class MDAbstractArray<T> implements Serializable,
+        Iterable<MDAbstractArray<T>.ArrayEntry>
 {
-
     private static final long serialVersionUID = 1L;
 
     protected final int[] dimensions;
@@ -40,8 +41,45 @@ public abstract class MDAbstractArray<T> implements Serializable
     protected int hyperRowLength;
 
     protected int capacityHyperRows;
-    
+
     protected int size;
+
+    /**
+     * A class to represent an entry (index and value) of a {@link MDArray}, used for iteration.
+     */
+    public class ArrayEntry
+    {
+        private final int linearIndex;
+
+        ArrayEntry(int linearIndex)
+        {
+            this.linearIndex = linearIndex;
+        }
+
+        /**
+         * The multi-dimensional index of this entry.
+         */
+        public int[] getIndex()
+        {
+            return computeReverseIndex(linearIndex);
+        }
+
+        /**
+         * The linear index of this entry.
+         */
+        public int getLinearIndex()
+        {
+            return linearIndex;
+        }
+
+        /**
+         * The value of this entry.
+         */
+        public T getValue()
+        {
+            return getAsObject(linearIndex);
+        }
+    }
 
     protected MDAbstractArray(int[] dimensions, int arrayLength, int capacityHyperRows)
     {
@@ -61,8 +99,8 @@ public abstract class MDAbstractArray<T> implements Serializable
                         + " does not match hyper-row length " + hyperRowLength + ".");
             }
             this.capacityHyperRows =
-                    (capacityHyperRows > 0) ? capacityHyperRows : Math.max(dimensions[0], arrayLength
-                            / hyperRowLength);
+                    (capacityHyperRows > 0) ? capacityHyperRows : Math.max(dimensions[0],
+                            arrayLength / hyperRowLength);
             this.size = dimensions[0] * hyperRowLength;
         }
     }
@@ -124,6 +162,23 @@ public abstract class MDAbstractArray<T> implements Serializable
     {
         return size;
     }
+    
+    /**
+     * Returns the current number of hyper rows of of this array.
+     */
+    public int numberOfHyperRows()
+    {
+        return numberOfHyperRows();
+    }
+
+    /**
+     * Return an object which has the same value as the element of the array specified by
+     * <var>linearIndex</var>.
+     * 
+     * @param linearIndex The index in the linear array returned by {@link #getAsFlatArray()}.
+     * @return The value at the specified index.
+     */
+    public abstract T getAsObject(int linearIndex);
 
     /**
      * Return an object which has the same value as the element of the array specified by
@@ -136,6 +191,15 @@ public abstract class MDAbstractArray<T> implements Serializable
      * <var>value</var>.
      */
     public abstract void setToObject(T value, int... indices);
+
+    /**
+     * Sets the element of the array specified by <var>linearIndex</var> to the particular
+     * <var>value</var>.
+     * 
+     * @param value The new value to set.
+     * @param linearIndex The index in the linear array returned by {@link #getAsFlatArray()}.
+     */
+    public abstract void setToObject(T value, int linearIndex);
 
     /**
      * Returns the array in flattened form. Changes to the returned object will change the
@@ -188,7 +252,7 @@ public abstract class MDAbstractArray<T> implements Serializable
     /**
      * Computes the linear index for the multi-dimensional <var>indices</var> provided.
      */
-    protected int computeIndex(int... indices)
+    public int computeIndex(int... indices)
     {
         assert indices != null;
         assert indices.length == dimensions.length;
@@ -202,9 +266,26 @@ public abstract class MDAbstractArray<T> implements Serializable
     }
 
     /**
+     * Computes the multi-dimensional index from the <var>linearIndex</var>.
+     */
+    public int[] computeReverseIndex(int linearIndex)
+    {
+        final int[] index = new int[dimensions.length];
+        int workIndex = linearIndex;
+        int blockSize = size;
+        for (int i = 0; i < dimensions.length; ++i)
+        {
+            blockSize /= dimensions[i];
+            index[i] = workIndex / blockSize;
+            workIndex = workIndex - index[i] * blockSize;
+        }
+        return index;
+    }
+
+    /**
      * Computes the linear index for the two-dimensional (<var>indexX, indexY</var>) provided.
      */
-    protected int computeIndex(int indexX, int indexY)
+    public int computeIndex(int indexX, int indexY)
     {
         assert 2 == dimensions.length;
 
@@ -215,7 +296,7 @@ public abstract class MDAbstractArray<T> implements Serializable
      * Computes the linear index for the three-dimensional (<var>indexX, indexY, indexZ</var>)
      * provided.
      */
-    protected int computeIndex(int indexX, int indexY, int indexZ)
+    public int computeIndex(int indexX, int indexY, int indexZ)
     {
         assert 3 == dimensions.length;
 
@@ -333,6 +414,36 @@ public abstract class MDAbstractArray<T> implements Serializable
             throw new IllegalArgumentException("Length is too large (" + length + ")");
         }
         return intLength;
+    }
+
+    //
+    // Iterable
+    //
+
+    public Iterator<ArrayEntry> iterator()
+    {
+        return new Iterator<ArrayEntry>()
+            {
+                int linearIndex = 0;
+
+                public boolean hasNext()
+                {
+                    return linearIndex < size;
+                }
+
+                public ArrayEntry next()
+                {
+                    final ArrayEntry next = new ArrayEntry(linearIndex);
+                    ++linearIndex;
+                    return next;
+                }
+
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+            };
     }
 
     //

@@ -180,6 +180,18 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     @Override
+    public Float getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Float value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public float[] getAsFlatArray()
     {
         return flattenedArray;

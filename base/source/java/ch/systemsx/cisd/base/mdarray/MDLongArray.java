@@ -180,6 +180,18 @@ public final class MDLongArray extends MDAbstractArray<Long>
     }
 
     @Override
+    public Long getAsObject(int linearIndex)
+    {
+        return get(linearIndex);
+    }
+
+    @Override
+    public void setToObject(Long value, int linearIndex)
+    {
+        set(value, linearIndex);
+    }
+
+    @Override
     public long[] getAsFlatArray()
     {
         return flattenedArray;
