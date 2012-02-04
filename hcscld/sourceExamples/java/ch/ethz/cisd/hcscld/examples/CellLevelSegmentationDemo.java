@@ -74,6 +74,10 @@ public class CellLevelSegmentationDemo
                 SegmentationImageUtilities.createBinarySegmentationEdgesImage(imageGeometry,
                         objects);
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");
-        showImage(image2, "All " + segmentedObjectTypes + "s");
+        showImage(image2, "All " + segmentedObjectTypes + "s (contour)");
+        final BufferedImage image3 =
+                SegmentationImageUtilities.createGrayscaleSegmentationImage(imageGeometry, objects);
+        ImageIO.write(image3, "png", new File(
+                "bDZ21-1K_wP24_s9_z1_t1_cCy5_u001_pSC_Cells_reproduced.png"));
     }
 }

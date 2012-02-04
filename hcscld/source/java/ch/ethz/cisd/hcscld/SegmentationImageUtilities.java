@@ -124,4 +124,34 @@ public class SegmentationImageUtilities
         }
         return image;
     }
+
+    /**
+     * Returns a 16-bit grayscale image of all segmented objects where the color value represents
+     * the object index.
+     * 
+     * @param imageGeometry The geometry of the image to create.
+     * @param objects The segmented objects.
+     */
+    public static BufferedImage createGrayscaleSegmentationImage(ImageGeometry imageGeometry,
+            SegmentedObject[] objects)
+    {
+        final BufferedImage image =
+                new BufferedImage(imageGeometry.getWidth(), imageGeometry.getHeight(),
+                        BufferedImage.TYPE_USHORT_GRAY);
+        for (SegmentedObject obj : objects)
+        {
+            for (int x = obj.getLeftUpperX(); x <= obj.getRightLowerX(); ++x)
+            {
+                for (int y = obj.getLeftUpperY(); y <= obj.getRightLowerY(); ++y)
+                {
+                    if (obj.getMaskPoint(x, y))
+                    {
+                        image.getRaster().setDataElements(x, y, new short[]
+                            { (short) (obj.getObjectIndex() + 1) });
+                    }
+                }
+            }
+        }
+        return image;
+    }
 }
