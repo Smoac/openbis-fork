@@ -57,7 +57,7 @@
 		
     <antcall target="create-installation-tarball">
       <param name="openbis.server.zip.folder" value="../openbis_standard_technologies/targets/dist" />
-      <param name="datastore.server.zip.folder" value="openbis_standard_technologies" />
+      <param name="datastore.server.zip.folder" value="../openbis_standard_technologies/targets/dist" />
       <param name="variant" value="-standard-technologies" />
       <param name="database.kind" value="standard-technologies" />
       <param name="installation.customize.folder" value="../openbis_standard_technologies/dist/tarball/installer" />
