@@ -25,7 +25,7 @@ def logIntoConfluence():
   user = getpass.getuser()
   print "Please specify Confluence password for user ", user
   password = getpass.getpass()
-  confluenceToken = confluenceServer.confluence1.login(user, password)
+  confluenceToken = confluenceServer.confluence2.login(user, password)
   if confluenceToken is None:
       exit("Could not login page " + spacekey + ":" + pagetitle)
 
@@ -41,7 +41,7 @@ def uploadReleaseBinaryToConfluence(filename, pagetitle):
   if confluenceToken is None:
       logIntoConfluence()
       
-  page = confluenceServer.confluence1.getPage(confluenceToken, spacekey, pagetitle)
+  page = confluenceServer.confluence2.getPage(confluenceToken, spacekey, pagetitle)
   if page is None:
       exit("Could not find page " + spacekey + ":" + pagetitle)
  
@@ -50,7 +50,7 @@ def uploadReleaseBinaryToConfluence(filename, pagetitle):
   attachment['contentType'] = 'application/zip'
  
   print "Uploading {0} to confluence......".format(filename)
-  confluenceServer.confluence1.addAttachment(confluenceToken, page['id'], attachment, xmlrpclib.Binary(data))
+  confluenceServer.confluence2.addAttachment(confluenceToken, page['id'], attachment, xmlrpclib.Binary(data))
 
 def fetchBinaries(version):
   print "Fetching {0} binaries from server ...".format(version)
