@@ -30,6 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public interface IClientPluginFactory
 {
     /**
+     * Returns <code>true</code> if this client plugin factory is enabled.
+     */
+    public boolean isEnabled();
+
+    /**
      * Returns all the entity type codes for given <var>entityKind</var> supported by this
      * implementation.
      */

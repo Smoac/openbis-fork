@@ -97,6 +97,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     //
 
     @Override
+    public boolean isEnabled()
+    {
+        return checkEnabledProperty("screening");
+    }
+    
+    @Override
     protected final ScreeningViewContext createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {

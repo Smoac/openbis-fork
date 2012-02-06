@@ -54,6 +54,19 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
         return module;
     }
 
+    public boolean isEnabled()
+    {
+        return true;
+    }
+
+    protected boolean checkEnabledProperty(String technology)
+    {
+        String enabledProperty =
+                viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                        .getPropertyOrNull(technology, "enabled");
+        return enabledProperty == null || Boolean.TRUE.toString().equals(enabledProperty);
+    }
+
     protected abstract IModule maybeCreateModule();
 
     protected final String getBaseIndexURL()

@@ -70,6 +70,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     }
 
     @Override
+    public boolean isEnabled()
+    {
+        return checkEnabledProperty("proteomics");
+    }
+
+    @Override
     public IModule maybeCreateModule()
     {
         return new PhosphoNetXModule(getViewContext());

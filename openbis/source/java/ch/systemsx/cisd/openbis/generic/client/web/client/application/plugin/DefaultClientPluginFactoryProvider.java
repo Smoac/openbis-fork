@@ -107,7 +107,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         final IClientPluginFactory pluginFactory =
                 pluginFactoryMap
                         .tryPluginFactory(new EntityKindAndTypeCode(entityKind, entityType));
-        if (pluginFactory != null)
+        if (pluginFactory != null && pluginFactory.isEnabled())
         {
             return pluginFactory;
         }
@@ -119,10 +119,13 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         ArrayList<IModule> modules = new ArrayList<IModule>();
         for (IClientPluginFactory factory : pluginFactories)
         {
-            IModule m = factory.tryGetModule();
-            if (m != null)
+            if (factory.isEnabled())
             {
-                modules.add(m);
+                IModule m = factory.tryGetModule();
+                if (m != null)
+                {
+                    modules.add(m);
+                }
             }
         }
         return modules;
