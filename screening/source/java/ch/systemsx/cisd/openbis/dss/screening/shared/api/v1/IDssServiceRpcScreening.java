@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 import java.io.InputStream;
 import java.util.List;
 
+import com.googlecode.jsonrpc4j.JsonRpcParamName;
+
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
@@ -57,7 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 // Non-compatible changes without consultation are forbidden.
 public interface IDssServiceRpcScreening extends IRpcService
 {
-    
+
     /**
      * Name of this service for which it is registered at the RPC name server.
      */
@@ -70,7 +72,6 @@ public interface IDssServiceRpcScreening extends IRpcService
 
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
-    
     /**
      * The major version of this service.
      */
@@ -277,7 +278,7 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
-    
+
     /**
      * Provides images for the specified list of image references (specified by data set code, well
      * position, channel and tile) and specified image representation format. The
@@ -295,7 +296,7 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
-    
+
     /**
      * Provides images for the specified list of image references (specified by data set code, well
      * position, channel and tile) and image selection criteria. These criteria are applied to the
@@ -344,9 +345,12 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
-    public List<PlateImageReference> listPlateImageReferences(String sessionToken,
-            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel);
+    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParamName("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParamName("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("wellPositions")
+    List<WellPosition> wellPositions, @JsonRpcParamName("channel")
+    String channel);
 
     /**
      * Lists plate image references for specified data set, list of well positions and channels.
@@ -355,10 +359,12 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(6)
     @DataSetAccessGuard
-    public List<PlateImageReference> listPlateImageReferences(String sessionToken,
-            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
-            List<String> channels);
+    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParamName("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParamName("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("wellPositions")
+    List<WellPosition> wellPositions, @JsonRpcParamName("channels")
+    List<String> channels);
 
     /**
      * Lists microscopy image references for specified data set and channel.
@@ -367,9 +373,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(5)
     @DataSetAccessGuard
-    public List<MicroscopyImageReference> listImageReferences(String sessionToken,
-            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-            IDatasetIdentifier dataSetIdentifier, String channel);
+    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParamName("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParamName("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("channel")
+    String channel);
 
     /**
      * Lists microscopy image references for specified data set and channels.
@@ -378,9 +386,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(6)
     @DataSetAccessGuard
-    public List<MicroscopyImageReference> listImageReferences(String sessionToken,
-            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-            IDatasetIdentifier dataSetIdentifier, List<String> channels);
+    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParamName("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParamName("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("channels")
+    List<String> channels);
 
     /**
      * Saves the specified transformer factory for the specified channel of the specified data. Note
@@ -416,18 +426,18 @@ public interface IDssServiceRpcScreening extends IRpcService
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IImageDatasetIdentifier> imageDatasets);
-    
+
     /**
      * Return image representation formats available for the specified image data sets.
      * 
      * @param imageDatasets The image data sets for which the representation formats are requested.
-     * @return A list with one entry for each in <b>imageDatasets</b>. 
+     * @return A list with one entry for each in <b>imageDatasets</b>.
      * @since 1.10
      */
     @MinimalMinorVersion(10)
     @DataSetAccessGuard
-    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IDatasetIdentifier> imageDatasets);
 
 }
