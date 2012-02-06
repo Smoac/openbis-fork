@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -25,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 /**
  * @author Kaloyan Enimanev
@@ -36,6 +40,8 @@ public class CorePluginRegistrator implements InitializingBean
     private ICommonServerForInternalUse commonServer;
 
     private String pluginsFolderName;
+
+    private Set<String> disabledTechnologies = new HashSet<String>();
 
     /**
      * Loads and installs the deployed core plugins. Invoked from the Spring container after the
@@ -54,12 +60,15 @@ public class CorePluginRegistrator implements InitializingBean
             String sessionToken = getSessionToken();
             for (CorePlugin plugin : pluginScanner.scanForPlugins())
             {
-                try
+                if (disabledTechnologies.contains(plugin.getName()) == false)
                 {
-                    commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
-                } catch (Exception ex)
-                {
-                    operationLog.error("Failed to install core plugin: " + plugin, ex);
+                    try
+                    {
+                        commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
+                    } catch (Exception ex)
+                    {
+                        operationLog.error("Failed to install core plugin: " + plugin, ex);
+                    }
                 }
             }
         }
@@ -73,6 +82,11 @@ public class CorePluginRegistrator implements InitializingBean
     public void setPluginsFolderName(String pluginsFolderName)
     {
         this.pluginsFolderName = pluginsFolderName;
+    }
+
+    public void setDisabledTechnologies(String listOfDisabledTechnologies)
+    {
+        disabledTechnologies = ServerUtils.extractSet(listOfDisabledTechnologies);
     }
 
     public void setCommonServer(ICommonServerForInternalUse commonServer)

@@ -61,10 +61,8 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
 
     protected boolean checkEnabledProperty(String technology)
     {
-        String enabledProperty =
-                viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
-                        .getPropertyOrNull(technology, "enabled");
-        return enabledProperty == null || Boolean.TRUE.toString().equals(enabledProperty);
+        return viewContext.getModel().getApplicationInfo().getDisabledTechnologies()
+                .contains(technology) == false;
     }
 
     protected abstract IModule maybeCreateModule();

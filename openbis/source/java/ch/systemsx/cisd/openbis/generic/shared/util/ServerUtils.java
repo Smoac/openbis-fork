@@ -59,4 +59,24 @@ public class ServerUtils
         }
         return duplicated;
     }
+
+    /**
+     * Extracts from the comma-separated list of strings all distinct strings.
+     * 
+     * @return an empty list if the argument is <code>null</code>, an empty string or starts with
+     *         '${'.
+     */
+    public static Set<String> extractSet(String commaSeparatedList)
+    {
+        Set<String> result = new HashSet<String>();
+        if (commaSeparatedList != null && commaSeparatedList.startsWith("${") == false)
+        {
+            String[] terms = commaSeparatedList.split(",");
+            for (String term : terms)
+            {
+                result.add(term.trim());
+            }
+        }
+        return result;
+    }
 }

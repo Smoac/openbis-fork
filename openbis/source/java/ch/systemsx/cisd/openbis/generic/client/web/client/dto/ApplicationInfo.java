@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Set;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
@@ -38,6 +40,8 @@ public final class ApplicationInfo implements IsSerializable
     private boolean archivingConfigured;
 
     private WebClientConfiguration webClientConfiguration;
+
+    private Set<String> disabledTechnologies;
 
     private int maxResults = 100000;
 
@@ -102,6 +106,16 @@ public final class ApplicationInfo implements IsSerializable
     public WebClientConfiguration getWebClientConfiguration()
     {
         return webClientConfiguration;
+    }
+
+    public Set<String> getDisabledTechnologies()
+    {
+        return disabledTechnologies;
+    }
+
+    public void setDisabledTechnologies(Set<String> disabledTechnologies)
+    {
+        this.disabledTechnologies = disabledTechnologies;
     }
 
 }

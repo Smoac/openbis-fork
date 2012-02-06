@@ -229,6 +229,7 @@
     <bean id="core-plugin-registrator" class="ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginRegistrator">
         <property name="commonServer" ref="common-server"/>
         <property name="pluginsFolderName" value="${core-plugins-folder}"/>
+        <property name="disabledTechnologies" value="${disabled-technologies}"/>
     </bean>
     
     <!--

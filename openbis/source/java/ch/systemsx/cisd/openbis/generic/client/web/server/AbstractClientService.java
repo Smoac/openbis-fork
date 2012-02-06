@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 /**
  * An <i>abstract</i> {@link IClientService} implementation.
@@ -431,6 +432,8 @@ public abstract class AbstractClientService implements IClientService,
             applicationInfo.setWebClientConfiguration(commonApplicationInfo
                     .getWebClientConfiguration());
         }
+        applicationInfo.setDisabledTechnologies(ServerUtils.extractSet(getServiceProperties()
+                .getProperty("disabled-technologies")));
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
