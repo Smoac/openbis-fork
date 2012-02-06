@@ -74,7 +74,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
 
     public String getClassification(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
+        return reader.enums().readArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
                 .getValue(0);
     }
 
@@ -84,19 +84,19 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return Enum
                 .valueOf(
                         enumClass,
-                        reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace),
+                        reader.enums().readArrayBlockWithOffset(getClassPath(id, namespace),
                                 1, cellId).getValue(0));
     }
 
     public int getClassificationOrdinal(ImageId id, ObjectNamespace namespace, int cellId)
     {
-        return reader.readEnumArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
+        return reader.enums().readArrayBlockWithOffset(getClassPath(id, namespace), 1, cellId)
                 .getOrdinal(0);
     }
 
     public String[] getClassifications(ImageId id, ObjectNamespace namespace)
     {
-        return reader.readEnumArrayAsString(getClassPath(id, namespace));
+        return reader.enums().readArray(getClassPath(id, namespace)).toStringArray();
     }
 
     String getClassPath(ImageId id, ObjectNamespace namespace)
@@ -132,7 +132,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
     public int[] getClassificationsOrdinals(ImageId id, ObjectNamespace namespace)
     {
         final HDF5EnumerationValueArray array =
-                reader.readEnumArray(getClassPath(id, namespace));
+                reader.enums().readArray(getClassPath(id, namespace));
         final int[] ordinals = new int[array.getLength()];
         for (int i = 0; i < ordinals.length; ++i)
         {

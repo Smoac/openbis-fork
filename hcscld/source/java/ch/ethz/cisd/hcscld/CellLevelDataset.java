@@ -74,7 +74,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
             return result;
         }
         final List<String> objectTypeCompanionGroups =
-                reader.getEnumType(getObjectNamespacesObjectPath()).getValues();
+                reader.enums().getType(getObjectNamespacesObjectPath()).getValues();
         for (String id : objectTypeCompanionGroups)
         {
             result.addObjectNamespace(id);
@@ -86,7 +86,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
         for (String cgId : objectTypeCompanionGroups)
         {
             final String cgObjectPath = getObjectTypeCompanionGroupObjectPath(cgId);
-            for (String otId : reader.readEnumArray(cgObjectPath).getValues())
+            for (String otId : reader.enums().readArray(cgObjectPath).toStringArray())
             {
                 final ObjectNamespace cgroup = result.tryGetObjectNamespace(cgId);
                 result.addObjectType(otId, cgroup);

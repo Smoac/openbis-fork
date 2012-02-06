@@ -58,7 +58,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
                     final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
-                            base.writer.getCompoundType(
+                            base.writer.compounds().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),
                                     FeatureGroupDescriptor.class,
                                     HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
@@ -180,8 +180,8 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         final String idUpperCase = id.toUpperCase();
         final HDF5CompoundType<Object[]> type =
-                base.writer.getCompoundType(getFeatureGroupTypePath(idUpperCase), Object[].class,
-                        features.getMembers(hintsOrNull));
+                base.writer.compounds().getType(getFeatureGroupTypePath(idUpperCase),
+                        Object[].class, features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup =
                 new FeatureGroup(idUpperCase, features.getNamespace(), type);
         addFeatureGroupToInternalList(featureGroup);

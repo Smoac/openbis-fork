@@ -61,20 +61,20 @@ class FeaturesDefinition implements IFeaturesDefinition
         {
             final String name = memberInfo.getName();
             final HDF5DataTypeInformation typeInfo = memberInfo.getType();
-            final int elemSize = typeInfo.getElementSize();
+            final int usableLength = typeInfo.getUsableLength();
             switch (typeInfo.getDataClass())
             {
                 case BOOLEAN:
                     memberDefinitions.add(new Feature(name, FeatureDataType.BOOL));
                     break;
                 case INTEGER:
-                    if (elemSize == 1)
+                    if (usableLength == 1)
                     {
                         memberDefinitions.add(new Feature(name, FeatureDataType.INT8));
-                    } else if (elemSize == 2)
+                    } else if (usableLength == 2)
                     {
                         memberDefinitions.add(new Feature(name, FeatureDataType.INT16));
-                    } else if (elemSize == 4)
+                    } else if (usableLength == 4)
                     {
                         memberDefinitions.add(new Feature(name, FeatureDataType.INT32));
                     } else
@@ -83,7 +83,7 @@ class FeaturesDefinition implements IFeaturesDefinition
                     }
                     break;
                 case FLOAT:
-                    if (elemSize == 4)
+                    if (usableLength == 4)
                     {
                         memberDefinitions.add(new Feature(name, FeatureDataType.FLOAT32));
                     } else
@@ -92,7 +92,7 @@ class FeaturesDefinition implements IFeaturesDefinition
                     }
                     break;
                 case STRING:
-                    memberDefinitions.add(new Feature(name, elemSize));
+                    memberDefinitions.add(new Feature(name, usableLength));
                     break;
                 case ENUM:
                     memberDefinitions.add(new Feature(name, memberInfo.tryGetEnumValues()));

@@ -51,7 +51,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         super(reader, datasetCode, quantityStructure, formatVersionNumber);
         checkFormat(FORMAT_TYPE, formatType);
         this.imageGeometry = imageGeometry;
-        this.indexType = reader.getInferredCompoundType(SegmentedObjectBox.class);
+        this.indexType = reader.compounds().getInferredType(SegmentedObjectBox.class);
     }
 
     HDF5CompoundType<SegmentedObjectBox> getIndexType()
@@ -96,7 +96,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             boolean withEdge)
     {
         final SegmentedObjectBox objectBox =
-                reader.readCompoundArrayBlock(
+                reader.compounds().readArrayBlock(
                         getObjectPath(wellId, INDEX_PREFIX, objectType.getId()), indexType, 1,
                         objectId)[0];
         return getObject(wellId, objectType, objectId, objectBox, withEdge);
@@ -106,7 +106,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX, objectType.getId());
-        final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
+        final SegmentedObjectBox[] objectBoxes = reader.compounds().readArray(objectPath, indexType);
         for (int id = 0; id < objectBoxes.length; ++id)
         {
             final SegmentedObjectBox box = objectBoxes[id];
@@ -171,7 +171,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX, objectType.getId());
-        final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
+        final SegmentedObjectBox[] objectBoxes = reader.compounds().readArray(objectPath, indexType);
         final BitSet[] masks =
                 getMasks(wellId, getObjectPath(wellId, MASKS_PREFIX, objectType.getId()),
                         objectBoxes);

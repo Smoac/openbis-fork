@@ -72,7 +72,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                         type.setNamespacesEnumType(namespacesEnumType);
                     }
                     final HDF5CompoundType<ObjectTrackingType> type =
-                            base.writer.getCompoundType(
+                            base.writer.compounds().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "ObjectTrackingType"),
                                     ObjectTrackingType.class,
                                     mapping("parentObjectNamespace").fieldName(

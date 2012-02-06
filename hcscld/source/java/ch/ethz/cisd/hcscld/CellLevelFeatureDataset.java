@@ -238,7 +238,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         for (FeatureGroupDescriptor fgd : featureGroupDesc)
         {
             final HDF5CompoundType<Object[]> type =
-                    reader.getNamedCompoundType(getFeatureGroupTypePath(fgd.getId()),
+                    reader.compounds().getNamedType(getFeatureGroupTypePath(fgd.getId()),
                             Object[].class, hintsOrNull);
             result.put(fgd.getId(),
                     new FeatureGroup(fgd.getId(), getObjectNamespace(fgd.getNamespaceId()), type));
@@ -281,14 +281,14 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
-        return reader.readCompoundArrayBlockWithOffset(
+        return reader.compounds().readArrayBlockWithOffset(
                 ((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
     }
 
     public Object[][] getValues(ImageId id, IFeatureGroup featureGroup)
     {
-        return reader.readCompoundArray(((FeatureGroup) featureGroup).getObjectPath(id),
+        return reader.compounds().readArray(((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType());
     }
 
@@ -319,7 +319,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                     }
                                     final ImageId id = idIterator.next();
                                     final Object[][] data =
-                                            reader.readCompoundArray(
+                                            reader.compounds().readArray(
                                                     ((FeatureGroup) featureGroup).getObjectPath(id),
                                                     ((FeatureGroup) featureGroup).getType());
                                     next = new CellLevelFeatures(featureGroup, id, data);

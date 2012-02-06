@@ -122,7 +122,7 @@ class CellLevelDataReader implements ICellLevelDataReader
                             (descOrNull == null) ? "NO DESCRIPTOR" : descOrNull));
         }
         this.hdf5DatasetTypeEnum =
-                reader.getEnumType("datasetTypes",
+                reader.enums().getType("datasetTypes",
                         new String[]
                             { CellLevelDatasetType.SEGMENTATION.name(),
                                     CellLevelDatasetType.FEATURES.name(),
@@ -133,7 +133,7 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     private CellLevelDatasetTypeDescriptor getDatasetTypeDesc(String datasetCode)
     {
-        return reader.getCompoundAttribute(CellLevelDataset.getDatasetPath(datasetCode),
+        return reader.compounds().getAttr(CellLevelDataset.getDatasetPath(datasetCode),
                 CellLevelDataset.getDatasetTypeAttributeName(),
                 CellLevelDatasetTypeDescriptor.class);
     }
@@ -245,7 +245,7 @@ class CellLevelDataReader implements ICellLevelDataReader
     {
         if (reader.hasAttribute("/", getCLDFormatTagAttributeName()))
         {
-            return reader.getCompoundAttribute("/", getCLDFormatTagAttributeName(),
+            return reader.compounds().getAttr("/", getCLDFormatTagAttributeName(),
                     FormatDescriptor.class);
         } else
         {

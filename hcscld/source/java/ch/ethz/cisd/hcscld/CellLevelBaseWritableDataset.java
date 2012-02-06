@@ -98,7 +98,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
         writer.createGroup(getObjectPath());
-        writer.setCompoundAttribute(getObjectPath(), getDatasetTypeAttributeName(),
+        writer.compounds().setAttr(getObjectPath(), getDatasetTypeAttributeName(),
                 datasetTypeDescriptor);
         writer.writeCompound(getImageQuantityStructureObjectPath(), quantityStructure);
         writer.createGroup(getDatasetAnnotationObjectPath());
@@ -121,7 +121,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     HDF5EnumerationType addEnumGlobal(String name, Class<? extends Enum<?>> enumClass)
     {
-        return writer.getEnumType(name, getEnumOptions(enumClass));
+        return writer.enums().getType(name, getEnumOptions(enumClass));
     }
 
     HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
@@ -132,14 +132,14 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     static HDF5EnumerationType addEnum(IHDF5Writer writer, String datasetCode, String name,
             List<String> values)
     {
-        return writer.getEnumType(datasetCode + "_" + name,
+        return writer.enums().getType(datasetCode + "_" + name,
                 values.toArray(new String[values.size()]));
     }
 
     static HDF5EnumerationType addEnum(IHDF5Writer writer, String datasetCode,
             Class<? extends Enum<?>> enumClass)
     {
-        return writer.getEnumType(datasetCode + "_" + enumClass.getSimpleName(),
+        return writer.enums().getType(datasetCode + "_" + enumClass.getSimpleName(),
                 getEnumOptions(enumClass));
     }
 
@@ -228,7 +228,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         if (objectTypeStore.hasObjectNamespaces())
         {
             objectNamespacesType =
-                    writer.getEnumType(getObjectNamespacesObjectPath(),
+                    writer.enums().getType(getObjectNamespacesObjectPath(),
                             toString(objectTypeStore.getObjectNamespaces()));
         } else
         {
@@ -238,12 +238,12 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         if (objectTypeStore.hasObjectTypes())
         {
             objectTypesType =
-                    writer.getEnumType(getObjectTypesObjectPath(),
+                    writer.enums().getType(getObjectTypesObjectPath(),
                             toString(objectTypeStore.getObjectTypes()));
             for (ObjectNamespace cgroup : objectTypeStore.getObjectNamespaces())
             {
                 final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
-                writer.writeEnumArray(path, new HDF5EnumerationValueArray(objectTypesType,
+                writer.enums().writeArray(path, new HDF5EnumerationValueArray(objectTypesType,
                         toString(cgroup.getObjectTypes())));
             }
         } else
