@@ -30,7 +30,7 @@ public class ManagedProperty implements IManagedProperty
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    static boolean isSpecialValue(String valueOrNull)
+    public static boolean isSpecialValue(String valueOrNull)
     {
         return valueOrNull != null
                 && (valueOrNull.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX) || valueOrNull
