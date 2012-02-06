@@ -143,7 +143,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
         dataSetTable.loadByIds(allIdsAsList);
-        List<DataPE> unavailableDataSets = dataSetTable.getUnavailableDataSets();
+        List<DataPE> unavailableDataSets = dataSetTable.getUnavailableContainedDataSets();
         if (unavailableDataSets.isEmpty())
         {
             return;

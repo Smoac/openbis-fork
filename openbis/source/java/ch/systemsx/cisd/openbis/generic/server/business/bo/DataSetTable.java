@@ -189,12 +189,12 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return dataSets;
     }
 
-    public List<DataPE> getUnavailableDataSets()
+    public List<DataPE> getUnavailableContainedDataSets()
     {
         List<DataPE> result = new ArrayList<DataPE>();
         for (DataPE dataSet : dataSets)
         {
-            if (dataSet.isAvailable() == false)
+            if (dataSet.isContainer() == false && dataSet.isAvailable() == false)
             {
                 result.add(dataSet);
             }

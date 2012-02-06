@@ -63,7 +63,7 @@ public interface IDataSetTable
      */
     List<DataPE> getDataSets();
 
-    List<DataPE> getUnavailableDataSets();
+    List<DataPE> getUnavailableContainedDataSets();
 
     /**
      * Returns the loaded {@link DataPE}-s filtered to instances of {@link ExternalDataPE}.

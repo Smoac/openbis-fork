@@ -176,7 +176,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getUnavailableDataSets();
+                    one(dataSetTable).getUnavailableContainedDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
@@ -227,7 +227,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getUnavailableDataSets();
+                    one(dataSetTable).getUnavailableContainedDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
@@ -288,7 +288,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(TechId.createList(70, 71, 72, 73));
-                    one(dataSetTable).getUnavailableDataSets();
+                    one(dataSetTable).getUnavailableContainedDataSets();
                     will(returnValue(Arrays.asList()));
 
                     RecordingMatcher<List<TechId>> sampleIdsMatcher =
@@ -352,7 +352,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getUnavailableDataSets();
+                    one(dataSetTable).getUnavailableContainedDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(dataDAO).listContainedDataSets(dataSetIds);
@@ -379,7 +379,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getUnavailableDataSets();
+                    one(dataSetTable).getUnavailableContainedDataSets();
                     ExternalDataPE dataSet = new ExternalDataPE();
                     dataSet.setCode("ds1");
                     dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
