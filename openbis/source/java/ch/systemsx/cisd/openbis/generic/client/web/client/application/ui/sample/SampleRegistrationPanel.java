@@ -39,16 +39,36 @@ public final class SampleRegistrationPanel extends
     public static final DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context)
     {
-        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context);
+        return create(viewContext, context, null);
+    }
+
+    public static final DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context,
+            final SampleRegistrationConfig config)
+    {
+        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context, config);
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
     private SampleRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ActionContext context)
+            final ActionContext context, final SampleRegistrationConfig config)
     {
-        super(viewContext, EntityKind.SAMPLE, new SampleTypeSelectionWidget(viewContext,
-                EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
-                SampleTypeDisplayID.SAMPLE_REGISTRATION, context.tryGetSampleTypeCode()), context);
+        super(viewContext, EntityKind.SAMPLE, createSampleTypeSelectionWidget(viewContext, context,
+                config), context);
     }
 
+    private static SampleTypeSelectionWidget createSampleTypeSelectionWidget(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context,
+            final SampleRegistrationConfig config)
+    {
+        SampleTypeSelectionWidget widget =
+                new SampleTypeSelectionWidget(viewContext,
+                        EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
+                        SampleTypeDisplayID.SAMPLE_REGISTRATION, context.tryGetSampleTypeCode());
+        if (config != null)
+        {
+            widget.setFilterPattern(config.getFilterPattern());
+        }
+        return widget;
+    }
 }

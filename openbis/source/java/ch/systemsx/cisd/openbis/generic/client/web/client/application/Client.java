@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ho
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SampleRegistrationLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
@@ -434,6 +435,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new BrowserLocatorResolver(context));
         handlerRegistry.registerHandler(new GlobalSearchLocatorResolver(context));
         handlerRegistry.registerHandler(new HomeLocatorResolver(context));
+        handlerRegistry.registerHandler(new SampleRegistrationLocatorResolver(context));
     }
 
     public void onValueChange(ValueChangeEvent<String> event)

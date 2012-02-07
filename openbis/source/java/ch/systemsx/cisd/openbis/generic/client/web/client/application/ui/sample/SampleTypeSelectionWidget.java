@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -56,6 +57,8 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
     private final boolean withTypeInFile;
 
     private final String initialCodeOrNull;
+
+    private String filterPattern;
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
@@ -117,6 +120,11 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
         return super.tryGetSelected();
     }
 
+    public void setFilterPattern(String filterPattern)
+    {
+        this.filterPattern = filterPattern;
+    }
+
     @Override
     protected List<SampleTypeModel> convertItems(List<SampleType> result)
     {
@@ -139,11 +147,23 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
     }
 
     /**
-     * Filters sample types returned from server. This is a hook method which does nothing. Can be
-     * overridden by subclasses.
+     * Filters sample types returned from server. By default it filters out all the types that do
+     * not match the filterPattern. If the filterPattern is null then it leaves the original list of
+     * types untouched. Behavior of this method can be overwritten in subclasses.
      */
     protected void filterTypes(List<SampleType> types)
     {
+        if (filterPattern != null)
+        {
+            for (Iterator<SampleType> iterator = types.iterator(); iterator.hasNext();)
+            {
+                SampleType type = iterator.next();
+                if (!type.getCode().matches(filterPattern))
+                {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     //
