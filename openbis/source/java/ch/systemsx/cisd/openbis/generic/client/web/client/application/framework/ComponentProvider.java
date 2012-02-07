@@ -403,7 +403,7 @@ public final class ComponentProvider
     public final AbstractTabItemFactory getSampleRegistration(final ActionContext context,
             final SampleRegistrationConfig config)
     {
-        return new AbstractTabItemFactory()
+        AbstractTabItemFactory tab = new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
@@ -438,6 +438,8 @@ public final class ComponentProvider
                 }
 
             };
+        tab.setForceReopen(true);
+        return tab;
     }
 
     public final AbstractTabItemFactory getSampleRegistration()
