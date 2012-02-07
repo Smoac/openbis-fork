@@ -37,6 +37,7 @@
     <variable name="ShowCreateDirectoryMessage"  value="false" />
     <variable name="data.validation.error.title"  value="Error" />
     <variable name="VERSION_NUMBER"  value="@{version.number}" />
+    <variable name="IS_STANDARD_TECHNOLOGIES" value="is-standard-technologies-value-created-by-ant-script" />
   </variables>
 
   <dynamicvariables>
@@ -72,6 +73,10 @@
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
+    <condition type="variable" id="isStandardTechnologies">
+      <name>IS_STANDARD_TECHNOLOGIES</name>
+      <value>true</value>
+    </condition>
   </conditions>
 
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
@@ -89,6 +94,13 @@
     
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
+    </panel>
+    
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES" condition="isStandardTechnologies">
+      <actions>
+        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction" />
+      </actions>
     </panel>
 
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">

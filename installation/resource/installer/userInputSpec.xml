@@ -8,6 +8,18 @@
     </field>
   </panel>
 
+  <panel id="UserInputPanel.TECHNOLOGIES">
+    <field type="title" txt="Technologies" bold="true" size="2" />
+    <field type="staticText" align="left"
+      txt="Please, deselect those technologies which are not needed. Later, at the next upgrade, the selection can be changed:" />
+    <field type="check" variable="PROTEOMICS">
+      <spec txt="Proteomics" true="true" false="false"/>
+    </field>
+    <field type="check" variable="SCREENING">
+      <spec txt="Screening" true="true" false="false"/>
+    </field>
+  </panel>
+
   <panel id="UserInputPanel.MISC">
     <field type="title" txt="Misc" bold="true" size="2" />
     <field type="password" align="left" variable="ADMIN_PASSWORD">

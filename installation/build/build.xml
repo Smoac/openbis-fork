@@ -49,6 +49,7 @@
       <param name="variant" value="" />
       <param name="database.kind" value="productive" />
       <param name="installation.customize.folder" value="../openbis/dist/installer" />
+      <param name="is-standard-technologies" value="false" />
     </antcall>
 	</target>
 	
@@ -61,6 +62,7 @@
       <param name="variant" value="-standard-technologies" />
       <param name="database.kind" value="standard-technologies" />
       <param name="installation.customize.folder" value="../openbis_standard_technologies/dist/tarball/installer" />
+      <param name="is-standard-technologies" value="true" />
     </antcall>
 	</target>
 	
@@ -73,6 +75,7 @@
       <param name="variant" value="-screening" />
       <param name="database.kind" value="screening" />
       <param name="installation.customize.folder" value="../screening/dist/tarball/installer" />
+      <param name="is-standard-technologies" value="false" />
     </antcall>
 	</target>
 	
@@ -95,6 +98,7 @@
       <param name="variant" value="-proteomics" />
       <param name="database.kind" value="proteomics" />
       <param name="installation.customize.folder" value="../rtd_phosphonetx/dist/tarball/installer" />
+      <param name="is-standard-technologies" value="false" />
     </antcall>
 	</target>
 	
@@ -132,6 +136,8 @@
       5) installation.customize.folder
             declares a local folder for (e.g. screening/dist/installer), where the different
             installation can define customizations for their installers.
+      6) is-standard-technologies
+            if true wizard page for selecting/deselecting technologies will be shown
 	 -->
   <target name="create-installer">
 
@@ -170,8 +176,9 @@
 		
 		<!-- this suffix will be used by the installer to check if there are database connections -->
 	  <property name="installer.database.kind" value="${database.kind}" />
+  	<replace file="${installer.dist.dir}/install.xml" token="is-standard-technologies-value-created-by-ant-script" value="${is-standard-technologies}"/>
 				
-		<izpack input="${installer.dist.dir}/install.xml"
+		<izpack input="${installer.dist.dir}/install.xml" 
 		        output="${installer.jar.file}"
 			      inheritAll="true"
 		        installerType="standard"

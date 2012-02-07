@@ -36,6 +36,8 @@ public class GlobalInstallationContext
     public static final String DATA_DIR_VARNAME = "DSS_ROOT_DIR";
 
     public static final String BACKUP_FOLDER_VARNAME = "BACKUP_FOLDER";
+    
+    public static final String[] TECHNOLOGIES = {"PROTEOMICS", "SCREENING"};
 
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.
