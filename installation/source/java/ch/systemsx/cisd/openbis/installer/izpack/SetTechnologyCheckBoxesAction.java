@@ -112,7 +112,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
 
     boolean isTechnologyEnabled(File installDir, String technology)
     {
-        ITechnologyChecker technologyChecker = technologyCheckers.get(technology);
+        ITechnologyChecker technologyChecker = technologyCheckers.get(technology.toLowerCase());
         if (technologyChecker == null)
         {
             return true;

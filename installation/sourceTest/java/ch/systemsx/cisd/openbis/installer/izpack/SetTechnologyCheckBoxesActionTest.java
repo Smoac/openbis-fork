@@ -61,7 +61,7 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         saveProperties(properties, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
         
-        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "proteomics"));
+        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "PROTEOMICS"));
         assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, "screening"));
         assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
     }
@@ -74,7 +74,7 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
         
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "proteomics"));
-        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "screening"));
+        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "Screening"));
     }
     
     @Test
