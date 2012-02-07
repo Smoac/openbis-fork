@@ -436,7 +436,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
             File stagedStoredDataDirectory = transaction.getStoredDataDirectory();
             assert stagedStoredDataDirectory != null : "The folder that contains the stored data should not be null.";
-
+            //add this assert for check if the refactoring can be done
+            assert stagedStoredDataDirectory.equals(stagingBaseDirectoryHolder.getBaseDirectory());
+            
             storedDirectory = storeBaseDirectoryHolder.getBaseDirectory();
 
             File[] stagedFiles = stagedStoredDataDirectory.listFiles();
