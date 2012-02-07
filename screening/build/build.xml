@@ -63,7 +63,7 @@
 			<fileset dir="../screening/source">
 				<include name="**/*.sql" />
 			</fileset>	
-			<fileset dir="${sources}">
+			<fileset dir="../screening/${sources}">
 				<include name="*dss*.xml" />
 			</fileset>	
 			<manifest>
