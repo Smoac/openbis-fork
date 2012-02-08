@@ -16,6 +16,7 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -75,6 +76,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                         namespaceTypeContainer.objectNamespacesType, fg
                                                 .getNamespace().getId()));
                     }
+                    Arrays.sort(descriptors);
                     base.writer.writeCompoundArray(getFeatureGroupsFilename(),
                             featureGroupCompoundType, descriptors);
                 }

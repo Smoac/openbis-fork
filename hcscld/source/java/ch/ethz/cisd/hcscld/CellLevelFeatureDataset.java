@@ -53,7 +53,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     /**
      * The storage representation of a feature group.
      */
-    final static class FeatureGroupDescriptor
+    final static class FeatureGroupDescriptor implements Comparable<FeatureGroupDescriptor>
     {
         String id;
 
@@ -77,6 +77,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         String getNamespaceId()
         {
             return namespaceId.getValue();
+        }
+
+        public int compareTo(FeatureGroupDescriptor o)
+        {
+            return id.compareTo(o.id);
         }
     }
 

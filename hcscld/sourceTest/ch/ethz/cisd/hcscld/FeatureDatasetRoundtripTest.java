@@ -30,11 +30,15 @@ import java.util.HashSet;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import ch.ethz.cisd.hcscld.CellLevelFeatureDataset.FeatureGroupDescriptor;
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
+import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
+import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.HDF5TimeUnit;
+import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -92,7 +96,7 @@ public class FeatureDatasetRoundtripTest
         if (idOrNull != null)
         {
             wds.writeFeatures(idOrNull, fg, createStandardValue(idOrNull));
-        } else 
+        } else
         {
             for (ImageId id : wds.getImageQuantityStructure())
             {
@@ -589,6 +593,51 @@ public class FeatureDatasetRoundtripTest
         {
             writer.close();
         }
+        // The test is that setting features with different number of objects for different images
+        // does not fail.
+    }
+
+    @Test
+    public void testFeatureGroupSorting()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "featureGroupSorting.cld");
+        f.delete();
+        // f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        try
+        {
+            ICellLevelFeatureWritableDataset wds =
+                    writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+            ObjectNamespace namespace = wds.addObjectNamespace("main");
+            wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
+                    .addFloat32Feature("two")
+                    .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
+                    .createFeatureGroup("m");
+            wds.createFeaturesDefinition().objectNamespace(namespace)
+                    .addStringFeature("comment", 10).addBooleanFeature("valid")
+                    .createFeatureGroup("a");
+            wds.createFeaturesDefinition().objectNamespace(namespace).addInt16Feature("someval")
+                    .createFeatureGroup("z");
+        } finally
+        {
+            writer.close();
+        }
+        final IHDF5Reader reader = HDF5Factory.openForReading(f);
+        HDF5CompoundType<FeatureGroupDescriptor> type =
+                reader.compounds().getDataSetType(
+                        "Dataset_123/FeatureGroups",
+                        FeatureGroupDescriptor.class,
+                        HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
+                            { 100 }),
+                        HDF5CompoundMemberMapping.mapping("namespaceId"));
+        final FeatureGroupDescriptor[] featureGroups =
+                reader.compounds().readArray("/Dataset_123/FeatureGroups", type);
+        assertEquals(3, featureGroups.length);
+        assertEquals("A", featureGroups[0].getId());
+        assertEquals("M", featureGroups[1].getId());
+        assertEquals("Z", featureGroups[2].getId());
+        reader.close();
     }
 
     @Test(expectedExceptions = UnsupportedFileFormatException.class)
