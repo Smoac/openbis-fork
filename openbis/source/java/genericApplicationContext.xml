@@ -254,10 +254,10 @@
         // Plugins
     -->
 
-    <plugins:annotation-config />
-
-    <plugins:component-scan base-package="ch.systemsx.cisd.openbis">
-        <plugins:exclude-filter type="annotation"
-            expression="org.springframework.stereotype.Controller" />
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	  <bean class="ch.systemsx.cisd.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
+	
+    <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
+        <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
 </beans>
