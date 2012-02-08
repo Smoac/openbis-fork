@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
+import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_PROTEOMICS;
+import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_SCREENING;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +71,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
                     Utils.tryToGetServicePropertyOfAS(installDir, DISABLED_TECHNOLOGIES_KEY);
             if (technologies != null)
             {
-                return technologies.contains(technologyName) == false;
+                return technologies.contains(technologyName.toLowerCase()) == false;
             }
             return Utils.dssPropertiesContains(installDir, dssPropertiesSignature);
         }
@@ -79,8 +82,8 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
     
     public SetTechnologyCheckBoxesAction()
     {
-        registerTechnologyChecker(new SimpleTechnologyChecker("proteomics", "proteomics"));
-        registerTechnologyChecker(new SimpleTechnologyChecker("screening", "screen"));
+        registerTechnologyChecker(new SimpleTechnologyChecker(TECHNOLOGY_PROTEOMICS, "proteomics"));
+        registerTechnologyChecker(new SimpleTechnologyChecker(TECHNOLOGY_SCREENING, "screen"));
     }
     
     private void registerTechnologyChecker(ITechnologyChecker checker)
@@ -112,7 +115,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
 
     boolean isTechnologyEnabled(File installDir, String technology)
     {
-        ITechnologyChecker technologyChecker = technologyCheckers.get(technology.toLowerCase());
+        ITechnologyChecker technologyChecker = technologyCheckers.get(technology);
         if (technologyChecker == null)
         {
             return true;

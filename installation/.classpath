@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-uninstaller.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-util.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
