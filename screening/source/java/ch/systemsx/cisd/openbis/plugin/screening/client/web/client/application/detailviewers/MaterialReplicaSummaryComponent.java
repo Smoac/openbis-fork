@@ -258,7 +258,7 @@ public class MaterialReplicaSummaryComponent
     {
         double columnFactor = 1 + 0.25 * (3 - maxReplicaNumber);
         columnFactor = Math.max(columnFactor, 0.75);
-        return (int) (ONE_IMAGE_SIZE_FACTOR_PX * columnFactor);
+        return Math.max(64, (int) (ONE_IMAGE_SIZE_FACTOR_PX * columnFactor));
     }
 
     private static List<String> sortCopy(Set<String> values)
