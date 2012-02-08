@@ -8,3 +8,94 @@ div#vis {
 	font: 12px "Verdana", sans-serif; }	
 }
 div#vis div { padding-top: 2px;}
+
+/* Inspector */
+
+div.inspector {
+	font: 14px "Verdana", sans-serif;
+	padding: 10px;
+	border: 1px solid gray;
+	margin: 10px 2px;
+	font-weight: bold;
+}
+
+.property {
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.properties {
+	width: 100%;	
+}
+
+.properties tr:nth-child(odd) {
+  background-color:#eee;
+}
+
+.properties tr:nth-child(even) {
+  background-color:#fff;
+}
+
+.close {
+	float: right;
+}
+
+.close:hover {
+	opacity: 0.5;
+	color: #AAA;
+	cursor: pointer;
+}
+
+.downloads {
+	color: black;
+	background-color: #E3E3E3;
+}
+
+table.downloads {
+  font-family: "Trebuchet MS", sans-serif;
+	font-size: 14px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	margin: 0px;
+	padding: 0px;
+}
+
+/*
+.downloads caption {
+	text-align: left;
+}
+*/
+
+.downloads tr {
+	padding: 0px;
+}
+
+.downloads td {
+	border: 2px solid #FFFFFF;	
+	padding: 2px;
+}
+
+.downloads td:hover {
+	cursor: pointer;
+	text-decoration: underline
+}
+
+input:focus{
+background-color: white;
+}
+
+/* Legend */
+
+.legend .sequenced circle {
+   font: 14px "Verdana", sans-serif;
+   stroke-width: 1.5px;
+   fill: white;
+   stroke: DarkGreen;
+}
+
+.legend .notsequenced circle {
+   font: 14px "Verdana", sans-serif;
+   stroke-width: 1.5px;
+   fill: white;
+   stroke: DarkRed;
+}

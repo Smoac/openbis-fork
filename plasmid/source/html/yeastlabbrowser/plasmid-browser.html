@@ -9,8 +9,9 @@
 	<script type="text/javascript" src="d3.time.js"></script>
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
+	<script type="text/javascript" src="infra.js"></script>
 	<!-- To speed development, cache the requests -->
-	<script type="text/javascript" src="openbis-request-cache.js"></script>
+	<!-- script type="text/javascript" src="openbis-request-cache.js"></script -->
 <script>
 
 /// The openbisServer we use for our data
@@ -25,7 +26,7 @@ var plasmids = null;
 var inspectedPlasmids = [];
 
 /// The width of the inspectors section
-var inspectorsWidth = 400;
+var inspectorsWidth = 450;
 
 function getAppHeight(){
 	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
@@ -41,6 +42,9 @@ var didCreateVis = false;
 /// The visualization, referenced by functions that display content
 var vis;
 
+/// The inspectors, referenced by functions that show or hide inspectors
+var inspectors;
+
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
  */
@@ -50,6 +54,15 @@ function createVis()
 	
 	// Create a div to house the tree visualization and the inspectors
 	vis = d3.select("#vis");
+	
+	// An element for the inspectors.
+	inspectors = d3.select("#inspectorsContainer")
+		.style("width", + inspectorsWidth + "px")
+		.style("position", "relative")
+		.style("overflow", "auto")
+		.style("float", "right")
+	  .style("top", "20px")
+	  .style("display", "none");
 
 	didCreateVis = true;
 }
@@ -130,21 +143,118 @@ function initializePlasmids(result)
 function resizePlasmidTable()
 {
 	var tableWidth;
+	var areInspectorsVisible;
+	var padding = 20;
 	if (inspectedPlasmids.length > 0) {
-		tableWidth = getAppWidth() - inspectorsWidth;
+		tableWidth = getAppWidth() - inspectorsWidth - padding;
+		areInspectorsVisible = true;
 	} else {
-		tableWidth = getAppWidth();
+		tableWidth = getAppWidth() - padding;
+		areInspectorsVisible = false;
 	}
 	var plasmidTableTransition = d3.select('#plasmid-table').transition().duration(1000);	
-	plasmidTableTransition.attr('width', tableWidth)	;
+	plasmidTableTransition.attr('width', tableWidth);
+	if (areInspectorsVisible) {
+		$("#inspectorsContainer").show();
+	} else {
+		$("#inspectorsContainer").hide();
+	}
 }
 
 function inspectPlasmid(plasmid)
 {
-	inspectedPlasmids.push(plasmid);
+	if (inspectedPlasmids.indexOf(plasmid) < 0) {
+		inspectedPlasmids.push(plasmid);
+	}
 	resizePlasmidTable();
-	console.log(plasmid);
+	updateInspectors(1000);
 }
+
+function closeInspector(plasmid)
+{
+	var index = inspectedPlasmids.indexOf(plasmid);
+	if (index < 0) {
+		return;
+	}
+	
+	inspectedPlasmids.splice(index, 1);
+	resizePlasmidTable();
+	updateInspectors(1000);
+}
+
+/**
+ * Draw / update node inspectors
+ */
+function updateInspectors(duration)
+{	
+		// Draw / update the inspectors	
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
+		
+	var box = inspector
+			.enter()
+		.append("div")
+		.attr("class", "inspector")
+		.text(function(d) { return d.code });
+		
+	box.append("span")
+		.attr("class", "close")
+		.on("click", closeInspector)
+		.text("x");
+	
+	inspector
+		.exit()
+	.transition()
+	.duration(duration)
+	.style("opacity", "0")
+	.remove();
+		
+	var propsTable = box.append("table").attr("class", "properties");
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.properties) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");
+				
+	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
+	
+	downloadTable
+		.enter()
+			.append("table")
+				.attr("width", "100%")
+				.attr("class", "downloads");
+			
+/*
+	// Add a caption, but make sure there is just one (this does not work with select())
+	downloadTable.selectAll("caption")
+			.data(downloadTableCaption)
+		.enter()
+			.append("caption").text(function(d) { return d; });
+			
+	// We just want to see non-directories here
+	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
+	downloadTableRow
+		.enter()
+			.append("tr")
+				.append("td")
+				.style("text-align", "left")
+				.on("click", downloadTableFile)
+				.text(function(d) { return d.label; });
+	downloadTableRow
+		.exit()
+			.transition()
+				.duration(duration)
+				.style("opacity", "0")
+				.remove();
+	
+*/
+}
+
 
 /**
  * Display the samples returned by the server
@@ -165,21 +275,57 @@ function displayReturnedSamples(data)
 		vis.append("p").text("No data found.");
 		return;
 	}
+
+	visualize();
+}
+
+function plasmidFilter(filter, element, index, array) {
+//	console.log("plasmidFilter called with filter "+filter);
 	
-	// Pick the table element of the visualization
-	d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids)
+	for (var propertyName in element.properties) {
+		if (!(element.properties[propertyName] instanceof Function)) {
+			if (element.properties[propertyName].indexOf(filter) != -1) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+	//return element.properties.PLASMID_NAME.indexOf(filter) != -1;
+}
+
+function visualize(filterText)
+{
+	if (filterText == undefined) 
+	{
+		filterText = "";
+	}
+	
+	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(filterText));
+
+	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
 		// Code under enter is run if there is no HTML element for a data element
+	
+	selection
 		.enter()
-	.append("tr")
+		.append("tr")
 		.attr("class", "plasmid-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectPlasmid)
 		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.PLASMID_NAME, sample.properties.OWNER]; })
 			.enter()
-		.append("td")
-		.text(String)
-	
-	console.log(data);
+			.append("td")
+			.text(String)
+
+		selection.style("display", 
+										function(data)
+										{
+											if ($.inArray(data, displayedPlasmids) != -1) {
+												return "table-row"
+											} else {
+												return  "none"
+											}
+										});
 }
 
 /**
@@ -242,6 +388,10 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
+	$('#filter-form').submit(function() {
+		visualize($('#filter').val());
+	});
+
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
 		// Make the ENTER key the default button
@@ -274,9 +424,17 @@ $(document).ready(function() {
 			<button id="logout-button">Logout</button>
 		</div>
 		<div id="vis">
-			<table id="plasmid-table">
+				
+			<form id="filter-form" action="javascript:">	
+				<input id="filter" type="text"> 
+				<button class="filter-button" id="filter-button" type="submit">Filter</button>
+			</form>
+
+			<table id="plasmid-table" style="float: left">
 				<tr class="plasmid-table-header"><th>Code</th><th>Name</th><th>Owner</th></tr>
 			</table>
+			
+			<span id="inspectorsContainer"></span>
 		</div>
 	</div>
 </body>
