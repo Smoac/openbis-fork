@@ -24,6 +24,9 @@ var plasmids = null;
 /// The plasmids that are currently being inspected
 var inspectedPlasmids = [];
 
+/// The width of the inspectors section
+var inspectorsWidth = 400;
+
 function getAppHeight(){
 	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
 }
@@ -123,9 +126,24 @@ function initializePlasmids(result)
 	plasmids = frpPlasmids.concat(otherPlasmids);
 }
 
-function inspectPlasmid(data)
+/** Set the size of the plasmid-table based on whether or not inspectors are visible */
+function resizePlasmidTable()
 {
-	console.log(data);
+	var tableWidth;
+	if (inspectedPlasmids.length > 0) {
+		tableWidth = getAppWidth() - inspectorsWidth;
+	} else {
+		tableWidth = getAppWidth();
+	}
+	var plasmidTableTransition = d3.select('#plasmid-table').transition().duration(1000);	
+	plasmidTableTransition.attr('width', tableWidth)	;
+}
+
+function inspectPlasmid(plasmid)
+{
+	inspectedPlasmids.push(plasmid);
+	resizePlasmidTable();
+	console.log(plasmid);
 }
 
 /**
