@@ -189,10 +189,18 @@
     		<include name="ch/systemsx/cisd/openbis/installer/izpack/**/*"/>
     	</fileset>
     	<fileset dir="${classes.common}">
-    		<include name="**/utilities/*.class"/>
+    		<include name="**/*.class"/>
     	</fileset>
     	
     	<zipfileset src="${lib}/postgresql/postgresql.jar">
+    		<exclude name="META_INF/*"/>
+    		<include name="**/*"/>
+    	</zipfileset>
+    	<zipfileset src="${lib}/cisd-base/cisd-base.jar">
+    		<exclude name="META_INF/*"/>
+    		<include name="**/*"/>
+    	</zipfileset>
+    	<zipfileset src="${lib}/commons-io/commons-io.jar">
     		<exclude name="META_INF/*"/>
     		<include name="**/*"/>
     	</zipfileset>
@@ -213,7 +221,7 @@
     <mkdir dir="${dist}/../test-output" />
   </target>
 
-	<target name="ci" depends="clean, dist" />
+	<target name="ci" depends="clean, dist, build-common.ci" />
 
 
 </project>
