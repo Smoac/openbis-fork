@@ -11,7 +11,7 @@
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
 	<!-- To speed development, cache the requests -->
-	<!-- script type="text/javascript" src="openbis-request-cache.js"></script -->
+	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
 
 /// The openbisServer we use for our data
@@ -61,8 +61,8 @@ function createVis()
 		.style("position", "relative")
 		.style("overflow", "auto")
 		.style("float", "right")
-	  .style("top", "20px")
-	  .style("display", "none");
+		.style("top", "20px")		
+		.style("display", "none");
 
 	didCreateVis = true;
 }
@@ -142,18 +142,18 @@ function initializePlasmids(result)
 /** Set the size of the plasmid-table based on whether or not inspectors are visible */
 function resizePlasmidTable()
 {
-	var tableWidth;
+	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 20;
 	if (inspectedPlasmids.length > 0) {
-		tableWidth = getAppWidth() - inspectorsWidth - padding;
+		cellWidth = ((getAppWidth() - inspectorsWidth) / 3) - padding + "px";
 		areInspectorsVisible = true;
 	} else {
-		tableWidth = getAppWidth() - padding;
+		cellWidth = "100%";
 		areInspectorsVisible = false;
 	}
-	var plasmidTableTransition = d3.select('#plasmid-table').transition().duration(1000);	
-	plasmidTableTransition.attr('width', tableWidth);
+	var plasmidTableTransition = d3.selectAll('div.plasmid-table-data-cell');
+	plasmidTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -198,8 +198,15 @@ function filelist(plasmid, dataset, files) {
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
 			if (/\.svg$/.test(pathInDataSet)) {
-				inspector.append("object").attr("data", downloadUrl).attr("type", "image/svg+xml").attr("width", inspectorsWidth - 5).attr("height", inspectorsWidth - 5);
-				// inspector.append("img").attr("src", downloadUrl).attr("width", inspectorsWidth - 5);
+					// Retrieve the svg file and inject it into the DOM
+					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
+						var importedNode = document.importNode(xml.documentElement, true);
+						d3.select(importedNode)
+							.attr("width", inspectorsWidth - 20)
+							.attr("height", inspectorsWidth - 20)
+							.attr("viewBox", "200 200 650 650");
+						inspector.node().appendChild(importedNode);
+					});
 			}
 		}
 	}
@@ -348,17 +355,18 @@ function visualize(filterText)
 		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.PLASMID_NAME, sample.properties.OWNER]; })
 			.enter()
 			.append("td")
+			.append("div")
+			.attr("class", "plasmid-table-data-cell")
 			.text(String)
 
 		selection.style("display", 
-										function(data)
-										{
-											if ($.inArray(data, displayedPlasmids) != -1) {
-												return "table-row"
-											} else {
-												return  "none"
-											}
-										});
+			function(data) {
+				if ($.inArray(data, displayedPlasmids) != -1) {
+					return "table-row"
+				} else {
+					return  "none"
+				}
+			});
 		
 }
 
@@ -458,7 +466,7 @@ $(document).ready(function() {
 		<div id="button-group">	
 			<button id="logout-button" style="position: right">Logout</button>
 		</div>
-		<div style="padding-top: 10px">Filter: <input style="width: 200px" id="filter" type="text"></div> 		
+		<div style="padding-top: 10px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
 
 		<div id="vis">
 			<table id="plasmid-table" style="float: left">

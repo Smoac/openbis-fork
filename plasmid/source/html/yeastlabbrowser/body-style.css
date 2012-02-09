@@ -99,3 +99,7 @@ background-color: white;
    fill: white;
    stroke: DarkRed;
 }
+
+.plasmid-table-data-cell {
+	overflow: hidden;
+}
