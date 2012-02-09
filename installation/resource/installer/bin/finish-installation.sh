@@ -2,6 +2,7 @@
 #
 # 1) Mark all scripts as executable 
 # 2) Clean up all temporary folders after installation 
+# 3) Switch on/off plugins in standard-technologies-applicationContext.xml
 #
 
 BASE=`dirname "$0"`
