@@ -57,6 +57,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * Maintenance task send e-mails with reports on recently registered data sets.
+ * <p>
+ * The maintenance task may be run in one of two modes, the normal mode is to report on data sets
+ * registered in the period specified by the days-of-month or days-of-week. The period goes from the
+ * current day to the last day the maintenance task was run.
+ * <p>
+ * Sometimes, however, for the first run, the user may want to explicitly specify the date range for
+ * the maintenance task. This can be done, but the maintenance task should then only be run once,
+ * because it will always report on the specified date range.
  * 
  * @author Franz-Josef Elmer
  */
@@ -65,6 +73,12 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
     public static final String DAYS_OF_WEEK_KEY = "days-of-week";
 
     public static final String DAYS_OF_MONTH_KEY = "days-of-month";
+
+    public static final String DATE_RANGE_START_KEY = "date-range-start";
+
+    public static final String DATE_RANGE_STOP_KEY = "date-range-stop";
+
+    public static final String DATA_SET_TYPES = "data-set-types";
 
     public static final String SHOWN_DATA_SET_PROPERTIES_KEY = "shown-data-set-properties";
 
@@ -109,6 +123,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     private Set<Integer> daysOfMonth;
 
+    private Set<String> dataSetTypeCodes;
+
     private List<String> shownProperties;
 
     private List<EMailAddress> emailAddresses;
@@ -133,6 +149,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         daysOfMonth = extractDays(properties, DAYS_OF_MONTH_KEY, "1");
         shownProperties = getAsList(properties, SHOWN_DATA_SET_PROPERTIES_KEY);
         emailAddresses = getEMailAddresses(properties);
+        dataSetTypeCodes = extractDataSetTypeCodes(properties, DATA_SET_TYPES);
         operationLog.info("Task " + pluginName + " initialized.");
     }
 
@@ -147,6 +164,20 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             addresses.add(new EMailAddress(token.trim()));
         }
         return addresses;
+    }
+
+    private Set<String> extractDataSetTypeCodes(Properties properties, String key)
+    {
+        Set<String> result = new HashSet<String>();
+        String property = properties.getProperty(key, "").trim();
+        if (property.length() > 0)
+        {
+            for (String dataSetTypeCode : property.split(SEPARATOR))
+            {
+                result.add(dataSetTypeCode.trim());
+            }
+        }
+        return result;
     }
 
     private Set<Integer> extractDays(Properties properties, String key, String defaultValue)
@@ -221,6 +252,11 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         StringBuilder builder = new StringBuilder();
         for (DataSetType dataSetType : dataSetTypes)
         {
+            // Only create the report for the data set type codes that the user has specified
+            if (excludeDataSetType(dataSetType))
+            {
+                continue;
+            }
             DetailedSearchCriteria criteria = new DetailedSearchCriteria();
             criteria.setConnection(SearchCriteriaConnection.MATCH_ALL);
             criteria.setUseWildcardSearchMode(true);
@@ -250,6 +286,27 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         }
         String dataSetsAsString = builder.toString();
         return dataSetsAsString;
+    }
+
+    /**
+     * @return True if the data set type should <b>not</b> be included in the report; return false
+     *         if it should be included in the report.
+     */
+    private boolean excludeDataSetType(DataSetType dataSetType)
+    {
+        final boolean includeDataSetType;
+        if (dataSetTypeCodes.isEmpty())
+        {
+            // If the user did not explicitly restrict the data set types, include all of them
+            includeDataSetType = true;
+        } else
+        {
+            // Include those that are explicitly requested
+            includeDataSetType = dataSetTypeCodes.contains(dataSetType.getCode());
+        }
+
+        // Return the negation of includDataSetType
+        return !includeDataSetType;
     }
 
     private String createReport(DataSetType dataSetType, List<ExternalData> newDataSets,
