@@ -14,11 +14,8 @@
     <import resource="proteomics-plugin-applicationContext.xml"/>
     <import resource="screening-plugin-applicationContext.xml"/>
     
-    <plugins:annotation-config />
-
-    <plugins:component-scan base-package="ch.systemsx.cisd.openbis">
-        <plugins:exclude-filter type="annotation"
-            expression="org.springframework.stereotype.Controller" />
+    <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
+        <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
     
 </beans>
