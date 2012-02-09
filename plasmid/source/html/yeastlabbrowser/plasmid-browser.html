@@ -165,6 +165,7 @@ function inspectPlasmid(plasmid)
 {
 	if (inspectedPlasmids.indexOf(plasmid) < 0) {
 		inspectedPlasmids.push(plasmid);
+		openbisServer.listDataSetsForSample(plasmid, true, dataset.curry(plasmid));
 	}
 	resizePlasmidTable();
 	updateInspectors(1000);
@@ -182,11 +183,34 @@ function closeInspector(plasmid)
 	updateInspectors(1000);
 }
 
+function dataset(plasmid, data) {
+	for (var i in data.result) {
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
+	}
+}
+
+function filelist(plasmid, dataset, files) {
+	for (var i in files.result) {
+		if (!files.result[i].isDirectory) {
+			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
+			var fileTable = inspector.select("table");
+			var pathInDataSet = files.result[i].pathInDataSet;
+			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
+			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
+			if (/\.svg$/.test(pathInDataSet)) {
+				inspector.append("object").attr("data", downloadUrl).attr("type", "image/svg+xml").attr("width", inspectorsWidth - 5).attr("height", inspectorsWidth - 5);
+				// inspector.append("img").attr("src", downloadUrl).attr("width", inspectorsWidth - 5);
+			}
+		}
+	}
+}
+
+
 /**
  * Draw / update node inspectors
  */
 function updateInspectors(duration)
-{	
+{		
 		// Draw / update the inspectors	
 	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
 		
@@ -194,6 +218,7 @@ function updateInspectors(duration)
 			.enter()
 		.append("div")
 		.attr("class", "inspector")
+		.attr("id", function(d) {return d.code+"_INSPECTOR"})
 		.text(function(d) { return d.code });
 		
 	box.append("span")
@@ -335,7 +360,6 @@ function visualize(filterText)
 											}
 										});
 		
-		console.log(displayedPlasmids[0]);
 }
 
 /**
@@ -398,7 +422,7 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#filter').keydown(function() {
+	$('#filter').keyup(function() {
 		visualize($('#filter').val());
 	});
 
@@ -431,11 +455,10 @@ $(document).ready(function() {
 	</div>
 
 	<div id="main">
-		<div id="button-group">
-			Search:
-			<input id="filter" type="text"> 			
+		<div id="button-group">	
 			<button id="logout-button" style="position: right">Logout</button>
 		</div>
+		<div style="padding-top: 10px">Filter: <input style="width: 200px" id="filter" type="text"></div> 		
 
 		<div id="vis">
 			<table id="plasmid-table" style="float: left">
