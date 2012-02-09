@@ -166,6 +166,8 @@
           <arg value="$INSTALL_TMPEXTRACT" />
           <arg value="$DATA_TMPEXTRACT" />
           <arg value="$DSS_ROOT_DIR" />
+          <arg value="$INSTALL_PATH" />
+          <arg value="$DISABLED_TECHNOLOGIES" />
         </args>
       </executable>
     </pack>

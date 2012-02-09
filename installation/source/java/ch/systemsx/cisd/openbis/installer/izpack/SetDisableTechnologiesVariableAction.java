@@ -58,10 +58,8 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
             boolean isFirstTimeInstallation, File installDir)
     {
         String newTechnologyList = createListOfDisabledTechnologies(data);
-        if (isFirstTimeInstallation)
-        {
-            data.setVariable(DISABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
-        } else
+        data.setVariable(DISABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
+        if (isFirstTimeInstallation == false)
         {
             File configFile = new File(installDir, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
             List<String> list = FileUtilities.loadToStringList(configFile);

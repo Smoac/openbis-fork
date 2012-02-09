@@ -18,9 +18,10 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Properties;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility functions for exploring <code>service.properties</code> files of an installation.
@@ -31,7 +32,7 @@ class Utils
 {
     private static final String SERVERS_PATH = "servers/";
     static final String AS_PATH = SERVERS_PATH + "openBIS-server/jetty/";
-    static final String DSS_PATH = SERVERS_PATH + "datastore-server/";
+    static final String DSS_PATH = SERVERS_PATH + "datastore_server/";
     static final String SERVICE_PROPERTIES_PATH = "etc/service.properties";
 
     static String tryToGetServicePropertyOfAS(File installDir, String propertyKey)
@@ -83,16 +84,7 @@ class Utils
             return null;
         } finally
         {
-            if (fileReader != null)
-            {
-                try
-                {
-                    fileReader.close();
-                } catch (IOException ex)
-                {
-                    // silently ignored
-                }
-            }
+            IOUtils.closeQuietly(fileReader);
         }
     }
 }
