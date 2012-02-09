@@ -30,11 +30,9 @@
 	<target name="compile" depends="build-common.compile" />
 
 	<target name="run-tests">
-		<!-- No unit tests yet
 		<antcall target="build-common.run-tests">
 			<param name="test.suite" value="tests.xml" />
 		</antcall>
-		-->
 	</target>
 	
 	<target name="dist" depends="dist-generic, dist-standard-technologies, dist-screening, dist-proteomics">
