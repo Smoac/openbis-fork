@@ -20,5 +20,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/installation"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis_knime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis_api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis_standard_technologies"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
