@@ -280,18 +280,26 @@ function displayReturnedSamples(data)
 }
 
 function plasmidFilter(filter, element, index, array) {
-//	console.log("plasmidFilter called with filter "+filter);
+
+	filter = filter.toLowerCase();
 	
+	if (element.code.toLowerCase().indexOf(filter) != -1) {
+		return true;
+	}
+
+	if (element.identifier.toLowerCase().indexOf(filter) != -1) {
+		return true;
+	}
+
 	for (var propertyName in element.properties) {
 		if (!(element.properties[propertyName] instanceof Function)) {
-			if (element.properties[propertyName].indexOf(filter) != -1) {
+			if (element.properties[propertyName].toLowerCase().indexOf(filter) != -1) {
 				return true;
 			}
 		}
 	}
 
 	return false;
-	//return element.properties.PLASMID_NAME.indexOf(filter) != -1;
 }
 
 function visualize(filterText)
@@ -326,6 +334,8 @@ function visualize(filterText)
 												return  "none"
 											}
 										});
+		
+		console.log(displayedPlasmids[0]);
 }
 
 /**
@@ -388,9 +398,10 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#filter-form').submit(function() {
+	$('#filter').keydown(function() {
 		visualize($('#filter').val());
 	});
+
 
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
@@ -421,19 +432,15 @@ $(document).ready(function() {
 
 	<div id="main">
 		<div id="button-group">
-			<button id="logout-button">Logout</button>
+			Search:
+			<input id="filter" type="text"> 			
+			<button id="logout-button" style="position: right">Logout</button>
 		</div>
-		<div id="vis">
-				
-			<form id="filter-form" action="javascript:">	
-				<input id="filter" type="text"> 
-				<button class="filter-button" id="filter-button" type="submit">Filter</button>
-			</form>
 
+		<div id="vis">
 			<table id="plasmid-table" style="float: left">
 				<tr class="plasmid-table-header"><th>Code</th><th>Name</th><th>Owner</th></tr>
 			</table>
-			
 			<span id="inspectorsContainer"></span>
 		</div>
 	</div>
