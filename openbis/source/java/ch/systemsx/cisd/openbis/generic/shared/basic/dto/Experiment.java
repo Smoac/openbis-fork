@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 
 /**
  * The <i>GWT</i> equivalent to ExperimentPE.

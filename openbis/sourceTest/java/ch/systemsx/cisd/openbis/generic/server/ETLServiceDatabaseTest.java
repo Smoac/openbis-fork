@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOption;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
