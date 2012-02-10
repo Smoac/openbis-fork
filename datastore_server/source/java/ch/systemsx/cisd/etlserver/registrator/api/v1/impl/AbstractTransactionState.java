@@ -266,28 +266,23 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 dataSet.setSample(new SampleImmutable(sample));
             }
-            if (dataSet.getExperiment() != null)
+            
+            ExperimentIdentifier experimentId =
+                    registrationDetails.getDataSetInformation().getExperimentIdentifier();
+            if (null != experimentId)
             {
-                ExperimentIdentifier experimentId =
-                        registrationDetails.getDataSetInformation().getExperimentIdentifier();
-                if (null != experimentId)
+                IExperimentImmutable exp = tryFindExperimentToRegister(experimentId);
+                if (exp == null)
                 {
-                    IExperimentImmutable exp = tryFindExperimentToRegister(experimentId);
-                    if (exp == null)
-                    {
-                        exp = parent.getExperiment(experimentId.toString());
-                    }
-                    dataSet.setExperiment(exp);
+                    exp = parent.getExperiment(experimentId.toString());
                 }
+                dataSet.setExperiment(exp);
             }
-            if (dataSet.getExperiment() != null)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                    registrationDetails.getDataSetInformation().tryToGetExperiment();
+            if (null != experiment)
             {
-                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
-                        registrationDetails.getDataSetInformation().tryToGetExperiment();
-                if (null != experiment)
-                {
-                    dataSet.setExperiment(new ExperimentImmutable(experiment));
-                }
+                dataSet.setExperiment(new ExperimentImmutable(experiment));
             }
 
             List<String> parents =
