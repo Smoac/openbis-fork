@@ -103,3 +103,16 @@ background-color: white;
 .plasmid-table-data-cell {
 	overflow: hidden;
 }
+
+#plasmid-table tr:nth-child(odd) {
+  background-color:#eee;
+}
+
+#plasmid-table tr:nth-child(even) {
+  background-color:#fff;
+}
+
+#plasmid-table tr.plasmid-table-header {
+  background-color:#AAA;	
+}
+
