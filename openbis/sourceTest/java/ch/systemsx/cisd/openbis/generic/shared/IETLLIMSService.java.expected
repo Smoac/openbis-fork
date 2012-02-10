@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -473,6 +474,28 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier);
+
+    /**
+     * List experiments for a given list of experiment identifiers.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Experiment> listExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            List<ExperimentIdentifier> experimentIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions);
+
+    /**
+     * List experiments for a given list of project identifiers.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Experiment> listExperimentsForProjects(String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            List<ProjectIdentifier> projectIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions);
 
     /**
      * List all projects that the user can see.
