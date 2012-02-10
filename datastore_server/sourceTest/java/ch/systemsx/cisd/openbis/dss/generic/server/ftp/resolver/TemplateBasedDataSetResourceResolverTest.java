@@ -175,7 +175,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     allowing(service).listExperiments(SESSION_TOKEN,
                             Collections.singletonList(experimentIdentifier),
                             new ExperimentFetchOptions());
-                    will(returnValue(experiment));
+                    will(returnValue(Collections.singletonList(experiment)));
                 }
             });
 
