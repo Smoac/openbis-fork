@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -475,6 +476,26 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<Experiment> listExperiments(String sessionToken, ProjectIdentifier projectIdentifier)
     {
         logAccess(sessionToken, "listExperiments", "%s", projectIdentifier);
+        return null;
+    }
+
+    public List<Experiment> listExperiments(String sessionToken,
+            List<ExperimentIdentifier> experimentIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions)
+    {
+        logAccess(sessionToken, "listExperiments",
+                "EXPERIMENT_IDENTIFIERS(%s), EXPERIMENT_FETCH_OPTIONS(%s)", experimentIdentifiers,
+                experimentFetchOptions);
+        return null;
+    }
+
+    public List<Experiment> listExperimentsForProjects(String sessionToken,
+            List<ProjectIdentifier> projectIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions)
+    {
+        logAccess(sessionToken, "listExperimentsForProjects",
+                "PROJECT_IDENTIFIERS(%s), EXPERIMENT_FETCH_OPTIONS(%s)", projectIdentifiers,
+                experimentFetchOptions);
         return null;
     }
 

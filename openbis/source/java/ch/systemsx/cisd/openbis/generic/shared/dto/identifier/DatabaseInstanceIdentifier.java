@@ -58,6 +58,17 @@ public class DatabaseInstanceIdentifier implements Serializable
         this.databaseInstanceCode = databaseInstanceCode;
     }
 
+    public DatabaseInstanceIdentifier(boolean isOriginalSource, String databaseInstanceCode)
+    {
+        if (isOriginalSource)
+        {
+            this.databaseInstanceCode = HOME;
+        } else
+        {
+            this.databaseInstanceCode = databaseInstanceCode;
+        }
+    }
+
     /**
      * Usually you should not access database instance code directly. Look for appropriate helpers.
      * 

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -46,8 +47,8 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, SpaceDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SpaceDAO.class);
 
     SpaceDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -80,7 +81,9 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
 
     public final List<SpacePE> listSpaces() throws DataAccessException
     {
-        final List<SpacePE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.setFetchMode("registrator", FetchMode.JOIN);
+        final List<SpacePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
@@ -95,6 +98,7 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         assert databaseInstance != null : "Unspecified database instance.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.setFetchMode("registrator", FetchMode.JOIN);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
         final List<SpacePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())

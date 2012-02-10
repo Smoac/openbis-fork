@@ -275,6 +275,12 @@ public abstract class AbstractServerLogger implements IServer
         logAccess(sessionToken, "set_base_url", "BASE_URL(%s)", baseURL);
     }
 
+    public String getBaseIndexURL(String sessionToken)
+    {
+        logAccess(sessionToken, "get_base_url", "");
+        return null;
+    }
+
     public void setSessionUser(String sessionToken, String userID)
     {
         logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]

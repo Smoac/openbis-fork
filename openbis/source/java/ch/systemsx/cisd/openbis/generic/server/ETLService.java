@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -116,6 +117,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -370,6 +373,92 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         checkSession(sessionToken);
         return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId();
+    }
+
+    public List<Experiment> listExperiments(String sessionToken,
+            List<ExperimentIdentifier> experimentIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions) throws UserFailureException
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalArgumentException("SessionToken was null");
+        }
+        if (experimentIdentifiers == null)
+        {
+            throw new IllegalArgumentException("ExperimentIdentifiers were null");
+        }
+        if (experimentFetchOptions == null)
+        {
+            throw new IllegalArgumentException("ExperimentFetchOptions were null");
+        }
+
+        if (experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        {
+            ExperimentLister lister =
+                    new ExperimentLister(daoFactory, getSession(sessionToken).getBaseIndexURL());
+            return lister.listExperiments(experimentIdentifiers, experimentFetchOptions);
+        } else
+        {
+            List<Experiment> experiments = new ArrayList<Experiment>();
+            for (ExperimentIdentifier experimentIdentifier : experimentIdentifiers)
+            {
+                Experiment experiment = tryToGetExperiment(sessionToken, experimentIdentifier);
+                if (experiment != null)
+                {
+                    experiment.setFetchOptions(new ExperimentFetchOptions(ExperimentFetchOption
+                            .values()));
+                    experiments.add(experiment);
+                }
+            }
+            return experiments;
+        }
+    }
+
+    public List<Experiment> listExperimentsForProjects(String sessionToken,
+            List<ProjectIdentifier> projectIdentifiers,
+            ExperimentFetchOptions experimentFetchOptions)
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalArgumentException("SessionToken was null");
+        }
+        if (projectIdentifiers == null)
+        {
+            throw new IllegalArgumentException("ProjectIdentifiers were null");
+        }
+        if (experimentFetchOptions == null)
+        {
+            throw new IllegalArgumentException("ExperimentFetchOptions were null");
+        }
+
+        if (experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        {
+            ExperimentLister lister =
+                    new ExperimentLister(daoFactory, getSession(sessionToken).getBaseIndexURL());
+            return lister.listExperimentsForProjects(projectIdentifiers, experimentFetchOptions);
+        } else
+        {
+            List<Experiment> experiments = new ArrayList<Experiment>();
+            for (ProjectIdentifier projectIdentifier : projectIdentifiers)
+            {
+                List<Experiment> projectExperiments =
+                        listExperiments(sessionToken, projectIdentifier);
+                if (projectExperiments != null)
+                {
+                    for (Experiment projectExperiment : projectExperiments)
+                    {
+                        if (projectExperiment != null)
+                        {
+                            projectExperiment.setFetchOptions(new ExperimentFetchOptions(
+                                    ExperimentFetchOption.values()));
+                            experiments.add(projectExperiment);
+                        }
+                    }
+
+                }
+            }
+            return experiments;
+        }
     }
 
     public Experiment tryToGetExperiment(String sessionToken,

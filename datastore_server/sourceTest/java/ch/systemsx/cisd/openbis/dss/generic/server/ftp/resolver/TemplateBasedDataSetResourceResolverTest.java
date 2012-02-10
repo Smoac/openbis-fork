@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -58,13 +59,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * @author Kaloyan Enimanev
  */
-@Friend(toClasses=TemplateBasedDataSetResourceResolver.class)
+@Friend(toClasses = TemplateBasedDataSetResourceResolver.class)
 public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystemTestCase
 {
     private static final class SimpleFileContentProvider implements IHierarchicalContentProvider
@@ -75,7 +77,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         {
             this.root = root;
         }
-        
+
         public IHierarchicalContent asContent(ExternalData dataSet)
         {
             return asContent((IDatasetLocation) dataSet.tryGetAsDataSet());
@@ -98,9 +100,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     datasetDirectory, IDelegatedAction.DO_NOTHING);
         }
     }
-    
+
     private static final Date REGISTRATION_DATE = new Date(42);
-    
+
     private static final String RENDERED_REGISTRATION_DATE = TemplateBasedDataSetResourceResolver
             .extractDateValue(REGISTRATION_DATE);
 
@@ -123,14 +125,15 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private static final String BIG_TEMPLATE =
             "DS-${dataSetType}-${dataSetCode}-${dataSetDate}-${disambiguation}";
-    
 
     private TrackingMockery context;
+
     private IETLLIMSService service;
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
     private FtpPathResolverContext resolverContext;
+
     private TemplateBasedDataSetResourceResolver resolver;
 
     private Experiment experiment;
@@ -161,19 +164,21 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         File root = new File(workingDirectory, "data-sets");
         root.mkdirs();
         simpleFileContentProvider = new SimpleFileContentProvider(root);
-        
 
-        resolverContext = new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null);
+        resolverContext =
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null);
         context.checking(new Expectations()
             {
                 {
                     ExperimentIdentifier experimentIdentifier =
                             new ExperimentIdentifierFactory(EXP_ID).createIdentifier();
-                    allowing(service).tryToGetExperiment(SESSION_TOKEN, experimentIdentifier);
+                    allowing(service).listExperiments(SESSION_TOKEN,
+                            Collections.singletonList(experimentIdentifier),
+                            new ExperimentFetchOptions());
                     will(returnValue(experiment));
                 }
             });
-        
+
         ds1 =
                 new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1)
                         .registrationDate(REGISTRATION_DATE).getDataSet();
@@ -208,71 +213,75 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             throw new Error(m.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testInvalidConfig()
     {
         FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES).showParentsAndChildren().getConfig();
+                new FtpServerConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
+                        .showParentsAndChildren().getConfig();
         try
         {
             new TemplateBasedDataSetResourceResolver(config);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Template contains file name variable and the flag " +
-            		"to show parents/children data sets is set.", ex.getMessage());
+            assertEquals("Template contains file name variable and the flag "
+                    + "to show parents/children data sets is set.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testWithParentsTopLevel()
     {
         FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren().getConfig();
+                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+                        .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
-        
-        ds1.setParents(Arrays.<ExternalData>asList(ds2));
-        final List<ExternalData> dataSets = Arrays.<ExternalData>asList(ds1);
-        
+
+        ds1.setParents(Arrays.<ExternalData> asList(ds2));
+        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
         prepareListDataSetsByCode(ds2);
-        
+
         String dataSetPathElement = "DS-DS_TYPE1-ds1-" + RENDERED_REGISTRATION_DATE + "-A";
         String path = EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetPathElement;
         FtpFile ftpFile = resolver.resolve(path, resolverContext);
-        
+
         assertEquals(dataSetPathElement, ftpFile.getName());
         assertEquals(path, ftpFile.getAbsolutePath());
         assertEquals(true, ftpFile.isDirectory());
         List<FtpFile> files = ftpFile.listFiles();
-        assertEquals("PARENT-DS-DS_TYPE2-ds2-" + RENDERED_REGISTRATION_DATE + "-A", files.get(0).getName());
+        assertEquals("PARENT-DS-DS_TYPE2-ds2-" + RENDERED_REGISTRATION_DATE + "-A", files.get(0)
+                .getName());
         assertEquals(true, files.get(0).isDirectory());
         assertEquals("original", files.get(1).getName());
         assertEquals(true, files.get(1).isDirectory());
         assertEquals(2, files.size());
     }
-    
+
     @Test
     public void testChildOfParent()
     {
         FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren().getConfig();
+                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+                        .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
-        
-        ds1.setParents(Arrays.<ExternalData>asList(ds2));
+
+        ds1.setParents(Arrays.<ExternalData> asList(ds2));
         ds2.setChildren(Arrays.<ExternalData> asList(ds1, ds3));
-        final List<ExternalData> dataSets = Arrays.<ExternalData>asList(ds1);
-        
+        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
         prepareListDataSetsByCode(ds2);
         prepareGetDataSetMetaData(ds2);
         prepareListDataSetsByCode(ds1, ds3);
-        
+
         String dataSetPathElement = "DS-DS_TYPE1-ds1-" + RENDERED_REGISTRATION_DATE + "-A";
         String ds2AsParent = "PARENT-DS-DS_TYPE2-ds2-" + RENDERED_REGISTRATION_DATE + "-A";
 
@@ -280,7 +289,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                 EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetPathElement
                         + FtpConstants.FILE_SEPARATOR + ds2AsParent;
         FtpFile ftpFile = resolver.resolve(path, resolverContext);
-        
+
         assertEquals(ds2AsParent, ftpFile.getName());
         assertEquals(path, ftpFile.getAbsolutePath());
         assertEquals(true, ftpFile.isDirectory());
@@ -292,7 +301,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         assertEquals(true, files.get(1).isDirectory());
         assertEquals(2, files.size());
     }
-    
+
     @Test
     public void testAvoidInfiniteParentChildChains()
     {
@@ -377,51 +386,52 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                 EXP_ID + FtpConstants.FILE_SEPARATOR + ds1.getCode() + FtpConstants.FILE_SEPARATOR
                         + subPath;
 
-        List<ExternalData> dataSets = Arrays.<ExternalData>asList(ds1);
+        List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
 
         context.checking(new Expectations()
             {
                 {
-                    IHierarchicalContent content = context.mock(IHierarchicalContent.class, ds1.getCode());
+                    IHierarchicalContent content =
+                            context.mock(IHierarchicalContent.class, ds1.getCode());
 
                     one(hierarchicalContentProvider).asContent((ExternalData) ds1);
                     will(returnValue(content));
-                    
+
                     IHierarchicalContentNode rootNode =
                             context.mock(IHierarchicalContentNode.class, "root");
                     IHierarchicalContentNode fileNode =
                             context.mock(IHierarchicalContentNode.class, "file");
-                    
+
                     one(content).getRootNode();
                     will(returnValue(rootNode));
-                    
+
                     one(rootNode).getChildNodes();
                     will(returnValue(Arrays.asList(fileNode)));
-                    
+
                     one(fileNode).getName();
                     will(returnValue(subPath));
-                    
+
                     one(fileNode).getRelativePath();
                     will(returnValue(subPath));
-                    
+
                     exactly(2).of(fileNode).isDirectory();
                     will(returnValue(false));
-                    
+
                     one(fileNode).getFileLength();
                     will(returnValue(2L));
-                    
+
                     one(fileNode).getFile();
                     will(returnValue(null));
-                    
+
                     one(fileNode).getInputStream();
                     ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
                     will(returnValue(is));
-                    
+
                     allowing(content).getNode(subPath);
                     will(returnValue(fileNode));
-                    
+
                     atLeast(1).of(content).close();
                 }
             });
@@ -446,8 +456,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        List<ExternalData> dataSets =
-                Arrays.<ExternalData>asList(ds1, ds2);
+        List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1, ds2);
 
         prepareExperimentListExpectations(dataSets);
 
@@ -463,14 +472,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         assertEquals(2, files.size());
     }
 
-
     private void prepareExperimentListExpectations(final List<ExternalData> dataSets)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSetsByExperimentID(SESSION_TOKEN,
-                            new TechId(experiment));
+                    one(service).listDataSetsByExperimentID(SESSION_TOKEN, new TechId(experiment));
                     will(returnValue(dataSets));
                 }
             });
@@ -495,15 +502,15 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     {
         final List<String> codes = extractCodes(dataSets);
         context.checking(new Expectations()
-        {
             {
-                one(service).listDataSetsByCode(SESSION_TOKEN, codes);
-                will(returnValue(Arrays.asList(dataSets)));
-            }
-        });
-        
+                {
+                    one(service).listDataSetsByCode(SESSION_TOKEN, codes);
+                    will(returnValue(Arrays.asList(dataSets)));
+                }
+            });
+
     }
-    
+
     private List<String> extractCodes(final ExternalData... dataSets)
     {
         final List<String> codes = new ArrayList<String>();
@@ -513,7 +520,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         }
         return codes;
     }
-    
+
     private String getHierarchicalContentMockName(String dataSetCode)
     {
         return dataSetCode;

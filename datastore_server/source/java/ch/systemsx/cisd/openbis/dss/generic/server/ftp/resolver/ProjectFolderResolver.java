@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
@@ -80,6 +82,7 @@ public class ProjectFolderResolver implements IFtpPathResolver
         String sessionToken = context.getSessionToken();
         ProjectIdentifier identifier =
                 new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
-        return service.listExperiments(sessionToken, identifier);
+        return service.listExperimentsForProjects(sessionToken,
+                Collections.singletonList(identifier), new ExperimentFetchOptions());
     }
 }

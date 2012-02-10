@@ -62,7 +62,7 @@ public interface IServer extends ISessionProvider
      */
     @Transactional
     public SessionContextDTO tryToAuthenticate(final String user, final String password);
-    
+
     @Transactional
     public SessionContextDTO tryToAuthenticateAnonymously();
 
@@ -77,10 +77,14 @@ public interface IServer extends ISessionProvider
     public void setBaseIndexURL(String sessionToken, String baseIndexURL);
 
     @Transactional
+    public String getBaseIndexURL(String sessionToken);
+
+    @Transactional
     public DisplaySettings getDefaultDisplaySettings(String sessionToken);
 
     @Transactional
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits);
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
+            int maxEntityVisits);
 
     /**
      * Lists grid custom columns for a given grid id.

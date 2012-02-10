@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -408,16 +409,25 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentId).createIdentifier();
 
-        Experiment result = null;
+        List<Experiment> result = null;
         try
         {
-            result = service.tryToGetExperiment(sessionToken, experimentIdentifier);
+            result =
+                    service.listExperiments(sessionToken,
+                            Collections.singletonList(experimentIdentifier),
+                            new ExperimentFetchOptions());
         } catch (Throwable t)
         {
             operationLog.warn("Failed to get experiment with identifier :" + experimentId, t);
         }
 
-        return result;
+        if (result == null || result.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return result.get(0);
+        }
     }
 
     private String extractExperimentIdFromPath(String path)
@@ -467,8 +477,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath,
-                                evalElement.contentNode, getContentProvider.asContent(evalElement.dataSet),
-                                fileFilter);
+                                evalElement.contentNode,
+                                getContentProvider.asContent(evalElement.dataSet), fileFilter);
                 result.add(childFtpFile);
             }
         }

@@ -637,6 +637,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         session.setBaseIndexURL(baseIndexURL);
     }
 
+    public String getBaseIndexURL(String sessionToken)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        return session.getBaseIndexURL();
+    }
+
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
         Session session = getSession(sessionToken);

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 
 /**
  * The <i>GWT</i> equivalent to ExperimentPE.
@@ -55,6 +56,8 @@ public class Experiment extends CodeWithRegistration<Experiment> implements
     private String permId;
 
     private String permlink;
+
+    private ExperimentFetchOptions fetchOptions;
 
     public String getPermlink()
     {
@@ -124,6 +127,16 @@ public class Experiment extends CodeWithRegistration<Experiment> implements
     public void setAttachments(final List<Attachment> attachments)
     {
         this.attachments = attachments;
+    }
+
+    public ExperimentFetchOptions getFetchOptions()
+    {
+        return fetchOptions;
+    }
+
+    public void setFetchOptions(ExperimentFetchOptions fetchOptions)
+    {
+        this.fetchOptions = fetchOptions;
     }
 
     //

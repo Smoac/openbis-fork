@@ -215,7 +215,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         project.addExperiment(this);
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.STUDY_OBJECT_COLUMN, updatable = false)
     public MaterialPE getStudyObject()
     {

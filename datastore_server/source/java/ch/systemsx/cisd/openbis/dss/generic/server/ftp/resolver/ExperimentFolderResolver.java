@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -76,13 +77,16 @@ public class ExperimentFolderResolver implements IFtpPathResolver
         ExperimentIdentifier identifier =
                 new ExperimentIdentifierFactory(expIdentifier).createIdentifier();
 
-        Experiment exp = service.tryToGetExperiment(sessionToken, identifier);
-        if (exp == null)
+        List<Experiment> experiments =
+                service.listExperiments(sessionToken, Collections.singletonList(identifier),
+                        new ExperimentFetchOptions());
+        if (experiments == null || experiments.isEmpty())
         {
             return Collections.emptyList();
         } else
         {
-            return childLister.listExperimentChildrenPaths(exp, expIdentifier, context);
+            return childLister.listExperimentChildrenPaths(experiments.get(0), expIdentifier,
+                    context);
         }
     }
 }
