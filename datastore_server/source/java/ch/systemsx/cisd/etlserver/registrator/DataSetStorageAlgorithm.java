@@ -621,6 +621,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
                         stagedFile.getName(), storagePaths.storeBaseDirectory.getAbsolutePath(),
                         stagedFile.getName()).execute();
             }
+            
+            storagePaths.precommitBaseDirectory.delete();
         }
     }
 

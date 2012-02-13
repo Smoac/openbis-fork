@@ -95,6 +95,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected File stagingDirectory;
 
+    protected File prestagingDirectory;
+
+    protected File precommitDirectory;
+
     protected File incomingDataSetFile;
 
     protected File markerFile;
@@ -133,8 +137,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         mailClient = context.mock(IMailClient.class);
         dataSourceQueryService = context.mock(IDataSourceQueryService.class);
         dynamicTransactionQuery = context.mock(DynamicTransactionQuery.class);
-        
+
         stagingDirectory = new File(workingDirectory, "staging");
+        prestagingDirectory = new File(workingDirectory, "pre-staging");
+        precommitDirectory = new File(workingDirectory, "pre-commit");
     }
 
     @AfterMethod
@@ -177,8 +183,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, openBisService, mailClient,
-                        dataSetValidator, dataSourceQueryService, myFactory, true, threadParameters);
+                        workingDirectory, workingDirectory, workingDirectory, openBisService,
+                        mailClient, dataSetValidator, dataSourceQueryService, myFactory, true,
+                        threadParameters);
         return globalState;
     }
 
@@ -195,7 +202,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 }
             });
     }
-    
+
     /**
      * adds an extension to the Jython Path, so that all libraries in it will be visible to the
      * Jython environment.
@@ -236,11 +243,15 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             threadProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
                     validationScriptPropertyOrNull);
         }
-        threadProperties.setProperty(DataSetRegistrationService.STAGING_DIR,
+        threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.STAGING_DIR,
                 stagingDirectory.getPath());
-        
-        threadProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR, "use_original");
-        
+        threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_STAGING_DIR,
+                prestagingDirectory.getPath());
+        threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_COMMIT_DIR,
+                precommitDirectory.getPath());
+        threadProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
+                "use_original");
+
         return threadProperties;
     }
 

@@ -51,8 +51,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetRegistrationService<T extends DataSetInformation> implements
         IDataSetRegistrationService
 {
-    static final String STAGING_DIR = TopLevelDataSetRegistratorGlobalState.STAGING_DIR;
-
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
     private final OmniscientTopLevelDataSetRegistratorState registratorContext;

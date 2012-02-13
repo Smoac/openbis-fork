@@ -28,6 +28,8 @@ import java.util.Properties;
 
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -96,6 +98,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         didServiceRollbackHappen = false;
     }
 
+    
+    
     @Test
     public void testSimpleTransaction()
     {
@@ -108,6 +112,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        
+        
+        
         context.checking(new Expectations()
             {
                 {
@@ -121,9 +128,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-                    will(returnValue(new AtomicEntityOperationResult()));
-
+                    
+                    will(doAll(returnValue(new AtomicEntityOperationResult()), checkPrecommitDirIsNotEmpty()));
+                    
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                
+                    will(checkPrecommitDirIsEmpty());
                 }
             });
 
@@ -172,6 +182,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 incomingDataSetFile.listFiles().length, 0);
     }
 
+    private CustomAction checkPrecommitDirIsEmpty()
+    {
+        return new CustomAction("foo")
+        {
+            public Object invoke(Invocation invocation) throws Throwable
+            {
+                assertEquals("[]", Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
+                        .toString());
+                return null;
+            }
+        };
+    }
+    
+    private CustomAction checkPrecommitDirIsNotEmpty()
+    {
+        return new CustomAction("foo")
+        {
+            public Object invoke(Invocation invocation) throws Throwable
+            {
+                assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
+                return null;
+            }
+        };
+    }
+    
     private void checkStagingDirIsEmpty()
     {
         assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
