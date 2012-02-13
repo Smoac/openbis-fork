@@ -96,7 +96,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     // Used to create a staging directory for the storage processor
     private final File stagingDirectory;
-    
+
+    // Used to create a staging directory for the storage processor
+    private final File preCommitDirectory;
+
     // State that changes during execution
     private DataSetStorageAlgorithmState<T> state;
 
@@ -137,7 +140,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
-            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)
+            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory,
+            File precommitDirectory)
     {
         this.incomingDataSetFile = incomingDataSetFile;
         this.registrationDetails = registrationDetails;
@@ -148,6 +152,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         this.fileOperations = fileOperations;
         this.mailClient = mailClient;
         this.stagingDirectory = stagingDirectory;
+        this.preCommitDirectory = precommitDirectory;
 
         this.storeRoot = storageProcessor.getStoreRootDirectory();
         this.dataSetType = registrationDetails.getDataSetType();
@@ -160,7 +165,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Prepare registration of a data set. Expects initialized state, and changes into prepared state
+     * Prepare registration of a data set. Expects initialized state, and changes into prepared
+     * state
      * 
      * @param rollbackStack
      */
@@ -228,7 +234,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Ask the storage processor to commit. Used by clients of the algorithm. Expects stored state, and changes to commited state.
+     * Ask the storage processor to commit. Used by clients of the algorithm. Expects stored state,
+     * and changes to commited state.
      */
     public void commitStorageProcessor()
     {
@@ -436,7 +443,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
             File stagedStoredDataDirectory = transaction.getStoredDataDirectory();
             assert stagedStoredDataDirectory != null : "The folder that contains the stored data should not be null.";
-            
+
             storedDirectory = storeBaseDirectoryHolder.getBaseDirectory();
 
             File[] stagedFiles = stagedStoredDataDirectory.listFiles();

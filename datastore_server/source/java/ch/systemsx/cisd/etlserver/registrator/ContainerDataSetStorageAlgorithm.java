@@ -58,10 +58,12 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
             DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
-            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)
+            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory,
+            File precommitDirectory)
     {
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
-                dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory);
+                dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory,
+                precommitDirectory);
 
         state = new InitializedState<T>(this);
     }

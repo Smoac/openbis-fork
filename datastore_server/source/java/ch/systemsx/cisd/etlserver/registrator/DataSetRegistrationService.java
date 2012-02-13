@@ -71,6 +71,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final File stagingDirectory;
 
+    private final File precommitDirectory;
+    
     private final File incomingDataSetFile;
 
     private final DssRegistrationLogger dssRegistrationLog;
@@ -121,7 +123,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                         threadParameters.getThreadName(),
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
-
+this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
     }
 
@@ -349,7 +351,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                             registratorContext.getStorageProcessor(),
                             globalContext.getDataSetValidator(), globalContext.getDssCode(),
                             registratorContext.getFileOperations(), globalContext.getMailClient(),
-                            stagingDirectory);
+                            stagingDirectory, precommitDirectory);
         } else
         {
 
@@ -358,7 +360,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                             registratorContext.getStorageProcessor(),
                             globalContext.getDataSetValidator(), globalContext.getDssCode(),
                             registratorContext.getFileOperations(), globalContext.getMailClient(),
-                            stagingDirectory);
+                            stagingDirectory, precommitDirectory);
         }
         return algorithm;
     }
