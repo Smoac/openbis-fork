@@ -776,22 +776,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public List<String> getTrustedCrossOriginDomains(String sessionToken);
 
     /**
-     * Marks the storage of dataset as confirmed.
+     * Marks the storage of dataset as confirmed. Adds the given dataset to post-registration queue
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value =
         { ObjectKind.DATA_SET })
-    public void setStorageConfirmed(String sessionToken, String dataSetCode);
-
-    /**
-     * Adds the given dataset to post-registration queue.
-     */
-    @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.POSTREGISTRATION_QUEUE })
-    public void markDataSetForRegistration(String token, String dataSetCode);
+    public void setStorageConfirmed(String sessionToken, String dataSetCode);
 
     /**
      * Informs that the post-registration task for a given dataset was performed, and it should be

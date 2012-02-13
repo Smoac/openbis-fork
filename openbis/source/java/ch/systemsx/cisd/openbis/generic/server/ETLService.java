@@ -1593,20 +1593,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         dataBO.loadByCode(dataSetCode);
         dataBO.setStorageConfirmed();
-    }
-
-    public void markDataSetForRegistration(String sessionToken, String dataSetCode)
-    {
-        assert sessionToken != null : "Unspecified session token.";
-
-        final Session session = getSession(sessionToken);
-
-        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
-        dataBO.loadByCode(dataSetCode);
-        DataPE data = dataBO.getData();
-
-        daoFactory.getPostRegistrationDAO().addDataSet(data);
-
+        daoFactory.getPostRegistrationDAO().addDataSet(dataBO.getData());
     }
 
     public void markSuccessfulPostRegistration(String sessionToken, String dataSetCode)
