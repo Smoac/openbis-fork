@@ -57,23 +57,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses={PostRegistrationMaintenanceTask.class, TaskExecutor.class})
+@Friend(toClasses =
+    { PostRegistrationMaintenanceTask.class, TaskExecutor.class })
 public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestCase
 {
     private static final String TASK_1_NAME = "task 1";
+
     private static final String TASK_2_NAME = "task 2";
 
     private static final String TASK_NAME_PROPERTY = "task-name";
-    
+
     private static final class MockCleanupTask implements ICleanupTask
     {
         private static final long serialVersionUID = 1L;
+
         private final String name;
-        
+
         public MockCleanupTask(String name)
         {
             this.name = name;
@@ -83,13 +84,13 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         {
             cleanupInvocations.add(name);
         }
-        
+
     }
-    
+
     public static final class MockPostRegistrationTask extends AbstractPostRegistrationTask
     {
         private final IPostRegistrationTask task;
-        
+
         public MockPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
         {
             super(properties, service);
@@ -97,7 +98,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             task = mockTasks.get(taskName);
             assertNotNull("No task found for '" + taskName + "'.", task);
         }
-        
+
         public boolean requiresDataStoreLock()
         {
             return task.requiresDataStoreLock();
@@ -109,21 +110,30 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         }
 
     }
-    
-    private static Map<String, IPostRegistrationTask> mockTasks = new HashMap<String, IPostRegistrationTask>();
+
+    private static Map<String, IPostRegistrationTask> mockTasks =
+            new HashMap<String, IPostRegistrationTask>();
+
     private static List<String> cleanupInvocations = new ArrayList<String>();
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
 
     private IEncapsulatedOpenBISService service;
-    
+
     private ICleanupTask cleanupTask;
+
     private IPostRegistrationTask task1;
+
     private IPostRegistrationTaskExecutor executor1;
+
     private IPostRegistrationTask task2;
+
     private IPostRegistrationTaskExecutor executor2;
+
     private File cleanupTasksFolder;
+
     private File lastSeenDataSetFile;
 
     @BeforeMethod
@@ -141,7 +151,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         task2 = context.mock(IPostRegistrationTask.class, TASK_2_NAME);
         executor2 = context.mock(IPostRegistrationTaskExecutor.class, "executor 2");
         mockTasks.put(TASK_2_NAME, task2);
-        
+
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
         context.checking(new Expectations()
             {
@@ -154,7 +164,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         cleanupTasksFolder = new File(workingDirectory, "cleanup-tasks");
         lastSeenDataSetFile = new File(workingDirectory, "last-seen-data-set.txt");
     }
-    
+
     @AfterMethod(alwaysRun = true)
     public void afterMethod()
     {
@@ -188,33 +198,95 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertNoUexpectedInvocations();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLastSeenDataSetFile()
     {
         Properties properties = createDefaultProperties();
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-            new RecordingMatcher<TrackingDataSetCriteria>();
+
+        final Sequence sequence = context.sequence("tasks");
+
         context.checking(new Expectations()
-        {
             {
-                one(task1).requiresDataStoreLock();
-                will(returnValue(true));
-                one(task2).requiresDataStoreLock();
-                will(returnValue(false));
-                
-                one(service).listNewerDataSets(with(criteriaMatcher));
-                will(returnValue(Arrays.asList()));
-            }
-        });
-        FileUtilities.writeToFile(lastSeenDataSetFile, "42");
-        
+                {
+                    one(task1).requiresDataStoreLock();
+                    will(returnValue(true));
+                    one(task2).requiresDataStoreLock();
+                    will(returnValue(false));
+
+                    DataSetBuilder ds1 =
+                            new DataSetBuilder(42).code("ds-1").registrationDate(new Date(4711));
+
+                    one(service).listDataSetsForPostRegistration();
+                    will(returnValue(Arrays.asList(ds1.getDataSet())));
+
+                    one(task1).createExecutor("ds-1", false);
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
+                    will(returnValue(cleanupTask));
+                    inSequence(sequence);
+                    one(executor1).execute();
+                    inSequence(sequence);
+                    one(task2).createExecutor("ds-1", false);
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
+                    will(returnValue(cleanupTask));
+                    inSequence(sequence);
+                    one(executor2).execute();
+                    inSequence(sequence);
+
+                    one(service).markSuccessfulPostRegistration("ds-1");
+                    will(throwException(new Exception("Can't mark as registered")));
+                }
+            });
+
         PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
-        
-        assertEquals(42, criteriaMatcher.recordedObject().getLastSeenDataSetId());
-        assertEquals("42", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+
+        assertEquals("ds-1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+        assertEquals(0, cleanupInvocations.size());
+        assertEquals(true, maintenanceTask.requiresDataStoreLock());
+        assertEmptyCleanupTaskFolder();
+        assertNoUexpectedInvocations();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLastSeenDataSetFileExistsPriorToTheTask()
+    {
+        Properties properties = createDefaultProperties();
+
+        final Sequence sequence = context.sequence("tasks");
+
+        // when there is lastSeenDataSetFile it means, that the marking of the dataset has not
+        // succeeded.
+        // Before proceeding, the dataset which code is in this file will have to marked as
+        // postregistered and file will have to be deleted.
+        FileUtilities.appendToFile(lastSeenDataSetFile, "already there", false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(task1).requiresDataStoreLock();
+                    will(returnValue(true));
+                    one(task2).requiresDataStoreLock();
+                    will(returnValue(false));
+
+                    one(service).listDataSetsForPostRegistration();
+                    will(returnValue(Arrays.asList()));
+
+                    one(service).markSuccessfulPostRegistration("already there");
+                }
+            });
+
+        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
+        maintenanceTask.setUp("post-registration", properties);
+        maintenanceTask.execute();
+
+        assertFalse(lastSeenDataSetFile.exists());
         assertEquals(0, cleanupInvocations.size());
         assertEquals(true, maintenanceTask.requiresDataStoreLock());
         assertEmptyCleanupTaskFolder();
@@ -226,8 +298,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     public void testCleanup() throws IOException
     {
         Properties properties = createDefaultProperties();
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-                new RecordingMatcher<TrackingDataSetCriteria>();
+
         context.checking(new Expectations()
             {
                 {
@@ -236,7 +307,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     one(task2).requiresDataStoreLock();
                     will(returnValue(true));
 
-                    one(service).listNewerDataSets(with(criteriaMatcher));
+                    one(service).listDataSetsForPostRegistration();
                     will(returnValue(Arrays.asList()));
                 }
             });
@@ -246,14 +317,13 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         FileUtilities.writeToFile(file, "hello world");
         File cleanupFile2 = new File(cleanupTasksFolder, "blabla.ser");
         FileUtilities.writeToFile(cleanupFile2, "hello world");
-        
+
         PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
         maintenanceTask.setUp("post-registration", properties);
         maintenanceTask.execute();
-        
+
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Couldn't performed clean up task " + cleanupFile2, logRecorder.getLogContent());
-        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals(true, maintenanceTask.requiresDataStoreLock());
         assertEquals(1, cleanupInvocations.size());
         assertEquals(false, cleanupFile1.exists());
@@ -262,14 +332,15 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertNoUexpectedInvocations();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecute()
     {
         Properties properties = createDefaultProperties();
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-                new RecordingMatcher<TrackingDataSetCriteria>();
         final Sequence sequence = context.sequence("tasks");
+
+        FileUtilities.appendToFile(lastSeenDataSetFile, "already there", false);
+
         context.checking(new Expectations()
             {
                 {
@@ -278,9 +349,13 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     one(task2).requiresDataStoreLock();
                     will(returnValue(false));
 
-                    one(service).listNewerDataSets(with(criteriaMatcher));
-                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
-                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
+                    one(service).markSuccessfulPostRegistration("already there");
+
+                    one(service).listDataSetsForPostRegistration();
+                    DataSetBuilder ds1 =
+                            new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                    DataSetBuilder ds2 =
+                            new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
 
                     one(task1).createExecutor("ds-1", false);
@@ -316,6 +391,10 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     inSequence(sequence);
                     one(executor2).execute();
                     inSequence(sequence);
+
+                    one(service).markSuccessfulPostRegistration("ds-1");
+
+                    one(service).markSuccessfulPostRegistration("ds-2");
                 }
             });
 
@@ -328,8 +407,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                 + "Post registration of 1. of 2 data sets: ds-1\n"
                 + "INFO  OPERATION.PostRegistrationMaintenanceTask - "
                 + "Post registration of 2. of 2 data sets: ds-2", logRecorder.getLogContent());
-        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
-        assertEquals("2", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+        assertFalse(lastSeenDataSetFile.exists());
         assertEquals(0, cleanupInvocations.size());
         assertEmptyCleanupTaskFolder();
         assertNoUexpectedInvocations();
@@ -341,69 +419,6 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     {
         Properties properties = createDefaultProperties();
         properties.setProperty(PostRegistrationMaintenanceTask.IGNORE_DATA_SETS, "2011-03-01");
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-            new RecordingMatcher<TrackingDataSetCriteria>();
-        final Sequence sequence = context.sequence("tasks");
-        context.checking(new Expectations()
-        {
-            {
-                one(task1).requiresDataStoreLock();
-                will(returnValue(false));
-                one(task2).requiresDataStoreLock();
-                will(returnValue(false));
-                
-                one(service).listNewerDataSets(with(criteriaMatcher));
-                DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1");
-                try
-                {
-                    ds1.registrationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2011-03-02"));
-                } catch (ParseException ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                }
-                DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(42));
-                will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
-                
-                one(task1).createExecutor("ds-1", false);
-                will(returnValue(executor1));
-                inSequence(sequence);
-                one(executor1).createCleanupTask();
-                will(returnValue(cleanupTask));
-                inSequence(sequence);
-                one(executor1).execute();
-                inSequence(sequence);
-                one(task2).createExecutor("ds-1", false);
-                will(returnValue(executor2));
-                inSequence(sequence);
-                one(executor2).createCleanupTask();
-                will(returnValue(cleanupTask));
-                inSequence(sequence);
-                one(executor2).execute();
-                inSequence(sequence);
-            }
-        });
-        
-        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
-        maintenanceTask.setUp("post-registration", properties);
-        assertEquals(false, maintenanceTask.requiresDataStoreLock());
-        maintenanceTask.execute();
-        
-        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask -"
-                + " Post registration of 1. of 1 data sets: ds-1", logRecorder.getLogContent());
-        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
-        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
-        assertEquals(0, cleanupInvocations.size());
-        assertEmptyCleanupTaskFolder();
-        assertNoUexpectedInvocations();
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testExecuteWithExceptionThrownInExecute()
-    {
-        Properties properties = createDefaultProperties();
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-                new RecordingMatcher<TrackingDataSetCriteria>();
         final Sequence sequence = context.sequence("tasks");
         context.checking(new Expectations()
             {
@@ -413,11 +428,156 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     one(task2).requiresDataStoreLock();
                     will(returnValue(false));
 
-                    one(service).listNewerDataSets(with(criteriaMatcher));
-                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
-                    DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
-                    DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
-                    will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
+                    one(service).listDataSetsForPostRegistration();
+                    DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1");
+                    try
+                    {
+                        ds1.registrationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2011-03-02"));
+                    } catch (ParseException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                    DataSetBuilder ds2 =
+                            new DataSetBuilder(2).code("ds-2").registrationDate(new Date(42));
+                    will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
+
+                    one(task1).createExecutor("ds-1", false);
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
+                    will(returnValue(cleanupTask));
+                    inSequence(sequence);
+                    one(executor1).execute();
+                    inSequence(sequence);
+                    one(task2).createExecutor("ds-1", false);
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
+                    will(returnValue(cleanupTask));
+                    inSequence(sequence);
+                    one(executor2).execute();
+                    inSequence(sequence);
+
+                    one(service).markSuccessfulPostRegistration("ds-1");
+                }
+            });
+
+        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
+        maintenanceTask.setUp("post-registration", properties);
+        assertEquals(false, maintenanceTask.requiresDataStoreLock());
+        maintenanceTask.execute();
+
+        assertEquals("INFO  OPERATION.PostRegistrationMaintenanceTask -"
+                + " Post registration of 1. of 1 data sets: ds-1", logRecorder.getLogContent());
+        assertFalse(lastSeenDataSetFile.exists());
+        assertEquals(0, cleanupInvocations.size());
+        assertEmptyCleanupTaskFolder();
+        assertNoUexpectedInvocations();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testExecuteWithExceptionThrownInExecute()
+    {
+        Properties properties = createDefaultProperties();
+        final Sequence sequence = context.sequence("tasks");
+        context.checking(new Expectations()
+            {
+                {
+                    one(task1).requiresDataStoreLock();
+                    will(returnValue(false));
+                    one(task2).requiresDataStoreLock();
+                    will(returnValue(false));
+
+                    one(service).listDataSetsForPostRegistration();
+                    DataSetBuilder ds1 =
+                            new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                    DataSetBuilder ds2 =
+                            new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
+                    DataSetBuilder ds3 =
+                            new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
+                    will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(),
+                            ds1.getDataSet())));
+
+                    one(task1).createExecutor("ds-1", false);
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
+                    will(returnValue(new MockCleanupTask("A")));
+                    inSequence(sequence);
+                    one(executor1).execute();
+                    inSequence(sequence);
+                    one(task2).createExecutor("ds-1", false);
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
+                    will(returnValue(new MockCleanupTask("B")));
+                    inSequence(sequence);
+                    one(executor2).execute();
+                    inSequence(sequence);
+
+                    one(service).markSuccessfulPostRegistration("ds-1");
+
+                    one(task1).createExecutor("ds-2", false);
+                    will(returnValue(executor1));
+                    inSequence(sequence);
+                    one(executor1).createCleanupTask();
+                    will(returnValue(new MockCleanupTask("C")));
+                    inSequence(sequence);
+                    one(executor1).execute();
+                    inSequence(sequence);
+                    one(task2).createExecutor("ds-2", false);
+                    will(returnValue(executor2));
+                    inSequence(sequence);
+                    one(executor2).createCleanupTask();
+                    will(returnValue(new MockCleanupTask("D")));
+                    inSequence(sequence);
+                    one(executor2).execute();
+                    inSequence(sequence);
+                    will(throwException(new Throwable("error")));
+                }
+            });
+
+        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
+        maintenanceTask.setUp("post-registration", properties);
+        assertEquals(false, maintenanceTask.requiresDataStoreLock());
+        maintenanceTask.execute();
+
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
+                + "Task '2' for data set ds-2 failed.", logRecorder.getLogContent());
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
+                + "Because post registration task failed for data set ds-2 "
+                + "post registration tasks are postponed for the following data sets: [ds-3]",
+                logRecorder.getLogContent());
+        assertFalse(lastSeenDataSetFile.exists());
+        assertEquals("[D]", cleanupInvocations.toString());
+        assertEmptyCleanupTaskFolder();
+        assertNoUexpectedInvocations();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testExecuteWithExceptionThrownInCreateCleanUp()
+    {
+        Properties properties = createDefaultProperties();
+        final Sequence sequence = context.sequence("tasks");
+        context.checking(new Expectations()
+            {
+                {
+                    one(task1).requiresDataStoreLock();
+                    will(returnValue(false));
+                    one(task2).requiresDataStoreLock();
+                    will(returnValue(false));
+
+                    one(service).listDataSetsForPostRegistration();
+                    DataSetBuilder ds1 =
+                            new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                    DataSetBuilder ds2 =
+                            new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
+                    DataSetBuilder ds3 =
+                            new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
+                    will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(),
+                            ds1.getDataSet())));
 
                     one(task1).createExecutor("ds-1", false);
                     will(returnValue(executor1));
@@ -448,108 +608,31 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     will(returnValue(executor2));
                     inSequence(sequence);
                     one(executor2).createCleanupTask();
-                    will(returnValue(new MockCleanupTask("D")));
-                    inSequence(sequence);
-                    one(executor2).execute();
-                    inSequence(sequence);
-                    will(throwException(new Throwable("error")));
+                    will(returnValue(new Throwable("error")));
+
+                    one(service).markSuccessfulPostRegistration("ds-1");
+
                 }
             });
-        
+
         PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
         maintenanceTask.setUp("post-registration", properties);
         assertEquals(false, maintenanceTask.requiresDataStoreLock());
         maintenanceTask.execute();
-        
+
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
-                + "Task '2' for data set ds-2 failed.",
-                logRecorder.getLogContent());
-        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
-                + "Because post registration task failed for data set ds-2 "
-                + "post registration tasks are postponed for the following data sets: [ds-3]",
-                logRecorder.getLogContent());
-        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
-        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
-        assertEquals("[D]", cleanupInvocations.toString());
-        assertEmptyCleanupTaskFolder();
-        assertNoUexpectedInvocations();
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testExecuteWithExceptionThrownInCreateCleanUp()
-    {
-        Properties properties = createDefaultProperties();
-        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
-                new RecordingMatcher<TrackingDataSetCriteria>();
-        final Sequence sequence = context.sequence("tasks");
-        context.checking(new Expectations()
-        {
-            {
-                one(task1).requiresDataStoreLock();
-                will(returnValue(false));
-                one(task2).requiresDataStoreLock();
-                will(returnValue(false));
-                
-                one(service).listNewerDataSets(with(criteriaMatcher));
-                DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
-                DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
-                DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
-                will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
-                
-                one(task1).createExecutor("ds-1", false);
-                will(returnValue(executor1));
-                inSequence(sequence);
-                one(executor1).createCleanupTask();
-                will(returnValue(new MockCleanupTask("A")));
-                inSequence(sequence);
-                one(executor1).execute();
-                inSequence(sequence);
-                one(task2).createExecutor("ds-1", false);
-                will(returnValue(executor2));
-                inSequence(sequence);
-                one(executor2).createCleanupTask();
-                will(returnValue(new MockCleanupTask("B")));
-                inSequence(sequence);
-                one(executor2).execute();
-                inSequence(sequence);
-                
-                one(task1).createExecutor("ds-2", false);
-                will(returnValue(executor1));
-                inSequence(sequence);
-                one(executor1).createCleanupTask();
-                will(returnValue(new MockCleanupTask("C")));
-                inSequence(sequence);
-                one(executor1).execute();
-                inSequence(sequence);
-                one(task2).createExecutor("ds-2", false);
-                will(returnValue(executor2));
-                inSequence(sequence);
-                one(executor2).createCleanupTask();
-                will(returnValue(new Throwable("error")));
-            }
-        });
-        
-        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
-        maintenanceTask.setUp("post-registration", properties);
-        assertEquals(false, maintenanceTask.requiresDataStoreLock());
-        maintenanceTask.execute();
-        
-        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
-                + "Task '2' for data set ds-2 failed.",
-                logRecorder.getLogContent());
+                + "Task '2' for data set ds-2 failed.", logRecorder.getLogContent());
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Because post registration task failed for data set ds-2 "
                 + "post registration tasks are postponed for the following data sets: [ds-3]",
                 logRecorder.getLogContent());
-        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
-        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+        assertFalse(lastSeenDataSetFile.exists());
         assertEquals("[]", cleanupInvocations.toString());
         assertEmptyCleanupTaskFolder();
         assertNoUexpectedInvocations();
         context.assertIsSatisfied();
     }
-    
+
     private void assertNoUexpectedInvocations()
     {
         String logContent = logRecorder.getLogContent();
@@ -559,12 +642,12 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             fail(logContent.substring(index));
         }
     }
-    
+
     private void assertEmptyCleanupTaskFolder()
     {
         assertEquals("[]", Arrays.asList(cleanupTasksFolder.list()).toString());
     }
-    
+
     private Properties createDefaultProperties()
     {
         Properties properties = new Properties();
