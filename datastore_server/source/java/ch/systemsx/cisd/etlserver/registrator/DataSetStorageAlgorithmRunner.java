@@ -240,8 +240,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
             {
-                openBISService.setStorageConfirmed(storageAlgorithm.getDataSetInformation()
-                        .getDataSetCode());
+                String dataSetCode = storageAlgorithm.getDataSetInformation()
+                        .getDataSetCode();
+                openBISService.setStorageConfirmed(dataSetCode);
+                System.err.println("making the datasetCode for registration : "+dataSetCode);
+                openBISService.markDataSetForRegistration(dataSetCode);
             }
 
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");

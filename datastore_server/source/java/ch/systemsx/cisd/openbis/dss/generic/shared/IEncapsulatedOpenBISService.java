@@ -496,4 +496,22 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public void setStorageConfirmed(String dataSetCode);
+    
+    /**
+     * {@link IETLLIMSService#markDataSetForRegistration(String, String)}
+     */
+    @ManagedAuthentication
+    public void markDataSetForRegistration(String dataSetCode);
+    
+    /**
+     * {@link IETLLIMSService#markSuccessfulPostRegistration(String, String)}
+     */
+    @ManagedAuthentication
+    public void markSuccessfulPostRegistration(String dataSetCode);
+
+    /**
+     * {@link IETLLIMSService#listDataSetsForPostRegistration(String, String)}
+     */
+    @ManagedAuthentication
+    public List<ExternalData> listDataSetsForPostRegistration();
 }

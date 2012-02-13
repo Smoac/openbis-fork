@@ -137,7 +137,20 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     public void execute()
     {
         executor.cleanup();
-        List<ExternalData> dataSets = getSortedUnseenDataSets();
+
+        // check if there is any dataset for wich post-registration task has been executed, but has
+        // not been marked as such in the service.
+        // If there is one we send information to the service and delete the marker file.
+        if (lastSeenDataSetFile.exists())
+        {
+            String lastRegisteredCode =
+                    FileUtilities.loadToString(lastSeenDataSetFile).trim();
+                service.markSuccessfulPostRegistration(lastRegisteredCode);
+                deleteLastSeenDataSetId();
+        }
+
+        List<ExternalData> dataSets = getDataSetsForPostRegistration();
+        
         for (int i = 0; i < dataSets.size(); i++)
         {
             ExternalData dataSet = dataSets.get(i);
@@ -151,8 +164,17 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                     IPostRegistrationTask task = entry.getValue();
                     String taskName = entry.getKey();
                     executor.execute(task, taskName, code, dataSet.isContainer());
+                    System.err.println("The post registration of the dataset" +dataSet.getId());
                 }
-                saveLastSeenDataSetId(dataSet.getId());
+
+                // After succesful registration the information is send to the service.
+                // To ensure we won't process the same dataset twice we create a marker file with
+                // the dataset ID, and delete it only after the service call succeeded.
+                // We won't start processing new datasets if the marker file is not deleted.
+                saveLastSeenDataSetId(code);
+                service.markSuccessfulPostRegistration(code);
+                deleteLastSeenDataSetId();
+
             } catch (Throwable ex)
             {
                 operationLog.error("Post registration failed.", ex);
@@ -162,16 +184,12 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         }
     }
 
-    private List<ExternalData> getSortedUnseenDataSets()
+    /**
+     * @return List of datasets to process in post registration. Sorted by Id, incrementally. 
+     */
+    private List<ExternalData> getDataSetsForPostRegistration()
     {
-        long lastSeenDataSetId = 0;
-        if (lastSeenDataSetFile.exists())
-        {
-            lastSeenDataSetId =
-                    Long.parseLong(FileUtilities.loadToString(lastSeenDataSetFile).trim());
-        }
-        TrackingDataSetCriteria criteria = new TrackingDataSetCriteria(lastSeenDataSetId);
-        List<ExternalData> dataSets = service.listNewerDataSets(criteria);
+        List<ExternalData> dataSets = service.listDataSetsForPostRegistration();
         List<ExternalData> filteredList = new ArrayList<ExternalData>();
         for (ExternalData dataSet : dataSets)
         {
@@ -190,10 +208,21 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         return filteredList;
     }
 
-    private void saveLastSeenDataSetId(long lastSeenDataSetId)
+    /**
+     * Store locally the ID of the dataset, wich has just been processed.
+     */
+    private void saveLastSeenDataSetId(String lastRegisteredDataSetCode)
     {
-        FileUtilities.writeToFile(newLastSeenDataSetFile, Long.toString(lastSeenDataSetId));
+        FileUtilities.writeToFile(newLastSeenDataSetFile,lastRegisteredDataSetCode);
         newLastSeenDataSetFile.renameTo(lastSeenDataSetFile);
+    }
+
+    /**
+     * Delete the information about recently processed dataset.
+     */
+    private void deleteLastSeenDataSetId()
+    {
+        lastSeenDataSetFile.delete();
     }
 
     private void logPostponingMessage(List<ExternalData> dataSets, int i)
@@ -206,7 +235,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             {
                 codes.add(dataSets.get(j).getCode());
             }
-            
+
             operationLog.error("Because post registration task failed for data set "
                     + dataSets.get(i).getCode() + " post registration tasks are postponed for "
                     + "the following data sets: " + CollectionUtils.abbreviate(codes, 30));
