@@ -125,7 +125,6 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     will(returnValue(new AtomicEntityOperationResult()));
 
                     allowing(openBisService).setStorageConfirmed(with(any(String.class)));
-                    allowing(openBisService).markDataSetForRegistration(with(any(String.class)));
                     
                 }
             });
