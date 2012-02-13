@@ -58,6 +58,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File stagingDir;
 
+    private final File preCommitDir;
+
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -127,6 +129,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.dssRegistrationLogDir = dssRegistrationLogDir;
         this.preStagingDir = getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.stagingDir = getStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
+        this.preCommitDir = getPreCommitDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
@@ -189,6 +192,14 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getStagingDir()
     {
         return stagingDir;
+    }
+
+    /**
+     * Get's the precommit directory. It is used to keep "ready to store" files.
+     */
+    public File getPreCommitDir()
+    {
+        return preCommitDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()
@@ -274,6 +285,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     public static final String PRE_STAGING_DIR = "pre-staging-dir";
 
+    public static final String PRE_COMMIT_DIR = "pre-commit-dir";
+    
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -282,6 +295,11 @@ public class TopLevelDataSetRegistratorGlobalState
     private static File getPreStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_STAGING_DIR, "pre-staging");
+    }
+    
+    private static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
+    {
+        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, "pre-commit");
     }
 
     /**
