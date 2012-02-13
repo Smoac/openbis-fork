@@ -84,6 +84,8 @@ public abstract class ExternalData extends CodeWithRegistration<ExternalData> im
 
     private ContainerDataSet containerOrNull;
 
+    private boolean storageConfirmation;
+
     /**
      * @return true if the data set is available for viewing/editing.
      */
@@ -355,6 +357,16 @@ public abstract class ExternalData extends CodeWithRegistration<ExternalData> im
     public void setOrderInContainer(Integer orderInContainer)
     {
         this.orderInContainer = orderInContainer;
+    }
+
+    public boolean isStorageConfirmation()
+    {
+        return storageConfirmation;
+    }
+
+    public void setStorageConfirmation(boolean storageConfirmation)
+    {
+        this.storageConfirmation = storageConfirmation;
     }
 
     // 'transient'

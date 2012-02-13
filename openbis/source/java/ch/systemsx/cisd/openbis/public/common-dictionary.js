@@ -55,7 +55,7 @@ var common = {
   explore_label: "Explore:",
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
   breadcrumbs_separator: "»",
-	 
+  storage_confirmation: "Storage Confirmed",
   //
   // Deletion
   // 

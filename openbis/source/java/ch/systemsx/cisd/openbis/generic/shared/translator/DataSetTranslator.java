@@ -212,6 +212,7 @@ public class DataSetTranslator
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         dataSet.setStatus(externalDataPE.getStatus());
         dataSet.setPresentInArchive(externalDataPE.isPresentInArchive());
+        dataSet.setStorageConfirmation(externalDataPE.isStorageConfirmation());
         dataSet.setSpeedHint(externalDataPE.getSpeedHint());
         dataSet.setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         dataSet.setLocation(externalDataPE.getLocation());

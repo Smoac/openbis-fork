@@ -63,4 +63,6 @@ public class DatasetRecord extends CodeRecord
     public Boolean present_in_archive;
 
     public Integer speed_hint;
+
+    public Boolean storage_confirmation;
 }

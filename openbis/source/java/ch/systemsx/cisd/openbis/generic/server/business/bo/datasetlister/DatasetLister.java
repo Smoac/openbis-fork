@@ -698,6 +698,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setShareId(record.share_id);
         dataSet.setFileFormatType(record.ffty_id == null ? null : fileFormatTypes
                 .get(record.ffty_id));
+        dataSet.setStorageConfirmation(record.storage_confirmation == null ? false
+                : record.storage_confirmation);
         dataSet.setLocation(record.location);
         dataSet.setSize(record.size);
         dataSet.setLocatorType(record.loty_id == null ? null : locatorTypes.get(record.loty_id));

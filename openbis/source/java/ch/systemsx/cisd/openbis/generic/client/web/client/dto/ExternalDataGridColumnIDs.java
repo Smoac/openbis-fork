@@ -76,4 +76,5 @@ public class ExternalDataGridColumnIDs
 
     public static final String PROPERTIES_PREFIX = "property-";
 
+    public static final String STORAGE_CONFIRMATION = "STORAGE_CONFIRMATION";
 }

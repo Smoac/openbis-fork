@@ -42,6 +42,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SAMPLE_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SHOW_DETAILS_LINK;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SOURCE_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.STORAGE_CONFIRMATION;
 
 import java.util.List;
 
@@ -157,6 +158,8 @@ public abstract class AbstractExternalDataProvider extends
             builder.column(DATA_STORE_CODE).addString(dataSet.getDataStore().getCode());
             builder.column(PERM_ID).addString(dataSet.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(dataSet.getPermlink());
+            builder.column(STORAGE_CONFIRMATION).addString(
+                    SimpleYesNoRenderer.render(dataSet.isStorageConfirmation()));
             IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
             DataSetType dataSetType = dataSet.getDataSetType();
             if (dataSetType != null)
