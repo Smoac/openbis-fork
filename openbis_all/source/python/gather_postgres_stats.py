@@ -42,7 +42,8 @@ SERVERS = {
             "openbis@newchipdb.ethz.ch" : "newchipdb",
             "openbis@basynthec.ethz.ch" : "basynthec",
             "openbis@sprint-openbis.ethz.ch" : "sprint",
-            "openbis@cisd-openbis.ethz.ch" : "demo"
+            "openbis@cisd-openbis.ethz.ch" : "demo",
+            "openbis@cmng-openbis.dbm.unibas.ch" : "sinergia"
            }
 
 PSQL_PROPERTIES = ["archive_mode",
@@ -82,7 +83,7 @@ def getAbsolutePath():
   '''
   Returns the absolute path of the script itself
   '''
-  return os.path.dirname(os.path.abspath(__file__))
+  return os.path.dirname(os.path.abspath( __file__ ))
 
 def parseConfigurationFile():
   '''
@@ -90,6 +91,7 @@ def parseConfigurationFile():
   reads out the settings defined in the config file
   '''
   config = ConfigParser.ConfigParser()
+  # get the absolute path to the script
   config.read(os.path.join(getAbsolutePath(), CONFIGFILE))
   config.read(CONFIGFILE)
   return config
@@ -103,14 +105,14 @@ def logIntoConfluence(config):
   '''
   user = config.get("DEFAULT", "username")
   password = config.get("DEFAULT", "password")
-  ConfluenceToken = ConfluenceServer.confluence1.login(user, password)
+  ConfluenceToken = ConfluenceServer.confluence2.login(user, password)
   return ConfluenceToken
   
 def logOutConluence(token):
   '''
   Logs out from confluence and invalidates the session token
   '''
-  ConfluenceServer.confluence1.logout(token)
+  ConfluenceServer.confluence2.logout(token)
   
 def writeToConfluence (serverMap, token, config):
   '''
@@ -121,32 +123,38 @@ def writeToConfluence (serverMap, token, config):
   spacekey = config.get("DEFAULT", "spacekey")
   pagetitle = config.get("DEFAULT", "pagetitle")
   
-  page = ConfluenceServer.confluence1.getPage(token, spacekey, pagetitle)
+  page = ConfluenceServer.confluence2.getPage(token, spacekey, pagetitle)
   if page is None:
       exit("Could not find page " + spacekey + ":" + pagetitle)
   
-  wikiMarkup = "h1. Server List" + NEWLINE
-  wikiMarkup += "{table-plus:|autoNumber=true}" + NEWLINE
-  wikiMarkup += PIPE + SINGLE_SPACE + PIPE
-  
+  wikiMarkup = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \
+               \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> \
+               <html xmlns=\"http://www.w3.org/1999/xhtml\"> \
+               <head> <title></title> </head>\
+               <body> \
+                 <table> \
+                   <tbody>\
+                     <tr> \
+                       <th></th>"
+   
   for server in (serverMap.iterkeys()):
-    wikiMarkup += PIPE + PIPE + SERVERS[server]
-  wikiMarkup += NEWLINE
-    
+    wikiMarkup += "<th>" + SERVERS[server] + "</th>"
+  wikiMarkup +=  "</tr>"
+   
   try:
     for property in PSQL_PROPERTIES:
-      wikiMarkup += PIPE + property + PIPE
+      wikiMarkup +=  "<tr> <td>" + property + "</td>"
       for server in (serverMap.iterkeys()):
-         wikiMarkup += serverMap[server][property] + PIPE    
-      wikiMarkup += NEWLINE
+         wikiMarkup += "<td>" + serverMap[server][property] + "</td>"
+      wikiMarkup += "</tr>"
   except:
     print("Not run correctly! Check ssh logins.")  
   
-  wikiMarkup += NEWLINE + "{table-plus}"
-  wikiMarkup += NEWLINE + "Last update:" + SINGLE_SPACE + getTimestamp()
-  
+  wikiMarkup += "</tbody> </table>"
+  wikiMarkup += NEWLINE + "Last update:" + SINGLE_SPACE + getTimestamp() + NEWLINE
+ 
   page["content"] = wikiMarkup
-  ConfluenceServer.confluence1.storePage(token, page)
+  ConfluenceServer.confluence2.storePage(token, page)
   
 def callCommandLine(args):
   '''
@@ -184,7 +192,6 @@ def  main():
   for (server, alias) in SERVERS.items():
     args = SSH_BIN + SINGLE_SPACE + SSH_PARAMETERS + SINGLE_SPACE + os.path.join(getAbsolutePath(), SSH_KEY) + \
       SINGLE_SPACE + server + SINGLE_SPACE + DOUBLE_QUOTE + PSQL_BIN + PSQL_PARAMETERS + DOUBLE_QUOTE
-    print(args)
     commandLineOutput = callCommandLine(args)
     sDict = dictOutput (commandLineOutput)
     serverMap [server] = sDict
