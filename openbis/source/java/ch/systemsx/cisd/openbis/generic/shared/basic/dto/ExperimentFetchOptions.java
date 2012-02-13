@@ -30,6 +30,11 @@ public class ExperimentFetchOptions implements Serializable
 
     private Set<ExperimentFetchOption> options = new HashSet<ExperimentFetchOption>();
 
+    public ExperimentFetchOptions()
+    {
+        this((ExperimentFetchOption[]) null);
+    }
+
     public ExperimentFetchOptions(ExperimentFetchOption... options)
     {
         // add BASIC option by default
