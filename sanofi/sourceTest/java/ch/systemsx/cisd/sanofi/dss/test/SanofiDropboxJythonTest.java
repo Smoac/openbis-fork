@@ -847,6 +847,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                                     ANALYSIS_DATA_SET_FILE_NAME));
 
                     allowing(openBisService).setStorageConfirmed(with(any(String.class)));
+                    allowing(openBisService).markDataSetForRegistration(with(any(String.class)));
+                    
                 }
             });
     }
