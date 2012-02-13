@@ -208,7 +208,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
 
-        setUpOpenBisExpectations(true);
+        setUpOpenBisExpectations(false);
 
         context.checking(new Expectations()
             {

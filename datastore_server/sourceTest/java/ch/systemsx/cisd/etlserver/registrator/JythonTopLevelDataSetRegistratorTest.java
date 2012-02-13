@@ -605,6 +605,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new AtomicEntityOperationResult()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                 }
             });
 
