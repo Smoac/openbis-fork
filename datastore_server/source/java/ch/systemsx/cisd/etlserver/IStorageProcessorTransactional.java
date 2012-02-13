@@ -98,7 +98,7 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
         public UnstoreDataAction rollback(Throwable exception);
 
         /**
-         * Returns the directory where the data set is stored.
+         * Returns the directory where the data set is currently stored (may change when data is moved and <code>setStoredDataDirectory</code> is called).
          */
         public File getStoredDataDirectory();
 
