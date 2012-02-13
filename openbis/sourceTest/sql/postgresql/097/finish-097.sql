@@ -591,12 +591,3 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-REVOKE ALL ON TABLE post_registration_dataset_queue FROM PUBLIC;
-REVOKE ALL ON TABLE post_registration_dataset_queue FROM jakubs;
-GRANT ALL ON TABLE post_registration_dataset_queue TO jakubs;
-GRANT SELECT ON TABLE post_registration_dataset_queue TO openbis_readonly;
-REVOKE ALL ON SEQUENCE post_registration_dataset_queue_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE post_registration_dataset_queue_id_seq FROM jakubs;
-GRANT ALL ON SEQUENCE post_registration_dataset_queue_id_seq TO jakubs;
-GRANT SELECT ON SEQUENCE post_registration_dataset_queue_id_seq TO openbis_readonly;
-
