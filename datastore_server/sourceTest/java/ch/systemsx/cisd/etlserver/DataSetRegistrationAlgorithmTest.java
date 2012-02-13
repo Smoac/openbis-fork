@@ -294,7 +294,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             context.checking(new Expectations()
                 {
                     {
-                        allowing(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                        one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                     }
                 });
         }
