@@ -164,7 +164,6 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                     IPostRegistrationTask task = entry.getValue();
                     String taskName = entry.getKey();
                     executor.execute(task, taskName, code, dataSet.isContainer());
-                    System.err.println("The post registration of the dataset" +dataSet.getId());
                 }
 
                 // After succesful registration the information is send to the service.
