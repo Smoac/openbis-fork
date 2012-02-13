@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
@@ -377,5 +378,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public ICorePluginDAO getCorePluginDAO()
     {
         return daoFactory.getCorePluginDAO();
+    }
+
+    public IPostRegistrationDAO getPostRegistrationDAO()
+    {
+        return daoFactory.getPostRegistrationDAO();
     }
 }

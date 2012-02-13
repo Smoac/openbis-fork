@@ -91,6 +91,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSampleRelationshipPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE</value>
 
             </list>
         </property>

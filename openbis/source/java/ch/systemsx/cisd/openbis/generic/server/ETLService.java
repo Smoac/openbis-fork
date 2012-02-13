@@ -1595,24 +1595,62 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataBO.setStorageConfirmed();
     }
 
-    private HashSet<Long> postRegistrationQueue = new HashSet<Long>();
-
-    public void markDataSetForRegistration(String sessionToken, long dataSetId)
+    public void markDataSetForRegistration(String sessionToken, String dataSetCode)
     {
-        // check access to dataset
-        postRegistrationQueue.add(dataSetId);
-    }
+        assert sessionToken != null : "Unspecified session token.";
 
-    public void markSuccessfulPostRegistration(String sessionToken, long lastSeenDataSetId)
-    {
-        // check access to dataset
-        postRegistrationQueue.remove(lastSeenDataSetId);
-    }
-
-    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken)
-    {
         final Session session = getSession(sessionToken);
+
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        DataPE data = dataBO.getData();
+
+        daoFactory.getPostRegistrationDAO().addDataSet(data);
+
+    }
+
+    public void markSuccessfulPostRegistration(String sessionToken, String dataSetCode)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+
+        final Session session = getSession(sessionToken);
+
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        DataPE data = dataBO.getData();
+
+        daoFactory.getPostRegistrationDAO().removeDataSet(data);
+    }
+
+    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
+            String dataStoreCode)
+    {
+        Session session = getSession(sessionToken);
+
+        // find all datasets for registration
         final IDatasetLister datasetLister = createDatasetLister(session);
-        return datasetLister.listByDatasetIds(postRegistrationQueue);
+        Collection<Long> allDataSetIds =
+                daoFactory.getPostRegistrationDAO().listDataSetsForPostRegistration();
+        List<ExternalData> allDataSets = datasetLister.listByDatasetIds(allDataSetIds);
+
+        // find datastore
+        getDAOFactory().getHomeDatabaseInstance();
+        DataStorePE dataStore =
+                getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+        if (dataStore == null)
+        {
+            throw new UserFailureException("Unknown data store: " + dataStoreCode);
+        }
+
+        // filter datasets by datastore
+        List<ExternalData> result = new ArrayList<ExternalData>();
+        for (ExternalData externalData : allDataSets)
+        {
+            if (dataStoreCode.equals(externalData.getDataStore().getCode()))
+            {
+                result.add(externalData);
+            }
+        }
+        return result;
     }
 }

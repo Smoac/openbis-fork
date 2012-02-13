@@ -554,19 +554,20 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_CODE(%s)", dataSetCode);
     }
 
-    public void markDataSetForRegistration(String sessionToken, long dataSetId)
+    public void markDataSetForRegistration(String sessionToken, String dataSetCode)
     {
-        logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_ID(%s)", dataSetId);
+        logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_CODE(%s)", dataSetCode);
     }
 
-    public void markSuccessfulPostRegistration(String sessionToken, long dataSetId)
+    public void markSuccessfulPostRegistration(String sessionToken, String dataSetCode)
     {
-        logAccess(sessionToken, "markSuccessfulPostRegistration", "DATA_SET_ID(%s)", dataSetId);
+        logAccess(sessionToken, "markSuccessfulPostRegistration", "DATA_SET_CODE(%s)", dataSetCode);
     }
 
-    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken)
+    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
+            String dataStoreCode)
     {
-        logAccess(sessionToken, "listDataSetsForPostRegistration", "DATA_SET_CODE(%s)");
+        logAccess(sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)", dataStoreCode);
         return null;
     }
 }

@@ -791,7 +791,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.POSTREGISTRATION_QUEUE })
-    public void markDataSetForRegistration(String token, long dataSetId);
+    public void markDataSetForRegistration(String token, String dataSetCode);
 
     /**
      * Informs that the post-registration task for a given dataset was performed, and it should be
@@ -801,12 +801,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.POSTREGISTRATION_QUEUE })
-    public void markSuccessfulPostRegistration(String token, long lastSeenDataSetId);
+    public void markSuccessfulPostRegistration(String token, String dataSetCode);
 
     /**
      * Gets the list of all datasets, which are in the post-registration queue.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listDataSetsForPostRegistration(String token);
+    public List<ExternalData> listDataSetsForPostRegistration(String token, String dataStoreCode);
 }

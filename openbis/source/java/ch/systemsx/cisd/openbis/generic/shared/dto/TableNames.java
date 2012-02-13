@@ -147,6 +147,9 @@ public final class TableNames
 
     public static final String SCRIPTS_TABLE = "scripts";
 
+    public static final String POST_REGISTRATION_DATASET_QUEUE_TABLE =
+            "post_registration_dataset_queue";
+
     private TableNames()
     {
         // This class can not be instantiated.

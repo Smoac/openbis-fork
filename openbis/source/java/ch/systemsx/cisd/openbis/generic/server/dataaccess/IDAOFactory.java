@@ -103,4 +103,8 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link ICorePluginDAO}. */
     public ICorePluginDAO getCorePluginDAO();
+
+    /** Returns an implementation of {@link IPostRegistrationDAO}. */
+    public IPostRegistrationDAO getPostRegistrationDAO();
+
 }
