@@ -112,6 +112,10 @@ background-color: white;
   background-color:#fff;
 }
 
+#plasmid-table tr.plasmid-table-data:hover {
+  background-color:#AAA;
+}
+
 #plasmid-table tr.plasmid-table-header {
   background-color:#AAA;	
 }
