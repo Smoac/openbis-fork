@@ -512,7 +512,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         will(returnValue(new AtomicEntityOperationResult()));
                         
                         one(openBisService).setStorageConfirmed(with(any(String.class)));
-                        one(openBisService).markDataSetForRegistration(with(any(String.class)));
                     }
                 }
             });

@@ -627,8 +627,4 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDataSetsForPostRegistration(session.getToken(), session.getDataStoreCode());
     }
 
-    public void markDataSetForRegistration(String dataSetCode)
-    {
-        service.markDataSetForRegistration(session.getToken(), dataSetCode);
-    }
 }

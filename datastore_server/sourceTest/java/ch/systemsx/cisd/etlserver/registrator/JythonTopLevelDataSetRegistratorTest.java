@@ -132,8 +132,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(doAll(returnValue(new AtomicEntityOperationResult()), checkPrecommitDirIsNotEmpty()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
-                    
                     
                     will(checkPrecommitDirIsEmpty());
                 }
@@ -390,9 +388,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE + 1);
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE + 2);
-
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE + 1);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE + 2);
                 }
             });
 
@@ -470,7 +465,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new AtomicEntityOperationResult()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                     }
             });
 
@@ -531,7 +525,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new AtomicEntityOperationResult()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                 }
             });
 
@@ -605,7 +598,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new AtomicEntityOperationResult()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                 }
             });
 
@@ -673,7 +665,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(new AtomicEntityOperationResult()));
                     
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    one(openBisService).markDataSetForRegistration(DATA_SET_CODE);
                 }
             });
 

@@ -567,7 +567,6 @@ public class DataSetRegistrationAlgorithm
         // Finally: register the data set in the database.
         registerDataSetInApplicationServer(data);
         state.openBisService.setStorageConfirmed(data.getCode());
-        state.openBisService.markDataSetForRegistration(data.getCode());
     }
 
     private final NewExternalData updateExternalData(NewExternalData data,
