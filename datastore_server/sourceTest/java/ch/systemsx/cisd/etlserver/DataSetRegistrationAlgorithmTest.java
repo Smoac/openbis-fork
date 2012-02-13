@@ -64,8 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 {
     private static final int SPEED_HINT =
-            (ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT
-            + ch.systemsx.cisd.openbis.generic.shared.Constants.MAX_SPEED) / 2;
+            (ch.systemsx.cisd.openbis.generic.shared.Constants.DEFAULT_SPEED_HINT + ch.systemsx.cisd.openbis.generic.shared.Constants.MAX_SPEED) / 2;
 
     private static final String DATA_STORE_CODE = "data-store";
 
@@ -144,7 +143,8 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         exceptionMatcher = new RecordingMatcher<Throwable>();
 
         dataSetInformation = new DataSetInformation();
-        dataSetInformation.setShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
+        dataSetInformation
+                .setShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
         dataSetInformation.setSpeedHint(SPEED_HINT);
     }
 
@@ -156,7 +156,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
 
-        setUpOpenBisExpectations();
+        setUpOpenBisExpectations(true);
         setUpTypeExtractorExpectations();
         setUpStorageProcessorExpectations(true);
         setUpDataSetValidatorExpectations();
@@ -182,7 +182,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
 
-        setUpOpenBisExpectations();
+        setUpOpenBisExpectations(true);
         setUpTypeExtractorExpectations();
         setUpStorageProcessorExpectations(true);
         setUpDataSetValidatorExpectations();
@@ -208,7 +208,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
 
-        setUpOpenBisExpectations();
+        setUpOpenBisExpectations(true);
 
         context.checking(new Expectations()
             {
@@ -238,7 +238,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
 
         FileUtilities.writeToFile(new File(incomingDataSetFile, "read.me"), "hello world");
 
-        setUpOpenBisExpectations();
+        setUpOpenBisExpectations(false);
         setUpTypeExtractorExpectations();
         setUpStorageProcessorExpectations(false);
         setUpDataSetValidatorExpectations();
@@ -279,17 +279,25 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         }
     }
 
-    private void setUpOpenBisExpectations()
+    private void setUpOpenBisExpectations(boolean registrationSuccesful)
     {
         context.checking(new Expectations()
             {
                 {
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
-                
-                    allowing(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
+
+        if (registrationSuccesful)
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        allowing(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    }
+                });
+        }
     }
 
     private void setUpTypeExtractorExpectations()
@@ -426,9 +434,11 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             });
     }
 
-    private RecordingMatcher<NewExternalData> setUpDataSetRegistratorExpectations() throws Throwable
+    private RecordingMatcher<NewExternalData> setUpDataSetRegistratorExpectations()
+            throws Throwable
     {
-        final RecordingMatcher<NewExternalData> recordingMatcher = new RecordingMatcher<NewExternalData>();
+        final RecordingMatcher<NewExternalData> recordingMatcher =
+                new RecordingMatcher<NewExternalData>();
         context.checking(new Expectations()
             {
                 {
@@ -478,12 +488,11 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
     {
         String dataStoreCode = DATA_STORE_CODE;
         DataSetRegistrationAlgorithmState state =
-                new DataSetRegistrationAlgorithmState(incomingDataSetFile,
-                        openBisService, cleanAfterwardsAction, preRegistrationAction,
-                        postRegistrationAction, dataSetInformation, dataStoreStrategy,
-                        typeExtractor, storageProcessor, fileOperations, dataSetValidator,
-                        mailClient, shouldDeleteUnidentified, registrationLock, dataStoreCode,
-                        shouldNotifySuccessfulRegistration);
+                new DataSetRegistrationAlgorithmState(incomingDataSetFile, openBisService,
+                        cleanAfterwardsAction, preRegistrationAction, postRegistrationAction,
+                        dataSetInformation, dataStoreStrategy, typeExtractor, storageProcessor,
+                        fileOperations, dataSetValidator, mailClient, shouldDeleteUnidentified,
+                        registrationLock, dataStoreCode, shouldNotifySuccessfulRegistration);
         registrationAlgorithm =
                 new DataSetRegistrationAlgorithm(state, rollbackDelegate, appServerRegistrator);
     }

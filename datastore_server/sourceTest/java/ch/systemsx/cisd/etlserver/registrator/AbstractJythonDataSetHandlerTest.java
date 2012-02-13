@@ -134,9 +134,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         dataSourceQueryService = context.mock(IDataSourceQueryService.class);
         dynamicTransactionQuery = context.mock(DynamicTransactionQuery.class);
         
-        //at the moment just allow everyone to confirm storage.
-        setUpStorageConfirmationExpectations();
-        
         stagingDirectory = new File(workingDirectory, "staging");
     }
 
@@ -198,17 +195,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 }
             });
     }
-
-    protected void setUpStorageConfirmationExpectations()
-    {
-        context.checking(new Expectations()
-        {
-            {
-               allowing(openBisService).setStorageConfirmed(with(any(String.class)));
-            }
-        });
-    }
-    
     
     /**
      * adds an extension to the Jython Path, so that all libraries in it will be visible to the
