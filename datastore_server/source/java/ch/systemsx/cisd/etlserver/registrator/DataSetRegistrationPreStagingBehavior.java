@@ -17,10 +17,6 @@ public enum DataSetRegistrationPreStagingBehavior
      */
     USE_PRESTAGING;
 
-    DataSetRegistrationPreStagingBehavior()
-    {
-    }
-
     /**
      * Parses the string in a format acceptable as a property parameter.
      */

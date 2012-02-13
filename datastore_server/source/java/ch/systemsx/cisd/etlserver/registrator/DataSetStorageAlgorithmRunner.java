@@ -245,10 +245,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             }
 
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
-        } catch (final Throwable throwable)
+        } catch (final Exception ex)
         {
-            // nothing to rollback.
-            // Graceful recovery should (and will) take care of this case
+            // as this case doesn't allow rollbacking, we don't have to catch aggresively (throwables).
+            // There is nothing we can do about this at the moment,
+            //Graceful recovery should (and will) take care of this case
+
         }
 
         return !dataSetStorageAlgorithms.isEmpty();
@@ -299,7 +301,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            System.out.println("Moving to the store");
             storageAlgorithm.moveToTheStore();
         }
     }
