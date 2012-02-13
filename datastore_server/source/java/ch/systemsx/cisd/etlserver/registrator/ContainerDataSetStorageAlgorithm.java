@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> extends
         DataSetStorageAlgorithm<T>
 {
-    // We use our own states, not the ones of the parent.
-    private DataSetStorageAlgorithmState<T> state;
 
     /**
      * @param incomingDataSetFile
@@ -64,67 +62,43 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
                 dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory,
                 precommitDirectory);
-
-        state = new InitializedState<T>(this);
     }
 
     @Override
     public IStorageProcessorTransaction prepare(IRollbackStack rollbackStack)
     {
-        InitializedState<T> initializedState = (InitializedState<T>) state;
-        initializedState.prepare();
-
-        state = new PreparedState<T>(initializedState);
+        //assert initialized - move to prepared state.
         return new NullStorageProcessorTransaction();
     }
 
     @Override
-    public void runStorageProcessor() throws Throwable
+    public void preCommit() throws Throwable
     {
-        PreparedState<T> preparedState = (PreparedState<T>) state;
-        preparedState.storeData();
-
-        state = new StoredState<T>(preparedState);
+        //assert prepared state, leave in precommit
     }
 
     @Override
+    public void moveToTheStore() throws Throwable
+    {
+        //assert commited state, leave in stored
+    }
+    
+    @Override
     public void transitionToRolledbackState(Throwable throwable)
     {
-        // Rollback may be called on in the stored state or in the prepared state.
-        if (state instanceof PreparedState)
-        {
-            // Container data sets do not use the storage processer -- there is nothing to do
-            return;
-        }
-
-        StoredState<T> storedState = (StoredState<T>) state;
-
-        state = new RolledbackState<T>(storedState, UnstoreDataAction.LEAVE_UNTOUCHED, throwable);
+        //return in rolledback state
     }
 
     @Override
     public void transitionToUndoneState()
     {
-        // Rollback may be called on in the stored state or in the prepared state. In the prepared
-        // state, there is nothing to do.
-        if (state instanceof PreparedState)
-        {
-            state = new UndoneState<T>((PreparedState<T>) state);
-            return;
-        }
-
-        RolledbackState<T> rolledbackState = (RolledbackState<T>) state;
-
-        state = new UndoneState<T>(rolledbackState);
+        // return in undone state
     }
 
     @Override
     public void commitStorageProcessor()
     {
-        StoredState<T> storedState = (StoredState<T>) state;
-        storedState.commitStorageProcessor();
-
-        state = new CommittedState<T>(storedState);
+        //assert precommitted state - return in committed state
     }
 
     @Override
@@ -149,98 +123,4 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
                 + "'.";
     }
 
-    private static abstract class DataSetStorageAlgorithmState<T extends DataSetInformation>
-    {
-        protected final DataSetStorageAlgorithm<T> storageAlgorithm;
-
-        protected DataSetStorageAlgorithmState(DataSetStorageAlgorithm<T> storageAlgorithm)
-        {
-            this.storageAlgorithm = storageAlgorithm;
-        }
-    }
-
-    private static class InitializedState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-        public InitializedState(DataSetStorageAlgorithm<T> storageAlgorithm)
-        {
-            super(storageAlgorithm);
-        }
-
-        /**
-         * Prepare registration of a data set.
-         */
-        public void prepare()
-        {
-        }
-    }
-
-    private static class PreparedState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-        public PreparedState(InitializedState<T> oldState)
-        {
-            super(oldState.storageAlgorithm);
-        }
-
-        public void storeData()
-        {
-
-        }
-    }
-
-    private static class StoredState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-
-        public StoredState(PreparedState<T> oldState)
-        {
-            super(oldState.storageAlgorithm);
-        }
-
-        /**
-         * Committed data sets don't use a storage process -- there is nothing to do.
-         */
-        public void commitStorageProcessor()
-        {
-        }
-    }
-
-    private static class CommittedState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-
-        CommittedState(StoredState<T> oldState)
-        {
-            super(oldState.storageAlgorithm);
-        }
-
-    }
-
-    private static class RolledbackState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-
-        public RolledbackState(StoredState<T> oldState, UnstoreDataAction action,
-                Throwable throwable)
-        {
-            super(oldState.storageAlgorithm);
-        }
-    }
-
-    private static class UndoneState<T extends DataSetInformation> extends
-            DataSetStorageAlgorithmState<T>
-    {
-
-        UndoneState(PreparedState<T> oldState)
-        {
-            super(oldState.storageAlgorithm);
-        }
-
-        UndoneState(RolledbackState<T> oldState)
-        {
-            super(oldState.storageAlgorithm);
-        }
-
-    }
 }

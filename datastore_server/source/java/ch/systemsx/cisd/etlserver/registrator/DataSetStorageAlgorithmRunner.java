@@ -167,30 +167,41 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     /**
      * Register the data sets.
+     * 
+     * @return true if some data sets were registered
      */
-    public List<DataSetInformation> runStorageAlgorithms()
+    public boolean runStorageAlgorithms()
     {
+        // all algorithms are now in
+        // PREPARED STATE
+
         try
         {
+            // move data to precommited directory
+
             // Runs or throws a throwable
-            runStorageProcessors();
+            preCommitStorageAlgorithms();
 
         } catch (final Throwable throwable)
         {
             rollbackDuringStorageProcessorRun(throwable);
-            return Collections.emptyList();
+            return false;
         }
 
-        dssRegistrationLog.log("Data has been moved to the store.");
+        dssRegistrationLog.log("Data has been moved to the pre-commit directory.");
+
+        // PRECOMMITED STATE
 
         try
         {
+            // registers data set with yet non-existing store path.
+
             // Runs or throw a throwable
             registerDataSetsInApplicationServer();
         } catch (final Throwable throwable)
         {
             rollbackDuringMetadataRegistration(throwable);
-            return Collections.emptyList();
+            return false;
         }
 
         dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
@@ -202,27 +213,56 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
             dssRegistrationLog.log("Storage processors have committed.");
 
-            logSuccessfulRegistration();
-
-            ArrayList<DataSetInformation> dataSetInformationCollection =
-                    new ArrayList<DataSetInformation>();
-            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
-            {
-                dataSetInformationCollection.add(storageAlgorithm.getDataSetInformation());
-                openBISService.setStorageConfirmed(storageAlgorithm.getDataSetInformation()
-                        .getDataSetCode());
-            }
-
-            return dataSetInformationCollection;
         } catch (final Throwable throwable)
         {
             // Something has gone really wrong
             rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
-            return Collections.emptyList();
+            return false;
         }
+
+        // COMMITED
+
+        try
+        {
+            storeCommitedDatasets();
+
+            logSuccessfulRegistration();
+            dssRegistrationLog.log("Data has been moved to the final store.");
+        } catch (final Throwable throwable)
+        {
+            // Something has gone really wrong
+            return false;
+        }
+
+        // move files to the store
+
+        try
+        {
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                openBISService.setStorageConfirmed(storageAlgorithm.getDataSetInformation()
+                        .getDataSetCode());
+            }
+
+            dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
+        } catch (final Throwable throwable)
+        {
+            // nothing to rollback.
+            // Graceful recovery should (and will) take care of this case
+        }
+
+        return !dataSetStorageAlgorithms.isEmpty();
+
+        // confirm storage in AS
+
+        // STORAGECONFIRMED
+
     }
 
-    public List<DataSetInformation> prepareAndRunStorageAlgorithms()
+    /**
+     * @returns true if some datasets have been registered
+     */
+    public boolean prepareAndRunStorageAlgorithms()
     {
         prepare();
         return runStorageAlgorithms();
@@ -252,12 +292,26 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 ErrorType.POST_REGISTRATION_ERROR);
     }
 
+    /**
+     * Committed => Stored
+     */
+    private void storeCommitedDatasets() throws Throwable
+    {
+        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        {
+            System.out.println("Moving to the store");
+            storageAlgorithm.moveToTheStore();
+        }
+    }
+
+    /**
+     * Precommitted => Committed
+     */
     private void commitStorageProcessors()
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
             storageAlgorithm.commitStorageProcessor();
-
         }
     }
 
@@ -274,11 +328,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         applicationServerRegistrator.registerDataSetsInApplicationServer(registrationData);
     }
 
-    private void runStorageProcessors() throws Throwable
+    /**
+     * Prepared => Precommit
+     */
+    private void preCommitStorageAlgorithms() throws Throwable
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            storageAlgorithm.runStorageProcessor();
+            storageAlgorithm.preCommit();
         }
     }
 

@@ -628,9 +628,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent, rollbackStack, registrationService.getDssRegistrationLog(), openBisService);
-            List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
-
-            boolean noDataSetsRegistered = datasets.isEmpty();
+           
+            boolean someDataSetsRegistered = runner.prepareAndRunStorageAlgorithms();
 
             // The queries are optional parts of the commit; catch any errors and inform the
             // invoker
@@ -640,12 +639,12 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 try
                 {
-                    if (noDataSetsRegistered)
-                    {
-                        query.rollback();
-                    } else
+                    if (someDataSetsRegistered)
                     {
                         query.commit();
+                    } else
+                    {
+                        query.rollback();
                     }
                     query.close(false);
                 } catch (Throwable e)
@@ -659,7 +658,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 parent.invokeDidEncounterSecondaryTransactionErrors(encounteredErrors);
             }
 
-            return datasets.isEmpty() == false;
+            return someDataSetsRegistered;
         }
 
         /**

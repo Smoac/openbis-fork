@@ -180,14 +180,25 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Run the storage processor. Expects prepared state and leaves in stored state.
+     * Stores the data in precommit. Expects prepared state and leaves in precommited state.
      */
-    public void runStorageProcessor() throws Throwable
+    public void preCommit() throws Throwable
     {
         PreparedState<T> preparedState = (PreparedState<T>) state;
-        preparedState.storeData();
+        preparedState.storeDataInPrecommit();
 
-        state = new StoredState<T>(preparedState);
+        state = new PrecommittedState<T>(preparedState);
+    }
+
+    /**
+     * Moves the data from precommit to the store. Expects Commited State and leaves in stored
+     * state.
+     */
+    public void moveToTheStore() throws Throwable
+    {
+        CommittedState<T> committed = (CommittedState<T>) state;
+        committed.moveToTheStore();
+        state = new StoredState<T>(committed);
     }
 
     /**
@@ -196,7 +207,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
      */
     public void transitionToRolledbackState(Throwable throwable)
     {
-        // Rollback may be called on in the stored state or in the prepared state.
+        // Rollback may be called on in the precommit state or in the prepared state.
         if (state instanceof PreparedState)
         {
             PreparedState<T> preparedState = (PreparedState<T>) state;
@@ -204,7 +215,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             {
                 // If a storeData() was attempted and failed, then we need to move to the stored
                 // state in order to rollback
-                state = new StoredState<T>((PreparedState<T>) state);
+                state = new PrecommittedState<T>((PreparedState<T>) state);
             } else
             {
                 // If no storeData() was invoked, there is nothing to do
@@ -212,7 +223,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             }
         }
 
-        StoredState<T> storedState = (StoredState<T>) state;
+        PrecommittedState<T> storedState = (PrecommittedState<T>) state;
         storedState.cleanUpMarkerFile();
 
         state = new RolledbackState<T>(storedState, UnstoreDataAction.LEAVE_UNTOUCHED, throwable);
@@ -239,7 +250,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
      */
     public void commitStorageProcessor()
     {
-        StoredState<T> storedState = (StoredState<T>) state;
+        PrecommittedState<T> storedState = (PrecommittedState<T>) state;
         storedState.commitStorageProcessor();
 
         state = new CommittedState<T>(storedState);
@@ -262,7 +273,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public NewExternalData createExternalData()
     {
-        File dataFile = ((StoredState<T>) state).getStoredDirectory();
+        File dataFile = ((PrecommittedState<T>) state).getStoredDirectory();
         String relativePath = FileUtilities.getRelativeFilePath(storeRoot, dataFile);
         String absolutePath = dataFile.getAbsolutePath();
         assert relativePath != null : String.format(
@@ -319,6 +330,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return stagingDirectory;
     }
 
+    public File getPreCommitDirectory()
+    {
+        return preCommitDirectory;
+    }
+
     private static abstract class DataSetStorageAlgorithmState<T extends DataSetInformation>
     {
         protected final DataSetStorageAlgorithm<T> storageAlgorithm;
@@ -345,9 +361,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     private static class InitializedState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected File stagingBaseDirectory;
-
-        protected File storeBaseDirectory;
+        protected DataSetStoragePaths storagePaths;
 
         protected IStorageProcessorTransaction transaction;
 
@@ -367,13 +381,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             IDataStoreStrategy dataStoreStrategy = storageAlgorithm.getDataStoreStrategy();
 
             // Create the staging base directory
-            stagingBaseDirectory =
+            File stagingBaseDirectory =
                     new File(storageAlgorithm.getStagingDirectory(), storageAlgorithm
                             .getDataSetInformation().getDataSetCode() + "-storage");
             this.rollbackStack.pushAndExecuteCommand(new MkdirsCommand(stagingBaseDirectory
                     .getAbsolutePath()));
 
-            storeBaseDirectory =
+            File storeBaseDirectory =
                     DataSetStorageAlgorithm.createBaseDirectory(dataStoreStrategy,
                             storageAlgorithm.getStoreRoot(), getFileOperations(),
                             storageAlgorithm.getDataSetInformation(),
@@ -386,15 +400,20 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             transaction =
                     storageAlgorithm.getStorageProcessor().createTransaction(transactionParameters);
 
+            File precommitBaseDirectory =
+                    new File(storageAlgorithm.getPreCommitDirectory(), storageAlgorithm
+                            .getDataSetInformation().getDataSetCode() + "-precommit");
+
+            storagePaths =
+                    new DataSetStoragePaths(stagingBaseDirectory, storeBaseDirectory,
+                            precommitBaseDirectory);
+
         }
     }
 
     private static class PreparedState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected final File stagingBaseDirectory;
-
-        protected final File storeBaseDirectory;
 
         protected final DataSetInformation dataSetInformation;
 
@@ -402,23 +421,24 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         protected final IStorageProcessorTransaction transaction;
 
+        protected final DataSetStoragePaths storagePaths;
+
         protected File markerFile;
 
         public PreparedState(InitializedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
-            this.stagingBaseDirectory = oldState.stagingBaseDirectory;
-            this.storeBaseDirectory = oldState.storeBaseDirectory;
             this.dataSetInformation = storageAlgorithm.getDataSetInformation();
             this.transaction = oldState.transaction;
             this.rollbackStack = oldState.rollbackStack;
+            this.storagePaths = oldState.storagePaths;
         }
 
-        public void storeData()
+        public void storeDataInPrecommit()
         {
-            //will throw exception if marker file already exists
+            // will throw exception if marker file already exists
             markerFile = createProcessingMarkerFile();
-            
+
             transactionStoreData();
 
             moveFilesFromStagingToStore();
@@ -437,24 +457,32 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
             for (File stagedFile : stagedFiles)
             {
-                rollbackStack.pushAndExecuteCommand(new MoveFileCommand(stagedStoredDataDirectory
-                        .getAbsolutePath(), stagedFile.getName(),
-                        storeBaseDirectory.getAbsolutePath(), stagedFile.getName()));
+                rollbackStack
+                        .pushAndExecuteCommand(new MoveFileCommand(stagedStoredDataDirectory
+                                .getAbsolutePath(), stagedFile.getName(),
+                                storagePaths.precommitBaseDirectory.getAbsolutePath(), stagedFile
+                                        .getName()));
             }
         }
 
         private void transactionStoreData()
         {
+            // human readable description for logging purposes
             String entityDescription = createEntityDescription();
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info("Start storing data set for " + entityDescription + ".");
             }
+
+            // prepare watch for time calculation
             final StopWatch watch = new StopWatch();
             watch.start();
 
+            // actual call to transaction.storeData
             transaction.storeData(storageAlgorithm.getRegistrationDetails(), getMailClient(),
                     incomingDataSetFile);
+
+            // log time
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info(
@@ -469,14 +497,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         private final File createProcessingMarkerFile()
         {
-            final File baseDirectory = stagingBaseDirectory;
+            final File baseDirectory = storagePaths.stagingBaseDirectory;
             final File baseParentDirectory = baseDirectory.getParentFile();
             final String processingDirName = baseDirectory.getName();
             markerFile =
                     new File(baseParentDirectory, Constants.PROCESSING_PREFIX + processingDirName);
             try
             {
-                //will throw exception if marker file already exists
+                // will throw exception if marker file already exists
                 rollbackStack
                         .pushAndExecuteCommand(new NewFileCommand(markerFile.getAbsolutePath()));
             } catch (final IOExceptionUnchecked ex)
@@ -503,32 +531,31 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
     }
 
-    private static class StoredState<T extends DataSetInformation> extends
+    private static class PrecommittedState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
         protected final IStorageProcessorTransaction transaction;
 
         protected final File markerFile;
 
-        protected final File stagingBaseDirectory;
+        protected final DataSetStoragePaths storagePaths;
 
-        protected final File storeBaseDirectory;
-
-        public StoredState(PreparedState<T> oldState)
+        public PrecommittedState(PreparedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
             this.transaction = oldState.transaction;
-            this.stagingBaseDirectory = oldState.stagingBaseDirectory;
             this.markerFile = oldState.markerFile;
-            this.storeBaseDirectory = oldState.storeBaseDirectory;
+            this.storagePaths = oldState.storagePaths;
         }
 
         /**
          * Ask the storage processor to commit. Used by clients of the algorithm.
+         * <p>
          */
         public void commitStorageProcessor()
         {
-            transaction.setStoredDataDirectory(storeBaseDirectory);
+            // TODO: KUBA - tutaj pewnie powinno byc precommit
+            transaction.setStoredDataDirectory(storagePaths.precommitBaseDirectory);
             transaction.commit();
             cleanUpMarkerFile();
         }
@@ -538,7 +565,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public File getStoredDirectory()
         {
-            return storeBaseDirectory;
+            return storagePaths.storeBaseDirectory;
         }
 
         /**
@@ -558,32 +585,59 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             DataSetStorageAlgorithmState<T>
     {
 
-        protected final File stagingDirectory;
+        protected final DataSetStoragePaths storagePaths;
 
-        CommittedState(StoredState<T> oldState)
+        CommittedState(PrecommittedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
-            this.stagingDirectory = oldState.stagingBaseDirectory;
+            this.storagePaths = oldState.storagePaths;
             cleanUpStagingDirectory();
         }
 
         private void cleanUpStagingDirectory()
         {
-            getFileOperations().delete(stagingDirectory);
-            if (stagingDirectory.exists())
+            getFileOperations().delete(storagePaths.stagingBaseDirectory);
+            if (storagePaths.stagingBaseDirectory.exists())
             {
-                operationLog.error("Staging directory '" + stagingDirectory
+                operationLog.error("Staging directory '" + storagePaths.stagingBaseDirectory
                         + "' could not be deleted.");
             }
         }
 
+        /**
+         * Moves files from the precommited directory to the store
+         */
+        private void moveToTheStore()
+        {
+            File[] stagedFiles = storagePaths.precommitBaseDirectory.listFiles();
+            if (null == stagedFiles)
+            {
+                return;
+            }
+
+            for (File stagedFile : stagedFiles)
+            {
+                new MoveFileCommand(storagePaths.precommitBaseDirectory.getAbsolutePath(),
+                        stagedFile.getName(), storagePaths.storeBaseDirectory.getAbsolutePath(),
+                        stagedFile.getName()).execute();
+            }
+        }
+    }
+
+    private static class StoredState<T extends DataSetInformation> extends
+            DataSetStorageAlgorithmState<T>
+    {
+        StoredState(CommittedState<T> oldState)
+        {
+            super(oldState.storageAlgorithm);
+        }
     }
 
     private static class RolledbackState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
 
-        public RolledbackState(StoredState<T> oldState, UnstoreDataAction action,
+        public RolledbackState(PrecommittedState<T> oldState, UnstoreDataAction action,
                 Throwable throwable)
         {
             super(oldState.storageAlgorithm);
@@ -603,6 +657,25 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         {
             super(oldState.storageAlgorithm);
         }
-
     }
+
+    private static class DataSetStoragePaths
+    {
+        protected final File stagingBaseDirectory;
+
+        protected final File storeBaseDirectory;
+
+        protected final File precommitBaseDirectory;
+
+        public DataSetStoragePaths(File stagingBaseDirectory, File storeBaseDirectory,
+                File precommitBaseDirectory)
+        {
+            super();
+            this.stagingBaseDirectory = stagingBaseDirectory;
+            this.storeBaseDirectory = storeBaseDirectory;
+            this.precommitBaseDirectory = precommitBaseDirectory;
+        }
+    }
+    
+    
 }
