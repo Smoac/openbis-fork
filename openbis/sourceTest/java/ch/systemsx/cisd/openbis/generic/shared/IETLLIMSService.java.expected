@@ -774,4 +774,30 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @DatabaseUpdateModification(value =
         { ObjectKind.DATA_SET })
     public void setStorageConfirmed(String sessionToken, String dataSetCode);
+
+    /**
+     * Adds the given dataset to post-registration queue.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.POSTREGISTRATION_QUEUE })
+    public void markDataSetForRegistration(String token, String dataSetCode);
+
+    /**
+     * Informs that the post-registration task for a given dataset was performed, and it should be
+     * removed from the post-registration queue.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.POSTREGISTRATION_QUEUE })
+    public void markSuccessfulPostRegistration(String token, String dataSetCode);
+
+    /**
+     * Gets the list of all datasets, which are in the post-registration queue.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<ExternalData> listDataSetsForPostRegistration(String token, String dataStoreCode);
 }
