@@ -29,7 +29,7 @@ div.inspector {
 }
 
 .properties tr:nth-child(odd) {
-  background-color:#eee;
+  background-color:#E0F0FF;
 }
 
 .properties tr:nth-child(even) {
@@ -105,7 +105,7 @@ background-color: white;
 }
 
 #plasmid-table tr:nth-child(odd) {
-  background-color:#eee;
+  background-color:#E0F0FF;
 }
 
 #plasmid-table tr:nth-child(even) {
@@ -113,10 +113,15 @@ background-color: white;
 }
 
 #plasmid-table tr.plasmid-table-data:hover {
-  background-color:#AAA;
+  font-size : 110%;
+  font-weight: bold;
+  
 }
 
 #plasmid-table tr.plasmid-table-header {
-  background-color:#AAA;	
+  font-size:14px;
+  font-weight: bold;
+  color:#fff;
+  background-color:#0000CC;	
 }
 
