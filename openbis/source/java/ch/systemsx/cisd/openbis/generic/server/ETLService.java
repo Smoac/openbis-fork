@@ -1594,4 +1594,25 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataBO.loadByCode(dataSetCode);
         dataBO.setStorageConfirmed();
     }
+
+    private HashSet<Long> postRegistrationQueue = new HashSet<Long>();
+
+    public void markDataSetForRegistration(String sessionToken, long dataSetId)
+    {
+        // check access to dataset
+        postRegistrationQueue.add(dataSetId);
+    }
+
+    public void markSuccessfulPostRegistration(String sessionToken, long lastSeenDataSetId)
+    {
+        // check access to dataset
+        postRegistrationQueue.remove(lastSeenDataSetId);
+    }
+
+    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken)
+    {
+        final Session session = getSession(sessionToken);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        return datasetLister.listByDatasetIds(postRegistrationQueue);
+    }
 }
