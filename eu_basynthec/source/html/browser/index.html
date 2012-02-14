@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
+  <!-- The browser for BaSynthec data sets. Data sets can be shown either by technology or by strain -->
   <title>openBIS BaSynthec Browser</title>
   <link type="text/css" rel="stylesheet" href="basynthec-style.css" />
   <link type="text/css" rel="stylesheet" href="button.css" />
@@ -15,11 +17,12 @@
   <script>
 
 basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
-//basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+// basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
 
-var w = 1024;
+var w = 500;
 
-var vis;
+// The strain visualization
+var strainVis;
 
 // a map holding data sets by strain
 var dataSetsByStrain = { };
@@ -30,8 +33,17 @@ var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
 // The names to show the user for the strain groups
 var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-DIn", "JJS-MGP" : "JJS-MGP" };
 
-// groups of strains to be displayed  
+// Groups of strains to be displayed  
 var strainGroups = [];
+
+// The data set type visualization
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+
+// A map holding data sets by type
+var dataSetsByType = { };
+
+// Variables for determining if a particular object is a data set or a strain
+var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
 
 var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
 
@@ -41,14 +53,54 @@ var inspected = [];
 //The node inspectors
 var inspectors;
 
-// A date formatter used to display data sets
-var timeformat = d3.time.format("%Y-%m-%d %H:%M");
+/** Hides the explanation and shows the element to display the explanation again */
+function hideExplanation() {
+	$('#explanation').hide();
+	$('#explanation-show').show();	
+}
+
+/** Display the explanation again */
+function showExplanation() {
+	$('#explanation-show').hide();		
+	$('#explanation').show();
+}
+
+/** Compute the dataSetsByType variable */
+function initializeDataSetsByType() {
+	// Group data sets by type
+	dataSetsByType = basynthec.dataSetList.reduce(
+		function(result, dataSet) {
+			var listForType = result[dataSet.dataSetTypeCode];
+			if (listForType == null) {
+				listForType = [];
+				result[dataSet.dataSetTypeCode] = listForType;
+			}
+			listForType.push(new DataSetWrapper(dataSet));
+			return result;
+		}, {});
+}
+
+/** Compute the dataSetsByStrain variable */
+function initializeDataSetsByStrain() {
+	// group dataSets
+	dataSetsByStrain = basynthec.dataSetList.reduce(
+		function(result, dataSet) { 
+			var uniqueStrains = uniqueElements(basynthec.getStrains(dataSet).sort());
+			
+			uniqueStrains.forEach(function(strain) {
+					if (!result[strain]) {
+						result[strain] = new StrainWrapper(strain);
+					}
+					result[strain].dataSets.push(dataSet);
+			});
+			return result;
+		}, {});
+}
 
 /**
  * Shows the list of data sets retrieved from the openBIS server.
  */
-function showDataSets(bisDataSets)
-{
+function showDataSets(bisDataSets) {
 	if (null == bisDataSets) return;
 	
 	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
@@ -58,27 +110,17 @@ function showDataSets(bisDataSets)
 	// sort data sets
 	var sortByTypeAndRegistration = function(a, b) {
 		if (a.dataSetTypeCode == b.dataSetTypeCode) {
-			return a.registrationDetails.registrationDate - b.registrationDetails.registrationDate;
+			return b.registrationDetails.registrationDate - a.registrationDetails.registrationDate;
 		}
 		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
 	};
 	
 	basynthec.dataSetList.sort(sortByTypeAndRegistration);
 	
-	// group dataSets
-	dataSetsByStrain = basynthec.dataSetList.reduce(
-		function(result, dataSet) { 
-			var uniqueStrains = uniqueElements(basynthec.getStrains(dataSet).sort());
-			
-			uniqueStrains.forEach(function(strain) {
-					if (result[strain]) {
-						result[strain].push(dataSet);
-					} else {
-						result[strain] = [dataSet];
-					}
-			});
-			return result;
-		}, {});
+	initializeDataSetsByType();
+	initializeDataSetsByStrain();
+	
+	refreshDataSetTypeTables();
 	refreshStrainTables();
 }
 
@@ -117,9 +159,28 @@ function refreshStrainTables() {
 	strainGroups = createStrainGroups(strains);
 	
   createVis();
- 	updateDiagram(1000);
+ 	updateStrainDiagram(1000);
 }
 
+function refreshDataSetTypeTables() {
+  createVis();
+ 	updateDataSetTypeDiagram(1000);
+}
+
+function createDataSetSummaryView(group, type, id)
+{
+	var container, result;
+	container = group.append("div");
+
+	container.append("h2").attr("class", "datasetsummarytable").text(type);
+	
+	result =  
+		container.append("div")
+			.attr("id", id)
+			.attr("class", "datasummaryview");
+			
+	return result;
+}
 
 var didCreateVis = false;
 
@@ -127,44 +188,131 @@ function createVis()
 {
 	if (didCreateVis) return;
 	
-	vis = d3.select("#main").append("div");
-	vis.style("width", w + "px")
-		
+	var top = d3.select("#main");
+	var tableRoot = top.append("div").attr("id", "table-root").style("width", w + 5 + "px").style("float", "left");
+	
+	
 	// An element for the inspectors.
-	inspectors = vis.append("span")
+	inspectors = top.append("span")
 		.style("width", "500px")
 		.style("position", "relative")
 		.style("overflow", "auto")
-		.style("float", "right")
+		.style("float", "left")
 		.style("left", "20px");
+
+	// Create the dataSetType visualization
+	dataSetTypeVis = tableRoot.append("div");
+	dataSetTypeVis.style("width", w + "px");
+	od600View = createDataSetSummaryView(dataSetTypeVis, "OD600", "od600");
+	metabolomicsView = createDataSetSummaryView (dataSetTypeVis, "Metabolomics", "metabolomics");
+	transcriptomicsView = createDataSetSummaryView (dataSetTypeVis, "Transcriptomics", "transcriptomics");
+	proteomicsView = createDataSetSummaryView (dataSetTypeVis, "Proteomics", "proteomics");
+	
+	// Initially hide the strain view -- it is activated by the radio button
+	strainVis = tableRoot.append("div").style("display", "none");
+	strainVis.style("width", w + "px");
+	
 	
 	didCreateVis = true;
 }
 
-
-function updateDiagram(duration)
+function updateDataSetTypeDiagram(duration)
 {
-	vis.selectAll("div.strains").data(strainGroups)
+	// Update the OD600 View
+	updateDataSetTypeView(od600View, "OD600");
+	updateDataSetTypeView(metabolomicsView, "METABOLITE_INTENSITIES");
+	updateDataSetTypeView(transcriptomicsView, "TRANSCRIPTOMICS");
+	updateDataSetTypeView(proteomicsView, "PROTEIN_QUANTIFICATIONS");
+}
+
+
+function updateStrainDiagram(duration)
+{
+	var strainDiv = strainVis.selectAll("div.strains").data(strainGroups)
 		.enter()
 	.append("div")
-		.attr("class", "strains")
+		.attr("class", "strains");
+
+	strainDiv
 		.append("h2")
-		.text(function(d) { return d.groupName })
-	.append("table")
-		.selectAll("tr").data(function(d) { 
-				// Group the different sets of strains differently
-				if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
-				if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
+			.text(function(d) { return d.groupName });
+	strainDiv
+		.append("table")
+			.selectAll("tr").data(function(d) { 
+					// Group the different sets of strains differently
+					if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
+					if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
 				
-				// Group the JJS-DIn strains by runs
-				return d.strains.reduce(groupByRuns(10), []) })
-			.enter()
-		.append("tr")
-		.selectAll("td").data(function(d) { return d })
-			.enter()
-		.append("td")
-		.on("click", toggle_inspected)
-		.text(function(d) { return d.label });
+					// Group the JJS-DIn strains by runs
+					return d.strains.reduce(groupByRuns(10), []) })
+				.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d })
+				.enter()
+			.append("td")
+			.on("click", toggle_inspected)
+			.text(function(d) { return d.label });
+}
+
+function updateDataSetTypeView(aView, type)
+{
+	var dataSetsForType = dataSetsByType[type];
+	
+	if (dataSetsForType == null) {
+		aView.selectAll("p")
+			.data(["No Data"])
+		.enter()
+			.append("p")
+			.text("No Data");
+		return;
+	}
+	
+	aView.selectAll("table")
+		.data([dataSetsForType])
+	.enter()
+		.append("table")
+		.attr("class", "datasetsummarytable")
+		.selectAll("tr")
+			.data(function (d) { return d})
+		.enter()
+			.append("tr")
+			.on("click", toggle_inspected)
+				.selectAll("td")
+					.data(function (d) { return [d.dateString, d.userEmail, d.strainString] })
+				.enter()
+					.append("td")
+					.style("width", "33%")
+					.text(function (d) { return d});
+}
+
+/** Utility function to gracefully switch from one visualization to another */
+function toggleDisplayedVisualizations(visToShow, visToHide)
+{
+	visToShow
+	.style("display", "inline")
+		.transition()
+	.duration(1000)
+	.style("opacity", 1);
+	
+	visToHide
+		.transition()
+	.duration(1000)
+	.style("opacity", 0)
+	.style("display", "none");
+}
+
+/** Show the data sets grouped by type */
+function switchToDataSetTypeView()
+{
+	hideExplanation();
+	toggleDisplayedVisualizations(dataSetTypeVis, strainVis);
+}
+
+/** Show the data sets by strain*/
+function switchToStrainView()
+{
+	hideExplanation();
+	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
 }
 
 
@@ -275,6 +423,8 @@ function classForNode(d) {
 }
 
 function toggle_inspected(d) {
+	hideExplanation();
+
 	if (d.inspected) {
 		var index = inspected.indexOf(d) 
 		if (index > -1)	inspected.splice(index, 1);
@@ -283,8 +433,11 @@ function toggle_inspected(d) {
 		d.inspected = true;
 		d.strainNode = this;
 		inspected.push(d);
-		if (!d.dataSets) {
-			d.dataSets = dataSetsByStrain[d.name].map(function(ds){ return {bis : ds} }); 
+		if (d.type === typeDataSet) {
+			d.dataSets = [{ bis : d.dataSet }];
+			retrieveFilesForDataSets(d.dataSets);
+		} else if (!d.dataSets) {
+			d.dataSets = dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
 			retrieveFilesForDataSets(d.dataSets);
 		}
 	}
@@ -463,9 +616,21 @@ $(document).ready(function() {
 		})
 	});
 	
-	$('#login-form').submit(function() {
-	  basynthec.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+	$("#groupradio1").change(function(event){
+		switchToDataSetTypeView();
 	});
+	$("#groupradio2").change(function(event){
+		switchToStrainView();
+	});
+	
+	$('#login-form').submit(function() {
+		basynthec.server.login( $('#username').val(), $('#password').val(), function(data) { enterApp() })
+	});
+	
+	$('#explanation-show').click(function() {
+		showExplanation();
+	});
+
 	
 	basynthec.server.ifRestoredSessionActive(function(data) { enterApp() });
  });
@@ -473,7 +638,7 @@ $(document).ready(function() {
  </script>
 </head>
 <body>
-<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" height="100px" style="float: right;"/>
+<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" height="100px" style="float: right;"/>
 <div id="login-form-div">
 <h1>openBIS BaSynthec</h1>
 
@@ -486,6 +651,20 @@ $(document).ready(function() {
 
 <div id="button-group">
 	<button id="logout-button">Logout</button>
+	<div id="explanation-show" style="display: none;">
+		<span id="explanation-show-text">[Explanation]</span>
+	</div>
+	<div id="explanation">
+		<h2>Explanation</h2>
+		<p>
+		This browser displays data registered as part of the BaSynthec project. Initaially, the data is displayed grouped by the technology used to produce it. An alternate display mode shows all strains for which data has been collected. In either mode, clicking on an entry opens a small window that allows downloading of the data in several different formats.
+		</p>
+	</div>
+	<div id="mode-selector">
+		<span style="position: relative; font-weight: bold">Group By:</span>
+		<input type="radio" name="groupgroup" id="groupradio1" checked> <label for="groupradio1">Data Set Type</label>
+		<input type="radio" name="groupgroup" id="groupradio2"> <label for="groupradio2">Strains</label>
+	</div>
 </div>
 
 </div>

@@ -10,6 +10,7 @@ h3 { font: 12px; }
 }
 
 .strains h2 {
+	font-family: "Verdana", sans-serif;
 	color: #222;
 }
 
@@ -25,21 +26,27 @@ h3 { font: 12px; }
 	font-weight: bold;
 	color: white;
 	padding: 2px;
-}
-
-.datasetsummarygroup {
-	width: 75%;
-	height: 320px;
-}
-
-div.datasummaryview {
-	height: 300px;
-	overflow: auto;
+	cursor: pointer;
 }
 
 .datasetsummarytable {
+	font-family: "Verdana", sans-serif;
+}
+
+.datasetsummarytable tr {
 	font-size: 12px;
 }
+
+.datasetsummarytable tr:hover {
+	background-color: steelblue;
+	color: white;
+	cursor: pointer;
+}
+
+div.datasummaryview {
+	overflow: auto;
+}
+
 
 .sequenced text {
 	fill: black;
@@ -49,6 +56,11 @@ td.inspected {
 	font-size: 14px;
 	font-weight: bold;
 	padding: 2px;
+}
+
+.datasummaryview tr.inspected {
+	font-weight: bold;
+	padding: 0px;
 }
 
 /* Inspector */
@@ -84,7 +96,7 @@ ul.dataSets li {
   padding-top: 10px;
   padding-bottom: 5px;
   border-bottom-style: solid;
-  border-width:1px;	
+  border-width:1px; 
   border-color:#222;	
 }
 
@@ -126,10 +138,29 @@ table.properties td, th {
 }
 	
 .propkey {
-  font-size: 10px;
-  white-space: nowrap;
+	font-size: 10px;
+	white-space: nowrap;
 }
 
 .propvalue {
-  font-size: 10px;
+	font-size: 10px;
+	font-weight: normal;
+}
+
+#explanation {
+	font-family: "Verdana", sans-serif;
+	width: 350px;
+}
+
+#explanation p {
+	font-size: 14px
+}
+
+#explanation-show {
+	padding: 10px 0px;
+}
+
+#explanation-show-text:hover {
+	cursor: pointer;
+	font-weight: bold;
 }

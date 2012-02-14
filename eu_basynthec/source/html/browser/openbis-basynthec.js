@@ -5,6 +5,44 @@
  */
 
 STRAIN_PROP_NAME = "STRAIN_NAMES";
+
+// A date formatter used to display data sets
+var timeformat = d3.time.format("%Y-%m-%d %H:%M");
+
+/**
+ * Create a wrapper on a data set designed to be displayed as a data set.
+ * 
+ * @constructor
+ */
+function DataSetWrapper(dataSet) {
+	var strainNames;
+	if (dataSet.properties[STRAIN_PROP_NAME] != null)
+		strainNames = dataSet.properties[STRAIN_PROP_NAME].split(",");
+	else
+		strainNames = [dataSet.properties["STRAIN_NAME"]];
+				
+	this.type = typeDataSet;
+	this.strainNames = strainNames;
+	this.dataSet = dataSet;
+	this.dateString = timeformat(new Date(dataSet.registrationDetails.registrationDate));
+	this.strainString = 
+							(strainNames.length < 3) ?
+								strainNames.join(" ") :
+								"" + strainNames.length + " strain(s)";
+	this.userEmail = dataSet.registrationDetails.userEmail;
+	this.name = dataSet.code;
+}
+
+/**
+ * Create a wrapper that represents a strain to be displayed
+ *
+ * @constructor
+ */
+function StrainWrapper(strainName)
+{
+	this.strainName = strainName;
+	this.dataSets = [];
+}
 	
 /**
  * The openbis_basynthec object provides a basynthec-specific interface to openbis. 
