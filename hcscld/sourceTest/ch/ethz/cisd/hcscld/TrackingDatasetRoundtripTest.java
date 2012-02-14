@@ -105,7 +105,7 @@ public class TrackingDatasetRoundtripTest
     {
         File f = new File(workingDirectory, "ObjectTrackingTypeOrdering.cld");
         f.delete();
-        // f.deleteOnExit();
+        f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelTrackingWritableDataset wds =
                 writer.addTrackingDataset("abc", new ImageQuantityStructure(10,
