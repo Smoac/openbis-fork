@@ -25,6 +25,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
@@ -46,12 +47,13 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public boolean hasDataSet(final SamplePE sample) throws DataAccessException;
 
     /**
-     * List the {@link DataPE} related to given <var>entity</var>.
+     * List the {@link DataPE} related to given <var>entities</var> of specified
+     * <var>entityKind</var>.
      * 
      * @returns list of {@link DataPE}s that are related to given {@link IEntityInformationHolder}.
      */
-    public List<DataPE> listRelatedDataSets(final IEntityInformationHolder entity)
-            throws DataAccessException;
+    public List<DataPE> listRelatedDataSets(final List<IEntityInformationHolder> entities,
+            EntityKind entityKind) throws DataAccessException;
 
     /**
      * List the {@link DataPE} for given <var>sample</var>.

@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -110,28 +111,60 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return count > 0;
     }
 
-    public final List<DataPE> listRelatedDataSets(final IEntityInformationHolder entity)
-            throws DataAccessException
+    public final List<DataPE> listRelatedDataSets(final List<IEntityInformationHolder> entities,
+            EntityKind entityKind) throws DataAccessException
     {
-        assert entity != null : "Unspecified entity.";
+        assert entities != null : "Unspecified entities.";
+        assert entities.size() > 0 : "Empty entities.";
+        assert entityKind != null : "Unspecified entity kind.";
 
-        final String entityName = entity.getEntityKind().toString().toLowerCase();
+        final String entityName = entityKind.toString().toLowerCase();
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.sampleInternal " + "left join fetch e.parents "
                         + "left join fetch e.containedDataSets "
-                        + "left join fetch e.dataSetProperties " + "where e.%sInternal.id = ?",
-                        TABLE_NAME, entityName);
-        final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(entity.getId())));
+                        + "left join fetch e.dataSetProperties "
+                        + "where e.%sInternal.id IN (:ids)", TABLE_NAME, entityName);
 
-        // distinct does not work properly in HQL for left joins
-        distinct(list);
+        final List<Long> ids = new ArrayList<Long>();
+        for (IEntityInformationHolder entity : entities)
+        {
+            ids.add(entity.getId());
+        }
+        final List<DataPE> results = new ArrayList<DataPE>();
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
+            {
+                public void execute(List<Long> entityIds)
+                {
+
+                    final List<DataPE> list =
+                            cast(getHibernateTemplate().findByNamedParam(query, "ids", entityIds));
+                    results.addAll(list);
+                }
+
+                public List<Long> getAllEntities()
+                {
+                    return ids;
+                }
+
+                public String getEntityName()
+                {
+                    return "dataSet";
+                }
+
+                public String getOperationName()
+                {
+                    return "listRelatedDataSets";
+                }
+            });
+
+        distinct(results);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%d external data have been found for [entity=%s].",
-                    list.size(), entity));
+            operationLog.debug(String.format("%d external data have been found for %d entities.",
+                    results.size(), entities.size()));
         }
-        return list;
+        return results;
     }
 
     public final List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException

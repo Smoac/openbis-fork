@@ -22,10 +22,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -1025,11 +1027,30 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final List<? extends IEntityInformationHolder> relatedEntities)
     {
         final IDataDAO dataDAO = getDAOFactory().getDataDAO();
+        EnumMap<EntityKind, List<IEntityInformationHolder>> entities =
+                new EnumMap<EntityKind, List<IEntityInformationHolder>>(EntityKind.class);
+
         for (IEntityInformationHolder entity : relatedEntities)
         {
             if (isEntityKindRelatedWithDataSets(entity.getEntityKind()))
             {
-                List<DataPE> relatedDataSets = dataDAO.listRelatedDataSets(entity);
+                List<IEntityInformationHolder> entitiesOfGivenKind =
+                        entities.get(entity.getEntityKind());
+                if (entitiesOfGivenKind == null)
+                {
+                    entitiesOfGivenKind = new ArrayList<IEntityInformationHolder>();
+                    entities.put(entity.getEntityKind(), entitiesOfGivenKind);
+                }
+                entitiesOfGivenKind.add(entity);
+            }
+        }
+
+        for (Entry<EntityKind, List<IEntityInformationHolder>> entry : entities.entrySet())
+        {
+            if (entry.getValue() != null && entry.getValue().size() > 0)
+            {
+                List<DataPE> relatedDataSets =
+                        dataDAO.listRelatedDataSets(entry.getValue(), entry.getKey());
                 resultSet.addAll(relatedDataSets);
             }
         }
