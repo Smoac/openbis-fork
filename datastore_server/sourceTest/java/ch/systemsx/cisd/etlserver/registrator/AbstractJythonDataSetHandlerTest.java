@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -217,30 +218,35 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
     {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null);
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, null);
     }
 
+    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath, HashMap<String, String> override)
+    {
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, override);
+    }
+    
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
             String validationScriptPath)
     {
         return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath,
-                validationScriptPath);
+                validationScriptPath, null);
     }
 
     private Properties createThreadProperties(String scriptPath,
-            String validationScriptPropertyOrNull)
+            String validationScriptPropertyOrNull, HashMap<String, String> overrideOrNull)
     {
         Properties threadProperties = new Properties();
-        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
-        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+        threadProperties.setProperty(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.setProperty(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
-        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+        threadProperties.setProperty(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.setProperty(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
-        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        threadProperties.setProperty(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
         if (null != validationScriptPropertyOrNull)
         {
-            threadProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
+            threadProperties.setProperty(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
                     validationScriptPropertyOrNull);
         }
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.STAGING_DIR,
@@ -249,8 +255,14 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 prestagingDirectory.getPath());
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_COMMIT_DIR,
                 precommitDirectory.getPath());
-        threadProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
-                "use_original");
+
+        if (overrideOrNull != null)
+        {
+            for (String key: overrideOrNull.keySet())
+            {
+                threadProperties.setProperty(key, overrideOrNull.get(key));
+            }
+        }
 
         return threadProperties;
     }

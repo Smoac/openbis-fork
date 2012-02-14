@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,6 +34,8 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -98,23 +102,71 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         didServiceRollbackHappen = false;
     }
 
-    
-    
-    @Test
-    public void testSimpleTransaction()
+    @DataProvider(name = "oneTwo")
+    public Object[][] simpleTransactionCases()
+    {
+        /* --- create some useful data for the scenarios  ---   */
+        
+        // property to not use prestaging
+        HashMap<String, String> dontUsePrestaging = new HashMap<String, String>();
+        dontUsePrestaging.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
+                DataSetRegistrationPreStagingBehavior.USE_ORIGINAL.toString().toLowerCase());
+
+        // creates data with more than only one dataset
+        IActionDelegate createDataDelegate = new IActionDelegate()
+            {
+                public void execute()
+                {
+                    createData();
+                }
+            };
+
+        /* --- create the actual scenarios -- */
+        return new Object[][]
+            {
+                        // the standard case
+                        { "The standard case", null, "deleted", null },
+                        // the case for old behaviour when we expect the data to disapear from incoming
+                        { "Don't use prestaging", dontUsePrestaging, "empty", null },
+                        // the special case of old behavior when we expect some files to remain in the incoming
+                        { "Don't use prestaging with more content in incoming", dontUsePrestaging,
+                                "content", createDataDelegate } };
+    }
+
+    private static interface IActionDelegate
+    {
+        void execute();
+    }
+
+    /**
+     * @param title Simple description of test case
+     * @param overrideProperties The list of thread properties for this test case
+     * @param incomingDataSetAfterRegistration "deleted", "empty" or "contents". The expected
+     *            behaviour of incoming dataset after registration.
+     */
+    @Test(dataProvider = "oneTwo")
+    public void testSimpleTransaction(String title, HashMap<String, String> overrideProperties,
+            String incomingDataSetAfterRegistration, IActionDelegate createDataSetDelegate)
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
+                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py",
+                        overrideProperties);
         createHandler(properties, false, true);
-        createDataWithOneSubDataSet();
+
+        if (createDataSetDelegate != null)
+        {
+            createDataSetDelegate.execute();
+        } else
+        {
+            createDataWithOneSubDataSet();
+        }
+
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
-        
-        
-        
+
         context.checking(new Expectations()
             {
                 {
@@ -128,17 +180,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-                    
-                    will(doAll(returnValue(new AtomicEntityOperationResult()), checkPrecommitDirIsNotEmpty()));
-                    
+
+                    will(doAll(returnValue(new AtomicEntityOperationResult()),
+                            checkPrecommitDirIsNotEmpty()));
+
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    
+
                     will(checkPrecommitDirIsEmpty());
                 }
             });
 
         handler.handle(markerFile);
-        checkDirContentsAfterSuccessfulRegistration();
+        checkInitialDirAfterRegistration(incomingDataSetAfterRegistration);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
@@ -152,61 +205,78 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
         File datasetLocation =
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
+
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation), dataSet.getLocation());
+
         assertEquals(new File(stagingDirectory, DATA_SET_CODE + "-storage"),
                 MockStorageProcessor.instance.rootDirs.get(0));
+
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
+
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
                 incomingDir);
+
         assertEquals("hello world1",
                 FileUtilities.loadToString(new File(datasetLocation, "read1.me")).trim());
+
         context.assertIsSatisfied();
     }
 
-    private void checkDirContentsAfterSuccessfulRegistration()
+    private void checkInitialDirAfterRegistration(String expectedBehavior)
     {
-        // we should not expect the dataset directory to be removed in general case. The
-        // responsibility for removing directory (if the marker files are being used) should be
-        // solely on the jython dropboxes side. This is required for backwards compatibility as we
-        // have users who use this behaviour and want to keep the files inside of the dropbox even
-        // after it has been registered.
-        assertEquals(
-                "The incoming data set directory should be cleared by the jython dropboxes after succesful registration",
-                incomingDataSetFile.listFiles().length, 0);
+        if (expectedBehavior.equals("deleted"))
+        {
+            assertFalse(incomingDataSetFile.exists());
+        } else if (expectedBehavior.equals("empty"))
+        {
+            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertEquals(0, incomingDataSetFile.listFiles().length);
+        } else if (expectedBehavior.equals("content"))
+        {
+            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertNotSame("The incoming file is not expected to be empty", 0,
+                    incomingDataSetFile.listFiles().length);
+        } else
+        {
+            fail("Unknown behavior");
+        }
     }
 
     private CustomAction checkPrecommitDirIsEmpty()
     {
         return new CustomAction("foo")
-        {
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                assertEquals("[]", Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
-                        .toString());
-                return null;
-            }
-        };
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    assertEquals("[]",
+                            Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
+                                    .toString());
+                    return null;
+                }
+            };
     }
-    
+
     private CustomAction checkPrecommitDirIsNotEmpty()
     {
         return new CustomAction("foo")
-        {
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
-                return null;
-            }
-        };
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
+                    return null;
+                }
+            };
     }
-    
+
     private void checkStagingDirIsEmpty()
     {
         assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
@@ -392,7 +462,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             });
 
         handler.handle(markerFile);
-        checkDirContentsAfterSuccessfulRegistration();
+        checkInitialDirAfterRegistration("deleted");
 
         assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
@@ -463,14 +533,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
-                    
+
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-                    }
+                }
             });
 
         handler.handle(markerFile);
 
-        checkDirContentsAfterSuccessfulRegistration();
+        checkInitialDirAfterRegistration("deleted");
         assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
 
@@ -523,7 +593,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
-                    
+
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
@@ -596,7 +666,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
-                    
+
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
@@ -663,7 +733,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     one(openBisService).performEntityOperations(with(atomicOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
-                    
+
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
