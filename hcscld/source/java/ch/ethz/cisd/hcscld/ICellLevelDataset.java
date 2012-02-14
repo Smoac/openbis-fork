@@ -17,6 +17,7 @@
 package ch.ethz.cisd.hcscld;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
@@ -33,6 +34,11 @@ public interface ICellLevelDataset
      */
     public String getDatasetCode();
 
+    /**
+     * Returns the date (including time) of creation of this dataset.
+     */
+    public Date getCreationDate();
+    
     /**
      * Returns the image quantity structure (number of wells, fields and length of sequence).
      */

@@ -333,6 +333,7 @@ public class FeatureDatasetRoundtripTest
         createMainFeatureGroupDataset(f, dsCode, null);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
             assertEquals("ALL", clf.getFeatureGroup().getId());

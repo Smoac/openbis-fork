@@ -17,6 +17,7 @@
 package ch.ethz.cisd.hcscld;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -98,6 +99,11 @@ abstract class CellLevelDataset implements ICellLevelDataset
     public String getDatasetCode()
     {
         return datasetCode;
+    }
+
+    public Date getCreationDate()
+    {
+        return reader.getDateAttribute(getObjectPath(), getCreationTimestampDatasetAttributeName());
     }
 
     public ImageQuantityStructure getImageQuantityStructure()
@@ -249,6 +255,11 @@ abstract class CellLevelDataset implements ICellLevelDataset
     static String getDatasetTypeAttributeName()
     {
         return "datasetType";
+    }
+
+    static String getCreationTimestampDatasetAttributeName()
+    {
+        return "creationTimestamp";
     }
 
     static String getPlateBarcodeAttributeName()

@@ -100,6 +100,8 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         writer.createGroup(getObjectPath());
         writer.compounds().setAttr(getObjectPath(), getDatasetTypeAttributeName(),
                 datasetTypeDescriptor);
+        writer.setTimeStampAttribute(getObjectPath(), getCreationTimestampDatasetAttributeName(),
+                System.currentTimeMillis());
         writer.writeCompound(getImageQuantityStructureObjectPath(), quantityStructure);
         writer.createGroup(getDatasetAnnotationObjectPath());
     }
@@ -158,7 +160,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         return size >= SIZE_LIMIT_DEFLATE;
     }
-    
+
     static HDF5GenericStorageFeatures getStorageFeatures(int size)
     {
         if (shouldDeflate(size))
@@ -243,8 +245,10 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
             for (ObjectNamespace cgroup : objectTypeStore.getObjectNamespaces())
             {
                 final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
-                writer.enums().writeArray(path, new HDF5EnumerationValueArray(objectTypesType,
-                        toString(cgroup.getObjectTypes())));
+                writer.enums().writeArray(
+                        path,
+                        new HDF5EnumerationValueArray(objectTypesType, toString(cgroup
+                                .getObjectTypes())));
             }
         } else
         {
