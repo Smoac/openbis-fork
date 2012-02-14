@@ -210,18 +210,15 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     public static class PostRegistrationCleanUpAction extends
             AbstractDelegatedActionWithResult<Boolean>
     {
-        private final File originalInboxFile;
-
-        private final File hardlinkCopyFile;
+        private final DataSetFile incoming;
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
-        public PostRegistrationCleanUpAction(File originalInboxFile, File hardlinkCopyFile,
+        public PostRegistrationCleanUpAction(DataSetFile incoming,
                 IDelegatedActionWithResult<Boolean> wrappedAction)
         {
             super(true);
-            this.originalInboxFile = originalInboxFile;
-            this.hardlinkCopyFile = hardlinkCopyFile;
+            this.incoming = incoming;
             this.wrappedAction = wrappedAction;
         }
 
@@ -232,11 +229,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             if (didOperationSucceed)
             {
                 // Registration succeeded -- delete original file
-                operationSuccessful = FileUtilities.deleteRecursively(originalInboxFile);
+                operationSuccessful =
+                        FileUtilities.deleteRecursively(incoming.getOriginalIncoming());
 
                 // If the parent of the hardlink copy file, which we generated, is empty, delete it
                 // too
-                File hardlinkCopyParent = hardlinkCopyFile.getParentFile();
+                File hardlinkCopyParent = incoming.getPrestagingCopy().getParentFile();
                 if (hardlinkCopyParent.list().length < 1)
                 {
                     hardlinkCopyParent.delete();
@@ -244,7 +242,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.
-                operationSuccessful = FileUtilities.deleteRecursively(hardlinkCopyFile);
+                operationSuccessful = FileUtilities.deleteRecursively(incoming.getPrestagingCopy());
             }
             boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
 
@@ -356,16 +354,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
-            handle(incomingDataSetFile, null, new NoOpDelegate(), markerFileCleanupAction);
+            DataSetFile incoming = new DataSetFile(incomingDataSetFile);
+            handle(incoming, null, new NoOpDelegate(), markerFileCleanupAction);
         } else
         {
             // Make a hardlink copy of the file
             File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
 
+            DataSetFile dsf = new DataSetFile(incomingDataSetFile, copyOfIncoming);
+
             PostRegistrationCleanUpAction cleanupAction =
-                    new PostRegistrationCleanUpAction(incomingDataSetFile, copyOfIncoming,
-                            markerFileCleanupAction);
-            handle(copyOfIncoming, null, new NoOpDelegate(), cleanupAction);
+                    new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
+            handle(dsf, null, new NoOpDelegate(), cleanupAction);
         }
     }
 
@@ -405,6 +405,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     public final void handle(File incomingDataSetFile, DataSetInformation callerDataSetInformation,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
+        handle(new DataSetFile(incomingDataSetFile), callerDataSetInformation, delegate);
+    }
+
+    /**
+     * A file has arrived via RPC, handle it!
+     * <p>
+     * The handleDataSet method (a subclass responsibility) is invoked.
+     */
+    public final void handle(DataSetFile incomingDataSetFile,
+            DataSetInformation callerDataSetInformation,
+            ITopLevelDataSetRegistratorDelegate delegate)
+    {
         if (stopped)
         {
             return;
@@ -420,7 +432,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             Throwable firstError = service.getEncounteredErrors().get(0);
             throw new EnvironmentFailureException("Could not process file "
-                    + incomingDataSetFile.getName(), asSerializableException(firstError));
+                    + incomingDataSetFile.getPrestagingCopy().getName(),
+                    asSerializableException(firstError));
         }
     }
 
@@ -449,7 +462,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Set up the infrastructure and forward control to subclasses. Clients can query the service
      * for information about what happened.
      */
-    private DataSetRegistrationService<T> handle(File incomingDataSetFile,
+    private DataSetRegistrationService<T> handle(DataSetFile incomingDataSetFile,
             DataSetInformation callerDataSetInformationOrNull,
             ITopLevelDataSetRegistratorDelegate delegate,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
@@ -465,13 +478,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             .getValidationScriptsOrNull());
 
             List<ValidationError> validationErrors =
-                    validationScriptRunner.validate(incomingDataSetFile);
+                    validationScriptRunner.validate(incomingDataSetFile.getPrestagingCopy());
             if (validationErrors.size() > 0)
             {
                 handleValidationErrors(validationErrors, incomingDataSetFile, service);
             } else
             {
-                handleDataSet(incomingDataSetFile, service);
+                handleDataSet(incomingDataSetFile.getPrestagingCopy(), service);
                 service.commit();
             }
         } catch (Throwable ex)
@@ -486,7 +499,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             ErrorType.REGISTRATION_SCRIPT_ERROR, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                            incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
+                            incomingDataSetFile.getOriginalIncoming(), null, ex,
+                            ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
 
@@ -504,13 +518,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * override.
      */
     protected void handleValidationErrors(List<ValidationError> validationErrors,
-            File incomingDataSetFile, DataSetRegistrationService<T> service)
+            DataSetFile incomingDataSetFile, DataSetRegistrationService<T> service)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("Validation script [");
         sb.append(getGlobalState().getValidationScriptsOrNull());
         sb.append("] found errors in incoming data set [");
-        sb.append(incomingDataSetFile);
+        sb.append(incomingDataSetFile.getPrestagingCopy());
         sb.append("]:\n");
         for (ValidationError error : validationErrors)
         {
@@ -522,9 +536,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         UnstoreDataAction action =
                 getRegistratorState().getOnErrorActionDecision().computeUndoAction(
                         ErrorType.INVALID_DATA_SET, null);
+        System.err.println("compute undo action is "+action);
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                        incomingDataSetFile, null, null, ErrorType.INVALID_DATA_SET);
+                        incomingDataSetFile.getOriginalIncoming(), null, null,
+                        ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
         operationLog.info(sb.toString());
         rollbacker.doRollback();
@@ -604,7 +620,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * @param callerDataSetInformationOrNull
      */
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
-            File incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
+            DataSetFile incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {

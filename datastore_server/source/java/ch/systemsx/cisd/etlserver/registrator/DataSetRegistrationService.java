@@ -71,7 +71,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final File precommitDirectory;
     
-    private final File incomingDataSetFile;
+    private final DataSetFile incomingDataSetFile;
 
     private final DssRegistrationLogger dssRegistrationLog;
 
@@ -99,7 +99,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * @param globalCleanAfterwardsAction An action to execute when the service has finished
      */
     public DataSetRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
-            File incomingDataSetFile,
+            DataSetFile incomingDataSetFile,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
@@ -117,7 +117,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState()
                         .getDssRegistrationLogDir());
         this.dssRegistrationLog =
-                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getName(),
+                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getPrestagingCopy().getName(),
                         threadParameters.getThreadName(),
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
@@ -135,7 +135,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
      */
     public IDataSetRegistrationTransaction transaction()
     {
-        return transaction(incomingDataSetFile, getDataSetRegistrationDetailsFactory());
+        return transaction(incomingDataSetFile.getPrestagingCopy(), getDataSetRegistrationDetailsFactory());
     }
 
     /**
@@ -260,7 +260,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
     {
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(registratorContext, operationLog,
-                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile,
+                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile.getOriginalIncoming(),
                         dataSetTypeCodeOrNull, null);
         return rollbacker.doRollback();
     }
@@ -277,7 +277,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
                     registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(registratorContext, operationLog, action,
-                            incomingDataSetFile, null, ex, errorType);
+                            incomingDataSetFile.getOriginalIncoming(), null, ex, errorType);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
         }

@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -434,7 +435,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
 
         handler = new TestingDataSetHandler(globalState);
-        service = handler.createNewService(workingDirectory);
+        service = handler.createNewService(new DataSetFile(workingDirectory));
     }
 
     private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
@@ -671,7 +672,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         }
 
-        public DataSetRegistrationService<DataSetInformation> createNewService(File dataSetFile)
+        public DataSetRegistrationService<DataSetInformation> createNewService(DataSetFile dataSetFile)
         {
             return createDataSetRegistrationService(dataSetFile, null,
                     new DoNothingDelegatedAction(), new NoOpDelegate());

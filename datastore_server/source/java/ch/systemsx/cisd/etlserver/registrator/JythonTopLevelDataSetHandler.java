@@ -136,7 +136,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     @Override
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
-            File incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
+            DataSetFile incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
@@ -151,7 +151,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * @param pythonInterpreter
      */
     protected DataSetRegistrationService<T> createJythonDataSetRegistrationService(
-            File incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+            DataSetFile incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
@@ -367,7 +367,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         private final PythonInterpreter interpreter;
 
         public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
-                File incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+                DataSetFile incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)

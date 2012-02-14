@@ -523,7 +523,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         @Override
         protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
-                File aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+                DataSetFile aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
                 ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)
@@ -543,7 +543,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         private final boolean shouldRegistrationFail;
 
         public TestDataRegistrationService(
-                JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
+                JythonTopLevelDataSetHandler<DataSetInformation> registrator, DataSetFile aDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter, boolean shouldRegistrationFail,

@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -192,6 +193,22 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.shouldRegistrationFail = true;
         testCases.add(testCase);
 
+        //TODO: In this case should it be "invalid dataset error" or what?
+        testCase = new TestCaseParameters("The validation error with DELETE on error.");
+        for (String error : allErrors)
+        {
+            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+                    UnstoreDataAction.DELETE.toString());
+        }
+        testCase.incomingDataSetAfterRegistration = "deleted";
+        testCase.shouldValidationFail = true;
+        testCases.add(testCase);
+
+        // TODO: Add more scenarios:
+        // - Test move to error
+        // - Test moving of the original file in case of validation error
+        // - Test other error scenarios
+
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
         Object[][] resultsList = new Object[testCases.size()][];
@@ -213,18 +230,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         protected HashMap<String, String> overrideProperties;
 
-        protected String incomingDataSetAfterRegistration;
+        protected String incomingDataSetAfterRegistration = "deleted";
 
-        protected IDelegatedAction createDataSetDelegate;
+        protected IDelegatedAction createDataSetDelegate = null;
 
-        protected boolean shouldRegistrationFail;
+        protected boolean shouldRegistrationFail = false;
+
+        protected boolean shouldValidationFail = false;
 
         private TestCaseParameters(String title)
         {
             this.title = title;
             this.overrideProperties = new HashMap<String, String>();
-            this.incomingDataSetAfterRegistration = "deleted";
-            this.createDataSetDelegate = null;
         };
 
         public String toString()
@@ -240,7 +257,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py",
                         testCase.overrideProperties);
-        if (testCase.shouldRegistrationFail)
+        if (testCase.shouldRegistrationFail || testCase.shouldValidationFail)
         {
             createHandler(properties, false, false);
         } else
@@ -272,19 +289,29 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-                    if (testCase.shouldRegistrationFail)
+                    if (testCase.shouldValidationFail)
                     {
-                        will(throwException(new AssertionError("Fail")));
+                        Exception innerException = new Exception();
+                        will(throwException(new UserFailureException("Data set of type '"
+                                + DATA_SET_CODE + "' is invalid ", innerException)));
+                        // TODO: refactor this. How to stop here? return doesnt work...
                     } else
                     {
-                        will(doAll(returnValue(new AtomicEntityOperationResult()),
-                                checkPrecommitDirIsNotEmpty()));
+                        one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                        if (testCase.shouldRegistrationFail)
+                        {
+                            will(throwException(new AssertionError("Fail")));
+                        } else
+                        {
+                            will(doAll(returnValue(new AtomicEntityOperationResult()),
+                                    checkPrecommitDirIsNotEmpty()));
 
-                        will(checkPrecommitDirIsEmpty());
+                            one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+
+                            will(checkPrecommitDirIsEmpty());
+                        }
                     }
                 }
             });
@@ -292,13 +319,21 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         handler.handle(markerFile);
         checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
-
-        int expectedCommitCount = testCase.shouldRegistrationFail ? 0 : 1;
+        if (!testCase.shouldValidationFail)
+        {
+            // the incoming dir in storage processor is created at the beginning of transaction - so
+            // after the successful registration
+            assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        }
+        
+        int expectedCommitCount =
+                testCase.shouldRegistrationFail || testCase.shouldValidationFail ? 0 : 1;
 
         assertEquals(expectedCommitCount, MockStorageProcessor.instance.calledCommitCount);
 
-        if (testCase.shouldRegistrationFail)
+        if (testCase.shouldValidationFail)
+        {
+        } else if (testCase.shouldRegistrationFail)
         {
             assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
 
@@ -1115,7 +1150,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         } else if (expectedBehavior.equals("empty"))
         {
             assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
-            assertEquals("Incomind directory should be empty", 0, incomingDataSetFile.listFiles().length);
+            assertEquals("Incomind directory should be empty", 0,
+                    incomingDataSetFile.listFiles().length);
         } else if (expectedBehavior.equals("content"))
         {
             assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
@@ -1123,12 +1159,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     incomingDataSetFile.listFiles().length);
         } else if (expectedBehavior.equals("untouched_two_datasets"))
         {
-            assertEquals("Staging directory is supposed to be empty", "[]", Arrays.asList(stagingDirectory.list()).toString());
-            assertEquals("The content of the incoming dataset 1 has changed",
+            assertEquals("Staging directory is supposed to be empty", "[]",
+                    Arrays.asList(stagingDirectory.list()).toString());
+            assertEquals(
+                    "The content of the incoming dataset 1 has changed",
                     "hello world1",
                     FileUtilities.loadToString(
                             new File(workingDirectory, "data_set/sub_data_set_1/read1.me")).trim());
-            assertEquals("The content of the incoming dataset 2 has changed",
+            assertEquals(
+                    "The content of the incoming dataset 2 has changed",
                     "hello world2",
                     FileUtilities.loadToString(
                             new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
