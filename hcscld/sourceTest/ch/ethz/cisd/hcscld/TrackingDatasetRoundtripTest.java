@@ -18,6 +18,8 @@ package ch.ethz.cisd.hcscld;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
@@ -25,6 +27,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+
+import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 
 /**
  * A roundtrip test for tracking datasets.
@@ -92,8 +96,88 @@ public class TrackingDatasetRoundtripTest
         assertTrue(Arrays.equals(new int[]
             { 5, 6, 7 }, tracking.getChildIds(2).toArray()));
         assertTrue(tracking.getChildIds(3).isEmpty());
-        
+
         reader.close();
     }
 
+    @Test
+    public void testObjectTrackingTypeOrdering()
+    {
+        File f = new File(workingDirectory, "ObjectTrackingTypeOrdering.cld");
+        f.delete();
+        // f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        ICellLevelTrackingWritableDataset wds =
+                writer.addTrackingDataset("abc", new ImageQuantityStructure(10,
+                        SequenceType.TIMESERIES, false));
+        ObjectNamespace cellA = wds.addObjectNamespace("Cell_A");
+        ObjectNamespace cellB = wds.addObjectNamespace("Cell_B");
+        ObjectTrackingType type0 = wds.createObjectTrackingType(cellB, 0, cellB, 1);
+        ObjectTrackingType type1 = wds.createObjectTrackingType(cellA, 9, cellB, 9);
+        ObjectTrackingType type2 = wds.createObjectTrackingType(cellA, 0, cellB, 0);
+        ObjectTrackingType type3 = wds.createObjectTrackingType(cellA, 1, cellB, 1);
+        ObjectTrackingType type4 = wds.createObjectTrackingType(cellA, 0, cellA, 5);
+        ObjectTrackingType type5 = wds.createObjectTrackingType(cellA, 3, cellB, 3);
+        ObjectTrackingType type6 = wds.createObjectTrackingType(cellA, 4, cellB, 4);
+        ObjectTrackingType type7 = wds.createObjectTrackingType(cellA, 5, cellB, 5);
+        ObjectTrackingType type8 = wds.createObjectTrackingType(cellA, 6, cellB, 6);
+        ObjectTrackingType type9 = wds.createObjectTrackingType(cellA, 7, cellB, 7);
+        ObjectTrackingType type10 = wds.createObjectTrackingType(cellA, 8, cellB, 8);
+        ObjectTrackingType type11 = wds.createObjectTrackingType(cellA, 0, cellA, 1);
+        ObjectTrackingType type12 = wds.createObjectTrackingType(cellA, 0, cellA, 2);
+        ObjectTrackingType type13 = wds.createObjectTrackingType(cellA, 0, cellA, 3);
+        ObjectTrackingType type14 = wds.createObjectTrackingType(cellA, 0, cellA, 4);
+        ObjectTrackingType type15 = wds.createObjectTrackingType(cellA, 2, cellB, 2);
+        ObjectTrackingType type16 = wds.createObjectTrackingType(cellA, 0, cellA, 6);
+        ObjectTrackingType type17 = wds.createObjectTrackingType(cellA, 0, cellA, 7);
+        ObjectTrackingType type18 = wds.createObjectTrackingType(cellA, 0, cellA, 8);
+        ObjectTrackingType type19 = wds.createObjectTrackingType(cellA, 0, cellA, 9);
+        ObjectTrackingBuilder trackingBuilder = new ObjectTrackingBuilder();
+        trackingBuilder.addLink(1, 1);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type0, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type1, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type2, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type3, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type4, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type5, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type6, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type7, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type8, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type9, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type10, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type11, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type12, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type13, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type14, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type15, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type16, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type17, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type18, trackingBuilder);
+        wds.writeObjectTracking(new ImageSequenceId(0, 0, 0), type19, trackingBuilder);
+        ObjectTrackingTypes types = wds.getObjectTrackingTypes();
+        assertNotNull(types.tryGet(cellA, cellB));
+        assertNotNull(types.tryGet(cellA, 4, cellB, 4));
+        assertNotNull(types.tryGet(cellA, 0, cellA, 8));
+        assertNotNull(types.tryGet(cellB, 0, cellB, 1));
+        assertNull(types.tryGet(cellB, 0, cellB, 2));
+        assertNull(types.tryGet(cellA, 4, cellB, 6));
+        writer.close();
+
+        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        ICellLevelTrackingDataset rds = reader.getDataSet("abc").toTrackingDataset();
+        types = rds.getObjectTrackingTypes();
+        assertNotNull(types.tryGet(rds.getObjectNamespace("Cell_A"),
+                rds.getObjectNamespace("Cell_B")));
+        assertNotNull(types.tryGet(rds.getObjectNamespace("Cell_A"), 4,
+                rds.getObjectNamespace("Cell_B"), 4));
+        assertNotNull(types.tryGet(rds.getObjectNamespace("Cell_A"), 0,
+                rds.getObjectNamespace("Cell_A"), 8));
+        assertNotNull(types.tryGet(rds.getObjectNamespace("Cell_B"), 0,
+                rds.getObjectNamespace("Cell_B"), 1));
+        assertNull(types.tryGet(rds.getObjectNamespace("Cell_B"), 0,
+                rds.getObjectNamespace("Cell_B"), 2));
+        assertNull(types.tryGet(rds.getObjectNamespace("Cell_A"), 4,
+                rds.getObjectNamespace("Cell_B"), 6));
+        reader.close();
+    }
 }

@@ -112,17 +112,11 @@ public class ObjectTrackingTypes
     public ObjectTrackingType tryGet(ObjectNamespace parentNamespace, int parentImageSequenceIdx,
             ObjectNamespace childNamespace, int childImageSequenceIdx)
     {
-        for (ObjectTrackingType type : objectTrackingTypes)
-        {
-            if (type.getParentObjectNamespace().equals(parentNamespace)
-                    && type.getChildObjectNamespace().equals(childNamespace)
-                    && type.getParentImageSequenceIdx() == parentImageSequenceIdx
-                    && type.getChildImageSequenceIdx() == childImageSequenceIdx)
-            {
-                return type;
-            }
-        }
-        return null;
+        final ObjectTrackingType key =
+                new ObjectTrackingType(null, parentNamespace, parentImageSequenceIdx,
+                        childNamespace, childImageSequenceIdx);
+        final int index = Collections.binarySearch(objectTrackingTypes, key);
+        return (index < 0) ? null : objectTrackingTypes.get(index);
     }
 
     /**

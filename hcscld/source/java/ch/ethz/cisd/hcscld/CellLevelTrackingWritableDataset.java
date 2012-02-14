@@ -18,11 +18,9 @@ package ch.ethz.cisd.hcscld;
 
 import static ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping.mapping;
 
-import java.util.AbstractList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
@@ -53,7 +51,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                 new CellLevelBaseWritableDataset(writer, datasetCode, objectTypeStore,
                         quantityStructure, getFlushable(), hdf5KindEnum,
                         CellLevelDatasetType.TRACKING, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
-        this.objectTrackingTypes = new LinkedHashSet<ObjectTrackingType>();
+        this.objectTrackingTypes = new HashSet<ObjectTrackingType>();
     }
 
     private IObjectNamespaceBasedFlushable getFlushable()
@@ -71,6 +69,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                     {
                         type.setNamespacesEnumType(namespacesEnumType);
                     }
+                    Arrays.sort(values);
                     final HDF5CompoundType<ObjectTrackingType> type =
                             base.writer.compounds().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "ObjectTrackingType"),
@@ -229,38 +228,13 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
             { 0, 0 });
     }
 
-    class ObjectTrackingTypeList extends AbstractList<ObjectTrackingType>
-    {
-        @Override
-        public ObjectTrackingType get(int index)
-        {
-            try
-            {
-                final Iterator<ObjectTrackingType> it = objectTrackingTypes.iterator();
-                ObjectTrackingType type = it.next();
-                for (int i = 0; i < index; ++i)
-                {
-                    type = it.next();
-                }
-                return type;
-            } catch (NoSuchElementException ex)
-            {
-                throw new IndexOutOfBoundsException(Integer.toString(index));
-            }
-        }
-
-        @Override
-        public int size()
-        {
-            return objectTrackingTypes.size();
-        }
-
-    }
-
     @Override
     public ObjectTrackingTypes getObjectTrackingTypes()
     {
-        return new ObjectTrackingTypes(new ObjectTrackingTypeList());
+        final ObjectTrackingType[] array =
+                objectTrackingTypes.toArray(new ObjectTrackingType[objectTrackingTypes.size()]);
+        Arrays.sort(array);
+        return new ObjectTrackingTypes(Arrays.asList(array));
     }
 
     IDatasetVerifyer getVerifyer()

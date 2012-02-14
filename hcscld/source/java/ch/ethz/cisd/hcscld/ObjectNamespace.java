@@ -28,7 +28,7 @@ import java.util.Set;
  * 
  * @author Bernd Rinn
  */
-public class ObjectNamespace implements IId
+public class ObjectNamespace implements IId, Comparable<ObjectNamespace>
 {
     private final File file;
 
@@ -130,6 +130,15 @@ public class ObjectNamespace implements IId
     public String toString()
     {
         return "ObjectNamespace [datasetCode=" + datasetCode + ", id=" + id + "]";
+    }
+
+    //
+    // Comparable
+    //
+    
+    public int compareTo(ObjectNamespace o)
+    {
+        return id.compareTo(o.id);
     }
 
 }

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
  * @author Bernd Rinn
  */
 @CompoundType(mapAllFields = false)
-public class ObjectTrackingType
+public class ObjectTrackingType implements Comparable<ObjectTrackingType>
 {
     @CompoundElement(memberName = "parentObjectNamespace")
     private HDF5EnumerationValue parentObjectNamespaceEnum;
@@ -204,6 +204,29 @@ public class ObjectTrackingType
                 + parentImageSequenceIdx + ", childObjectNamespaceId="
                 + childObjectNamespace.getId() + ", childImageSequenceId=" + childImageSequenceIdx
                 + "]";
+    }
+
+    //
+    // Comparable
+    //
+    
+    public int compareTo(ObjectTrackingType o)
+    {
+        int comp;
+        comp = parentObjectNamespace.compareTo(o.parentObjectNamespace);
+        if (comp == 0)
+        {
+            comp = parentImageSequenceIdx - o.parentImageSequenceIdx;
+        }
+        if (comp == 0)
+        {
+            comp = childObjectNamespace.compareTo(o.childObjectNamespace);
+        }
+        if (comp == 0)
+        {
+            comp = childImageSequenceIdx - o.childImageSequenceIdx;
+        }
+        return comp;
     }
 
 }
