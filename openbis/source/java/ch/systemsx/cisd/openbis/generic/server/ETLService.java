@@ -1606,7 +1606,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataBO.loadByCode(dataSetCode);
         DataPE data = dataBO.getData();
 
-        daoFactory.getPostRegistrationDAO().removeDataSet(data);
+        if (data != null)
+        {
+            daoFactory.getPostRegistrationDAO().removeDataSet(data);
+        }
     }
 
     public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,

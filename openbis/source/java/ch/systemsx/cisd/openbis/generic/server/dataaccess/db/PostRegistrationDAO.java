@@ -58,8 +58,9 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
         final PostRegistrationPE pr = (PostRegistrationPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format(
-                    "Following experiment '%s' has been found for dataSet '%s'.", pr, dataSet));
+            if (pr == null)
+                operationLog.debug(String.format(
+                        "Post registration entry has been found for dataSet '%s'.", dataSet));
         }
         return pr;
     }
