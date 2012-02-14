@@ -201,7 +201,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet)
     {
         logAccess(sessionToken, "list-data-sets-for-experiments",
-                "EXPERIMENTS(%s) CONNECTIONS(%s)", experiments, connectionsToGet);
+                "EXPERIMENTS(%s) CONNECTIONS(%s)", abbreviate(experiments), connectionsToGet);
         return null;
     }
 }
