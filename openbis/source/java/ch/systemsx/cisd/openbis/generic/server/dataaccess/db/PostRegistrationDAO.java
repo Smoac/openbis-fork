@@ -42,9 +42,9 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
     {
         PostRegistrationPE p = tryFindByDataSet(dataSet);
 
-        HibernateTemplate template = getHibernateTemplate();
         if (p != null)
         {
+            HibernateTemplate template = getHibernateTemplate();
             template.delete(p);
         }
     }
