@@ -91,6 +91,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSampleRelationshipPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE</value>
 
             </list>
@@ -125,8 +126,7 @@
                 <!--  Uncomment this for debugging the Hibernate sql queries
 <prop key="hibernate.show_sql">true</prop>
 <prop key="hibernate.use_sql_comments">true</prop>
-<prop key="hibernate.format_sql">true</prop> 
-                  -->
+<prop key="hibernate.format_sql">true</prop> -->
 
             </props>
         </property>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,35 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import javax.persistence.Column;
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
- * @author Kaloyan Enimanev
+ * <i>Persistent Entity</i> object representing data set relationship.
+ * 
+ * @author Pawel Glyzewski
  */
 @Entity
-@Table(name = TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE)
-public class DeletedSampleRelationshipPE
+@Table(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
+    { ColumnNames.DATA_PARENT_COLUMN, ColumnNames.DATA_CHILD_COLUMN }))
+public class DataSetRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private transient Long id;
+    private DataPE parentDataSet;
 
-    private Long parentId;
+    private DataPE childDataSet;
 
     /**
      * Deletion information.
@@ -53,29 +54,43 @@ public class DeletedSampleRelationshipPE
      */
     private DeletionPE deletion;
 
+    @Deprecated
+    public DataSetRelationshipPE()
+    {
+    }
+
+    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet)
+    {
+        this.parentDataSet = parentDataSet;
+        this.childDataSet = childDataSet;
+    }
+
+    @NotNull(message = ValidationMessages.PARENT_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN)
     @Id
-    @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
-    @DocumentId(name = SearchFieldConstants.ID)
-    public Long getId()
+    public DataPE getParentDataSet()
     {
-        return id;
+        return parentDataSet;
     }
 
-    public void setId(final Long id)
+    public void setParentDataSet(DataPE parentDataSet)
     {
-        this.id = id;
+        this.parentDataSet = parentDataSet;
     }
 
-    @Column(name = ColumnNames.PARENT_SAMPLE_COLUMN, nullable = false, insertable = false, updatable = false)
-    public Long getParentId()
+    @NotNull(message = ValidationMessages.CHILD_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN)
+    @Id
+    public DataPE getChildDataSet()
     {
-        return parentId;
+        return childDataSet;
     }
 
-    public void setParentId(final Long parentId)
+    public void setChildDataSet(DataPE childDataSet)
     {
-        this.parentId = parentId;
+        this.childDataSet = childDataSet;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

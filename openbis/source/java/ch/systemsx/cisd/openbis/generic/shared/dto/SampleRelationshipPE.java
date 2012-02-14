@@ -54,6 +54,14 @@ public class SampleRelationshipPE implements Serializable
 
     private RelationshipTypePE relationship;
 
+    /**
+     * Deletion information.
+     * <p>
+     * If not <code>null</code>, then this data set is considered <i>deleted</i> (moved to trash).
+     * </p>
+     */
+    private DeletionPE deletion;
+
     @Deprecated
     public SampleRelationshipPE()
     {
@@ -121,4 +129,15 @@ public class SampleRelationshipPE implements Serializable
         this.id = id;
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
+    public DeletionPE getDeletion()
+    {
+        return deletion;
+    }
+
+    public void setDeletion(final DeletionPE deletion)
+    {
+        this.deletion = deletion;
+    }
 }

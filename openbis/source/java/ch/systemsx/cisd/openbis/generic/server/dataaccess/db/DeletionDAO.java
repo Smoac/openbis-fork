@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -159,9 +161,44 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
             });
 
+        switch (entityKind)
+        {
+            case SAMPLE:
+                revertDeletionOfRelationships(deletion, TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE);
+                break;
+            case DATA_SET:
+                revertDeletionOfRelationships(deletion, TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE);
+                break;
+            case EXPERIMENT:
+                break;
+            case MATERIAL:
+                break;
+        }
+
         scheduleDynamicPropertiesEvaluationByIds(TechId.asLongs(ids), entityKind);
 
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
+    }
+
+    private void revertDeletionOfRelationships(final DeletionPE deletion, final String tableName)
+    {
+        assert deletion != null : "Unspecified deletion";
+
+        int updatedRows = (Integer) executeStatelessAction(new StatelessHibernateCallback()
+            {
+
+                public Object doInStatelessSession(StatelessSession session)
+                {
+                    String query =
+                            String.format("UPDATE %s SET del_id = NULL WHERE del_id = :deletionId",
+                                    tableName);
+                    final SQLQuery sqlQuery = session.createSQLQuery(query);
+                    sqlQuery.setParameter("deletionId", HibernateUtils.getId(deletion));
+                    return sqlQuery.executeUpdate();
+                }
+            });
+
+        operationLog.info(String.format("%s %s(s) reverted", updatedRows, tableName));
     }
 
     public List<TechId> findTrashedSampleIds(final List<TechId> deletionIds)
@@ -254,6 +291,21 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                             .setParameterList("ids", TechId.asLongs(entityIds)).executeUpdate();
                 }
             });
+
+        switch (entityKind)
+        {
+            case SAMPLE:
+                trashSampleRelationships(entityIds, deletion);
+                break;
+            case DATA_SET:
+                trashDataSetRelationships(entityIds, deletion);
+                break;
+            case EXPERIMENT:
+                break;
+            case MATERIAL:
+                break;
+        }
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("trashing %d %ss", updatedRows, entityKind.getLabel()));
@@ -262,6 +314,82 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
         List<Long> ids = TechId.asLongs(entityIds);
         scheduleRemoveFromFullTextIndex(ids, entityKind);
+
+        return updatedRows;
+    }
+
+    public int trashSampleRelationships(final List<TechId> samplesIds, final DeletionPE deletion)
+            throws DataAccessException
+    {
+        if (samplesIds.isEmpty())
+        {
+            return 0;
+        }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
+                //
+                // HibernateCallback
+                //
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE "
+                                            + SampleRelationshipPE.class.getSimpleName()
+                                            + " SET deletion = :deletion"
+                                            + " WHERE deletion IS NULL"
+                                            + " AND (parentSample.id IN (:ids) OR childSample.id in (:ids))")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(samplesIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String
+                    .format("trashing %d %ss", updatedRows, "sample relationships."));
+        }
+        hibernateTemplate.flush();
+
+        return updatedRows;
+    }
+
+    public int trashDataSetRelationships(final List<TechId> dataSetIds, final DeletionPE deletion)
+            throws DataAccessException
+    {
+        if (dataSetIds.isEmpty())
+        {
+            return 0;
+        }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
+                //
+                // HibernateCallback
+                //
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE "
+                                            + SampleRelationshipPE.class.getSimpleName()
+                                            + " SET deletion = :deletion"
+                                            + " WHERE deletion IS NULL"
+                                            + " AND (parentDataSet.id IN (:ids) OR childDataSet.id in (:ids))")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(dataSetIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d %ss", updatedRows,
+                    "data set relationships."));
+        }
+        hibernateTemplate.flush();
 
         return updatedRows;
     }
