@@ -142,7 +142,6 @@ public class DataSetTranslator
     public static ExternalData translate(DataPE dataPE, String baseIndexURL, boolean withDetails,
             final LoadableFields... withExperimentFields)
     {
-        long start = System.currentTimeMillis();
         ExternalData externalData = null;
         if (dataPE.isContainer())
         {
@@ -185,8 +184,6 @@ public class DataSetTranslator
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
         externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
-        long end = System.currentTimeMillis();
-        System.out.println("CCCCCCCCCCCCCCCC: " + (end - start));
         return externalData;
     }
 
