@@ -745,16 +745,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return listImageReferences(dataSetIdentifier, channel,
-                imageAccessor);
+        return listImageReferences(dataSetIdentifier, channel, imageAccessor);
     }
 
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return listImageReferences(dataSetIdentifier, channels,
-                imageAccessor);
+        return listImageReferences(dataSetIdentifier, channels, imageAccessor);
     }
 
     private List<MicroscopyImageReference> listImageReferences(
@@ -791,8 +789,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return createPlateImageReferences(imageAccessor,
-                dataSetIdentifier, wellPositions, channel);
+        return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
     }
 
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
@@ -800,8 +797,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<String> channels)
     {
         IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
-        return createPlateImageReferences(imageAccessor,
-                dataSetIdentifier, wellPositions, channels);
+        return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channels);
     }
 
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
@@ -958,8 +954,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     transformerFactory));
         } else
         {
-            transformerDAO
-                    .updateImageTransformerFactory(transformationIdOrNull, transformerFactory);
+            if (transformerFactory != null)
+            {
+                transformerDAO.updateImageTransformerFactory(transformationIdOrNull,
+                        transformerFactory);
+            } else
+            {
+                transformerDAO.removeImageTransformation(transformationIdOrNull);
+            }
         }
     }
 

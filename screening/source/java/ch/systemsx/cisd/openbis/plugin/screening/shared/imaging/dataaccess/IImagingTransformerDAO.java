@@ -36,7 +36,8 @@ public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadon
 
     @Update(sql = "update image_data_sets set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
-    public void saveTransformerFactoryForImageDataset(long datasetId, IImageTransformerFactory factory);
+    public void saveTransformerFactoryForImageDataset(long datasetId,
+            IImageTransformerFactory factory);
 
     @Update(sql = "update acquired_images set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
@@ -51,4 +52,8 @@ public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadon
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void updateImageTransformerFactory(long imageTransformationId,
             IImageTransformerFactory factory);
+
+    @Update(sql = "delete from IMAGE_TRANSFORMATIONS where id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class })
+    public void removeImageTransformation(long imageTransformationId);
 }
