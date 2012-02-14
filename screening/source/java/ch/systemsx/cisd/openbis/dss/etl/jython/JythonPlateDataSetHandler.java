@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -339,7 +340,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
 
     @Override
     protected DataSetRegistrationService<DataSetInformation> createDataSetRegistrationService(
-            File incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
+            DataSetFile incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
