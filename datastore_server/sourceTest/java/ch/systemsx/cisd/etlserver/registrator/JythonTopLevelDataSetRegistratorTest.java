@@ -24,18 +24,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 
-import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -44,8 +42,11 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -102,18 +103,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         didServiceRollbackHappen = false;
     }
 
-    @DataProvider(name = "oneTwo")
+    @DataProvider(name = "simpleTransactionTestCaseProvider")
     public Object[][] simpleTransactionCases()
     {
-        /* --- create some useful data for the scenarios  ---   */
-        
-        // property to not use prestaging
+        /* --- create some useful data for the scenarios --- */
+
+        // creates the property with the setting
         HashMap<String, String> dontUsePrestaging = new HashMap<String, String>();
         dontUsePrestaging.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
                 DataSetRegistrationPreStagingBehavior.USE_ORIGINAL.toString().toLowerCase());
 
         // creates data with more than only one dataset
-        IActionDelegate createDataDelegate = new IActionDelegate()
+        IDelegatedAction createTwoDataSetsDelegate = new IDelegatedAction()
             {
                 public void execute()
                 {
@@ -121,42 +122,134 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             };
 
-        /* --- create the actual scenarios -- */
-        return new Object[][]
-            {
-                        // the standard case
-                        { "The standard case", null, "deleted", null },
-                        // the case for old behaviour when we expect the data to disapear from incoming
-                        { "Don't use prestaging", dontUsePrestaging, "empty", null },
-                        // the special case of old behavior when we expect some files to remain in the incoming
-                        { "Don't use prestaging with more content in incoming", dontUsePrestaging,
-                                "content", createDataDelegate } };
+        LinkedList<TestCaseParameters> testCases =
+                new LinkedList<JythonTopLevelDataSetRegistratorTest.TestCaseParameters>();
+
+        // basic testCase
+        testCases.add(new TestCaseParameters("Basic successful registration"));
+
+        // testCase without prestaging
+        TestCaseParameters testCase =
+                new TestCaseParameters(
+                        "registration without prestaging. Should clean the incoming directory.");
+        testCase.overrideProperties = dontUsePrestaging;
+        testCase.incomingDataSetAfterRegistration = "empty";
+        testCases.add(testCase);
+
+        // without pre-staging with some data left in incoming directory
+        // this test case is for a particular users, who use incoming directory in the way they
+        // aren't supposed to
+        testCase =
+                new TestCaseParameters(
+                        "registration without prestaging. Should leave some data in the incoming directory.");
+        testCase.overrideProperties = dontUsePrestaging;
+        testCase.incomingDataSetAfterRegistration = "content";
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCases.add(testCase);
+
+        // simple test failing registration testCase
+        testCase = new TestCaseParameters("The simple transaction rollback.");
+        testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.shouldRegistrationFail = true;
+        testCases.add(testCase);
+
+        String[] allErrors =
+                    { ConfiguredOnErrorActionDecision.INVALID_DATA_SET_KEY,
+                            ConfiguredOnErrorActionDecision.OPENBIS_REGISTRATION_FAILURE_KEY,
+                            ConfiguredOnErrorActionDecision.POST_REGISTRATION_ERROR_KEY,
+                            ConfiguredOnErrorActionDecision.REGISTRATION_SCRIPT_ERROR_KEY,
+                            ConfiguredOnErrorActionDecision.STORAGE_PROCESSOR_ERROR_KEY,
+                            ConfiguredOnErrorActionDecision.VALIDATION_SCRIPT_ERROR_KEY, };
+
+        // simple test failing registration testCase
+        testCase = new TestCaseParameters("The simple transaction rollback with DELETE on error.");
+        for (String error : allErrors)
+        {
+            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+                    UnstoreDataAction.DELETE.toString());
+        }
+        testCase.incomingDataSetAfterRegistration = "deleted";
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.shouldRegistrationFail = true;
+        testCases.add(testCase);
+
+        // simple test failing registration testCase
+        testCase =
+                new TestCaseParameters(
+                        "The simple transaction rollback with DELETE on error without prestaging.");
+        testCase.overrideProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
+                DataSetRegistrationPreStagingBehavior.USE_ORIGINAL.toString().toLowerCase());
+
+        for (String error : allErrors)
+        {
+            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+                    UnstoreDataAction.DELETE.toString());
+        }
+
+        testCase.incomingDataSetAfterRegistration = "deleted";
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.shouldRegistrationFail = true;
+        testCases.add(testCase);
+
+        // here is crappy code for
+        // return parameters.map( (x) => new Object[]{x} )
+        Object[][] resultsList = new Object[testCases.size()][];
+
+        int index = 0;
+        for (TestCaseParameters t : testCases)
+        {
+            resultsList[index++] = new Object[]
+                { t };
+        }
+
+        return resultsList;
     }
 
-    private static interface IActionDelegate
+    private static class TestCaseParameters
     {
-        void execute();
+
+        protected String title;
+
+        protected HashMap<String, String> overrideProperties;
+
+        protected String incomingDataSetAfterRegistration;
+
+        protected IDelegatedAction createDataSetDelegate;
+
+        protected boolean shouldRegistrationFail;
+
+        private TestCaseParameters(String title)
+        {
+            this.title = title;
+            this.overrideProperties = new HashMap<String, String>();
+            this.incomingDataSetAfterRegistration = "deleted";
+            this.createDataSetDelegate = null;
+        };
+
+        public String toString()
+        {
+            return title;
+        }
     }
 
-    /**
-     * @param title Simple description of test case
-     * @param overrideProperties The list of thread properties for this test case
-     * @param incomingDataSetAfterRegistration "deleted", "empty" or "contents". The expected
-     *            behaviour of incoming dataset after registration.
-     */
-    @Test(dataProvider = "oneTwo")
-    public void testSimpleTransaction(String title, HashMap<String, String> overrideProperties,
-            String incomingDataSetAfterRegistration, IActionDelegate createDataSetDelegate)
+    @Test(dataProvider = "simpleTransactionTestCaseProvider")
+    public void testSimpleTransaction(final TestCaseParameters testCase)
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py",
-                        overrideProperties);
-        createHandler(properties, false, true);
-
-        if (createDataSetDelegate != null)
+                        testCase.overrideProperties);
+        if (testCase.shouldRegistrationFail)
         {
-            createDataSetDelegate.execute();
+            createHandler(properties, false, false);
+        } else
+        {
+            createHandler(properties, false, true);
+        }
+        if (testCase.createDataSetDelegate != null)
+        {
+            testCase.createDataSetDelegate.execute();
         } else
         {
             createDataWithOneSubDataSet();
@@ -181,106 +274,76 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-                    will(doAll(returnValue(new AtomicEntityOperationResult()),
-                            checkPrecommitDirIsNotEmpty()));
+                    if (testCase.shouldRegistrationFail)
+                    {
+                        will(throwException(new AssertionError("Fail")));
+                    } else
+                    {
+                        will(doAll(returnValue(new AtomicEntityOperationResult()),
+                                checkPrecommitDirIsNotEmpty()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
 
-                    will(checkPrecommitDirIsEmpty());
+                        will(checkPrecommitDirIsEmpty());
+                    }
                 }
             });
 
         handler.handle(markerFile);
-        checkInitialDirAfterRegistration(incomingDataSetAfterRegistration);
-
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
-        assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+        checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 
         assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
 
-        NewExternalData dataSet =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+        int expectedCommitCount = testCase.shouldRegistrationFail ? 0 : 1;
 
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(expectedCommitCount, MockStorageProcessor.instance.calledCommitCount);
 
-        File datasetLocation =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        DATABASE_INSTANCE_UUID);
-
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation), dataSet.getLocation());
-
-        assertEquals(new File(stagingDirectory, DATA_SET_CODE + "-storage"),
-                MockStorageProcessor.instance.rootDirs.get(0));
-
-        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-
-        File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
-
-        assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
-                incomingDir);
-
-        assertEquals("hello world1",
-                FileUtilities.loadToString(new File(datasetLocation, "read1.me")).trim());
-
-        context.assertIsSatisfied();
-    }
-
-    private void checkInitialDirAfterRegistration(String expectedBehavior)
-    {
-        if (expectedBehavior.equals("deleted"))
+        if (testCase.shouldRegistrationFail)
         {
-            assertFalse(incomingDataSetFile.exists());
-        } else if (expectedBehavior.equals("empty"))
-        {
-            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
-            assertEquals(0, incomingDataSetFile.listFiles().length);
-        } else if (expectedBehavior.equals("content"))
-        {
-            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
-            assertNotSame("The incoming file is not expected to be empty", 0,
-                    incomingDataSetFile.listFiles().length);
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+
+            TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+            assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
+            assertFalse(theHandler.didRollbackServiceFunctionRun);
+            assertTrue(theHandler.didTransactionRollbackHappen);
+            assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
         } else
         {
-            fail("Unknown behavior");
+            TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+            assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
+            assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+
+            assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+            assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations()
+                    .size());
+
+            NewExternalData dataSet =
+                    atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+
+            assertEquals(DATA_SET_CODE, dataSet.getCode());
+            assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
+            File datasetLocation =
+                    DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                            ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                            DATABASE_INSTANCE_UUID);
+
+            assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
+                    ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                    datasetLocation), dataSet.getLocation());
+
+            assertEquals(new File(stagingDirectory, DATA_SET_CODE + "-storage"),
+                    MockStorageProcessor.instance.rootDirs.get(0));
+
+            File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
+
+            assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
+                    incomingDir);
+
+            assertEquals("hello world1",
+                    FileUtilities.loadToString(new File(datasetLocation, "read1.me")).trim());
         }
-    }
-
-    private CustomAction checkPrecommitDirIsEmpty()
-    {
-        return new CustomAction("foo")
-            {
-                public Object invoke(Invocation invocation) throws Throwable
-                {
-                    assertEquals("[]",
-                            Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
-                                    .toString());
-                    return null;
-                }
-            };
-    }
-
-    private CustomAction checkPrecommitDirIsNotEmpty()
-    {
-        return new CustomAction("foo")
-            {
-                public Object invoke(Invocation invocation) throws Throwable
-                {
-                    assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
-                    return null;
-                }
-            };
-    }
-
-    private void checkStagingDirIsEmpty()
-    {
-        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
-                .toString());
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -355,57 +418,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         // These do not get called when the caller herself invokes a rollback
         assertFalse(theHandler.didTransactionRollbackHappen);
         assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testSimpleTransactionRollback()
-    {
-        setUpHomeDataBaseExpectations();
-        Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
-        createHandler(properties, false, false);
-        createData();
-        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
-        final Experiment experiment = builder.getExperiment();
-        context.checking(new Expectations()
-            {
-                {
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE));
-                    atLeast(1).of(openBisService).tryToGetExperiment(
-                            new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                    .createIdentifier());
-                    will(returnValue(experiment));
-
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-                    one(openBisService)
-                            .performEntityOperations(
-                                    with(new IsAnything<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>()));
-                    will(throwException(new AssertionError("Fail")));
-                }
-            });
-
-        handler.handle(markerFile);
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
-        assertEquals(
-                "hello world1",
-                FileUtilities.loadToString(
-                        new File(workingDirectory, "data_set/sub_data_set_1/read1.me")).trim());
-        assertEquals(
-                "hello world2",
-                FileUtilities.loadToString(
-                        new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
-
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
-        assertTrue(theHandler.didTransactionRollbackHappen);
-        assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
 
         context.assertIsSatisfied();
     }
@@ -1094,4 +1106,68 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         sc.addMatchClause(MatchClause.createPropertyMatch("PROP", "VALUE"));
         return sc;
     }
+
+    private void checkInitialDirAfterRegistration(String expectedBehavior)
+    {
+        if (expectedBehavior.equals("deleted"))
+        {
+            assertFalse("Incoming directory should have been deleted", incomingDataSetFile.exists());
+        } else if (expectedBehavior.equals("empty"))
+        {
+            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertEquals("Incomind directory should be empty", 0, incomingDataSetFile.listFiles().length);
+        } else if (expectedBehavior.equals("content"))
+        {
+            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertNotSame("The incoming directory is not expected to be empty", 0,
+                    incomingDataSetFile.listFiles().length);
+        } else if (expectedBehavior.equals("untouched_two_datasets"))
+        {
+            assertEquals("Staging directory is supposed to be empty", "[]", Arrays.asList(stagingDirectory.list()).toString());
+            assertEquals("The content of the incoming dataset 1 has changed",
+                    "hello world1",
+                    FileUtilities.loadToString(
+                            new File(workingDirectory, "data_set/sub_data_set_1/read1.me")).trim());
+            assertEquals("The content of the incoming dataset 2 has changed",
+                    "hello world2",
+                    FileUtilities.loadToString(
+                            new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
+        } else
+        {
+            fail("Unknown behavior '" + expectedBehavior + "'");
+        }
+    }
+
+    private CustomAction checkPrecommitDirIsEmpty()
+    {
+        return new CustomAction("foo")
+            {
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    assertEquals("[]",
+                            Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
+                                    .toString());
+                    return null;
+                }
+            };
+    }
+
+    private CustomAction checkPrecommitDirIsNotEmpty()
+    {
+        return new CustomAction("foo")
+            {
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
+                    return null;
+                }
+            };
+    }
+
+    private void checkStagingDirIsEmpty()
+    {
+        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
+                .toString());
+    }
+
 }
