@@ -43,7 +43,10 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
         PostRegistrationPE p = tryFindByDataSet(dataSet);
 
         HibernateTemplate template = getHibernateTemplate();
-        template.delete(p);
+        if (p != null)
+        {
+            template.delete(p);
+        }
     }
 
     public PostRegistrationPE tryFindByDataSet(final DataPE dataSet)
@@ -52,14 +55,13 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
 
         final Criteria criteria = getSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("dataSet", dataSet));
-        final PostRegistrationPE experiment = (PostRegistrationPE) criteria.uniqueResult();
+        final PostRegistrationPE pr = (PostRegistrationPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "Following experiment '%s' has been found for dataSet '%s'.", experiment,
-                    dataSet));
+                    "Following experiment '%s' has been found for dataSet '%s'.", pr, dataSet));
         }
-        return experiment;
+        return pr;
     }
 
     public Collection<Long> listDataSetsForPostRegistration()
