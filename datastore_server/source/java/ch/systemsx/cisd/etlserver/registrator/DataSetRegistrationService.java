@@ -70,7 +70,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File stagingDirectory;
 
     private final File precommitDirectory;
-    
+
     private final DataSetFile incomingDataSetFile;
 
     private final DssRegistrationLogger dssRegistrationLog;
@@ -121,7 +121,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                         threadParameters.getThreadName(),
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
-this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
+        this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
     }
 
@@ -239,14 +239,15 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
     }
 
     /**
-     * Call this method at the end of registration to make sure the clean action was executed even if neither commit nor abort happened.
-     * This method calls <code>globalCleanAfterwardsAction</code> action with <code>succeeded<code> parameter false.
+     * Call this method at the end of registration to make sure the clean action was executed even
+     * if neither commit nor abort happened. This method calls
+     * <code>globalCleanAfterwardsAction</code> action with <code>succeeded<code> parameter false.
      */
     public void cleanAfterRegistrationIfNecessary()
     {
         executeGlobalCleanAfterwardsAction(false);
     }
-    
+
     private void executeGlobalCleanAfterwardsAction(boolean success)
     {
         if (false == cleanActionExecuted)
@@ -262,7 +263,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
                 new DataSetStorageRollbacker(registratorContext, operationLog,
                         UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile.getRealIncomingFile(),
                         dataSetTypeCodeOrNull, null);
-        return rollbacker.doRollback();
+        return rollbacker.doRollback(dssRegistrationLog);
     }
 
     public void didRollbackTransaction(DataSetRegistrationTransaction<T> transaction,
@@ -279,7 +280,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
                     new DataSetStorageRollbacker(registratorContext, operationLog, action,
                             incomingDataSetFile.getRealIncomingFile(), null, ex, errorType);
             operationLog.info(rollbacker.getErrorMessageForLog());
-            rollbacker.doRollback();
+            rollbacker.doRollback(dssRegistrationLog);
         }
         registrator.didRollbackTransaction(this, transaction, algorithm, ex);
     }

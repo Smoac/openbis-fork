@@ -502,9 +502,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             incomingDataSetFile.getRealIncomingFile(), null, ex,
                             ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
-            rollbacker.doRollback();
 
             service.getDssRegistrationLog().log("Processing failed : " + ex.toString());
+            rollbacker.doRollback(service.getDssRegistrationLog());
+
             service.getDssRegistrationLog().registerFailure();
         }
 
@@ -536,14 +537,14 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         UnstoreDataAction action =
                 getRegistratorState().getOnErrorActionDecision().computeUndoAction(
                         ErrorType.INVALID_DATA_SET, null);
-        System.err.println("compute undo action is "+action);
+        System.err.println("compute undo action is " + action);
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
                         incomingDataSetFile.getRealIncomingFile(), null, null,
                         ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
         operationLog.info(sb.toString());
-        rollbacker.doRollback();
+        rollbacker.doRollback(service.getDssRegistrationLog());
     }
 
     public boolean isStopped()

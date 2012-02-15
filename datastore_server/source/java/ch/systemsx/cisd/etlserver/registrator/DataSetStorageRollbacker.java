@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
@@ -116,9 +117,12 @@ public class DataSetStorageRollbacker
     /**
      * Do the specified rollback actions and return the new location of the incomingDataSetFile or
      * null if it was deleted.
+     * 
+     * @param dssRegistrationLog The logger to log the rollback actions to.
      */
-    public File doRollback()
+    public File doRollback(DssRegistrationLogger dssRegistrationLog)
     {
+        dssRegistrationLog.log(getErrorMessageForLog());
         if (unstoreAction == UnstoreDataAction.MOVE_TO_ERROR)
         {
             File newLocation = moveIncomingToError();
@@ -126,13 +130,25 @@ public class DataSetStorageRollbacker
             {
                 writeThrowable();
             }
+
+            StringBuilder moveMessage = new StringBuilder();
+            moveMessage.append("File has been moved to ");
+            moveMessage.append(newLocation.getAbsolutePath());
+            dssRegistrationLog.log(moveMessage.toString());
             return newLocation;
         } else if (unstoreAction == UnstoreDataAction.DELETE)
         {
+            dssRegistrationLog.log("File has been deleted.");
+
             FileUtilities.deleteRecursively(incomingDataSetFile,
                     new Log4jSimpleLogger(operationLog));
             return null;
         }
+
+        StringBuilder untouchedMessage = new StringBuilder();
+        untouchedMessage.append("File has been left untouched ");
+        untouchedMessage.append(incomingDataSetFile.getAbsolutePath());
+        dssRegistrationLog.log(untouchedMessage.toString());
         return incomingDataSetFile;
     }
 
