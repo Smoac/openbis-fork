@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.PropertiesBasedData
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -2246,9 +2245,7 @@ public class OpenBISScreeningML
     {
         checkLoggedIn();
 
-        List<PlateMetadata> metadataList =
-                ((ScreeningOpenbisServiceFacade) openbis)
-                        .getPlateMetadataList(toPlates(platesCodes));
+        List<PlateMetadata> metadataList = openbis.getPlateMetadataList(toPlates(platesCodes));
 
         return metadataList.toArray(new PlateMetadata[0]);
     }
