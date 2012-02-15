@@ -43,6 +43,12 @@ vocabulary_PLATE_GEOMETRY.setManagedInternally(True)
 vocabulary_PLATE_GEOMETRY.setInternalNamespace(True)
 vocabulary_PLATE_GEOMETRY.setChosenFromList(True)
 
+vocabulary_term_PLATE_GEOMETRY_48_WELLS_6X8 = tr.createNewVocabularyTerm('48_WELLS_6X8')
+vocabulary_term_PLATE_GEOMETRY_48_WELLS_6X8.setDescription(None)
+vocabulary_term_PLATE_GEOMETRY_48_WELLS_6X8.setLabel('48 Wells, 6x8')
+vocabulary_term_PLATE_GEOMETRY_48_WELLS_6X8.setOrdinal(5)
+vocabulary_PLATE_GEOMETRY.addTerm(vocabulary_term_PLATE_GEOMETRY_48_WELLS_6X8)
+
 vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6 = tr.createNewVocabularyTerm('24_WELLS_4X6')
 vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6.setDescription(None)
 vocabulary_term_PLATE_GEOMETRY_24_WELLS_4X6.setLabel('24 Wells, 4x6')
