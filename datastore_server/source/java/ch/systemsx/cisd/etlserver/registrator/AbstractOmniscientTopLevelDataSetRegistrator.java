@@ -230,11 +230,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             {
                 // Registration succeeded -- delete original file
                 operationSuccessful =
-                        FileUtilities.deleteRecursively(incoming.getOriginalIncoming());
+                        FileUtilities.deleteRecursively(incoming.getRealIncomingFile());
 
                 // If the parent of the hardlink copy file, which we generated, is empty, delete it
                 // too
-                File hardlinkCopyParent = incoming.getPrestagingCopy().getParentFile();
+                File hardlinkCopyParent = incoming.getLogicalIncomingFile().getParentFile();
                 if (hardlinkCopyParent.list().length < 1)
                 {
                     hardlinkCopyParent.delete();
@@ -242,7 +242,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.
-                operationSuccessful = FileUtilities.deleteRecursively(incoming.getPrestagingCopy());
+                operationSuccessful = FileUtilities.deleteRecursively(incoming.getLogicalIncomingFile());
             }
             boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
 
@@ -432,7 +432,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             Throwable firstError = service.getEncounteredErrors().get(0);
             throw new EnvironmentFailureException("Could not process file "
-                    + incomingDataSetFile.getPrestagingCopy().getName(),
+                    + incomingDataSetFile.getLogicalIncomingFile().getName(),
                     asSerializableException(firstError));
         }
     }
@@ -478,13 +478,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             .getValidationScriptsOrNull());
 
             List<ValidationError> validationErrors =
-                    validationScriptRunner.validate(incomingDataSetFile.getPrestagingCopy());
+                    validationScriptRunner.validate(incomingDataSetFile.getLogicalIncomingFile());
             if (validationErrors.size() > 0)
             {
                 handleValidationErrors(validationErrors, incomingDataSetFile, service);
             } else
             {
-                handleDataSet(incomingDataSetFile.getPrestagingCopy(), service);
+                handleDataSet(incomingDataSetFile.getLogicalIncomingFile(), service);
                 service.commit();
             }
         } catch (Throwable ex)
@@ -499,7 +499,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             ErrorType.REGISTRATION_SCRIPT_ERROR, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                            incomingDataSetFile.getOriginalIncoming(), null, ex,
+                            incomingDataSetFile.getRealIncomingFile(), null, ex,
                             ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
@@ -524,7 +524,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         sb.append("Validation script [");
         sb.append(getGlobalState().getValidationScriptsOrNull());
         sb.append("] found errors in incoming data set [");
-        sb.append(incomingDataSetFile.getPrestagingCopy());
+        sb.append(incomingDataSetFile.getLogicalIncomingFile());
         sb.append("]:\n");
         for (ValidationError error : validationErrors)
         {
@@ -539,7 +539,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         System.err.println("compute undo action is "+action);
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                        incomingDataSetFile.getOriginalIncoming(), null, null,
+                        incomingDataSetFile.getRealIncomingFile(), null, null,
                         ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
         operationLog.info(sb.toString());

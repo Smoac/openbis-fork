@@ -3,24 +3,25 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 
 /**
- * Wrapper for two copies of incoming dataset file. One is original file from the dropbox, second is
- * the prestaging copy;
+ * Wrapper that bundles two copies of incoming dataset file. One is original file from the dropbox
+ * (realIncomingFile), second is the prestaging copy (logicalIncomingFile). In most cases, clients
+ * should use the logicalIncomingFile. The exception being for actions that execute on error.
  * 
  * @author jakubs
  */
 public class DataSetFile
 {
-    private final File originalIncoming;
+    private final File realIncomingFile;
 
-    private final File prestagingCopy;
+    private final File logicalIncomingFile;
 
     /**
      * Creates the dataset file with original incoming and prestaging copy
      */
     public DataSetFile(File originalIncoming, File prestagingCopy)
     {
-        this.originalIncoming = originalIncoming;
-        this.prestagingCopy = prestagingCopy;
+        this.realIncomingFile = originalIncoming;
+        this.logicalIncomingFile = prestagingCopy;
     }
 
     /**
@@ -28,18 +29,18 @@ public class DataSetFile
      */
     public DataSetFile(File incoming)
     {
-        this.originalIncoming = this.prestagingCopy = incoming;
+        this.realIncomingFile = this.logicalIncomingFile = incoming;
     }
-    
+
     /**
      * This file should be used only when it is really important to do something on the original
      * File.
      * 
      * @returns the original incoming dataset.
      */
-    public File getOriginalIncoming()
+    public File getRealIncomingFile()
     {
-        return originalIncoming;
+        return realIncomingFile;
     }
 
     /**
@@ -47,9 +48,9 @@ public class DataSetFile
      * 
      * @returns The prestaging copy. If not available returns the original incoming file.
      */
-    public File getPrestagingCopy()
+    public File getLogicalIncomingFile()
     {
-        return (prestagingCopy != null) ? prestagingCopy : originalIncoming;
+        return (logicalIncomingFile != null) ? logicalIncomingFile : realIncomingFile;
     }
 
 }

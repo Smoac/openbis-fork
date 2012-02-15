@@ -117,7 +117,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState()
                         .getDssRegistrationLogDir());
         this.dssRegistrationLog =
-                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getPrestagingCopy().getName(),
+                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getLogicalIncomingFile().getName(),
                         threadParameters.getThreadName(),
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
@@ -135,7 +135,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
      */
     public IDataSetRegistrationTransaction transaction()
     {
-        return transaction(incomingDataSetFile.getPrestagingCopy(), getDataSetRegistrationDetailsFactory());
+        return transaction(incomingDataSetFile.getLogicalIncomingFile(), getDataSetRegistrationDetailsFactory());
     }
 
     /**
@@ -260,7 +260,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
     {
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(registratorContext, operationLog,
-                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile.getOriginalIncoming(),
+                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile.getRealIncomingFile(),
                         dataSetTypeCodeOrNull, null);
         return rollbacker.doRollback();
     }
@@ -277,7 +277,7 @@ this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
                     registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(registratorContext, operationLog, action,
-                            incomingDataSetFile.getOriginalIncoming(), null, ex, errorType);
+                            incomingDataSetFile.getRealIncomingFile(), null, ex, errorType);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
         }
