@@ -333,6 +333,8 @@ CREATE TRIGGER data_set_property_with_material_data_type_check BEFORE INSERT OR 
 CREATE TRIGGER experiment_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
 CREATE TRIGGER external_data_storage_format_check BEFORE INSERT OR UPDATE ON external_data FOR EACH ROW EXECUTE PROCEDURE external_data_storage_format_check();
 CREATE TRIGGER material_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON material_properties FOR EACH ROW EXECUTE PROCEDURE material_property_with_material_data_type_check();
+CREATE TRIGGER preserve_deletion_consistency_on_data_set_relationships BEFORE UPDATE ON data_set_relationships_all FOR EACH ROW EXECUTE PROCEDURE preserve_deletion_consistency_on_data_set_relationships();
+CREATE TRIGGER preserve_deletion_consistency_on_sample_relationships BEFORE UPDATE ON sample_relationships_all FOR EACH ROW EXECUTE PROCEDURE preserve_deletion_consistency_on_sample_relationships();
 CREATE TRIGGER sample_code_uniqueness_check BEFORE INSERT OR UPDATE ON samples_all FOR EACH ROW EXECUTE PROCEDURE sample_code_uniqueness_check();
 CREATE TRIGGER sample_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON sample_properties FOR EACH ROW EXECUTE PROCEDURE sample_property_with_material_data_type_check();
 CREATE TRIGGER sample_subcode_uniqueness_check BEFORE INSERT OR UPDATE ON samples_all FOR EACH ROW EXECUTE PROCEDURE sample_subcode_uniqueness_check();

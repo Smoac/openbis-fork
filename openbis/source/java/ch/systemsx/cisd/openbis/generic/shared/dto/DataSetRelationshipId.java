@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,59 +18,26 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
-
 /**
- * <i>Persistent Entity</i> object representing data set relationship.
- * 
  * @author Pawel Glyzewski
  */
-@Entity
-@Table(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.DATA_PARENT_COLUMN, ColumnNames.DATA_CHILD_COLUMN }))
-@IdClass(DataSetRelationshipId.class)
-public class DataSetRelationshipPE implements Serializable
+public class DataSetRelationshipId implements Serializable
 {
-    private static final long serialVersionUID = IServer.VERSION;
+    private static final long serialVersionUID = -3819640534421748352L;
 
     private DataPE parentDataSet;
-
-    private DataPE childDataSet;
-
-    /**
-     * Deletion information.
-     * <p>
-     * If not <code>null</code>, then this data set is considered <i>deleted</i> (moved to trash).
-     * </p>
-     */
-    private DeletionPE deletion;
-
-    @Deprecated
-    public DataSetRelationshipPE()
-    {
-    }
-
-    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet)
-    {
-        this.parentDataSet = parentDataSet;
-        this.childDataSet = childDataSet;
-    }
 
     @NotNull(message = ValidationMessages.PARENT_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN)
-    @Id
     public DataPE getParentDataSet()
     {
         return parentDataSet;
@@ -84,7 +51,6 @@ public class DataSetRelationshipPE implements Serializable
     @NotNull(message = ValidationMessages.CHILD_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN)
-    @Id
     public DataPE getChildDataSet()
     {
         return childDataSet;
@@ -95,15 +61,34 @@ public class DataSetRelationshipPE implements Serializable
         this.childDataSet = childDataSet;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
-    public DeletionPE getDeletion()
+    private DataPE childDataSet;
+
+    @Deprecated
+    public DataSetRelationshipId()
     {
-        return deletion;
     }
 
-    public void setDeletion(final DeletionPE deletion)
+    public DataSetRelationshipId(DataPE parentDataSet, DataPE childDataSet)
     {
-        this.deletion = deletion;
+        this.parentDataSet = parentDataSet;
+        this.childDataSet = childDataSet;
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null || !(other instanceof DataSetRelationshipId))
+            return false;
+        DataSetRelationshipId castOther = (DataSetRelationshipId) other;
+        return new EqualsBuilder()
+                .append(this.parentDataSet.getId(), castOther.parentDataSet.getId())
+                .append(this.childDataSet.getId(), castOther.childDataSet.getId()).isEquals();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return new HashCodeBuilder().append(parentDataSet.getId()).append(childDataSet.getId())
+                .toHashCode();
     }
 }

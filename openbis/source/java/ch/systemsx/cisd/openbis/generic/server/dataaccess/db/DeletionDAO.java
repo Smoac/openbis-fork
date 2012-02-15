@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
@@ -318,7 +319,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return updatedRows;
     }
 
-    public int trashSampleRelationships(final List<TechId> samplesIds, final DeletionPE deletion)
+    private int trashSampleRelationships(final List<TechId> samplesIds, final DeletionPE deletion)
             throws DataAccessException
     {
         if (samplesIds.isEmpty())
@@ -356,7 +357,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return updatedRows;
     }
 
-    public int trashDataSetRelationships(final List<TechId> dataSetIds, final DeletionPE deletion)
+    private int trashDataSetRelationships(final List<TechId> dataSetIds, final DeletionPE deletion)
             throws DataAccessException
     {
         if (dataSetIds.isEmpty())
@@ -376,7 +377,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                     return session
                             .createQuery(
                                     "UPDATE "
-                                            + SampleRelationshipPE.class.getSimpleName()
+                                            + DataSetRelationshipPE.class.getSimpleName()
                                             + " SET deletion = :deletion"
                                             + " WHERE deletion IS NULL"
                                             + " AND (parentDataSet.id IN (:ids) OR childDataSet.id in (:ids))")

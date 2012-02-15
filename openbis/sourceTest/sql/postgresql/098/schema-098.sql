@@ -148,7 +148,7 @@ BEGIN
 	END IF;
 	-- all children need to be deleted
 	SELECT count(*) INTO counter 
-		FROM sample_relationships sr, samples sc
+		FROM sample_relationships_all sr, samples sc
 		WHERE sample_id_parent = NEW.id AND sc.id = sr.sample_id_child AND sc.del_id IS NULL;
 	IF (counter > 0) THEN
 		RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its child samples was not deleted.', NEW.code;
@@ -284,6 +284,50 @@ BEGIN
 			end if;
    end if;
    RETURN NEW;
+END;
+$$;
+CREATE FUNCTION preserve_deletion_consistency_on_data_set_relationships() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  delid  TECH_ID;
+BEGIN
+	IF (NEW.del_id IS NOT NULL OR OLD.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
+	SELECT del_id INTO delid
+		FROM DATA_ALL where id = NEW.data_id_parent;
+	IF (delid IS NOT NULL) THEN
+		NEW.del_id = delid;
+	END IF;
+	SELECT del_id INTO delid
+		FROM DATA_ALL where id = NEW.data_id_child;
+	IF (delid IS NOT NULL) THEN
+		NEW.del_id = delid;
+	END IF;
+	RETURN NEW;
+END;
+$$;
+CREATE FUNCTION preserve_deletion_consistency_on_sample_relationships() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  delid  TECH_ID;
+BEGIN
+	IF (NEW.del_id IS NOT NULL OR OLD.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
+	SELECT del_id INTO delid
+		FROM SAMPLES_ALL where id = NEW.sample_id_parent;
+	IF (delid IS NOT NULL) THEN
+		NEW.del_id = delid;
+	END IF;
+	SELECT del_id INTO delid
+		FROM SAMPLES_ALL where id = NEW.sample_id_child;
+	IF (delid IS NOT NULL) THEN
+		NEW.del_id = delid;
+	END IF;
+	RETURN NEW;
 END;
 $$;
 CREATE FUNCTION rename_sequence(old_name character varying, new_name character varying) RETURNS integer
