@@ -506,7 +506,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             {
                 AbsoluteImageReference image =
                         tryGetRepresentativeImage(channelCode,
-                                new Location(well.getRow(), well.getColumn()), originalOrThumbnail);
+                                new Location(well.getColumn(), well.getRow()), originalOrThumbnail);
                 if (image != null)
                 {
                     return image;
@@ -563,8 +563,8 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             for (String channelCode : channelCodes)
             {
                 AbsoluteImageReference image =
-                        tryGetRepresentativeThumbnail(channelCode,
-                                new Location(well.getRow(), well.getColumn()), null);
+                        tryGetRepresentativeThumbnail(channelCode, new Location(well.getColumn(),
+                                well.getRow()), null);
                 if (image != null)
                 {
                     return image;
