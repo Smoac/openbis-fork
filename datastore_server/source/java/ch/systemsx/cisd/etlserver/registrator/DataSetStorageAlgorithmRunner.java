@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
-import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
@@ -188,7 +187,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        dssRegistrationLog.log("Data has been moved to the pre-commit directory.");
+        logPreCommitMessage();
 
         // PRECOMMITED STATE
 
@@ -248,9 +247,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
-            // as this case doesn't allow rollbacking, we don't have to catch aggresively (throwables).
+            // as this case doesn't allow rollbacking, we don't have to catch aggresively
+            // (throwables).
             // There is nothing we can do about this at the moment,
-            //Graceful recovery should (and will) take care of this case
+            // Graceful recovery should (and will) take care of this case
 
         }
 
@@ -260,6 +260,20 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         // STORAGECONFIRMED
 
+    }
+
+    private void logPreCommitMessage()
+    {
+        // Use the precommit folder to create an informative message
+        if (dataSetStorageAlgorithms.size() > 0)
+        {
+            DataSetStorageAlgorithm<T> anAlgorithm = dataSetStorageAlgorithms.get(0);
+            File precommitDirectory = anAlgorithm.getPreCommitDirectory();
+            dssRegistrationLog.log("Data has been moved to the pre-commit directory: " + precommitDirectory.getAbsolutePath());
+        } else
+        {
+            dssRegistrationLog.log("In pre-commit state; no data needed to be moved.");
+        }
     }
 
     /**

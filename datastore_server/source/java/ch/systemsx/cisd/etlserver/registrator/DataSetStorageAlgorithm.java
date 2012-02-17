@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.etlserver.BaseDirectoryHolder;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
