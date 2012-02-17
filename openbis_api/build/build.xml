@@ -25,4 +25,12 @@
     -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 	
+  <!-- 
+      // Cleans distribution directory.
+      -->
+  <target name="clean" description="Cleans distribution directory.">
+    <delete dir="${dist}" failonerror="true" />
+    <mkdir dir="${dist}" />
+  </target>
+
 </project>
