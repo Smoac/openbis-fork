@@ -137,7 +137,7 @@ public class DssComponentTest extends SystemTestCase
             {
                     "^\\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
                     "^\\t\\d+-\\d+$",
-                    "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory.$",
+                    "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
                     "^\\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
                     "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
