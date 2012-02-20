@@ -178,7 +178,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         edgeMaskArray.length);
             }
         }
-        base.writer.writeCompoundArray(getObjectPath(id, INDEX_PREFIX, objectType.getId()),
+        base.writer.compounds().writeArray(getObjectPath(id, INDEX_PREFIX, objectType.getId()),
                 getIndexType(), objects.toArray(new SegmentedObjectBox[objects.size()]),
                 HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         base.writer.writeBitField(getObjectPath(id, MASKS_PREFIX, objectType.getId()),

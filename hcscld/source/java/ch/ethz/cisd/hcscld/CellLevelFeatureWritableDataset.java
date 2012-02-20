@@ -77,7 +77,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                                 .getNamespace().getId()));
                     }
                     Arrays.sort(descriptors);
-                    base.writer.writeCompoundArray(getFeatureGroupsFilename(),
+                    base.writer.compounds().writeArray(getFeatureGroupsFilename(),
                             featureGroupCompoundType, descriptors);
                 }
             };
@@ -195,7 +195,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
-        base.writer.writeCompoundArray(
+        base.writer.compounds().writeArray(
                 fg.getObjectPath(id),
                 fg.getType(),
                 featureValues,
@@ -209,7 +209,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final FeatureGroup fg = getFirstFeatureGroup();
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
-        base.writer.writeCompoundArray(
+        base.writer.compounds().writeArray(
                 fg.getObjectPath(id),
                 fg.getType(),
                 featureValues,

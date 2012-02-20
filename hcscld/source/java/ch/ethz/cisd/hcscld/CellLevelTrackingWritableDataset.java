@@ -82,7 +82,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                                             "childObjectNamespaceEnum")
                                             .enumType(namespacesEnumType),
                                     mapping("childImageSequenceIdx"));
-                    base.writer.writeCompoundArray(
+                    base.writer.compounds().writeArray(
                             getObjectPath(OBJECT_TRACKING_TYPE_DATASET_NAME), type, values);
                 }
             };
