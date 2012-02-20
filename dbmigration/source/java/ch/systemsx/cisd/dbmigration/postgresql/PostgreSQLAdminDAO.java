@@ -50,7 +50,9 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
 
     private static final String CREATE_DATABASE_SQL_TEMPLATE =
             "create database %1$s with owner = \"%2$s\" encoding = 'utf8' template = template0 tablespace = pg_default; "
-                    + "alter database %1$s set default_with_oids = off;";
+                    + "alter database %1$s set default_with_oids = off; "
+                    + "alter database %1$s set join_collapse_limit = '32'; "
+                    + "alter database %1$s set from_collapse_limit = '32'; ";
 
     private static final String CREATE_PLPGSQL = "create language plpgsql;";
 
