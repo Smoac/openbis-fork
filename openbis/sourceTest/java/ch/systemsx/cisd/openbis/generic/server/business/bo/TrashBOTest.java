@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -298,14 +296,7 @@ public final class TrashBOTest extends AbstractBOTest
                             with(same(deletion)));
                     will(returnValue(sampleIds.size()));
 
-                    // trash dependent children
-                    List<TechId> childrenIds = TechId.createList(50, 51);
-                    Set<TechId> childrenIdSet = new HashSet<TechId>(childrenIds);
-                    one(sampleDAO).listChildrenForTrashedSamples(with(sampleIdsMatcher));
-                    will(returnValue(childrenIdSet));
-                    one(deletionDAO).trash(EntityKind.SAMPLE, new ArrayList<TechId>(childrenIdSet),
-                            deletion);
-                    will(returnValue(0));
+                    // don't trash dependent children
 
                     // trash dependent components
                     List<TechId> componentIds = TechId.createList(60, 61);

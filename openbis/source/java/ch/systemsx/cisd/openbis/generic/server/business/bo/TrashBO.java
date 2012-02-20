@@ -92,7 +92,6 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
         if (batchOperation.counter > 0)
         {
-            trashSampleDependentChildren(sampleIds);
             if (cascadeType == CascadeSampleDependentComponents.TRUE)
             {
                 trashSampleDependentComponents(sampleIds);
