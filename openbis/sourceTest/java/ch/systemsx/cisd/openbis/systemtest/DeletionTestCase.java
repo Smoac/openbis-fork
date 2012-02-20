@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.NotTransactional;
 import org.testng.annotations.AfterMethod;
@@ -81,6 +83,8 @@ public class DeletionTestCase extends SystemTestCase
 
     private List<Sample> registeredSamples;
 
+    private List<Sample> registeredSamplesThatShouldBeDeleted;
+
     private List<DeletionPE> preExistingDeletions;
 
     private Set<Long> preExistingDeletionIDs;
@@ -102,6 +106,7 @@ public class DeletionTestCase extends SystemTestCase
     {
         registeredExperiments = new ArrayList<Experiment>();
         registeredSamples = new ArrayList<Sample>();
+        registeredSamplesThatShouldBeDeleted = new ArrayList<Sample>();
 
         SessionContext sessionContext = logIntoCommonClientService();
         sessionToken = sessionContext.getSessionID();
@@ -126,20 +131,20 @@ public class DeletionTestCase extends SystemTestCase
         createChildSample("E1", "S1.2", "S1.2.1");
         createChildSample("E1", "S1.2", "S1.2.2");
         createChildSample("E1", "S1.2.1", "S1.2.1.1");
-        createChildSample("E2", "S1.2.1", "S1.2.1.2");
+        createChildSample("E2", "S1.2.1", "S1.2.1.2", false);
 
-        createChildSample("E2", "S1.3", "S1.3.1");
+        createChildSample("E2", "S1.3", "S1.3.1", false);
         createComponentSample("E1", "S1.3.1", "S1.3.1.1");
         createComponentSample("E1", "S1.3.1", "S1.3.1.2");
-        createComponentSample("E2", "S1.3.1", "S1.3.1.3");
+        createComponentSample("E2", "S1.3.1", "S1.3.1.3", false);
 
         // nested children
         createChildSample("E1", "S1", "S1.4");
         createChildSample("E1", "S1.4", "S1.4.1");
-        createChildSample("E2", "S1.4.1", "S1.4.1.1");
+        createChildSample("E2", "S1.4.1", "S1.4.1.1", false);
         createChildSample("E1", "S1.4.1.1", "S1.4.1.1.1");
         createChildSample("E1", "S1.4.1.1", "S1.4.1.1.2");
-        createChildSample("E2", "S1.4.1.1.1", "S1.4.1.1.1.1");
+        createChildSample("E2", "S1.4.1.1.1", "S1.4.1.1.1.1", false);
 
         // try also components under nested children
         createComponentSample("E1", "S1.4.1.1.1.1", "S1.4.1.1.1.1.1");
@@ -154,7 +159,7 @@ public class DeletionTestCase extends SystemTestCase
         // some more samples in an "S2"-branch
         createSample("E1", "S2");
         createChildSample("E1", "S2", "S2.1");
-        createChildSample("E2", "S2", "S2.2");
+        createChildSample("E2", "S2", "S2.2", false);
         createChildSample("E1", "S2", "S2.3");
         createComponentSample("E1", "S2.1", "S2.2");
 
@@ -190,7 +195,8 @@ public class DeletionTestCase extends SystemTestCase
                 REASON, DeletionType.TRASH);
 
         assertExperimentDoesNotExist(e1.getCode());
-        assertSamplesDoNotExist(registeredSamples);
+
+        assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
 
         List<DeletionPE> deletions = listDeletions();
         assertEquals(1, deletions.size());
@@ -214,7 +220,7 @@ public class DeletionTestCase extends SystemTestCase
         final TechId deletionId2 = TechId.create(listDeletions().get(0));
         commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2), false);
         assertExperimentDoesNotExist(e1.getCode());
-        assertSamplesDoNotExist(registeredSamples);
+        assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
     }
 
     @Test
@@ -238,14 +244,23 @@ public class DeletionTestCase extends SystemTestCase
     public void testDeleteSampleS14()
     {
         Sample s14 = findSampleByCode("S1.4");
+
+        CollectionUtils.filter(registeredSamples, new Predicate<Sample>()
+            {
+                public boolean evaluate(Sample s)
+                {
+                    return !s.getCode().equals("S1.4");
+                }
+            });
+
         final TechId sampleId = new TechId(s14);
         // delete
         commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
                 DeletionType.TRASH);
 
         assertExperimentExists("E1");
-        List<Sample> deletedSamples = getSamplesWithPrefix(s14.getCode());
-        assertSamplesDoNotExist(deletedSamples);
+        assertSamplesDoNotExist(Collections.singletonList(s14));
+        assertSamplesExist(registeredSamples);
 
         List<DeletionPE> deletions = listDeletions();
         assertEquals(1, deletions.size());
@@ -260,7 +275,7 @@ public class DeletionTestCase extends SystemTestCase
         final TechId deletionId1 = TechId.create(deletions.get(0));
         commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
 
-        assertSamplesExist(deletedSamples);
+        assertSamplesExist(Collections.singletonList(s14));
 
         // delete permanently
         commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
@@ -268,7 +283,8 @@ public class DeletionTestCase extends SystemTestCase
         final TechId deletionId2 = TechId.create(listDeletions().get(0));
         commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2), false);
         assertExperimentExists("E1");
-        assertSamplesDoNotExist(deletedSamples);
+        assertSamplesDoNotExist(Collections.singletonList(s14));
+        assertSamplesExist(registeredSamples);
     }
 
     private List<TableModelRowWithObject<Deletion>> getDeletionTable()
@@ -327,30 +343,22 @@ public class DeletionTestCase extends SystemTestCase
     {
         for (Sample sample : samples)
         {
-            try
-            {
-                commonServer.getSampleInfo(sessionToken, new TechId(sample));
-                final String error =
-                        String.format("Sample '%s' should not exist", sample.getIdentifier());
-                fail(error);
-            } catch (UserFailureException ufe)
-            {
-                // OK
-            }
+            assertSampleDoNotExists(sample);
         }
     }
 
-    private List<Sample> getSamplesWithPrefix(String codePrefix)
+    private void assertSampleDoNotExists(Sample sample)
     {
-        List<Sample> result = new ArrayList<Sample>();
-        for (Sample sample : registeredSamples)
+        try
         {
-            if (sample.getCode().startsWith(codePrefix))
-            {
-                result.add(sample);
-            }
+            commonServer.getSampleInfo(sessionToken, new TechId(sample));
+            final String error =
+                    String.format("Sample '%s' should not exist", sample.getIdentifier());
+            fail(error);
+        } catch (UserFailureException ufe)
+        {
+            // OK
         }
-        return result;
     }
 
     private void createExperiment(String code)
@@ -368,7 +376,7 @@ public class DeletionTestCase extends SystemTestCase
         registeredExperiments.add(exp);
     }
 
-    private void createSample(String experimentCode, NewSample newSample)
+    private void createSample(String experimentCode, NewSample newSample, boolean shouldBeDeleted)
     {
         Experiment exp = findExperimentByCode(experimentCode);
         newSample.setExperimentIdentifier(exp.getIdentifier());
@@ -379,29 +387,45 @@ public class DeletionTestCase extends SystemTestCase
         final Sample sample = sampParentAndDerived.getParent();
         assertNotNull(sample);
         registeredSamples.add(sample);
+        if (shouldBeDeleted)
+        {
+            registeredSamplesThatShouldBeDeleted.add(sample);
+        }
     }
 
     private void createSample(String experimentCode, String sampleCode)
     {
         NewSample newSample = createNewSample(sampleCode);
-        createSample(experimentCode, newSample);
+        createSample(experimentCode, newSample, true);
     }
 
     private void createChildSample(String experimentCode, String parentCode, String sampleCode)
     {
+        createChildSample(experimentCode, parentCode, sampleCode, true);
+    }
+
+    private void createChildSample(String experimentCode, String parentCode, String sampleCode,
+            boolean shouldBeDeleted)
+    {
         NewSample newSample = createNewSample(sampleCode);
         newSample.setParentsOrNull(new String[]
             { parentCode });
-        createSample(experimentCode, newSample);
+        createSample(experimentCode, newSample, shouldBeDeleted);
     }
 
     private void createComponentSample(String experimentCode, String containerCode,
             String sampleCode)
     {
+        createComponentSample(experimentCode, containerCode, sampleCode, true);
+    }
+
+    private void createComponentSample(String experimentCode, String containerCode,
+            String sampleCode, boolean shouldBeDeleted)
+    {
         NewSample newSample = createNewSample(sampleCode);
         Sample container = findSampleByCode(containerCode);
         newSample.setContainerIdentifier(container.getIdentifier());
-        createSample(experimentCode, newSample);
+        createSample(experimentCode, newSample, shouldBeDeleted);
     }
 
     private NewSample createNewSample(String sampleCode)
