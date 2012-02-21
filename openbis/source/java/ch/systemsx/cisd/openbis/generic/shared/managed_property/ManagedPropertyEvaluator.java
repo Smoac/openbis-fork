@@ -85,14 +85,7 @@ public class ManagedPropertyEvaluator
                 names.add(name);
             }
         }
-        if (columnNames.isEmpty())
-        {
-            if (names.contains("") == false)
-            {
-                throw new UserFailureException("No subcolumns expected for property '"
-                        + propertyTypeCode + "': " + names);
-            }
-        } else
+        if (false == columnNames.isEmpty())
         {
             List<String> missingColumns = new ArrayList<String>();
             for (String columnName : columnNames)

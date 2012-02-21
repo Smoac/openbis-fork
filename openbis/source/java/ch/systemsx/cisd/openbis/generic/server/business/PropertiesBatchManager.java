@@ -138,7 +138,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
 
         Map<String, Map<String, String>> subColumnBindings =
-                createColumnBindingsMap(propertiesBean.getProperties());
+                createColumnBindingsMap(propertiesBean.getProperties(), contexts);
         for (Entry<String, Map<String, String>> entry : subColumnBindings.entrySet())
         {
             String code = entry.getKey();
@@ -159,6 +159,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 errors.accumulateError(rowNumber, ex, code, evalContext.scriptPE);
             }
         }
+
         return newProperties;
     }
 
@@ -192,7 +193,8 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         return entityProperty;
     }
 
-    private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties)
+    private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties,
+            Map<String, EvaluationContext> contexts)
     {
         Map<String, Map<String, String>> subColumnBindings =
                 new HashMap<String, Map<String, String>>();
@@ -227,6 +229,15 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             for (Entry<String, String> originalColumnEntry : originalColumnBindings.entrySet())
             {
                 bindings.put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
+            }
+        }
+
+        for (Entry<String, EvaluationContext> entry : contexts.entrySet())
+        {
+            String code = entry.getKey().toUpperCase();
+            if (false == subColumnBindings.containsKey(code))
+            {
+                subColumnBindings.put(code, new HashMap<String, String>(originalColumnBindings));
             }
         }
         return subColumnBindings;

@@ -49,12 +49,13 @@ Example input:
 FRY1, FRY2, FRY3, FRY4
 """
 def updateFromBatchInput(bindings):
-    input = bindings.get('')
-    samples = input.split(',')
     elements = []
-    for code in samples:
-        sampleLink = _createSampleLink(code.strip())
-        elements.append(sampleLink)
+    input = bindings.get('')
+    if input is not None:
+        samples = input.split(',')
+        for code in samples:
+            sampleLink = _createSampleLink(code.strip())
+            elements.append(sampleLink)
     property.value = propertyConverter().convertToString(elements)
 
 
