@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -283,37 +282,6 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals(expectedDefaultValue, widget.getValue());
         assertEquals(expectedDescription, widget.getDescription());
         assertEquals(expectedMandatory, widget.isMandatory());
-    }
-
-    @Test
-    public void testAssertBatchColumnNames()
-    {
-        Map<String, String> bindings = new HashMap<String, String>();
-        bindings.put("", "");
-        ManagedPropertyEvaluator.assertBatchColumnNames("p", Arrays.<String> asList(), bindings);
-        bindings.clear();
-        bindings.put("A", "alpha");
-        try
-        {
-            ManagedPropertyEvaluator
-                    .assertBatchColumnNames("p", Arrays.<String> asList(), bindings);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("No subcolumns expected for property 'p': [A]", ex.getMessage());
-        }
-        try
-        {
-            ManagedPropertyEvaluator.assertBatchColumnNames("p", Arrays.<String> asList("A", "B"),
-                    bindings);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Following columns are missing: [p:B]", ex.getMessage());
-        }
-        bindings.put("B", "beta");
-        ManagedPropertyEvaluator.assertBatchColumnNames("p", Arrays.<String> asList("A", "B"),
-                bindings);
     }
 
     @Test

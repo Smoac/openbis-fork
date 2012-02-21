@@ -58,11 +58,14 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def updateFromBatchInput(columnValues):\n"
+                        + "  if columnValues.get('') is None:\n" + "    return\n"
                         + "  property.setValue(columnValues.get('') + ' alpha')");
         builder.assign(MANAGED_SUBCOLUMNS).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def batchColumnNames():\n  return ['1', '2']\n"
                         + "def updateFromBatchInput(columnValues):\n"
+                        + "  if columnValues.get('1') is None:\n" + "    return\n"
+                        + "  if columnValues.get('2') is None:\n" + "    return\n"
                         + "  property.setValue(columnValues.get('1') + columnValues.get('2'))");
         NewBasicExperiment e1 = new NewBasicExperiment();
         PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED).value("hello");
@@ -156,26 +159,6 @@ public class PropertiesBatchManagerTest extends AssertJUnit
             assertEquals("Error in row 1: Oops!", ex.getMessage());
         }
 
-    }
-
-    @Test
-    public void testSubColumnsButNoScript()
-    {
-        ExperimentTypePEBuilder builder = new ExperimentTypePEBuilder();
-        builder.assign(UN_MANAGED);
-        NewBasicExperiment e1 = new NewBasicExperiment();
-        PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED + ":1").value("hello");
-        addProperties(e1, p1);
-
-        try
-        {
-            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                    Arrays.asList(e1), null);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("No subcolumns expected for property 'UN-MANAGED': [1]", ex.getMessage());
-        }
     }
 
     private void assertProperties(String expectedProperties, IPropertiesBean propertiesBean)

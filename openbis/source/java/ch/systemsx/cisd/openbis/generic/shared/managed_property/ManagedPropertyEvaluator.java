@@ -18,16 +18,13 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -67,40 +64,6 @@ public class ManagedPropertyEvaluator
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
     private static final String PROPERTY_PE_VARIABLE_NAME = "propertyPE";
-
-    /**
-     * Asserts that for all specified batch column names bindings are specified. If the list of
-     * column names is empty the value should be bound at an empty string.
-     * 
-     * @param propertyTypeCode Property type code. Only needed for error messages.
-     */
-    public static void assertBatchColumnNames(String propertyTypeCode, List<String> columnNames,
-            Map<String, String> bindings)
-    {
-        Set<String> names = new HashSet<String>();
-        for (String name : bindings.keySet())
-        {
-            if (false == ManagedPropertyFunctions.isOriginalColumnNameBindingKey(name))
-            {
-                names.add(name);
-            }
-        }
-        if (false == columnNames.isEmpty())
-        {
-            List<String> missingColumns = new ArrayList<String>();
-            for (String columnName : columnNames)
-            {
-                if (names.contains(columnName) == false)
-                {
-                    missingColumns.add(propertyTypeCode + ":" + columnName);
-                }
-            }
-            if (missingColumns.isEmpty() == false)
-            {
-                throw new UserFailureException("Following columns are missing: " + missingColumns);
-            }
-        }
-    }
 
     private final Evaluator evaluator;
 
@@ -181,7 +144,6 @@ public class ManagedPropertyEvaluator
 
     public void updateFromBatchInput(IManagedProperty managedProperty, Map<String, String> bindings)
     {
-        assertBatchColumnNames(managedProperty.getPropertyTypeCode(), columnNames, bindings);
         if (updateFromBatchFunctionDefined == false)
         {
             managedProperty.setValue(bindings.get(""));

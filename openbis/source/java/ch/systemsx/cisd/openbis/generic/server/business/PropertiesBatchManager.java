@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +146,10 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             {
                 EntityProperty entityProperty =
                         evaluateManagedProperty(code, entry.getValue(), evalContext);
-                newProperties.add(entityProperty);
+                if (entityProperty.getValue() != null)
+                {
+                    newProperties.add(entityProperty);
+                }
             } catch (EvaluatorException ex)
             {
                 Throwable cause = ex.getCause();
@@ -169,8 +171,6 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         EntityProperty entityProperty = createNewEntityProperty(code);
         if (evalContext == null)
         {
-            ManagedPropertyEvaluator.assertBatchColumnNames(code, Collections.<String> emptyList(),
-                    bindings);
             entityProperty.setValue(bindings.get(""));
         } else
         {
@@ -178,7 +178,10 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
             evaluator.updateFromBatchInput(managedProperty, bindings);
-            entityProperty.setValue(managedProperty.getValue());
+            if (false == managedProperty.isSpecialValue())
+            {
+                entityProperty.setValue(managedProperty.getValue());
+            }
         }
         return entityProperty;
     }
