@@ -367,7 +367,7 @@ final class SampleListingWorker extends AbstractLister
 
     private Iterable<SampleRecord> tryGetIteratorForContainerSamplesByCodes()
     {
-        if (criteria.isSearchForContainerSamplesOnly())
+        if (false == criteria.isSearchForContainerSamplesOnly())
         {
             return null;
         }
