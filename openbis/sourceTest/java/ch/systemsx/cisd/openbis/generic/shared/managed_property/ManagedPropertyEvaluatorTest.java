@@ -24,7 +24,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedHtmlWidgetDescription;
@@ -337,25 +336,6 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                 new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 42]\n"
                         + "def updateFromBatchInput():\n  None");
         assertEquals("[A, 42]", evaluator.getBatchColumnNames().toString());
-    }
-
-    @Test
-    public void testUpdateFromBatchInputCallsAssertBatchColumnNames()
-    {
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
-        ManagedProperty property = new ManagedProperty();
-        property.setPropertyTypeCode("p");
-        Map<String, String> bindings = new HashMap<String, String>();
-        bindings.put("A", "42");
-
-        try
-        {
-            evaluator.updateFromBatchInput(property, bindings);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("No subcolumns expected for property 'p': [A]", ex.getMessage());
-        }
     }
 
     @Test
