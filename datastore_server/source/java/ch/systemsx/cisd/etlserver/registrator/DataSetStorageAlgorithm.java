@@ -553,7 +553,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public void commitStorageProcessor()
         {
-            // TODO: KUBA - tutaj pewnie powinno byc precommit
             transaction.setStoredDataDirectory(storagePaths.precommitBaseDirectory);
             transaction.commit();
             cleanUpMarkerFile();

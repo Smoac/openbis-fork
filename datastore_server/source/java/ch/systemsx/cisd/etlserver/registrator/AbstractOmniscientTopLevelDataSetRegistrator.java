@@ -537,7 +537,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         UnstoreDataAction action =
                 getRegistratorState().getOnErrorActionDecision().computeUndoAction(
                         ErrorType.INVALID_DATA_SET, null);
-        System.err.println("compute undo action is " + action);
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
                         incomingDataSetFile.getRealIncomingFile(), null, null,
