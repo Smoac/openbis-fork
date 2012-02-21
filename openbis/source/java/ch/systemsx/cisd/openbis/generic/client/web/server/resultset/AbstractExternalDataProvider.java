@@ -31,6 +31,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PARENT_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRESENT_IN_ARCHIVE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRODUCTION_DATE;
@@ -81,6 +82,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
         builder.addColumn(CONTAINER_DATASET).withDefaultWidth(150).hideByDefault();
         builder.addColumn(ORDER_IN_CONTAINER).withDefaultWidth(100).hideByDefault();
+        builder.addColumn(PARENT_DATASETS).withDefaultWidth(150).hideByDefault();
         builder.addColumn(SAMPLE).withDefaultWidth(100).hideByDefault();
         builder.addColumn(EXTERNAL_DATA_SAMPLE_IDENTIFIER).withDefaultWidth(200);
         builder.addColumn(SAMPLE_TYPE);
@@ -115,6 +117,8 @@ public abstract class AbstractExternalDataProvider extends
             Integer orderInContainer = dataSet.getOrderInContainer();
             builder.column(ORDER_IN_CONTAINER).addString(
                     orderInContainer == null ? "" : orderInContainer.toString());
+            builder.column(PARENT_DATASETS).addEntityLink(dataSet.getParents());
+
             Sample sample = dataSet.getSample();
             if (sample != null)
             {

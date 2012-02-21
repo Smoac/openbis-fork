@@ -36,7 +36,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SUBCODE;
 
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -45,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -59,8 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 {
-    private static final int MAX_PARENTS = 4;
-
     private final ListSampleDisplayCriteria2 criteria;
 
     public SampleProvider(ICommonServer commonServer, String sessionToken,
@@ -120,20 +115,8 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(PROJECT).addString(getProjectCode(sample));
             builder.column(PERM_ID).addString(sample.getPermId());
             builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
-            final Sample parentOrNull = tryGetParent(sample);
-            if (parentOrNull != null)
-            {
-                final Sample parent = parentOrNull;
-                builder.column(PARENTS).addEntityLink(parent, parent.getIdentifier());
-            } else
-            {
-                // WORKAROUND we have no way to create cells with multiple links.
-                // This is an ugly way not to display multiple parents as single link.
-                EntityTableCell fakeEntityTableCell =
-                        new EntityTableCell(EntityKind.SAMPLE, getParentsString(sample));
-                fakeEntityTableCell.setFake(true);
-                builder.column(PARENTS).addValue(fakeEntityTableCell);
-            }
+            builder.column(PARENTS).addEntityLink(sample.getParents());
+
             final Sample containerOrNull = sample.getContainer();
             if (containerOrNull != null)
             {
@@ -165,30 +148,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                                 }
                             });
         return sampleTypMap;
-    }
-
-    private String getParentsString(Sample sample)
-    {
-        Set<Sample> parents = sample.getParents();
-        int parentsSize = parents.size();
-        StringBuilder builder = new StringBuilder();
-        int counter = 0;
-        for (Sample parent : parents)
-        {
-            if (counter == MAX_PARENTS)
-            {
-                builder.append("... (").append(parentsSize - MAX_PARENTS).append(" more)");
-                break;
-            }
-            builder.append(parent.getIdentifier()).append("\n");
-            counter++;
-        }
-        return builder.toString();
-    }
-
-    private Sample tryGetParent(Sample sample)
-    {
-        return (sample.getParents().size() == 1) ? sample.getGeneratedFrom() : null;
     }
 
     private String getProjectCode(Sample sample)

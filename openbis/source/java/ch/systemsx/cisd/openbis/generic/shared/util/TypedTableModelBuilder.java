@@ -362,6 +362,46 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(cell);
         }
 
+        public void addEntityLink(
+                Collection<? extends IEntityInformationHolderWithIdentifier> entities)
+        {
+            if (entities != null && !entities.isEmpty())
+            {
+                IEntityInformationHolderWithIdentifier firstEntity = entities.iterator().next();
+
+                if (entities.size() == 1)
+                {
+                    addEntityLink(firstEntity, firstEntity.getIdentifier());
+                } else
+                {
+                    // WORKAROUND we have no way to create cells with multiple links.
+                    // This is an ugly way not to display multiple entities as single link.
+
+                    final int MAX_ENTITIES = 4;
+
+                    StringBuilder builder = new StringBuilder();
+                    int counter = 0;
+
+                    for (IEntityInformationHolderWithIdentifier entity : entities)
+                    {
+                        if (counter == MAX_ENTITIES)
+                        {
+                            builder.append("... (").append(entities.size() - MAX_ENTITIES)
+                                    .append(" more)");
+                            break;
+                        }
+                        builder.append(entity.getIdentifier()).append("\n");
+                        counter++;
+                    }
+
+                    EntityTableCell fakeEntityTableCell =
+                            new EntityTableCell(firstEntity.getEntityKind(), builder.toString());
+                    fakeEntityTableCell.setFake(true);
+                    addValue(fakeEntityTableCell);
+                }
+            }
+        }
+
         private void setDataType(DataTypeCode dataType)
         {
             header.setDataType(DataTypeUtils.getCompatibleDataType(header.getDataType(), dataType));

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.util.Collection;
 import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -97,6 +98,11 @@ public interface IColumn
      * Adds a link to an entity to the column.
      */
     public void addEntityLink(IEntityInformationHolderWithIdentifier entity, String linkText);
+
+    /**
+     * Adds a link to entities to the column.
+     */
+    public void addEntityLink(Collection<? extends IEntityInformationHolderWithIdentifier> entities);
 
     /**
      * Adds a person to the column as a string.

@@ -450,6 +450,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         enrichWithSamples(datasetMap);
         enrichWithContainers(datasetMap);
         enrichWithContainedDataSets(datasetMap);
+        enrichWithParents(datasetMap);
         return asList(datasetMap);
     }
 
@@ -539,6 +540,45 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                     return resultMap.get(id);
                 }
             });
+    }
+
+    private void enrichWithParents(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        Map<Long, Set<Long>> parentIdsMap = listParentIds(datasetMap.keySet());
+        Set<Long> allParentIds = new HashSet<Long>();
+
+        for (Set<Long> parentIds : parentIdsMap.values())
+        {
+            allParentIds.addAll(parentIds);
+        }
+
+        DataIterator<DatasetRecord> parentIterator =
+                query.getDatasets(new LongOpenHashSet(allParentIds));
+
+        if (parentIterator != null)
+        {
+            Long2ObjectMap<ExternalData> parentMap = createPrimaryDatasets(parentIterator);
+
+            for (Entry<Long, Set<Long>> parentIdsEntry : parentIdsMap.entrySet())
+            {
+                Long datasetId = parentIdsEntry.getKey();
+                Set<Long> parentIds = parentIdsEntry.getValue();
+
+                ExternalData dataset = datasetMap.get(datasetId);
+                Collection<ExternalData> parents = new ArrayList<ExternalData>();
+
+                for (Long parentId : parentIds)
+                {
+                    ExternalData parent = parentMap.get(parentId);
+                    if (parent != null)
+                    {
+                        parents.add(parent);
+                    }
+                }
+
+                dataset.setParents(parents);
+            }
+        }
     }
 
     private void enrichWithContainers(Long2ObjectMap<ExternalData> datasetMap)
