@@ -62,9 +62,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private boolean cleanActionExecuted = false;
 
-    private final ArrayList<DataSetRegistrationAlgorithm> dataSetRegistrations =
-            new ArrayList<DataSetRegistrationAlgorithm>();
-
     private final IDataSetRegistrationDetailsFactory<T> dataSetRegistrationDetailsFactory;
 
     private final File stagingDirectory;
@@ -190,21 +187,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             }
         }
 
-        int numberOfLocallyRegisteredDataSets = 0;
-        for (DataSetRegistrationAlgorithm registrationAlgorithm : dataSetRegistrations)
-        {
-            List<DataSetInformation> registeredDataSets =
-                    new DataSetRegistrationAlgorithmRunner(registrationAlgorithm).runAlgorithm();
-            numberOfLocallyRegisteredDataSets += registeredDataSets.size();
-        }
-
         // If some transactions were rolledback, then the service did not succeeed
         boolean serviceDidSucceed = false == someTransactionsWereRolledback;
-        if (dataSetRegistrations.size() > 0)
-        {
-            // If we wanted to do some registrations, make sure some were done
-            serviceDidSucceed = serviceDidSucceed && numberOfLocallyRegisteredDataSets > 0;
-        }
+
         if (0 == encounteredErrors.size())
         {
             dssRegistrationLog.registerSuccess();
@@ -234,7 +219,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         encounteredErrors.add(t);
         rollbackExtantTransactions();
-        dataSetRegistrations.clear();
         executeGlobalCleanAfterwardsAction(false);
     }
 
