@@ -16,8 +16,19 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * An object holding all necessary context information for ftp path resolution.
@@ -35,13 +46,16 @@ public class FtpPathResolverContext
     
     private final IFtpPathResolverRegistry resolverRegistry;
 
+    private final Cache cache;
+
     public FtpPathResolverContext(String sessionToken, IETLLIMSService service, IGeneralInformationService generalInfoService,
-            IFtpPathResolverRegistry resolverRegistry)
+            IFtpPathResolverRegistry resolverRegistry, Cache cache)
     {
         this.sessionToken = sessionToken;
         this.service = service;
         this.generalInfoService = generalInfoService;
         this.resolverRegistry = resolverRegistry;
+        this.cache = cache;
     }
 
     public String getSessionToken()
@@ -52,6 +66,65 @@ public class FtpPathResolverContext
     public IETLLIMSService getService()
     {
         return service;
+    }
+    
+    public DataSet getDataSet(String dataSetCode)
+    {
+        DataSet dataSet = cache.getDataSet(dataSetCode);
+        if (dataSet == null)
+        {
+            List<DataSet> dataSetsWithMetaData =
+                    generalInfoService.getDataSetMetaData(sessionToken,
+                            Arrays.asList(dataSetCode));
+            dataSet = dataSetsWithMetaData.get(0);
+            cache.putDataSet(dataSet);
+        }
+        return dataSet;
+    }
+    
+    public List<ExternalData> listDataSetsByCode(List<String> codes)
+    {
+        List<String> codesToAskFor = new ArrayList<String>();
+        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        for (String code : codes)
+        {
+            ExternalData dataSet = cache.getExternalData(code);
+            if (dataSet == null)
+            {
+                codesToAskFor.add(code);
+            } else
+            {
+                dataSets.add(dataSet);
+            }
+        }
+        if (codesToAskFor.isEmpty() == false)
+        {
+            List<ExternalData> newDataSets = service.listDataSetsByCode(sessionToken, codesToAskFor);
+            for (ExternalData newDataSet : newDataSets)
+            {
+                cache.putDataSet(newDataSet);
+                dataSets.add(newDataSet);
+            }
+        }
+        return dataSets;
+    }
+    
+    public Experiment getExperiment(String experimentId)
+    {
+        Experiment experiment = cache.getExperiment(experimentId);
+        if (experiment == null)
+        {
+            ExperimentIdentifier experimentIdentifier =
+                    new ExperimentIdentifierFactory(experimentId).createIdentifier();
+            
+            List<Experiment> result =
+                    service.listExperiments(sessionToken,
+                            Collections.singletonList(experimentIdentifier),
+                            new ExperimentFetchOptions());
+            experiment = result.isEmpty() ? null : result.get(0);
+            cache.putDataSet(experiment);
+        }
+        return experiment;
     }
 
     public IGeneralInformationService getGeneralInfoService()

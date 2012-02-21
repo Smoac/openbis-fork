@@ -132,6 +132,11 @@ public class DSSFileSystemView implements FileSystemView
 
     public FtpFile getFile(String path) throws FtpException
     {
+        return getFile(path, new Cache());
+    }
+    
+    public FtpFile getFile(String path, Cache cache) throws FtpException
+    {
         String normalizedPath = normalizePath(path);
 
         // this check speeds directory listings in the LFTP console client
@@ -144,7 +149,7 @@ public class DSSFileSystemView implements FileSystemView
         {
             FtpPathResolverContext context =
                     new FtpPathResolverContext(sessionToken, service, generalInfoService,
-                            pathResolverRegistry);
+                            pathResolverRegistry, cache);
             return pathResolverRegistry.resolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {

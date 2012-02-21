@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
@@ -166,7 +167,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null);
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null, new Cache());
         context.checking(new Expectations()
             {
                 {

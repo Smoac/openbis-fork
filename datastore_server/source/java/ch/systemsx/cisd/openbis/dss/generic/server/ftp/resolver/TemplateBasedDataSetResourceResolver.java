@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,14 +48,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluatio
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * Resolves paths like
@@ -114,14 +109,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             List<FtpFile> result = new ArrayList<FtpFile>();
             if (showParentsAndChildren)
             {
-                IGeneralInformationService generalInfoService =
-                        resolverContext.getGeneralInfoService();
-                String sessionToken = resolverContext.getSessionToken();
-                List<DataSet> dataSetsWithMetaData =
-                        generalInfoService.getDataSetMetaData(sessionToken,
-                                Arrays.asList(dataSet.getCode()));
-
-                DataSet dataSetWithMetaData = dataSetsWithMetaData.get(0);
+                DataSet dataSetWithMetaData = resolverContext.getDataSet(dataSet.getCode());
                 addNodesOfType(PARENT_PREFIX, result, dataSetWithMetaData.getParentCodes());
                 addNodesOfType(CHILD_PREFIX, result, dataSetWithMetaData.getChildrenCodes());
             }
@@ -156,9 +144,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             {
                 return;
             }
-            String sessionToken = resolverContext.getSessionToken();
-            List<ExternalData> dataSets =
-                    resolverContext.getService().listDataSetsByCode(sessionToken, dataSetCodes);
+            List<ExternalData> dataSets = resolverContext.listDataSetsByCode(dataSetCodes);
             for (int i = 0; i < dataSets.size(); i++)
             {
                 ExternalData ds = dataSets.get(i);
@@ -248,7 +234,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         IETLLIMSService service = resolverContext.getService();
         String sessionToken = resolverContext.getSessionToken();
 
-        Experiment experiment = tryGetExperiment(experimentId, service, sessionToken);
+        Experiment experiment = tryGetExperiment(experimentId, resolverContext);
         if (experiment == null)
         {
             return FtpPathResolverRegistry.getNonExistingFile(path, "Unknown experiment '"
@@ -403,30 +389,15 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return result;
     }
 
-    private Experiment tryGetExperiment(String experimentId, IETLLIMSService service,
-            String sessionToken)
+    private Experiment tryGetExperiment(String experimentId, FtpPathResolverContext context)
     {
-        ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifierFactory(experimentId).createIdentifier();
-
-        List<Experiment> result = null;
         try
         {
-            result =
-                    service.listExperiments(sessionToken,
-                            Collections.singletonList(experimentIdentifier),
-                            new ExperimentFetchOptions());
+            return context.getExperiment(experimentId);
         } catch (Throwable t)
         {
             operationLog.warn("Failed to get experiment with identifier :" + experimentId, t);
-        }
-
-        if (result == null || result.isEmpty())
-        {
             return null;
-        } else
-        {
-            return result.get(0);
         }
     }
 
