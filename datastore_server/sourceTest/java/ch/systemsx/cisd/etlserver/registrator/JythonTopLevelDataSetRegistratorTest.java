@@ -193,7 +193,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.shouldRegistrationFail = true;
         testCases.add(testCase);
 
-        //TODO: In this case should it be "invalid dataset error" or what?
+        // TODO: In this case should it be "invalid dataset error" or what?
         testCase = new TestCaseParameters("The validation error with DELETE on error.");
         for (String error : allErrors)
         {
@@ -223,6 +223,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return resultsList;
     }
 
+    /**
+     * Parameters for the single run of the testSimpleTransaction
+     * 
+     * @author jakubs
+     */
     private static class TestCaseParameters
     {
 
@@ -280,6 +285,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
+                    boolean broken = false;
+
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
                     atLeast(1).of(openBisService).tryToGetExperiment(
@@ -295,24 +302,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         Exception innerException = new Exception();
                         will(throwException(new UserFailureException("Data set of type '"
                                 + DATA_SET_CODE + "' is invalid ", innerException)));
-                        // TODO: refactor this. How to stop here? return doesnt work...
-                    } else
+
+                        broken = true;
+                    }
+
+                    if (false == broken)
                     {
                         one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-
-                        if (testCase.shouldRegistrationFail)
-                        {
-                            will(throwException(new AssertionError("Fail")));
-                        } else
-                        {
-                            will(doAll(returnValue(new AtomicEntityOperationResult()),
-                                    checkPrecommitDirIsNotEmpty()));
-
-                            one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-
-                            will(checkPrecommitDirIsEmpty());
-                        }
                     }
+
+                    if (false == broken && testCase.shouldRegistrationFail)
+                    {
+                        will(throwException(new AssertionError("Fail")));
+                        broken = true;
+                    }
+
+                    if (false == broken)
+                    {
+                        will(doAll(returnValue(new AtomicEntityOperationResult()),
+                                checkPrecommitDirIsNotEmpty()));
+
+                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+
+                        will(checkPrecommitDirIsEmpty());
+                    }
+
                 }
             });
 
@@ -325,7 +339,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             // after the successful registration
             assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         }
-        
+
         int expectedCommitCount =
                 testCase.shouldRegistrationFail || testCase.shouldValidationFail ? 0 : 1;
 
