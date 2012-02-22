@@ -219,7 +219,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     {
         final String sessionKey = "some-session-key";
         final NewSample newSample =
-                createNewSample("/group1/sample1", "MASTER_PLATE", IEntityProperty.EMPTY_ARRAY);
+                createNewSample("/SPACE1/SAMPLE1", "MASTER_PLATE", IEntityProperty.EMPTY_ARRAY);
         context.checking(new Expectations()
             {
                 {
@@ -236,7 +236,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             {
                                 final NewSample sample = (NewSample) invocation.getParameter(1);
                                 assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
-                                assertEquals("/group1/sample1", sample.getIdentifier());
+                                assertEquals("/SPACE1/SAMPLE1", sample.getIdentifier());
                                 final Collection<NewAttachment> attachments =
                                         (Collection<NewAttachment>) invocation.getParameter(2);
                                 assertEquals(0, attachments.size());

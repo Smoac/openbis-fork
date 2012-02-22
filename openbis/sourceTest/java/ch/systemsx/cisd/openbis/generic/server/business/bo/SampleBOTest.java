@@ -81,7 +81,7 @@ public final class SampleBOTest extends AbstractBOTest
 
     private static final String MASTER_PLATE = "MASTER_PLATE";
 
-    private static final String DEFAULT_SAMPLE_CODE = "xx";
+    private static final String DEFAULT_SAMPLE_CODE = "XX";
 
     static SamplePE createSample(final String sampleCode)
     {
@@ -354,7 +354,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         ExperimentIdentifier experimentIdentifier = null;
         String errorMsg =
-                "Cannot detach the sample 'xx' from the experiment because there are already datasets attached to the sample.";
+                "Cannot detach the sample 'XX' from the experiment because there are already datasets attached to the sample.";
         try
         {
             updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
@@ -981,7 +981,8 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
                     one(propertiesConverter).updateProperties(sample.getProperties(),
-                            sample.getSampleType(), null, EXAMPLE_PERSON, Collections.<String>emptySet());
+                            sample.getSampleType(), null, EXAMPLE_PERSON,
+                            Collections.<String> emptySet());
                 }
             });
     }
