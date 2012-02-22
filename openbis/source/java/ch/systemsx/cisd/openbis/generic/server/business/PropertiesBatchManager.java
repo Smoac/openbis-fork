@@ -146,7 +146,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             {
                 EntityProperty entityProperty =
                         evaluateManagedProperty(code, entry.getValue(), evalContext);
-                if (entityProperty.getValue() != null)
+                if (false == ManagedProperty.isSpecialValue(entityProperty.getValue()))
                 {
                     newProperties.add(entityProperty);
                 }
@@ -178,10 +178,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
             evaluator.updateFromBatchInput(managedProperty, bindings);
-            if (false == managedProperty.isSpecialValue())
-            {
-                entityProperty.setValue(managedProperty.getValue());
-            }
+            entityProperty.setValue(managedProperty.getValue());
         }
         return entityProperty;
     }
