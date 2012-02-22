@@ -41,6 +41,11 @@ public class Identifier<T extends Identifier<T>> implements Serializable, Compar
 
     private String permID;
 
+    protected static String toUpperCase(String identifierOrNull)
+    {
+        return identifierOrNull == null ? null : identifierOrNull.toUpperCase();
+    }
+
     public void setPermID(String permID)
     {
         this.permID = permID;
@@ -54,7 +59,7 @@ public class Identifier<T extends Identifier<T>> implements Serializable, Compar
     @BeanProperty(label = IDENTIFIER_COLUMN, optional = true)
     public final void setIdentifier(final String identifier)
     {
-        this.identifier = identifier;
+        this.identifier = toUpperCase(identifier);
     }
 
     //

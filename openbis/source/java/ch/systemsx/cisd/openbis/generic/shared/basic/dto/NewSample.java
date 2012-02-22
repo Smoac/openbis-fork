@@ -124,9 +124,9 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
-        this.experimentIdentifier = experimentIdentifier;
+        setExperimentIdentifier(experimentIdentifier);
         this.setDefaultSpaceIdentifier(defaultSpaceIdentifier);
-        this.currentContainerIdentifier = currentContainerIdentifier;
+        setCurrentContainerIdentifier(currentContainerIdentifier);
         this.properties = properties;
         this.attachments = attachments;
     }
@@ -210,7 +210,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     @BeanProperty(label = CONTAINER, optional = true)
     public final void setContainerIdentifier(final String container)
     {
-        this.containerIdentifier = StringUtils.trimToNull(container);
+        this.containerIdentifier = toUpperCase(StringUtils.trimToNull(container));
     }
 
     public final String getCurrentContainerIdentifier()
@@ -221,7 +221,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     @BeanProperty(label = CURRENT_CONTAINER, optional = true)
     public final void setCurrentContainerIdentifier(final String currentContainerIdentifier)
     {
-        this.currentContainerIdentifier = StringUtils.trimToNull(currentContainerIdentifier);
+        this.currentContainerIdentifier =
+                toUpperCase(StringUtils.trimToNull(currentContainerIdentifier));
     }
 
     public String getExperimentIdentifier()
@@ -232,7 +233,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     @BeanProperty(label = EXPERIMENT, optional = true)
     public void setExperimentIdentifier(String experimentIdentifier)
     {
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentIdentifier = toUpperCase(experimentIdentifier);
     }
 
     public String getDefaultSpaceIdentifier()
@@ -245,10 +246,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     {
         if (StringUtils.isBlank(defaultSpaceIdentifier) || defaultSpaceIdentifier.contains("/"))
         {
-            this.defaultSpaceIdentifier = defaultSpaceIdentifier;
+            this.defaultSpaceIdentifier = toUpperCase(defaultSpaceIdentifier);
         } else
         {
-            this.defaultSpaceIdentifier = "/" + defaultSpaceIdentifier;
+            this.defaultSpaceIdentifier = "/" + toUpperCase(defaultSpaceIdentifier);
         }
     }
 
