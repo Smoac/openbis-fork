@@ -146,7 +146,10 @@ public class ManagedPropertyEvaluator
     {
         if (updateFromBatchFunctionDefined == false)
         {
-            managedProperty.setValue(bindings.get(""));
+            if (bindings.containsKey(""))
+            {
+                managedProperty.setValue(bindings.get(""));
+            }
         } else
         {
             evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
