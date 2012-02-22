@@ -87,8 +87,8 @@ public final class UpdatedSampleParserObjectFactoryTest
     public final void testCreateObject(final String[] lineTokens, final int numberOfProperties,
             final int numOfPropertiestoUpdate)
     {
-        final String identifierToken = lineTokens[0];
-        final String containerToken = lineTokens[1];
+        final String identifierToken = lineTokens[0].toUpperCase();
+        final String containerToken = lineTokens[1].toUpperCase();
         final String p1Token = lineTokens[2];
         final String p2Token = lineTokens[3];
         final UpdatedSampleParserObjectFactory parserObjectFactory =

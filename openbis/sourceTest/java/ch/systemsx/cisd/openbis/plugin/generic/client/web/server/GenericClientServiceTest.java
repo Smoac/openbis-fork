@@ -695,8 +695,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     public final void testRegisterExperiment()
     {
         final NewExperiment newExperiment =
-                createNewExperiment("/group1/project1/exp1", "SIRNA_HCS",
-                        IEntityProperty.EMPTY_ARRAY);
+                createNewExperiment("/S1/P1/E1", "SIRNA_HCS", IEntityProperty.EMPTY_ARRAY);
         final String attachmentSessionKey = "attachment-session-key";
         final String sampleSessionKey = "sample-session-key";
         context.checking(new Expectations()
@@ -717,7 +716,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final NewExperiment experiment =
                                         (NewExperiment) invocation.getParameter(1);
                                 assertEquals("SIRNA_HCS", experiment.getExperimentTypeCode());
-                                assertEquals("/group1/project1/exp1", experiment.getIdentifier());
+                                assertEquals("/S1/P1/E1", experiment.getIdentifier());
                                 final Collection<NewAttachment> attachments =
                                         (Collection<NewAttachment>) invocation.getParameter(2);
                                 assertEquals(0, attachments.size());

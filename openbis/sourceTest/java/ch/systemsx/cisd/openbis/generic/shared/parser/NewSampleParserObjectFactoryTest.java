@@ -188,9 +188,9 @@ public final class NewSampleParserObjectFactoryTest
         final NewSampleParserObjectFactory parserObjectFactory =
                 createNewSampleParserObjectFactory(createPropertyMapper(), true);
         final NewSample objectCreated = parserObjectFactory.createObject(lineTokens);
-        assertEquals(objectCreated.getIdentifier(), lineTokens[1]);
+        assertEquals(objectCreated.getIdentifier(), toUpperCase(lineTokens[1]));
         assertEquals(objectCreated.getContainerIdentifier(),
-                StringUtils.isEmpty(lineTokens[2]) ? null : lineTokens[2]);
+                StringUtils.isEmpty(lineTokens[2]) ? null : toUpperCase(lineTokens[2]));
         assertEquals(objectCreated.getParentIdentifier(), StringUtils.isEmpty(lineTokens[3]) ? null
                 : lineTokens[3]);
         final IEntityProperty[] properties = objectCreated.getProperties();
@@ -200,5 +200,10 @@ public final class NewSampleParserObjectFactoryTest
         {
             sampleProperty.getValue().equals(lineTokens[index++]);
         }
+    }
+
+    private String toUpperCase(String identifier)
+    {
+        return identifier == null ? null : identifier.toUpperCase();
     }
 }

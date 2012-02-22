@@ -420,7 +420,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryGetSampleWithExperimentForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         prepareTryToLoadSample(sampleIdentifier, null);
 
         Sample sample = createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
@@ -433,7 +433,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryGetSampleWithExperimentForSampleWithNoValidProcedure()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         SamplePE samplePE = createSample();
 
         prepareTryToLoadSample(sampleIdentifier, samplePE);
@@ -450,7 +450,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testGetSampleWithExperimentWithoutAttachment()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
@@ -472,7 +472,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 {
                     one(sampleDAO).tryToFindByPermID("abc");
                     SamplePE sample = new SamplePE();
-                    sample.setCode("s42");
+                    sample.setCode("S42");
                     will(returnValue(sample));
                 }
             });
@@ -480,7 +480,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         SampleIdentifier identifier =
                 createService().tryToGetSampleIdentifier(SESSION_TOKEN, "abc");
 
-        assertEquals("s42", identifier.toString());
+        assertEquals("S42", identifier.toString());
         context.assertIsSatisfied();
     }
 
@@ -515,7 +515,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
@@ -530,7 +530,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleForAToplessSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         SamplePE toplessSample = new SamplePE();
         SamplePropertyPE property = setAnyProperty(toplessSample);
         prepareLoadSample(sampleIdentifier, toplessSample);
@@ -548,10 +548,10 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleWhichHasNoProperties()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        SamplePE sample = createSample("s1");
-        SamplePE top = createSample("s2");
-        SamplePE parent = createSample("s3");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+        SamplePE sample = createSample("S1");
+        SamplePE top = createSample("S2");
+        SamplePE parent = createSample("S3");
         parent.addParentRelationship(new SampleRelationshipPE(top, parent,
                 createParentChildRelation()));
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
@@ -571,10 +571,10 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        SamplePE sample = createSample("s1");
-        SamplePE top = createSample("s2");
-        SamplePE parent = createSample("s3");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+        SamplePE sample = createSample("S1");
+        SamplePE top = createSample("S2");
+        SamplePE parent = createSample("S3");
         parent.addParentRelationship(new SampleRelationshipPE(top, parent,
                 createParentChildRelation()));
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
@@ -730,7 +730,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSetForUnknownExperiment()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         prepareTryToLoadSample(sampleIdentifier, new SamplePE());
 
         try
@@ -739,7 +739,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("No experiment found for sample DB:/s1", e.getMessage());
+            assertEquals("No experiment found for sample DB:/S1", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -749,7 +749,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSetForInvalidExperiment()
     {
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         experiment.setDeletion(new DeletionPE());
         prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
@@ -772,7 +772,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSet()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSample(sampleIdentifier, sample);
@@ -965,7 +965,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         material.setCode("new-material");
         final MaterialTypePE materialType = new MaterialTypePE();
         materialType.setCode("new-material-type");
-        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("db")
+        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
                 .getDatabaseInstance());
         final NewMaterial newMaterial = new NewMaterial(material.getCode());
         Map<String, List<NewMaterial>> materialRegistrations =
@@ -973,7 +973,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
 
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
-        newSamplePE.setCode("sample code new");
+        newSamplePE.setCode("SAMPLE_CODE_NEW");
         final SampleIdentifier newSampleIdentifier = newSamplePE.getSampleIdentifier();
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(newSampleIdentifier.toString());
@@ -1167,7 +1167,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
                     one(sampleBO).getSample();
                     SamplePE sample = new SamplePE();
-                    sample.setCode("s2");
+                    sample.setCode("S2");
                     sample.setSpace(createGroup("G1"));
                     sample.setExperiment(experiment);
                     will(returnValue(sample));
@@ -1195,9 +1195,9 @@ public class ETLServiceTest extends AbstractServerTestCase
     private SamplePE createSample()
     {
         final SamplePE sample = new SamplePE();
-        sample.setCode("sample code");
+        sample.setCode("SAMPLE_CODE");
         final SampleTypePE sampleType = new SampleTypePE();
-        sampleType.setCode("sample type code");
+        sampleType.setCode("SAMPLE_TYPE_CODE");
         sampleType.setContainerHierarchyDepth(1);
         sampleType.setGeneratedFromHierarchyDepth(1);
         sampleType.setListable(false);

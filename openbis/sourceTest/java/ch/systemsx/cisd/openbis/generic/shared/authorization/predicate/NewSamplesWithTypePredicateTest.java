@@ -71,9 +71,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s2");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
         context.checking(new Expectations()
             {
                 {
@@ -105,9 +105,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s2");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
         context.checking(new Expectations()
             {
                 {
@@ -137,9 +137,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s2");
+                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
         context.checking(new Expectations()
             {
                 {
