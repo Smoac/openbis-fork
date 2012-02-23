@@ -96,7 +96,6 @@ public final class ThreadParameters
 
     public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
-    
 
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
@@ -136,7 +135,7 @@ public final class ThreadParameters
      */
     public ThreadParameters(final Properties threadProperties, final String threadName)
     {
-        this.incomingDataDirectory = extractIncomingDataDir(threadProperties);
+        this.incomingDataDirectory = extractIncomingDataDir(threadProperties, threadName);
         this.createIncomingDirectories =
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
         this.threadProperties = threadProperties;
@@ -189,10 +188,10 @@ public final class ThreadParameters
     }
 
     private DataSetRegistrationPreStagingBehavior getOriginalnputDataSetBehaviour(
-            final Properties threadProperties)
+            final Properties threadProperties1)
     {
         String property =
-                threadProperties.getProperty(DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR, "default");
+                threadProperties1.getProperty(DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR, "default");
         DataSetRegistrationPreStagingBehavior retVal =
                 DataSetRegistrationPreStagingBehavior.fromString(property);
         if (null == retVal)
@@ -240,7 +239,7 @@ public final class ThreadParameters
     }
 
     @Private
-    static File extractIncomingDataDir(final Properties threadProperties)
+    static File extractIncomingDataDir(final Properties threadProperties, String threadName2)
     {
         final String incomingDir = threadProperties.getProperty(INCOMING_DIR);
         if (StringUtils.isNotBlank(incomingDir))
@@ -248,7 +247,7 @@ public final class ThreadParameters
             return FileUtilities.normalizeFile(new File(incomingDir));
         } else
         {
-            throw new ConfigurationFailureException("No '" + INCOMING_DIR + "' defined.");
+            throw new ConfigurationFailureException("No '" + INCOMING_DIR + "' defined for input [" + threadName2 + "].");
         }
     }
 
