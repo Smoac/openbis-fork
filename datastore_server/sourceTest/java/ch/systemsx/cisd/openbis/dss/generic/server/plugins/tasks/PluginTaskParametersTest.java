@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionPropertie
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
@@ -128,7 +129,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         String plugin1 = "plugin1";
         String plugin2 = "plugin2";
 
-        props.setProperty(PluginTaskProviders.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
+        props.setProperty(Constants.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
         String pluginLabel1 = "Demo Reporting 1";
         String datasetCodes1 = "MZXML, EICML";
         setPluginProperties(props, plugin1, pluginLabel1, datasetCodes1, DemoReportingPlugin.class);
@@ -193,7 +194,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     public void testMissingPluginSpecFails() throws Exception
     {
         Properties props = new Properties();
-        props.setProperty(PluginTaskProviders.REPORTING_PLUGIN_NAMES, "plugin1");
+        props.setProperty(Constants.REPORTING_PLUGIN_NAMES, "plugin1");
         createReportingPluginsFactories(props);
     }
 
@@ -231,7 +232,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         Properties props = new Properties();
         String plugin1 = "plugin1";
 
-        props.setProperty(PluginTaskProviders.PROCESSING_PLUGIN_NAMES, plugin1);
+        props.setProperty(Constants.PROCESSING_PLUGIN_NAMES, plugin1);
         setPluginProperties(props, plugin1, "pluginLabel1", "datasetCodes1",
                 DemoProcessingPlugin.class);
         setPluginProperty(props, plugin1, AbstractPluginTaskFactory.SERVLET_PROPERTY_NAME + ".a",

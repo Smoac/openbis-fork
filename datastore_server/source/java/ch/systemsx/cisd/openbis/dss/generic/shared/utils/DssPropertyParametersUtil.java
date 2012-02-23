@@ -78,7 +78,9 @@ public class DssPropertyParametersUtil
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
     {
-        return loadProperties(SERVICE_PROPERTIES_FILE);
+        ExtendedProperties serviceProperties = loadProperties(SERVICE_PROPERTIES_FILE);
+        new CorePluginsInjector().injectCorePlugins(serviceProperties);
+        return serviceProperties;
     }
 
     public static ExtendedProperties loadProperties(String filePath)

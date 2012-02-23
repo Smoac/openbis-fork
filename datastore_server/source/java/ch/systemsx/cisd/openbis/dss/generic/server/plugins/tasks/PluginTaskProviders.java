@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
@@ -33,14 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 public class PluginTaskProviders
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
-    /** property with repotring plugins names separated by delimiter */
-    @Private
-    static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
-
-    /** property with processing plugins names separated by delimiter */
-    @Private
-    static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
 
     /** name of archiver properties section */
     @Private
@@ -122,7 +115,7 @@ public class PluginTaskProviders
             Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, REPORTING_PLUGIN_NAMES);
+                extractSectionProperties(serviceProperties, Constants.REPORTING_PLUGIN_NAMES);
         ReportingPluginTaskFactory[] factories =
                 new ReportingPluginTaskFactory[sectionsProperties.length];
         for (int i = 0; i < factories.length; i++)
@@ -138,7 +131,7 @@ public class PluginTaskProviders
             Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, PROCESSING_PLUGIN_NAMES);
+                extractSectionProperties(serviceProperties, Constants.PROCESSING_PLUGIN_NAMES);
         ProcessingPluginTaskFactory[] factories =
                 new ProcessingPluginTaskFactory[sectionsProperties.length];
         for (int i = 0; i < factories.length; i++)

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.common.utilities.VoidExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
@@ -59,9 +60,6 @@ public class Parameters
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
-
-    /** property with thread names separated by delimiter */
-    private static final String INPUT_THREAD_NAMES = "inputs";
 
     @Option(name = "s", longName = "server-url", metaVar = "URL", usage = "URL of the server")
     private String serverURL;
@@ -232,7 +230,7 @@ public class Parameters
     {
         SectionProperties[] sectionsProperties =
                 PropertyParametersUtil.extractSectionProperties(serviceProperties,
-                        INPUT_THREAD_NAMES, true);
+                        Constants.INPUT_THREAD_NAMES, true);
         if (sectionsProperties.length == 0)
         {
             return new ThreadParameters[0];

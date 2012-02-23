@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import ch.rinn.restrictions.Private;
+
 /**
  * Some common constants.
  *
@@ -25,5 +27,16 @@ public class Constants
 {
 
     public static final String DEFAULT_SHARE_ID = "1";
+
+    /** property with thread names separated by delimiter */
+    public static final String INPUT_THREAD_NAMES = "inputs";
+
+    /** property with repotring plugins names separated by delimiter */
+    @Private
+    public static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
+
+    /** property with processing plugins names separated by delimiter */
+    @Private
+    public static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
 
 }

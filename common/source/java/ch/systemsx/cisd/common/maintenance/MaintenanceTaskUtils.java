@@ -38,7 +38,7 @@ public class MaintenanceTaskUtils
     /**
      * default name of a property with maintenance plugin names separated by delimiter
      */
-    private static final String DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME = "maintenance-plugins";
+    public static final String DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME = "maintenance-plugins";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MaintenanceTaskUtils.class);
