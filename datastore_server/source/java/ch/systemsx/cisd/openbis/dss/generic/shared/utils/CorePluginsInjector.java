@@ -52,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
  */
 class CorePluginsInjector
 {
+    private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
+
     static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
     
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
@@ -188,8 +190,17 @@ class CorePluginsInjector
                 File file = new File(dssFolder, pluginType.getSubFolderName());
                 if (file.isDirectory())
                 {
-                    for (File definingFolder : file.listFiles())
+                    File[] pluginFolders = file.listFiles(new FilenameFilter()
+                        {
+                            public boolean accept(File dir, String name)
+                            {
+                                return name.startsWith(".") == false;
+                            }
+                        });
+                    for (File pluginFolder : pluginFolders)
                     {
+                        String pluginName = pluginFolder.getName();
+                        assertValidPluginName(pluginName);
                         Map<String, DssCorePlugin> map = typeToPluginsMap.get(pluginType);
                         if (map == null)
                         {
@@ -197,8 +208,7 @@ class CorePluginsInjector
                             typeToPluginsMap.put(pluginType, map);
                         }
                         DssCorePlugin plugin =
-                                new DssCorePlugin(technology, pluginType, definingFolder);
-                        String pluginName = definingFolder.getName();
+                                new DssCorePlugin(technology, pluginType, pluginFolder);
                         if (pluginType.isUniquePluginNameRequired())
                         {
                             if (pluginNames.contains(pluginName))
@@ -214,6 +224,19 @@ class CorePluginsInjector
             }
         }
         return typeToPluginsMap;
+    }
+
+    private void assertValidPluginName(String pluginName)
+    {
+        for (int i = 0; i < UNALLOWED_PLUGIN_NAME_CHARACTERS.length(); i++)
+        {
+            char c = UNALLOWED_PLUGIN_NAME_CHARACTERS.charAt(i);
+            if (pluginName.contains(Character.toString(c)))
+            {
+                throw new EnvironmentFailureException("Plugin name contains '" + c + "': "
+                        + pluginName);
+            }
+        }
     }
 
     /**

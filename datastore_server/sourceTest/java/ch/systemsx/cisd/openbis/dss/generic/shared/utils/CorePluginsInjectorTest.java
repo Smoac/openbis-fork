@@ -108,6 +108,28 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testInvalidPluginNameAndIgnoringDotFilesAndFolders() throws IOException
+    {
+        File alpha = new File(corePluginsFolder, "screening/1/dss/drop-boxes/a b");
+        alpha.mkdirs();
+        new File(alpha.getParentFile(), ".svn").mkdirs();
+        new File(alpha.getParentFile(), ".blabla").createNewFile();
+        Properties properties = createProperties();
+        properties.setProperty(INPUT_THREAD_NAMES, "a, b");
+        
+        try
+        {
+            injector.injectCorePlugins(properties);
+            fail("EnvironmentFailureException expected.");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Plugin name contains ' ': a b", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testPluginIsNotAFolder() throws IOException
     {
         File alpha = new File(corePluginsFolder, "screening/1/dss/drop-boxes/alpha");
