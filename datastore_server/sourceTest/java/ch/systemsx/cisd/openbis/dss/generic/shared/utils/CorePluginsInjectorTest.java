@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import static ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.Constants.INPUT_THREAD_NAMES;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.Constants.REPORTING_PLUGIN_NAMES;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.CorePluginsInjector.DISABLED_CORE_PLUGINS_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.CorePluginsInjector.PLUGIN_PROPERTIES_FILE_NAME;
 
 import java.io.File;
@@ -268,6 +269,31 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                 + "my-report.script = " + misc + "/r.py\n"
                 + "reporting-plugins = k1, k2, my-report\n" + "t1.class = blabla\n"
                 + "t2.script = " + misc + "/task.py\n", properties);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDisabledPlugins()
+    {
+        new File(corePluginsFolder, "screening/1/dss/miscellaneous/a").mkdirs();
+        new File(corePluginsFolder, "screening/1/dss/miscellaneous/b").mkdirs();
+        new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp1").mkdirs();
+        File dp2 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp2");
+        dp2.mkdirs();
+        FileUtilities.writeToFile(new File(dp2, PLUGIN_PROPERTIES_FILE_NAME), "");
+        new File(corePluginsFolder, "proteomics/1/dss/drop-boxes/dp3").mkdirs();
+        new File(corePluginsFolder, "proteomics/1/dss/reporting-plugins/r1").mkdirs();
+        Properties properties = createProperties();
+        properties.setProperty(DISABLED_CORE_PLUGINS_KEY,
+                "proteomics, screening:miscellaneous, screening:drop-boxes:dp1");
+        preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
+
+        injector.injectCorePlugins(properties);
+
+        assertProperties(corePluginsFolderProperty
+                + "disabled-core-plugins = proteomics, screening:miscellaneous, "
+                + "screening:drop-boxes:dp1\n" + "inputs = dp2\n", properties);
 
         context.assertIsSatisfied();
     }

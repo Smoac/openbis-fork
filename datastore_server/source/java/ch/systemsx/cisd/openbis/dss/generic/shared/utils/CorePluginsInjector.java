@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -46,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 
 /**
- * 
+ * Injector of DSS plugin.properties from core plugins folder into service.properties.
  *
  * @author Franz-Josef Elmer
  */
@@ -55,6 +56,8 @@ class CorePluginsInjector
     private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
 
     static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
+    
+    static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
     
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
     
@@ -126,11 +129,12 @@ class CorePluginsInjector
         {
             return;
         }
+        Set<String> disabledPlugins = getDisabledPlugins(properties);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
         Map<PluginType, Map<String, DssCorePlugin>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, pluginNames);
+                scanForCorePlugins(corePluginsFolderPath, disabledPlugins, pluginNames);
         for (Entry<PluginType, Map<String, DssCorePlugin>> entry : plugins.entrySet())
         {
             PluginType pluginType = entry.getKey();
@@ -168,9 +172,24 @@ class CorePluginsInjector
         }
         pluginKeyBundles.addOrReplaceKeyBundleIn(properties);
     }
+    
+    private Set<String> getDisabledPlugins(Properties properties)
+    {
+        Set<String> set = new HashSet<String>();
+        String property = properties.getProperty(DISABLED_CORE_PLUGINS_KEY);
+        if (StringUtils.isNotBlank(property))
+        {
+            String[] splittedProperty = property.split(",");
+            for (String term : splittedProperty)
+            {
+                set.add(term.trim());
+            }
+        }
+        return set;
+    }
 
     private Map<PluginType, Map<String, DssCorePlugin>> scanForCorePlugins(
-            String corePluginsFolderPath, Set<String> pluginNames)
+            String corePluginsFolderPath, Set<String> disabledPlugins, Set<String> pluginNames)
     {
         Map<PluginType, Map<String, DssCorePlugin>> typeToPluginsMap =
                 new LinkedHashMap<CorePluginsInjector.PluginType, Map<String, DssCorePlugin>>();
@@ -200,33 +219,41 @@ class CorePluginsInjector
                     for (File pluginFolder : pluginFolders)
                     {
                         String pluginName = pluginFolder.getName();
-                        assertValidPluginName(pluginName);
-                        Map<String, DssCorePlugin> map = typeToPluginsMap.get(pluginType);
-                        if (map == null)
-                        {
-                            map = new LinkedHashMap<String, CorePluginsInjector.DssCorePlugin>();
-                            typeToPluginsMap.put(pluginType, map);
-                        }
+                        assertAndAddPluginName(pluginName, pluginNames, pluginType);
                         DssCorePlugin plugin =
                                 new DssCorePlugin(technology, pluginType, pluginFolder);
-                        if (pluginType.isUniquePluginNameRequired())
+                        String fullPluginName = plugin.getName();
+                        if (isDisabled(disabledPlugins, fullPluginName) == false)
                         {
-                            if (pluginNames.contains(pluginName))
+                            Map<String, DssCorePlugin> map = typeToPluginsMap.get(pluginType);
+                            if (map == null)
                             {
-                                throw new ConfigurationFailureException(
-                                        "There is already a plugin named '" + pluginName + "'.");
+                                map = new LinkedHashMap<String, CorePluginsInjector.DssCorePlugin>();
+                                typeToPluginsMap.put(pluginType, map);
                             }
-                            pluginNames.add(pluginName);
+                            map.put(pluginName, plugin);
                         }
-                        map.put(pluginName, plugin);
                     }
                 }
             }
         }
         return typeToPluginsMap;
     }
+    
+    private boolean isDisabled(Set<String> disabledPlugins, String fullPluginName)
+    {
+        for (String disabledPlugin : disabledPlugins)
+        {
+            if (fullPluginName.startsWith(disabledPlugin))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    private void assertValidPluginName(String pluginName)
+    private void assertAndAddPluginName(String pluginName, Set<String> pluginNames,
+            PluginType pluginType)
     {
         for (int i = 0; i < UNALLOWED_PLUGIN_NAME_CHARACTERS.length(); i++)
         {
@@ -236,6 +263,15 @@ class CorePluginsInjector
                 throw new EnvironmentFailureException("Plugin name contains '" + c + "': "
                         + pluginName);
             }
+        }
+        if (pluginType.isUniquePluginNameRequired())
+        {
+            if (pluginNames.contains(pluginName))
+            {
+                throw new ConfigurationFailureException(
+                        "There is already a plugin named '" + pluginName + "'.");
+            }
+            pluginNames.add(pluginName);
         }
     }
 
@@ -413,6 +449,11 @@ class CorePluginsInjector
             {
                 throw new EnvironmentFailureException("Is not a directory: " + definingFolder);
             }
+        }
+
+        String getName()
+        {
+            return name;
         }
 
         File getDefiningFolder()
