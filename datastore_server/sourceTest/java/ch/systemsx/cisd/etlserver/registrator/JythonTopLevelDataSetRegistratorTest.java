@@ -213,7 +213,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         testCase = new TestCaseParameters("Dataset file not found.");
         testCase.dropboxScriptPath = "file-not-found.py";
-        testCase.shouldThrowJythonException = true;
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_CREATE_DATA_SET_CODE;
         testCase.exceptionAcceptor = new IPredicate<Exception>()
             {
                 public boolean execute(Exception arg)
@@ -228,6 +229,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         testCase = new TestCaseParameters("Test for registration context in hook methods.");
         testCase.dropboxScriptPath = "testcase-registration-context.py";
+        testCases.add(testCase);
+
+        testCase =
+                new TestCaseParameters(
+                        "Test for preregistration hook preventing registration in application server.");
+        testCase.dropboxScriptPath = "testcase-preregistration-hook-failed.py";
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
         testCases.add(testCase);
 
         // TODO: Add more scenarios:
@@ -291,13 +300,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
          */
         protected boolean shouldValidationFail = false;
 
-        /**
-         * True if the dropbox script should fail at the original call to jython script
-         */
-        protected boolean shouldThrowJythonException = false;
+        protected FailurePoint failurePoint = null;
 
         /**
-         * Must return true for the exception from the dropbox, when one is caught.
+         * True if the registration should throw exception to the top level.
+         */
+        protected boolean shouldThrowExceptionDuringRegistration = false;
+
+        /**
+         * Must return true for the exception from the registration process, when one is caught.
          */
         protected IPredicate<Exception> exceptionAcceptor = null;
 
@@ -316,6 +327,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         public String toString()
         {
             return title;
+        }
+
+        //add more when necessary
+        public enum FailurePoint
+        {
+            AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION
         }
     }
 
@@ -356,7 +373,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    if (testCase.shouldThrowJythonException)
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.AFTER_CREATE_DATA_SET_CODE)
                     {
                         broken = true;
                     }
@@ -385,6 +402,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         }
                     }
 
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION)
+                    {
+                        broken = true;
+                    }
+
                     if (false == broken)
                     {
                         one(openBisService).performEntityOperations(with(atomicatOperationDetails));
@@ -405,11 +427,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                         will(checkPrecommitDirIsEmpty());
                     }
-
                 }
             });
 
-        if (testCase.shouldThrowJythonException)
+        if (testCase.shouldThrowExceptionDuringRegistration)
         {
             try
             {
