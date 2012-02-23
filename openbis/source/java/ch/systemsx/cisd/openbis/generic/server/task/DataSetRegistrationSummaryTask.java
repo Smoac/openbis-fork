@@ -80,6 +80,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     public static final String DATA_SET_TYPES = "data-set-types";
 
+    public static final String CONFIGURED_CONTENT = "configured-content";
+
     public static final String SHOWN_DATA_SET_PROPERTIES_KEY = "shown-data-set-properties";
 
     public static final String EMAIL_ADDRESSES_KEY = "email-addresses";
@@ -94,8 +96,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             + "between ${from-date} and ${until-date}");
 
     private static final Template REPORT_TEMPLATE = new Template("Dear user\n\n"
-            + "This is a report from openBIS about data sets registered "
-            + "between ${from-date} and ${until-date}. The data sets are grouped by type.\n\n"
+            + "This report summarizes data sets registered in openBIS"
+            + "between ${from-date} and ${until-date}.\n\n${configured-content}\n\n"
             + "${data-sets}\n\nRegards,\nopenBIS");
 
     private static final Template NO_NEW_DATA_SETS_TEMPLATE = new Template(
@@ -129,6 +131,8 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     private List<EMailAddress> emailAddresses;
 
+    private String configuredContent;
+
     public DataSetRegistrationSummaryTask()
     {
         this(CommonServiceProvider.getCommonServer(), SystemTimeProvider.SYSTEM_TIME_PROVIDER,
@@ -150,6 +154,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         shownProperties = getAsList(properties, SHOWN_DATA_SET_PROPERTIES_KEY);
         emailAddresses = getEMailAddresses(properties);
         dataSetTypeCodes = extractDataSetTypeCodes(properties, DATA_SET_TYPES);
+        configuredContent = PropertyUtils.getProperty(properties, CONFIGURED_CONTENT, "The data sets are grouped by type.");
         operationLog.info("Task " + pluginName + " initialized.");
     }
 
@@ -237,6 +242,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         template.bind("from-date", fromDate);
         template.bind("until-date", untilDate);
         template.bind("data-sets", dataSetsAsString);
+        template.bind("configured-content", configuredContent);
         String report = template.createText();
         for (EMailAddress address : emailAddresses)
         {
