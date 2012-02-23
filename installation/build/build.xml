@@ -85,7 +85,7 @@
           <include name="datastore_server-S*.zip"/>
 	      </fileset>
 		</unzip>
-  	<unzip dest="${installer.dist.dir}/datastore_server">
+  	<unzip dest="${installer.dist.dir}">
 	      <fileset dir="../rtd_phosphonetx/targets/dist">
           <include name="datastore_server_plugin-proteomics-S*.zip"/>
 	      </fileset>

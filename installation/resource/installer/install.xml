@@ -146,6 +146,7 @@
     <pack name="Datastore Server" required="yes" loose="yes">
       <description>The data store server managing raw data</description>
       <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
+      <file src="@{installer.dist.dir}/core-plugins" targetdir="$INSTALL_PATH/servers"/>
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
       
       <!--  
