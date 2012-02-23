@@ -239,6 +239,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
         testCases.add(testCase);
 
+        testCase =
+                new TestCaseParameters(
+                        "Postregistration hook error should not prevent succesfull registration.");
+        testCase.dropboxScriptPath = "testcase-postregistration-hook-failed.py";
+        testCases.add(testCase);
+        
         // TODO: Add more scenarios:
         // - Test move to error
         // - Test moving of the original file in case of validation error
