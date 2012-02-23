@@ -99,7 +99,7 @@
   <target name="make-plugin-dist">
 		<move file="${plugin-jar.file}" tofile="${dist.plugin.lib}/datastore_server_plugin${variant}.jar" />
   	<copy todir="${dist.plugin}/core-plugins">
-  		<fileset dir="${core-plugins.folder}">
+  		<fileset dir="${core-plugins.folder}" erroronmissingdir="false">
   			<include name="*/*/dss/**/*"/>
   		</fileset>
   	</copy>
