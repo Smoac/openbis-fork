@@ -59,6 +59,22 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private static final String COMMIT_TRANSACTION_FUNCTION_NAME = "commit_transaction";
 
     /**
+     * The name of the function called after successful transaction commit.
+     */
+    private static final String POST_STORAGE_FUNCTION_NAME = "post_storage";
+
+    /**
+     * The name of the function called just before registration of datasets in application server.
+     */
+    private static final String PRE_REGISTRATION_FUNCTION_NAME = "pre_metadata_registration";
+
+    /**
+     * The name of the function called just after successful registration of datasets in application
+     * server.
+     */
+    private static final String POST_REGISTRATION_FUNCTION_NAME = "post_metadata_registration";
+
+    /**
      * The name of the function called when secondary transactions, DynamicTransactionQuery objects,
      * fail.
      */
@@ -151,7 +167,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * @param pythonInterpreter
      */
     protected DataSetRegistrationService<T> createJythonDataSetRegistrationService(
-            DataSetFile incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+            DataSetFile incomingDataSetFile,
+            DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
@@ -192,6 +209,22 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
+    public void didPreRegistration(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        super.didPreRegistration(service, transaction);
+        invokePreRegistrationFunction(service, transaction);
+    }
+
+    @Override
+    public void didPostRegistration(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        super.didPostRegistration(service, transaction);
+        invokePostRegistrationFunction(service, transaction);
+    }
+
+    @Override
     public void didEncounterSecondaryTransactionErrors(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
@@ -226,10 +259,40 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function = tryJythonFunction(interpreter, COMMIT_TRANSACTION_FUNCTION_NAME);
+
+        PyFunction function = tryJythonFunction(interpreter, POST_STORAGE_FUNCTION_NAME);
         if (null != function)
         {
-            invokeCommitTransactionFunction(function, service, transaction);
+            invokeTransactionFunctionWithContext(function, transaction);
+        } else
+        {
+            function = tryJythonFunction(interpreter, COMMIT_TRANSACTION_FUNCTION_NAME);
+            if (null != function)
+            {
+                invokeServiceTransactionFunction(function, service, transaction);
+            }
+        }
+    }
+
+    private void invokePreRegistrationFunction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function = tryJythonFunction(interpreter, PRE_REGISTRATION_FUNCTION_NAME);
+        if (null != function)
+        {
+            invokeTransactionFunctionWithContext(function, transaction);
+        }
+    }
+
+    private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function = tryJythonFunction(interpreter, POST_REGISTRATION_FUNCTION_NAME);
+        if (null != function)
+        {
+            invokeTransactionFunctionWithContext(function, transaction);
         }
     }
 
@@ -295,10 +358,19 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     /**
      * Pulled out as a separate method so tests can hook in.
      */
-    protected void invokeCommitTransactionFunction(PyFunction function,
+    protected void invokeServiceTransactionFunction(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
         function.__call__(Py.java2py(service), Py.java2py(transaction));
+    }
+
+    /**
+     * Pulled out as a separate method so tests can hook in.
+     */
+    protected void invokeTransactionFunctionWithContext(PyFunction function,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        function.__call__(Py.java2py(transaction), Py.java2py(null));
     }
 
     /**
@@ -367,7 +439,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         private final PythonInterpreter interpreter;
 
         public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
-                DataSetFile incomingDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+                DataSetFile incomingDataSetFile,
+                DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)

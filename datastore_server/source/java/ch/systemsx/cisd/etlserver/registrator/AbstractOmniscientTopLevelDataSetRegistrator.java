@@ -593,6 +593,25 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
+     * A method called just before the registration of datasets in application server.
+     * <p>
+     * Subclasses can override and implement their own handling logic.
+     */
+    public void didPreRegistration(DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+    {
+    }
+    
+    /**
+     * A method called just after the successful registration of datasets in application server.
+     * <p>
+     * Subclasses can override and implement their own handling logic.
+     */
+    public void didPostRegistration(DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+    {
+    }
+    
+    
+    /**
      * A method called when there is an error in one of the secondary transactions.
      * <p>
      * Subclasses can override and implement their own handling logic.

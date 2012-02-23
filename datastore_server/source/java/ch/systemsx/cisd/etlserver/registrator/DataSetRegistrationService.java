@@ -26,8 +26,6 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
@@ -49,7 +47,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationService<T extends DataSetInformation> implements
-        IDataSetRegistrationService
+        IDataSetRegistrationService, DataSetStorageAlgorithmRunner.IPrePostRegistrationHook<T>
 {
     private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
 
@@ -274,6 +272,17 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didCommitTransaction(this, transaction);
     }
 
+    public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
+    {
+        registrator.didPreRegistration(this, transaction);
+    }
+
+    public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
+    {
+        registrator.didPostRegistration(this, transaction);
+    }
+    
+    
     public void didEncounterSecondaryTransactionErrors(
             DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)

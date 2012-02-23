@@ -627,7 +627,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             }
 
             DataSetStorageAlgorithmRunner<T> runner =
-                    new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent, rollbackStack, registrationService.getDssRegistrationLog(), openBisService);
+                    new DataSetStorageAlgorithmRunner<T>(algorithms, parent, rollbackStack, registrationService.getDssRegistrationLog(), openBisService, registrationService);
            
             boolean someDataSetsRegistered = runner.prepareAndRunStorageAlgorithms();
 

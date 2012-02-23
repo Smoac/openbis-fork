@@ -221,11 +221,13 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, null);
     }
 
-    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath, HashMap<String, String> override)
+    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
+            HashMap<String, String> override)
     {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, override);
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null,
+                override);
     }
-    
+
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
             String validationScriptPath)
     {
@@ -246,7 +248,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         threadProperties.setProperty(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
         if (null != validationScriptPropertyOrNull)
         {
-            threadProperties.setProperty(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
+            threadProperties.setProperty(
+                    ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
                     validationScriptPropertyOrNull);
         }
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.STAGING_DIR,
@@ -258,7 +261,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         if (overrideOrNull != null)
         {
-            for (String key: overrideOrNull.keySet())
+            for (String key : overrideOrNull.keySet())
             {
                 threadProperties.setProperty(key, overrideOrNull.get(key));
             }
@@ -492,11 +495,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         }
 
         @Override
-        protected void invokeCommitTransactionFunction(PyFunction function,
+        protected void invokeServiceTransactionFunction(PyFunction function,
                 DataSetRegistrationService<DataSetInformation> service,
                 DataSetRegistrationTransaction<DataSetInformation> transaction)
         {
-            super.invokeCommitTransactionFunction(function, service, transaction);
+            super.invokeServiceTransactionFunction(function, service, transaction);
 
             PythonInterpreter interpreter =
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
@@ -543,8 +546,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         private final boolean shouldRegistrationFail;
 
         public TestDataRegistrationService(
-                JythonTopLevelDataSetHandler<DataSetInformation> registrator, DataSetFile aDataSetFile,
-                DataSetInformation userProvidedDataSetInformationOrNull,
+                JythonTopLevelDataSetHandler<DataSetInformation> registrator,
+                DataSetFile aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 PythonInterpreter interpreter, boolean shouldRegistrationFail,
                 TopLevelDataSetRegistratorGlobalState globalState)
