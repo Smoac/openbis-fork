@@ -46,14 +46,12 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.common.utilities.IPredicate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -220,20 +218,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 public boolean execute(Exception arg)
                 {
-                    PyException pyException = (PyException)arg;
+                    PyException pyException = (PyException) arg;
                     IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
                     FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
                     return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
                 }
             };
         testCases.add(testCase);
-        
-        
+
         testCase = new TestCaseParameters("Test for registration context in hook methods.");
         testCase.dropboxScriptPath = "testcase-registration-context.py";
         testCases.add(testCase);
-        
-
 
         // TODO: Add more scenarios:
         // - Test move to error
@@ -424,7 +419,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 if (testCase.exceptionAcceptor != null)
                 {
-                    assertTrue("Exception "+exception+ "was not accepted by validator", testCase.exceptionAcceptor.execute(exception));
+                    assertTrue("Exception " + exception + "was not accepted by validator",
+                            testCase.exceptionAcceptor.execute(exception));
                 }
             }
             context.assertIsSatisfied();
