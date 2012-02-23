@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.coreplugin;
+package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -28,8 +28,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.MockLogger;
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
  * @author Kaloyan Enimanev
@@ -39,7 +41,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
     private final String CORE_PLUGINS_DIR = "../openbis/resource/test-data/core-plugins";
 
     @Test
-    public void testWithRealFolder() throws IOException
+    public void testWithRealFolderScannerTypeAS() throws IOException
     {
         MockLogger logger = new MockLogger();
         File pluginsDir = preparePluginsDirectory(CORE_PLUGINS_DIR);
@@ -60,6 +62,35 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         assertEquals("plugin-Y", plugin.getName());
         assertEquals(3, plugin.getVersion());
         assertEquals(null, getMasterDataScript(plugin, scanner));
+
+        String output =
+                String.format(
+                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n"
+                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. Plugin version must be non-negative integer numbers.\n",
+                        pluginsDir.getAbsolutePath(), pluginsDir.getAbsolutePath());
+        assertEquals(output, logger.toString());
+    }
+
+    @Test
+    public void testWithRealFolderScannerTypeDSS() throws IOException
+    {
+        MockLogger logger = new MockLogger();
+        File pluginsDir = preparePluginsDirectory(CORE_PLUGINS_DIR);
+        CorePluginScanner scanner =
+                new CorePluginScanner(pluginsDir.getAbsolutePath(), ScannerType.DSS, logger);
+
+        List<CorePlugin> plugins = scanner.scanForPlugins();
+        Collections.sort(plugins);
+
+        assertEquals(2, plugins.size());
+
+        CorePlugin plugin = plugins.get(0);
+        assertEquals("plugin-X", plugin.getName());
+        assertEquals(17, plugin.getVersion());
+
+        plugin = plugins.get(1);
+        assertEquals("plugin-Y", plugin.getName());
+        assertEquals(2, plugin.getVersion());
 
         String output =
                 String.format(

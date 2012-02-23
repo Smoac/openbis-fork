@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.coreplugin;
+package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 

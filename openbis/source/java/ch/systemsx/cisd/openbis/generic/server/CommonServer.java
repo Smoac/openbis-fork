@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -176,6 +175,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;

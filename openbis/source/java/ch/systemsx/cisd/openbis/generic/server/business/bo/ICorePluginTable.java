@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 
 /**
  * @author Kaloyan Enimanev

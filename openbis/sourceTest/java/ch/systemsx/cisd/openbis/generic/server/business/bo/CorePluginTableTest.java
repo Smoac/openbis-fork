@@ -29,11 +29,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 
 /**

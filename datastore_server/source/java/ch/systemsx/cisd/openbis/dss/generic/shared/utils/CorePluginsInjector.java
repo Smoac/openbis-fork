@@ -42,8 +42,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 
 /**
  * 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.coreplugin;
+package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,7 +120,11 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             if (isValidVersionDir(versionDir))
             {
                 CorePlugin pluginVersion = createPlugin(pluginRootDir, versionDir);
-                allVersionsForPlugin.add(pluginVersion);
+                File folder = getFolderForPlugin(pluginVersion);
+                if (folder.exists())
+                {
+                    allVersionsForPlugin.add(pluginVersion);
+                }
             } else
             {
                 log.log(LogLevel.WARN, String.format("Invalid version '%s' for plugin '%s'. "

@@ -25,8 +25,9 @@ import org.springframework.beans.factory.InitializingBean;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
