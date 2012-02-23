@@ -64,7 +64,7 @@ public class AbundanceHandlerTest extends AssertJUnit
 
     private static final double ABUNDANCE = 1234.5;
 
-    private static final String PARAMETER_NAME = "abc12";
+    private static final String PARAMETER_NAME = "ABC12";
 
     private static final SampleIdentifier SAMPLE_IDENTIFER = new SampleIdentifier(GROUP_IDENTIFIER,
             PARAMETER_NAME);
