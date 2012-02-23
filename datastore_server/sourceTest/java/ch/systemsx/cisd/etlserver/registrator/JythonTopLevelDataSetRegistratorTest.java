@@ -244,11 +244,21 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         "Postregistration hook error should not prevent succesfull registration.");
         testCase.dropboxScriptPath = "testcase-postregistration-hook-failed.py";
         testCases.add(testCase);
-        
-        // TODO: Add more scenarios:
-        // - Test move to error
-        // - Test moving of the original file in case of validation error
-        // - Test other error scenarios
+
+        testCase = new TestCaseParameters("Postregistration hook has wrong signature.");
+        testCase.dropboxScriptPath = "testcase-postregistration-hook-wrong-signature.py";
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.exceptionAcceptor = new IPredicate<Exception>()
+            {
+                public boolean execute(Exception arg)
+                {
+                    System.out.println(arg);
+                    System.out.println(arg.getMessage());
+                    return arg.getMessage().contains("wrong number of arguments");
+                }
+            };
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
+        testCases.add(testCase);
 
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
@@ -306,6 +316,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
          */
         protected boolean shouldValidationFail = false;
 
+        /**
+         * Specifies how far we expect the registration process to go.
+         */
         protected FailurePoint failurePoint = null;
 
         /**
@@ -335,10 +348,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             return title;
         }
 
-        //add more when necessary
+        // add more when necessary
         public enum FailurePoint
         {
-            AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION
+            AT_THE_BEGINNING, AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION, AFTER_GET_EXPERIMENT
         }
     }
 
@@ -358,6 +371,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             createHandler(properties, false, true);
         }
+
         if (testCase.createDataSetDelegate != null)
         {
             testCase.createDataSetDelegate.execute();
@@ -376,8 +390,19 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     boolean broken = false;
 
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE));
+                    // this is to initialize openBis
+                    //allowing(openBisService).getClass();
+
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.AT_THE_BEGINNING)
+                    {
+                        broken = true;
+                    }
+
+                    if (false == broken)
+                    {
+                        one(openBisService).createDataSetCode();
+                        will(returnValue(DATA_SET_CODE));
+                    }
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AFTER_CREATE_DATA_SET_CODE)
                     {
@@ -392,6 +417,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         will(returnValue(experiment));
                     }
 
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT)
+                    {
+                        broken = true;
+                    }
+                    
                     if (false == broken)
                     {
                         one(dataSetValidator).assertValidDataSet(
@@ -524,7 +554,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
         } else if (testCase.shouldRegistrationFail)
         {
-            assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
             assertFalse(theHandler.didRollbackServiceFunctionRun);
             assertTrue(theHandler.didTransactionRollbackHappen);
             assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
@@ -596,7 +625,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
 
         // These do not get called when the caller herself invokes a rollback
@@ -1047,7 +1075,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertTrue(theHandler.didRollbackServiceFunctionRun);
         context.assertIsSatisfied();
     }
@@ -1112,7 +1139,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(didServiceRollbackHappen);
         assertFalse(theHandler.didTransactionRollbackHappen);
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
 
         context.assertIsSatisfied();

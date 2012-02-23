@@ -386,8 +386,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         protected boolean didRollbackServiceFunctionRun = false;
 
-        protected boolean didRollbackDataSetRegistrationFunctionRun = false;
-
         protected boolean didTransactionRollbackHappen = false;
 
         protected boolean didRollbackTransactionFunctionRunHappen = false;
@@ -467,21 +465,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackServiceFunctionRun =
-                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
-        }
-
-        @Override
-        protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
-                DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-        {
-            super.invokeRollbackDataSetRegistrationFunction(function, service,
-                    registrationAlgorithm, throwable);
-
-            PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
-                            .getInterpreter();
-            didRollbackDataSetRegistrationFunctionRun =
                     interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
         }
 

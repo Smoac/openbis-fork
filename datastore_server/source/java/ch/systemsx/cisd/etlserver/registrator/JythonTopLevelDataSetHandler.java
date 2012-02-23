@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.python.core.Py;
+import org.python.core.PyBaseCode;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
@@ -43,43 +45,58 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         AbstractOmniscientTopLevelDataSetRegistrator<T>
 {
-    /**
-     * The name of the function to define to hook into the service rollback mechanism.
-     */
-    private static final String ROLLBACK_SERVICE_FUNCTION_NAME = "rollback_service";
+    private enum JythonHookFunction
+    {
+        /**
+         * The name of the function to define to hook into the service rollback mechanism.
+         */
+        ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),
 
-    /**
-     * The name of the function to define to hook into the transaction rollback mechanism.
-     */
-    private static final String ROLLBACK_TRANSACTION_FUNCTION_NAME = "rollback_transaction";
+        /**
+         * The name of the function to define to hook into the transaction rollback mechanism.
+         */
+        ROLLBACK_TRANSACTION_FUNCTION_NAME("rollback_transaction", 4),
 
-    /**
-     * The name of the function called after successful transaction commit.
-     */
-    private static final String COMMIT_TRANSACTION_FUNCTION_NAME = "commit_transaction";
+        /**
+         * The name of the function called after successful transaction commit.
+         */
+        COMMIT_TRANSACTION_FUNCTION_NAME("commit_transaction", 2),
 
-    /**
-     * The name of the function called after successful transaction commit.
-     */
-    private static final String POST_STORAGE_FUNCTION_NAME = "post_storage";
+        /**
+         * The name of the function called after successful transaction commit.
+         */
+        POST_STORAGE_FUNCTION_NAME("post_storage", 2),
 
-    /**
-     * The name of the function called just before registration of datasets in application server.
-     */
-    private static final String PRE_REGISTRATION_FUNCTION_NAME = "pre_metadata_registration";
+        /**
+         * The name of the function called just before registration of datasets in application
+         * server.
+         */
+        PRE_REGISTRATION_FUNCTION_NAME("pre_metadata_registration", 2),
 
-    /**
-     * The name of the function called just after successful registration of datasets in application
-     * server.
-     */
-    private static final String POST_REGISTRATION_FUNCTION_NAME = "post_metadata_registration";
+        /**
+         * The name of the function called just after successful registration of datasets in
+         * application server.
+         */
+        POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 2),
 
-    /**
-     * The name of the function called when secondary transactions, DynamicTransactionQuery objects,
-     * fail.
-     */
-    private static final String DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME =
-            "did_encounter_secondary_transaction_errors";
+        /**
+         * The name of the function called when secondary transactions, DynamicTransactionQuery
+         * objects, fail.
+         */
+        DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME(
+                "did_encounter_secondary_transaction_errors", 3);
+
+        String name;
+
+        int argCount;
+
+        private JythonHookFunction(String name, int argCount)
+        {
+            this.name = name;
+            this.argCount = argCount;
+
+        }
+    }
 
     private static final String FACTORY_VARIABLE_NAME = "factory";
 
@@ -144,6 +161,30 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
+
+        for (JythonHookFunction function : JythonHookFunction.values())
+        {
+            PyFunction py = tryJythonFunction(interpreter, function);
+            if (py != null)
+            {
+                if (py.func_code instanceof PyBaseCode)
+                {
+                    int co_argcount = ((PyBaseCode) py.func_code).co_argcount;
+                    if (co_argcount != function.argCount)
+                    {
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "The function %s in %s has wrong number of arguments(%s instead of %s).",
+                                        function.name, scriptFile.getName(), co_argcount,
+                                        function.argCount));
+                    }
+                } else
+                {
+                    System.err
+                            .println("Possibly incorrect python code. Can't verify script correctness.");
+                }
+            }
+        }
     }
 
     /**
@@ -182,7 +223,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function = tryJythonFunction(interpreter, ROLLBACK_SERVICE_FUNCTION_NAME);
+        PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
         if (null != function)
         {
             invokeRollbackServiceFunction(function, service, throwable);
@@ -239,7 +280,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function = tryJythonFunction(interpreter, ROLLBACK_TRANSACTION_FUNCTION_NAME);
+        PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
         if (null != function)
         {
             invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
@@ -247,7 +288,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         {
             // No Rollback transaction function was called, see if the rollback service function was
             // defined, and call it.
-            function = tryJythonFunction(interpreter, ROLLBACK_SERVICE_FUNCTION_NAME);
+            function = tryJythonFunction(interpreter, JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
             if (null != function)
             {
                 invokeRollbackServiceFunction(function, service, ex);
@@ -260,13 +301,13 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
 
-        PyFunction function = tryJythonFunction(interpreter, POST_STORAGE_FUNCTION_NAME);
+        PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
         } else
         {
-            function = tryJythonFunction(interpreter, COMMIT_TRANSACTION_FUNCTION_NAME);
+            function = tryJythonFunction(interpreter, JythonHookFunction.COMMIT_TRANSACTION_FUNCTION_NAME);
             if (null != function)
             {
                 invokeServiceTransactionFunction(function, service, transaction);
@@ -278,7 +319,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function = tryJythonFunction(interpreter, PRE_REGISTRATION_FUNCTION_NAME);
+        PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.PRE_REGISTRATION_FUNCTION_NAME);
+
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
@@ -289,7 +331,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function = tryJythonFunction(interpreter, POST_REGISTRATION_FUNCTION_NAME);
+        PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
@@ -303,7 +345,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
                 tryJythonFunction(interpreter,
-                        DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
+                        JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
         if (null != function)
         {
             invokeDidEncounterSecondaryTransactionErrorsFunction(function, service, transaction,
@@ -311,11 +353,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    private PyFunction tryJythonFunction(PythonInterpreter interpreter, String functionName)
+    private PyFunction tryJythonFunction(PythonInterpreter interpreter,
+            JythonHookFunction functionDefinition)
     {
         try
         {
-            PyFunction function = interpreter.get(functionName, PyFunction.class);
+            PyFunction function = interpreter.get(functionDefinition.name, PyFunction.class);
             return function;
         } catch (Exception e)
         {
@@ -342,17 +385,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         function.__call__(Py.java2py(service), Py.java2py(transaction),
                 Py.java2py(algorithmRunner), Py.java2py(throwable));
-    }
-
-    /**
-     * Pulled out as a separate method so tests can hook in.
-     */
-    protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
-            DataSetRegistrationService<T> service,
-            DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-    {
-        function.__call__(Py.java2py(service), Py.java2py(registrationAlgorithm),
-                Py.java2py(throwable));
     }
 
     /**
