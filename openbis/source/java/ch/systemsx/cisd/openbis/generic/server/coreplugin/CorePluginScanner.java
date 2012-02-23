@@ -72,8 +72,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         this(pluginsFolderName, scannerType, DEFAULT_LOGGER);
     }
 
-    // testing only
-    CorePluginScanner(String pluginsFolderName, ScannerType scannerType, ISimpleLogger logger)
+    public CorePluginScanner(String pluginsFolderName, ScannerType scannerType, ISimpleLogger logger)
     {
         this.pluginsFolder = new File(pluginsFolderName);
         this.scannerType = scannerType;
