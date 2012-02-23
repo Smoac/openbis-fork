@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -103,6 +104,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(hibernateTemplate);
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
+        scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(), DataPE.class,
+                new ArrayList<DataPE>(sample.getDatasets()));
     }
 
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
