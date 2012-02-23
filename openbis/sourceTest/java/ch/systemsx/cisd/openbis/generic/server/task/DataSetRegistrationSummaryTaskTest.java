@@ -175,8 +175,8 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         EMailContentChecker checker =
                 prepareForSendingEMail("New data sets registered between "
                         + "2012-01-02 and 2012-01-04", "Dear user\n" + "\n"
-                        + "This is a report from openBIS about data sets registered between "
-                        + "2012-01-02 and 2012-01-04. " + "The data sets are grouped by type.\n"
+                        + "This report summarizes data sets registered in openBIS between "
+                        + "2012-01-02 and 2012-01-04.\n\n" + "The data sets are grouped by type.\n"
                         + "\n" + "\n" + "\n" + "Regards,\n" + "openBIS", "a@bc.de", "x@y.z");
 
         createTask(properties).execute();
@@ -241,8 +241,8 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         EMailContentChecker checker =
                 prepareForSendingEMail("New data sets registered between "
                         + "2012-01-01 and 2012-01-04", "Dear user\n\n"
-                        + "This is a report from openBIS about data sets registered between "
-                        + "2012-01-01 and 2012-01-04. " + "The data sets are grouped by type.\n\n"
+                        + "This report summarizes data sets registered in openBIS between "
+                        + "2012-01-01 and 2012-01-04.\n\n" + "The data sets are grouped by type.\n\n"
                         + "MY-TYPE: Total number: 5. Number of new data sets: 4\n"
                         + "\tds1, ds2, ds3, ds4\n"
                         + "YOUR-TYPE: Total number: 5. Number of new data sets: 5\n"
@@ -294,8 +294,8 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         EMailContentChecker checker =
                 prepareForSendingEMail("New data sets registered between "
                         + "2011-12-04 and 2012-01-04", "Dear user\n\n"
-                        + "This is a report from openBIS about data sets registered between "
-                        + "2011-12-04 and 2012-01-04. " + "The data sets are grouped by type.\n\n"
+                        + "This report summarizes data sets registered in openBIS between "
+                        + "2011-12-04 and 2012-01-04.\n\n" + "The data sets are grouped by type.\n\n"
                         + "MY-TYPE: Total number: 5. Number of new data sets: 3\n"
                         + "\tds1: ALPHA = 123, BETA = 456\n" + "\tds2: ALPHA = 42\n" + "\tds3\n"
                         + "YOUR-TYPE: Total number: 0. No new data sets.\n" + "\n" + "\n"

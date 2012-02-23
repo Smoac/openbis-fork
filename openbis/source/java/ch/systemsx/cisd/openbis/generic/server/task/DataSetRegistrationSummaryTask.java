@@ -96,7 +96,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             + "between ${from-date} and ${until-date}");
 
     private static final Template REPORT_TEMPLATE = new Template("Dear user\n\n"
-            + "This report summarizes data sets registered in openBIS"
+            + "This report summarizes data sets registered in openBIS "
             + "between ${from-date} and ${until-date}.\n\n${configured-content}\n\n"
             + "${data-sets}\n\nRegards,\nopenBIS");
 
