@@ -370,7 +370,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     protected void invokeTransactionFunctionWithContext(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
-        function.__call__(Py.java2py(transaction), Py.java2py(null));
+        function.__call__(Py.java2py(transaction), Py.java2py(transaction.getRegistrationContext()));
     }
 
     /**

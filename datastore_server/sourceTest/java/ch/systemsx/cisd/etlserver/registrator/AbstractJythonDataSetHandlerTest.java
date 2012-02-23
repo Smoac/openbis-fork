@@ -397,11 +397,13 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         protected boolean didSecondaryTransactionErrorNotificationHappen = false;
 
         protected boolean didPostRegistrationFunctionRunHappen = false;
-        
+
         protected boolean didPreRegistrationFunctionRunHappen = false;
-     
+
         protected boolean didPostStorageFunctionRunHappen = false;
-        
+
+        protected String registrationContextError;
+
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
@@ -497,7 +499,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackTransactionFunctionRunHappen =
-            readBoolean(interpreter, "didTransactionRollbackHappen");
+                    readBoolean(interpreter, "didTransactionRollbackHappen");
         }
 
         @Override
@@ -511,7 +513,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didCommitTransactionFunctionRunHappen =
-            readBoolean(interpreter, "didTransactionCommitHappen");
+                    readBoolean(interpreter, "didTransactionCommitHappen");
         }
 
         @Override
@@ -523,26 +525,30 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             PythonInterpreter interpreter =
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
-         
+
             didPreRegistrationFunctionRunHappen =
-                    readBoolean(interpreter,"didPreRegistrationFunctionRunHappen");
-            
+                    readBoolean(interpreter, "didPreRegistrationFunctionRunHappen");
+
             didPostRegistrationFunctionRunHappen =
                     readBoolean(interpreter, "didPostRegistrationFunctionRunHappen");
-            
+
             didPostStorageFunctionRunHappen =
-                    readBoolean(interpreter,"didPostStorageFunctionRunHappen");
-            
+                    readBoolean(interpreter, "didPostStorageFunctionRunHappen");
+
+            registrationContextError = interpreter.get("contextTestFailed", String.class);
         }
 
-        //reads boolean or false if null from interpreter
-        private boolean readBoolean(PythonInterpreter interpreter, String variable)
+        /**
+         * reads boolean or false if null from interpreter
+         */
+        protected boolean readBoolean(PythonInterpreter interpreter, String variable)
         {
             Boolean retVal = interpreter.get(variable, Boolean.class);
-            if (retVal == null) return false;
+            if (retVal == null)
+                return false;
             return retVal;
         }
-        
+
         @Override
         public void didEncounterSecondaryTransactionErrors(
                 DataSetRegistrationService<DataSetInformation> service,

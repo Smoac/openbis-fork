@@ -1,10 +1,4 @@
-def rollback_transaction(service, transaction, algorithmRunner, throwable):
-	global didTransactionRollbackHappen
-	didTransactionRollbackHappen = True
-
-def commit_transaction(service, transaction):
-	global didTransactionCommitHappen
-	didTransactionCommitHappen = True
+execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/all-hooks.py")
 	
 transaction = service.transaction(incoming, factory)
 dataSet = transaction.createNewDataSet()

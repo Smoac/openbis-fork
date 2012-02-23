@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.common.utilities.IPredicate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
@@ -208,14 +209,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase =
                 new TestCaseParameters(
                         "The simple validation without post_storage function defined.");
-        testCase.dropboxScriptPath = "simple-transaction-without-post-storage.py";
+        testCase.dropboxScriptPath = "testcase-without-post-storage.py";
         testCase.postStorageFunctionNotDefinedInADropbox = true;
         testCases.add(testCase);
 
         testCase = new TestCaseParameters("Dataset file not found.");
         testCase.dropboxScriptPath = "file-not-found.py";
-        testCase.shouldNotFindDataSetFile = true;
+        testCase.shouldThrowJythonException = true;
+        testCase.exceptionAcceptor = new IPredicate<Exception>()
+            {
+                public boolean execute(Exception arg)
+                {
+                    PyException pyException = (PyException)arg;
+                    IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
+                    FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
+                    return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
+                }
+            };
         testCases.add(testCase);
+        
+        
+        testCase = new TestCaseParameters("Test for registration context in hook methods.");
+        testCase.dropboxScriptPath = "testcase-registration-context.py";
+        testCases.add(testCase);
+        
+
 
         // TODO: Add more scenarios:
         // - Test move to error
@@ -251,7 +269,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         /**
          * The dropbox script file that should be used for this test case
          */
-        protected String dropboxScriptPath = "simple-transaction.py";
+        protected String dropboxScriptPath = "simple-testcase.py";
 
         /**
          * Specifies what properties should be overriden for this test case.
@@ -279,9 +297,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected boolean shouldValidationFail = false;
 
         /**
-         * True if the dropbox script should not find the specified datasetFile
+         * True if the dropbox script should fail at the original call to jython script
          */
-        protected boolean shouldNotFindDataSetFile = false;
+        protected boolean shouldThrowJythonException = false;
+
+        /**
+         * Must return true for the exception from the dropbox, when one is caught.
+         */
+        protected IPredicate<Exception> exceptionAcceptor = null;
 
         /**
          * True if commit_transaction function is defined in a jython dropbox script file, and
@@ -338,7 +361,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    if (testCase.shouldNotFindDataSetFile)
+                    if (testCase.shouldThrowJythonException)
                     {
                         broken = true;
                     }
@@ -391,17 +414,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             });
 
-        if (testCase.shouldNotFindDataSetFile)
+        if (testCase.shouldThrowJythonException)
         {
             try
             {
                 handler.handle(markerFile);
                 fail("Expected a FileNotFound exception.");
-            } catch (PyException pyException)
+            } catch (Exception exception)
             {
-                IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
-                FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
-                assertTrue(ex.getMessage().startsWith("Neither '/non/existent/path' nor '"));
+                if (testCase.exceptionAcceptor != null)
+                {
+                    assertTrue("Exception "+exception+ "was not accepted by validator", testCase.exceptionAcceptor.execute(exception));
+                }
             }
             context.assertIsSatisfied();
             return;
@@ -470,6 +494,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
 
+        assertNull("Registration context error occured: " + theHandler.registrationContextError,
+                theHandler.registrationContextError);
+
         if (testCase.shouldValidationFail)
         {
         } else if (testCase.shouldRegistrationFail)
@@ -515,7 +542,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("simple-transaction-rollback.py");
+                createThreadPropertiesRelativeToScriptsFolder("testcase-rollback.py");
         createHandler(properties, true, false);
         createData();
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
