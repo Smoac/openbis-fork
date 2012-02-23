@@ -70,7 +70,7 @@ cd ..
 unzip -q ../datastore_server-*$VER*
 for file in ../datastore_server_plugin-*$VER*; do 
 	if [ -f $file ]; then 
-		unzip -q -d datastore_server $file;
+		unzip -q $file;
 	fi
 done
 cd datastore_server

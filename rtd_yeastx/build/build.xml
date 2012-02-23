@@ -10,7 +10,7 @@
 	<target name="compile" depends="build-common.compile, clean" />
 
 	<target name="dist" depends="jar" >
-		<copy todir="${dist.lib}">
+		<copy todir="${dist.plugin.lib}">
 			<fileset dir="${lib}/jfreechart" >
 				<include name="*.jar"/>
 			</fileset>
