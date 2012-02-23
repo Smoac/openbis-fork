@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -204,6 +205,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.shouldValidationFail = true;
         testCases.add(testCase);
 
+        testCase =
+                new TestCaseParameters(
+                        "The simple validation without post_storage function defined.");
+        testCase.dropboxScriptPath = "simple-transaction-without-post-storage.py";
+        testCase.postStorageFunctionNotDefinedInADropbox = true;
+        testCases.add(testCase);
+
+        testCase = new TestCaseParameters("Dataset file not found.");
+        testCase.dropboxScriptPath = "file-not-found.py";
+        testCase.shouldNotFindDataSetFile = true;
+        testCases.add(testCase);
+
         // TODO: Add more scenarios:
         // - Test move to error
         // - Test moving of the original file in case of validation error
@@ -230,18 +243,51 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
      */
     private static class TestCaseParameters
     {
-
+        /**
+         * short description of the test. Will be presented in the test results view
+         */
         protected String title;
 
+        /**
+         * The dropbox script file that should be used for this test case
+         */
+        protected String dropboxScriptPath = "simple-transaction.py";
+
+        /**
+         * Specifies what properties should be overriden for this test case.
+         */
         protected HashMap<String, String> overrideProperties;
 
+        /**
+         * Describe what should happen with incoming data after execution of this test case.
+         */
         protected String incomingDataSetAfterRegistration = "deleted";
 
+        /**
+         * Specifies the custom creator of datasets instead of createDataWithOneSubDataSet.
+         */
         protected IDelegatedAction createDataSetDelegate = null;
 
+        /**
+         * True if the registration of metadata should fail
+         */
         protected boolean shouldRegistrationFail = false;
 
+        /**
+         * True if assertValidDataSet method should return validation error on dataset
+         */
         protected boolean shouldValidationFail = false;
+
+        /**
+         * True if the dropbox script should not find the specified datasetFile
+         */
+        protected boolean shouldNotFindDataSetFile = false;
+
+        /**
+         * True if commit_transaction function is defined in a jython dropbox script file, and
+         * post_storage function is not.
+         */
+        protected boolean postStorageFunctionNotDefinedInADropbox = false;
 
         private TestCaseParameters(String title)
         {
@@ -259,9 +305,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public void testSimpleTransaction(final TestCaseParameters testCase)
     {
         setUpHomeDataBaseExpectations();
+
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py",
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
                         testCase.overrideProperties);
+
         if (testCase.shouldRegistrationFail || testCase.shouldValidationFail)
         {
             createHandler(properties, false, false);
@@ -289,21 +337,34 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
-                    atLeast(1).of(openBisService).tryToGetExperiment(
-                            new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                    .createIdentifier());
-                    will(returnValue(experiment));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-
-                    if (testCase.shouldValidationFail)
+                    if (testCase.shouldNotFindDataSetFile)
                     {
-                        Exception innerException = new Exception();
-                        will(throwException(new UserFailureException("Data set of type '"
-                                + DATA_SET_CODE + "' is invalid ", innerException)));
-
                         broken = true;
+                    }
+
+                    if (false == broken)
+                    {
+                        atLeast(1).of(openBisService).tryToGetExperiment(
+                                new ExperimentIdentifierFactory(experiment.getIdentifier())
+                                        .createIdentifier());
+                        will(returnValue(experiment));
+                    }
+
+                    if (false == broken)
+                    {
+                        one(dataSetValidator).assertValidDataSet(
+                                DATA_SET_TYPE,
+                                new File(new File(stagingDirectory, DATA_SET_CODE),
+                                        "sub_data_set_1"));
+
+                        if (testCase.shouldValidationFail)
+                        {
+                            Exception innerException = new Exception();
+                            will(throwException(new UserFailureException("Data set of type '"
+                                    + DATA_SET_CODE + "' is invalid ", innerException)));
+                            broken = true;
+                        }
                     }
 
                     if (false == broken)
@@ -330,13 +391,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             });
 
-        handler.handle(markerFile);
+        if (testCase.shouldNotFindDataSetFile)
+        {
+            try
+            {
+                handler.handle(markerFile);
+                fail("Expected a FileNotFound exception.");
+            } catch (PyException pyException)
+            {
+                IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
+                FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
+                assertTrue(ex.getMessage().startsWith("Neither '/non/existent/path' nor '"));
+            }
+            context.assertIsSatisfied();
+            return;
+        } else
+        {
+            handler.handle(markerFile);
+        }
+
         checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 
-        if (!testCase.shouldValidationFail)
+        if (false == testCase.shouldValidationFail)
         {
-            // the incoming dir in storage processor is created at the beginning of transaction - so
-            // after the successful registration
+            // the incoming dir in storage processor is created at the beginning of transaction
+            // so after the successful validation
             assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         }
 
@@ -345,23 +424,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         assertEquals(expectedCommitCount, MockStorageProcessor.instance.calledCommitCount);
 
+        assertJythonHooksExecuted(testCase);
+
         if (testCase.shouldValidationFail)
         {
         } else if (testCase.shouldRegistrationFail)
         {
             assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
-
-            TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-            assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
-            assertFalse(theHandler.didRollbackServiceFunctionRun);
-            assertTrue(theHandler.didTransactionRollbackHappen);
-            assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
         } else
         {
-            TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-            assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
-            assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
-
             assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
             assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations()
                     .size());
@@ -395,34 +466,48 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
+    private void assertJythonHooksExecuted(final TestCaseParameters testCase)
+    {
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+
+        if (testCase.shouldValidationFail)
+        {
+        } else if (testCase.shouldRegistrationFail)
+        {
+            assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
+            assertFalse(theHandler.didRollbackServiceFunctionRun);
+            assertTrue(theHandler.didTransactionRollbackHappen);
+            assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
+
+            assertTrue(theHandler.didPreRegistrationFunctionRunHappen);
+            assertFalse(theHandler.didPostRegistrationFunctionRunHappen);
+
+            assertFalse(theHandler.didCommitTransactionFunctionRunHappen);
+            assertFalse(theHandler.didPostStorageFunctionRunHappen);
+
+        } else
+        {
+            assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+
+            assertTrue(theHandler.didPreRegistrationFunctionRunHappen);
+            assertTrue(theHandler.didPostRegistrationFunctionRunHappen);
+
+            if (testCase.postStorageFunctionNotDefinedInADropbox)
+            {
+                assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
+                assertFalse(theHandler.didPostStorageFunctionRunHappen);
+            } else
+            {
+                assertFalse(theHandler.didCommitTransactionFunctionRunHappen);
+                assertTrue(theHandler.didPostStorageFunctionRunHappen);
+            }
+        }
+    }
+
     @Test
     public void testFileNotFound()
     {
-        setUpHomeDataBaseExpectations();
-        Properties properties = createThreadPropertiesRelativeToScriptsFolder("file-not-found.py");
-        createHandler(properties, false, true);
-        createData();
 
-        context.checking(new Expectations()
-            {
-                {
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE));
-                }
-            });
-
-        try
-        {
-            handler.handle(markerFile);
-            fail("Expected a FileNotFound exception.");
-        } catch (PyException pyException)
-        {
-            IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
-            FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
-            assertTrue(ex.getMessage().startsWith("Neither '/non/existent/path' nor '"));
-        }
-
-        context.assertIsSatisfied();
     }
 
     @Test

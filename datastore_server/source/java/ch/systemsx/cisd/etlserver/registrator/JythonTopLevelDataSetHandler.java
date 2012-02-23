@@ -263,7 +263,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PyFunction function = tryJythonFunction(interpreter, POST_STORAGE_FUNCTION_NAME);
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, transaction);
+            invokeTransactionFunctionWithContext(function, service, transaction);
         } else
         {
             function = tryJythonFunction(interpreter, COMMIT_TRANSACTION_FUNCTION_NAME);
@@ -281,7 +281,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PyFunction function = tryJythonFunction(interpreter, PRE_REGISTRATION_FUNCTION_NAME);
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, transaction);
+            invokeTransactionFunctionWithContext(function, service, transaction);
         }
     }
 
@@ -292,7 +292,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PyFunction function = tryJythonFunction(interpreter, POST_REGISTRATION_FUNCTION_NAME);
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, transaction);
+            invokeTransactionFunctionWithContext(function, service, transaction);
         }
     }
 
@@ -368,7 +368,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * Pulled out as a separate method so tests can hook in.
      */
     protected void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
         function.__call__(Py.java2py(transaction), Py.java2py(null));
     }
