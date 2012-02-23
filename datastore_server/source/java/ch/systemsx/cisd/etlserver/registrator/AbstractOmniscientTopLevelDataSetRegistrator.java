@@ -332,6 +332,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             incomingDataSetFile =
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
+            
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
                     public Boolean execute(boolean didOperationSucceed)
@@ -348,21 +349,24 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
+        //read from configuration prestaging parameter.
         DataSetRegistrationPreStagingBehavior preStagingUsage =
                 state.getGlobalState().getThreadParameters()
                         .getDataSetRegistrationPreStagingBehavior();
 
+        
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
             DataSetFile incoming = new DataSetFile(incomingDataSetFile);
             handle(incoming, null, new NoOpDelegate(), markerFileCleanupAction);
         } else
         {
-            // Make a hardlink copy of the file
+            // If we should the prestaging phase, we make a hardlink copy in prestaging area
             File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
 
             DataSetFile dsf = new DataSetFile(incomingDataSetFile, copyOfIncoming);
 
+            // For cleanup we use the postRegistrationCleanUpAction wich clears the prestaging area.
             PostRegistrationCleanUpAction cleanupAction =
                     new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
             handle(dsf, null, new NoOpDelegate(), cleanupAction);

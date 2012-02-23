@@ -237,12 +237,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         try
         {
-            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
-            {
-                String dataSetCode = storageAlgorithm.getDataSetInformation()
-                        .getDataSetCode();
-                openBISService.setStorageConfirmed(dataSetCode);
-            }
+            confirmStorageInApplicationServer();
 
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
@@ -260,6 +255,16 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         // STORAGECONFIRMED
 
+    }
+
+    private void confirmStorageInApplicationServer()
+    {
+        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        {
+            String dataSetCode = storageAlgorithm.getDataSetInformation()
+                    .getDataSetCode();
+            openBISService.setStorageConfirmed(dataSetCode);
+        }
     }
 
     private void logPreCommitMessage()

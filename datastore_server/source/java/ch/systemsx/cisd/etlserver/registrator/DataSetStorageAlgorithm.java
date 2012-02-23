@@ -440,10 +440,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
             transactionStoreData();
 
-            moveFilesFromStagingToStore();
+            moveFilesFromStagingToPrecommit();
         }
 
-        private void moveFilesFromStagingToStore()
+        private void moveFilesFromStagingToPrecommit()
         {
             File stagedStoredDataDirectory = transaction.getStoredDataDirectory();
             assert stagedStoredDataDirectory != null : "The folder that contains the stored data should not be null.";
