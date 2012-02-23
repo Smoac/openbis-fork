@@ -99,6 +99,7 @@
   <target name="make-plugin-dist">
 		<move file="${plugin-jar.file}" tofile="${dist.plugin.lib}/datastore_server_plugin${variant}.jar" />
   	<antcall target="copy-dss-core-plugins">
+      <param name="destination-path" value="${dist.plugin}" />
       <param name="project-path" value="" />
   	</antcall>
 		<property name="dist.file"
@@ -108,7 +109,7 @@
   </target>
 	
   <target name="copy-dss-core-plugins">
-  	<copy todir="${dist.plugin}/core-plugins">
+  	<copy todir="${destination-path}/core-plugins">
   		<fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
   			<include name="*/*/dss/**/*"/>
   		</fileset>
