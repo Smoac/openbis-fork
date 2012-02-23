@@ -98,15 +98,21 @@
 	
   <target name="make-plugin-dist">
 		<move file="${plugin-jar.file}" tofile="${dist.plugin.lib}/datastore_server_plugin${variant}.jar" />
-  	<copy todir="${dist.plugin}/core-plugins">
-  		<fileset dir="${core-plugins.folder}" erroronmissingdir="false">
-  			<include name="*/*/dss/**/*"/>
-  		</fileset>
-  	</copy>
+  	<antcall target="copy-dss-core-plugins">
+      <param name="project-path" value="" />
+  	</antcall>
 		<property name="dist.file"
 		          value="${dist}/datastore_server_plugin${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist.plugin}" destfile="${dist.file}" excludes="*.zip *.jar"/>
 		<delete dir="${dist.plugin}"/>
+  </target>
+	
+  <target name="copy-dss-core-plugins">
+  	<copy todir="${dist.plugin}/core-plugins">
+  		<fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
+  			<include name="*/*/dss/**/*"/>
+  		</fileset>
+  	</copy>
   </target>
 
 	<target name="dist">
