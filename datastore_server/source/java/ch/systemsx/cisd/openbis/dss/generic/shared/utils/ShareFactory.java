@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class ShareFactory
     
     private boolean withdrawShare;
     
-    private Set<String> experimentIdentifiers;
+    private Set<String> experimentIdentifiers = Collections.emptySet();
 
     Share createShare(File shareRoot, IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
     {
