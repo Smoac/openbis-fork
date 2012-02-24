@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
@@ -29,13 +30,15 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Represents a share of a segmented store. Holds the root directory of the share as well as
- * the data sets. It is able to calculate the free disk space.
- *
+ * Represents a share of a segmented store. Holds the root directory of the share as well as the
+ * data sets. It is able to calculate the free disk space.
+ * 
  * @author Franz-Josef Elmer
  */
 public final class Share
 {
+    private static final String SHARE_PROPERTIES_FILENAME = "share.properties";
+
     public static final Comparator<SimpleDataSetInformationDTO> DATA_SET_SIZE_COMPARATOR =
             new Comparator<SimpleDataSetInformationDTO>()
                 {
@@ -71,16 +74,16 @@ public final class Share
     private final String shareId;
 
     private final int speed;
-    
+
     private final List<SimpleDataSetInformationDTO> dataSets =
             new ArrayList<SimpleDataSetInformationDTO>();
-    
+
     private boolean incoming;
 
     private long size;
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
-    
+
     private boolean withdrawShare;
 
     public Share(File share, int speed, IFreeSpaceProvider freeSpaceProvider)
@@ -90,7 +93,7 @@ public final class Share
         this.freeSpaceProvider = freeSpaceProvider;
         shareId = share.getName();
     }
-    
+
     /**
      * Returns the share Id of this share.
      */
@@ -100,7 +103,7 @@ public final class Share
     }
 
     /**
-     * Returns the speed of this share.  
+     * Returns the speed of this share.
      */
     public int getSpeed()
     {
@@ -121,11 +124,28 @@ public final class Share
     }
 
     /**
-     * Returns the root directory of this share. 
+     * Returns the root directory of this share.
      */
     public File getShare()
     {
         return share;
+    }
+
+    /**
+     * If the share has a properties file (named share.properties and located at the root of the
+     * share), return it. Return null otherwise.
+     * 
+     * @return The properties for the share or null
+     */
+    public Properties tryShareProperties()
+    {
+        File propsFile = new File(share, SHARE_PROPERTIES_FILENAME);
+        if (false == propsFile.exists())
+        {
+            return null;
+        }
+        Properties props = new Properties();
+        return props;
     }
 
     /**
@@ -141,13 +161,13 @@ public final class Share
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     public void addDataSet(SimpleDataSetInformationDTO dataSet)
     {
         dataSets.add(dataSet);
         size += dataSet.getDataSetSize();
     }
-    
+
     /**
      * Returns all data sets of this shared ordered by size starting with the largest data set.
      */
@@ -156,7 +176,7 @@ public final class Share
         Collections.sort(dataSets, DATA_SET_SIZE_COMPARATOR);
         return dataSets;
     }
-    
+
     /**
      * Returns the total size (in bytes) of all data sets.
      */
