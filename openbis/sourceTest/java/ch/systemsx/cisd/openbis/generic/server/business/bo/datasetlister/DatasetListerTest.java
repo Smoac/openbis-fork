@@ -219,7 +219,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(8, dataSets.size());
+        assertEquals(11, dataSets.size());
     }
 
     @Test
@@ -322,7 +322,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(14, list.size());
+        assertEquals(17, list.size());
     }
 
     @Test
@@ -344,7 +344,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(15, list.size());
+        assertEquals(18, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,

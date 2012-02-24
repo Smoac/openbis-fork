@@ -314,17 +314,19 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.listDataSetsForExperiments(sessionToken,
                         Arrays.asList(new Experiment(e1)), EnumSet.allOf(Connections.class));
 
-        assertDataSets("[20081105092259000-18, 20081105092259000-8, 20081105092259000-9, "
-                + "20081105092259900-0, 20081105092259900-1, 20081105092359990-2, "
-                + "20110509092359990-10, 20110509092359990-11, 20110509092359990-12]", dataSets);
-        List<String> parentCodes = new ArrayList<String>(dataSets.get(2).getParentCodes());
+        assertDataSets(
+                "[20081105092259000-18, 20081105092259000-19, 20081105092259000-20, 20081105092259000-21, 20081105092259000-8, 20081105092259000-9, "
+                        + "20081105092259900-0, 20081105092259900-1, 20081105092359990-2, "
+                        + "20110509092359990-10, 20110509092359990-11, 20110509092359990-12]",
+                dataSets);
+        List<String> parentCodes = new ArrayList<String>(dataSets.get(5).getParentCodes());
         Collections.sort(parentCodes);
         assertEquals("[20081105092159111-1, 20081105092159222-2, 20081105092159333-3]",
                 parentCodes.toString());
-        List<String> childrenCodes = new ArrayList<String>(dataSets.get(2).getChildrenCodes());
+        List<String> childrenCodes = new ArrayList<String>(dataSets.get(5).getChildrenCodes());
         Collections.sort(childrenCodes);
         assertEquals("[]", childrenCodes.toString());
-        DataSet dataSet = dataSets.get(6);
+        DataSet dataSet = dataSets.get(9);
         assertEquals(true, dataSet.isContainerDataSet());
         assertEquals("[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
                 + "{COMMENT=non-virtual comment},[]], "
