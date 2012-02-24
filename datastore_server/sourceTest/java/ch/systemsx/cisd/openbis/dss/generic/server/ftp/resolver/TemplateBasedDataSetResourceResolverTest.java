@@ -54,6 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -167,7 +169,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null, new Cache());
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null,
+                        new Cache());
         context.checking(new Expectations()
             {
                 {
@@ -493,7 +496,11 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         context.checking(new Expectations()
             {
                 {
-                    one(generalInfoService).getDataSetMetaData(SESSION_TOKEN, codes);
+                    one(generalInfoService).getDataSetMetaData(
+                            SESSION_TOKEN,
+                            codes,
+                            new DataSetFetchOptions(DataSetFetchOption.BASIC,
+                                    DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN));
                     will(returnValue(translateDataSets));
                 }
             });
