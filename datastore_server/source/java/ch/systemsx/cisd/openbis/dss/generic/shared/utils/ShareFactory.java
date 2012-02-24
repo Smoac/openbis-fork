@@ -19,13 +19,19 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share.ShufflePriority;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -52,12 +58,16 @@ public class ShareFactory
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
     
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
+    
+    public static final String EXPERIMENTS_PROP = "experiments";
 
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
     
     private boolean withdrawShare;
+    
+    private Set<String> experimentIdentifiers;
 
     Share createShare(File shareRoot, IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
     {
@@ -66,6 +76,7 @@ public class ShareFactory
         Share share = new Share(shareRoot, speed, freeSpaceProvider);
         share.setShufflePriority(shufflePriority);
         share.setWithdrawShare(withdrawShare);
+        share.setExperimentIdentifiers(experimentIdentifiers);
         return share;
 
     }
@@ -76,13 +87,16 @@ public class ShareFactory
         if (propsFile.isFile())
         {
             Properties props = new Properties();
+            FileInputStream fis = null;
             try {
-                FileInputStream fis = new FileInputStream(propsFile);
+                fis = new FileInputStream(propsFile);
                 props.load(fis);
-                fis.close();
             } catch (IOException ioex) {
                 log.log(LogLevel.WARN, "Error while reading from " + propsFile.getAbsolutePath()
                         + " : " + ioex.getMessage());
+            } finally
+            {
+                IOUtils.closeQuietly(fis);
             }
 
             if (props.containsKey(SPEED_HINT_PROP))
@@ -116,7 +130,9 @@ public class ShareFactory
             }
             
             withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
-
+            experimentIdentifiers =
+                    new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
+                            props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));
         }
         
     }
