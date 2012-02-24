@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -47,15 +50,19 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.MOVE_TO_EXTENSION, share.getShufflePriority());
         assertEquals(true, share.isWithdrawShare());
+        assertEquals(0, share.getExperimentIdentifiers().size());
     }
 
     @Test
-    public void testOnlySharePropertiesAvailable()
+    public void testOnlySharePropertiesAvailableAndExperiments()
     {
         Share share = readShare("share-3");
         assertEquals(70, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
         assertEquals(false, share.isWithdrawShare());
+        List<String> experiments = new ArrayList<String>(share.getExperimentIdentifiers());
+        Collections.sort(experiments);
+        assertEquals("[/SPACE1/PROJECT1/EXP1, /SPACE1/PROJECT2/EXP1]", experiments.toString());
     }
 
     @Test
@@ -65,8 +72,9 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
         assertEquals(false, share.isWithdrawShare());
+        assertEquals(0, share.getExperimentIdentifiers().size());
     }
-
+    
     private Share readShare(String shareName)
     {
         File shareRoot = new File(DATA_DIRECTORY, shareName);
