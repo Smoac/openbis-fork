@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,6 +146,14 @@ public final class Share
             return null;
         }
         Properties props = new Properties();
+        try
+        {
+            FileReader reader = new FileReader(propsFile);
+            props.load(reader);
+        } catch (IOException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
         return props;
     }
 
