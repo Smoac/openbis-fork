@@ -78,7 +78,6 @@
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
   	<antcall target="add-stuff-to-dss-dist"/>
   	<antcall target="copy-dss-core-plugins">
-      <param name="destination-path" value="${dist}" />
   		<param name="project-path" value="../screening/" />
   	</antcall>
   	<antcall target="datastore_server.create-distribution" />
@@ -93,6 +92,8 @@
         <include name="tabular-data-graph.properties" />
       </fileset>
     </copy>
+  	<move file="${dist}/data" todir="${dist.datastore_server}"/>
+  	<move file="${dist}/etc" todir="${dist.datastore_server}"/>
   </target>
 	
 	<!-- Add libraries and other stuff to DSS distribution. -->

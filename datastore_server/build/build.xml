@@ -8,8 +8,6 @@
 	<property name="dist.datastore_server.lib" value="${dist.datastore_server}/lib" />
 	<property name="dss-jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
-	<property name="dist.plugin" value="${dist}/plugin"/>
-	<property name="dist.plugin.lib" value="${dist.plugin}/datastore_server/lib"/>
 	<property name="core-plugins.folder" value="dist/core-plugins"/>
 	<property name="plugin-jar.file" value="${dist}/datastore_server-plugin.jar" />
 	<property name="dss-build.info.filename" value="BUILD-datastore_server.INFO"/>
@@ -97,19 +95,19 @@
 	</target>
 	
   <target name="make-plugin-dist">
-		<move file="${plugin-jar.file}" tofile="${dist.plugin.lib}/datastore_server_plugin${variant}.jar" />
+		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
   	<antcall target="copy-dss-core-plugins">
-      <param name="destination-path" value="${dist.plugin}" />
       <param name="project-path" value="" />
   	</antcall>
 		<property name="dist.file"
 		          value="${dist}/datastore_server_plugin${variant}-${version.number}-r${revision.number}.zip" />
-		<zip basedir="${dist.plugin}" destfile="${dist.file}" excludes="*.zip *.jar"/>
-		<delete dir="${dist.plugin}"/>
+		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar"/>
+  	<delete dir="${dist}/core-plugins"/>
+  	<delete dir="${dist.datastore_server}"/>
   </target>
 	
   <target name="copy-dss-core-plugins">
-  	<copy todir="${destination-path}/core-plugins">
+  	<copy todir="${dist}/core-plugins">
   		<fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
   			<include name="*/*/dss/**/*"/>
   		</fileset>
