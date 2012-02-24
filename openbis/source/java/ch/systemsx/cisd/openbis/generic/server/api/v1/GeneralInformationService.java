@@ -36,6 +36,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.DataSetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.IDataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
@@ -45,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -189,7 +193,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 15;
+        return 16;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -561,6 +565,49 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             result.add(Translator.translate(ds, connections));
         }
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @Capability("GET_DATA_SET_META_DATA")
+    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
+            DataSetFetchOptions dataSetFetchOptions)
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalArgumentException("SessionToken was null");
+        }
+        if (dataSetCodes == null)
+        {
+            throw new IllegalArgumentException("DataSetCodes were null");
+        }
+        if (dataSetFetchOptions == null)
+        {
+            throw new IllegalArgumentException("DataSetFetchOptions were null");
+        }
+
+        if (dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
+                DataSetFetchOption.CHILDREN))
+        {
+            checkSession(sessionToken);
+            IDataSetLister lister = new DataSetLister(getDAOFactory());
+            return lister.getDataSetMetaData(dataSetCodes, dataSetFetchOptions);
+        } else
+        {
+            List<DataSet> dataSetList = getDataSetMetaData(sessionToken, dataSetCodes);
+            if (dataSetList != null)
+            {
+                for (DataSet dataSet : dataSetList)
+                {
+                    if (dataSet != null)
+                    {
+                        dataSet.setFetchOptions(new DataSetFetchOptions(DataSetFetchOption.values()));
+                    }
+                }
+            }
+            return dataSetList;
+        }
     }
 
     @Transactional(readOnly = true)

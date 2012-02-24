@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.experimentlister.ExperimentLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -392,10 +392,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
 
-        if (experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
         {
             ExperimentLister lister =
-                    new ExperimentLister(daoFactory, getSession(sessionToken).getBaseIndexURL());
+                    new ExperimentLister(getDAOFactory(), getSession(sessionToken)
+                            .getBaseIndexURL());
             return lister.listExperiments(experimentIdentifiers, experimentFetchOptions);
         } else
         {
@@ -431,7 +432,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
 
-        if (experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
         {
             ExperimentLister lister =
                     new ExperimentLister(daoFactory, getSession(sessionToken).getBaseIndexURL());

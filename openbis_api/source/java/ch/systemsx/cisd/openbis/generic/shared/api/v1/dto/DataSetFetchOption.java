@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 
 /**
  * @author pkupczyk
  */
-public enum ExperimentFetchOption implements FetchOption
+public enum DataSetFetchOption implements FetchOption
 {
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS;
+    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, PARENTS, CHILDREN, CONTAINED
 
 }

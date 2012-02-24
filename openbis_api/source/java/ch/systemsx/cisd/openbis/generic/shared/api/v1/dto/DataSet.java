@@ -186,8 +186,7 @@ public final class DataSet implements Serializable
         public void setContainedDataSets(List<DataSet> containedDataSets)
         {
             this.containedDataSets =
-                    (null == containedDataSets) ? new ArrayList<DataSet>()
-                            : containedDataSets;
+                    (null == containedDataSets) ? new ArrayList<DataSet>() : containedDataSets;
         }
 
     }
@@ -214,6 +213,8 @@ public final class DataSet implements Serializable
     private List<DataSet> containedDataSets = Collections.emptyList();
 
     private EntityRegistrationDetails registrationDetails;
+
+    private DataSetFetchOptions fetchOptions;
 
     /**
      * Creates a new instance with the provided initializer
@@ -460,4 +461,26 @@ public final class DataSet implements Serializable
         this.containedDataSets = containedDataSets;
     }
 
+    public DataSetFetchOptions getFetchOptions()
+    {
+        return fetchOptions;
+    }
+
+    public void setFetchOptions(DataSetFetchOptions fetchOptions)
+    {
+        this.fetchOptions = fetchOptions;
+        if (fetchOptions != null)
+        {
+            if (fetchOptions.isSupersetOf(DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN))
+            {
+                setRetrievedConnections(EnumSet.of(Connections.PARENTS, Connections.CHILDREN));
+            } else if (fetchOptions.isSupersetOf(DataSetFetchOption.PARENTS))
+            {
+                setRetrievedConnections(EnumSet.of(Connections.PARENTS));
+            } else if (fetchOptions.isSupersetOf(DataSetFetchOption.CHILDREN))
+            {
+                setRetrievedConnections(EnumSet.of(Connections.CHILDREN));
+            }
+        }
+    }
 }

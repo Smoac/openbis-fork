@@ -16,90 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author pkupczyk
  */
-public class ExperimentFetchOptions implements Serializable
+public class ExperimentFetchOptions extends FetchOptions<ExperimentFetchOption>
 {
 
     private static final long serialVersionUID = 1L;
 
-    private Set<ExperimentFetchOption> options = new HashSet<ExperimentFetchOption>();
-
     public ExperimentFetchOptions()
     {
-        this((ExperimentFetchOption[]) null);
+        super();
+        addOption(ExperimentFetchOption.BASIC);
     }
 
     public ExperimentFetchOptions(ExperimentFetchOption... options)
     {
-        // add BASIC option by default
+        super(options);
         addOption(ExperimentFetchOption.BASIC);
-
-        if (options != null)
-        {
-            for (ExperimentFetchOption option : options)
-            {
-                addOption(option);
-            }
-        }
-    }
-
-    public void addOption(ExperimentFetchOption option)
-    {
-        if (option == null)
-        {
-            throw new IllegalArgumentException("Option cannot be null");
-        }
-        options.add(option);
-    }
-
-    public boolean containsOption(ExperimentFetchOption option)
-    {
-        return options.contains(option);
-    }
-
-    public boolean containsOnlyOption(ExperimentFetchOption option)
-    {
-        return containsOption(option) && options.size() == 1;
-    }
-
-    @Override
-    public String toString()
-    {
-        return options.toString();
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((options == null) ? 0 : options.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ExperimentFetchOptions other = (ExperimentFetchOptions) obj;
-        if (options == null)
-        {
-            if (other.options != null)
-                return false;
-        } else if (!options.equals(other.options))
-            return false;
-        return true;
     }
 
 }

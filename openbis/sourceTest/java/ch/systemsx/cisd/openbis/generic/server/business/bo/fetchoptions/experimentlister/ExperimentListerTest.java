@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.experimentlister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -67,8 +67,9 @@ public class ExperimentListerTest extends AbstractDAOTest
     {
         sessionToken = service.tryToAuthenticate("test", "password").getSessionToken();
         lister =
-                new ExperimentLister(daoFactory, EntityListingTestUtils.createQuery(daoFactory,
-                        IExperimentListingQuery.class), service.getBaseIndexURL(sessionToken));
+                new ExperimentLister(daoFactory, service.getBaseIndexURL(sessionToken),
+                        EntityListingTestUtils.createQuery(daoFactory,
+                                IExperimentListingQuery.class));
     }
 
     @Test
@@ -219,7 +220,7 @@ public class ExperimentListerTest extends AbstractDAOTest
         assertEqualsToExperimentType(expected.getExperimentType(), actual.getExperimentType());
         assertEqualsToProject(expected.getProject(), actual.getProject());
         assertEqualsToPerson(expected.getRegistrator(), actual.getRegistrator());
-        assertTrue(actual.getFetchOptions().containsOnlyOption(ExperimentFetchOption.BASIC));
+        assertTrue(actual.getFetchOptions().isSetOf(ExperimentFetchOption.BASIC));
     }
 
     private void assertEqualsToExperimentType(ExperimentType expected, ExperimentType actual)

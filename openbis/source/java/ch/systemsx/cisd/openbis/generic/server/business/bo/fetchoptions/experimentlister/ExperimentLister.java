@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.experimentlister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,12 +60,12 @@ public class ExperimentLister implements IExperimentLister
 
     public ExperimentLister(IDAOFactory daoFactory, String baseIndexURL)
     {
-        this(daoFactory, QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
-                IExperimentListingQuery.class), baseIndexURL);
+        this(daoFactory, baseIndexURL, QueryTool.getQuery(
+                DatabaseContextUtils.getConnection(daoFactory), IExperimentListingQuery.class));
     }
 
-    public ExperimentLister(IDAOFactory daoFactory, IExperimentListingQuery query,
-            String baseIndexURL)
+    public ExperimentLister(IDAOFactory daoFactory, String baseIndexURL,
+            IExperimentListingQuery query)
     {
         if (daoFactory == null)
         {
@@ -95,10 +95,10 @@ public class ExperimentLister implements IExperimentLister
         {
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
-        if (!experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        if (!experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
         {
-            throw new IllegalArgumentException(
-                    "Currently only ExperimentFetchOption.BASIC is supported by this method");
+            throw new IllegalArgumentException("Currently only " + ExperimentFetchOption.BASIC
+                    + " fetch option is supported by this method");
         }
 
         ExperimentIdentifiers identifiers = new ExperimentIdentifiers(experimentIdentifiers);
@@ -122,10 +122,10 @@ public class ExperimentLister implements IExperimentLister
         {
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
-        if (!experimentFetchOptions.containsOnlyOption(ExperimentFetchOption.BASIC))
+        if (!experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
         {
-            throw new IllegalArgumentException(
-                    "Currently only ExperimentFetchOption.BASIC is supported by this method");
+            throw new IllegalArgumentException("Currently only " + ExperimentFetchOption.BASIC
+                    + " fetch option is supported by this method");
         }
 
         ProjectIdentifiers identifiers = new ProjectIdentifiers(projectIdentifiers);

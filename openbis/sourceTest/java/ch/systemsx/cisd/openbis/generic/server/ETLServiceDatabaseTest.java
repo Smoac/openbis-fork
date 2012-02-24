@@ -63,7 +63,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 service.listExperiments(sessionToken, identifiers, new ExperimentFetchOptions());
 
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getFetchOptions().containsOnlyOption(ExperimentFetchOption.BASIC));
+        assertTrue(result.get(0).getFetchOptions().isSetOf(ExperimentFetchOption.BASIC));
     }
 
     @Test
@@ -77,11 +77,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                         ExperimentFetchOption.values()));
 
         assertEquals(1, result.size());
-
-        for (ExperimentFetchOption option : ExperimentFetchOption.values())
-        {
-            assertTrue(result.get(0).getFetchOptions().containsOption(option));
-        }
+        assertTrue(result.get(0).getFetchOptions().isSetOf(ExperimentFetchOption.values()));
     }
 
     @Test
@@ -95,7 +91,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                         new ExperimentFetchOptions());
 
         assertEquals(1, result.size());
-        assertTrue(result.get(0).getFetchOptions().containsOnlyOption(ExperimentFetchOption.BASIC));
+        assertTrue(result.get(0).getFetchOptions().isSetOf(ExperimentFetchOption.BASIC));
     }
 
     @Test
@@ -109,11 +105,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                         new ExperimentFetchOptions(ExperimentFetchOption.values()));
 
         assertEquals(1, result.size());
-
-        for (ExperimentFetchOption option : ExperimentFetchOption.values())
-        {
-            assertTrue(result.get(0).getFetchOptions().containsOption(option));
-        }
+        assertTrue(result.get(0).getFetchOptions().isSetOf(ExperimentFetchOption.values()));
     }
 
 }

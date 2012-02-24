@@ -24,6 +24,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -43,12 +45,13 @@ public class FtpPathResolverContext
     private final IETLLIMSService service;
 
     private final IGeneralInformationService generalInfoService;
-    
+
     private final IFtpPathResolverRegistry resolverRegistry;
 
     private final Cache cache;
 
-    public FtpPathResolverContext(String sessionToken, IETLLIMSService service, IGeneralInformationService generalInfoService,
+    public FtpPathResolverContext(String sessionToken, IETLLIMSService service,
+            IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry resolverRegistry, Cache cache)
     {
         this.sessionToken = sessionToken;
@@ -67,21 +70,26 @@ public class FtpPathResolverContext
     {
         return service;
     }
-    
+
     public DataSet getDataSet(String dataSetCode)
     {
         DataSet dataSet = cache.getDataSet(dataSetCode);
         if (dataSet == null)
         {
+            DataSetFetchOptions fetchOptions =
+                    new DataSetFetchOptions(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
+                            DataSetFetchOption.CHILDREN);
+
             List<DataSet> dataSetsWithMetaData =
-                    generalInfoService.getDataSetMetaData(sessionToken,
-                            Arrays.asList(dataSetCode));
+                    generalInfoService.getDataSetMetaData(sessionToken, Arrays.asList(dataSetCode),
+                            fetchOptions);
+
             dataSet = dataSetsWithMetaData.get(0);
             cache.putDataSet(dataSet);
         }
         return dataSet;
     }
-    
+
     public List<ExternalData> listDataSetsByCode(List<String> codes)
     {
         List<String> codesToAskFor = new ArrayList<String>();
@@ -99,7 +107,8 @@ public class FtpPathResolverContext
         }
         if (codesToAskFor.isEmpty() == false)
         {
-            List<ExternalData> newDataSets = service.listDataSetsByCode(sessionToken, codesToAskFor);
+            List<ExternalData> newDataSets =
+                    service.listDataSetsByCode(sessionToken, codesToAskFor);
             for (ExternalData newDataSet : newDataSets)
             {
                 cache.putDataSet(newDataSet);
@@ -108,7 +117,7 @@ public class FtpPathResolverContext
         }
         return dataSets;
     }
-    
+
     public Experiment getExperiment(String experimentId)
     {
         Experiment experiment = cache.getExperiment(experimentId);
@@ -116,7 +125,7 @@ public class FtpPathResolverContext
         {
             ExperimentIdentifier experimentIdentifier =
                     new ExperimentIdentifierFactory(experimentId).createIdentifier();
-            
+
             List<Experiment> result =
                     service.listExperiments(sessionToken,
                             Collections.singletonList(experimentIdentifier),
@@ -131,7 +140,7 @@ public class FtpPathResolverContext
     {
         return generalInfoService;
     }
-    
+
     public IFtpPathResolverRegistry getResolverRegistry()
     {
         return resolverRegistry;

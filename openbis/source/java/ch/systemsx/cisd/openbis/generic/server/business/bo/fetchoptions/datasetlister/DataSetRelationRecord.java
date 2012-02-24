@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
 
 /**
  * @author pkupczyk
  */
-public enum ExperimentFetchOption implements FetchOption
+public class DataSetRelationRecord
 {
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS;
+    public String dp_code;
+
+    public String dc_code;
 
 }

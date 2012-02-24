@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.experimentlister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;

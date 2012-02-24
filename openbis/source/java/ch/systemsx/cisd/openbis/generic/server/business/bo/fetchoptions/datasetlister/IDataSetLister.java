@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public enum ExperimentFetchOption implements FetchOption
+public interface IDataSetLister
 {
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS;
+    public List<DataSet> getDataSetMetaData(List<String> dataSetCodes,
+            DataSetFetchOptions dataSetFetchOptions);
 
 }

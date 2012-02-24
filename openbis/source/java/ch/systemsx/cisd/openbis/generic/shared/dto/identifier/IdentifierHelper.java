@@ -101,6 +101,24 @@ public final class IdentifierHelper
         return createSampleIdentifier(databaseInstance, group, sampleCode);
     }
 
+    public final static SampleIdentifier createSampleIdentifier(
+            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
+            SpaceIdentifier spaceIdentifier, String sampleCode, String sampleContainerCode)
+    {
+        String fullSampleCode = convertCode(sampleCode, sampleContainerCode);
+
+        if (databaseInstanceIdentifier != null)
+        {
+            return new SampleIdentifier(databaseInstanceIdentifier, fullSampleCode);
+        } else if (spaceIdentifier != null)
+        {
+            return new SampleIdentifier(spaceIdentifier, fullSampleCode);
+        } else
+        {
+            return SampleIdentifier.createHomeGroup(fullSampleCode);
+        }
+    }
+
     private static SampleIdentifier createSampleIdentifier(
             final DatabaseInstancePE databaseInstance, final SpacePE group, final String sampleCode)
     {

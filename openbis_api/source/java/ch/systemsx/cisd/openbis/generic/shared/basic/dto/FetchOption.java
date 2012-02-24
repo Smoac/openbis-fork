@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 /**
  * @author pkupczyk
  */
-public enum ExperimentFetchOption implements FetchOption
+public interface FetchOption
 {
-
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS;
 
 }

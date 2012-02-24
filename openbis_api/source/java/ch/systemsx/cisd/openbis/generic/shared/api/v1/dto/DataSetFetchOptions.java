@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOptions;
 
 /**
  * @author pkupczyk
  */
-public enum ExperimentFetchOption implements FetchOption
+public class DataSetFetchOptions extends FetchOptions<DataSetFetchOption>
 {
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS;
+    private static final long serialVersionUID = 1L;
+
+    public DataSetFetchOptions()
+    {
+        super();
+        addOption(DataSetFetchOption.BASIC);
+    }
+
+    public DataSetFetchOptions(DataSetFetchOption... options)
+    {
+        super(options);
+        addOption(DataSetFetchOption.BASIC);
+    }
 
 }
