@@ -19,15 +19,29 @@
 		<antcall target="datastore_server.add-dss-dist-libs"/>
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<antcall target="make-dss-jar"/>
+		
+		<!-- proteomics -->
 		<antcall target="rtd_phosphonetx.make-dss-plugin-jar"/>
 		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-proteomics.jar" />
+		<antcall target="copy-dss-core-plugins">
+      <param name="destination-path" value="${dist}" />
+      <param name="project-path" value="../rtd_phosphonetx/" />
+		</antcall>
+		
+		<!-- screening -->
 		<antcall target="screening.make-dss-plugin-jar"/>
     <move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-screening.jar" />
+		<antcall target="copy-dss-core-plugins">
+      <param name="destination-path" value="${dist}" />
+      <param name="project-path" value="../screening/" />
+		</antcall>
 		<antcall target="screening.add-stuff-to-dss-dist"/>
 		<antcall target="screening.compute-dss-checksum"/>
+		
 		<antcall target="datastore_server.create-distribution">
 			<param name="variant" value="-standard-technologies" />
 		</antcall>
+		<delete dir="${dist}/core-plugins"/>
 	</target>
 
 	<target name="war" depends="rtd_phosphonetx.war, screening.war">
