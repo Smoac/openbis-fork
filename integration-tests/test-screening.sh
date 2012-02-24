@@ -71,7 +71,7 @@ function install_dss_screening {
 
 		rm -fr $dss_dest
 		unzip -q $INSTALL/datastore_server-S*.zip -d $dss_dest
-		unzip -q $INSTALL/datastore_server_plugin-screening*.zip -d $dss_dest/datastore_server
+		unzip -q $INSTALL/datastore_server_plugin-screening*.zip -d $dss_dest
 		unzip -qo $INSTALL/datastore_server-screening*.zip -d $dss_dest datastore_server/etc/service.properties
 		mv $dss_dest/datastore_server/* $dss_dest
 		rmdir $dss_dest/datastore_server

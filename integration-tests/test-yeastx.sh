@@ -29,6 +29,7 @@ function prepare_data {
 
 function build_and_install_yeastx {
 		unzip -u $INSTALL/datastore_server_plugin-yeastx-*.zip -d $WORK/datastore_server_yeastx
+		mv $WORK/datastore_server_yeastx/datastore_server/lib/* $WORK/datastore_server_yeastx/lib
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
 		prepare_data
