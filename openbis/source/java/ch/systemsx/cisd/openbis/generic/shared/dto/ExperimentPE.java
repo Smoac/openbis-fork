@@ -99,8 +99,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private ProjectPE project;
 
-    private MaterialPE studyObject;
-
     private ExperimentTypePE experimentType;
 
     private DeletionPE deletion;
@@ -213,18 +211,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setProject(final ProjectPE project)
     {
         project.addExperiment(this);
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.STUDY_OBJECT_COLUMN, updatable = false)
-    public MaterialPE getStudyObject()
-    {
-        return studyObject;
-    }
-
-    public void setStudyObject(final MaterialPE studyObject)
-    {
-        this.studyObject = studyObject;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

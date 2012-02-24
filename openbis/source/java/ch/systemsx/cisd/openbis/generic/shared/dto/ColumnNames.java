@@ -224,8 +224,6 @@ public final class ColumnNames
 
     public static final String STORAGE_FORMAT_COLUMN = "cvte_id_stor_fmt";
 
-    public static final String STUDY_OBJECT_COLUMN = "mate_id_study_object";
-
     public static final String TOP_SAMPLE_COLUMN = "samp_id_top";
 
     public final static String USER_COLUMN = "user_id";
