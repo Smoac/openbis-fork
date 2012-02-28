@@ -45,35 +45,35 @@ public interface IProteomicsDataServiceInternal extends IServer
      * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which
      * the specified user is allow to read.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken);
     
     @Deprecated
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
     
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDataSets(
             String sessionToken,
             String dataSetProcessingKey,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes);
     
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode);
     
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<ExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID);
     
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
             String experimentTypeCode, long[] searchExperimentIDs);

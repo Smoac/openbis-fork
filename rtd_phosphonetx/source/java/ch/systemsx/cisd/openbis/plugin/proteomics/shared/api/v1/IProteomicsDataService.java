@@ -51,27 +51,26 @@ public interface IProteomicsDataService extends IRpcService
      * succeeded otherwise <code>null</code> is returned.
      */
     @Transactional
-    // this is not a readOnly transaction - it can create new users
     public String tryToAuthenticateAtRawDataServer(String userID, String userPassword);
 
     /**
      * Logout the session with the specified session token.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public void logout(String sessionToken);
 
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
      * the specified user is allowed to read.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID);
 
     /**
      * Lists all processing plugins on DSS.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken);
@@ -82,7 +81,7 @@ public interface IProteomicsDataService extends IRpcService
      * read specified samples.
      */
     @Deprecated
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
@@ -92,7 +91,7 @@ public interface IProteomicsDataService extends IRpcService
      * specified user. Implementations should check that the specified user is allowed to read
      * specified data sets.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes);
@@ -102,21 +101,21 @@ public interface IProteomicsDataService extends IRpcService
      * read.
      */
     @Deprecated
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listSearchExperiments(String sessionToken, String userID);
 
     /**
      * Returns all experiments of specified type which the specified user is allowed to read.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
     
     /**
      * Returns all data sets of specified experiment which the specified user is allowed to read.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID, long experimentID);
     
@@ -126,7 +125,7 @@ public interface IProteomicsDataService extends IRpcService
      * experiments are of search experiments and if the user is allowed to read them.
      */
     @Deprecated
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
@@ -136,7 +135,7 @@ public interface IProteomicsDataService extends IRpcService
      * processing plug-in of specified key for the specified user. It will be checked if the
      * experiments are of specified type and if the user is allowed to read them.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs);
