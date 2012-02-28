@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,6 +35,7 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.CommaSeparatedListBuilder;
 
 /**
  * Action which sets the variable <code>DISABLED_TECHNOLOGIES_VARNAME</code> or updates
@@ -42,6 +46,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class SetDisableTechnologiesVariableAction implements PanelAction
 {
     static final String DISABLED_TECHNOLOGIES_VARNAME = "DISABLED_TECHNOLOGIES";
+    static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
     public void initialize(PanelActionConfiguration configuration)
     {
@@ -97,20 +102,85 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
                 appendEntryToConfigFile(configFile, propertiesEntry);
             }
         }
+        updateDisabledDssPluginsProperty(data, installDir);
     }
-
-    private String createListOfDisabledTechnologies(AutomatedInstallData data)
+    
+    private void updateDisabledDssPluginsProperty(AutomatedInstallData data, File installDir)
     {
-        StringBuilder builder = new StringBuilder();
+        Set<String> disabledTechnologies = new LinkedHashSet<String>();
+        Set<String> technologies = new HashSet<String>();
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String technologyFlag = data.getVariable(technology);
             if (Boolean.FALSE.toString().equalsIgnoreCase(technologyFlag))
             {
-                if (builder.length() > 0)
+                disabledTechnologies.add(technology.toLowerCase());
+            }
+            technologies.add(technology.toLowerCase());
+        }
+        File configFile = new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        List<String> list = FileUtilities.loadToStringList(configFile);
+        updateDisabledDssPluginsProperty(list, technologies, disabledTechnologies);
+        updateConfigFile(configFile, list);
+    }
+
+    private void updateDisabledDssPluginsProperty(List<String> list, Set<String> technologies,
+            Set<String> disabledTechnologies)
+    {
+        for (int i = 0; i < list.size(); i++)
+        {
+            String line = list.get(i);
+            if (line.startsWith(DISABLED_CORE_PLUGINS_KEY))
+            {
+                String[] property = line.split("=");
+                String oldPluginsList = property.length < 2 ? "" : property[1];
+                String pluginsList =
+                        mergeWithDisabledPluginsList(oldPluginsList, technologies,
+                                disabledTechnologies);
+                list.set(i, DISABLED_CORE_PLUGINS_KEY + " = " + pluginsList);
+                return;
+            }
+        }
+        String pluginsList = mergeWithDisabledPluginsList("", technologies, disabledTechnologies);
+        list.add(DISABLED_CORE_PLUGINS_KEY + " = " + pluginsList);
+    }
+    
+    private String mergeWithDisabledPluginsList(String disabledPlugins, Set<String> technologies,
+            Set<String> disabledTechnologies)
+    {
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        Set<String> plugins = new HashSet<String>();
+        String[] terms = disabledPlugins.split(",");
+        for (String term : terms)
+        {
+            String plugin = term.trim();
+            if (plugin.length() > 0)
+            {
+                if (technologies.contains(plugin) == false || disabledTechnologies.contains(plugin))
                 {
-                    builder.append(", ");
+                    builder.append(plugin);
+                    plugins.add(plugin);
                 }
+            }
+        }
+        for (String disabledTechnology : disabledTechnologies)
+        {
+            if (plugins.contains(disabledTechnology) == false)
+            {
+                builder.append(disabledTechnology);
+            }
+        }
+        return builder.toString();
+    }
+
+    private String createListOfDisabledTechnologies(AutomatedInstallData data)
+    {
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (String technology : GlobalInstallationContext.TECHNOLOGIES)
+        {
+            String technologyFlag = data.getVariable(technology);
+            if (Boolean.FALSE.toString().equalsIgnoreCase(technologyFlag))
+            {
                 builder.append(technology.toLowerCase());
             }
         }
