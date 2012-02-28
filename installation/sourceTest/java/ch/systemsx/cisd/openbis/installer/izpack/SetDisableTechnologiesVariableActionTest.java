@@ -94,8 +94,6 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         AutomatedInstallData data = updateDisabledTechnologyProperties(variables, true);
 
         assertEquals("proteomics, screening", data.getVariable(DISABLED_TECHNOLOGIES_VARNAME));
-        assertEquals("[" + DISABLED_CORE_PLUGINS_KEY + " = proteomics, screening]", FileUtilities
-                .loadToStringList(dssConfigFile).toString());
     }
     
     @Test
@@ -168,13 +166,14 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
     @Test
     public void testUpdateDisabledPluginsForSwitchedTechnologies()
     {
+        FileUtilities.writeToFile(configFile, "abc = 123");
         FileUtilities.writeToFile(dssConfigFile, "a = b\n" + DISABLED_CORE_PLUGINS_KEY
                 + "= screening, proteomics:a:b\n" + "gamma = alpha");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
 
-        updateDisabledTechnologyProperties(variables, true);
+        updateDisabledTechnologyProperties(variables, false);
 
         assertEquals("[a = b, " + DISABLED_CORE_PLUGINS_KEY + " = proteomics:a:b, proteomics, "
                 + "gamma = alpha]", FileUtilities.loadToStringList(dssConfigFile).toString());
@@ -183,16 +182,14 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
     @Test
     public void testUpdateDisabledPluginsForSameTechnology()
     {
+        FileUtilities.writeToFile(configFile, "abc = 123");
         FileUtilities.writeToFile(dssConfigFile, "a = b\n" + DISABLED_CORE_PLUGINS_KEY
                 + "= proteomics, proteomics:a:b\n" + "gamma = alpha");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
-        updateDisabledTechnologyProperties(variables, true);
-        
-        assertEquals("[a = b, " + DISABLED_CORE_PLUGINS_KEY + " = proteomics, proteomics:a:b, "
-                + "gamma = alpha]", FileUtilities.loadToStringList(dssConfigFile).toString());
+        updateDisabledTechnologyProperties(variables, false);
     }
 
     private AutomatedInstallData updateDisabledTechnologyProperties(Properties variables,

@@ -101,8 +101,8 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
             {
                 appendEntryToConfigFile(configFile, propertiesEntry);
             }
+            updateDisabledDssPluginsProperty(data, installDir);
         }
-        updateDisabledDssPluginsProperty(data, installDir);
     }
     
     private void updateDisabledDssPluginsProperty(AutomatedInstallData data, File installDir)
