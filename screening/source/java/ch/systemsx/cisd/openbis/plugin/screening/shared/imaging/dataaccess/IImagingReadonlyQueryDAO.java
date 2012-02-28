@@ -238,6 +238,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.CONTAINER_DATASET_ID = ?{1}", fetchSize = FETCH_SIZE)
     public List<ImgImageZoomLevelDTO> listImageZoomLevels(long datasetId);
 
+    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and zoom.is_original")
+    public List<ImgImageZoomLevelDTO> listOriginalImageZoomLevelsByPermId(String datasetPermId);
+    
+    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and not zoom.is_original")
+    public List<ImgImageZoomLevelDTO> listThumbImageZoomLevelsByPermId(String datasetPermId);
+    
     @Select(sql = "select * from ANALYSIS_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(String... datasetPermIds);

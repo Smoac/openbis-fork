@@ -289,7 +289,52 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return publicTrafos;
     }
 
-    private static Size getOriginalImageSize(IImageDatasetIdentifier dataset,
+    /**
+     * Gets the size of the image by first looking at the zoomLevel table or reads the whole image
+     * as a fallback
+     */
+    private Size getOriginalImageSize(IImageDatasetIdentifier dataset,
+            IImagingDatasetLoader imageAccessor)
+    {
+        List<ImgImageZoomLevelDTO> zoomLevelLists =
+                transformerDAO.listOriginalImageZoomLevelsByPermId(dataset.getPermId());
+
+        if (zoomLevelLists.isEmpty())
+        {
+            operationLog.warn("No zoom-level found for the original image of specified dataset");
+            return getOriginalImageSizeFetchingImage(dataset, imageAccessor);
+        }
+
+        ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
+
+        Size imageSize = new Size(first.getWidth(), first.getHeight());
+        return imageSize;
+    }
+
+    /**
+     * Gets the size of the thumbnail image by first looking at the zoomLevel table or reads the
+     * whole image as a fallback
+     */
+    private Size getThumbnailImageSize(IImageDatasetIdentifier dataset,
+            IImagingDatasetLoader imageAccessor)
+    {
+        List<ImgImageZoomLevelDTO> zoomLevelLists =
+                transformerDAO.listThumbImageZoomLevelsByPermId(dataset.getPermId());
+        if (zoomLevelLists.isEmpty())
+        {
+            operationLog.warn("No zoom-level found for the thumbnail of specified dataset");
+            return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
+        }
+        ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
+
+        Size imageSize = new Size(first.getWidth(), first.getHeight());
+        return imageSize;
+    }
+
+    /**
+     * gets the size of the original image by reading the whole image.
+     */
+    private static Size getOriginalImageSizeFetchingImage(IImageDatasetIdentifier dataset,
             IImagingDatasetLoader imageAccessor)
     {
         BufferedImage image = getAnyImage(imageAccessor, dataset);
@@ -297,7 +342,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return imageSize;
     }
 
-    private static Size getThumbnailImageSize(IImageDatasetIdentifier dataset,
+    /**
+     * gets the size of the thumbnail image by reading the whole image.
+     */
+    private static Size getThumbnailImageSizeFetchingImage(IImageDatasetIdentifier dataset,
             IImagingDatasetLoader imageAccessor)
     {
         BufferedImage image = getAnyThumbnailImage(imageAccessor, dataset);
