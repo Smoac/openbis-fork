@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -356,7 +357,7 @@ public class SegmentedStoreUtils
         if (source.isFile())
         {
             assertFile(destination);
-            return assertSameSize(source, destination);
+            return assertSameSizeAndCheckSum(source, destination);
         } else
         {
             assertDirectory(destination);
@@ -384,7 +385,7 @@ public class SegmentedStoreUtils
         }
     }
 
-    private static long assertSameSize(File source, File destination)
+    private static long assertSameSizeAndCheckSum(File source, File destination)
     {
         long sourceSize = source.length();
         long destinationSize = destination.length();
@@ -395,7 +396,27 @@ public class SegmentedStoreUtils
                     + " but source file '" + source.getAbsolutePath() + "' has size " + sourceSize
                     + ".");
         }
+        long sourceChecksum = calculateCRC(source);
+        long destinationChecksum = calculateCRC(destination);
+        if (sourceChecksum != destinationChecksum)
+        {
+            throw new EnvironmentFailureException("Destination file '"
+                    + destination.getAbsolutePath() + "' has checksum " + destinationChecksum
+                    + " but source file '" + source.getAbsolutePath() + "' has checksum " + sourceChecksum
+                    + ".");
+        }
         return sourceSize;
+    }
+    
+    private static long calculateCRC(File file)
+    {
+        try
+        {
+            return FileUtils.checksumCRC32(file);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     private static void assertSameName(File source, File destination)
