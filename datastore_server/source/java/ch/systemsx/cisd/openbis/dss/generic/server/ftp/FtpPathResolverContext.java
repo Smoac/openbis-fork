@@ -111,7 +111,7 @@ public class FtpPathResolverContext
                     service.listDataSetsByCode(sessionToken, codesToAskFor);
             for (ExternalData newDataSet : newDataSets)
             {
-                cache.putDataSet(newDataSet);
+                cache.putExternalData(newDataSet);
                 dataSets.add(newDataSet);
             }
         }
@@ -131,7 +131,7 @@ public class FtpPathResolverContext
                             Collections.singletonList(experimentIdentifier),
                             new ExperimentFetchOptions());
             experiment = result.isEmpty() ? null : result.get(0);
-            cache.putDataSet(experiment);
+            cache.putExperiment(experiment);
         }
         return experiment;
     }

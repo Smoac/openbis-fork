@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class Cache
 {
-    private static final long LIVE_TIME = 1000;
+    static final long LIVE_TIME = 1000;
     
     private static final class TimeStampedObject<T>
     {
@@ -71,7 +71,7 @@ public class Cache
         return getObject(externalData, code);
     }
 
-    void putDataSet(ExternalData dataSet)
+    void putExternalData(ExternalData dataSet)
     {
         externalData.put(dataSet.getCode(), timestamp(dataSet));
     }
@@ -81,7 +81,7 @@ public class Cache
         return getObject(experiments, experimentId);
     }
 
-    void putDataSet(Experiment experiment)
+    void putExperiment(Experiment experiment)
     {
         experiments.put(experiment.getIdentifier(), timestamp(experiment));
     }
