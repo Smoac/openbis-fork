@@ -307,6 +307,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
         ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
 
+        if (first == null || first.getWidth() == null || first.getHeight() == null) 
+        {
+            operationLog.warn("Image dimensions not found for the zoom level of the original image of specified dataset");
+            return getOriginalImageSizeFetchingImage(dataset, imageAccessor);            
+        }
+        
         Size imageSize = new Size(first.getWidth(), first.getHeight());
         return imageSize;
     }
@@ -325,8 +331,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             operationLog.warn("No zoom-level found for the thumbnail of specified dataset");
             return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
         }
+        
         ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
 
+        if (first == null || first.getWidth() == null || first.getHeight() == null) 
+        {
+            operationLog.warn("Image dimensions not found for the zoom level of the thumbnail of specified dataset");
+            return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
+        }
+        
         Size imageSize = new Size(first.getWidth(), first.getHeight());
         return imageSize;
     }
