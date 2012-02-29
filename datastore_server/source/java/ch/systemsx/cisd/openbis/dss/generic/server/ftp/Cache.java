@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -31,38 +32,71 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class Cache
 {
-    private final Map<String, DataSet> dataSets = new HashMap<String, DataSet>();
-    private final Map<String, ExternalData> externalData = new HashMap<String, ExternalData>();
-    private final Map<String, Experiment> experiments = new HashMap<String, Experiment>();
+    private static final long LIVE_TIME = 1000;
+    
+    private static final class TimeStampedObject<T>
+    {
+        private final long timestamp;
+        private final T object;
+        public TimeStampedObject(T object, long timestamp)
+        {
+            this.object = object;
+            this.timestamp = timestamp;
+        }
+    }
+    
+    private final Map<String, TimeStampedObject<DataSet>> dataSets = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
+    private final Map<String, TimeStampedObject<ExternalData>> externalData = new HashMap<String, Cache.TimeStampedObject<ExternalData>>();
+    private final Map<String, TimeStampedObject<Experiment>> experiments = new HashMap<String, Cache.TimeStampedObject<Experiment>>();
+    
+    private final ITimeProvider timeProvider;
+    
+    public Cache(ITimeProvider timeProvider)
+    {
+        this.timeProvider = timeProvider;
+    }
     
     void putDataSet(DataSet dataSet)
     {
-        dataSets.put(dataSet.getCode(), dataSet);
+        dataSets.put(dataSet.getCode(), timestamp(dataSet));
     }
     
     DataSet getDataSet(String dataSetCode)
     {
-        return dataSets.get(dataSetCode);
+        return getObject(dataSets, dataSetCode);
     }
 
     ExternalData getExternalData(String code)
     {
-        return externalData.get(code);
+        return getObject(externalData, code);
     }
 
     void putDataSet(ExternalData dataSet)
     {
-        externalData.put(dataSet.getCode(), dataSet);
+        externalData.put(dataSet.getCode(), timestamp(dataSet));
     }
 
     Experiment getExperiment(String experimentId)
     {
-        return experiments.get(experimentId);
+        return getObject(experiments, experimentId);
     }
 
     void putDataSet(Experiment experiment)
     {
-        experiments.put(experiment.getIdentifier(), experiment);
+        experiments.put(experiment.getIdentifier(), timestamp(experiment));
+    }
+
+    private <T> TimeStampedObject<T> timestamp(T object)
+    {
+        return new TimeStampedObject<T>(object, timeProvider.getTimeInMilliseconds());
+    }
+
+    private <T> T getObject(Map<String, TimeStampedObject<T>> map, String key)
+    {
+        TimeStampedObject<T> timeStampedObject = map.get(key);
+        return timeStampedObject == null
+                || timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME ? null
+                : timeStampedObject.object;
     }
     
 }

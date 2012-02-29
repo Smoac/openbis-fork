@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
@@ -151,6 +152,14 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private DataSet ds3;
 
+    private ITimeProvider timeProvider = new ITimeProvider()
+        {
+            public long getTimeInMilliseconds()
+            {
+                return 0;
+            }
+        };
+
     @Override
     @BeforeMethod
     public void setUp()
@@ -170,7 +179,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
         resolverContext =
                 new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null,
-                        new Cache());
+                        new Cache(timeProvider));
         context.checking(new Expectations()
             {
                 {

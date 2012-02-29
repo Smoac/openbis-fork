@@ -74,6 +74,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
@@ -271,6 +272,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             final DSSFileSystemView view = createFileSystemView(user);
             return new org.apache.sshd.server.FileSystemView()
                 {
+                    private Cache cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
                     
                     public SshFile getFile(SshFile baseDir, String file)
                     {
@@ -279,7 +281,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                     
                     public SshFile getFile(String file)
                     {
-                        return new FileView(view, file, new Cache());
+                        return new FileView(view, file, cache);
                     }
                 };
         } catch (FtpException ex)

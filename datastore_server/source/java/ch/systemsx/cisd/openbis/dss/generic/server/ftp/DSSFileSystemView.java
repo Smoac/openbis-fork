@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
@@ -132,7 +133,7 @@ public class DSSFileSystemView implements FileSystemView
 
     public FtpFile getFile(String path) throws FtpException
     {
-        return getFile(path, new Cache());
+        return getFile(path, new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
     }
     
     public FtpFile getFile(String path, Cache cache) throws FtpException
