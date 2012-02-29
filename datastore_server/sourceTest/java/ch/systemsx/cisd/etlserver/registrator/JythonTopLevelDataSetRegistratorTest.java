@@ -343,6 +343,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             this.overrideProperties = new HashMap<String, String>();
         };
 
+        @Override
         public String toString()
         {
             return title;

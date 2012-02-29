@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -158,7 +159,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private AbstractTransactionState<T> state;
 
     private DataSetRegistrationContext registrationContext;
-    
+
     // The registration service that owns this transaction
     private final DataSetRegistrationService<T> registrationService;
 
@@ -342,11 +343,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         getStateAsLiveState().deleteFile(src);
     }
-    
+
     public DataSetRegistrationContext getRegistrationContext()
     {
         return registrationContext;
     }
+
     /**
      * Commit the transaction. Does not throw exceptions if the commit fails on some datasets!
      * 
@@ -381,6 +383,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             registrationService.didCommitTransaction(this);
         } catch (Throwable t)
         {
+            DssRegistrationLogger dssRegistrationLog = registrationService.getDssRegistrationLog();
+            dssRegistrationLog.log("Post-storage action failed:");
+            dssRegistrationLog.log(t.toString());
             operationLog.warn("Failed to invoke post transaction hook:" + t.getMessage(), t);
         }
     }

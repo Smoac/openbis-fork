@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
@@ -68,9 +67,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
     {
         public void executePreRegistration(DataSetRegistrationTransaction<T> transaction);
+
         public void executePostRegistration(DataSetRegistrationTransaction<T> transaction);
     }
-    
+
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetStorageAlgorithmRunner.class);
 
@@ -90,9 +90,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IRollbackStack rollbackStack;
 
     private final DataSetRegistrationTransaction<T> transaction;
-    
+
     private final IPrePostRegistrationHook<T> postPreRegistrationHooks;
-    
+
     private final DssRegistrationLogger dssRegistrationLog;
 
     private final IEncapsulatedOpenBISService openBISService;
@@ -135,8 +135,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // Do the prepare
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            IStorageProcessorTransaction transaction = storageAlgorithm.prepare(rollbackStack);
-            ITransactionalCommand command = new StorageProcessorTransactionCommand(transaction);
+            IStorageProcessorTransaction transaction1 = storageAlgorithm.prepare(rollbackStack);
+            ITransactionalCommand command = new StorageProcessorTransactionCommand(transaction1);
             rollbackStack.pushAndExecuteCommand(command);
 
             // Collect logging information
@@ -208,11 +208,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         try
         {
             postPreRegistrationHooks.executePreRegistration(transaction);
-            
+
             // registers data set with yet non-existing store path.
             // Runs or throw a throwable
             registerDataSetsInApplicationServer();
-            
+
         } catch (final Throwable throwable)
         {
             rollbackDuringMetadataRegistration(throwable);
@@ -221,15 +221,17 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
 
-        try {
-            postPreRegistrationHooks.executePostRegistration(transaction);
-        }
-        catch (final Throwable throwable)
+        try
         {
-            //TODO: log here
-            //maybe log but in general ignore
+            postPreRegistrationHooks.executePostRegistration(transaction);
+        } catch (final Throwable throwable)
+        {
+            dssRegistrationLog.log("Post-registration action failed:");
+            dssRegistrationLog.log(throwable.toString());
+
+            operationLog.warn("Post-registration action failed", throwable);
         }
-        
+
         try
         {
             // Should always succeed

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -232,5 +233,17 @@ public interface IDataSetRegistrationTransaction
      *        the given parameters.
      */
     DynamicTransactionQuery getDatabaseQuery(String dataSourceName) throws IllegalArgumentException;
+
+    /**
+     * Return a registration context object which can be used to store information that needs to be
+     * accessed through the registration process.
+     * <p>
+     * It is important to use the registration context, and not global variables, for communication
+     * between code in different parts of the registration process. This is because the registration
+     * process is not guaranteed to run in a single process.
+     * 
+     * @return The context, a hash-map-like object.
+     */
+    DataSetRegistrationContext getRegistrationContext();
 
 }
