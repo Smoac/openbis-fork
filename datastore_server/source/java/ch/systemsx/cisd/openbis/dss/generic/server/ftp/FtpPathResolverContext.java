@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -76,10 +76,8 @@ public class FtpPathResolverContext
         DataSet dataSet = cache.getDataSet(dataSetCode);
         if (dataSet == null)
         {
-            DataSetFetchOptions fetchOptions =
-                    new DataSetFetchOptions(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
-                            DataSetFetchOption.CHILDREN);
-
+            EnumSet<DataSetFetchOption> fetchOptions = EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN);
+            
             List<DataSet> dataSetsWithMetaData =
                     generalInfoService.getDataSetMetaData(sessionToken, Arrays.asList(dataSetCode),
                             fetchOptions);

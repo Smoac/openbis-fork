@@ -572,7 +572,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     @Capability("GET_DATA_SET_META_DATA")
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
-            DataSetFetchOptions dataSetFetchOptions)
+            EnumSet<DataSetFetchOption> fetchOptions)
     {
         if (sessionToken == null)
         {
@@ -582,9 +582,15 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         {
             throw new IllegalArgumentException("DataSetCodes were null");
         }
-        if (dataSetFetchOptions == null)
+        if (fetchOptions == null)
         {
-            throw new IllegalArgumentException("DataSetFetchOptions were null");
+            throw new IllegalArgumentException("FetchOptions were null");
+        }
+
+        DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+        for (DataSetFetchOption option : fetchOptions)
+        {
+            dataSetFetchOptions.addOption(option);
         }
 
         if (dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,

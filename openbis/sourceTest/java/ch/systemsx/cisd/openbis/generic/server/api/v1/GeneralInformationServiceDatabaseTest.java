@@ -21,6 +21,7 @@ import static junit.framework.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -32,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 
 /**
  * @author pkupczyk
@@ -56,7 +56,7 @@ public class GeneralInformationServiceDatabaseTest extends AbstractDAOTest
         List<String> codes = new ArrayList<String>();
         codes.add("20081105092159188-3");
         codes.add("20081105092259000-19");
-        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        EnumSet<DataSetFetchOption> fetchOptions = EnumSet.noneOf(DataSetFetchOption.class);
 
         List<DataSet> result = service.getDataSetMetaData(sessionToken, codes, fetchOptions);
 
@@ -71,7 +71,7 @@ public class GeneralInformationServiceDatabaseTest extends AbstractDAOTest
         List<String> codes = new ArrayList<String>();
         codes.add("20081105092159188-3");
         codes.add("20081105092259000-19");
-        DataSetFetchOptions fetchOptions = new DataSetFetchOptions(DataSetFetchOption.values());
+        EnumSet<DataSetFetchOption> fetchOptions = EnumSet.allOf(DataSetFetchOption.class);
 
         List<DataSet> result = service.getDataSetMetaData(sessionToken, codes, fetchOptions);
 

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -248,16 +248,16 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns meta data for all specified data sets. Which parts of the data sets objects are
-     * fetched is controlled with the <code>dataSetFetchOptions</code> parameter. Available since
+     * fetched is controlled with the <code>fetchOptions</code> parameter. Available since
      * minor version 16.
      * 
      * @param dataSetCodes Codes of requested data sets.
-     * @param dataSetFetchOptions Options that control which parts of the data sets are fetched.
+     * @param fetchOptions Options that control which parts of the data sets are fetched.
      * @return result in the same order as the list of data set codes.
      * @since 1.16
      */
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
-            DataSetFetchOptions dataSetFetchOptions);
+            EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
      * Return all data sets matching a specified search criteria. Note, that for returned container

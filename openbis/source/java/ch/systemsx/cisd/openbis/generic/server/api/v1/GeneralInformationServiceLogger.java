@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -173,11 +173,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
-            DataSetFetchOptions dataSetFetchOptions)
+            EnumSet<DataSetFetchOption> fetchOptions)
     {
         logAccess(sessionToken, "get-data-set-meta-data",
                 "DATA_SETS(%s), DATA_SETS_FETCH_OPTIONS(%s)", abbreviate(dataSetCodes),
-                dataSetFetchOptions);
+                fetchOptions);
         return null;
     }
 
