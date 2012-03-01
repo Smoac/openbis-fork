@@ -21,10 +21,10 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -32,19 +32,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
- * Builder of an {@link Experiment} instance. 
- *
+ * Builder of an {@link Experiment} instance.
+ * 
  * @author Franz-Josef Elmer
  */
 public class ExperimentBuilder
 {
     private final Experiment experiment = new Experiment();
-    
+
     public ExperimentBuilder()
     {
         experiment.setProperties(new ArrayList<IEntityProperty>());
     }
-    
+
     public ExperimentBuilder type(String experimentTypeCode)
     {
         ExperimentType experimentType = new ExperimentType();
@@ -52,13 +52,13 @@ public class ExperimentBuilder
         experiment.setExperimentType(experimentType);
         return this;
     }
-    
+
     public ExperimentBuilder id(long id)
     {
         experiment.setId(id);
         return this;
     }
-    
+
     public ExperimentBuilder code(String code)
     {
         experiment.setCode(code);
@@ -82,19 +82,19 @@ public class ExperimentBuilder
         experiment.setIdentifier(identifier);
         return this;
     }
-    
+
     public ExperimentBuilder permID(String permID)
     {
         experiment.setPermId(permID);
         return this;
     }
-    
+
     public ExperimentBuilder markDeleted()
     {
         experiment.setDeletion(new Deletion());
         return this;
     }
-    
+
     public ExperimentBuilder registrator(String userID)
     {
         Person person = new Person();
@@ -102,19 +102,25 @@ public class ExperimentBuilder
         experiment.setRegistrator(person);
         return this;
     }
-    
+
     public ExperimentBuilder registrator(Person registrator)
     {
         experiment.setRegistrator(registrator);
         return this;
     }
-    
+
     public ExperimentBuilder date(Date date)
     {
         experiment.setRegistrationDate(date);
         return this;
     }
-    
+
+    public ExperimentBuilder modificationDate(Date date)
+    {
+        experiment.setModificationDate(date);
+        return this;
+    }
+
     public PropertyBuilder property(String key)
     {
         List<IEntityProperty> properties = experiment.getProperties();
@@ -122,16 +128,16 @@ public class ExperimentBuilder
         properties.add(propertyBuilder.getProperty());
         return propertyBuilder;
     }
-    
+
     public ExperimentBuilder property(String key, String value)
     {
         property(key).value(value);
         return this;
     }
-    
+
     public final Experiment getExperiment()
     {
         return experiment;
     }
-    
+
 }

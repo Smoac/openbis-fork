@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment> implements
+public class Experiment extends CodeWithRegistrationAndModificationDate<Experiment> implements
         IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IAttachmentHolder,
         IIdAndCodeHolder, IPermIdHolder
 {
@@ -49,8 +48,6 @@ public class Experiment extends CodeWithRegistration<Experiment> implements
     private List<Attachment> attachments;
 
     private Long id;
-
-    private Date modificationDate;
 
     private String permId;
 
@@ -157,7 +154,7 @@ public class Experiment extends CodeWithRegistration<Experiment> implements
         return "Experiment [project=" + project + ", experimentType=" + experimentType
                 + ", identifier=" + identifier + ", properties=" + properties + ", deletion="
                 + deletion + ", attachments=" + attachments + ", id=" + id + ", modificationDate="
-                + modificationDate + ", permId=" + permId + ", permlink=" + permlink + "]";
+                + getModificationDate() + ", permId=" + permId + ", permlink=" + permlink + "]";
     }
 
     //
@@ -178,16 +175,6 @@ public class Experiment extends CodeWithRegistration<Experiment> implements
     public void setId(Long id)
     {
         this.id = id;
-    }
-
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
     }
 
     public EntityType getEntityType()

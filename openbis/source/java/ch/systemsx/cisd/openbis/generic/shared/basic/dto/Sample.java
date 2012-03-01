@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Izabela Adamczyk
  */
-public final class Sample extends CodeWithRegistration<Sample> implements
+public final class Sample extends CodeWithRegistrationAndModificationDate<Sample> implements
         IEntityWithDeletionInformation, Comparable<Sample>, IEntityInformationHolderWithProperties,
         IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder
 {
@@ -63,8 +62,6 @@ public final class Sample extends CodeWithRegistration<Sample> implements
     private Experiment experiment;
 
     private Long id;
-
-    private Date modificationDate;
 
     private List<Attachment> attachments;
 
@@ -270,16 +267,6 @@ public final class Sample extends CodeWithRegistration<Sample> implements
         this.id = id;
     }
 
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
-    }
-
     public EntityType getEntityType()
     {
         return getSampleType();
@@ -317,7 +304,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements
                 + databaseInstance + ", identifier=" + identifier + ", container=" + container
                 + ", parents=" + parents + ", properties=" + properties + ", deletion=" + deletion
                 + ", experiment=" + experiment + ", id=" + id + ", modificationDate="
-                + modificationDate + ", attachments=" + attachments + ", permId=" + permId
+                + getModificationDate() + ", attachments=" + attachments + ", permId=" + permId
                 + ", permlink=" + permlink + ", searchlink=" + searchlink + ", subCode=" + subCode
                 + "]";
     }

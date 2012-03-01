@@ -49,6 +49,8 @@ public class EntityRegistrationDetails implements Serializable
         private String userId;
 
         private Date registrationDate;
+        
+        private Date modificationDate;
 
         public String getFirstName()
         {
@@ -100,6 +102,16 @@ public class EntityRegistrationDetails implements Serializable
             this.registrationDate = registrationDate;
         }
 
+        public Date getModificationDate()
+        {
+            return modificationDate;
+        }
+
+        public void setModificationDate(Date modificationDate)
+        {
+            this.modificationDate = modificationDate;
+        }
+
     }
 
     private String userFirstName;
@@ -111,6 +123,8 @@ public class EntityRegistrationDetails implements Serializable
     private String userId;
 
     private Date registrationDate;
+    
+    private Date modificationDate;
 
     EntityRegistrationDetails()
     {
@@ -124,6 +138,7 @@ public class EntityRegistrationDetails implements Serializable
         this.userEmail = initializer.getEmail();
         this.userId = initializer.getUserId();
         this.registrationDate = initializer.getRegistrationDate();
+        this.modificationDate = initializer.getModificationDate();
     }
 
     public String getUserFirstName()
@@ -149,6 +164,11 @@ public class EntityRegistrationDetails implements Serializable
     public Date getRegistrationDate()
     {
         return registrationDate;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
     }
 
     @Override

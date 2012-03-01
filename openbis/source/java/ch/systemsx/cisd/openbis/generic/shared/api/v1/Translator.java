@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -127,7 +129,7 @@ public class Translator
             initializer.setExperimentIdentifierOrNull(experimentOrNull.getIdentifier());
         }
 
-        EntityRegistrationDetails registrationDetails = translateRegistrationDetails(privateSample);
+        EntityRegistrationDetails registrationDetails = translateRegistrationDetailsWithModificationDate(privateSample);
         initializer.setRegistrationDetails(registrationDetails);
 
         return new Sample(initializer);
@@ -160,7 +162,7 @@ public class Translator
         }
 
         EntityRegistrationDetails registrationDetails =
-                translateRegistrationDetails(privateExperiment);
+                translateRegistrationDetailsWithModificationDate(privateExperiment);
         initializer.setRegistrationDetails(registrationDetails);
 
         return new Experiment(initializer);
@@ -372,14 +374,31 @@ public class Translator
                     break;
             }
         }
-        EntityRegistrationDetails registrationDetails = translateRegistrationDetails(externalDatum);
+        EntityRegistrationDetails registrationDetails = translateRegistrationDetailsWithModificationDate(externalDatum);
         initializer.setRegistrationDetails(registrationDetails);
 
         return new DataSet(initializer);
     }
 
     private static EntityRegistrationDetails translateRegistrationDetails(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration<?> thingWithRegistrationDetails)
+            CodeWithRegistration<?> thingWithRegistrationDetails)
+    {
+        EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
+                createInitializer(thingWithRegistrationDetails);
+        return new EntityRegistrationDetails(initializer);
+    }
+
+    private static EntityRegistrationDetails translateRegistrationDetailsWithModificationDate(
+            CodeWithRegistrationAndModificationDate<?> thingWithRegistrationDetails)
+    {
+        EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
+                createInitializer(thingWithRegistrationDetails);
+        initializer.setModificationDate(thingWithRegistrationDetails.getModificationDate());
+        return new EntityRegistrationDetails(initializer);
+    }
+
+    private static EntityRegistrationDetails.EntityRegistrationDetailsInitializer createInitializer(
+            CodeWithRegistration<?> thingWithRegistrationDetails)
     {
         Person registrator = thingWithRegistrationDetails.getRegistrator();
         EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
@@ -392,7 +411,7 @@ public class Translator
             initializer.setUserId(registrator.getUserId());
         }
         initializer.setRegistrationDate(thingWithRegistrationDetails.getRegistrationDate());
-        return new EntityRegistrationDetails(initializer);
+        return initializer;
     }
 
     private Translator()

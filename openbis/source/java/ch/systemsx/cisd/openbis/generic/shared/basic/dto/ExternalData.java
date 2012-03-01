@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Christian Ribeaud
  */
-public abstract class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
-        IPermIdHolder
+public abstract class ExternalData extends CodeWithRegistrationAndModificationDate<ExternalData>
+        implements IEntityWithDeletionInformation, IEntityInformationHolderWithProperties,
+        IIdAndCodeHolder, IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -55,8 +55,6 @@ public abstract class ExternalData extends CodeWithRegistration<ExternalData> im
     private DataSetType dataSetType;
 
     private Date productionDate;
-
-    private Date modificationDate;
 
     private String producerCode;
 
@@ -224,16 +222,6 @@ public abstract class ExternalData extends CodeWithRegistration<ExternalData> im
     public final void setProductionDate(Date productionDate)
     {
         this.productionDate = productionDate;
-    }
-
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
     }
 
     public final String getDataProducerCode()

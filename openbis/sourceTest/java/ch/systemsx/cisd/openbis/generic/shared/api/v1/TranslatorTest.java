@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +29,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 
 /**
  * @author Franz-Josef Elmer
@@ -45,15 +48,30 @@ public class TranslatorTest extends AssertJUnit
 
     private ContainerDataSetBuilder dsContainer;
 
+    private Experiment experiment;
+
+    private Sample sample;
+
+    private Project project;
+
     @BeforeMethod
     public void setUp()
     {
-        Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").getExperiment();
-        Sample sample = new SampleBuilder("/S/S1").getSample();
+        experiment =
+                new ExperimentBuilder().id(1).permID("e-1").identifier("/S/P/E1").type("my-type")
+                        .property("a", "1").date(new Date(101)).modificationDate(new Date(102))
+                        .getExperiment();
+        project = experiment.getProject();
+        project.setRegistrationDate(new Date(300));
+        sample =
+                new SampleBuilder("/S/S1").id(2).permID("s-2").property("b", "2")
+                        .type(new SampleTypeBuilder().code("ms").id(4).getSampleType())
+                        .date(new Date(201)).modificationDate(new Date(202)).getSample();
 
         ds1 =
                 new DataSetBuilder().code("ds1").type("T1").experiment(experiment).sample(sample)
-                        .property("A", "42");
+                        .property("A", "42").registrationDate(new Date(42))
+                        .modificationDate(new Date(43));
         ds2 =
                 new DataSetBuilder().code("ds2").type("T2").experiment(experiment)
                         .property("B", "true");
@@ -62,7 +80,52 @@ public class TranslatorTest extends AssertJUnit
                 new ContainerDataSetBuilder().code("ds-container").type("T3")
                         .experiment(experiment).sample(sample).contains(ds1.getDataSet())
                         .contains(ds2.getDataSet());
+    }
 
+    @Test
+    public void testTranslateProject()
+    {
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project translatedProject =
+                Translator.translate(project);
+        assertEquals(project.getCode(), translatedProject.getCode());
+        assertEquals(project.getSpace().getCode(), translatedProject.getSpaceCode());
+        assertEquals(project.getRegistrationDate(), translatedProject.getRegistrationDetails()
+                .getRegistrationDate());
+    }
+
+    @Test
+    public void testTranslateExperiment()
+    {
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment translateExperiment =
+                Translator.translate(experiment);
+        assertEquals(experiment.getCode(), translateExperiment.getCode());
+        assertEquals(experiment.getId(), translateExperiment.getId());
+        assertEquals(experiment.getPermId(), translateExperiment.getPermId());
+        assertEquals(experiment.getIdentifier(), translateExperiment.getIdentifier());
+        assertEquals(experiment.getExperimentType().getCode(),
+                translateExperiment.getExperimentTypeCode());
+        assertEquals(experiment.getRegistrationDate(), translateExperiment.getRegistrationDetails()
+                .getRegistrationDate());
+        assertEquals(experiment.getModificationDate(), translateExperiment.getRegistrationDetails()
+                .getModificationDate());
+        assertEquals("{a=1}", translateExperiment.getProperties().toString());
+    }
+
+    @Test
+    public void testTranslateSample()
+    {
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample translateSample =
+                Translator.translate(sample);
+        assertEquals(sample.getCode(), translateSample.getCode());
+        assertEquals(sample.getId(), translateSample.getId());
+        assertEquals(sample.getPermId(), translateSample.getPermId());
+        assertEquals(sample.getIdentifier(), translateSample.getIdentifier());
+        assertEquals(sample.getSampleType().getCode(), translateSample.getSampleTypeCode());
+        assertEquals(sample.getRegistrationDate(), translateSample.getRegistrationDetails()
+                .getRegistrationDate());
+        assertEquals(sample.getModificationDate(), translateSample.getRegistrationDetails()
+                .getModificationDate());
+        assertEquals("{b=2}", translateSample.getProperties().toString());
     }
 
     @Test
@@ -156,6 +219,10 @@ public class TranslatorTest extends AssertJUnit
                 translatedDataSet.getExperimentIdentifier());
         assertEquals(originalDataSet.getSampleIdentifier(),
                 translatedDataSet.getSampleIdentifierOrNull());
+        assertEquals(originalDataSet.getRegistrationDate(), translatedDataSet
+                .getRegistrationDetails().getRegistrationDate());
+        assertEquals(originalDataSet.getModificationDate(), translatedDataSet
+                .getRegistrationDetails().getModificationDate());
         List<IEntityProperty> originalProperties = originalDataSet.getProperties();
         HashMap<String, String> translatedProperties = translatedDataSet.getProperties();
         for (IEntityProperty property : originalProperties)

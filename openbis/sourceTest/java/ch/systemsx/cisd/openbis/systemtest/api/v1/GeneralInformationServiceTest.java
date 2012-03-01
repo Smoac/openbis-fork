@@ -129,6 +129,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/CISD/EMPTY-MP, /CISD/MP002-1, /CISD/MP1-MIXED, /CISD/MP2-NO-CL, /MP]",
                 samples);
+        assertEquals(1225873217877L, samples.get(0).getRegistrationDetails().getRegistrationDate()
+                .getTime());
+        assertEquals(1237369819475L, samples.get(0).getRegistrationDetails().getModificationDate()
+                .getTime());
 
         loginAsObserver();
         samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);

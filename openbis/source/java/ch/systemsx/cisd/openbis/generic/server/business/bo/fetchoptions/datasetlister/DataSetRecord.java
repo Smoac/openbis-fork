@@ -30,6 +30,8 @@ public class DataSetRecord
 
     public Date ds_registration_timestamp;
 
+    public Date ds_modification_timestamp;
+
     public String dt_code;
 
     public Boolean dt_is_container;
