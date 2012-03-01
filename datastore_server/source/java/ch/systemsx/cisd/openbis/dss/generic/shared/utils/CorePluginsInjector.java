@@ -53,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
  */
 class CorePluginsInjector
 {
+     static final String DELETE_KEY_WORD = "__DELETE__";
+
     private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
 
     static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
@@ -153,7 +155,7 @@ class CorePluginsInjector
                     for (Entry<Object, Object> keyValuePair : pluginProperties.entrySet())
                     {
                         String value = keyValuePair.getValue().toString();
-                        properties.setProperty(pluginName + "." + keyValuePair.getKey(), value);
+                        injectProperty(properties, pluginName + "." + keyValuePair.getKey(), value);
                     }
                 } else
                 {
@@ -164,7 +166,7 @@ class CorePluginsInjector
                         String key = keyValuePair.getKey().toString();
                         if (keysOfKeyLists.contains(key) == false)
                         {
-                            properties.setProperty(key, value);
+                            injectProperty(properties, key, value);
                         }
                     }
                     pluginKeyBundles.add(miscPluginKeyBundles);
@@ -173,6 +175,18 @@ class CorePluginsInjector
             }
         }
         pluginKeyBundles.addOrReplaceKeyBundleIn(properties);
+    }
+
+    private void injectProperty(Properties properties, String key, String value)
+    {
+        String property = properties.getProperty(key);
+        if (property != null && property.trim().equals(DELETE_KEY_WORD))
+        {
+            properties.remove(key);
+        } else
+        {
+            properties.setProperty(key, value);
+        }
     }
     
     private Set<String> getDisabledPlugins(Properties properties)

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
 /**
  * 
@@ -295,6 +296,45 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                 + "disabled-core-plugins = proteomics, screening:miscellaneous, "
                 + "screening:drop-boxes:dp1\n" + "inputs = dp2\n", properties);
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeletedPropertyForPluginTypeNotMiscellaneous()
+    {
+        File pluginFolder = new File(corePluginsFolder, "screening/1/dss/services/z");
+        pluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(pluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "alpha = 42\nbeta = 43");
+        Properties properties = createProperties();
+        properties.setProperty("z.beta", CorePluginsInjector.DELETE_KEY_WORD);
+        preparePluginNameLog("screening:services:z [" + pluginFolder + "]");
+        
+        injector.injectCorePlugins(properties);
+
+        assertProperties(corePluginsFolderProperty
+                + Constants.PLUGIN_SERVICES_LIST_KEY + " = z\n"
+                + "z.alpha = 42\n", properties);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDeletedPropertyForPluginTypeMiscellaneous()
+    {
+        File pluginFolder = new File(corePluginsFolder, "screening/1/dss/miscellaneous/z");
+        pluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(pluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "z = 42\nbeta = 43");
+        Properties properties = createProperties();
+        properties.setProperty("beta", CorePluginsInjector.DELETE_KEY_WORD);
+        preparePluginNameLog("screening:miscellaneous:z [" + pluginFolder + "]");
+        
+        injector.injectCorePlugins(properties);
+        
+        assertProperties(corePluginsFolderProperty
+                + "z = 42\n", properties);
+        
         context.assertIsSatisfied();
     }
     
