@@ -233,4 +233,9 @@ public class EntityRegistrationDetails implements Serializable
         this.registrationDate = registrationDate;
     }
 
+    void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
+    }
+
 }
