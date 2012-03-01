@@ -64,6 +64,8 @@ class CorePluginsInjector
     enum PluginType
     {
         DROP_BOXES("drop-boxes", Constants.INPUT_THREAD_NAMES), 
+        DATA_SOURCES("data-sources", Constants.DATA_SOURCES_KEY), 
+        SERVICES("services", Constants.PLUGIN_SERVICES_LIST_KEY), 
         REPORTING_PLUGINS("reporting-plugins", Constants.REPORTING_PLUGIN_NAMES), 
         PROCESSING_PLUGINS("processing-plugins", Constants.PROCESSING_PLUGIN_NAMES),
         MAINTENANCE_TASKS("maintenance-tasks", MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME), 

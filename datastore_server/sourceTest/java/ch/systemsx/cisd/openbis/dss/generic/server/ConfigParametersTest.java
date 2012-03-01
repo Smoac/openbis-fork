@@ -23,6 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 
 /**
@@ -59,7 +60,7 @@ public class ConfigParametersTest extends AssertJUnit
     public void testPluginServices()
     {
         Properties properties = createMandatoryProperties();
-        properties.setProperty(ConfigParameters.PLUGIN_SERVICES_LIST_KEY, "s1, s2");
+        properties.setProperty(Constants.PLUGIN_SERVICES_LIST_KEY, "s1, s2");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class1");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_PATH_KEY, "path1");
         properties.setProperty("s2." + ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class2");
@@ -80,7 +81,7 @@ public class ConfigParametersTest extends AssertJUnit
     public void testPluginServicesWithDuplicatedPath()
     {
         Properties properties = createMandatoryProperties();
-        properties.setProperty(ConfigParameters.PLUGIN_SERVICES_LIST_KEY, "s1, s2");
+        properties.setProperty(Constants.PLUGIN_SERVICES_LIST_KEY, "s1, s2");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class1");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_PATH_KEY, "path1");
         properties.setProperty("s2." + ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class2");
@@ -117,7 +118,7 @@ public class ConfigParametersTest extends AssertJUnit
     public void testAddServletPropertiesWithExistingPath()
     {
         Properties properties = createMandatoryProperties();
-        properties.setProperty(ConfigParameters.PLUGIN_SERVICES_LIST_KEY, "s1");
+        properties.setProperty(Constants.PLUGIN_SERVICES_LIST_KEY, "s1");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class1");
         properties.setProperty("s1." + ConfigParameters.PLUGIN_SERVICE_PATH_KEY, "path1");
         ConfigParameters configParameters = new ConfigParameters(properties);

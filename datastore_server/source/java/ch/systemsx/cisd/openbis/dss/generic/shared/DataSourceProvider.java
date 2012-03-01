@@ -70,8 +70,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
  */
 public class DataSourceProvider implements IDataSourceProvider
 {
-    static final String DATA_SOURCES_KEY = "data-sources";
-
     private static final String DATA_SOURCE_FACTORY_CLASS_KEY = "factory-class";
 
     private static final Logger operationLog =
@@ -87,7 +85,7 @@ public class DataSourceProvider implements IDataSourceProvider
         dataSources = new HashMap<String, DataSource>();
         SectionProperties[] props =
                 PropertyParametersUtil
-                        .extractSectionProperties(properties, DATA_SOURCES_KEY, false);
+                        .extractSectionProperties(properties, Constants.DATA_SOURCES_KEY, false);
         for (SectionProperties sectionProperties : props)
         {
             Properties dataSourceProperties = sectionProperties.getProperties();

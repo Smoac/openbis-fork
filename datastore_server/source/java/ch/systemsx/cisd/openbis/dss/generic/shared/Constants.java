@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import ch.rinn.restrictions.Private;
 
 /**
  * Some common constants.
@@ -32,11 +31,15 @@ public class Constants
     public static final String INPUT_THREAD_NAMES = "inputs";
 
     /** property with repotring plugins names separated by delimiter */
-    @Private
     public static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
 
     /** property with processing plugins names separated by delimiter */
-    @Private
     public static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
+
+    /** Key of service property which is a list of data source IDs. */ 
+    public static final String DATA_SOURCES_KEY = "data-sources";
+
+    /** Key of service property which is a list of servlet services. */
+    public static final String PLUGIN_SERVICES_LIST_KEY = "plugin-services";
 
 }

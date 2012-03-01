@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
@@ -77,8 +78,6 @@ public final class ConfigParameters implements IServletPropertiesManager
     public static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
 
     public static final String KEYSTORE_KEY_PASSWORD_KEY = KEYSTORE + "key-password";
-
-    static final String PLUGIN_SERVICES_LIST_KEY = "plugin-services";
 
     static final String PLUGIN_SERVICE_CLASS_KEY = "class";
 
@@ -173,7 +172,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         pluginServlets = new LinkedHashMap<String, PluginServletConfig>();
         SectionProperties[] pluginServicesProperties =
                 PropertyParametersUtil.extractSectionProperties(properties,
-                        PLUGIN_SERVICES_LIST_KEY, false);
+                        Constants.PLUGIN_SERVICES_LIST_KEY, false);
         addServletsProperties("", pluginServicesProperties);
 
         webstartJarPath =
