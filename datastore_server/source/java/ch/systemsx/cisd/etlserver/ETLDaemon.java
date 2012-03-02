@@ -56,6 +56,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.maintenance.MaintenancePlugin;
+import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
@@ -63,6 +65,7 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
@@ -87,6 +90,8 @@ public final class ETLDaemon
     public static final File shredderQueueFile = new File(".shredder");
 
     public static final File updaterQueueFile = new File(".updater");
+
+    public static final int INJECTED_POST_REGISTRATION_TASK_INTERVAL = 1;
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
@@ -606,8 +611,44 @@ public final class ETLDaemon
         }
         printInitialLogMessage(parameters);
         startupServer(parameters);
-        MaintenanceTaskUtils.startupMaintenancePlugins(parameters.getMaintenancePlugins());
+        MaintenanceTaskParameters[] maintenancePlugins = parameters.getMaintenancePlugins();
+        MaintenanceTaskUtils.startupMaintenancePlugins(maintenancePlugins);
+        injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
+
         operationLog.info("Data Store Server ready and waiting for data.");
+    }
+
+    /**
+     * In order for the post registration queue table in the database to be cleared, there must be a
+     * post registration maintenance task.
+     */
+    private static void injectPostRegistrationMaintenanceTaskIfNecessary(MaintenanceTaskParameters[] maintenancePlugins)
+    {
+        boolean hasPostRegistrationMaintenanceTask = false;
+        for (MaintenanceTaskParameters task : maintenancePlugins)
+        {
+            if (PostRegistrationMaintenanceTask.class.getName().equals(task.getClassName()))
+            {
+                hasPostRegistrationMaintenanceTask = true;
+            }
+        }
+
+        if (hasPostRegistrationMaintenanceTask)
+        {
+            // Nothing additional to do.
+            return;
+        }
+
+        PostRegistrationMaintenanceTask task = new PostRegistrationMaintenanceTask();
+        Properties props = new Properties();
+        props.setProperty(MaintenanceTaskParameters.CLASS_KEY, task.getClass().getName());
+        // Have the task run every second
+        props.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, Integer.toString(INJECTED_POST_REGISTRATION_TASK_INTERVAL));
+        MaintenanceTaskParameters parameters = new MaintenanceTaskParameters(props, "injected-post-registration-task");
+        task.setUpEmpty();
+
+        MaintenancePlugin plugin = new MaintenancePlugin(task, parameters);
+        MaintenanceTaskUtils.injectMaintenancePlugin(plugin);
     }
 
     /**

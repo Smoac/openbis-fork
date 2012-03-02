@@ -46,7 +46,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
  * Maintenance task performing {@link IPostRegistrationTask}s.
@@ -90,6 +89,9 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
 
     public void setUp(String pluginName, Properties properties)
     {
+        //
+        // NB Changes to this method need to be reflected in setUpEmpty as well!
+        //
         service = ServiceProvider.getOpenBISService();
         // Linked hash map because the task should be executed in the order of definition.
         Map<String, IPostRegistrationTask> map = new LinkedHashMap<String, IPostRegistrationTask>();
@@ -134,6 +136,24 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         }
     }
 
+    /**
+     * The PostRegistrationMaintenanceTask is a bit exceptional since it needs to be run even if it
+     * is not configured by the user. This method is used to set it up in that case.
+     */
+    public void setUpEmpty()
+    {
+        service = ServiceProvider.getOpenBISService();
+        // Linked hash map because the task should be executed in the order of definition.
+        Map<String, IPostRegistrationTask> map = new LinkedHashMap<String, IPostRegistrationTask>();
+        needsLockOnDataStore = false;
+        tasks = map.entrySet();
+        executor = new TaskExecutor(new Properties(), operationLog);
+        String fileName = DEFAULT_LAST_SEEN_DATA_SET_FILE;
+        lastSeenDataSetFile = new File(fileName);
+        newLastSeenDataSetFile = new File(fileName + ".new");
+        ignoreBeforeDate = new Date(0);
+    }
+
     public void execute()
     {
         executor.cleanup();
@@ -145,12 +165,12 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         {
             String lastRegisteredCode =
                     FileUtilities.loadToString(lastSeenDataSetFile).trim();
-                service.markSuccessfulPostRegistration(lastRegisteredCode);
-                deleteLastSeenDataSetId();
+            service.markSuccessfulPostRegistration(lastRegisteredCode);
+            deleteLastSeenDataSetId();
         }
 
         List<ExternalData> dataSets = getDataSetsForPostRegistration();
-        
+
         for (int i = 0; i < dataSets.size(); i++)
         {
             ExternalData dataSet = dataSets.get(i);
@@ -184,7 +204,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     }
 
     /**
-     * @return List of datasets to process in post registration. Sorted by Id, incrementally. 
+     * @return List of datasets to process in post registration. Sorted by Id, incrementally.
      */
     private List<ExternalData> getDataSetsForPostRegistration()
     {
@@ -212,7 +232,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
      */
     private void saveLastSeenDataSetId(String lastRegisteredDataSetCode)
     {
-        FileUtilities.writeToFile(newLastSeenDataSetFile,lastRegisteredDataSetCode);
+        FileUtilities.writeToFile(newLastSeenDataSetFile, lastRegisteredDataSetCode);
         newLastSeenDataSetFile.renameTo(lastSeenDataSetFile);
     }
 

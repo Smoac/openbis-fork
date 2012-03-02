@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -351,6 +352,16 @@ public class DssComponentTest extends SystemTestCase
         assertEquals("hello world", getContent(dataSet, "data.log"));
         assertEquals("1 2 3", getContent(dataSet, "data/1.data"));
         assertEquals("4 5 6 7", getContent(dataSet, "data/2.data"));
+
+        // Wait a bit for the maintenance task to run
+        try
+        {
+            Thread.sleep((ETLDaemon.INJECTED_POST_REGISTRATION_TASK_INTERVAL + 1) * 1000);
+        } catch (InterruptedException e)
+        {
+        }
+        IEncapsulatedOpenBISService openbisService = ServiceProvider.getOpenBISService();
+        assertEquals(0, openbisService.listDataSetsForPostRegistration().size());
     }
 
     private String getContent(IDataSetDss dataSet, String path) throws IOException
