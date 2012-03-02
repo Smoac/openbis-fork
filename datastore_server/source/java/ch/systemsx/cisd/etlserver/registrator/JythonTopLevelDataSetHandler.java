@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.python.core.Py;
@@ -30,7 +29,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
