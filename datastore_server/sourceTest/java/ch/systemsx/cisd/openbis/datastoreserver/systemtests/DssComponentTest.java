@@ -356,7 +356,10 @@ public class DssComponentTest extends SystemTestCase
         // Wait a bit for the maintenance task to run
         try
         {
-            Thread.sleep((ETLDaemon.INJECTED_POST_REGISTRATION_TASK_INTERVAL + 1) * 1000);
+            // The default dss service.properties has a post-registration maintenance
+            // task scheduled to run every 30 seconds, so wait until it has run and cleaned
+            // up the queue.
+            Thread.sleep(31 * 1000);
         } catch (InterruptedException e)
         {
         }
