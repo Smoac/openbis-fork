@@ -43,6 +43,18 @@ public class MaintenancePlugin
         this.requiresDataStoreLock = requiresDataStoreLock();
     }
 
+    /**
+     * Constructor that takes a configured maintenance task.
+     * 
+     * @param task
+     */
+    public MaintenancePlugin(IMaintenanceTask task, MaintenanceTaskParameters parameters)
+    {
+        this.parameters = parameters;
+        this.task = task;
+        this.requiresDataStoreLock = requiresDataStoreLock();
+    }
+
     private boolean requiresDataStoreLock()
     {
         if (task instanceof IDataStoreLockingMaintenanceTask)

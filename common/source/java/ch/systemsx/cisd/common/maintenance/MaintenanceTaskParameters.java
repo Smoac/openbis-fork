@@ -34,13 +34,13 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class MaintenanceTaskParameters
 {
+    public static final String CLASS_KEY = "class";
+
+    public static final String INTERVAL_KEY = "interval";
+
     static final String TIME_FORMAT = "HH:mm";
 
     static final int ONE_DAY_IN_SEC = 60 * 60 * 24;
-
-    static final String CLASS_KEY = "class";
-
-    static final String INTERVAL_KEY = "interval";
 
     static final String START_KEY = "start";
 

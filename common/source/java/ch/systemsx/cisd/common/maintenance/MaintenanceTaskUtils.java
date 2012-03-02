@@ -51,10 +51,19 @@ public class MaintenanceTaskUtils
             MaintenancePlugin plugin = new MaintenancePlugin(parameters);
             plugins.add(plugin);
         }
+
         for (MaintenancePlugin plugin : plugins)
         {
             plugin.start();
         }
+    }
+
+    /**
+     * Inject a maintenance plugin into the running plugin environment.
+     */
+    public static void injectMaintenancePlugin(MaintenancePlugin plugin)
+    {
+        plugin.start();
     }
 
     public static MaintenanceTaskParameters[] createMaintenancePlugins(
