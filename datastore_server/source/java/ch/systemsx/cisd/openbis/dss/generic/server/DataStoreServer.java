@@ -420,14 +420,7 @@ public class DataStoreServer
     {
         if (configParameters == null)
         {
-            Properties properties;
-            try
-            {
-                properties = DssPropertyParametersUtil.loadServiceProperties();
-            } catch (ConfigurationFailureException ex)
-            {
-                properties = new Properties();
-            }
+            Properties properties = DssPropertyParametersUtil.loadServiceProperties();
             final Properties systemProperties = System.getProperties();
             final Enumeration<?> propertyNames = systemProperties.propertyNames();
             while (propertyNames.hasMoreElements())
