@@ -62,6 +62,22 @@ public final class ExtendedPropertiesTest extends AssertJUnit
         assertEquals("eins", extendedProperties.getProperty("un"));
         assertEquals("einsdrei", extendedProperties.getProperty("four", "abc"));
     }
+    
+    @Test
+    public void testMultipleReplacements()
+    {
+        extendedProperties.setProperty("greetings", "hello ${one}, hi ${un}, hi ${two}");
+        
+        assertEquals("hello eins, hi eins, hi zwei", extendedProperties.getProperty("greetings"));
+    }
+    
+    @Test
+    public void testReplacementWithDefaultValue()
+    {
+        extendedProperties.setProperty("greetings", "hello ${un}, hi ${1:eins}");
+        
+        assertEquals("hello eins, hi eins", extendedProperties.getProperty("greetings"));
+    }
 
     @Test
     public final void testGetSubsetString()

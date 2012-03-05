@@ -39,6 +39,15 @@ import org.apache.commons.lang.SystemUtils;
  * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". Cyclic
  * references are handled by removing the current key before resolving it, i.e. when setting A=${B}
  * and B=${A} and then asking for A, you will get ${A}.
+ * 
+ * Also, default values can be defined. Example:
+ * 
+ * <pre>
+ * greeting = hello ${user:world}
+ * </pre>
+ * 
+ * If property 'user' hasn't been defined <code>getProperty("greeting")</code> returns "hello world".
+ * 
  * <li>Inherit properties. For example,
  * 
  * <pre>
@@ -71,6 +80,9 @@ public final class ExtendedProperties extends Properties
     /** Default placeholder suffix: "}" */
     private static final String SUFFIX = "}";
 
+    /** Default placeholder delim for default value: ":" */
+    private static final String DEFAULT_VALUE_DELIM = ":";
+    
     /** Default placeholder prefix: "${" */
     private static final String PREFIX = "${";
 
@@ -178,12 +190,22 @@ public final class ExtendedProperties extends Properties
         final int suffixLen = SUFFIX.length();
         while (startName >= 0 && endName > startName)
         {
-            final String paramName = result.substring(startName + prefixLen, endName);
+            String paramName = result.substring(startName + prefixLen, endName);
             String paramValue = null;
+            int indexOfDefaultValueDelim = paramName.indexOf(DEFAULT_VALUE_DELIM);
+            if (indexOfDefaultValueDelim > 0)
+            {
+                paramValue = paramName.substring(indexOfDefaultValueDelim + 1);
+                paramName = paramName.substring(0, indexOfDefaultValueDelim);
+            }
             if (keys.contains(paramName) == false)
             {
                 keys.add(key);
-                paramValue = getProperty(paramName, keys);
+                String propertyValue = getProperty(paramName, keys);
+                if (propertyValue != null)
+                {
+                    paramValue = propertyValue;
+                }
                 keys.remove(key);
             }
             if (paramValue != null)
