@@ -562,7 +562,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {
-        logAccess(sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)", dataStoreCode);
+        logAccess(Level.DEBUG, sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)", dataStoreCode);
         return null;
     }
 }
