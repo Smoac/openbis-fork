@@ -275,7 +275,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testDisabledPlugins()
+    public void testDisabledPluginsByProperties()
     {
         new File(corePluginsFolder, "screening/1/dss/miscellaneous/a").mkdirs();
         new File(corePluginsFolder, "screening/1/dss/miscellaneous/b").mkdirs();
@@ -296,6 +296,25 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                 + "disabled-core-plugins = proteomics, screening:miscellaneous, "
                 + "screening:drop-boxes:dp1\n" + "inputs = dp2\n", properties);
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDisabledPluginsByMarkerFile() throws Exception
+    {
+        File dp1 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp1");
+        dp1.mkdirs();
+        new File(dp1, CorePluginsInjector.DISABLED_MARKER_FILE_NAME).createNewFile();
+        File dp2 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp2");
+        dp2.mkdirs();
+        FileUtilities.writeToFile(new File(dp2, PLUGIN_PROPERTIES_FILE_NAME), "");
+        Properties properties = createProperties();
+        preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
+        
+        injector.injectCorePlugins(properties);
+        
+        assertProperties(corePluginsFolderProperty + "inputs = dp2\n", properties);
+        
         context.assertIsSatisfied();
     }
     

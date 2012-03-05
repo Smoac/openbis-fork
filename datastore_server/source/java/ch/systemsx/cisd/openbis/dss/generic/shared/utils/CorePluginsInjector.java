@@ -61,6 +61,8 @@ class CorePluginsInjector
     
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
     
+    static final String DISABLED_MARKER_FILE_NAME = "disabled";
+    
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
     
     enum PluginType
@@ -148,6 +150,10 @@ class CorePluginsInjector
                 String pluginName = entry2.getKey();
                 DssCorePlugin plugin = entry2.getValue();
                 File definingFolder = plugin.getDefiningFolder();
+                if (new File(definingFolder, DISABLED_MARKER_FILE_NAME).exists())
+                {
+                    continue;
+                }
                 Properties pluginProperties = getPluginProperties(definingFolder);
                 if (pluginType.isUniquePluginNameRequired())
                 {
