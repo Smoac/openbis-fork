@@ -90,10 +90,10 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     }
 
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
-            TechId proteinReferenceID) throws UserFailureException
+            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {
         logAccess(sessionToken, "list_protein_sequences_by_reference",
-                "PROTEIN_REFERENCE_ID(%s)", proteinReferenceID);
+                "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentID, proteinReferenceID);
         return null;
     }
 

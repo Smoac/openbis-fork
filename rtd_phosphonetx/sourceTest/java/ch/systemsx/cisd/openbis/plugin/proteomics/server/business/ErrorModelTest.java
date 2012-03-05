@@ -24,8 +24,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ErrorModel;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProbabilityFDRMapping;
@@ -44,7 +42,6 @@ public class ErrorModelTest extends AssertJUnit
     private static final long DATA_SET3_ID = 44;
     
     private Mockery context;
-    private IPhosphoNetXDAOFactory specificDAOFactory;
     private IProteinQueryDAO proteinQueryDAO;
     private ErrorModel errorModel;
     
@@ -52,14 +49,11 @@ public class ErrorModelTest extends AssertJUnit
     public void beforeMethod()
     {
         context = new Mockery();
-        specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinQueryDAO = context.mock(IProteinQueryDAO.class);
-        errorModel = new ErrorModel(specificDAOFactory);
+        errorModel = new ErrorModel(proteinQueryDAO);
         context.checking(new Expectations()
             {
                 {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
-                    will(returnValue(proteinQueryDAO));
                     
                     atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET1_ID);
                     MockDataSet<ProbabilityFDRMapping> dataSet1 = new MockDataSet<ProbabilityFDRMapping>();

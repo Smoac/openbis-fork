@@ -131,7 +131,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     {
         AbundanceManager abundanceManager = new AbundanceManager(sampleProvider);
         IPhosphoNetXDAOFactory specificDAOFactory = getSpecificDAOFactory();
-        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO(experimentPermID);
         long time = System.currentTimeMillis();
         DataSet<ProteinReferenceWithProtein> dataSet =
                 dao.listProteinReferencesByExperiment(experimentPermID);
@@ -149,8 +149,8 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             dataSet.close();
         }
         operationLog.info("(" + (System.currentTimeMillis() - time) + "ms) for listProteinReferencesByExperiment");
-        Map<Long, List<ProteinAbundance>> abundancesPerProtein = getAbudancesPerProtein(proteinIDs);
-        ErrorModel errorModel = new ErrorModel(specificDAOFactory);
+        Map<Long, List<ProteinAbundance>> abundancesPerProtein = getAbudancesPerProtein(dao, proteinIDs);
+        ErrorModel errorModel = new ErrorModel(dao);
         for (ProteinReferenceWithProtein protein : proteins)
         {
             if (errorModel.passProtein(protein, falseDiscoveryRate))
@@ -162,9 +162,8 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         return abundanceManager;
     }
 
-    private Map<Long, List<ProteinAbundance>> getAbudancesPerProtein(LongOpenHashSet proteinIDs)
+    private Map<Long, List<ProteinAbundance>> getAbudancesPerProtein(IProteinQueryDAO dao, LongOpenHashSet proteinIDs)
     {
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         long time = System.currentTimeMillis();
         DataSet<ProteinAbundance> dataSet = dao.listProteinWithAbundanceByExperiment(proteinIDs);
         List<ProteinAbundance> proteinAbundances = new ArrayList<ProteinAbundance>();

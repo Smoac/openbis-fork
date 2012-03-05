@@ -46,12 +46,12 @@ public class ProteinSequenceProviderTest extends AbstractProviderTest
         context.checking(new Expectations()
             {
                 {
-                    one(phosphonetxServer).listProteinSequencesByProteinReference(SESSION_TOKEN, new TechId(42));
+                    one(phosphonetxServer).listProteinSequencesByProteinReference(SESSION_TOKEN, new TechId(42), new TechId(43));
                     will(returnValue(Arrays.asList(ps)));
                 }
             });
         ProteinSequenceProvider provider =
-                new ProteinSequenceProvider(phosphonetxServer, SESSION_TOKEN, new TechId(42));
+                new ProteinSequenceProvider(phosphonetxServer, SESSION_TOKEN, new TechId(42), new TechId(43));
 
         TypedTableModel<ProteinSequence> model = provider.createTableModel();
 

@@ -123,7 +123,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             ISampleProvider sampleProvider, TechId experimentID, String treatmentTypeOrNull)
     {
         String experimentPermID = getExperimentPermIDFor(experimentID);
-        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO(experimentID);
         DataSet<String> samplePermIDs =
                 dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
         try
@@ -169,7 +169,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             TechId proteinReferenceID) throws UserFailureException
     {
         Session session = getSession(sessionToken);
-        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO(experimentID);
         ProteinByExperiment proteinByExperiment = new ProteinByExperiment();
         ProteinReference proteinReference =
                 proteinQueryDAO.tryToGetProteinReference(proteinReferenceID.getId());
@@ -190,11 +190,11 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
-            TechId proteinReferenceID) throws UserFailureException
+            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
-        sequenceTable.loadByReference(proteinReferenceID);
+        sequenceTable.loadByReference(experimentID, proteinReferenceID);
         return sequenceTable.getSequences();
     }
 
@@ -203,7 +203,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     {
         final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
-        sequenceTable.loadByReference(proteinReferenceID);
+        sequenceTable.loadByReference(experimentId, proteinReferenceID);
         IDataSetProteinTable dataSetProteinTable = specificBOFactory.createDataSetProteinTable(session);
         dataSetProteinTable.load(getExperimentPermIDFor(experimentId), proteinReferenceID, sequenceTable);
         return dataSetProteinTable.getDataSetProteins();

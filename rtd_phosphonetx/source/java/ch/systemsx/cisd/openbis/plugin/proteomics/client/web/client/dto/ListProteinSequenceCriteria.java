@@ -33,6 +33,7 @@ public class ListProteinSequenceCriteria extends
         IsSerializable
 {
     private TechId proteinReferenceID;
+    private TechId experimentID;
 
     public final TechId getProteinReferenceID()
     {
@@ -43,4 +44,15 @@ public class ListProteinSequenceCriteria extends
     {
         this.proteinReferenceID = proteinReferenceID;
     }
+
+    public void setExperimentID(TechId experimentID)
+    {
+        this.experimentID = experimentID;
+    }
+
+    public TechId getExperimentID()
+    {
+        return experimentID;
+    }
+    
 }

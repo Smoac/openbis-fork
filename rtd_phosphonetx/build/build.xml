@@ -33,6 +33,9 @@
 				<include name="ch/systemsx/cisd/openbis/plugin/proteomics/shared/**/*.class" />
 				<include name="${proteomics-build.info.filename}" />
 			</fileset>
+			<fileset dir="../rtd_phosphonetx/source">
+				<include name="**/*.sql" />
+			</fileset>	
 			<manifest>
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"

@@ -92,6 +92,9 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(specificDAOFactory).getProteinQueryDAO(experimentID);
+                    will(returnValue(proteinDAO));
+                    
                     one(experimentDAO).getByTechId(experimentID);
                     ExperimentPE experiment = new ExperimentPE();
                     experiment.setPermId("exp-1");

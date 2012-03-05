@@ -95,6 +95,7 @@ public class ProteinInfoTableTest extends AbstractBOTestCase
     @Test
     public void testLoadLeadingToAnEmptyTable()
     {
+        prepareGetProteinQueryDAO(EXPERIMENT_PERM_ID);
         MockDataSet<ProteinReferenceWithProtein> proteinReferences = new MockDataSet<ProteinReferenceWithProtein>();
         MockDataSet<ProteinAbundance> proteinAbundances = new MockDataSet<ProteinAbundance>();
         prepareLoadDataSet(proteinReferences, proteinAbundances);
@@ -112,6 +113,7 @@ public class ProteinInfoTableTest extends AbstractBOTestCase
     @Test
     public void testSimpleLoad()
     {
+        prepareGetProteinQueryDAO(EXPERIMENT_PERM_ID);
         MockDataSet<ProteinReferenceWithProtein> proteinReferences =
             new MockDataSet<ProteinReferenceWithProtein>();
         MockDataSet<ProteinAbundance> abundances = new MockDataSet<ProteinAbundance>();
@@ -182,6 +184,7 @@ public class ProteinInfoTableTest extends AbstractBOTestCase
     
     private void checkAggregationType(double expectedAbundance, boolean aggregateOriginal)
     {
+        prepareGetProteinQueryDAO(EXPERIMENT_PERM_ID);
         final MockDataSet<ProteinReferenceWithProtein> proteinReferences =
             new MockDataSet<ProteinReferenceWithProtein>();
         ProteinReferenceWithProtein proteinReference = new ProteinReferenceWithProtein();
@@ -236,6 +239,17 @@ public class ProteinInfoTableTest extends AbstractBOTestCase
         assertEquals(true, proteinReferences.hasCloseBeenInvoked());
         assertEquals(true, mappings.hasCloseBeenInvoked());
         context.assertIsSatisfied();
+    }
+    
+    private void prepareGetProteinQueryDAO(final String experimentPermID)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(specificDAOFactory).getProteinQueryDAO(experimentPermID);
+                will(returnValue(proteinDAO));
+            }
+        });
     }
     
     private void prepareLoadDataSet(

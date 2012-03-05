@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto.ListProteinSequenceCriteria;
@@ -46,9 +47,9 @@ public class ProteinSequenceGrid extends TypedTableGrid<ProteinSequence>
     public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
     static IDisposableComponent create(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            TechId proteinReferenceID)
+            Experiment experimentOrNull, TechId proteinReferenceID)
     {
-        return new ProteinSequenceGrid(viewContext, proteinReferenceID)
+        return new ProteinSequenceGrid(viewContext, experimentOrNull, proteinReferenceID)
                 .asDisposableWithoutToolbar();
     }
 
@@ -57,12 +58,16 @@ public class ProteinSequenceGrid extends TypedTableGrid<ProteinSequence>
     private ListProteinSequenceCriteria criteria;
 
     private ProteinSequenceGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            TechId proteinReferenceID)
+            Experiment experimentOrNull, TechId proteinReferenceID)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SEQUENCE_BROWSER_GRID);
         specificViewContext = viewContext;
         criteria = new ListProteinSequenceCriteria();
+        if (experimentOrNull != null)
+        {
+            criteria.setExperimentID(new TechId(experimentOrNull.getId()));
+        }
         criteria.setProteinReferenceID(proteinReferenceID);
     }
 

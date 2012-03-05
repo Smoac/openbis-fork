@@ -310,7 +310,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         return listEntities(
-                new ProteinSequenceProvider(server, sessionToken, criteria.getProteinReferenceID()),
+                new ProteinSequenceProvider(server, sessionToken, criteria.getExperimentID(), criteria.getProteinReferenceID()),
                 criteria);
     }
 

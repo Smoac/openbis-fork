@@ -38,13 +38,15 @@ public class ProteinSequenceProvider extends AbstractTableModelProvider<ProteinS
 {
     private final IPhosphoNetXServer server;
     private final String sessionToken;
+    private final TechId experimentID;
     private final TechId proteinReferenceID;
 
     public ProteinSequenceProvider(IPhosphoNetXServer server, String sessionToken,
-            TechId proteinReferenceID)
+            TechId experimentID, TechId proteinReferenceID)
     {
         this.server = server;
         this.sessionToken = sessionToken;
+        this.experimentID = experimentID;
         this.proteinReferenceID = proteinReferenceID;
     }
 
@@ -52,7 +54,7 @@ public class ProteinSequenceProvider extends AbstractTableModelProvider<ProteinS
     protected TypedTableModel<ProteinSequence> createTableModel()
     {
         List<ProteinSequence> sequences =
-                server.listProteinSequencesByProteinReference(sessionToken, proteinReferenceID);
+                server.listProteinSequencesByProteinReference(sessionToken, experimentID, proteinReferenceID);
         TypedTableModelBuilder<ProteinSequence> builder =
                 new TypedTableModelBuilder<ProteinSequence>();
         builder.addColumn(SEQUENCE_SHORT_NAME).withDefaultWidth(20);

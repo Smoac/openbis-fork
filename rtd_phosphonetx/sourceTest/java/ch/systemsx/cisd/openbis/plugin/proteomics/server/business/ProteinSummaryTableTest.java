@@ -60,13 +60,6 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         super.setUp();
         specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
-                    will(returnValue(proteinDAO));
-                }
-            });
         table = new ProteinSummaryTable(daoFactory, specificDAOFactory, SESSION);
     }
 
@@ -180,6 +173,9 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(specificDAOFactory).getProteinQueryDAO(EXPERIMENT_ID);
+                    will(returnValue(proteinDAO));
+                    
                     one(experimentDAO).getByTechId(EXPERIMENT_ID);
                     ExperimentPE experimentPE = new ExperimentPE();
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);

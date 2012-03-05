@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.server.business;
 
-import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -40,13 +39,6 @@ public abstract class AbstractBOTestCase extends AbstractServerTestCase
         super.setUp();
         specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
-                    will(returnValue(proteinDAO));
-                }
-            });
     }
 
 }

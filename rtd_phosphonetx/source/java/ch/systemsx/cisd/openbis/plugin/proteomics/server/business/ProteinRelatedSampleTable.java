@@ -69,7 +69,7 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
     {
         String experimentPermID =
                 daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
-        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO(experimentID);
         Map<String, List<SampleAbundance>> sampleAbundanceMap =
                 createSampleMap(proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID,
                         proteinReferenceID.getId()));

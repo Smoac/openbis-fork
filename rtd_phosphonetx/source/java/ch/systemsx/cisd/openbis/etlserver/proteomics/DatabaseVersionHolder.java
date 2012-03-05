@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess;
+package ch.systemsx.cisd.openbis.etlserver.proteomics;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 
 /**
- * A factory for PhosphoNetX specific DAOs.
- * 
+ * Holds the version of the proteomics database.
+ *
  * @author Franz-Josef Elmer
  */
-public interface IPhosphoNetXDAOFactory
+public class DatabaseVersionHolder implements IDatabaseVersionHolder
 {
-    public IProteinQueryDAO getProteinQueryDAO(TechId experimentID);
-    
-    public IProteinQueryDAO getProteinQueryDAO(String experimentPermID);
+    public String getDatabaseVersion()
+    {
+        return "005"; // changed in S124
+    }
 }
+

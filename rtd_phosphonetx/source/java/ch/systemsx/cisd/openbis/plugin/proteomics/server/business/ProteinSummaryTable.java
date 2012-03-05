@@ -107,8 +107,8 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
     {
         IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
         String permID = experimentDAO.getByTechId(experimentID).getPermId();
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
-        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO(experimentID);
+        ErrorModel errorModel = new ErrorModel(dao);
         DataSet<ProteinReferenceWithProbabilityAndPeptide> resultSet =
                 dao.listProteinsWithProbabilityAndPeptidesByExperiment(permID);
         List<Counter> counters = new ArrayList<Counter>(FDR_LEVELS.length);

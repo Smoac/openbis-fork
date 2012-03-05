@@ -50,8 +50,8 @@ class DataSetProteinTable extends AbstractBusinessObject implements IDataSetProt
     public void load(String experimentPermID, TechId proteinReferenceID,
             IProteinSequenceTable sequenceTable)
     {
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
-        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO(experimentPermID);
+        ErrorModel errorModel = new ErrorModel(proteinQueryDAO);
         DataSet<IdentifiedProtein> proteins =
                 proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
                         proteinReferenceID.getId());

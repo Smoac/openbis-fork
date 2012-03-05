@@ -21,7 +21,6 @@ import java.util.Map;
 
 import net.lemnik.eodsql.DataSet;
 
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.ProbabilityToFDRCalculator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.IdentifiedProtein;
@@ -35,12 +34,11 @@ class ErrorModel
 {
     private final Map<Long, ProbabilityToFDRCalculator> calculators =
             new HashMap<Long, ProbabilityToFDRCalculator>();
+    private final IProteinQueryDAO dao;
 
-    private final IPhosphoNetXDAOFactory specificDAOFactory;
-
-    ErrorModel(IPhosphoNetXDAOFactory specificDAOFactory)
+    ErrorModel(IProteinQueryDAO dao)
     {
-        this.specificDAOFactory = specificDAOFactory;
+        this.dao = dao;
     }
 
     boolean passProtein(ProteinReferenceWithProtein protein, double falseDiscoveryRate)
@@ -69,7 +67,6 @@ class ErrorModel
         if (calculator == null)
         {
             calculator = new ProbabilityToFDRCalculator();
-            IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
             DataSet<ProbabilityFDRMapping> mappings = dao.getProbabilityFDRMapping(dataSetID);
             for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
             {

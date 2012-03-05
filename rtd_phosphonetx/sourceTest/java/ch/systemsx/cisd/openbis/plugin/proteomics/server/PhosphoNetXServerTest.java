@@ -85,9 +85,6 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(phosphoNetXDAOFactory).getProteinQueryDAO();
-                    will(returnValue(proteinDAO));
-                    
                     allowing(boFactory).createProteinDetailsBO(SESSION);
                     will(returnValue(proteinDetailsBO));
                     
@@ -111,6 +108,9 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     ExperimentPE experimentPE = new ExperimentPE();
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);
                     will(returnValue(experimentPE));
+                    
+                    allowing(phosphoNetXDAOFactory).getProteinQueryDAO(EXPERIMENT_ID);
+                    will(returnValue(proteinDAO));
                     
                     one(proteinDAO).listAbundanceRelatedSamplePermIDsByExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(mockDataSet));

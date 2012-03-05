@@ -61,7 +61,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
     public void loadByExperimentAndReference(TechId experimentID, TechId proteinReferenceID)
     {
         String experimentPermID = getExperimentPermIDFor(experimentID);
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO(experimentID);
         DataSet<IdentifiedProtein> proteins =
                 proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
                         proteinReferenceID.getId());
@@ -69,7 +69,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         {
             if (proteins.size() == 1)
             {
-                ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+                ErrorModel errorModel = new ErrorModel(proteinQueryDAO);
                 IdentifiedProtein protein = proteins.get(0);
                 errorModel.setFalseDiscoveryRateFor(protein);
                 details = new ProteinDetails();
@@ -86,10 +86,10 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
                     details.setDataSetTechID(ds.getId());
                     details.setDataSetTypeCode(ds.getDataSetType().getCode());
                 }
-                details.setPeptides(loadPeptides(protein));
+                details.setPeptides(loadPeptides(proteinQueryDAO, protein));
                 long proteinID = protein.getProteinID();
                 details.setProteinID(new TechId(proteinID));
-                details.setIndistinguishableProteinInfos(loadIndistinguishableProteinInfos(proteinID));
+                details.setIndistinguishableProteinInfos(loadIndistinguishableProteinInfos(proteinQueryDAO, proteinID));
             }
         } finally
         {
@@ -97,9 +97,8 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         }
     }
 
-    private List<IndistinguishableProteinInfo> loadIndistinguishableProteinInfos(long proteinID)
+    private List<IndistinguishableProteinInfo> loadIndistinguishableProteinInfos(IProteinQueryDAO proteinQueryDAO, long proteinID)
     {
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<IndistinguishableProtein> proteins =
                 proteinQueryDAO.listIndistinguishableProteinsByProteinID(proteinID);
         try
@@ -125,9 +124,8 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         }
     }
 
-    private List<Peptide> loadPeptides(IdentifiedProtein protein)
+    private List<Peptide> loadPeptides(IProteinQueryDAO proteinQueryDAO, IdentifiedProtein protein)
     {
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
         DataSet<PeptideWithModification> identifiedPeptides =
                 proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
         try

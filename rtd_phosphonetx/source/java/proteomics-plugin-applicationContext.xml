@@ -7,29 +7,15 @@
                         http://www.springframework.org/schema/tx
                         http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
     
-    <bean id="proteomics-db-configuration-context"
-        class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
-        <property name="basicDatabaseName" value="${proteomics.database.basic-name}" />
-        <property name="createFromScratch" value="${proteomics.database.create-from-scratch}" />
-        <property name="scriptSingleStepMode" value="${proteomics.database.script-single-step-mode}" />
-        <property name="sequenceNameMapper">
-            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />
-        </property>
-        <property name="urlHostPart" value="${proteomics.database.url-host-part}" />
-        <property name="adminUser" value="${proteomics.database.admin-user}" />
-        <property name="owner" value="${proteomics.database.owner}" />
-        <property name="readOnlyGroup" value="phosphonetx_readonly" />
-        <property name="password" value="${proteomics.database.owner-password}" />
-        <property name="adminPassword" value="${proteomics.database.admin-password}" />
-        <property name="databaseKind" value="${proteomics.database.kind}" />
-        <property name="databaseEngineCode" value="${proteomics.database.engine}" />
-        <property name="scriptFolder" value="${proteomics.script-folder}" />
-        <property name="databaseInstance" value="${proteomics.database-instance}" />
+    <bean id="dss-based-data-source-provider" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider">
+        <constructor-arg ref="dao-factory"/>
     </bean>
+    
     
     <bean id="proteomics-dao-factory"
           class="ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.db.PhosphoNetXDAOFactory">
-        <constructor-arg ref="proteomics-db-configuration-context"/>
+        <constructor-arg ref="dss-based-data-source-provider"/>
+        <constructor-arg ref="dao-factory"/>
     </bean>
     
     <bean id="proteomics-bo-factory"

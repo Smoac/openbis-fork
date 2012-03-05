@@ -260,7 +260,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                         protected IDisposableComponent createDisposableContent()
                         {
                             return ProteinSequenceGrid.create(ProteinViewer.this.getViewContext(),
-                                    proteinReferenceID);
+                                    experimentOrNull, proteinReferenceID);
                         }
                     };
         add(sequencesSection, createRightBorderLayoutData());

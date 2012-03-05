@@ -81,7 +81,7 @@ public interface IPhosphoNetXServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
-            TechId proteinReferenceID) throws UserFailureException;
+            TechId experimentID, TechId proteinReferenceID) throws UserFailureException;
     
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequen
 public interface IProteinSequenceTable
 {
 
-    public void loadByReference(TechId proteinReferenceID);
+    public void loadByReference(TechId experimentID, TechId proteinReferenceID);
     
     public List<ProteinSequence> getSequences();
 

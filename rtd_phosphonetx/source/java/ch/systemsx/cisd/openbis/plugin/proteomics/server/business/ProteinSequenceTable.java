@@ -70,9 +70,9 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
         return shortName;
     }
 
-    public void loadByReference(TechId proteinReferenceID)
+    public void loadByReference(TechId experimentID, TechId proteinReferenceID)
     {
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO(experimentID);
         DataSet<Sequence> sequences =
                 proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
         proteinSequences = new ArrayList<ProteinSequence>(sequences.size());
