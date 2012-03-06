@@ -42,7 +42,7 @@ rm -rf "$OPENBIS_DSS"
 echo "unzip openBIS-server*.zip"
 unzip -qu openBIS-server*.zip -d "$SERVERS"
 echo "unzip datastore_server-*.zip"
-unzip -qu datastore_server-*.zip -d "$SERVERS" 
+unzip -quo datastore_server-*.zip -d "$SERVERS" 
 for file in datastore_server_plugin-*.zip; do 
 	if [ -f $file ]; then 
     echo "unzip $file"
