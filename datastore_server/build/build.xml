@@ -252,6 +252,32 @@
 
   </target>
     
+	<!--
+			Compute checksums of all DSS core plugin files.
+			
+			Parameter:
+			  name-prefix: Prefix of checksum file name
+			  path-prefix: Prefix to dist folder, usual project name
+	-->
+  <target name="compute-core-plugins-checksums">
+  	<delete file="${dist}/${name-prefix}-${checksum.file.name}"/>
+    <checksum todir="${dist}" pattern="{0} {3}">
+      <fileset dir="${path-prefix}/dist/">
+      	<include name="core-plugins/proteomics/*/dss/**/*"/>
+      </fileset>
+    </checksum>
+  	<replaceregexp byline="true">
+  		<regexp pattern="([0-6a-f]*) dist/(.*)"/>
+  		<substitution expression="\1 \2"/>
+  		<fileset dir="${dist}">
+				<include name="**/*.MD5"/>
+			</fileset>
+  	</replaceregexp>
+  	<concat-checksums />
+  	<move file="${dist}/${checksum.file.name}" tofile="${dist}/${name-prefix}-${checksum.file.name}"/>
+  	<delete dir="${dist}/core-plugins"/>
+  </target>
+	
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
 		-->

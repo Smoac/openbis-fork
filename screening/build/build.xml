@@ -44,7 +44,7 @@
 		<antcall target="make-dss-plugin-jar"/>
 	</target>
 	
-	<target name="make-dss-plugin-jar">
+	<target name="make-dss-plugin-jar" depends="calculate-screening-core-plugins-checksum">
 		<echo file="${screening-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
 			<fileset dir="${classes.screening}">
@@ -74,7 +74,14 @@
 		</jar>
   </target>
 	
-  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum">
+	<target name="calculate-screening-core-plugins-checksum">
+  	<antcall target="compute-core-plugins-checksums">
+  		<param name="name-prefix" value="screening"/>
+  		<param name="path-prefix" value="../screening"/>
+  	</antcall>
+	</target>
+	
+  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, calculate-screening-core-plugins-checksum, compute-dss-checksum">
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
   	<antcall target="add-stuff-to-dss-dist"/>
   	<antcall target="copy-dss-core-plugins">

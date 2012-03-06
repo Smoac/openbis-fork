@@ -169,10 +169,14 @@
 		<sequential>
 			<concat destfile="${checksum.file}">
 				<!-- If a configuration.MD5 file is already in the directory, ignore it -->
-				<fileset dir="${dist}" includes="*.MD5" excludes="${checksum.file.name}" />
+				<fileset dir="${dist}" excludes="${checksum.file.name}">
+					<include name="**/*.MD5"/>
+				</fileset>
 			</concat>
 			<delete>
-				<fileset dir="${dist}" includes="*.MD5" excludes="${checksum.file.name}" />
+				<fileset dir="${dist}" excludes="${checksum.file.name}">
+					<include name="**/*.MD5"/>
+				</fileset>
 			</delete>
 		</sequential>
 	</macrodef>

@@ -24,7 +24,7 @@
 		<antcall target="make-dss-plugin-jar"/>
 	</target>
 	
-	<target name="make-dss-plugin-jar">
+	<target name="make-dss-plugin-jar" depends="calculate-proteomics-core-plugins-checksum">
 		<echo file="${proteomics-build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
 			<fileset dir="${proteomics.classes}">
@@ -36,12 +36,22 @@
 			<fileset dir="../rtd_phosphonetx/source">
 				<include name="**/*.sql" />
 			</fileset>	
+			<fileset dir="${dist}">
+				<include name="proteomics-${checksum.file.name}"/>
+			</fileset>
 			<manifest>
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</jar>
+	</target>
+	
+	<target name="calculate-proteomics-core-plugins-checksum">
+  	<antcall target="compute-core-plugins-checksums">
+  		<param name="name-prefix" value="proteomics"/>
+  		<param name="path-prefix" value="../rtd_phosphonetx"/>
+  	</antcall>
 	</target>
 	
 	<!--
