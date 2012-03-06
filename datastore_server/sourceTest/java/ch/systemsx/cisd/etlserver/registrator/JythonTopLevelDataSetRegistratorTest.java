@@ -415,81 +415,67 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    boolean broken = false;
+                    setupExpectations(testCase, experiment, atomicatOperationDetails);
+                }
 
-                    // this is to initialize openBis
-                    // allowing(openBisService).getClass();
-
+                protected void setupExpectations(
+                        final TestCaseParameters testCase,
+                        final Experiment experiment,
+                        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails)
+                {
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AT_THE_BEGINNING)
                     {
-                        broken = true;
+                        return;
                     }
 
-                    if (false == broken)
-                    {
-                        one(openBisService).createDataSetCode();
-                        will(returnValue(DATA_SET_CODE));
-                    }
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AFTER_CREATE_DATA_SET_CODE)
                     {
-                        broken = true;
+                        return;
                     }
 
-                    if (false == broken)
-                    {
-                        atLeast(1).of(openBisService).tryToGetExperiment(
-                                new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                        .createIdentifier());
-                        will(returnValue(experiment));
-                    }
+                    atLeast(1).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment.getIdentifier())
+                                    .createIdentifier());
+                    will(returnValue(experiment));
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT)
                     {
-                        broken = true;
+                        return;
                     }
 
-                    if (false == broken)
-                    {
-                        one(dataSetValidator).assertValidDataSet(
-                                DATA_SET_TYPE,
-                                new File(new File(stagingDirectory, DATA_SET_CODE),
-                                        "sub_data_set_1"));
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
-                        if (testCase.shouldValidationFail)
-                        {
-                            Exception innerException = new Exception();
-                            will(throwException(new UserFailureException("Data set of type '"
-                                    + DATA_SET_CODE + "' is invalid ", innerException)));
-                            broken = true;
-                        }
+                    if (testCase.shouldValidationFail)
+                    {
+                        Exception innerException = new Exception();
+                        will(throwException(new UserFailureException("Data set of type '"
+                                + DATA_SET_CODE + "' is invalid ", innerException)));
+                        return;
                     }
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION)
                     {
-                        broken = true;
+                        return;
                     }
 
-                    if (false == broken)
-                    {
-                        one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-                    }
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-                    if (false == broken && testCase.shouldRegistrationFail)
+                    if (testCase.shouldRegistrationFail)
                     {
                         will(throwException(new AssertionError("Fail")));
-                        broken = true;
+                        return;
                     }
 
-                    if (false == broken)
-                    {
-                        will(doAll(returnValue(new AtomicEntityOperationResult()),
-                                checkPrecommitDirIsNotEmpty()));
+                    will(doAll(returnValue(new AtomicEntityOperationResult()),
+                            checkPrecommitDirIsNotEmpty()));
 
-                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
 
-                        will(checkPrecommitDirIsEmpty());
-                    }
+                    will(checkPrecommitDirIsEmpty());
                 }
             });
 
