@@ -59,9 +59,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
     public void setUp() throws IOException
     {
         super.setUp();
-
-        didDataSetRollbackHappen = false;
-        didServiceRollbackHappen = false;
     }
 
     @Test

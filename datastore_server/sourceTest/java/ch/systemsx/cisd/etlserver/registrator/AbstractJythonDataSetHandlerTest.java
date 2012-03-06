@@ -45,7 +45,6 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -107,10 +106,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected File subDataSet1;
 
     protected File subDataSet2;
-
-    protected boolean didDataSetRollbackHappen;
-
-    protected boolean didServiceRollbackHappen;
 
     @BeforeTest
     public void init()
@@ -378,7 +373,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         }
     }
 
-    protected class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
+    public static class TestingDataSetHandler extends
+            JythonTopLevelDataSetHandler<DataSetInformation>
     {
         protected final boolean shouldRegistrationFail;
 
@@ -400,6 +396,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         protected boolean didPostStorageFunctionRunHappen = false;
 
+        protected boolean didServiceRollbackHappen = false;
+        
         protected String registrationContextError;
 
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
@@ -465,7 +463,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackServiceFunctionRun =
-                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
+                    readBoolean(interpreter, "didRollbackServiceFunctionRun");
         }
 
         @Override
@@ -544,8 +542,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didSecondaryTransactionErrorNotificationHappen =
-                    interpreter
-                            .get("didSecondaryTransactionErrorNotificationHappen", Boolean.class);
+                    readBoolean(interpreter, "didSecondaryTransactionErrorNotificationHappen");
         }
 
         @Override

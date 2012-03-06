@@ -99,9 +99,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         super.setUp();
 
         logAppender = new BufferedAppender();
-
-        didDataSetRollbackHappen = false;
-        didServiceRollbackHappen = false;
     }
 
     @DataProvider(name = "simpleTransactionTestCaseProvider")
@@ -1097,8 +1094,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
-        assertFalse(didDataSetRollbackHappen);
-        assertTrue(didServiceRollbackHappen);
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        
+        assertTrue(theHandler.didServiceRollbackHappen);
         context.assertIsSatisfied();
     }
 
@@ -1138,7 +1136,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didServiceRollbackHappen);
         assertFalse(theHandler.didTransactionRollbackHappen);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
 
@@ -1163,7 +1161,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didServiceRollbackHappen);
         assertFalse(theHandler.didTransactionRollbackHappen);
         context.assertIsSatisfied();
     }
@@ -1186,7 +1184,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didServiceRollbackHappen);
         assertFalse(theHandler.didTransactionRollbackHappen);
         assertTrue(theHandler.didSecondaryTransactionErrorNotificationHappen);
         context.assertIsSatisfied();
