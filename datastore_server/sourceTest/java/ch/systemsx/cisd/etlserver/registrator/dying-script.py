@@ -2,6 +2,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier as identifier
 import java.io as io
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto as dto
 
+execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/all-hooks.py")
+
 # Create the Experiment Identifier
 identifier = identifier.ExperimentIdentifierFactory("/SPACE/PROJECT/EXP-CODE").createIdentifier()
 

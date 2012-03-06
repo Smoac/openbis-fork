@@ -172,7 +172,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase = new TestCaseParameters("The simple transaction rollback.");
         testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
-        testCase.shouldRegistrationFail = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         String[] allErrors =
@@ -192,7 +192,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
         testCase.incomingDataSetAfterRegistration = "deleted";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
-        testCase.shouldRegistrationFail = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // simple test failing registration testCase
@@ -210,7 +210,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         testCase.incomingDataSetAfterRegistration = "deleted";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
-        testCase.shouldRegistrationFail = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // TODO: In this case should it be "invalid dataset error" or what?
@@ -221,7 +221,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     UnstoreDataAction.DELETE.toString());
         }
         testCase.incomingDataSetAfterRegistration = "deleted";
-        testCase.shouldValidationFail = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.DURING_VALIDATION;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
@@ -280,19 +280,41 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
+        testCase = new TestCaseParameters("Simple transaction explicit rollback");
+        testCase.dropboxScriptPath = "testcase-rollback.py";
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
+        
+        testCase = new TestCaseParameters("Dying script");
+        testCase.dropboxScriptPath = "dying-script.py";
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
+                
+        testCase = new TestCaseParameters("Rollback dying script");
+        testCase.dropboxScriptPath = "rollback-dying-script.py";
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
+        testCase.createDataSetDelegate = createTwoDataSetsDelegate;
+        testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
+                
+        
         testCase = new TestCaseParameters("Two transactions.");
         testCase.dropboxScriptPath = "testcase-double-transaction.py";
         testCase.shouldRegisterTwoDataSets = true;
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCases.add(testCase);
 
-        testCase = new TestCaseParameters("Two transactions.");
+        testCase = new TestCaseParameters("Two transactions fail in V2.");
         testCase.dropboxScriptPath = "testcase-double-transaction.py";
         testCase = versionV2(testCase);
         testCase.shouldThrowExceptionDuringRegistration = true;
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCases.add(testCase);
-        
+
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
         Object[][] resultsList = new Object[testCases.size()][];
@@ -340,22 +362,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected IDelegatedAction createDataSetDelegate = null;
 
         /**
-         * True if the registration of metadata should fail
-         */
-        protected boolean shouldRegistrationFail = false;
-
-        /**
-         * True if assertValidDataSet method should return validation error on dataset
-         */
-        protected boolean shouldValidationFail = false;
-
-        /**
-         * Specifies how far we expect the registration process to go.
+         * Specifies the point of failure in registration process. Used for setting the expectations
+         * (at which point we should stop expecting method calls from the happy scenario), as well
+         * as for flow control (throw exception from the right mocked methods), and for verification
+         * of expectations.
          */
         protected FailurePoint failurePoint = null;
 
         /**
-         * True if the registration should throw exception to the top level.
+         * True if the registration should throw exception to the top level. This this setting the
+         * handler is said to throw all exception to the top level, so that we can catch them. To
+         * check recovery from errors (like rollback mechanism) this should be set to false.
          */
         protected boolean shouldThrowExceptionDuringRegistration = false;
 
@@ -366,7 +383,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         /**
          * True if commit_transaction function is defined in a jython dropbox script file, and
-         * post_storage function is not.
+         * post_storage function is not. Used to check which of two should be checked for.
          */
         protected boolean postStorageFunctionNotDefinedInADropbox = false;
 
@@ -402,8 +419,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         // add more when necessary
         public enum FailurePoint
         {
-            AT_THE_BEGINNING, AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION,
-            AFTER_GET_EXPERIMENT
+            AT_THE_BEGINNING, AFTER_CREATE_DATA_SET_CODE, AFTER_GET_EXPERIMENT, DURING_VALIDATION,
+            BEFORE_OPENBIS_REGISTRATION, DURING_OPENBIS_REGISTRATION
+
         }
     }
 
@@ -416,13 +434,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
                         testCase.overrideProperties);
 
-        if (testCase.shouldRegistrationFail || testCase.shouldValidationFail)
-        {
-            createHandler(properties, false, false);
-        } else
-        {
-            createHandler(properties, false, true);
-        }
+        createHandler(properties, false, testCase.shouldThrowExceptionDuringRegistration);
 
         if (testCase.createDataSetDelegate != null)
         {
@@ -466,7 +478,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     validateDataSet();
 
-                    if (testCase.shouldValidationFail)
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_VALIDATION)
                     {
                         return;
                     }
@@ -478,7 +490,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     registerDataSets();
 
-                    if (testCase.shouldRegistrationFail)
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
                     {
                         return;
                     }
@@ -502,7 +514,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-                    if (testCase.shouldRegistrationFail)
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
                     {
                         will(throwException(new AssertionError("Fail")));
                     } else
@@ -528,7 +540,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
-                    if (testCase.shouldValidationFail)
+                    if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_VALIDATION)
                     {
                         Exception innerException = new Exception();
                         will(throwException(new UserFailureException("Data set of type '"
@@ -585,26 +597,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 
-        if (false == testCase.shouldValidationFail)
-        {
-            // the incoming dir in storage processor is created at the beginning of transaction
-            // so after the successful validation
-
-            int dataSetsStoredInIncomingDir = testCase.shouldRegisterTwoDataSets ? 2 : 1;
-            assertEquals(dataSetsStoredInIncomingDir,
-                    MockStorageProcessor.instance.incomingDirs.size());
-        }
+        AssertIncomingDirectory(testCase);
 
         assertCommitCount(testCase);
 
         assertJythonHooksExecuted(testCase);
 
-        if (testCase.shouldValidationFail)
-        {
-        } else if (testCase.shouldRegistrationFail)
-        {
-            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
-        } else
+        if (testCase.failurePoint == null)
         {
             if (testCase.shouldRegisterTwoDataSets)
             {
@@ -620,8 +619,34 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
             }
+        } else
+        {
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         }
         context.assertIsSatisfied();
+    }
+
+    protected void AssertIncomingDirectory(final TestCaseParameters testCase)
+    {
+        // the incoming dir in storage processor is created at the beginning of transaction
+        // so after the successful validation
+
+        int dataSetsStoredInIncomingDir;
+        // failure point before or at the moment of validation
+        if (testCase.failurePoint != null
+                && testCase.failurePoint
+                        .compareTo(TestCaseParameters.FailurePoint.DURING_VALIDATION) <= 0)
+        {
+            dataSetsStoredInIncomingDir = 0;
+        } else if (testCase.shouldRegisterTwoDataSets)
+        {
+            dataSetsStoredInIncomingDir = 2;
+        } else
+        {
+            dataSetsStoredInIncomingDir = 1;
+        }
+
+        assertEquals(dataSetsStoredInIncomingDir, MockStorageProcessor.instance.incomingDirs.size());
     }
 
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
@@ -660,7 +685,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     protected void assertCommitCount(final TestCaseParameters testCase)
     {
         int expectedCommitCount;
-        if (testCase.shouldRegistrationFail || testCase.shouldValidationFail)
+
+        if (testCase.failurePoint != null)
         {
             expectedCommitCount = 0;
         } else if (testCase.shouldRegisterTwoDataSets)
@@ -680,21 +706,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 + handler.getExpectations().registrationContextError,
                 handler.getExpectations().registrationContextError);
 
-        if (testCase.shouldValidationFail)
-        {
-        } else if (testCase.shouldRegistrationFail)
-        {
-            assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
-            assertTrue(handler.getExpectations().didTransactionRollbackHappen);
-            assertTrue(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
-
-            assertTrue(handler.getExpectations().didPreRegistrationFunctionRunHappen);
-            assertFalse(handler.getExpectations().didPostRegistrationFunctionRunHappen);
-
-            assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
-            assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
-
-        } else
+        if (testCase.failurePoint == null)
         {
             assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
 
@@ -710,51 +722,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
                 assertTrue(handler.getExpectations().didPostStorageFunctionRunHappen);
             }
+        } else if (testCase.failurePoint
+                .compareTo(TestCaseParameters.FailurePoint.DURING_VALIDATION) <= 0)
+        {
+            assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
+            assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+            assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
+
+            assertFalse(handler.getExpectations().didPreRegistrationFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostRegistrationFunctionRunHappen);
+
+            assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
+        } else
+        {
+            assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
+            assertTrue(handler.getExpectations().didTransactionRollbackHappen);
+            assertTrue(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
+
+            assertTrue(handler.getExpectations().didPreRegistrationFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostRegistrationFunctionRunHappen);
+
+            assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
+
         }
-    }
-
-    @Test
-    public void testSimpleTransactionExplicitRollback()
-    {
-        setUpHomeDataBaseExpectations();
-        Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("testcase-rollback.py");
-        createHandler(properties, true, false);
-        createData();
-        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
-        final Experiment experiment = builder.getExperiment();
-        context.checking(new Expectations()
-            {
-                {
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE));
-                    atLeast(1).of(openBisService).tryToGetExperiment(
-                            new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                    .createIdentifier());
-                    will(returnValue(experiment));
-                }
-            });
-
-        handler.handle(markerFile);
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        checkStagingDirIsEmpty();
-        assertEquals(
-                "hello world1",
-                FileUtilities.loadToString(
-                        new File(workingDirectory, "data_set/sub_data_set_1/read1.me")).trim());
-        assertEquals(
-                "hello world2",
-                FileUtilities.loadToString(
-                        new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
-
-        assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
-
-        // These do not get called when the caller herself invokes a rollback
-        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
-        assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -1124,27 +1116,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testScriptDies()
-    {
-        setUpHomeDataBaseExpectations();
 
-        Properties threadProperties =
-                createThreadPropertiesRelativeToScriptsFolder("dying-script.py");
-
-        createHandler(threadProperties, false);
-        createData();
-
-        handler.handle(markerFile);
-
-        checkStagingDirIsEmpty();
-
-        assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
-
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        context.assertIsSatisfied();
-    }
 
     private void createData()
     {
@@ -1174,31 +1146,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
-    }
-
-    @Test
-    public void testRollbackService()
-    {
-        setUpHomeDataBaseExpectations();
-
-        // Create a handler that throws an exception during registration
-        Properties threadProperties =
-                createThreadPropertiesRelativeToScriptsFolder("rollback-dying-script.py");
-        createHandler(threadProperties, false);
-
-        createData();
-
-        handler.handle(markerFile);
-
-        checkStagingDirIsEmpty();
-
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-
-        assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
-
-        assertTrue(handler.getExpectations().didRollbackServiceFunctionRun);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -1496,10 +1443,5 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             };
     }
 
-    private void checkStagingDirIsEmpty()
-    {
-        assertEquals("[]", Arrays.asList(handler.getGlobalState().getStagingDir().list())
-                .toString());
-    }
 
 }
