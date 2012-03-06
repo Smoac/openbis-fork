@@ -110,14 +110,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         ArrayList<TestCaseParameters> list = new ArrayList<TestCaseParameters>(2);
         list.add(params);
+        list.add(versionV2(params));
+        return list;
+    }
 
+    public TestCaseParameters versionV2(TestCaseParameters params)
+    {
         params = params.clone();
         params.overrideProperties = (HashMap<String, String>) params.overrideProperties.clone();
         params.overrideProperties.put("TEST_V2_API", "");
         params.title += " - V2";
-        list.add(params);
-
-        return list;
+        return params;
     }
 
     @DataProvider(name = "simpleTransactionTestCaseProvider")
@@ -277,14 +280,19 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
-        testCases.clear();
-
         testCase = new TestCaseParameters("Two transactions.");
         testCase.dropboxScriptPath = "testcase-double-transaction.py";
         testCase.shouldRegisterTwoDataSets = true;
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
-        testCases.addAll(multipleVersionsOfTestCase(testCase));
+        testCases.add(testCase);
 
+        testCase = new TestCaseParameters("Two transactions.");
+        testCase.dropboxScriptPath = "testcase-double-transaction.py";
+        testCase = versionV2(testCase);
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
+        testCases.add(testCase);
+        
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
         Object[][] resultsList = new Object[testCases.size()][];
@@ -559,7 +567,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             try
             {
                 handler.handle(markerFile);
-                fail("Expected a FileNotFound exception.");
+                fail("Expected an exception.");
             } catch (Exception exception)
             {
                 if (testCase.exceptionAcceptor != null)

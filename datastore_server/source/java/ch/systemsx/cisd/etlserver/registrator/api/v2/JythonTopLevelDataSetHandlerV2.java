@@ -89,7 +89,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
-        return new JythonDataSetRegistrationService<T>(this, incomingDataSetFile,
+        return new JythonDataSetRegistrationServiceV2<T>(this, incomingDataSetFile,
                 userProvidedDataSetInformationOrNull, cleanAfterwardsAction, delegate,
                 pythonInterpreter, globalState);
     }
