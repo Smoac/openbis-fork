@@ -99,6 +99,11 @@
   	<antcall target="copy-dss-core-plugins">
       <param name="project-path" value="" />
   	</antcall>
+  	<move todir="${dist.datastore_server}">
+  		<fileset dir="${dist}">
+  		  <include name="*.MD5"/>
+  		</fileset>
+  	</move>
 		<property name="dist.file"
 		          value="${dist}/datastore_server_plugin${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar"/>
