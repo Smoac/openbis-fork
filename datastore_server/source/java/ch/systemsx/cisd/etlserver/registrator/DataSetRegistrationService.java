@@ -68,7 +68,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final DataSetFile incomingDataSetFile;
 
-    private final DssRegistrationLogger dssRegistrationLog;
+    protected final DssRegistrationLogger dssRegistrationLog;
 
     private final DssRegistrationLogDirectoryHelper dssRegistrationLogHelper;
 
@@ -85,7 +85,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * All transactions ever created on this service.
      */
-    private final ArrayList<DataSetRegistrationTransaction<T>> transactions;
+    protected final ArrayList<DataSetRegistrationTransaction<T>> transactions;
 
     /**
      * Create a new DataSetRegistrationService.
@@ -185,9 +185,18 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             }
         }
 
-        // If some transactions were rolledback, then the service did not succeeed
-        boolean serviceDidSucceed = false == someTransactionsWereRolledback;
+        logDssRegistrationResult();
 
+        // Execute the clean afterwards action as successful only if no errors occurred and we
+        // registered data sets
+        executeGlobalCleanAfterwardsAction(false == (didErrorsArise() || someTransactionsWereRolledback));
+    }
+
+    /**
+     * Write to the dssRegistrationLog either success or the failure with error details. 
+     */
+    protected void logDssRegistrationResult()
+    {
         if (0 == encounteredErrors.size())
         {
             dssRegistrationLog.registerSuccess();
@@ -204,10 +213,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             dssRegistrationLog.log(logMessage.toString());
             dssRegistrationLog.registerFailure();
         }
-
-        // Execute the clean afterwards action as successful only if no errors occurred and we
-        // registered data sets
-        executeGlobalCleanAfterwardsAction(0 == encounteredErrors.size() && serviceDidSucceed);
     }
 
     /**
@@ -229,8 +234,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         executeGlobalCleanAfterwardsAction(false);
     }
-
-    private void executeGlobalCleanAfterwardsAction(boolean success)
+    
+    protected void executeGlobalCleanAfterwardsAction(boolean success)
     {
         if (false == cleanActionExecuted)
         {
@@ -383,7 +388,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         return dataSetRegistrationDetailsFactory;
     }
-
+    
     /**
      * If a transaction is hanging around, commit it
      */
