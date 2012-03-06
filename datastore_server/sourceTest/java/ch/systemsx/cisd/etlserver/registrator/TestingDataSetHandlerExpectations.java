@@ -38,6 +38,18 @@ public class TestingDataSetHandlerExpectations
 
     protected String registrationContextError;
 
+    
+    
+    public boolean isShouldRegistrationFail()
+    {
+        return shouldRegistrationFail;
+    }
+
+    public boolean isShouldReThrowRollbackException()
+    {
+        return shouldReThrowRollbackException;
+    }
+
     public TestingDataSetHandlerExpectations(boolean shouldRegistrationFail,
             boolean shouldReThrowRollbackException)
     {

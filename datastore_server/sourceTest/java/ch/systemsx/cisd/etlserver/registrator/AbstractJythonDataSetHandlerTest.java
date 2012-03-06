@@ -79,7 +79,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
-    protected JythonTopLevelDataSetHandler<? extends DataSetInformation> handler;
+    protected ITestingDataSetHandler handler;
 
     protected Mockery context;
 
@@ -157,9 +157,17 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     {
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
 
-        handler =
-                new TestingDataSetHandler(globalState, registrationShouldFail,
-                        shouldReThrowException);
+        if (threadProperties.containsKey("TEST_V2_API"))
+        {
+            handler =
+                    new TestingDataSetHandlerV2(globalState, registrationShouldFail,
+                            shouldReThrowException);
+        } else
+        {
+            handler =
+                    new TestingDataSetHandler(globalState, registrationShouldFail,
+                            shouldReThrowException);
+        }
     }
 
     protected TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)

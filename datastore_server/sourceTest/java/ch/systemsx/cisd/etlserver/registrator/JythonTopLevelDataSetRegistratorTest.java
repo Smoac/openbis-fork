@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,6 +102,20 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         logAppender = new BufferedAppender();
     }
 
+    public ArrayList<TestCaseParameters> multipleVersionsOfTestCase(TestCaseParameters params)
+    {
+        ArrayList<TestCaseParameters> list = new ArrayList<TestCaseParameters>(2);
+        list.add(params);
+
+        params = params.clone();
+        params.overrideProperties = (HashMap<String, String>) params.overrideProperties.clone();
+        params.overrideProperties.put("TEST_V2_API", "");
+        params.title += " - V2";
+        list.add(params);
+
+        return list;
+    }
+
     @DataProvider(name = "simpleTransactionTestCaseProvider")
     public Object[][] simpleTransactionCases()
     {
@@ -124,7 +139,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 new LinkedList<JythonTopLevelDataSetRegistratorTest.TestCaseParameters>();
 
         // basic testCase
-        testCases.add(new TestCaseParameters("Basic successful registration"));
+        testCases.addAll(multipleVersionsOfTestCase(new TestCaseParameters(
+                "Basic successful registration")));
 
         // testCase without prestaging
         TestCaseParameters testCase =
@@ -132,7 +148,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         "registration without prestaging. Should clean the incoming directory.");
         testCase.overrideProperties = dontUsePrestaging;
         testCase.incomingDataSetAfterRegistration = "empty";
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // without pre-staging with some data left in incoming directory
         // this test case is for a particular users, who use incoming directory in the way they
@@ -143,14 +159,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.overrideProperties = dontUsePrestaging;
         testCase.incomingDataSetAfterRegistration = "content";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // simple test failing registration testCase
         testCase = new TestCaseParameters("The simple transaction rollback.");
         testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.shouldRegistrationFail = true;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         String[] allErrors =
                     { ConfiguredOnErrorActionDecision.INVALID_DATA_SET_KEY,
@@ -170,7 +186,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.incomingDataSetAfterRegistration = "deleted";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.shouldRegistrationFail = true;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // simple test failing registration testCase
         testCase =
@@ -188,7 +204,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.incomingDataSetAfterRegistration = "deleted";
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.shouldRegistrationFail = true;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // TODO: In this case should it be "invalid dataset error" or what?
         testCase = new TestCaseParameters("The validation error with DELETE on error.");
@@ -199,14 +215,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
         testCase.incomingDataSetAfterRegistration = "deleted";
         testCase.shouldValidationFail = true;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
                 new TestCaseParameters(
                         "The simple validation without post_storage function defined.");
         testCase.dropboxScriptPath = "testcase-without-post-storage.py";
         testCase.postStorageFunctionNotDefinedInADropbox = true;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase = new TestCaseParameters("Dataset file not found.");
         testCase.dropboxScriptPath = "file-not-found.py";
@@ -222,11 +238,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
                 }
             };
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase = new TestCaseParameters("Test for registration context in hook methods.");
         testCase.dropboxScriptPath = "testcase-registration-context.py";
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
                 new TestCaseParameters(
@@ -234,13 +250,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.dropboxScriptPath = "testcase-preregistration-hook-failed.py";
         testCase.shouldThrowExceptionDuringRegistration = true;
         testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
                 new TestCaseParameters(
                         "Postregistration hook error should not prevent succesfull registration.");
         testCase.dropboxScriptPath = "testcase-postregistration-hook-failed.py";
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase = new TestCaseParameters("Postregistration hook has wrong signature.");
         testCase.dropboxScriptPath = "testcase-postregistration-hook-wrong-signature.py";
@@ -255,7 +271,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             };
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
-        testCases.add(testCase);
+        testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
@@ -276,7 +292,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
      * 
      * @author jakubs
      */
-    private static class TestCaseParameters
+    private static class TestCaseParameters implements Cloneable
     {
         /**
          * short description of the test. Will be presented in the test results view
@@ -341,6 +357,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         };
 
         @Override
+        public TestCaseParameters clone()
+        {
+            try
+            {
+                return (TestCaseParameters) super.clone();
+            } catch (CloneNotSupportedException e)
+            {
+                return null;
+            }
+        }
+
+        @Override
         public String toString()
         {
             return title;
@@ -349,7 +377,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         // add more when necessary
         public enum FailurePoint
         {
-            AT_THE_BEGINNING, AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION, AFTER_GET_EXPERIMENT
+            AT_THE_BEGINNING, AFTER_CREATE_DATA_SET_CODE, BEFORE_OPENBIS_REGISTRATION,
+            AFTER_GET_EXPERIMENT
         }
     }
 
@@ -389,7 +418,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     boolean broken = false;
 
                     // this is to initialize openBis
-                    //allowing(openBisService).getClass();
+                    // allowing(openBisService).getClass();
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AT_THE_BEGINNING)
                     {
@@ -419,7 +448,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     {
                         broken = true;
                     }
-                    
+
                     if (false == broken)
                     {
                         one(dataSetValidator).assertValidDataSet(
@@ -543,48 +572,41 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     private void assertJythonHooksExecuted(final TestCaseParameters testCase)
     {
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-
-        assertNull("Registration context error occured: " + theHandler.expectations.registrationContextError,
-                theHandler.expectations.registrationContextError);
+        assertNull("Registration context error occured: "
+                + handler.getExpectations().registrationContextError,
+                handler.getExpectations().registrationContextError);
 
         if (testCase.shouldValidationFail)
         {
         } else if (testCase.shouldRegistrationFail)
         {
-            assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
-            assertTrue(theHandler.expectations.didTransactionRollbackHappen);
-            assertTrue(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
+            assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
+            assertTrue(handler.getExpectations().didTransactionRollbackHappen);
+            assertTrue(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
 
-            assertTrue(theHandler.expectations.didPreRegistrationFunctionRunHappen);
-            assertFalse(theHandler.expectations.didPostRegistrationFunctionRunHappen);
+            assertTrue(handler.getExpectations().didPreRegistrationFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostRegistrationFunctionRunHappen);
 
-            assertFalse(theHandler.expectations.didCommitTransactionFunctionRunHappen);
-            assertFalse(theHandler.expectations.didPostStorageFunctionRunHappen);
+            assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+            assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
 
         } else
         {
-            assertFalse(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
+            assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
 
-            assertTrue(theHandler.expectations.didPreRegistrationFunctionRunHappen);
-            assertTrue(theHandler.expectations.didPostRegistrationFunctionRunHappen);
+            assertTrue(handler.getExpectations().didPreRegistrationFunctionRunHappen);
+            assertTrue(handler.getExpectations().didPostRegistrationFunctionRunHappen);
 
             if (testCase.postStorageFunctionNotDefinedInADropbox)
             {
-                assertTrue(theHandler.expectations.didCommitTransactionFunctionRunHappen);
-                assertFalse(theHandler.expectations.didPostStorageFunctionRunHappen);
+                assertTrue(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+                assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
             } else
             {
-                assertFalse(theHandler.expectations.didCommitTransactionFunctionRunHappen);
-                assertTrue(theHandler.expectations.didPostStorageFunctionRunHappen);
+                assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+                assertTrue(handler.getExpectations().didPostStorageFunctionRunHappen);
             }
         }
-    }
-
-    @Test
-    public void testFileNotFound()
-    {
-
     }
 
     @Test
@@ -622,12 +644,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 FileUtilities.loadToString(
                         new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
+        assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
 
         // These do not get called when the caller herself invokes a rollback
-        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
-        assertFalse(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+        assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
 
         context.assertIsSatisfied();
     }
@@ -1072,8 +1093,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertTrue(theHandler.expectations.didRollbackServiceFunctionRun);
+        assertTrue(handler.getExpectations().didRollbackServiceFunctionRun);
         context.assertIsSatisfied();
     }
 
@@ -1094,9 +1114,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        
-        assertTrue(theHandler.expectations.didServiceRollbackHappen);
+        assertTrue(handler.getExpectations().didServiceRollbackHappen);
         context.assertIsSatisfied();
     }
 
@@ -1135,10 +1153,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.expectations.didServiceRollbackHappen);
-        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
-        assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
+        assertFalse(handler.getExpectations().didServiceRollbackHappen);
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+        assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
 
         context.assertIsSatisfied();
     }
@@ -1160,9 +1177,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.expectations.didServiceRollbackHappen);
-        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
+        assertFalse(handler.getExpectations().didServiceRollbackHappen);
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
         context.assertIsSatisfied();
     }
 
@@ -1183,10 +1199,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.expectations.didServiceRollbackHappen);
-        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
-        assertTrue(theHandler.expectations.didSecondaryTransactionErrorNotificationHappen);
+        assertFalse(handler.getExpectations().didServiceRollbackHappen);
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+        assertTrue(handler.getExpectations().didSecondaryTransactionErrorNotificationHappen);
         context.assertIsSatisfied();
     }
 

@@ -8,7 +8,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
-public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
+public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation> implements ITestingDataSetHandler
 {
     protected final TestingDataSetHandlerExpectations expectations;
 
@@ -62,6 +62,11 @@ public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetI
     {
         super.invokeFuncion(service, function, args);
         expectations.checkPythonInterpreterVariables(service);
+    }
+
+    public TestingDataSetHandlerExpectations getExpectations()
+    {
+      return expectations;
     }
 
 }
