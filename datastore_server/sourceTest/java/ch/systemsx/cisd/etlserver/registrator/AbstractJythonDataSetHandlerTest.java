@@ -397,7 +397,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         protected boolean didPostStorageFunctionRunHappen = false;
 
         protected boolean didServiceRollbackHappen = false;
-        
+
         protected String registrationContextError;
 
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
@@ -544,77 +544,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             didSecondaryTransactionErrorNotificationHappen =
                     readBoolean(interpreter, "didSecondaryTransactionErrorNotificationHappen");
         }
-
-        @Override
-        protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
-                DataSetFile aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
-                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
-                TopLevelDataSetRegistratorGlobalState globalState)
-        {
-            JythonDataSetRegistrationService<DataSetInformation> service =
-                    new TestDataRegistrationService(this, aDataSetFile,
-                            userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
-                            interpreter, shouldRegistrationFail, globalState);
-            return service;
-        }
-
     }
 
-    protected static class TestDataRegistrationService extends
-            JythonDataSetRegistrationService<DataSetInformation>
-    {
-        private final boolean shouldRegistrationFail;
-
-        public TestDataRegistrationService(
-                JythonTopLevelDataSetHandler<DataSetInformation> registrator,
-                DataSetFile aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
-                IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                PythonInterpreter interpreter, boolean shouldRegistrationFail,
-                TopLevelDataSetRegistratorGlobalState globalState)
-        {
-            super(registrator, aDataSetFile, userProvidedDataSetInformationOrNull,
-                    globalCleanAfterwardsAction,
-                    new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter,
-                    globalState);
-            this.shouldRegistrationFail = shouldRegistrationFail;
-        }
-
-        @Override
-        public IEntityOperationService<DataSetInformation> getEntityRegistrationService()
-        {
-            return new TestEntityOperationService(getRegistrator(), shouldRegistrationFail);
-        }
-
-    }
-
-    protected static class TestEntityOperationService extends
-            DefaultEntityOperationService<DataSetInformation>
-    {
-
-        private final boolean shouldRegistrationFail;
-
-        /**
-         * @param registrator
-         */
-        public TestEntityOperationService(
-                AbstractOmniscientTopLevelDataSetRegistrator<DataSetInformation> registrator,
-                boolean shouldRegistrationFail)
-        {
-            super(registrator, new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate());
-            this.shouldRegistrationFail = shouldRegistrationFail;
-        }
-
-        @Override
-        public AtomicEntityOperationResult performOperationsInApplcationServer(
-                AtomicEntityOperationDetails<DataSetInformation> registrationDetails)
-        {
-            if (shouldRegistrationFail)
-            {
-                assert false;
-            }
-            return super.performOperationsInApplcationServer(registrationDetails);
-        }
-
-    }
 }
