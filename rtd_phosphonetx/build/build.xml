@@ -49,7 +49,7 @@
 	
 	<target name="calculate-proteomics-core-plugins-checksum">
   	<antcall target="compute-core-plugins-checksums">
-  		<param name="name-prefix" value="proteomics"/>
+  		<param name="technology" value="proteomics"/>
   		<param name="path-prefix" value="../rtd_phosphonetx"/>
   	</antcall>
 	</target>

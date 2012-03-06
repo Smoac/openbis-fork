@@ -76,7 +76,7 @@
 	
 	<target name="calculate-screening-core-plugins-checksum">
   	<antcall target="compute-core-plugins-checksums">
-  		<param name="name-prefix" value="screening"/>
+  		<param name="technology" value="screening"/>
   		<param name="path-prefix" value="../screening"/>
   	</antcall>
 	</target>
