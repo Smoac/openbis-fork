@@ -51,6 +51,8 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.ITestingDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.TestingDataSetHandlerExpectations;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -273,8 +275,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             new File(new File(stagingDirectory, "image-raw-thumnails"),
                                     "thumbnails.h5"));
 
-                    one(dataSetValidator).assertValidDataSet(
-                            IMAGE_DATA_SET_TYPE,
+                    one(dataSetValidator).assertValidDataSet(IMAGE_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE), "original"));
 
                     one(dataSetValidator).assertValidDataSet(
@@ -285,8 +286,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             new File(new File(stagingDirectory, "overlay-thumnails"),
                                     "thumbnails.h5"));
 
-                    one(dataSetValidator).assertValidDataSet(
-                            OVERLAY_DATA_SET_TYPE,
+                    one(dataSetValidator)
+                            .assertValidDataSet(
+                                    OVERLAY_DATA_SET_TYPE,
                                     new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
                                             "original"));
 
@@ -412,25 +414,25 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
 
     }
 
-    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler
+    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler implements
+            ITestingDataSetHandler
     {
-        private final boolean shouldRegistrationFail;
-
-        private final boolean shouldReThrowRollbackException;
+        private final TestingDataSetHandlerExpectations expectations;
 
         public TestingPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
             super(globalState);
-            this.shouldRegistrationFail = shouldRegistrationFail;
-            this.shouldReThrowRollbackException = shouldReThrowRollbackException;
+            expectations =
+                    new TestingDataSetHandlerExpectations(shouldRegistrationFail,
+                            shouldReThrowRollbackException);
         }
 
         @Override
         public void registerDataSetInApplicationServer(DataSetInformation dataSetInformation,
                 NewExternalData data) throws Throwable
         {
-            if (shouldRegistrationFail)
+            if (expectations.isShouldRegistrationFail())
             {
                 throw new UserFailureException("Didn't work.");
             } else
@@ -444,7 +446,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                 Throwable throwable)
         {
             super.rollback(service, throwable);
-            if (shouldReThrowRollbackException)
+            if (expectations.isShouldReThrowRollbackException())
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             } else
@@ -461,13 +463,18 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         {
             super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
 
-            if (shouldReThrowRollbackException)
+            if (expectations.isShouldReThrowRollbackException())
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             } else
             {
                 throwable.printStackTrace();
             }
+        }
+
+        public TestingDataSetHandlerExpectations getExpectations()
+        {
+            return expectations;
         }
     }
 

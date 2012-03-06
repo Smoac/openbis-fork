@@ -52,6 +52,8 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.ITestingDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.TestingDataSetHandlerExpectations;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -977,25 +979,23 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     }
 
-    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler
+    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler implements ITestingDataSetHandler
     {
-        private final boolean shouldRegistrationFail;
-
-        private final boolean shouldReThrowRollbackException;
-
+    
+        private final TestingDataSetHandlerExpectations expectations;
+        
         public TestingPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
             super(globalState);
-            this.shouldRegistrationFail = shouldRegistrationFail;
-            this.shouldReThrowRollbackException = shouldReThrowRollbackException;
+            expectations = new TestingDataSetHandlerExpectations(shouldRegistrationFail, shouldReThrowRollbackException);
         }
 
         @Override
         public void registerDataSetInApplicationServer(DataSetInformation dataSetInformation,
                 NewExternalData data) throws Throwable
         {
-            if (shouldRegistrationFail)
+            if (expectations.isShouldRegistrationFail())
             {
                 throw new UserFailureException("Didn't work.");
             } else
@@ -1009,7 +1009,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 Throwable throwable)
         {
             super.rollback(service, throwable);
-            if (shouldReThrowRollbackException)
+            if (expectations.isShouldReThrowRollbackException())
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             } else
@@ -1026,13 +1026,19 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         {
             super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
 
-            if (shouldReThrowRollbackException)
+            if (expectations.isShouldReThrowRollbackException())
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             } else
             {
                 throwable.printStackTrace();
             }
+        }
+
+        public TestingDataSetHandlerExpectations getExpectations()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }
