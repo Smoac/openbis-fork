@@ -28,14 +28,13 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
 /**
  * @author Piotr Buczek
  */
 public class DatasetImageOverviewConfiguration
 {
-    private static String PLUGINS_SERVICES_LIST_KEY = "overview-plugins";
-
     private static final String PLUGIN_SERVICE_CLASS_KEY = "class";
 
     private static final String PLUGIN_SERVICE_DEFAULT_KEY = "default";
@@ -48,7 +47,7 @@ public class DatasetImageOverviewConfiguration
 
         SectionProperties[] pluginServicesProperties =
                 PropertyParametersUtil.extractSectionProperties(properties,
-                        PLUGINS_SERVICES_LIST_KEY, false);
+                        Constants.OVERVIEW_PLUGINS_SERVICES_LIST_KEY, false);
         for (SectionProperties sectionProperties : pluginServicesProperties)
         {
             Properties props = sectionProperties.getProperties();

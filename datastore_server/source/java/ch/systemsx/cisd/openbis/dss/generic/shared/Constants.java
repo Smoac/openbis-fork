@@ -42,4 +42,6 @@ public class Constants
     /** Key of service property which is a list of servlet services. */
     public static final String PLUGIN_SERVICES_LIST_KEY = "plugin-services";
 
+    public static String OVERVIEW_PLUGINS_SERVICES_LIST_KEY = "overview-plugins";
+
 }
