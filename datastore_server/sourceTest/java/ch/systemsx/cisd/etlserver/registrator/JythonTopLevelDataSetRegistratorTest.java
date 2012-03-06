@@ -545,38 +545,38 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
 
-        assertNull("Registration context error occured: " + theHandler.registrationContextError,
-                theHandler.registrationContextError);
+        assertNull("Registration context error occured: " + theHandler.expectations.registrationContextError,
+                theHandler.expectations.registrationContextError);
 
         if (testCase.shouldValidationFail)
         {
         } else if (testCase.shouldRegistrationFail)
         {
-            assertFalse(theHandler.didRollbackServiceFunctionRun);
-            assertTrue(theHandler.didTransactionRollbackHappen);
-            assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
+            assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
+            assertTrue(theHandler.expectations.didTransactionRollbackHappen);
+            assertTrue(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
 
-            assertTrue(theHandler.didPreRegistrationFunctionRunHappen);
-            assertFalse(theHandler.didPostRegistrationFunctionRunHappen);
+            assertTrue(theHandler.expectations.didPreRegistrationFunctionRunHappen);
+            assertFalse(theHandler.expectations.didPostRegistrationFunctionRunHappen);
 
-            assertFalse(theHandler.didCommitTransactionFunctionRunHappen);
-            assertFalse(theHandler.didPostStorageFunctionRunHappen);
+            assertFalse(theHandler.expectations.didCommitTransactionFunctionRunHappen);
+            assertFalse(theHandler.expectations.didPostStorageFunctionRunHappen);
 
         } else
         {
-            assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+            assertFalse(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
 
-            assertTrue(theHandler.didPreRegistrationFunctionRunHappen);
-            assertTrue(theHandler.didPostRegistrationFunctionRunHappen);
+            assertTrue(theHandler.expectations.didPreRegistrationFunctionRunHappen);
+            assertTrue(theHandler.expectations.didPostRegistrationFunctionRunHappen);
 
             if (testCase.postStorageFunctionNotDefinedInADropbox)
             {
-                assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
-                assertFalse(theHandler.didPostStorageFunctionRunHappen);
+                assertTrue(theHandler.expectations.didCommitTransactionFunctionRunHappen);
+                assertFalse(theHandler.expectations.didPostStorageFunctionRunHappen);
             } else
             {
-                assertFalse(theHandler.didCommitTransactionFunctionRunHappen);
-                assertTrue(theHandler.didPostStorageFunctionRunHappen);
+                assertFalse(theHandler.expectations.didCommitTransactionFunctionRunHappen);
+                assertTrue(theHandler.expectations.didPostStorageFunctionRunHappen);
             }
         }
     }
@@ -623,11 +623,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
+        assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
 
         // These do not get called when the caller herself invokes a rollback
-        assertFalse(theHandler.didTransactionRollbackHappen);
-        assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
+        assertFalse(theHandler.expectations.didRollbackTransactionFunctionRunHappen);
 
         context.assertIsSatisfied();
     }
@@ -1073,7 +1073,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertTrue(theHandler.didRollbackServiceFunctionRun);
+        assertTrue(theHandler.expectations.didRollbackServiceFunctionRun);
         context.assertIsSatisfied();
     }
 
@@ -1096,7 +1096,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         
-        assertTrue(theHandler.didServiceRollbackHappen);
+        assertTrue(theHandler.expectations.didServiceRollbackHappen);
         context.assertIsSatisfied();
     }
 
@@ -1136,9 +1136,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didServiceRollbackHappen);
-        assertFalse(theHandler.didTransactionRollbackHappen);
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
+        assertFalse(theHandler.expectations.didServiceRollbackHappen);
+        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
+        assertFalse(theHandler.expectations.didRollbackServiceFunctionRun);
 
         context.assertIsSatisfied();
     }
@@ -1161,8 +1161,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didServiceRollbackHappen);
-        assertFalse(theHandler.didTransactionRollbackHappen);
+        assertFalse(theHandler.expectations.didServiceRollbackHappen);
+        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
         context.assertIsSatisfied();
     }
 
@@ -1184,9 +1184,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didServiceRollbackHappen);
-        assertFalse(theHandler.didTransactionRollbackHappen);
-        assertTrue(theHandler.didSecondaryTransactionErrorNotificationHappen);
+        assertFalse(theHandler.expectations.didServiceRollbackHappen);
+        assertFalse(theHandler.expectations.didTransactionRollbackHappen);
+        assertTrue(theHandler.expectations.didSecondaryTransactionErrorNotificationHappen);
         context.assertIsSatisfied();
     }
 
