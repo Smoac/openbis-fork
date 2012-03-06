@@ -95,10 +95,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IFileOperations fileOperations;
 
-        private final IPreRegistrationAction preRegistrationAction;
-
-        private final IPostRegistrationAction postRegistrationAction;
-
         private final IDataStrategyStore dataStrategyStore;
 
         private final MarkerFileUtility markerFileUtility;
@@ -121,10 +117,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             this.dataStrategyStore =
                     new DataStrategyStore(globalState.getOpenBisService(),
                             globalState.getMailClient());
-            this.preRegistrationAction =
-                    PreRegistrationExecutor.create(globalState.getPreRegistrationScript());
-            this.postRegistrationAction =
-                    PostRegistrationExecutor.create(globalState.getPostRegistrationScript());
             this.markerFileUtility =
                     new MarkerFileUtility(operationLog, notificationLog, fileOperations,
                             storageProcessor);
@@ -153,16 +145,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         public IFileOperations getFileOperations()
         {
             return fileOperations;
-        }
-
-        public IPreRegistrationAction getPreRegistrationAction()
-        {
-            return preRegistrationAction;
-        }
-
-        public IPostRegistrationAction getPostRegistrationAction()
-        {
-            return postRegistrationAction;
         }
 
         public IDataStrategyStore getDataStrategyStore()
