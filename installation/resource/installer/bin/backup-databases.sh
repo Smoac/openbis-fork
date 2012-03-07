@@ -16,7 +16,7 @@ function listDatabases() {
   
   local LIB=$DSS_SERVER/lib
 
-  DB_LIST=$(java -cp $LIB/\* ch.systemsx.cisd.openbis.generic.server.dbbackup.BackupDatabaseDescriptionGenerator $@)
+  DB_LIST=$(java -cp $LIB/\* ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator $@)
 }
 
 #
