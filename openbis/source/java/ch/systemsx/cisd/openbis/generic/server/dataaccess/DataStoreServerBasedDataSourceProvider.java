@@ -88,11 +88,16 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
 
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
-        DataSource dataSource = dataSources.get(dssCode);
+        DataSource dataSource = dataSources.get(dssCode + "[" + technology + "]");
+        if (dataSource == null)
+        {
+            dataSource = dataSources.get(dssCode);
+        }
         if (dataSource == null)
         {
             throw new ConfigurationFailureException(
-                    "No data source configured for Data Store Server '" + dssCode + "'");
+                    "No data source configured for Data Store Server '" + dssCode
+                            + "' and technology '" + technology + "'.");
         }
         return dataSource;
     }
