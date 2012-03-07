@@ -109,7 +109,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true,
                         sampleIdentifierOrNull, false, false, true, viewContext,
-                        SampleTypeDisplayID.DATA_SET_UPLOAD_SAMPLE_CHOOSER);
+                        SampleTypeDisplayID.DATA_SET_UPLOAD_SAMPLE_CHOOSER, false);
         formPanel.add(sampleChooser.getField());
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,

@@ -35,7 +35,7 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.utilities.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 
 /**
  * Action which sets the variable <code>DISABLED_TECHNOLOGIES_VARNAME</code> or updates

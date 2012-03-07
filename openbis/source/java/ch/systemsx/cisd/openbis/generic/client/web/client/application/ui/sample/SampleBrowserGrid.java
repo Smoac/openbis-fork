@@ -106,7 +106,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
     public static DisposableEntityChooser<TableModelRowWithObject<Sample>> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment, SampleTypeDisplayID sampleTypeID)
+            boolean addAll, final boolean excludeWithoutExperiment,
+            SampleTypeDisplayID sampleTypeID, boolean multipleSelection)
     {
         final SampleBrowserToolbar toolbar =
                 new SampleBrowserToolbar(viewContext, addShared, addAll, excludeWithoutExperiment,
@@ -141,6 +142,10 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                             // editable table cells.
                         }
                     };
+        if (multipleSelection)
+        {
+            browserGrid.allowMultipleSelection();
+        }
         browserGrid.addGridRefreshListener(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }

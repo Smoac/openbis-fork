@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton.SampleChooserButtonAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
@@ -300,18 +300,17 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
-                                .withSuffix(getSampleTypeCode()));
+                                .withSuffix(getSampleTypeCode()), true);
         parentsArea = new ParentSamplesArea(viewContext, getId());
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
         parentChooserButton
-                .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Sample>>()
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Sample>>()
                     {
-                        public void entityChosen(TableModelRowWithObject<Sample> entity)
+                        public void entitiesChosen(List<TableModelRowWithObject<Sample>> entities)
                         {
-                            if (entity != null)
+                            for (TableModelRowWithObject<Sample> row : entities)
                             {
-                                String sampleIdentifier = entity.getObjectOrNull().getIdentifier();
-                                parentsArea.appendItem(sampleIdentifier);
+                                parentsArea.appendItem(row.getObjectOrNull().getIdentifier());
                             }
                         }
                     });
@@ -320,16 +319,20 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         true, false, false, viewContext.getCommonViewContext(), getId()
                                 + ID_SUFFIX_CONTAINER,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_CONTAINER_CHOOSER
-                                .withSuffix(getSampleTypeCode()));
+                                .withSuffix(getSampleTypeCode()), false);
         experimentField = createExperimentField();
         experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
         experimentField.getChooserField().addChosenEntityListener(
-                new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
+                new IChosenEntitiesListener<TableModelRowWithObject<Experiment>>()
                     {
-                        public void entityChosen(TableModelRowWithObject<Experiment> entity)
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Experiment>> entities)
                         {
-                            groupSelectionWidget.setValue(new SpaceModel(entity.getObjectOrNull()
-                                    .getProject().getSpace()));
+                            if (entities.isEmpty() == false)
+                            {
+                                groupSelectionWidget.setValue(new SpaceModel(entities.get(0)
+                                        .getObjectOrNull().getProject().getSpace()));
+                            }
                         }
                     });
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 
@@ -74,13 +75,12 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
                 DataSetSearchHitGrid.createWithInitialSearchCriteria(viewContext, searchCriteria,
                         true);
         new EntityChooserDialog<TableModelRowWithObject<ExternalData>>(browser,
-                new IChosenEntitySetter<TableModelRowWithObject<ExternalData>>()
+                new IChosenEntitiesSetter<TableModelRowWithObject<ExternalData>>()
                     {
 
-                        public void setChosenEntity(
-                                TableModelRowWithObject<ExternalData> entityOrNull)
+                        public void setChosenEntities(List<TableModelRowWithObject<ExternalData>> row)
                         {
-                            field.setChosenEntity(entityOrNull.getObjectOrNull());
+                            field.setChosenEntities(TableModelRowWithObject.getObjects(row));
                         }
                     }, "Choose data set", viewContext).show();
     }

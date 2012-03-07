@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Voca
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DateFormField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.HyperlinkField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MaterialChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -167,9 +168,10 @@ public class ColumnUtils
                         }
                     });
                 materialChooser
-                        .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Material>>()
+                        .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Material>>()
                             {
-                                public void entityChosen(TableModelRowWithObject<Material> entity)
+                                public void entitiesChosen(
+                                        List<TableModelRowWithObject<Material>> entities)
                                 {
                                     editor.completeEdit();
                                 }

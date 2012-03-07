@@ -45,7 +45,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     private final IDelegatedAction onCancelAction;
 
     public EntityChooserDialog(DisposableEntityChooser<T> entityBrowser,
-            IChosenEntitySetter<T> chosenEntitySetter, String title,
+            IChosenEntitiesSetter<T> chosenEntitySetter, String title,
             IMessageProvider messageProvider)
     {
         super(entityBrowser.getComponent(), title, messageProvider.getMessage(Dict.BUTTON_CHOOSE),
@@ -69,7 +69,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     {
         if (ce.getType().getEventCode() == Event.ONDBLCLICK)
         {
-            if (entityBrowser.tryGetSingleSelected() != null)
+            if (entityBrowser.getSelected().isEmpty() == false)
             {
                 onAcceptAction.execute();
                 hide();
@@ -80,7 +80,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     }
 
     private static <T> IDelegatedAction createAcceptAction(
-            final IChosenEntitySetter<T> chosenEntitySetter,
+            final IChosenEntitiesSetter<T> chosenEntitySetter,
             final DisposableEntityChooser<T> entityBrowser)
     {
         return new IDelegatedAction()
@@ -88,14 +88,13 @@ class EntityChooserDialog<T> extends SimpleDialog
                 public void execute()
                 {
                     entityBrowser.dispose();
-                    T selected = entityBrowser.tryGetSingleSelected();
-                    chosenEntitySetter.setChosenEntity(selected);
+                    chosenEntitySetter.setChosenEntities(entityBrowser.getSelected());
                 }
             };
     }
 
     private static <T> IDelegatedAction createCancelAction(
-            final IChosenEntitySetter<T> chosenEntitySetter,
+            final IChosenEntitiesSetter<T> chosenEntitySetter,
             final IDisposableComponent entityBrowser)
     {
         return new IDelegatedAction()
@@ -103,7 +102,7 @@ class EntityChooserDialog<T> extends SimpleDialog
                 public void execute()
                 {
                     entityBrowser.dispose();
-                    chosenEntitySetter.setChosenEntity(null);
+                    chosenEntitySetter.setChosenEntities(null);
                 }
             };
     }

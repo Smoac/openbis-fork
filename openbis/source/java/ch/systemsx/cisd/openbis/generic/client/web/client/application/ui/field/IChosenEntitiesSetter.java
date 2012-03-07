@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import java.util.List;
+
 /**
  * @author Piotr Buczek
  */
-public interface IChosenEntitySetter<T>
+public interface IChosenEntitiesSetter<T>
 {
-    public void setChosenEntity(T entityOrNull);
+    public void setChosenEntities(List<T> entities);
 }

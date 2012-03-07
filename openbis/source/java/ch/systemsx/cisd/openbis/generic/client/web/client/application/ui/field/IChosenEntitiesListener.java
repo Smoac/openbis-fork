@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import java.util.List;
+
 /**
+ * Listener for chosen entities.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface IChosenEntityListener<T>
+public interface IChosenEntitiesListener<T>
 {
-    public void entityChosen(T entity);
+    public void entitiesChosen(List<T> entities);
 }

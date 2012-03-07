@@ -720,16 +720,16 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         final TypedTableGrid<T> self = this;
         return new DisposableEntityChooser<TableModelRowWithObject<T>>()
             {
-                public TableModelRowWithObject<T> tryGetSingleSelected()
+                public List<TableModelRowWithObject<T>> getSelected()
                 {
                     List<BaseEntityModel<TableModelRowWithObject<T>>> items = getSelectedItems();
-                    if (items.isEmpty())
+                    List<TableModelRowWithObject<T>> result =
+                            new ArrayList<TableModelRowWithObject<T>>();
+                    for (BaseEntityModel<TableModelRowWithObject<T>> item : items)
                     {
-                        return null;
-                    } else
-                    {
-                        return items.get(0).getBaseObject();
+                        result.add(item.getBaseObject());
                     }
+                    return result;
                 }
 
                 public void dispose()

@@ -17,17 +17,20 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
+
 public abstract class ChosenEntitySetter<T> extends TriggerField<String> implements
-        IChosenEntitySetter<T>
+        IChosenEntitiesSetter<T>
 {
     private static final int TEXT_CHOOSER_FIELD_WIDTH = 342;
 
-    private final Set<IChosenEntityListener<T>> listeners =
-            new LinkedHashSet<IChosenEntityListener<T>>();
+    private final Set<IChosenEntitiesListener<T>> listeners =
+            new LinkedHashSet<IChosenEntitiesListener<T>>();
 
     protected ChosenEntitySetter()
     {
@@ -36,20 +39,25 @@ public abstract class ChosenEntitySetter<T> extends TriggerField<String> impleme
         setHideTrigger(false);
     }
 
-    public void addChosenEntityListener(IChosenEntityListener<T> listener)
+    public void addChosenEntityListener(IChosenEntitiesListener<T> listener)
     {
         listeners.add(listener);
     }
 
-    public void setChosenEntity(T entityOrNull)
+    public void setChosenEntities(List<T> entityOrNull)
     {
         if (entityOrNull != null)
         {
-            setValue(renderEntity(entityOrNull));
+            CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+            for (T entity : entityOrNull)
+            {
+                builder.append(renderEntity(entity));
+            }
+            setValue(builder.toString());
         }
-        for (IChosenEntityListener<T> listener : listeners)
+        for (IChosenEntitiesListener<T> listener : listeners)
         {
-            listener.entityChosen(entityOrNull);
+            listener.entitiesChosen(entityOrNull);
         }
     }
 

@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.List;
+
 /**
- * An interface for a component which has a functionality of selecting a single object of the
- * specified type.
+ * An interface for a component which has a functionality of selecting non, one or more objects of
+ * the specified type.
  * 
  * @author Tomasz Pylak
  */
 public interface DisposableEntityChooser<T> extends IDisposableComponent
 {
-    /** @return selected entity or null if nothing was selected */
-    T tryGetSingleSelected();
+    List<T> getSelected();
 }

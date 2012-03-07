@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -27,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -100,13 +102,13 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
                 ExperimentChooserField.create("", true, null, viewContext.getCommonViewContext());
         final ExperimentChooserField chooserField = experimentChooser.getChooserField();
         chooserField
-                .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Experiment>>()
                     {
-                        public void entityChosen(TableModelRowWithObject<Experiment> row)
+                        public void entitiesChosen(List<TableModelRowWithObject<Experiment>> rows)
                         {
-                            if (row != null)
+                            if (rows.isEmpty() == false)
                             {
-                                chooseSingleExperiment(chooserField, row.getObjectOrNull());
+                                chooseSingleExperiment(chooserField, rows.get(0).getObjectOrNull());
                             }
                         }
                     });

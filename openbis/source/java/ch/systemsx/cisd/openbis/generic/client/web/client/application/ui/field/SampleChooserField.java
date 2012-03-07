@@ -58,10 +58,10 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            SampleTypeDisplayID sampleTypeDisplayID)
+            SampleTypeDisplayID sampleTypeDisplayID, boolean multipleSelection)
     {
         return create(labelField, mandatory, initialValueOrNull, addShared, addAll,
-                excludeWithoutExperiment, viewContext, null, sampleTypeDisplayID);
+                excludeWithoutExperiment, viewContext, null, sampleTypeDisplayID, multipleSelection);
 
     }
 
@@ -69,7 +69,7 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,
             final boolean addAll, final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull,
-            final SampleTypeDisplayID sampleTypeDisplayID)
+            final SampleTypeDisplayID sampleTypeDisplayID, final boolean multipleSelection)
     {
         final SampleChooserField chooserField =
                 new SampleChooserField(mandatory, initialValueOrNull, viewContext)
@@ -79,7 +79,7 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
                         {
                             super.onTriggerClick(ce);
                             browse(viewContext, this, addShared, addAll, excludeWithoutExperiment,
-                                    sampleTypeDisplayID);
+                                    sampleTypeDisplayID, multipleSelection);
                         }
                     };
         if (idOrNull != null)
@@ -125,15 +125,16 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<TableModelRowWithObject<Sample>> chosenSampleField, final boolean addShared,
-            boolean addAll, final boolean excludeWithoutExperiment,
-            SampleTypeDisplayID sampleTypeDisplayID)
+            final ChosenEntitySetter<TableModelRowWithObject<Sample>> chosenSampleField,
+            final boolean addShared, boolean addAll, final boolean excludeWithoutExperiment,
+            SampleTypeDisplayID sampleTypeDisplayID, boolean multipleSelection)
     {
         DisposableEntityChooser<TableModelRowWithObject<Sample>> browser =
                 SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
-                        excludeWithoutExperiment, sampleTypeDisplayID);
+                        excludeWithoutExperiment, sampleTypeDisplayID, multipleSelection);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
-        new EntityChooserDialog<TableModelRowWithObject<Sample>>(browser, chosenSampleField, title, viewContext).show();
+        new EntityChooserDialog<TableModelRowWithObject<Sample>>(browser, chosenSampleField, title,
+                viewContext).show();
     }
 
     // ------------------

@@ -116,7 +116,7 @@ public class ScriptExecutionFramework
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, true,
                         true, false, viewContext.getCommonViewContext(),
-                        SampleTypeDisplayID.SCRIPT_EDITOR_SAMPLE_CHOOSER);
+                        SampleTypeDisplayID.SCRIPT_EDITOR_SAMPLE_CHOOSER, false);
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
                         viewContext);

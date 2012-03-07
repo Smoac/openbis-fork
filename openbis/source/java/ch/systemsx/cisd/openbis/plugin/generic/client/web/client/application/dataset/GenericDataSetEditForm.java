@@ -250,7 +250,7 @@ public final class GenericDataSetEditForm extends
         final SampleChooserFieldAdaptor result =
                 SampleChooserField.create(label, true, originalSampleOrNull, false, false, true,
                         viewContext.getCommonViewContext(),
-                        SampleTypeDisplayID.DATA_SET_EDIT_SAMPLE_CHOOSER);
+                        SampleTypeDisplayID.DATA_SET_EDIT_SAMPLE_CHOOSER, false);
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
         return result;
     }
