@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dbbackup;
+package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
-import junit.framework.TestCase;
-
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator;
 
 /**
  * @author Kaloyan Enimanev
  */
-public class BackupDatabaseDescriptionGeneratorTest extends TestCase
+public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
 {
     @Test
     public void testParser()

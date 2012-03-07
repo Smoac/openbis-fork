@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dbbackup;
+package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 
 /**
  * Given a list of properties files generates a list of well-known databases to be backed up as part
@@ -78,27 +84,60 @@ public class BackupDatabaseDescriptionGenerator
     {
         for (String fileName : fileNames)
         {
-            File propertiesFile = new File(fileName);
-            if (propertiesFile.isFile() && propertiesFile.canRead())
+            File file = new File(fileName);
+            if (file.isDirectory())
             {
-                FileInputStream fin = null;
-                try
-                {
-                    fin = new FileInputStream(propertiesFile);
-                    Properties properties = new Properties();
-                    properties.load(fin);
-                    process(properties);
-                } catch (IOException ioex)
-                {
-                    System.err.println("I/O error while reading from file " + fileName);
-                    System.exit(2);
-                } finally
-                {
-                    closeQuietly(fin);
-                }
+                processCorePluginsFolder(file);
+            } else if (file.isFile() && file.canRead())
+            {
+                Properties properties = readProperties(file);
+                process(properties);
             } else
             {
                 System.err.println("Cannot read from specified file " + fileName);
+            }
+        }
+    }
+
+    private Properties readProperties(File file)
+    {
+        Properties properties = new Properties();
+        FileInputStream fin = null;
+        try
+        {
+            fin = new FileInputStream(file);
+            properties.load(fin);
+        } catch (IOException ioex)
+        {
+            throw new IOExceptionUnchecked(ioex);
+        } finally
+        {
+            closeQuietly(fin);
+        }
+        return properties;
+    }
+
+    private void processCorePluginsFolder(File folder)
+    {
+        List<CorePlugin> plugins =
+                new CorePluginScanner(folder.getAbsolutePath(), CorePluginScanner.ScannerType.DSS)
+                        .scanForPlugins();
+        for (CorePlugin plugin : plugins)
+        {
+            File dataSourcePlugins =
+                    new File(folder, plugin.getName() + "/" + plugin.getVersion()
+                            + "/dss/data-sources");
+            File[] pluginFolders = dataSourcePlugins.listFiles(new FilenameFilter()
+                {
+                    public boolean accept(File dir, String name)
+                    {
+                        return name.startsWith(".") == false;
+                    }
+                });
+            for (File pluginDefinitionFolder : pluginFolders)
+            {
+                Properties pluginProperties =
+                        readProperties(new File(pluginDefinitionFolder, "plugin.properties"));
             }
         }
     }
@@ -131,7 +170,14 @@ public class BackupDatabaseDescriptionGenerator
         }
         BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
 
-        generator.process(args);
+        try
+        {
+            generator.process(args);
+        } catch (IOExceptionUnchecked e)
+        {
+            System.err.println(e.getMessage());
+            System.exit(2);
+        }
 
         String generatorResult = generator.getResult();
         System.out.println(generatorResult);

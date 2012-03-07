@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dbbackup;
+package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
 import java.util.Map.Entry;
 import java.util.Properties;

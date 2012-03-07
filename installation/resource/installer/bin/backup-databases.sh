@@ -14,7 +14,7 @@
 #
 function listDatabases() {
   
-  local LIB=$AS_SERVER/jetty/webapps/openbis/WEB-INF/lib
+  local LIB=$DSS_SERVER/lib
 
   DB_LIST=$(java -cp $LIB/\* ch.systemsx.cisd.openbis.generic.server.dbbackup.BackupDatabaseDescriptionGenerator $@)
 }
