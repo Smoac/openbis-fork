@@ -280,7 +280,6 @@
   	</replaceregexp>
   	<concat-checksums />
   	<move file="${dist}/${checksum.file.name}" tofile="${dist}/${technology}-${checksum.file.name}"/>
-  	<delete dir="${dist}/core-plugins"/>
   </target>
 	
 	<!-- parameters: 
