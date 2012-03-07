@@ -20,7 +20,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseVersionHolder;
-import ch.systemsx.cisd.openbis.generic.server.dbbackup.BackupDatabaseDescriptionGenerator;
+import ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator;
 
 /**
  * @author Kaloyan Enimanev
