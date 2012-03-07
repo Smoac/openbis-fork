@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
@@ -612,10 +615,37 @@ public final class ETLDaemon
         printInitialLogMessage(parameters);
         startupServer(parameters);
         MaintenanceTaskParameters[] maintenancePlugins = parameters.getMaintenancePlugins();
+        assertNotMoreThanOnePostRegistrationMaintenanceTask(maintenancePlugins);
         MaintenanceTaskUtils.startupMaintenancePlugins(maintenancePlugins);
         injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
 
         operationLog.info("Data Store Server ready and waiting for data.");
+    }
+
+    private static void assertNotMoreThanOnePostRegistrationMaintenanceTask(
+            MaintenanceTaskParameters[] maintenancePlugins)
+    {
+        Set<String> postRegistrationMaintenanceTasks = new HashSet<String>();
+        for (MaintenanceTaskParameters maintenanceTaskParameters : maintenancePlugins)
+        {
+            try
+            {
+                Class<?> clazz = Class.forName(maintenanceTaskParameters.getClassName());
+                if (PostRegistrationMaintenanceTask.class.isAssignableFrom(clazz))
+                {
+                    postRegistrationMaintenanceTasks.add(maintenanceTaskParameters.getPluginName());
+                }
+            } catch (ClassNotFoundException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        if (postRegistrationMaintenanceTasks.size() > 1)
+        {
+            throw new ConfigurationFailureException(
+                    "There are more than one post registration maintenance tasks: "
+                            + postRegistrationMaintenanceTasks);
+        }
     }
 
     /**
