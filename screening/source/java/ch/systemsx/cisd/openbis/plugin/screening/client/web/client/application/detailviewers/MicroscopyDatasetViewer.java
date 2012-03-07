@@ -63,7 +63,7 @@ public final class MicroscopyDatasetViewer extends GenericDataSetViewer
     protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
     {
         List<TabContent> sections = new ArrayList<TabContent>();
-        if (dataset.isContainer())
+        if (dataset.tryGetContainer() == null)
         {
             sections.add(new LogicalImageDatasetSection(screeningViewContext, dataset));
         }
