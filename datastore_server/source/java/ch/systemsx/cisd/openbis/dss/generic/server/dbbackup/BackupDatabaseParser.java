@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DefaultDataSourceFactory;
 
 /**
  * Parses a given <code>service.properties</code> and produces a textual description of a database
@@ -70,49 +73,25 @@ public class BackupDatabaseParser
         return createReturnValue(context);
     }
 
-    public static String getDssServerDatabaseDescription(Properties properties,
-            String databaseVersionHolder)
+    public static List<String> getDssServerDatabaseDescriptions(Properties properties)
     {
-        String dbKeyPrefix = findDatabasePrefixForVersionHolder(properties, databaseVersionHolder);
-
-        if (StringUtils.isEmpty(dbKeyPrefix))
+        List<String> descriptions = new ArrayList<String>();
+        SectionProperties[] sectionProps =
+                PropertyParametersUtil.extractSectionProperties(properties,
+                        Constants.DATA_SOURCES_KEY, false);
+        for (SectionProperties dataSourceProperties : sectionProps)
         {
-            return StringUtils.EMPTY;
-        }
-
-        ExtendedProperties dbProps = ExtendedProperties.getSubset(properties, dbKeyPrefix, true);
-        DatabaseConfigurationContext context =
-                BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
-
-        return createReturnValue(context);
-    }
-
-    private static String findDatabasePrefixForVersionHolder(Properties properties,
-            String databaseVersionHolder)
-    {
-        for (Entry<Object, Object> entry : properties.entrySet())
-        {
-            String propertyValue = ((String) entry.getValue()).trim();
-            if (databaseVersionHolder.equalsIgnoreCase(propertyValue))
+            Properties dbProps = dataSourceProperties.getProperties();
+            String versionHolderClass =
+                    dbProps.getProperty(DefaultDataSourceFactory.VERSION_HOLDER_CLASS_KEY);
+            if (versionHolderClass != null)
             {
-                String key = (String) entry.getKey();
-                return getDatabasePrefixFromVersionHolderKey(key);
+                DatabaseConfigurationContext dbContext =
+                        BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
+                descriptions.add(createReturnValue(dbContext));
             }
         }
-        return null;
-    }
-
-    private static String getDatabasePrefixFromVersionHolderKey(String key)
-    {
-        final String VERSION_HOLDER_CLASS = "version-holder-class";
-        if (false == key.endsWith(VERSION_HOLDER_CLASS))
-        {
-            throw new IllegalArgumentException(String.format(
-                    "Version holder key '%s' must end with '%s'.", key, VERSION_HOLDER_CLASS));
-
-        }
-
-        return key.substring(0, key.length() - VERSION_HOLDER_CLASS.length());
+        return descriptions;
     }
 
     private static String createReturnValue(DatabaseConfigurationContext context)

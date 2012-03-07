@@ -36,7 +36,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 public class DefaultDataSourceFactory implements IDataSourceFactory
 {
 
-    static final String VERSION_HOLDER_CLASS_KEY = "version-holder-class";
+    public static final String VERSION_HOLDER_CLASS_KEY = "version-holder-class";
 
     public DataSource create(Properties dbProps)
     {

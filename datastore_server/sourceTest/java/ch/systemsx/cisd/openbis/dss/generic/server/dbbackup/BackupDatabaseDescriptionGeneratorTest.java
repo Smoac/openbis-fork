@@ -37,8 +37,7 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
         String username = System.getProperty("user.name");
         String resultTemplate =
                 "database=openbis_fookind;username=%s;password=\n"
-                        + "database=proteomics_dev;username=%s;password=\n"
-                        + "database=imaging_barkind;username=%s;password=";
+                        + "database=imaging_barkind;username=%s;password=\n" + "database=internal_db;username=%s;password=";
         String expectedResult = String.format(resultTemplate, username, username, username);
 
         assertEquals(expectedResult, generator.getResult());
@@ -47,7 +46,7 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
 
     private String getResourceFileName(String fileName)
     {
-        return "../openbis/resource/test-data/" + getClass().getSimpleName() + "/" + fileName;
+        return "../datastore_server/resource/test-data/" + getClass().getSimpleName() + "/" + fileName;
     }
 
 }

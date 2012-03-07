@@ -51,13 +51,13 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
  *
  * @author Franz-Josef Elmer
  */
-class CorePluginsInjector
+public class CorePluginsInjector
 {
-     static final String DELETE_KEY_WORD = "__DELETE__";
+    static final String DELETE_KEY_WORD = "__DELETE__";
 
     private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
 
-    static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
+    public static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
     
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
     
@@ -65,7 +65,7 @@ class CorePluginsInjector
     
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
     
-    enum PluginType
+    public enum PluginType
     {
         DROP_BOXES("drop-boxes", Constants.INPUT_THREAD_NAMES), 
         DATA_SOURCES("data-sources", Constants.DATA_SOURCES_KEY), 
@@ -109,7 +109,7 @@ class CorePluginsInjector
 
     private final Set<String> keysOfKeyLists;
     
-    CorePluginsInjector()
+    public CorePluginsInjector()
     {
         this(DEFAULT_LOGGER);
     }
@@ -136,6 +136,11 @@ class CorePluginsInjector
         {
             return;
         }
+        injectCorePlugins(properties, corePluginsFolderPath);
+    }
+
+    public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
+    {
         Set<String> disabledPlugins = getDisabledPlugins(properties);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties);
         Set<String> pluginNames = new HashSet<String>();

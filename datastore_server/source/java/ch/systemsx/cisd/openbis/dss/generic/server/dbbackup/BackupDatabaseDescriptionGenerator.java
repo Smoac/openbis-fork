@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -26,8 +25,8 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CorePluginsInjector;
 
 /**
  * Given a list of properties files generates a list of well-known databases to be backed up as part
@@ -56,16 +55,13 @@ public class BackupDatabaseDescriptionGenerator
                 BackupDatabaseParser.getAppServerDatabaseDescription(properties, AS_DB_KEY_PREFIX,
                         AS_BASIC_DB_NAME);
         addIfFound(openBisDatabase);
-
-        String proteomicDatabase =
-                BackupDatabaseParser.getAppServerDatabaseDescription(properties,
-                        PROTEOMICS_DB_KEY_PREFIX, PROTEOMICS_BASIC_DB_NAME);
-        addIfFound(proteomicDatabase);
-
-        String hcsImagingDatabase =
-                BackupDatabaseParser.getDssServerDatabaseDescription(properties,
-                        HCS_IMAGING_DB_VERSION_HOLDER);
-        addIfFound(hcsImagingDatabase);
+        
+        List<String> descriptions =
+                BackupDatabaseParser.getDssServerDatabaseDescriptions(properties);
+        for (String description : descriptions)
+        {
+            addIfFound(description);
+        }
     }
 
     private void addIfFound(String databaseDescription)
@@ -85,18 +81,27 @@ public class BackupDatabaseDescriptionGenerator
         for (String fileName : fileNames)
         {
             File file = new File(fileName);
-            if (file.isDirectory())
+            if (file.isFile() && file.canRead())
             {
-                processCorePluginsFolder(file);
-            } else if (file.isFile() && file.canRead())
-            {
-                Properties properties = readProperties(file);
+                Properties properties = readPropertiesAndInjectCorePlugins(file);
                 process(properties);
             } else
             {
                 System.err.println("Cannot read from specified file " + fileName);
             }
         }
+    }
+    
+    private Properties readPropertiesAndInjectCorePlugins(File file)
+    {
+        Properties properties = ExtendedProperties.createWith(readProperties(file));
+        String property = properties.getProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY);
+        if (property != null)
+        {
+            CorePluginsInjector injector = new CorePluginsInjector();
+            injector.injectCorePlugins(properties, file.getParentFile().getParent() + "/" + property);
+        }
+        return properties;
     }
 
     private Properties readProperties(File file)
@@ -115,31 +120,6 @@ public class BackupDatabaseDescriptionGenerator
             closeQuietly(fin);
         }
         return properties;
-    }
-
-    private void processCorePluginsFolder(File folder)
-    {
-        List<CorePlugin> plugins =
-                new CorePluginScanner(folder.getAbsolutePath(), CorePluginScanner.ScannerType.DSS)
-                        .scanForPlugins();
-        for (CorePlugin plugin : plugins)
-        {
-            File dataSourcePlugins =
-                    new File(folder, plugin.getName() + "/" + plugin.getVersion()
-                            + "/dss/data-sources");
-            File[] pluginFolders = dataSourcePlugins.listFiles(new FilenameFilter()
-                {
-                    public boolean accept(File dir, String name)
-                    {
-                        return name.startsWith(".") == false;
-                    }
-                });
-            for (File pluginDefinitionFolder : pluginFolders)
-            {
-                Properties pluginProperties =
-                        readProperties(new File(pluginDefinitionFolder, "plugin.properties"));
-            }
-        }
     }
 
     String getResult()
@@ -169,7 +149,7 @@ public class BackupDatabaseDescriptionGenerator
             System.exit(1);
         }
         BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
-
+        
         try
         {
             generator.process(args);
