@@ -485,7 +485,8 @@ final class SampleListingWorker extends AbstractLister
         {
             return null;
         }
-        return query.getListableSamplesForExperiment(experimentTechId.getId());
+        DataIterator<SampleRecord> iterator = query.getListableSamplesForExperiment(experimentTechId.getId());
+        return iterator;
     }
 
     private Iterable<SampleRecord> tryGetIteratorForContainedSamples()

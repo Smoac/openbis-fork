@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 /**
+ * Controller for directly-connected flag.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IDirectlyConnectedController

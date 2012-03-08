@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
 
 /**
  * Class capsulating a {@link CheckBox} and delegating check box changes to an associated

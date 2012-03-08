@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -79,7 +80,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.IDirectlyConnectedController;
 
 /**
  * Grid showing {@link Sample} instances.
