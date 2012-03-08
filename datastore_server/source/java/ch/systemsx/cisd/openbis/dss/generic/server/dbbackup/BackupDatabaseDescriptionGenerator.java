@@ -21,6 +21,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -45,9 +47,7 @@ public class BackupDatabaseDescriptionGenerator
 
     private static final String AS_BASIC_DB_NAME = "openbis";
 
-    private static final String PROTEOMICS_BASIC_DB_NAME = "proteomics";
-
-    private StringBuilder result = new StringBuilder();
+    private Set<String> result = new TreeSet<String>();
 
     private void process(Properties properties)
     {
@@ -68,11 +68,7 @@ public class BackupDatabaseDescriptionGenerator
     {
         if (false == StringUtils.isEmpty(databaseDescription))
         {
-            if (result.length() > 0)
-            {
-                result.append("\n");
-            }
-            result.append(databaseDescription);
+            result.add(databaseDescription);
         }
     }
 
@@ -124,7 +120,16 @@ public class BackupDatabaseDescriptionGenerator
 
     String getResult()
     {
-        return result.toString();
+        StringBuilder builder = new StringBuilder();
+        for (String description : result)
+        {
+            if (builder.length() > 0)
+            {
+                builder.append('\n');
+            }
+            builder.append(description);
+        }
+        return builder.toString();
     }
 
     private void closeQuietly(FileInputStream fin)

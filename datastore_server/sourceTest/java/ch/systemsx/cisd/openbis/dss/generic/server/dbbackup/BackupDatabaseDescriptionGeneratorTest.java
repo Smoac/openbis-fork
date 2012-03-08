@@ -36,8 +36,9 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
 
         String username = System.getProperty("user.name");
         String resultTemplate =
-                "database=openbis_fookind;username=%s;password=\n"
-                        + "database=imaging_barkind;username=%s;password=\n" + "database=internal_db;username=%s;password=";
+                "database=imaging_barkind;username=%s;password=\n"
+                        + "database=internal_db;username=%s;password=\n"
+                        + "database=openbis_fookind;username=%s;password=";
         String expectedResult = String.format(resultTemplate, username, username, username);
 
         assertEquals(expectedResult, generator.getResult());
