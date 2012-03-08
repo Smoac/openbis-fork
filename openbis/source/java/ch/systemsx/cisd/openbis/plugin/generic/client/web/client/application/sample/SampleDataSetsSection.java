@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.AbstractDataSetsSection;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -100,7 +99,7 @@ public class SampleDataSetsSection extends AbstractDataSetsSection
     protected IDisposableComponent createDatasetBrowserComponent()
     {
         return SampleDataSetBrowser.create(viewContext, sampleId, sampleType,
-                new DataSetConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
+                new EntityConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
     }
 
 }

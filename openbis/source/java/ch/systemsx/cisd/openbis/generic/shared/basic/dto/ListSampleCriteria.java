@@ -64,6 +64,8 @@ public class ListSampleCriteria implements Serializable
     // --------- filter 5 fields
     private TechId experimentId;
 
+    private boolean onlyDirectlyConnected = true;
+
     // --------- filter 6 fields
     private Collection<Long> childrenSampleIds;
 
@@ -207,6 +209,16 @@ public class ListSampleCriteria implements Serializable
     private void setExperimentId(final TechId experimentId)
     {
         this.experimentId = experimentId;
+    }
+
+    public boolean isOnlyDirectlyConnected()
+    {
+        return onlyDirectlyConnected;
+    }
+
+    public void setOnlyDirectlyConnected(boolean onlyDirectlyConnected)
+    {
+        this.onlyDirectlyConnected = onlyDirectlyConnected;
     }
 
 }

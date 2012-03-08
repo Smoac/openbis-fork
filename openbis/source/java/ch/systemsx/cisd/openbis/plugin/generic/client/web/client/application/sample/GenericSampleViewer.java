@@ -23,12 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
@@ -350,44 +346,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     //
     // Helper classes
     //
-
-    public static class DataSetConnectionTypeProvider
-    {
-
-        private final CheckBox showOnlyDirectlyConnectedCheckBox;
-
-        private IDelegatedAction onChangeAction;
-
-        public DataSetConnectionTypeProvider(final CheckBox showOnlyDirectlyConnectedCheckBox)
-        {
-            this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
-            addChangeListener();
-        }
-
-        private void addChangeListener()
-        {
-            showOnlyDirectlyConnectedCheckBox.addListener(Events.Change, new Listener<FieldEvent>()
-                {
-                    public void handleEvent(FieldEvent be)
-                    {
-                        if (onChangeAction != null)
-                        {
-                            onChangeAction.execute();
-                        }
-                    }
-                });
-        }
-
-        public void setOnChangeAction(IDelegatedAction onChangeAction)
-        {
-            this.onChangeAction = onChangeAction;
-        }
-
-        public boolean getShowOnlyDirectlyConnected()
-        {
-            return showOnlyDirectlyConnectedCheckBox.getValue();
-        }
-    }
 
     private static final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleParentWithDerived>

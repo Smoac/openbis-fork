@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -41,10 +40,10 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final DataSetConnectionTypeProvider connectionTypeProvider;
+    private final IDirectlyConnectedController connectionTypeProvider;
 
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
-            final SampleType sampleType, final DataSetConnectionTypeProvider connectionTypeProvider)
+            final SampleType sampleType, final IDirectlyConnectedController connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
@@ -65,7 +64,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     private final TechId sampleId;
 
     private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider)
+            TechId sampleId, IDirectlyConnectedController connectionTypeProvider)
     {
         super(viewContext, createBrowserId(sampleId), createGridId(sampleId),
                 DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
@@ -96,7 +95,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
     {
-        boolean onlyDirectlyConnected = connectionTypeProvider.getShowOnlyDirectlyConnected();
+        boolean onlyDirectlyConnected = connectionTypeProvider.isOnlyDirectlyConnected();
         viewContext.getService().listSampleDataSets(sampleId, resultSetConfig,
                 onlyDirectlyConnected, callback);
     }

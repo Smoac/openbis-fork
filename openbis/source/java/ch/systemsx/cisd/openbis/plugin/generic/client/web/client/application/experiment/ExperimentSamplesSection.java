@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.EntityConnectionTypeProvider;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.SampleDataSetsSection;
 
 /**
  * {@link TabContent} containing experiment samples.
@@ -43,6 +47,8 @@ public class ExperimentSamplesSection extends DisposableTabContent
 
     private final TechId experimentId;
 
+    private final CheckBox showOnlyDirectlyConnectedCheckBox;
+
     public ExperimentSamplesSection(IViewContext<?> viewContext, BasicEntityType experimentType,
             IIdAndCodeHolder experimentId)
     {
@@ -51,6 +57,17 @@ public class ExperimentSamplesSection extends DisposableTabContent
         this.experimentType = experimentType;
         this.experimentId = new TechId(experimentId.getId());
         setIds(DisplayTypeIDGenerator.EXPERIMENT_SAMPLES_SECTION);
+        this.showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
+    }
+
+    private CheckBox createShowOnlyDirectlyConnectedCheckBox()
+    {
+        CheckBox result = new CheckBox();
+        result.setId(getId()
+                + SampleDataSetsSection.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX);
+        result.setBoxLabel(viewContext.getMessage(Dict.SHOW_ONLY_DIRECTLY_CONNECTED));
+        result.setValue(true);
+        return result;
     }
 
     // @Private
@@ -67,8 +84,15 @@ public class ExperimentSamplesSection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return SampleBrowserGrid.createGridForExperimentSamples(viewContext.getCommonViewContext(),
-                experimentId, createBrowserId(experimentId), experimentType);
+        IDisposableComponent disposableComponent =
+                SampleBrowserGrid.createGridForExperimentSamples(
+                        viewContext.getCommonViewContext(), experimentId,
+                        createBrowserId(experimentId), experimentType,
+                        new EntityConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
+        // SampleBrowserGrid sampleBrowserGrid =
+        // (SampleBrowserGrid) disposableComponent.getComponent();
+        getHeader().addTool(showOnlyDirectlyConnectedCheckBox);
+        return disposableComponent;
     }
 
 }

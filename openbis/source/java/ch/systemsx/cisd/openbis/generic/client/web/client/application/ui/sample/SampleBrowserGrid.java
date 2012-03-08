@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.IDirectlyConnectedController;
 
 /**
  * Grid showing {@link Sample} instances.
@@ -87,6 +88,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  */
 public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 {
+    protected static final IDirectlyConnectedController DUMMY_DIRECTLY_CONNECTED_CONTROLLER =
+            new IDirectlyConnectedController()
+                {
+                    public void setOnChangeAction(IDelegatedAction onChangeAction)
+                    {
+                    }
+
+                    public boolean isOnlyDirectlyConnected()
+                    {
+                        return true;
+                    }
+                };
+
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
     // browser consists of the grid and additional toolbars (paging, filtering)
@@ -115,7 +129,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, MAIN_BROWSER_ID, false,
-                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
+                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID,
+                        DUMMY_DIRECTLY_CONNECTED_CONTROLLER)
                     {
                         @Override
                         protected ICellListenerAndLinkGenerator<Sample> tryGetCellListenerAndLinkGenerator(
@@ -163,7 +178,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, MAIN_BROWSER_ID, false,
-                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+                        DisplayTypeIDGenerator.ENTITY_BROWSER_GRID,
+                        DUMMY_DIRECTLY_CONNECTED_CONTROLLER);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
@@ -204,7 +220,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
-                        DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+                        DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID,
+                        DUMMY_DIRECTLY_CONNECTED_CONTROLLER);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
@@ -212,7 +229,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     public static IDisposableComponent createGridForExperimentSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId experimentId,
-            final String browserId, final BasicEntityType experimentType)
+            final String browserId, final BasicEntityType experimentType,
+            IDirectlyConnectedController directlyConnectedController)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForExperiment(experimentId);
@@ -220,7 +238,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
-                        DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+                        DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID, directlyConnectedController);
         browserGrid.experimentIdOrNull = experimentId;
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -230,7 +248,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     private static SampleBrowserGrid createGridAsComponent(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String browserId,
             final ListSampleDisplayCriteria criteria, final String entityTypeCode,
-            DisplayTypeIDGenerator displayTypeIDGenerator)
+            DisplayTypeIDGenerator displayTypeIDGenerator,
+            IDirectlyConnectedController directlyConnectedController)
     {
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
@@ -239,7 +258,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, browserId,
-                        refreshAutomatically, displayTypeIDGenerator)
+                        refreshAutomatically, displayTypeIDGenerator, directlyConnectedController)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -336,12 +355,23 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     private TechId experimentIdOrNull;
 
+    private final IDirectlyConnectedController directlyConnectedController;
+
     protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ISampleCriteriaProvider criteriaProvider, String browserId,
-            boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
+            boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator,
+            IDirectlyConnectedController directlyConnectedController)
     {
         super(viewContext, browserId, displayTypeIDGenerator);
         propertyTypesAndCriteriaProvider = criteriaProvider;
+        this.directlyConnectedController = directlyConnectedController;
+        directlyConnectedController.setOnChangeAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            });
         // NOTE: links to sample, container and experiment are handled by EntityTableCell
         linkProject();
     }
@@ -443,6 +473,11 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
             criteria = new ListSampleDisplayCriteria2(c1.getSearchCriteria());
         }
         criteria.copyPagingConfig(resultSetConfig);
+        if (criteria.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
+        {
+            criteria.getBrowseCriteria().setOnlyDirectlyConnected(
+                    directlyConnectedController.isOnlyDirectlyConnected());
+        }
         viewContext.getService().listSamples2(criteria, callback);
     }
 
