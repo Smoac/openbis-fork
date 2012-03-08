@@ -44,7 +44,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
 {
     private static final String ROOT_KEY = "dss-based-data-source-provider";
 
-    private static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
+    static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -60,9 +60,12 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
 
     public void afterPropertiesSet() throws Exception
     {
+        init(ExtendedProperties.getSubset(configurer.getResolvedProps(), ROOT_KEY + ".", true));
+    }
+
+    void init(Properties props)
+    {
         dataSources = new HashMap<String, DataSource>();
-        ExtendedProperties props =
-                ExtendedProperties.getSubset(configurer.getResolvedProps(), ROOT_KEY + ".", true);
         SectionProperties[] sectionsProperties =
                 PropertyParametersUtil.extractSectionProperties(props, DATA_STORE_SERVERS_KEY,
                         false);
@@ -88,10 +91,11 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
 
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
-        DataSource dataSource = dataSources.get(dssCode + "[" + technology + "]");
+        DataSource dataSource =
+                dataSources.get(dssCode.toUpperCase() + "[" + technology.toUpperCase() + "]");
         if (dataSource == null)
         {
-            dataSource = dataSources.get(dssCode);
+            dataSource = dataSources.get(dssCode.toUpperCase());
         }
         if (dataSource == null)
         {
