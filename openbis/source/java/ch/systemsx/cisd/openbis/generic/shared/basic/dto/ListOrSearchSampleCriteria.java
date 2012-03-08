@@ -180,6 +180,13 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     @Override
+    public boolean isOnlyDirectlyConnected()
+    {
+        return listCriteria == null ? super.isOnlyDirectlyConnected() : listCriteria
+                .isOnlyDirectlyConnected();
+    }
+
+    @Override
     public Collection<Long> getChildrenSampleIds()
     {
         if (listCriteria == null)

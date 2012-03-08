@@ -217,6 +217,22 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + " WHERE st.is_listable AND s.expe_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getListableSamplesForExperiment(long experimentId);
 
+    @Select(sql = "with recursive connected_samples as ("
+            + "select s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, s.dbin_id, "
+            + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
+            + "   s.del_id, s.samp_id_part_of "
+            + "from samples as s join sample_types as st on s.saty_id = st.id "
+            + "where st.is_listable and s.expe_id = ?{1} "
+            + "union select s2.id, s2.perm_id, s2.code, s2.expe_id, s2.space_id, s2.saty_id, s2.dbin_id, "
+            + "    s2.registration_timestamp, s2.modification_timestamp, s2.pers_id_registerer, "
+            + "    s2.del_id, s2.samp_id_part_of "
+            + "from connected_samples as s left join sample_relationships as sr on sr.sample_id_parent = s.id "
+            + "left join samples as s2 on s2.id = sr.sample_id_child "
+            + "join sample_types as st on s2.saty_id = st.id where st.is_listable) "
+            + "select * from connected_samples")
+    public DataIterator<SampleRecord> getListableSamplesAndDescendentsForExperiment(
+            long experimentId);
+
     //
     // Samples for container
     //
