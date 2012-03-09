@@ -125,3 +125,28 @@ background-color: white;
   background-color:#0000CC;	
 }
 
+.yeast-table-data-cell {
+	overflow: hidden;
+}
+
+#yeast-table tr:nth-child(odd) {
+  background-color:#E0F0FF;
+}
+
+#yeast-table tr:nth-child(even) {
+  background-color:#fff;
+}
+
+#yeast-table tr.yeast-table-data:hover {
+  font-size : 110%;
+  font-weight: bold;
+  
+}
+
+#yeast-table tr.yeast-table-header {
+  font-size:14px;
+  font-weight: bold;
+  color:#fff;
+  background-color:#0000CC;	
+}
+
