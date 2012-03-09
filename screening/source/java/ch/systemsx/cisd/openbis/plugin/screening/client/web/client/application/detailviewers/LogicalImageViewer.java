@@ -190,10 +190,7 @@ public class LogicalImageViewer
                         {
                             public void imagesDownloaded(LazyImageSeriesFrame frame)
                             {
-                                if (logicalImageRefreshHandler != null)
-                                {
-                                    logicalImageRefreshHandler.onRefresh();
-                                }
+                                notifyImageRefresh();
                             }
                         };
 
@@ -244,7 +241,6 @@ public class LogicalImageViewer
                 new ChannelChooser(logicalImageReference, viewerFactory, channelState);
         channelChooser.addViewerTo(container, viewContext, new AsyncCallback<Void>()
             {
-                @Override
                 public void onSuccess(Void result)
                 {
                     if (showColorAdjustmentButton)
@@ -275,7 +271,6 @@ public class LogicalImageViewer
                     container.layout();
                 }
 
-                @Override
                 public void onFailure(Throwable caught)
                 {
 
@@ -339,7 +334,7 @@ public class LogicalImageViewer
             {
                 public void imageLoaded(FitImageLoadEvent event)
                 {
-                    logicalImageRefreshHandler.onRefresh();
+                    notifyImageRefresh();
                 }
             };
 
@@ -524,4 +519,13 @@ public class LogicalImageViewer
         // if there are more than 4 tiles, make them smaller, if there are less, make them bigger
         return 4.0F / dim;
     }
+
+    private void notifyImageRefresh()
+    {
+        if (logicalImageRefreshHandler != null)
+        {
+            logicalImageRefreshHandler.onRefresh();
+        }
+    }
+
 }

@@ -347,7 +347,6 @@ class ChannelChooser
                             defaultChannelState.tryGetDefaultResolution());
             resolutionChooser.addResolutionChangedListener(new Listener<BaseEvent>()
                 {
-                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         defaultChannelState.setDefaultResolution(resolutionChooser.getResolution());
