@@ -352,8 +352,8 @@ public class LogicalImageViewer
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX, null,
-                            downloadHandler);
+                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX,
+                            logicalImageClickHandler, downloadHandler);
                 }
 
             };
@@ -431,14 +431,6 @@ public class LogicalImageViewer
     {
         TileLocation tileLocation = channelReferences.getBasicImage().tryGetTileLocation();
 
-        TileImageInitializer initializer = new TileImageInitializer();
-        initializer.setSessionId(sessionId);
-        initializer.setChannelReferences(channelReferences);
-        initializer.setImageWidth(logicalImageWidth);
-        initializer.setImageHeight(logicalImageHeight);
-        initializer.setImageClickHandler(clickHandler);
-        initializer.setImageLoadHandler(downloadHandler);
-
         if (tileLocation == null)
         {
             LogicalImageReference images = channelReferences.getBasicImage();
@@ -449,6 +441,13 @@ public class LogicalImageViewer
             {
                 for (int col = 1; col <= images.getTileColsNum(); col++)
                 {
+                    TileImageInitializer initializer = new TileImageInitializer();
+                    initializer.setSessionId(sessionId);
+                    initializer.setChannelReferences(channelReferences);
+                    initializer.setImageWidth(logicalImageWidth);
+                    initializer.setImageHeight(logicalImageHeight);
+                    initializer.setImageClickHandler(clickHandler);
+                    initializer.setImageLoadHandler(downloadHandler);
                     initializer.setTileRow(row);
                     initializer.setTileColumn(col);
                     container.add(new TileImage(initializer));
@@ -458,6 +457,13 @@ public class LogicalImageViewer
             return container;
         } else
         {
+            TileImageInitializer initializer = new TileImageInitializer();
+            initializer.setSessionId(sessionId);
+            initializer.setChannelReferences(channelReferences);
+            initializer.setImageWidth(logicalImageWidth);
+            initializer.setImageHeight(logicalImageHeight);
+            initializer.setImageClickHandler(clickHandler);
+            initializer.setImageLoadHandler(downloadHandler);
             initializer.setTileRow(tileLocation.getRow());
             initializer.setTileColumn(tileLocation.getColumn());
 
