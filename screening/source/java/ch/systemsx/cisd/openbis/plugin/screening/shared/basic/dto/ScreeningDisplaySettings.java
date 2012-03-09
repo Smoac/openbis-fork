@@ -35,6 +35,8 @@ public class ScreeningDisplaySettings implements Serializable
     private Map<String, Map<String, String>> defaultTransformations =
             new HashMap<String, Map<String, String>>();
 
+    private Map<String, ImageResolution> defaultResolutions;
+
     private String defaultAnalysisProcedure;
 
     /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
@@ -80,6 +82,16 @@ public class ScreeningDisplaySettings implements Serializable
         }
 
         return defaultTransformations;
+    }
+
+    public Map<String, ImageResolution> getDefaultResolutions()
+    {
+        return defaultResolutions;
+    }
+
+    public void setDefaultResolutions(Map<String, ImageResolution> defaultResolutions)
+    {
+        this.defaultResolutions = defaultResolutions;
     }
 
     // for serialization

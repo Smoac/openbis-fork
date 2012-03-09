@@ -43,8 +43,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVec
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSImageResolutionLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolutionLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
@@ -71,6 +73,13 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
         return HCSDatasetLoader.tryCreate(specificDAOFactory.getImagingQueryDAO(datastoreCode),
                 datasetCode);
+    }
+
+    public IImageResolutionLoader tryCreateImageResolutionLoader(String datasetCode,
+            String datastoreCode)
+    {
+        return HCSImageResolutionLoader.tryCreate(
+                specificDAOFactory.getImagingQueryDAO(datastoreCode), datasetCode);
     }
 
     public IHCSFeatureVectorLoader createHCSFeatureVectorLoader(String datastoreCode)

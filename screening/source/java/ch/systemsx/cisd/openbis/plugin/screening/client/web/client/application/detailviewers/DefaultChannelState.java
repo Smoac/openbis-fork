@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 
 /**
  * @author Kaloyan Enimanev
@@ -66,6 +67,16 @@ public class DefaultChannelState implements IDefaultChannelState
     private Map<String, String> getTransformations()
     {
         return getDisplaySettingManager().getDefaultTransformationsForChannels(displayTypeId);
+    }
+
+    public ImageResolution tryGetDefaultResolution()
+    {
+        return getDisplaySettingManager().getDefaultResolution(displayTypeId);
+    }
+
+    public void setDefaultResolution(ImageResolution resolution)
+    {
+        getDisplaySettingManager().setDefaultResolution(displayTypeId, resolution);
     }
 
 }

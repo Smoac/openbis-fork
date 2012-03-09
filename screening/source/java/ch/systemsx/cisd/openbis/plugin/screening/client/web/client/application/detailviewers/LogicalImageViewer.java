@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -27,12 +27,15 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
+import com.reveregroup.gwt.imagepreloader.FitImageLoadEvent;
+import com.reveregroup.gwt.imagepreloader.FitImageLoadHandler;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -43,12 +46,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.C
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LazyImageSeriesFrame.ImagesDownloadListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.ImageUrlUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.TileImage;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.TileImageInitializer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -61,8 +68,6 @@ public class LogicalImageViewer
     private static final String NO_IMAGES_AVAILABLE_MSG = "No images available";
 
     private static final int ONE_IMAGE_SIZE_PX = 120;
-
-    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 120;
 
     private static final int ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX = 80;
 
@@ -79,6 +84,10 @@ public class LogicalImageViewer
     private final boolean showColorAdjustmentButton;
 
     private String currentlySelectedChannelCode;
+
+    private LogicalImageClickHandler logicalImageClickHandler;
+
+    private LogicalImageRefreshHandler logicalImageRefreshHandler;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
             IViewContext<IScreeningClientServiceAsync> viewContext, String experimentIdentifier,
@@ -123,13 +132,7 @@ public class LogicalImageViewer
     {
         final LayoutContainer container = new LayoutContainer();
         container.add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        container.setLayout(new RowLayout());
-
-        // We have set the height explicitly here because the viewer shows images which have zero
-        // height before they are loaded. This prevents us from calculating the reasonable height
-        // for the dialog. Later on we set the height to null to avoid cutting images if the
-        // calculation was not precise.
-        container.setHeight(getSeriesImageWidgetHeight());
+        container.setLayout(new FlowLayout());
 
         // loads the channel stacks asynchroniously, when done replaces the "Loading..." message
         // with the viewer.
@@ -147,7 +150,6 @@ public class LogicalImageViewer
                             if (channelStackImages.size() > 0)
                             {
                                 container.add(createSeriesImageWidget(channelStackImages));
-                                container.setHeight(null);
                             } else
                             {
                                 container.add(new Text(NO_IMAGES_AVAILABLE_MSG));
@@ -158,37 +160,80 @@ public class LogicalImageViewer
         return container;
     }
 
-    private int getSeriesImageWidgetHeight()
-    {
-        return CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX
-                + getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference)
-                * logicalImageReference.getTileRowsNum();
-    }
-
     private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
     {
         final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public Widget create(LogicalImageChannelsReference channelReferences)
+                public LayoutContainer create(LogicalImageChannelsReference channelReferences,
+                        ImageResolution resolution)
                 {
                     currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
                     String sessionId = getSessionId(viewContext);
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
-                    int imageWidth = getImageWidth(ONE_IMAGE_SIZE_PX, logicalImageReference);
-                    int imageHeight = getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference);
-                    return LogicalImageSeriesGrid.create(sessionId, channelStackImages,
-                            channelReferences, imageWidth, imageHeight);
+
+                    int imageWidth;
+                    int imageHeight;
+
+                    if (resolution == null)
+                    {
+                        imageWidth = getImageWidth(ONE_IMAGE_SIZE_PX, logicalImageReference);
+                        imageHeight = getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference);
+                    } else
+                    {
+                        imageWidth = resolution.getWidth();
+                        imageHeight = resolution.getHeight();
+                    }
+
+                    ImagesDownloadListener downloadListener = new ImagesDownloadListener()
+                        {
+                            public void imagesDownloaded(LazyImageSeriesFrame frame)
+                            {
+                                if (logicalImageRefreshHandler != null)
+                                {
+                                    logicalImageRefreshHandler.onRefresh();
+                                }
+                            }
+                        };
+
+                    return LogicalImageSeriesGrid.create(sessionId,
+                            filterChannelStackImages(channelStackImages), channelReferences,
+                            imageWidth, imageHeight, logicalImageClickHandler, downloadListener);
                 }
             };
         return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
     }
 
+    private List<ImageChannelStack> filterChannelStackImages(
+            final List<ImageChannelStack> channelStackImages)
+    {
+        TileLocation tileLocation = logicalImageReference.tryGetTileLocation();
+
+        if (tileLocation == null)
+        {
+            return channelStackImages;
+        } else
+        {
+            List<ImageChannelStack> filteredChannelStackImages = new ArrayList<ImageChannelStack>();
+
+            for (ImageChannelStack channelStackImage : channelStackImages)
+            {
+                if (channelStackImage.getTileCol() == tileLocation.getColumn()
+                        && channelStackImage.getTileRow() == tileLocation.getRow())
+                {
+                    filteredChannelStackImages.add(channelStackImage);
+                }
+            }
+            return filteredChannelStackImages;
+        }
+    }
+
     private LayoutContainer createViewerWithChannelChooser(
             final IChanneledViewerFactory viewerFactory, final Button adjustColorsButton)
     {
-        LayoutContainer container = createMainEmptyContainer();
+        final LayoutContainer container = createMainEmptyContainer();
+
         if (hasNoChannels())
         {
             container.add(new Label(NO_IMAGES_AVAILABLE_MSG));
@@ -197,32 +242,46 @@ public class LogicalImageViewer
 
         final ChannelChooser channelChooser =
                 new ChannelChooser(logicalImageReference, viewerFactory, channelState);
-        channelChooser.addViewerTo(container, viewContext);
+        channelChooser.addViewerTo(container, viewContext, new AsyncCallback<Void>()
+            {
+                @Override
+                public void onSuccess(Void result)
+                {
+                    if (showColorAdjustmentButton)
+                    {
+                        LayoutContainer buttonToolbar = new LayoutContainer();
+                        buttonToolbar.setLayout(new ColumnLayout());
+                        buttonToolbar.add(adjustColorsButton);
+                        Button refreshButton =
+                                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
+                                        new SelectionListener<ButtonEvent>()
+                                            {
+                                                @Override
+                                                public void componentSelected(ButtonEvent ce)
+                                                {
+                                                    updateDatasetAndRefresh(channelChooser);
+                                                }
+                                            });
+                        buttonToolbar.add(refreshButton);
 
-        if (showColorAdjustmentButton)
-        {
-            LayoutContainer buttonToolbar = new LayoutContainer();
-            buttonToolbar.setLayout(new ColumnLayout());
-            buttonToolbar.add(adjustColorsButton);
-            Button refreshButton =
-                    new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
-                            new SelectionListener<ButtonEvent>()
-                                {
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce)
-                                    {
-                                        updateDatasetAndRefresh(channelChooser);
-                                    }
-                                });
-            buttonToolbar.add(refreshButton);
+                        adjustColorsButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
+                        refreshButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
 
-            adjustColorsButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
-            refreshButton.setWidth(ADJUST_COLORS_AND_REFRESH_BUTTON_WIDTH_PX);
+                        RowData layoutData = new RowData();
+                        layoutData.setMargins(new Margins(10, 2, 0, 2));
+                        container.add(buttonToolbar, layoutData);
+                    }
 
-            RowData layoutData = new RowData();
-            layoutData.setMargins(new Margins(10, 2, 0, 2));
-            container.add(buttonToolbar, layoutData);
-        }
+                    container.layout();
+                }
+
+                @Override
+                public void onFailure(Throwable caught)
+                {
+
+                }
+            });
+
         return container;
     }
 
@@ -266,12 +325,7 @@ public class LogicalImageViewer
     private static LayoutContainer createMainEmptyContainer()
     {
         final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-        container.setScrollMode(Scroll.AUTOX);
-
-        RowData layoutData = new RowData();
-        layoutData.setMargins(new Margins(3, 0, 0, 0));
-        container.add(new Text(""), layoutData); // separator
+        container.setLayout(new FlowLayout());
         return container;
     }
 
@@ -280,15 +334,26 @@ public class LogicalImageViewer
     {
 
         final Button adjustColorsButton = createAdjustColorsButton();
+
+        final FitImageLoadHandler downloadHandler = new FitImageLoadHandler()
+            {
+                public void imageLoaded(FitImageLoadEvent event)
+                {
+                    logicalImageRefreshHandler.onRefresh();
+                }
+            };
+
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public Widget create(LogicalImageChannelsReference channelReferences)
+                public LayoutContainer create(LogicalImageChannelsReference channelReferences,
+                        ImageResolution resolution)
                 {
                     currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX, true);
+                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX, null,
+                            downloadHandler);
                 }
 
             };
@@ -340,30 +405,66 @@ public class LogicalImageViewer
         return "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled"));
     }
 
+    public void setLogicalImageClickHandler(LogicalImageClickHandler logicalImageClickHandler)
+    {
+        this.logicalImageClickHandler = logicalImageClickHandler;
+    }
+
+    public void setLogicalImageRefreshHandler(LogicalImageRefreshHandler logicalImageRefreshHandler)
+    {
+        this.logicalImageRefreshHandler = logicalImageRefreshHandler;
+    }
+
     /** Creates a widget with a representative image of the specified logical image. */
     public static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
-            String sessionId, int imageSizePx, boolean createImageLinks)
+            String sessionId, int imageSizePx, LogicalImageClickHandler clickHandler,
+            FitImageLoadHandler downloadHandler)
     {
         LogicalImageReference images = channelReferences.getBasicImage();
         return createTilesGrid(channelReferences, sessionId, getImageWidth(imageSizePx, images),
-                getImageHeight(imageSizePx, images), createImageLinks);
+                getImageHeight(imageSizePx, images), clickHandler, downloadHandler);
     }
 
     private static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
             String sessionId, int logicalImageWidth, int logicalImageHeight,
-            boolean createImageLinks)
+            LogicalImageClickHandler clickHandler, FitImageLoadHandler downloadHandler)
     {
-        LogicalImageReference images = channelReferences.getBasicImage();
-        LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
-        for (int row = 1; row <= images.getTileRowsNum(); row++)
+        TileLocation tileLocation = channelReferences.getBasicImage().tryGetTileLocation();
+
+        TileImageInitializer initializer = new TileImageInitializer();
+        initializer.setSessionId(sessionId);
+        initializer.setChannelReferences(channelReferences);
+        initializer.setImageWidth(logicalImageWidth);
+        initializer.setImageHeight(logicalImageHeight);
+        initializer.setImageClickHandler(clickHandler);
+        initializer.setImageLoadHandler(downloadHandler);
+
+        if (tileLocation == null)
         {
-            for (int col = 1; col <= images.getTileColsNum(); col++)
+            LogicalImageReference images = channelReferences.getBasicImage();
+            LayoutContainer container =
+                    new LayoutContainer(new TableLayout(images.getTileColsNum()));
+
+            for (int row = 1; row <= images.getTileRowsNum(); row++)
             {
-                ImageUrlUtils.addImageUrlWidget(container, sessionId, channelReferences, row, col,
-                        logicalImageWidth, logicalImageHeight, createImageLinks);
+                for (int col = 1; col <= images.getTileColsNum(); col++)
+                {
+                    initializer.setTileRow(row);
+                    initializer.setTileColumn(col);
+                    container.add(new TileImage(initializer));
+                }
             }
+
+            return container;
+        } else
+        {
+            initializer.setTileRow(tileLocation.getRow());
+            initializer.setTileColumn(tileLocation.getColumn());
+
+            LayoutContainer container = new LayoutContainer(new FlowLayout());
+            container.add(new TileImage(initializer));
+            return container;
         }
-        return container;
     }
 
     private static String getSelectedChannelCode(LogicalImageChannelsReference channelReferences)
@@ -404,7 +505,16 @@ public class LogicalImageViewer
 
     private static float getImageSizeMultiplyFactor(LogicalImageReference images)
     {
-        float dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
+        float dim;
+
+        if (images.tryGetTileLocation() == null)
+        {
+            dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
+        } else
+        {
+            dim = 1.0F;
+        }
+
         // if there are more than 4 tiles, make them smaller, if there are less, make them bigger
         return 4.0F / dim;
     }

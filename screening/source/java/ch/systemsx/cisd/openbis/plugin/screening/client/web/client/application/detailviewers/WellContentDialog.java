@@ -21,14 +21,11 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Rectangle;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -41,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -61,12 +59,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -80,7 +78,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * 
  * @author Tomasz Pylak
  */
-public class WellContentDialog extends Dialog
+public class WellContentDialog extends ImageDialog
 {
     private static final String UNKNOWN_CHANNEL_LABEL = "No images available for this channel.";
 
@@ -110,7 +108,35 @@ public class WellContentDialog extends Dialog
         if (contentDialog.tryGetImages() != null)
         {
             LogicalImageViewer viewer = contentDialog.createImageViewer();
-            contentDialog.add(viewer.getViewerWidget());
+
+            final Grid grid = new Grid(1, 1);
+            grid.setWidget(0, 0, viewer.getViewerWidget());
+            contentDialog.add(grid);
+
+            viewer.setLogicalImageRefreshHandler(new LogicalImageRefreshHandler()
+                {
+                    public void onRefresh()
+                    {
+                        contentDialog.autosize(grid.getElement());
+                    }
+                });
+            viewer.setLogicalImageClickHandler(new LogicalImageClickHandler()
+                {
+                    public void onClick(LogicalImageChannelsReference channelReferences, int row,
+                            int col)
+                    {
+                        TileLocation tileLocation = new TileLocation(row, col);
+                        String experimentIdentifier =
+                                contentDialog.experimentCriteria.getExperimentIdentifier();
+                        String experimentPermId =
+                                contentDialog.experimentCriteria.getExperimentPermId();
+
+                        new TileContentDialog(contentDialog.viewContext,
+                                contentDialog.imageDatasetOrNull, contentDialog.wellLocationOrNull,
+                                tileLocation, experimentIdentifier, experimentPermId).show();
+                    }
+                });
+
             contentDialog.addImageEditorLaunchButton(viewer);
         }
         contentDialog.show();
@@ -161,7 +187,19 @@ public class WellContentDialog extends Dialog
             return new Text(UNKNOWN_CHANNEL_LABEL);
         }
 
-        boolean createImageLinks = (imageParameters.isMultidimensional() == false);
+        LogicalImageClickHandler clickHandler = null;
+        if (imageParameters.isMultidimensional())
+        {
+            new LogicalImageClickHandler()
+                {
+                    public void onClick(LogicalImageChannelsReference channelReferences, int row,
+                            int col)
+                    {
+                        // do nothing here
+                    }
+                };
+        }
+
         String sessionId = getSessionId(viewContext);
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
@@ -170,7 +208,7 @@ public class WellContentDialog extends Dialog
                         imageTransformationCodeOrNull);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
-                        createImageLinks);
+                        clickHandler, null);
 
         if (imageParameters.isMultidimensional())
         {
@@ -279,27 +317,6 @@ public class WellContentDialog extends Dialog
         setButtons(CLOSE);
         setHeading(WELL_LABEL + getWellDescription());
         setTopComponent(createContentDescription());
-
-        addListener(Events.Show, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    Rectangle bounds = GuiUtils.calculateBounds(getElement());
-                    // Note: neither image widget nor html IMG tag has the width set to maintain the
-                    // correct aspect ratio of the images. The current dialog width is computed
-                    // before the images are loaded, so we have to fix the width.
-                    int preferedWidth = Math.max(800, bounds.width + getFrameWidth());
-                    int preferedHeight = bounds.height;
-
-                    int maxWidth = (9 * XDOM.getBody().getOffsetWidth()) / 10;
-                    int maxHeight = (9 * XDOM.getBody().getOffsetHeight()) / 10;
-
-                    int w = Math.min(maxWidth, preferedWidth);
-                    int h = Math.min(maxHeight, preferedHeight);
-                    setSize(w, h);
-                    center();
-                }
-            });
     }
 
     private ImageDatasetEnrichedReference tryGetImages()

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeat
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
@@ -161,6 +162,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             String datasetCode, String datastoreCode)
     {
         logAccess(sessionToken, "getImageDatasetReference", "dataset(%s) datastore(%s)",
+                datasetCode, datastoreCode);
+        return null;
+    }
+
+    public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
+            String datasetCode, String datastoreCode)
+    {
+        logAccess(sessionToken, "getImageDatasetResolutions", "dataset(%s) datastore(%s)",
                 datasetCode, datastoreCode);
         return null;
     }
@@ -391,9 +400,8 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public List<PlateMetadata> getPlateMetadataList(
-            String sessionToken, List<? extends PlateIdentifier> plates)
-            throws IllegalArgumentException
+    public List<PlateMetadata> getPlateMetadataList(String sessionToken,
+            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
         logAccess(sessionToken, "getPlates", "plates(%s)", plates);
         return null;

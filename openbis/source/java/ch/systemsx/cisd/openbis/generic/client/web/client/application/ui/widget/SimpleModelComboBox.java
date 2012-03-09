@@ -114,7 +114,8 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
      * @param value the value
      */
     @Override
-    public void add(@SuppressWarnings("hiding") LabeledItem<T> value)
+    public void add(@SuppressWarnings("hiding")
+    LabeledItem<T> value)
     {
         store.add(new ExtendedSimpleComboValue<T>(value));
     }
@@ -138,7 +139,8 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         LabeledItem<T> result = null;
         for (SimpleComboValue<LabeledItem<T>> c : getStore().getModels())
         {
-            if (c.getValue().getItem().equals(val))
+            T item = c.getValue().getItem();
+            if (item != null && item.equals(val))
             {
                 result = c.getValue();
                 break;
@@ -157,7 +159,8 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         {
             for (SimpleComboValue<LabeledItem<T>> info : getStore().getModels())
             {
-                if (info.getValue().getItem().equals(itemToSelectOrNull.getItem()))
+                T item = info.getValue().getItem();
+                if (item != null && item.equals(itemToSelectOrNull.getItem()))
                 {
                     setSelection(Collections.singletonList(info));
                 }

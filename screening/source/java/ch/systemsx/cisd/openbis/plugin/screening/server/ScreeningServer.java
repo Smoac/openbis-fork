@@ -95,6 +95,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeat
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
@@ -113,6 +114,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolutionLoader;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -246,6 +248,15 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return LogicalImageLoader.getImageDatasetReference(session, businessObjectFactory,
                 datasetCode, datastoreCode);
+    }
+
+    public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
+            String datasetCode, String datastoreCode)
+    {
+        checkSession(sessionToken);
+        IImageResolutionLoader loader =
+                businessObjectFactory.tryCreateImageResolutionLoader(datasetCode, datastoreCode);
+        return loader.getImageResolutions();
     }
 
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,

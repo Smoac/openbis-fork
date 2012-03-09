@@ -24,6 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDisplaySettings;
 
 /**
@@ -82,6 +83,29 @@ public class ScreeningDisplaySettingsManager
     public String getDefaultAnalysisProcedure()
     {
         return screeningSettings.getDefaultAnalysisProcedure();
+    }
+
+    public ImageResolution getDefaultResolution(String displayTypeId)
+    {
+        Map<String, ImageResolution> resolutions = screeningSettings.getDefaultResolutions();
+        if (resolutions == null)
+        {
+            return null;
+        } else
+        {
+            return resolutions.get(displayTypeId);
+        }
+    }
+
+    public void setDefaultResolution(String displayTypeId, ImageResolution resolution)
+    {
+        Map<String, ImageResolution> resolutions = screeningSettings.getDefaultResolutions();
+        if (resolutions == null)
+        {
+            resolutions = new HashMap<String, ImageResolution>();
+            screeningSettings.setDefaultResolutions(resolutions);
+        }
+        resolutions.put(displayTypeId, resolution);
     }
 
     @SuppressWarnings("deprecation")

@@ -52,7 +52,7 @@ class LogicalImageLayouter extends LayoutContainer implements IDatasetImagesRefe
         LogicalImageViewer viewer =
                 new LogicalImageViewer(logicalImageReference, viewContext,
                         imageInfo.getExperimentIdentifier(), imageInfo.getExperimentPermId(), true);
-        return viewer.getViewerWidget(imageInfo.getChannelStacks());
+        return viewer.getViewerWidget();
     }
 
     public List<ImageDatasetEnrichedReference> getDatasetImagesReferences()

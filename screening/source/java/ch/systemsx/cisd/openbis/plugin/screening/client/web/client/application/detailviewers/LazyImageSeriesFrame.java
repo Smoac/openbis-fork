@@ -26,13 +26,14 @@ import com.reveregroup.gwt.imagepreloader.FitImageLoadHandler;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.ImageUrlUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.StackImage;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.StackImageInitializer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
- * A frame wrapping all tile images for an unique time/depth/series combination. 
- * The tiles are loaded lazily. In order to download and display the tile images one has to call
- * the method {@link #downloadImagesFromServer()}.
+ * A frame wrapping all tile images for an unique time/depth/series combination. The tiles are
+ * loaded lazily. In order to download and display the tile images one has to call the method
+ * {@link #downloadImagesFromServer()}.
  * 
  * @author Kaloyan Enimanev
  */
@@ -60,20 +61,21 @@ public class LazyImageSeriesFrame extends LayoutContainer
 
     private ImagesDownloadListener imagesDownloadListener;
 
+    private LogicalImageClickHandler imageClickHandler;
+
     LazyImageSeriesFrame(List<ImageChannelStack> seriesPointStacks,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
     {
         LogicalImageReference images = channelReferences.getBasicImage();
         setLayout(new TableLayout(images.getTileColsNum()));
-        setHeight(images.getTileRowsNum() * imageHeight);
 
         tilesMap = createTilesMap(seriesPointStacks, images);
         this.channelReferences = channelReferences;
         this.sessionId = sessionId;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        
+
         needsImageDownload = areImagesExistingOnServer();
     }
 
@@ -92,17 +94,25 @@ public class LazyImageSeriesFrame extends LayoutContainer
         needsImageDownload = false;
 
         FitImageLoadHandler loadAndErrorhandler = createLoadHandler();
-        LogicalImageReference images = channelReferences.getBasicImage();
 
-        for (int row = 0; row < images.getTileRowsNum(); row++)
+        for (int row = 0; row < tilesMap.length; row++)
         {
-            for (int col = 0; col < images.getTileColsNum(); col++)
+            for (int col = 0; col < tilesMap[row].length; col++)
             {
-                ImageChannelStack stackRef = tilesMap[row][col];
+                final ImageChannelStack stackRef = tilesMap[row][col];
+
                 if (stackRef != null)
                 {
-                    ImageUrlUtils.addImageUrlWidget(this, sessionId, channelReferences, stackRef,
-                            imageWidth, imageHeight, loadAndErrorhandler);
+                    StackImageInitializer initializer = new StackImageInitializer();
+                    initializer.setSessionId(sessionId);
+                    initializer.setChannelReferences(channelReferences);
+                    initializer.setStack(stackRef);
+                    initializer.setImageWidth(imageWidth);
+                    initializer.setImageHeight(imageHeight);
+                    initializer.setImageLoadHandler(loadAndErrorhandler);
+                    initializer.setImageClickHandler(imageClickHandler);
+                    this.add(new StackImage(initializer));
+
                 } else
                 {
                     addDummyImage(this, imageWidth, imageHeight);
@@ -163,14 +173,26 @@ public class LazyImageSeriesFrame extends LayoutContainer
     private static ImageChannelStack[][] createTilesMap(List<ImageChannelStack> stackReferences,
             LogicalImageReference images)
     {
-        int rows = images.getTileRowsNum();
-        int cols = images.getTileColsNum();
-        ImageChannelStack[][] map = new ImageChannelStack[rows][cols];
-        for (ImageChannelStack stackRef : stackReferences)
+        if (images.tryGetTileLocation() == null)
         {
-            map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
+            int rows = images.getTileRowsNum();
+            int cols = images.getTileColsNum();
+
+            ImageChannelStack[][] map = new ImageChannelStack[rows][cols];
+            for (ImageChannelStack stackRef : stackReferences)
+            {
+                map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
+            }
+            return map;
+        } else
+        {
+            ImageChannelStack[][] map = new ImageChannelStack[1][1];
+            if (!stackReferences.isEmpty())
+            {
+                map[0][0] = stackReferences.get(0);
+            }
+            return map;
         }
-        return map;
     }
 
     private static void addDummyImage(LayoutContainer container, int imageWidth, int imageHeight)
@@ -184,6 +206,11 @@ public class LazyImageSeriesFrame extends LayoutContainer
     public void setImagesDownloadListener(ImagesDownloadListener imagesDownloadListener)
     {
         this.imagesDownloadListener = imagesDownloadListener;
+    }
+
+    public void setImageClickHandler(LogicalImageClickHandler imageClickHandler)
+    {
+        this.imageClickHandler = imageClickHandler;
     }
 
 }

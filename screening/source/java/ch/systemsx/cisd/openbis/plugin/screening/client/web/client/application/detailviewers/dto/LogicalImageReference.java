@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -43,17 +44,27 @@ public class LogicalImageReference
 
     private final WellLocation wellLocationOrNull;
 
+    private final TileLocation tileLocationOrNull;
+
     private final List<DatasetOverlayImagesReference> overlayDatasets;
 
     public LogicalImageReference(ImageDatasetEnrichedReference imageEnrichedDataset,
             WellLocation wellLocationOrNull)
     {
         this(imageEnrichedDataset.getImageDataset(), imageEnrichedDataset.getOverlayDatasets(),
-                wellLocationOrNull);
+                wellLocationOrNull, null);
+    }
+
+    public LogicalImageReference(ImageDatasetEnrichedReference imageEnrichedDataset,
+            WellLocation wellLocationOrNull, TileLocation tileLocationOrNull)
+    {
+        this(imageEnrichedDataset.getImageDataset(), imageEnrichedDataset.getOverlayDatasets(),
+                wellLocationOrNull, tileLocationOrNull);
     }
 
     private LogicalImageReference(DatasetImagesReference imageDataset,
-            List<DatasetOverlayImagesReference> overlayDatasets, WellLocation wellLocationOrNull)
+            List<DatasetOverlayImagesReference> overlayDatasets, WellLocation wellLocationOrNull,
+            TileLocation tileLocationOrNull)
     {
         assert imageDataset != null : "image dataset is null";
         this.datasetCode = imageDataset.getDatasetCode();
@@ -61,6 +72,7 @@ public class LogicalImageReference
         this.datastoreHostUrl = imageDataset.getDatastoreHostUrl();
         this.imageParameters = imageDataset.getImageParameters();
         this.wellLocationOrNull = wellLocationOrNull;
+        this.tileLocationOrNull = tileLocationOrNull;
         this.overlayDatasets = overlayDatasets;
     }
 
@@ -72,6 +84,7 @@ public class LogicalImageReference
         this.datastoreHostUrl = datastoreHostUrl;
         this.imageParameters = imageParameters;
         this.wellLocationOrNull = null;
+        this.tileLocationOrNull = null;
         this.overlayDatasets = new ArrayList<DatasetOverlayImagesReference>();
     }
 
@@ -81,12 +94,17 @@ public class LogicalImageReference
      */
     public LogicalImageReference updateDatasets(ImageDatasetEnrichedReference refreshedDataset)
     {
-        return new LogicalImageReference(refreshedDataset, wellLocationOrNull);
+        return new LogicalImageReference(refreshedDataset, wellLocationOrNull, tileLocationOrNull);
     }
 
     public WellLocation tryGetWellLocation()
     {
         return wellLocationOrNull;
+    }
+
+    public TileLocation tryGetTileLocation()
+    {
+        return tileLocationOrNull;
     }
 
     public int getTileRowsNum()

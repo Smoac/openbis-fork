@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -151,6 +152,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void getImageDatasetReference(String datasetCode, String datastoreCode,
             AsyncCallback<ImageDatasetEnrichedReference> abstractAsyncCallback);
+
+    /**
+     * @see IScreeningClientService#getImageDatasetResolutions(String, String)
+     */
+    public void getImageDatasetResolutions(String datasetCode, String datastoreCode,
+            AsyncCallback<List<ImageResolution>> abstractAsyncCallback);
 
     /**
      * @see IScreeningClientService#getImageDatasetInfosForSample(TechId, WellLocation)

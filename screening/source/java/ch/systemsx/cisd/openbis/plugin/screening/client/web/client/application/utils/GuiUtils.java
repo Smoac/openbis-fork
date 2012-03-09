@@ -51,17 +51,30 @@ public class GuiUtils
         return withLabel(component, label, 0);
     }
 
-    public static Component withLabel(Widget component, String label, int margin)
+    public static Component withLabel(Widget component, String label, int margin, int width)
     {
         LayoutContainer c = new LayoutContainer();
         c.setLayout(new TableLayout(2));
         TableData cellLayout = new TableData();
         cellLayout.setMargin(margin);
         Text labelWidget = new Text(label);
-        labelWidget.setWidth(Math.max(label.length() * 9, 80));
+
+        if (width != -1)
+        {
+            labelWidget.setWidth(width);
+        } else
+        {
+            labelWidget.setWidth(Math.max(label.length() * 9, 80));
+        }
+
         c.add(labelWidget, cellLayout);
         c.add(component);
         return c;
+    }
+
+    public static Component withLabel(Widget component, String label, int margin)
+    {
+        return withLabel(component, label, margin, -1);
     }
 
     public static Component renderInRow(Widget... widgets)

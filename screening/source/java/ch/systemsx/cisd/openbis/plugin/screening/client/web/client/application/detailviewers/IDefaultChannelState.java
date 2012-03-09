@@ -2,6 +2,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+
 /**
  * Allows to get and set the channels chosen by default when images are shown in a specific context.
  * 
@@ -16,4 +18,9 @@ public interface IDefaultChannelState
     public void setDefaultTransformation(String channel, String code);
 
     public String tryGetDefaultTransformation(String channel);
+
+    public ImageResolution tryGetDefaultResolution();
+
+    public void setDefaultResolution(ImageResolution resolution);
+
 }

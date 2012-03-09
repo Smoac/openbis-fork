@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -175,6 +176,11 @@ public interface IScreeningClientService extends IClientService
      */
     public ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
             String datastoreCode);
+
+    /**
+     * Returns information about available image resolutions for a given image dataset.
+     */
+    public List<ImageResolution> getImageDatasetResolutions(String datasetCode, String datastoreCode);
 
     /**
      * Loads information about datasets connected to specified sample (microscopy) or a container

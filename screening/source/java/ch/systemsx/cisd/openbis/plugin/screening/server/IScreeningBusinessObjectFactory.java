@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.IExperimentMetadataLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolutionLoader;
 
 /**
  * A <i>screening</i> plugin specific business object factory.
@@ -39,6 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
 public interface IScreeningBusinessObjectFactory
 {
     public IImageDatasetLoader tryCreateImageDatasetLoader(String datasetCode, String datastoreCode);
+
+    public IImageResolutionLoader tryCreateImageResolutionLoader(String datasetCode,
+            String datastoreCode);
 
     /**
      * Note that the loader should be used only for the datasets from the specified data store

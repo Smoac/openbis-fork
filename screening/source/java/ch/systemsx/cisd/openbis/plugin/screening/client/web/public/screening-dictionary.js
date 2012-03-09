@@ -120,6 +120,12 @@ MATERIAL_IN_ASSAY: "{0} in experiment {1}",
 SHOW_ASSAY: "Show experiment {0}",
 MATERIAL_IN_ALL_ASSAYS: "{0} in all experiments",
 
+TILE_CONTENT_DIALOG_TITLE: "Tile: [{0}, {1}]",
+
+RESOLUTION_CHOOSER_LABEL: "Resolution:",
+RESOLUTION_CHOOSER_DEFAULT: "Default",
+RESOLUTION_CHOOSER_RESOLUTION: "{0}x{1}",
+
 // LAST LINE: KEEP IT AT THE END
 lastline: "" // we need a line without a comma
 };

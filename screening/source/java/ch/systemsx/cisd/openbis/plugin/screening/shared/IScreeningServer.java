@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeat
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
@@ -82,17 +83,17 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            TechId plateId);
 
     /**
      * Loads feature vector of specified dataset with one feature specified by name.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public FeatureVectorDataset getFeatureVectorDataset(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class) DatasetReference dataset,
-            CodeAndLabel featureName);
+    public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class)
+            DatasetReference dataset, CodeAndLabel featureName);
 
     /**
      * Loads all feature vector values for specified well.
@@ -101,8 +102,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
-            String datastoreCode, WellLocation wellLocation);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode, String datastoreCode, WellLocation wellLocation);
 
     /**
      * Returns plate content for a specified HCS_IMAGE dataset. Loads data about the plate for a
@@ -111,7 +112,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateImages getPlateContentForDataset(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
+            TechId datasetId);
 
     /**
      * Finds wells matching the specified criteria. Loads wells content: metadata and (if available)
@@ -120,9 +122,9 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = WellContentValidator.class)
-    public List<WellContent> listPlateWells(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria);
+    public List<WellContent> listPlateWells(String sessionToken,
+            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
+            WellSearchCriteria materialCriteria);
 
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
@@ -133,7 +135,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId);
 
     /**
      * @return materials with codes or properties matching to the query. If the experiment is
@@ -142,9 +145,9 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Material> listMaterials(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria);
+    public List<Material> listMaterials(String sessionToken,
+            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
+            WellSearchCriteria materialCriteria);
 
     /**
      * Loads all materials of specified type connected with the specified experiment.
@@ -154,26 +157,32 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
-            MaterialType materialType);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId, MaterialType materialType);
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LogicalImageInfo getImageDatasetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
-            String datastoreCode, WellLocation wellLocationOrNull);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode, String datastoreCode, WellLocation wellLocationOrNull);
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
-            String datastoreCode);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode, String datastoreCode);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    List<ImageResolution> getImageDatasetResolutions(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode, String datastoreCode);
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
-            WellLocation wellLocationOrNull);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            TechId sampleId, WellLocation wellLocationOrNull);
 
     /**
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
@@ -185,8 +194,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            final TechId sampleId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
@@ -194,7 +203,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
+            TechId datasetId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Material}.
@@ -227,8 +237,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
-            AnalysisProcedureCriteria analysisProcedureCriteria);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria);
 
     /**
      * Returns a feature vector summary (with details for each replica) for the given experiment and
@@ -236,9 +246,9 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class) MaterialFeaturesOneExpCriteria criteria);
+    public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
+            @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class)
+            MaterialFeaturesOneExpCriteria criteria);
 
     /**
      * Returns feature vectors from all experiments for a specified material.
@@ -262,8 +272,8 @@ public interface IScreeningServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria);
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class)
+            ExperimentSearchCriteria experimentSearchCriteria);
 
 }

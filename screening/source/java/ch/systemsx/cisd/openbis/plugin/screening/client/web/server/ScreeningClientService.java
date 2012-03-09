@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -274,6 +275,12 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getImageDatasetReference(sessionToken, datasetCode, datastoreCode);
     }
 
+    public List<ImageResolution> getImageDatasetResolutions(String datasetCode, String datastoreCode)
+    {
+        final String sessionToken = getSessionToken();
+        return server.getImageDatasetResolutions(sessionToken, datasetCode, datastoreCode);
+    }
+
     public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
             WellLocation wellLocationOrNull)
     {
@@ -350,6 +357,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
             ExperimentSearchCriteria experimentSearchCriteria)
     {
-        return server.listNumericalDatasetsAnalysisProcedures(getSessionToken(), experimentSearchCriteria);
+        return server.listNumericalDatasetsAnalysisProcedures(getSessionToken(),
+                experimentSearchCriteria);
     }
 }

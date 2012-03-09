@@ -123,6 +123,14 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String BUTTON_DELETE_WELL = "button_delete_well";
 
+    public static final String TILE_CONTENT_DIALOG_TITLE = "TILE_CONTENT_DIALOG_TITLE";
+
+    public static final String RESOLUTION_CHOOSER_LABEL = "RESOLUTION_CHOOSER_LABEL";
+
+    public static final String RESOLUTION_CHOOSER_DEFAULT = "RESOLUTION_CHOOSER_DEFAULT";
+
+    public static final String RESOLUTION_CHOOSER_RESOLUTION = "RESOLUTION_CHOOSER_RESOLUTION";
+
     private Dict()
     {
         // Can not be instantiated.

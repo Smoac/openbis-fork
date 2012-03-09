@@ -22,16 +22,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
@@ -40,8 +48,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
@@ -55,7 +64,8 @@ class ChannelChooser
 
     public static interface IChanneledViewerFactory
     {
-        Widget create(LogicalImageChannelsReference channelReferences);
+        LayoutContainer create(LogicalImageChannelsReference channelReferences,
+                ImageResolution resolution);
     }
 
     // ---
@@ -71,6 +81,8 @@ class ChannelChooser
     private final IDefaultChannelState defaultChannelState;
 
     private final LayoutContainer imageContainer;
+
+    private ResolutionChooser resolutionChooser;
 
     // --- state
 
@@ -111,30 +123,59 @@ class ChannelChooser
         LogicalImageChannelsReference state =
                 new LogicalImageChannelsReference(basicImage, basicChannelCodes,
                         imageTransformationCodeOrNull, selectedOverlayChannels);
-        Widget view = viewerFactory.create(state);
+
+        LayoutContainer view =
+                viewerFactory.create(state,
+                        resolutionChooser != null ? resolutionChooser.getResolution() : null);
+
         imageContainer.removeAll();
         imageContainer.add(view);
         imageContainer.layout();
     }
 
-    public void addViewerTo(LayoutContainer container, IViewContext<?> viewContext)
+    public void addViewerTo(final LayoutContainer container,
+            final IViewContext<IScreeningClientServiceAsync> context,
+            final AsyncCallback<Void> callback)
     {
-        // overlays
-        List<DatasetOverlayImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
-        if (overlayDatasets.size() > 0)
-        {
-            container.add(createOverlayChannelsChooser(overlayDatasets, viewContext));
-        }
+        final Widget loading = new Text(context.getMessage(Dict.LOAD_IN_PROGRESS));
+        container.add(loading);
 
-        if (basicImage.getChannelsCodes().size() > 0)
-        {
-            Widget channelChooserWithLabel = createBasicChannelChooser(viewContext);
-            container.add(channelChooserWithLabel);
-        }
-        // images
-        container.add(imageContainer);
+        context.getService().getImageDatasetResolutions(basicImage.getDatasetCode(),
+                basicImage.getDatastoreCode(),
+                new AbstractAsyncCallback<List<ImageResolution>>(context)
+                    {
+                        protected void process(List<ImageResolution> resolutions)
+                        {
+                            container.remove(loading);
 
-        refresh();
+                            // overlays
+                            List<DatasetOverlayImagesReference> overlayDatasets =
+                                    basicImage.getOverlayDatasets();
+                            if (overlayDatasets.size() > 0)
+                            {
+                                container
+                                        .add(createOverlayChannelsChooser(overlayDatasets, context));
+                            }
+
+                            if (basicImage.getChannelsCodes().size() > 0)
+                            {
+                                Widget channelChooserWithLabel = createBasicChannelChooser(context);
+                                container.add(channelChooserWithLabel);
+                            }
+
+                            container.add(createResolutionChooser(context, resolutions),
+                                    new MarginData(5, 0, 5, 0));
+                            container.add(imageContainer);
+                            container.layout();
+
+                            if (callback != null)
+                            {
+                                callback.onSuccess(null);
+                            }
+
+                            refresh();
+                        }
+                    });
     }
 
     private static Map<String, List<DatasetOverlayImagesReference>> groupByAnalysisProcedure(
@@ -170,8 +211,7 @@ class ChannelChooser
                             objectsChooserContainer);
             AnalysisProcedureChooser analysisProcedureChooser =
                     AnalysisProcedureChooser.create(viewContext, analysisProcedures,
-                            AnalysisProcedureCriteria.createAllProcedures(),
-                            selectionListener);
+                            AnalysisProcedureCriteria.createAllProcedures(), selectionListener);
             chooserPanel.add(analysisProcedureChooser);
             chooserPanel.add(objectsChooserContainer);
             return chooserPanel;
@@ -274,7 +314,7 @@ class ChannelChooser
                 channelCode);
     }
 
-    private Widget createBasicChannelChooser(IViewContext<?> viewContext)
+    private Widget createBasicChannelChooser(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final ChannelChooserPanel channelChooser =
                 new ChannelChooserPanel(viewContext, defaultChannelState, basicChannelCodes,
@@ -284,7 +324,8 @@ class ChannelChooser
                 .addSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
                     {
                         public void selectionChanged(List<String> newlySelectedChannels,
-                                @SuppressWarnings("hiding") String imageTransformationCodeOrNull)
+                                @SuppressWarnings("hiding")
+                                String imageTransformationCodeOrNull)
                         {
                             basicChannelCodes = newlySelectedChannels;
                             ChannelChooser.this.imageTransformationCodeOrNull =
@@ -293,7 +334,29 @@ class ChannelChooser
                         }
                     });
 
-        return GuiUtils.withLabel(channelChooser, CHANNEL_MSG);
+        return GuiUtils.withLabel(channelChooser, CHANNEL_MSG, 0, 80);
+    }
+
+    private Widget createResolutionChooser(IViewContext<IScreeningClientServiceAsync> viewContext,
+            List<ImageResolution> resolutions)
+    {
+        if (resolutionChooser == null)
+        {
+            resolutionChooser =
+                    new ResolutionChooser(viewContext, resolutions,
+                            defaultChannelState.tryGetDefaultResolution());
+            resolutionChooser.addResolutionChangedListener(new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        defaultChannelState.setDefaultResolution(resolutionChooser.getResolution());
+                        refresh();
+                    }
+                });
+        }
+        return GuiUtils.withLabel(resolutionChooser,
+                viewContext.getMessage(Dict.RESOLUTION_CHOOSER_LABEL), 0, 80);
     }
 
     private static List<String> getInitialChannelCodes(IDefaultChannelState defaultChannelState,

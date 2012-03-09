@@ -45,18 +45,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelSt
  * 
  * @author Tomasz Pylak
  */
-class LogicalImageSeriesGrid
+class LogicalImageSeriesGrid extends LayoutContainer
 {
+
     public static LayoutContainer create(String sessionId,
             List<ImageChannelStack> channelStackImages,
-            LogicalImageChannelsReference channelReferences, int imageWidth, int imageHeight)
+            LogicalImageChannelsReference channelReferences, int imageWidth, int imageHeight,
+            LogicalImageClickHandler imageClickHandler, ImagesDownloadListener imageDownloadListener)
     {
         LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
-        List<List<ImageChannelStack>> sortedChannelStackSeriesPoints = model.getSortedChannelStackSeriesPoints();
+        List<List<ImageChannelStack>> sortedChannelStackSeriesPoints =
+                model.getSortedChannelStackSeriesPoints();
         List<LazyImageSeriesFrame> frames =
-                createSeriesFrames(sortedChannelStackSeriesPoints, channelReferences,
-                        sessionId, imageWidth, imageHeight);
-        final LazyImageDownloader imagesDownloader = new LazyImageDownloader(frames);
+                createSeriesFrames(sortedChannelStackSeriesPoints, channelReferences, sessionId,
+                        imageWidth, imageHeight, imageClickHandler);
+        LazyImageDownloader imagesDownloader =
+                new LazyImageDownloader(frames, imageDownloadListener);
+
         final LayoutContainer imageSeriesGrid =
                 (model.isMatrixViewPossible()) ? createTimeAndDepthViewer(imagesDownloader, model)
                         : createMoviePlayer(imagesDownloader, model);
@@ -67,10 +72,9 @@ class LogicalImageSeriesGrid
 
         return imageSeriesGrid;
     }
-    
+
     private static LayoutContainer createTimeAndDepthViewer(
-            final LazyImageDownloader imageDownloader,
-            final LogicalImageSeriesViewerModel model)
+            final LazyImageDownloader imageDownloader, final LogicalImageSeriesViewerModel model)
     {
         final LayoutContainer mainContainer = createMainContainer(imageDownloader);
         LayoutContainer sliderContainer = new LayoutContainer(new HBoxLayout());
@@ -95,7 +99,7 @@ class LogicalImageSeriesGrid
         Listener<SliderEvent> listener = new Listener<SliderEvent>()
             {
                 private int currentFrameIndex;
-                
+
                 public void handleEvent(SliderEvent be)
                 {
                     int oldIndex = currentFrameIndex;
@@ -105,17 +109,18 @@ class LogicalImageSeriesGrid
                     imageDownloader.frameSelectionChanged(oldIndex, currentFrameIndex);
                     int timeSliderValue = timeSlider.getValue();
                     int depthSliderValue = depthSlider.getValue();
-                    setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel, depthSliderValue);
+                    setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel,
+                            depthSliderValue);
                     mainContainer.layout();
                 }
             };
         timeSlider.addListener(Events.Change, listener);
         depthSlider.addListener(Events.Change, listener);
         setSliderLabels(model, timeSliderLabel, 1, depthSliderLabel, 1);
-        
+
         return mainContainer;
     }
-    
+
     private static void setSliderLabels(LogicalImageSeriesViewerModel model, Label timeSliderLabel,
             int timeSliderValue, Label depthSliderLabel, int depthSliderValue)
     {
@@ -123,7 +128,8 @@ class LogicalImageSeriesGrid
         int numberOfDepthLevels = model.getNumberOfDepthLevels();
         ImageSeriesPoint imageSeriesPoint = model.get(timeSliderValue - 1, depthSliderValue - 1);
         Float time = imageSeriesPoint.getTimePointOrNull();
-        timeSliderLabel.setText("Time: " + time + " sec (" + timeSliderValue + "/" + numberOfTimepoints + ")");
+        timeSliderLabel.setText("Time: " + time + " sec (" + timeSliderValue + "/"
+                + numberOfTimepoints + ")");
         Float depth = imageSeriesPoint.getDepthOrNull();
         depthSliderLabel.setText("Depth: " + depth + " (" + depthSliderValue + "/"
                 + numberOfDepthLevels + ")");
@@ -191,7 +197,7 @@ class LogicalImageSeriesGrid
     private static List<LazyImageSeriesFrame> createSeriesFrames(
             List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
-            int imageHeight)
+            int imageHeight, LogicalImageClickHandler imageClickHandler)
     {
         final List<LazyImageSeriesFrame> frames = new ArrayList<LazyImageSeriesFrame>();
         for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
@@ -199,6 +205,8 @@ class LogicalImageSeriesGrid
             final LazyImageSeriesFrame frame =
                     new LazyImageSeriesFrame(seriesPointStacks, channelReferences, sessionId,
                             imageWidth, imageHeight);
+            frame.setImageClickHandler(imageClickHandler);
+
             boolean isFirstFrame = frames.isEmpty();
             if (isFirstFrame)
             {
@@ -252,7 +260,7 @@ class LogicalImageSeriesGrid
             this.zOrNull = zOrNull;
             this.seriesNumberOrNull = seriesNumberOrNull;
         }
-        
+
         public String getLabel()
         {
             String desc = "";
@@ -287,7 +295,7 @@ class LogicalImageSeriesGrid
         {
             return zOrNull != null;
         }
-        
+
         Float getDepthOrNull()
         {
             return zOrNull;
@@ -297,7 +305,7 @@ class LogicalImageSeriesGrid
         {
             return tOrNull != null;
         }
-        
+
         Float getTimePointOrNull()
         {
             return tOrNull;
@@ -307,7 +315,7 @@ class LogicalImageSeriesGrid
         {
             return seriesNumberOrNull != null;
         }
-        
+
         Integer getSeriesNumberOrNull()
         {
             return seriesNumberOrNull;
@@ -341,9 +349,7 @@ class LogicalImageSeriesGrid
         {
             final int prime = 31;
             int result = 1;
-            result =
-                    prime * result
-                            + (isSeriesNumberPresent() ? seriesNumberOrNull.hashCode() : 0);
+            result = prime * result + (isSeriesNumberPresent() ? seriesNumberOrNull.hashCode() : 0);
             result = prime * result + (isTimePointPresent() ? tOrNull.hashCode() : 0);
             result = prime * result + (isDepthPresent() ? zOrNull.hashCode() : 0);
             return result;
@@ -388,7 +394,7 @@ class LogicalImageSeriesGrid
             if (isDepthPresent() == false)
             {
                 if (other.isDepthPresent())
-                {    
+                {
                     return false;
                 }
             } else if (zOrNull.equals(other.zOrNull) == false)
@@ -403,13 +409,13 @@ class LogicalImageSeriesGrid
     static class LogicalImageSeriesViewerModel
     {
         private final Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries;
-        
+
         private final List<ImageSeriesPoint> sortedPoints;
-        
+
         private final int numberOfTimepoints;
-        
+
         private final int numberOfDepthLevels;
-        
+
         private final boolean matrixViewPossible;
 
         private List<List<ImageSeriesPoint>> matrix;
@@ -457,7 +463,7 @@ class LogicalImageSeriesGrid
             numberOfTimepoints = timePointDepthMatrix.size();
             Collection<Map<Float, ImageSeriesPoint>> values = timePointDepthMatrix.values();
             matrix = new ArrayList<List<ImageSeriesPoint>>();
-            
+
             Set<Integer> depthMapSizes = new HashSet<Integer>();
             int depthLevelCount = 0;
             for (Map<Float, ImageSeriesPoint> depthMap : values)
@@ -471,7 +477,7 @@ class LogicalImageSeriesGrid
                     seriesNumberPresent == false && timepointOrDepthNotPresent == false
                             && depthMapSizes.size() == 1;
         }
-        
+
         public ImageSeriesPoint get(int timeIndex, int depthIndex)
         {
             return matrix.get(timeIndex).get(depthIndex);
@@ -508,43 +514,53 @@ class LogicalImageSeriesGrid
             return sortedSeries;
         }
     }
-    
-    /**
-     * 
-     * Takes into account the current position of the sliders to optimize the download of images. 
-     * Images downloads are grouped together in smaller chunks, which allows us to steer the download 
-     * process by following the slider movement.
-     * <p>
-     * In the beginning a small group of images is prefetched to allow smooth slider movement across the first few frames.
 
+    /**
+     * Takes into account the current position of the sliders to optimize the download of images.
+     * Images downloads are grouped together in smaller chunks, which allows us to steer the
+     * download process by following the slider movement.
+     * <p>
+     * In the beginning a small group of images is prefetched to allow smooth slider movement across
+     * the first few frames.
      */
-    static class LazyImageDownloader {
+    static class LazyImageDownloader
+    {
 
         public static int NUM_FRAMES_TO_PREFETCH = 15;
 
         public static int NUM_FRAMES_IN_DOWLOAD_CHUNK = 5;
 
         private List<LazyImageSeriesFrame> frames;
-        
+
         private boolean fullDownloadStarted;
 
         private boolean keepDownloading;
 
         private int selectedFrameIndex = -1;
 
-        LazyImageDownloader(List<LazyImageSeriesFrame> frames)
+        private ImagesDownloadListener imageDownloadListener;
+
+        LazyImageDownloader(List<LazyImageSeriesFrame> frames,
+                ImagesDownloadListener imagesDownloadListener)
         {
             this.frames = frames;
+            this.imageDownloadListener = imagesDownloadListener;
             prefetchFirstFrames(NUM_FRAMES_TO_PREFETCH);
             setInitialState();
         }
-        
+
         /**
          * downloads the contents of the first <code>prefetchSize</code> frames.
          */
         private void prefetchFirstFrames(int prefetchSize)
         {
             int numFrames = Math.min(prefetchSize, frames.size());
+
+            if (!frames.isEmpty())
+            {
+                frames.get(0).setImagesDownloadListener(imageDownloadListener);
+            }
+
             for (int i = 0; i < numFrames; i++)
             {
                 frames.get(i).downloadImagesFromServer();
@@ -595,7 +611,8 @@ class LogicalImageSeriesGrid
         {
             // prevent race condition by copying the state here
             int pivot = selectedFrameIndex;
-            final List<LazyImageSeriesFrame> framesToDownload = new ArrayList<LazyImageSeriesFrame>();
+            final List<LazyImageSeriesFrame> framesToDownload =
+                    new ArrayList<LazyImageSeriesFrame>();
 
             for (int i = 0; i < frames.size(); i++)
             {
@@ -610,7 +627,7 @@ class LogicalImageSeriesGrid
                     break;
                 }
             }
-            
+
             ImagesDownloadListener downloadListener = new ImagesDownloadListener()
                 {
                     private final List<LazyImageSeriesFrame> localFramesToDownload =
@@ -627,11 +644,12 @@ class LogicalImageSeriesGrid
                         {
                             scheduleDownloadNextChunkOfImages();
                         }
+
                     }
                 };
-            
-            
-            for (LazyImageSeriesFrame frame : framesToDownload) {
+
+            for (LazyImageSeriesFrame frame : framesToDownload)
+            {
                 frame.setImagesDownloadListener(downloadListener);
                 frame.downloadImagesFromServer();
             }
@@ -641,7 +659,12 @@ class LogicalImageSeriesGrid
         {
             return keepDownloading && fullDownloadStarted;
         }
-    }
 
+        public void setImagesDownloadListener(ImagesDownloadListener imageDownloadListener)
+        {
+            this.imageDownloadListener = imageDownloadListener;
+        }
+
+    }
 
 }
