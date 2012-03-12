@@ -482,8 +482,8 @@ public interface ICommonClientService extends IClientService
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
     public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
-            throws UserFailureException;
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            boolean onlyDirectlyConnected) throws UserFailureException;
 
     /**
      * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding

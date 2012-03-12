@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -53,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.AbstractDataSetsSection;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractEntityDataSetsSection;
 
 /**
  * The <i>generic</i> experiment viewer.
@@ -278,13 +279,16 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     private DisposableTabContent createExperimentDataSetSection()
     {
-        return new AbstractDataSetsSection("Data Sets", viewContext, experimentId)
+        return new AbstractEntityDataSetsSection(viewContext, new TechId(experimentId),
+                experimentType)
             {
+
                 @Override
-                protected IDisposableComponent createDatasetBrowserComponent()
+                protected IDisposableComponent createDataSetBrowser(BasicEntityType type,
+                        TechId entityID, IDirectlyConnectedController directlyConnectedController)
                 {
                     return ExperimentDataSetBrowser.create(viewContext, new TechId(experimentId),
-                            experimentType);
+                            experimentType, directlyConnectedController);
                 }
             };
     }

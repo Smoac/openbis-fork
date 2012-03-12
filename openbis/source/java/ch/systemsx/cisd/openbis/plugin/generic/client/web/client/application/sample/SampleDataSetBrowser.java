@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDire
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -44,7 +44,8 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     private final IDirectlyConnectedController connectionTypeProvider;
 
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
-            final SampleType sampleType, final IDirectlyConnectedController connectionTypeProvider)
+            final BasicEntityType sampleType,
+            final IDirectlyConnectedController connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();

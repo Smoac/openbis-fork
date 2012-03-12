@@ -60,9 +60,19 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets for the given experiment id.
      */
-    @Select(sql = SELECT_ALL + " WHERE data.expe_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getDatasetsForExperiment(LongSet experimentIds);
+    @Select(sql = SELECT_ALL + " WHERE data.expe_id = ?{1}")
+    public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
+
+    @Select(sql = "with recursive connected_data as ("
+            + "select d.*, ed.* "
+            + "from data as d left outer join external_data as ed on d.id = ed.data_id "
+            + "where expe_id = ?{1} "
+            + "union select d2.*, ed2.* "
+            + "from connected_data as d inner join data_set_relationships_all as dr on dr.data_id_parent = d.id "
+            + "left join data as d2 on d2.id = dr.data_id_child "
+            + "left outer join external_data as ed2 on d2.id = ed2.data_id) "
+            + "select * from connected_data")
+    public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId);
 
     /**
      * Returns the directly connected datasets for the given sample id.

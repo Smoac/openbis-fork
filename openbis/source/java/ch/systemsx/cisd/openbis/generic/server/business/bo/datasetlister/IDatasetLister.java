@@ -36,8 +36,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
  */
 public interface IDatasetLister
 {
-    /** @return datasets connected to experiments with the specified ids */
-    List<ExternalData> listByExperimentTechIds(Collection<TechId> experimentIds);
+    /**
+     * @return datasets connected to the experiment with the specified id
+     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
+     *            all descendants in dataset parent-child relationship hierarchy
+     */
+    List<ExternalData> listByExperimentTechId(TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
      * @return datasets connected to the sample with the specified id

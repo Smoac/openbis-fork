@@ -616,13 +616,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listByExperimentTechIds(Collections.singleton(experimentId));
+                    one(datasetLister).listByExperimentTechId(experimentId, true);
                     will(returnValue(Arrays.asList(externalData)));
                 }
             });
 
         final List<ExternalData> list =
-                createServer().listExperimentExternalData(SESSION_TOKEN, experimentId);
+                createServer().listExperimentExternalData(SESSION_TOKEN, experimentId, true);
 
         assertEquals(1, list.size());
         assertTrue(equals(externalData, list.get(0)));

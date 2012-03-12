@@ -184,14 +184,18 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(query.getDatasetsForSamples(ids));
     }
 
-    public List<ExternalData> listByExperimentTechIds(Collection<TechId> experimentIds)
+    public List<ExternalData> listByExperimentTechId(TechId experimentId,
+            boolean showOnlyDirectlyConnected)
     {
-        LongSet ids = new LongOpenHashSet();
-        for (TechId techId : experimentIds)
+        DataIterator<DatasetRecord> dataSets;
+        if (showOnlyDirectlyConnected)
         {
-            ids.add(techId.getId());
+            dataSets = query.getDatasetsForExperiment(experimentId.getId());
+        } else
+        {
+            dataSets = query.getDataSetsForExperimentAndDescendents(experimentId.getId());
         }
-        return enrichDatasets(query.getDatasetsForExperiment(ids));
+        return enrichDatasets(dataSets);
     }
 
     public Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs)

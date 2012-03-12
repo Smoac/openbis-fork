@@ -728,7 +728,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            final boolean onlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
@@ -736,7 +737,8 @@ public final class CommonClientService extends AbstractClientService implements
                 @Override
                 protected List<ExternalData> getDataSets()
                 {
-                    return commonServer.listExperimentExternalData(sessionToken, experimentId);
+                    return commonServer.listExperimentExternalData(sessionToken, experimentId,
+                            onlyDirectlyConnected);
                 }
             }, criteria);
     }

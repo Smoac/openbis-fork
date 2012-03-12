@@ -109,8 +109,10 @@ public class ExperimentViewer extends GenericExperimentViewer
         }
         final ContentPanel contentPanel = new ContentPanel(new RowLayout());
         contentPanel.setHeading(viewContext.getMessage(Dict.DATA_SET_PROCESSING_SECTION_TITLE));
-        viewContext.getCommonService().listExperimentDataSets(new TechId(experimentId),
-                DefaultResultSetConfig.<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
+        viewContext.getCommonService().listExperimentDataSets(
+                new TechId(experimentId),
+                DefaultResultSetConfig
+                        .<String, TableModelRowWithObject<ExternalData>> createFetchAll(), true,
                 new AbstractAsyncCallback<TypedTableResultSet<ExternalData>>(viewContext)
                     {
                         @Override

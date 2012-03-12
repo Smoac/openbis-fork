@@ -623,8 +623,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         IDatasetLister datasetLister = createDatasetLister(session);
-        List<TechId> experimentTechIDs = Collections.singletonList(experimentID);
-        List<ExternalData> datasets = datasetLister.listByExperimentTechIds(experimentTechIDs);
+        List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentID, true);
         Collections.sort(datasets);
         return datasets;
     }

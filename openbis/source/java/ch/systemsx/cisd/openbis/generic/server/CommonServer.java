@@ -519,12 +519,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
-            final TechId experimentId)
+            final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets =
-                datasetLister.listByExperimentTechIds(Collections.singleton(experimentId));
+                datasetLister.listByExperimentTechId(experimentId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
     }

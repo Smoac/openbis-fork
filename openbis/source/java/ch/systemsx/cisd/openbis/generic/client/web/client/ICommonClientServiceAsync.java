@@ -406,6 +406,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listExperimentDataSets(TechId experimentId,
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            boolean onlyDirectlyConnected,
             AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**

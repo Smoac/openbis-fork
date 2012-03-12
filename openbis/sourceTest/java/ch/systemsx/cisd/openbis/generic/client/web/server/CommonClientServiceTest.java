@@ -520,7 +520,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
                                 })));
 
-                    one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId);
+                    one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId, true);
                     will(returnValue(Collections.singletonList(ds)));
                 }
             });
@@ -528,7 +528,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig =
                 DefaultResultSetConfig.createFetchAll();
         TypedTableResultSet<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets(experimentId, resultSetConfig);
+                commonClientService.listExperimentDataSets(experimentId, resultSetConfig, true);
         List<TableModelRowWithObject<ExternalData>> list =
                 resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());

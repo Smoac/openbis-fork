@@ -159,9 +159,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
 
     private int countAnalysisDatasets(ExperimentReference experiment)
     {
-        List<TechId> experiments = Arrays.asList(new TechId(experiment.getId()));
         IDatasetLister lister = businessObjectFactory.createDatasetLister(session);
-        List<ExternalData> datasets = lister.listByExperimentTechIds(experiments);
+        List<ExternalData> datasets = lister.listByExperimentTechId(new TechId(experiment.getId()), true);
         return ScreeningUtils.filterImageAnalysisDatasets(datasets).size();
     }
 

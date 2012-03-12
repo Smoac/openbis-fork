@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -40,12 +42,14 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     static IDisposableComponent create(IViewContext<?> viewContext, TechId experimentId,
-            final BasicEntityType experimentType)
+            final BasicEntityType experimentType,
+            IDirectlyConnectedController connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
         ExperimentDataSetBrowser browser =
-                new ExperimentDataSetBrowser(commonViewContext, experimentId)
+                new ExperimentDataSetBrowser(commonViewContext, experimentId,
+                        connectionTypeProvider)
                     {
                         @Override
                         public String getGridDisplayTypeID()
@@ -58,12 +62,24 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
 
     private final TechId experimentId;
 
+    private final IDirectlyConnectedController connectionTypeProvider;
+
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId experimentId)
+            TechId experimentId, IDirectlyConnectedController connectionTypeProvider)
     {
         super(viewContext, createBrowserId(experimentId), createGridId(experimentId),
                 DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         this.experimentId = experimentId;
+        this.connectionTypeProvider = connectionTypeProvider;
+        // refresh data when connection type provider value changes
+        connectionTypeProvider.setOnChangeAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            });
+
     }
 
     public static String createGridId(TechId experimentId)
@@ -81,6 +97,8 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
     {
-        viewContext.getService().listExperimentDataSets(experimentId, resultSetConfig, callback);
+        boolean onlyDirectlyConnected = connectionTypeProvider.isOnlyDirectlyConnected();
+        viewContext.getService().listExperimentDataSets(experimentId, resultSetConfig,
+                onlyDirectlyConnected, callback);
     }
 }

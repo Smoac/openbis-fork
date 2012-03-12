@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -139,15 +138,9 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasetsForExperiments()
     {
-        LongArraySet experimentIds = new LongArraySet();
         ExperimentPE experiment1 =
                 getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
-        ExperimentPE experiment2 =
-                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-2", daoFactory);
-        experimentIds.add((long) experiment1.getId());
-        experimentIds.add((long) experiment2.getId());
-        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experimentIds));
-        assertTrue(datasets.size() > 0);
+        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experiment1.getId()));
         Counters<Long> counters = new Counters<Long>();
         for (DatasetRecord record : datasets)
         {
@@ -157,8 +150,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         }
 
         assertEquals(1, counters.getCountOf(experiment1.getId()));
-        assertEquals(2, counters.getCountOf(experiment2.getId()));
-        assertEquals(2, counters.getNumberOfDifferentObjectsCounted());
+        assertEquals(1, datasets.size());
     }
 
     @Test
