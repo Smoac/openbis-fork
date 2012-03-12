@@ -13,7 +13,7 @@
 set -o nounset
 set -o errexit
 
-CI_HOST=cisd-ci.ethz.ch:8090
+CI_HOST=bs-ci01.ethz.ch:8090
 
 if [ $# -lt 1 ]; then
     echo "Usage: fetch-ci-artifacts.sh [-d <output folder>] [-p <regular expression for filtering artifact names>] <project>"
