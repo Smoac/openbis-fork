@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +48,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -161,6 +165,55 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         }
     }
 
+    public final class NewSampleBuilder
+    {
+        private NewSample sample = new NewSample();
+
+        private List<IEntityProperty> propertis = new ArrayList<IEntityProperty>();
+
+        public NewSampleBuilder(String identifier)
+        {
+            sample.setIdentifier(identifier);
+        }
+
+        public NewSampleBuilder type(String type)
+        {
+            SampleType sampleType = new SampleType();
+            sampleType.setCode(type);
+            sample.setSampleType(sampleType);
+            return this;
+        }
+
+        public NewSampleBuilder experiment(String identifier)
+        {
+            sample.setExperimentIdentifier(identifier);
+            return this;
+        }
+
+        public NewSampleBuilder parents(String... parentIdentifiers)
+        {
+            sample.setParentsOrNull(parentIdentifiers);
+            return this;
+        }
+
+        public NewSampleBuilder property(String key, String value)
+        {
+            propertis.add(new PropertyBuilder(key).value(value).getProperty());
+            return this;
+        }
+
+        public void register()
+        {
+            sample.setProperties(propertis.toArray(new IEntityProperty[propertis.size()]));
+            genericClientService.registerSample(SESSION_KEY, sample);
+        }
+    }
+
+    protected NewSampleBuilder sample(String identifier)
+    {
+        return new NewSampleBuilder(identifier);
+    }
+
     protected void uploadFile(String fileName, String fileContent)
     {
         UploadedFilesBean bean = new UploadedFilesBean();
@@ -168,6 +221,17 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
                 .getBytes()));
         HttpSession session = request.getSession();
         session.setAttribute(SESSION_KEY, bean);
+    }
+
+    protected <T extends Serializable> List<T> asList(TypedTableResultSet<T> resultSet)
+    {
+        List<T> list = new ArrayList<T>();
+        for (GridRowModel<TableModelRowWithObject<T>> gridRowModel : resultSet.getResultSet()
+                .getList())
+        {
+            list.add(gridRowModel.getOriginalObject().getObjectOrNull());
+        }
+        return list;
     }
 
     protected <T extends CodeWithRegistration<?>> T getOriginalObjectByCode(
