@@ -137,6 +137,10 @@ body,div,td, .default-text {
     width: 0%;
 }
 
+.x-tree3-node-text{
+    display: block !important;    
+}
+
 /* Show background image for button even if mouse is not over it. */
 /* old
 .x-toolbar .x-btn-left{
