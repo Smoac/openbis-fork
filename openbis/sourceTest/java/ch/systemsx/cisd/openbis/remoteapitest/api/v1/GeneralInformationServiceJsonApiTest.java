@@ -16,21 +16,31 @@
 
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -149,6 +159,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 return;
             }
         }
+
         fail("result didn't contain sample " + expectedSampleIdentifier);
     }
 
@@ -466,6 +477,11 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
         assertTrue(result.size() > 0);
         String expectedDataSetCode = "20081105092159188-3";
+
+        for (DataSet dataSet : result)
+        {
+            System.out.println(dataSet.getRegistrationDetails().toString());
+        }
         for (DataSet dataSet : result)
         {
             if (expectedDataSetCode.equals(dataSet.getCode()))
@@ -474,6 +490,225 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
             }
         }
         fail("result didn't contain data set" + expectedDataSetCode);
+    }
+
+    private Date getDate(String date)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("y-M-d");
+        try
+        {
+            return sdf.parse(date);
+        } catch (ParseException ex)
+        {
+            throw new IllegalArgumentException(date);
+        }
+    }
+
+    @Test
+    public void testSearchForDataSetsWithRegistrationDateAndEqualsCompareMode()
+    {
+        Date date = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20081105092159111-1", "20081105092159222-2",
+                        "20081105092159333-3", "20110805092359990-17"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithRegistrationDateAndLessThanCompareMode()
+    {
+        Date date = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, date));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20081105092159188-3", "20081105092159111-1",
+                        "20081105092159222-2", "20081105092159333-3", "20081105092259000-8",
+                        "20081105092259000-9", "20081105092259900-0", "20081105092259900-1",
+                        "20081105092359990-2", "20110805092359990-17", "20081105092259000-18",
+                        "20081105092259000-19", "20081105092259000-20", "20081105092259000-21"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithRegistrationDateAndMoreThanCompareMode()
+    {
+        Date date = getDate("2009-03-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, date));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20110509092359990-10", "20110509092359990-11",
+                        "20110509092359990-12"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithRegistrationDateRange()
+    {
+
+        Date lower = getDate("2009-02-09");
+        Date upper = getDate("2011-05-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lower));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upper));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20081105092159111-1", "20081105092159222-2",
+                        "20081105092159333-3", "20110509092359990-10", "20110509092359990-11",
+                        "20110509092359990-12", "20110805092359990-17"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithInvalidDateRange()
+    {
+        Date lower = getDate("2011-05-09");
+        Date upper = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lower));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upper));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(result.size(), is(0));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithMultipleSameEqualsClauses()
+    {
+        Date date1 = getDate("2009-02-09");
+        Date date2 = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date1));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date2));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20081105092159111-1", "20081105092159222-2",
+                        "20081105092159333-3", "20110805092359990-17"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithMultipleDifferentEqualsClausesOnRegistrationDate()
+    {
+        Date date1 = getDate("2011-05-09");
+        Date date2 = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date1));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date2));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(result.size(), is(0));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithModificationDateRange()
+    {
+        Date lower = getDate("2011-01-22");
+        Date upper = getDate("2012-04-23");
+
+        SearchCriteria sc = new SearchCriteria();
+
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lower));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upper));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20110509092359990-10", "20110509092359990-11",
+                        "20110509092359990-12"));
+    }
+
+    @Test
+    public void testSearchForDataSetsWithRegistrationDateRangeAndModificationDateRange()
+    {
+
+        Date lowerReg = getDate("2009-02-01");
+        Date upperReg = getDate("2009-04-15");
+        Date lowerMod = getDate("2009-03-22");
+        Date upperMod = getDate("2009-04-23");
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lowerReg));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upperReg));
+
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lowerMod));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upperMod));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsDataSets("20081105092159111-1", "20081105092159222-2",
+                        "20081105092159333-3", "20110805092359990-17"));
+    }
+
+    @Test
+    public void testSearchSamplesWithOneDayRegistrationDateRange()
+    {
+        Date lower = getDate("2009-02-09");
+        Date upper = getDate("2009-02-09");
+
+        SearchCriteria sc = new SearchCriteria();
+
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.MORE_THAN, lower));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
+                SearchCriteria.CompareMode.LESS_THAN, upper));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsSamples("CP-TEST-1", "CP-TEST-2", "CP-TEST-3", "PLATE_WELLSEARCH",
+                        "PLATE_WELLSEARCH:WELL-A01", "PLATE_WELLSEARCH:WELL-A02"));
+    }
+
+    @Test
+    public void testSearchSamplesWithModificationDate()
+    {
+        Date date = getDate("2009-08-18");
+
+        SearchCriteria sc = new SearchCriteria();
+
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
+                SearchCriteria.CompareMode.EQUALS, date));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+
+        assertThat(
+                result,
+                containsSamples("CP-TEST-1", "CP-TEST-2", "PLATE_WELLSEARCH",
+                        "PLATE_WELLSEARCH:WELL-A01", "PLATE_WELLSEARCH:WELL-A02"));
     }
 
     @Test
@@ -637,6 +872,89 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
             }
         }
         return null;
+    }
+
+    public static Matcher<Collection<DataSet>> containsDataSets(String... codes)
+    {
+        return new ContainsDataSetMatcher(codes);
+    }
+
+    public static class ContainsDataSetMatcher extends TypeSafeMatcher<Collection<DataSet>>
+    {
+
+        private Collection<String> codes;
+
+        public ContainsDataSetMatcher(String... datasetCodes)
+        {
+            this.codes = Collections.unmodifiableCollection(Arrays.asList(datasetCodes));
+        }
+
+        public void describeTo(Description description)
+        {
+            description.appendText("a collection containing all datasets " + this.codes);
+        }
+
+        @Override
+        public boolean matchesSafely(Collection<DataSet> actualDataSets)
+        {
+
+            Set<String> actualCodes = new HashSet<String>();
+            for (DataSet set : actualDataSets)
+            {
+                actualCodes.add(set.getCode());
+            }
+
+            for (String code : this.codes)
+            {
+                if (!actualCodes.contains(code))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static Matcher<Collection<Sample>> containsSamples(String... codes)
+    {
+        return new ContainsSampleMatcher(codes);
+    }
+
+    public static class ContainsSampleMatcher extends TypeSafeMatcher<Collection<Sample>>
+    {
+
+        private Collection<String> codes;
+
+        public ContainsSampleMatcher(String... sampleCodes)
+        {
+            this.codes = Collections.unmodifiableCollection(Arrays.asList(sampleCodes));
+        }
+
+        public void describeTo(Description description)
+        {
+            description.appendText("a collection containing all samples " + this.codes);
+        }
+
+        @Override
+        public boolean matchesSafely(Collection<Sample> actualSamples)
+        {
+
+            Set<String> actualCodes = new HashSet<String>();
+            for (Sample sample : actualSamples)
+            {
+                actualCodes.add(sample.getCode());
+            }
+
+            for (String code : this.codes)
+            {
+                if (!actualCodes.contains(code))
+                {
+                    return false;
+                }
+            }
+            return true;
+
+        }
     }
 
 }

@@ -130,8 +130,12 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
+            case REGISTRATION_DATE:
+                return SearchFieldConstants.REGISTRATION_DATE;
+            case MODIFICATION_DATE:
+                return SearchFieldConstants.MODIFICATION_DATE;
         }
-        return null; // cannot happen
+        throw new IllegalArgumentException(attributeKind.toString());
     }
 
     private static String getExperimentAttributeIndexField(
@@ -175,7 +179,11 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
+            case REGISTRATION_DATE:
+                return SearchFieldConstants.REGISTRATION_DATE;
+            case MODIFICATION_DATE:
+                return SearchFieldConstants.MODIFICATION_DATE;
         }
-        return null; // cannot happen
+        throw new IllegalArgumentException(attributeKind.toString());
     }
 }

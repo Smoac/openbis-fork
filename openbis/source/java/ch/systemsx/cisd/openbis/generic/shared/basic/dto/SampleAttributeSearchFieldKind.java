@@ -29,7 +29,11 @@ public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSe
 
     SAMPLE_TYPE("Sample Type"),
 
-    SPACE("Space");
+    SPACE("Space"),
+
+    REGISTRATION_DATE("Registration date"),
+
+    MODIFICATION_DATE("Modification date");
 
     private final String description;
 

@@ -18,14 +18,20 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.RangeQuery;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.bridge.builtin.DateBridge;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -89,10 +95,41 @@ public class DetailedQueryBuilder
         for (DetailedSearchCriterion criterion : criteria)
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField());
-            String searchPattern =
-                    LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
-            Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
-            resultQuery.add(luceneQuery, occureCondition);
+
+            if (criterion.getValue() != null)
+            {
+                String searchPattern =
+                        LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
+                Query luceneQuery =
+                        LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
+                resultQuery.add(luceneQuery, occureCondition);
+            } else
+            {
+                Date lower = criterion.getDate();
+                Calendar c = Calendar.getInstance();
+                c.setTime(lower);
+                c.add(Calendar.DAY_OF_MONTH, 1);
+                Date upper = c.getTime();
+
+                switch (criterion.getType())
+                {
+                    case EQUALS:
+                        break;
+                    case LESS_THAN:
+                        lower = new Date(0);
+                        break;
+                    case MORE_THAN:
+                        upper = new Date(Long.MAX_VALUE);
+                        break;
+                }
+
+                String fieldName = fieldNames.get(0);
+                DateBridge bridge = new DateBridge(Resolution.DAY);
+                RangeQuery q =
+                        new RangeQuery(new Term(fieldName, bridge.objectToString(lower)), new Term(
+                                fieldName, bridge.objectToString(upper)), true);
+                resultQuery.add(q, occureCondition);
+            }
         }
         for (DetailedSearchAssociationCriteria association : associations)
         {

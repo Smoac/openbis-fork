@@ -50,11 +50,13 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OrderBy;
+import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -163,6 +165,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
+    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @DateBridge(resolution = Resolution.DAY)
     public Date getRegistrationDate()
     {
         return HibernateAbstractRegistrationHolder.getDate(registrationDate);
@@ -349,6 +353,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @DateBridge(resolution = Resolution.DAY)
     public Date getModificationDate()
     {
         return modificationDate;

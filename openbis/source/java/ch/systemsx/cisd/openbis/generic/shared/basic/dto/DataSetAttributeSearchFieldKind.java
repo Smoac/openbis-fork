@@ -29,7 +29,11 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     DATA_SET_TYPE("Data Set Type"),
 
-    FILE_TYPE("File Type");
+    FILE_TYPE("File Type"),
+
+    REGISTRATION_DATE("Registration date"),
+
+    MODIFICATION_DATE("Modification date");
 
     private final String description;
 

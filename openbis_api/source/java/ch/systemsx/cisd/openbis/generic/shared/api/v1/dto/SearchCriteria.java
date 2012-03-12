@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -93,7 +94,14 @@ public class SearchCriteria implements Serializable
         // for sample or experiment
         SPACE,
         // for experiment
-        PROJECT
+        PROJECT,
+        REGISTRATION_DATE,
+        MODIFICATION_DATE
+    }
+    
+    public static enum CompareMode
+    {
+        LESS_THAN, EQUALS, MORE_THAN
     }
 
     /**
@@ -115,6 +123,10 @@ public class SearchCriteria implements Serializable
         private String fieldCode;
 
         private String desiredValue;
+        
+        private CompareMode compareMode;
+        
+        private Date date;
 
         /**
          * Protected constructor. Use one of the factory methods to instantiate a MatchClause.
@@ -123,11 +135,13 @@ public class SearchCriteria implements Serializable
          * @param fieldCode
          * @param desiredValue
          */
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue)
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode, Date date)
         {
             this.fieldType = fieldType;
             this.fieldCode = fieldCode;
             this.desiredValue = desiredValue;
+            this.compareMode = compareMode;
+            this.date = date;
         }
 
         /**
@@ -153,6 +167,13 @@ public class SearchCriteria implements Serializable
             return new AttributeMatchClause(attribute, desiredValue);
         }
 
+        public static MatchClause createAttributeMatch(MatchClauseAttribute attribute,
+                CompareMode mode, Date date)
+        {
+            return new AttributeMatchClause(attribute, mode, date);
+        }
+
+        
         /**
          * The field type this MatchClause matches against. Could be either a property or attribute.
          */
@@ -173,6 +194,14 @@ public class SearchCriteria implements Serializable
         {
             return desiredValue;
         }
+        
+        public Date getDate() {
+            return date;
+        }
+        
+        public CompareMode getCompareMode() {
+            return this.compareMode;
+        }
 
         @Override
         public boolean equals(Object obj)
@@ -191,6 +220,8 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldType(), other.getFieldType());
             builder.append(getFieldCode(), other.getFieldCode());
             builder.append(getDesiredValue(), other.getDesiredValue());
+            builder.append(getCompareMode(), other.getCompareMode());
+            builder.append(getDate(), other.getDate());
             return builder.isEquals();
         }
 
@@ -201,6 +232,8 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldType());
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
+            builder.append(getCompareMode());
+            builder.append(getDate());
             return builder.toHashCode();
         }
 
@@ -211,6 +244,8 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldType());
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
+            builder.append(getCompareMode());
+            builder.append(getDate());
             return builder.toString();
         }
 
@@ -232,6 +267,14 @@ public class SearchCriteria implements Serializable
         private void setDesiredValue(String desiredValue)
         {
             this.desiredValue = desiredValue;
+        }
+        
+        private void setCompareMode(CompareMode mode) {
+            this.compareMode = mode;
+        }
+        
+        private void setDate(Date date) {
+            this.date = date;
         }
     }
 
@@ -255,7 +298,7 @@ public class SearchCriteria implements Serializable
          */
         protected PropertyMatchClause(String propertyCode, String desiredValue)
         {
-            super(MatchClauseFieldType.PROPERTY, propertyCode, desiredValue);
+            super(MatchClauseFieldType.PROPERTY, propertyCode, desiredValue, CompareMode.EQUALS, null);
             this.propertyCode = propertyCode;
             assert null != propertyCode;
             assert null != desiredValue;
@@ -303,11 +346,17 @@ public class SearchCriteria implements Serializable
          */
         protected AttributeMatchClause(MatchClauseAttribute attribute, String desiredValue)
         {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue);
-            assert null != desiredValue;
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue, CompareMode.EQUALS, null);
             this.attribute = attribute;
         }
 
+        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, Date date)
+        {
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), null, mode, date);
+            this.attribute = attribute;
+        }
+
+        
         /**
          * Return the code of the attribute to compare against.
          */

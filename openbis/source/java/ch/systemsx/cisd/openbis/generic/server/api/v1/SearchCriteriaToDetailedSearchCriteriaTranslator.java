@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.Propert
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
@@ -142,6 +143,12 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case SPACE:
                     ans = SampleAttributeSearchFieldKind.SPACE;
                     break;
+                case REGISTRATION_DATE:
+                    ans = SampleAttributeSearchFieldKind.REGISTRATION_DATE;
+                    break;
+                case MODIFICATION_DATE:
+                    ans = SampleAttributeSearchFieldKind.MODIFICATION_DATE;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
                     ans = null; // for Eclipse
@@ -192,6 +199,12 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 case TYPE:
                     ans = DataSetAttributeSearchFieldKind.DATA_SET_TYPE;
+                    break;
+                case REGISTRATION_DATE:
+                    ans = DataSetAttributeSearchFieldKind.REGISTRATION_DATE;
+                    break;
+                case MODIFICATION_DATE:
+                    ans = DataSetAttributeSearchFieldKind.MODIFICATION_DATE;
                     break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.DATA_SET);
@@ -269,10 +282,30 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
     private DetailedSearchCriterion convertMatchClauseToDetailedSearchCriterion(
             MatchClause matchClause)
     {
-        DetailedSearchCriterion detailedSearchCriterion =
-                new DetailedSearchCriterion(extractDetailedSearchField(matchClause),
-                        matchClause.getDesiredValue());
-        return detailedSearchCriterion;
+        if (matchClause.getDesiredValue() == null)
+        {
+            CompareType t;
+            switch (matchClause.getCompareMode())
+            {
+                case EQUALS:
+                    t = CompareType.EQUALS;
+                    break;
+                case LESS_THAN:
+                    t = CompareType.LESS_THAN;
+                    break;
+                case MORE_THAN:
+                    t = CompareType.MORE_THAN;
+                    break;
+                default:
+                    throw new IllegalArgumentException("" + matchClause.getCompareMode());
+            }
+            return new DetailedSearchCriterion(extractDetailedSearchField(matchClause), t,
+                    matchClause.getDate());
+        } else
+        {
+            return new DetailedSearchCriterion(extractDetailedSearchField(matchClause),
+                    matchClause.getDesiredValue());
+        }
     }
 
     private DetailedSearchField extractDetailedSearchField(MatchClause matchClause)
