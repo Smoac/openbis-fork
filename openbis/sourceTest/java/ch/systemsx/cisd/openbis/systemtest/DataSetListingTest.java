@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 /**
  * @author Franz-Josef Elmer
  */
+@Test(groups = "system test")
 public class DataSetListingTest extends SystemTestCase
 {
     @Test
