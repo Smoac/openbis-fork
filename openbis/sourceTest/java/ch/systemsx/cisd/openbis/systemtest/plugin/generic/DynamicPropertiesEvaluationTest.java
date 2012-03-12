@@ -26,7 +26,8 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -83,8 +84,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                 defaultValue, section, ordinal, dynamic, false, script, false);
     }
 
-    @Test
-    public void testRegisterDynamicPropertyAssignment()
+    @BeforeMethod
+    public void setUp()
     {
         logIntoCommonClientService();
 
@@ -96,7 +97,11 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                 createDynamicPropertyAssignment(entityKind, propertyTypeCode, entityTypeCode,
                         script);
         commonClientService.assignPropertyType(assignment);
+    }
 
+    @Test
+    public void testRegisterDynamicPropertyAssignment()
+    {
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
@@ -120,15 +125,16 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         boolean found = false;
                         for (IEntityProperty property : sample.getProperties())
                         {
-                            if (property.getPropertyType().getCode().equals(propertyTypeCode))
+                            if (property.getPropertyType().getCode().equals(DESCRIPTION))
                             {
                                 assertEquals(sample.getCode(), property.getValue());
                                 found = true;
                                 break;
                             }
                         }
-                        assertTrue("property " + propertyTypeCode + " not found for sample "
-                                + sample.getCode(), found);
+                        assertTrue(
+                                "property " + DESCRIPTION + " not found for sample "
+                                        + sample.getCode(), found);
                     }
                 }
             };
@@ -140,32 +146,22 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
     @Test(dependsOnMethods = "testRegisterDynamicPropertyAssignment")
     public void testCreateSampleWithDynamicProperty()
     {
-        logIntoCommonClientService();
-
-        // register new cell plate sample
-        final NewSample newSample = new NewSample();
-        final String sampleCode = NEW_SAMPLE_CODE;
-        final String identifier = NEW_SAMPLE_IDENTIFIER;
-        newSample.setIdentifier(identifier);
-        final SampleType sampleType = new SampleType();
-        sampleType.setCode(CELL_PLATE);
-        newSample.setSampleType(sampleType);
-        genericClientService.registerSample("session", newSample);
+        registerNewCellPlateSample();
 
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
                 public void execute()
                 {
-                    Sample loadedSample = getSpaceSample(identifier);
+                    Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
                     createdSampleId = TechId.create(loadedSample);
                     boolean found = false;
                     for (IEntityProperty property : loadedSample.getProperties())
                     {
                         if (property.getPropertyType().getCode().equals(DESCRIPTION))
                         {
-                            assertEquals(sampleCode, loadedSample.getCode());
-                            assertEquals(sampleCode, property.getValue());
+                            assertEquals(NEW_SAMPLE_CODE, loadedSample.getCode());
+                            assertEquals(NEW_SAMPLE_CODE, property.getValue());
                             found = true;
                             break;
                         }
@@ -180,11 +176,19 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         check(SLEEP_TIME, MAX_RETRIES, "testCreateSampleWithDynamicProperty", assertAction);
     }
 
+    void registerNewCellPlateSample()
+    {
+        final NewSample newSample = new NewSample();
+        newSample.setIdentifier(NEW_SAMPLE_IDENTIFIER);
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(CELL_PLATE);
+        newSample.setSampleType(sampleType);
+        genericClientService.registerSample("session", newSample);
+    }
+
     @Test(dependsOnMethods = "testCreateSampleWithDynamicProperty")
     public void testUpdateDynamicPropertyAssignment()
     {
-        logIntoCommonClientService();
-
         final EntityKind entityKind = EntityKind.SAMPLE;
         final String propertyTypeCode = DESCRIPTION;
         final String entityTypeCode = CELL_PLATE;
@@ -244,8 +248,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
     @Test(dependsOnMethods = "testUpdateDynamicPropertyAssignment")
     public void testUpdateSampleWithDynamicProperty()
     {
-        logIntoCommonClientService();
-
+        testCreateSampleWithDynamicProperty();
         Sample oldSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
 
         @SuppressWarnings("unchecked")
@@ -357,7 +360,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         }
     }
 
-    @AfterClass
+    @AfterMethod
     public void cleanup()
     {
         commonClientService.unassignPropertyType(EntityKind.SAMPLE, DESCRIPTION, CELL_PLATE);

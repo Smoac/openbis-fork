@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class EventDAOTest extends AbstractDAOTest
 {
 
-    private static final long SINCE_LONG = 10;
+    private static final long SINCE_LONG = 10000;
 
     private static final long BEFORE = SINCE_LONG - 5;
 
