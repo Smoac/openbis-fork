@@ -77,6 +77,9 @@ public class SamplesListingTest extends SystemTestCase
                 }
             });
         assertEquals("[COMMENT: my plate child]", samples.get(0).getProperties().toString());
+        assertEquals("/CISD/PLATE-WITH_EXPERIMENT", samples.get(0).getParents().iterator().next()
+                .getIdentifier());
+        assertEquals(1, samples.get(0).getParents().size());
         assertEquals("CELL_PLATE", samples.get(0).getSampleType().getCode());
         assertEquals("John Doe", samples.get(0).getRegistrator().toString());
     }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -62,7 +63,7 @@ public class DataSetListingTest extends SystemTestCase
                 new DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>>();
 
         TypedTableResultSet<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets(new TechId(18), criteria, false);
+                commonClientService.listExperimentDataSets(new TechId(19), criteria, false);
 
         List<ExternalData> dataSets = asList(resultSet);
         Collections.sort(dataSets, new Comparator<ExternalData>()
@@ -72,16 +73,31 @@ public class DataSetListingTest extends SystemTestCase
                     return e1.getCode().compareTo(e2.getCode());
                 }
             });
-        assertEquals("20081105092159111-1", dataSets.get(0).getCode());
+        assertDataSets("20081105092159111-1, 20081105092159222-2, 20081105092259000-9, "
+                + "20081105092259900-0, 20081105092259900-1, 20081105092359990-2", dataSets);
         assertProperties(
                 "[ANY_MATERIAL: 1000_C (SIRNA), BACTERIUM: BACTERIUM1 (BACTERIUM), COMMENT: no comment, GENDER: FEMALE]",
                 dataSets.get(0));
-        assertEquals("20081105092259000-9", dataSets.get(1).getCode());
-        assertProperties("[COMMENT: no comment]", dataSets.get(1));
-        assertEquals("20081105092259900-0", dataSets.get(2).getCode());
-        assertProperties("[COMMENT: no comment]", dataSets.get(2));
-        assertEquals("20081105092259900-1", dataSets.get(3).getCode());
-        assertEquals("20081105092359990-2", dataSets.get(4).getCode());
-        assertEquals(5, dataSets.size());
+        assertEquals("/CISD/CP-TEST-1", dataSets.get(0).getSampleIdentifier());
+        assertEquals(18, dataSets.get(0).getExperiment().getId().intValue());
+        assertEquals(null, dataSets.get(0).getParents());
+        assertProperties("[COMMENT: no comment]", dataSets.get(3));
+        assertEquals(null, dataSets.get(3).getSampleIdentifier());
+        assertEquals(1, dataSets.get(3).getParents().size());
+        assertEquals("20081105092259000-9", dataSets.get(3).getParents().iterator().next()
+                .getCode());
+        assertEquals(null, dataSets.get(3).getChildren()); // Children are not added even though
+                                                           // there is one child
+        assertEquals(6, dataSets.size());
+    }
+
+    private void assertDataSets(String expectedCodes, List<ExternalData> dataSets)
+    {
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (ExternalData dataSet : dataSets)
+        {
+            builder.append(dataSet.getCode());
+        }
+        assertEquals(expectedCodes, builder.toString());
     }
 }
