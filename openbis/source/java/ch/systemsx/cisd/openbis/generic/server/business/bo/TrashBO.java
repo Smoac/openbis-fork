@@ -181,24 +181,6 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         + builder);
     }
 
-    private void trashSampleDependentChildren(List<TechId> sampleIds)
-    {
-        final ISampleDAO sampleDAO = getSampleDAO();
-
-        AbstractQueryBatchOperation batchOperation =
-                new AbstractQueryBatchOperation(EntityKind.SAMPLE, sampleIds,
-                        "listSampleIdsByParentIds")
-                    {
-                        @Override
-                        public Collection<TechId> listAction(List<TechId> entities)
-                        {
-                            return sampleDAO.listChildrenForTrashedSamples(entities);
-                        }
-                    };
-        BatchOperationExecutor.executeInBatches(batchOperation);
-        trashSamples(batchOperation.getResults());
-    }
-
     private void trashSampleDependentComponents(List<TechId> sampleIds)
     {
         final ISampleDAO sampleDAO = getSampleDAO();
