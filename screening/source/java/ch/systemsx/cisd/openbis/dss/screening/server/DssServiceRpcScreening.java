@@ -221,12 +221,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        IShareIdManager shareIdManager = getShareIdManager();
+        final IShareIdManager shareIdManager = getShareIdManager();
+        final List<String> dataSetCodes = new ArrayList<String>(imageDatasets.size());
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
-            String datasetCode = dataset.getDatasetCode();
-            shareIdManager.lock(datasetCode);
+            dataSetCodes.add(dataset.getDatasetCode());
         }
+        shareIdManager.lock(dataSetCodes);
         try
         {
             List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();

@@ -314,12 +314,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 pluginTaskParameters.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         IShareIdManager manager = getShareIdManager();
-        for (DatasetDescription dataSet : datasets)
-        {
-            manager.lock(dataSet.getDataSetCode());
-        }
         try
         {
+            for (DatasetDescription dataSet : datasets)
+            {
+                manager.lock(dataSet.getDataSetCode());
+            }
             return task.createReport(datasets, new DataSetProcessingContext(
                     getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
                             manager), new HashMap<String, String>(), null, null, userSessionToken));

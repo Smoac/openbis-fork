@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -205,17 +206,15 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                     AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
                             AuthorizationGuard.class);
             final IShareIdManager manager = getShareIdManager();
+            final List<String> dataSetCodes = new ArrayList<String>();
             for (Parameter<AuthorizationGuard> param : annotatedParameters)
             {
                 Object guarded = args[param.getIndex()];
-                List<String> dataSetCodes = getDataSetCodes(param, guarded);
-                for (String dataSetCode : dataSetCodes)
-                {
-                    manager.lock(dataSetCode);
-                }
+                dataSetCodes.addAll(getDataSetCodes(param, guarded));
             }
             boolean shouldLocksAutomaticallyBeReleased =
                     shouldLocksAutomaticallyBeReleased(methodInvocation.getMethod());
+            manager.lock(dataSetCodes);
             try
             {
                 // At least one of the parameters must be annotated

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.List;
+
 /**
  * Manager of share IDs.
  *
@@ -47,6 +49,13 @@ public interface IShareIdManager
      * @throws IllegalArgumentException if data set is unknown.
      */
     public void lock(String dataSetCode);
+    
+    /**
+     * Lock specified data sets. Either all data sets will be locked or none of them. 
+     * 
+     * @throws IllegalArgumentException if one of the data sets is unknown.
+     */
+    public void lock(List<String> dataSetCodes);
     
     /**
      * Awaits until specified data set is no longer locked.

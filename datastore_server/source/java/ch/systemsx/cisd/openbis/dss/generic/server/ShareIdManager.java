@@ -175,6 +175,42 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    public void lock(List<String> dataSetCodes)
+    {
+        synchronized (lockedDataSets)
+        {
+            final List<String> locked = new ArrayList<String>();
+            try
+            {
+                for (String dataSetCode : dataSetCodes)
+                {
+                    Set<Thread> set = lockedDataSets.get(dataSetCode);
+                    if (set == null)
+                    {
+                        set = new LinkedHashSet<Thread>();
+                        GuardedShareID guardedShareId = getGuardedShareId(dataSetCode);
+                        lockedDataSets.put(dataSetCode, set);
+                        guardedShareId.lock();
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug("Data set " + dataSetCode + " has been locked.");
+                        }
+                    }
+                    set.add(Thread.currentThread());
+                    locked.add(dataSetCode);
+                    log(dataSetCode, set);
+                }
+            } catch (Throwable th)
+            {
+                for (String dataSetCode : locked)
+                {
+                    releaseLock(dataSetCode);
+                }
+                throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            }
+        }
+    }
+
     public void await(String dataSetCode)
     {
         Map<String, GuardedShareID> map = getDataSetCodeToShareIdMap();

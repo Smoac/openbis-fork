@@ -149,17 +149,17 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
         String dataSetCode = dataSet.getDataSetCode();
         shareIdManager.lock(dataSetCode);
-        File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
-        if (dataSetRoot.exists() == false)
-        {
-            operationLog.error("Root directory of data set " + dataSetCode + " does not exists: "
-                    + dataSetRoot);
-            shareIdManager.releaseLocks();
-            return;
-        }
 
         try
         {
+            File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
+            if (dataSetRoot.exists() == false)
+            {
+                operationLog.error("Root directory of data set " + dataSetCode + " does not exists: "
+                        + dataSetRoot);
+                shareIdManager.releaseLocks();
+                return;
+            }
             DatabaseBasedDataSetPathsInfoFeeder feeder =
                     new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory);
             Long id = dao.tryGetDataSetId(dataSetCode);

@@ -99,11 +99,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                             try
                             {
                                 IShareIdManager manager = getShareIdManager();
-                                List<String> dataSetCodes = command.getDataSetCodes();
-                                for (String dataSetCode : dataSetCodes)
-                                {
-                                    manager.lock(dataSetCode);
-                                }
+                                manager.lock(command.getDataSetCodes());
                                 command.execute(getHierarchicalContentProvider(),
                                         new DataSetDirectoryProvider(store, manager));
                             } catch (RuntimeException e)
