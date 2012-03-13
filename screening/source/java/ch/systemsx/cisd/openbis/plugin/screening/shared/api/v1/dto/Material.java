@@ -33,11 +33,14 @@ public class Material extends MaterialIdentifier
 
     private Map<String, String> properties;
 
+    private Map<String, Material> materialProperties;
+
     public Material(MaterialTypeIdentifier materialTypeIdentifier, String materialCode,
-            Map<String, String> properties)
+            Map<String, String> properties, Map<String, Material> materialProperties)
     {
         super(materialTypeIdentifier, materialCode);
         this.properties = new HashMap<String, String>(properties);
+        this.materialProperties = new HashMap<String, Material>(materialProperties);
     }
 
     /**
@@ -46,6 +49,11 @@ public class Material extends MaterialIdentifier
     public Map<String, String> getProperties()
     {
         return Collections.unmodifiableMap(properties);
+    }
+
+    public Map<String, Material> getMaterialProperties()
+    {
+        return Collections.unmodifiableMap(materialProperties);
     }
 
     //
@@ -60,6 +68,11 @@ public class Material extends MaterialIdentifier
     private void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    private void setMaterialProperties(Map<String, Material> materialProperties)
+    {
+        this.materialProperties = materialProperties;
     }
 
 }

@@ -930,8 +930,7 @@ public class ScreeningApiImpl
         Map<String, Material> materialProperties =
                 convertMaterialProperties(well.getProperties(), materialsCache);
         return new WellMetadata(plateIdentifier, well.getCode(), well.getPermId(), well
-                .getSampleType().getCode(), wellPosition,
-                properties, materialProperties);
+                .getSampleType().getCode(), wellPosition, properties, materialProperties);
     }
 
     private Map<String, Material> convertMaterialProperties(List<IEntityProperty> properties,
@@ -963,13 +962,37 @@ public class ScreeningApiImpl
     private Material asApiMaterial(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialDto)
     {
-        MaterialTypeIdentifier typeIdentifier = new MaterialTypeIdentifier(materialDto.getMaterialType().getCode());
-        Map<String, String> properties =
-                EntityHelper.convertToStringMap(materialDto.getProperties());
-        return new Material(typeIdentifier, materialDto.getCode(), properties);
+        MaterialTypeIdentifier typeIdentifier =
+                new MaterialTypeIdentifier(materialDto.getMaterialType().getCode());
+
+        List<IEntityProperty> originalProperties = materialDto.getProperties();
+        Map<String, String> properties = EntityHelper.convertToStringMap(originalProperties);
+        Map<String, Material> materialProperties = extractMaterialProperties(originalProperties);
+
+        return new Material(typeIdentifier, materialDto.getCode(), properties, materialProperties);
     }
 
-    public ExperimentImageMetadata getExperimentImageMetadata(ExperimentIdentifier experimentIdentifer)
+    /**
+     * extracts from the given property list only the one representing the material.
+     */
+    private Map<String, Material> extractMaterialProperties(List<IEntityProperty> properties)
+    {
+        Map<String, Material> map = new HashMap<String, Material>();
+        if (properties != null)
+        {
+            for (IEntityProperty prop : properties)
+            {
+                if (prop.getMaterial() != null)
+                {
+                    map.put(prop.getPropertyType().getCode(), asApiMaterial(prop.getMaterial()));
+                }
+            }
+        }
+        return map;
+    }
+
+    public ExperimentImageMetadata getExperimentImageMetadata(
+            ExperimentIdentifier experimentIdentifer)
     {
         long experimentId = getExperimentTechId(experimentIdentifer).getId();
         List<String> dataStoreCodes =
