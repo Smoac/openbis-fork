@@ -63,14 +63,19 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = SELECT_ALL + " WHERE data.expe_id = ?{1}")
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
 
-    @Select(sql = "with recursive connected_data as ("
-            + "select d.*, ed.* "
-            + "from data as d left outer join external_data as ed on d.id = ed.data_id "
+    @Select(sql = "with recursive connected_data as ( "
+            + "select * from data as d left outer join external_data as ed on d.id = ed.data_id "
             + "where expe_id = ?{1} "
-            + "union select d2.*, ed2.* "
-            + "from connected_data as d inner join data_set_relationships_all as dr on dr.data_id_parent = d.id "
-            + "left join data as d2 on d2.id = dr.data_id_child "
-            + "left outer join external_data as ed2 on d2.id = ed2.data_id) "
+            + "   or samp_id in (with recursive connected_samples as "
+            + "                    (select id from samples where expe_id = ?{1} "
+            + "                     union select s.id from connected_samples as cs "
+            + "                                       inner join sample_relationships as sr on sr.sample_id_parent = cs.id "
+            + "                                       left join samples as s on s.id = sr.sample_id_child) "
+            + "                  select * from connected_samples) "
+            + "union select d.*, ed.* from connected_data as cd "
+            + "                       inner join data_set_relationships as dr on dr.data_id_parent = cd.id "
+            + "                       left join data as d on d.id = dr.data_id_child "
+            + "                       left outer join external_data as ed on d.id = ed.data_id) "
             + "select * from connected_data")
     public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId);
 
