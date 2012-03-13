@@ -553,6 +553,7 @@
         <exclude name="log.xml" />
         <include name="**/*.properties" />
         <include name="${build.info.filename}" />
+        <include name="${actual.build.info.filename}" />
       </fileset>
     </recursive-jar>
     <jar update="true" destfile="${jar.file}">
@@ -639,6 +640,9 @@
       </classes>
       <classes dir="${classes}">
         <include name="${build.info.filename}" />
+      </classes>
+      <classes dir="${classes}">
+        <include name="${actual.build.info.filename}" />
       </classes>
       <lib dir="${dist}">
         <include name="${jar.file.name}" />
