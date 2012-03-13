@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE)
-public class DeletedSampleRelationshipPE
+public class DeletedSampleRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
