@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -28,11 +29,12 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -80,6 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -673,8 +676,29 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Material> getMaterialByCodes(String sessionToken,
             List<MaterialIdentifier> materialIdentifier)
     {
-        throw new NotImplementedException();
-        // TODO Auto-generated method stub
+        // convert api material indetifier into dto material identifier
+        Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier> materialCodes =
+                CollectionUtils
+                        .collect(
+                                materialIdentifier,
+                                new Transformer<MaterialIdentifier, ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier>()
+                                    {
+                                        public ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier transform(
+                                                MaterialIdentifier arg0)
+                                        {
+                                            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier(
+                                                    arg0.getMaterialCode(), arg0
+                                                            .getMaterialTypeIdentifier()
+                                                            .getMaterialTypeCode());
+                                        }
+                                    });
+
+        ListMaterialCriteria criteria =
+                ListMaterialCriteria.createFromMaterialIdentifiers(materialCodes);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materials =
+                commonServer.listMaterials(sessionToken, criteria, true);
+        return Translator.translateMaterials(materials);
     }
 
     @Transactional(readOnly = true)

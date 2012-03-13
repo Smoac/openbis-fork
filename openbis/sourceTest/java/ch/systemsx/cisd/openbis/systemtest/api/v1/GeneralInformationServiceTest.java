@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.api.v1;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
@@ -623,28 +627,59 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
 
-        Material smr1 = materials.get(0);
-        Material smr1a = materials.get(1);
+        Material srm1 = materials.get(0);
+        Material srm1a = materials.get(1);
 
-        assertEquals("SRM_1", smr1.getMaterialCode());
-        assertEquals("SRM_1A", smr1a.getMaterialCode());
+        assertSelfReferencedMaterials(srm1, srm1a);
+    }
 
-        assertEquals("Material with attached material", smr1.getProperties().get("DESCRIPTION"));
-        assertEquals("Material wich is attached material", smr1a.getProperties().get("DESCRIPTION"));
+    @Test
+    public void testSearchMaterialsByCode() throws java.text.ParseException
+    {
+        List<MaterialIdentifier> materialIdentifiers = new LinkedList<MaterialIdentifier>();
 
-        assertEquals("Referenced material should be srm_1a", smr1a.getMaterialCode(), smr1
+        MaterialTypeIdentifier mt = new MaterialTypeIdentifier("SELF_REF");
+        materialIdentifiers.add(new MaterialIdentifier(mt, "SRM_1"));
+        materialIdentifiers.add(new MaterialIdentifier(mt, "SRM_1A"));
+
+        List<Material> materials =
+                generalInformationService.getMaterialByCodes(sessionToken, materialIdentifiers);
+
+        assertCollection("[SRM_1, SRM_1A]", materials, new IToStringDelegate<Material>()
+            {
+                public String toString(Material t)
+                {
+                    return t.getMaterialCode();
+                }
+            });
+
+        Material srm1 = materials.get(0);
+        Material srm1a = materials.get(1);
+
+        assertSelfReferencedMaterials(srm1, srm1a);
+    }
+
+    private void assertSelfReferencedMaterials(Material srm1, Material srm1a) throws ParseException
+    {
+        assertEquals("SRM_1", srm1.getMaterialCode());
+        assertEquals("SRM_1A", srm1a.getMaterialCode());
+
+        assertEquals("Material with attached material", srm1.getProperties().get("DESCRIPTION"));
+        assertEquals("Material wich is attached material", srm1a.getProperties().get("DESCRIPTION"));
+
+        assertEquals("Referenced material should be srm_1a", srm1a.getMaterialCode(), srm1
                 .getMaterialProperties().get("ANY_MATERIAL").getMaterialCode());
 
         assertEquals("Referenced material should be present in properties as code", String.format(
-                "%s (%s)", smr1a.getMaterialCode(), smr1a.getMaterialTypeIdentifier()
-                        .getMaterialTypeCode()), smr1.getProperties().get("ANY_MATERIAL"));
+                "%s (%s)", srm1a.getMaterialCode(), srm1a.getMaterialTypeIdentifier()
+                        .getMaterialTypeCode()), srm1.getProperties().get("ANY_MATERIAL"));
 
         Date date2012 = new SimpleDateFormat("yyyy-MM-dd").parse("2012-01-02");
         Date date2013 = new SimpleDateFormat("yyyy-MM-dd").parse("2013-01-02");
 
-        assertEquals("The date should be after 2012", true, smr1.getRegistrationDetails()
+        assertEquals("The date should be after 2012", true, srm1.getRegistrationDetails()
                 .getRegistrationDate().after(date2012));
-        assertEquals("The date should be before 2013", true, smr1.getRegistrationDetails()
+        assertEquals("The date should be before 2013", true, srm1.getRegistrationDetails()
                 .getRegistrationDate().before(date2013));
     }
 

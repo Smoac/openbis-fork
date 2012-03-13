@@ -68,7 +68,8 @@ public class MaterialListerTest extends AbstractDAOTest
         MaterialType materialType = createMaterialType();
         boolean withProperties = true;
         List<Material> materials =
-                lister.list(new ListMaterialCriteria(materialType), withProperties);
+                lister.list(ListMaterialCriteria.createFromMaterialType(materialType),
+                        withProperties);
         assertEqualsOrGreater(4, materials.size());
         assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
 
@@ -80,7 +81,8 @@ public class MaterialListerTest extends AbstractDAOTest
         MaterialType materialType = createMaterialType();
         boolean withProperties = false;
         List<Material> materials =
-                lister.list(new ListMaterialCriteria(materialType), withProperties);
+                lister.list(ListMaterialCriteria.createFromMaterialType(materialType),
+                        withProperties);
         assertEqualsOrGreater(4, materials.size());
         assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
     }
@@ -93,7 +95,7 @@ public class MaterialListerTest extends AbstractDAOTest
             { 22L, 34L });
         boolean withProperties = true;
         List<Material> materials =
-                lister.list(new ListMaterialCriteria(materialIds), withProperties);
+                lister.list(ListMaterialCriteria.createFromMaterialIds(materialIds), withProperties);
         assertEqualsOrGreater(2, materials.size());
         assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
     }

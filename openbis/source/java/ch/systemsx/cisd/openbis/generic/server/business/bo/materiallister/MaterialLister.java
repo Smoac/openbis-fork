@@ -22,9 +22,14 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
@@ -38,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -105,18 +111,92 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     public List<Material> list(ListMaterialCriteria criteria, boolean withProperties)
     {
-        MaterialType materialTypeOrNull = criteria.tryGetMaterialType();
-        Collection<Long> materialIdsOrNull = criteria.tryGetMaterialIds();
-        DataIterator<MaterialRecord> materials =
-                materialIdsOrNull != null ? getIteratorByIds(materialIdsOrNull)
-                        : getIteratorByType(materialTypeOrNull);
-        return convertAndEnrich(materials, materialTypeOrNull, withProperties);
+        Long2ObjectMap<Material> materialMap = getMaterialsByCriteria(criteria);
+
+        return convertAndEnrich(materialMap, criteria.tryGetMaterialType(), withProperties);
     }
 
-    private List<Material> convertAndEnrich(DataIterator<MaterialRecord> materials,
+    /**
+     * Remove from map elements wich are not in the identifiers list
+     */
+    private void filterCodesAndTypes(Long2ObjectMap<Material> materialMap,
+            Collection<MaterialIdentifier> identifiers)
+    {
+        HashSet<String> identifiersMap = new HashSet<String>();
+        for (MaterialIdentifier ident : identifiers)
+        {
+            identifiersMap.add(ident.toString()); // code (type)
+        }
+
+        List<Long> missingIds = new LinkedList<Long>();
+
+        for (Long key : materialMap.keySet())
+        {
+            Material entry = materialMap.get(key);
+            if (false == identifiersMap.contains(String.format("%s (%s)", entry.getCode(), entry
+                    .getMaterialType().getCode())))
+            {
+                missingIds.add(key);
+            }
+        }
+
+        for (Long key : missingIds)
+        {
+            materialMap.remove(key);
+        }
+    }
+
+    private Long2ObjectMap<Material> getMaterialsByCriteria(ListMaterialCriteria criteria)
+    {
+        Collection<Long> materialIdsOrNull = criteria.tryGetMaterialIds();
+        MaterialType materialTypeOrNull = criteria.tryGetMaterialType();
+        Collection<MaterialIdentifier> identifiers = criteria.tryGetMaterialIdentifiers();
+
+        if (materialTypeOrNull != null)
+        {
+            return asMaterials(getIteratorByType(materialTypeOrNull), materialTypeOrNull);
+        } else if (materialIdsOrNull != null)
+        {
+            return asMaterials(getIteratorByIds(materialIdsOrNull), null);
+        } else if (identifiers != null)
+        {
+            return getMaterialsByIndentifiers(identifiers);
+        } else
+        {
+            throw new IllegalArgumentException(
+                    "At least one of the three criterias should be not null.");
+        }
+    }
+
+    private Long2ObjectMap<Material> getMaterialsByIndentifiers(
+            Collection<MaterialIdentifier> identifiers)
+    {
+        // extract array of codes
+        String[] materialCodes =
+                CollectionUtils.collect(identifiers, new Transformer<MaterialIdentifier, String>()
+                    {
+                        public String transform(MaterialIdentifier arg0)
+                        {
+                            return arg0.getCode();
+                        }
+                    }).toArray(new String[] {});
+
+        // find by code
+        Long2ObjectMap<Material> materialMap = asMaterials(getIteratorByCodes(materialCodes), null);
+
+        // filter those elements which should not have been found (the same codes from different
+        // types)
+        filterCodesAndTypes(materialMap, identifiers);
+
+        // at the moment (2012-03-13) it seems that in production databases the material code will
+        // be unique. So there is no risk, that we will fetch a lot of items, just to filter them
+
+        return materialMap;
+    }
+
+    private List<Material> convertAndEnrich(Long2ObjectMap<Material> materialMap,
             MaterialType materialTypeOrNull, boolean withProperties)
     {
-        final Long2ObjectMap<Material> materialMap = asMaterials(materials, materialTypeOrNull);
         if (withProperties)
         {
             enrichWithProperties(materialMap);
@@ -134,6 +214,11 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     {
         return query.getMaterialsForMaterialTypeWithIds(databaseInstanceId, new LongOpenHashSet(
                 materialIds));
+    }
+
+    private DataIterator<MaterialRecord> getIteratorByCodes(String[] materialCodes)
+    {
+        return query.getMaterialsForMaterialCodes(databaseInstanceId, materialCodes);
     }
 
     //
