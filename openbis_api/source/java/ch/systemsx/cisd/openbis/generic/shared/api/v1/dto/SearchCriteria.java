@@ -124,7 +124,7 @@ public class SearchCriteria implements Serializable
 
         private String desiredValue;
         
-        private CompareMode compareMode;
+        private CompareMode compareMode = CompareMode.EQUALS;
         
         private Date date;
 
