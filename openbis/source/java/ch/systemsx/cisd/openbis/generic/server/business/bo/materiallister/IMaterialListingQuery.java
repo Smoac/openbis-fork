@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of material-related entities from
@@ -43,26 +44,32 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
 {
     public static final int FETCH_SIZE = 1000;
 
+    public static final String SELECT_MATERIALS = "select m.id, m.code, m.dbin_id, m.maty_id, "
+            + "m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
+            + "from materials m where ";
+
     /**
      * Returns the materials for the given <var>materialTypeId</var>
      */
-    @Select(sql = "select m.id, m.code, m.dbin_id, m.maty_id, "
-            + "           m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
-            + "      from materials m where m.dbin_id=?{1} and m.maty_id=?{2} "
-            + "  order by m.code", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.maty_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialType(long dbInstanceId,
             long materialTypeId);
 
     /**
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
-    @Select(sql = "select m.id, m.code, m.dbin_id, m.maty_id, "
-            + "           m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
-            + "      from materials m where m.dbin_id=?{1} and m.id = any(?{2})"
-            + "  order by m.code", parameterBindings =
+    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.id = any(?{2}) order by m.code", parameterBindings =
         { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
             LongSet materialIds);
+
+    /**
+     * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
+     */
+    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.code = any(?{2}) order by m.code", parameterBindings =
+        { TypeMapper.class/* default */, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMaterialCodes(long dbInstanceId,
+            String[] codes);
 
     //
     // Entity Properties
