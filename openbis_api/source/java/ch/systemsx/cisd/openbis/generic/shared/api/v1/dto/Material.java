@@ -32,12 +32,78 @@ public class Material extends MaterialIdentifier
 
     private Map<String, Material> materialProperties;
 
-    public Material(MaterialTypeIdentifier materialTypeIdentifier, String materialCode,
-            Map<String, String> properties, Map<String, Material> materialProperties)
+    private EntityRegistrationDetails registrationDetails;
+
+    public static final class MaterialInitializer
     {
-        super(materialTypeIdentifier, materialCode);
-        this.properties = new HashMap<String, String>(properties);
-        this.materialProperties = new HashMap<String, Material>(materialProperties);
+        private MaterialTypeIdentifier materialTypeIdentifier;
+
+        private String materialCode;
+
+        private Map<String, String> properties;
+
+        private Map<String, Material> materialProperties;
+
+        private EntityRegistrationDetails registrationDetails;
+
+        public MaterialTypeIdentifier getMaterialTypeIdentifier()
+        {
+            return materialTypeIdentifier;
+        }
+
+        public void setMaterialTypeIdentifier(MaterialTypeIdentifier materialTypeIdentifier)
+        {
+            this.materialTypeIdentifier = materialTypeIdentifier;
+        }
+
+        public String getMaterialCode()
+        {
+            return materialCode;
+        }
+
+        public void setMaterialCode(String materialCode)
+        {
+            this.materialCode = materialCode;
+        }
+
+        public Map<String, String> getProperties()
+        {
+            return properties;
+        }
+
+        public void setProperties(Map<String, String> properties)
+        {
+            this.properties = properties;
+        }
+
+        public Map<String, Material> getMaterialProperties()
+        {
+            return materialProperties;
+        }
+
+        public void setMaterialProperties(Map<String, Material> materialProperties)
+        {
+            this.materialProperties = materialProperties;
+        }
+
+        public EntityRegistrationDetails getRegistrationDetails()
+        {
+            return registrationDetails;
+        }
+
+        public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+        {
+            this.registrationDetails = registrationDetails;
+        }
+
+    }
+
+    public Material(MaterialInitializer initializer)
+    {
+        super(initializer.getMaterialTypeIdentifier(), initializer.getMaterialCode());
+        this.properties = initializer.getProperties();
+        this.materialProperties = initializer.getMaterialProperties();
+        this.registrationDetails = initializer.getRegistrationDetails();
     }
 
     /**
@@ -51,6 +117,11 @@ public class Material extends MaterialIdentifier
     public Map<String, Material> getMaterialProperties()
     {
         return Collections.unmodifiableMap(materialProperties);
+    }
+
+    public EntityRegistrationDetails getRegistrationDetails()
+    {
+        return registrationDetails;
     }
 
     //
@@ -72,4 +143,8 @@ public class Material extends MaterialIdentifier
         this.materialProperties = materialProperties;
     }
 
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        this.registrationDetails = registrationDetails;
+    }
 }

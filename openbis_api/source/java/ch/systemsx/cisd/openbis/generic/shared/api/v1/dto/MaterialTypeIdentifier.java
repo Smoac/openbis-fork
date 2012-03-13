@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 /**
- * 
+ * duplicated from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier
  *
  * @author jakubs
  */
