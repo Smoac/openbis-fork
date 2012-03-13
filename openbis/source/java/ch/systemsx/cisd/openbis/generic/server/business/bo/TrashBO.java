@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -130,7 +129,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
 
         List<TechId> allIdsAsList = new ArrayList<TechId>(allIds);
-        checkForUnavailableDataSets(allIdsAsList);
+        checkForNonDeletableDataSets(allIdsAsList);
 
         TrashBatchOperation batchOperation =
                 new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
@@ -138,35 +137,27 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         BatchOperationExecutor.executeInBatches(batchOperation);
     }
 
-    private void checkForUnavailableDataSets(List<TechId> allIdsAsList)
+    private void checkForNonDeletableDataSets(List<TechId> allIdsAsList)
     {
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
         dataSetTable.loadByIds(allIdsAsList);
-        List<DataPE> unavailableDataSets = dataSetTable.getUnavailableContainedDataSets();
+        List<ExternalDataPE> unavailableDataSets = dataSetTable.getNonDeletableExternalDataSets();
         if (unavailableDataSets.isEmpty())
         {
             return;
         }
         Map<DataSetArchivingStatus, List<String>> statusToCodesMap =
                 new TreeMap<DataSetArchivingStatus, List<String>>();
-        for (DataPE dataSet : unavailableDataSets)
+        for (ExternalDataPE dataSet : unavailableDataSets)
         {
-            ExternalDataPE externalData = dataSet.tryAsExternalData();
-            if (externalData != null)
+            final DataSetArchivingStatus status = dataSet.getStatus();
+            List<String> codes = statusToCodesMap.get(status);
+            if (codes == null)
             {
-                DataSetArchivingStatus status = externalData.getStatus();
-                List<String> codes = statusToCodesMap.get(status);
-                if (codes == null)
-                {
-                    codes = new ArrayList<String>();
-                    statusToCodesMap.put(status, codes);
-                }
-                codes.add(dataSet.getCode());
+                codes = new ArrayList<String>();
+                statusToCodesMap.put(status, codes);
             }
-        }
-        if (statusToCodesMap.isEmpty())
-        {
-            return;
+            codes.add(dataSet.getCode());
         }
 
         StringBuilder builder = new StringBuilder();
@@ -177,7 +168,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             builder.append(entry.getValue());
         }
         throw new UserFailureException(
-                "Deletion not possible because the following data sets are not available:"
+                "Deletion not possible because the following data sets are not deletable:"
                         + builder);
     }
 

@@ -189,14 +189,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return dataSets;
     }
 
-    public List<DataPE> getUnavailableContainedDataSets()
+    public List<ExternalDataPE> getNonDeletableExternalDataSets()
     {
-        List<DataPE> result = new ArrayList<DataPE>();
+        List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (DataPE dataSet : dataSets)
         {
-            if (dataSet.isContainer() == false && dataSet.isAvailable() == false)
+            final ExternalDataPE externalDataSet = dataSet.tryAsExternalData();
+            if (externalDataSet != null && externalDataSet.isDeletable() == false)
             {
-                result.add(dataSet);
+                result.add(externalDataSet);
             }
         }
         return result;

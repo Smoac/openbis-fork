@@ -94,13 +94,15 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals("MP", dataSet1.tryGetSample().getCode());
         assertEquals(true, dataSet1.isContainer());
         assertNull(dataSet1.tryAsExternalData());
+        assertEquals(DataPE.class, dataSet1.getClass());
         // non-virtual
         DataPE dataSet2 = list.get(1);
         assertEquals("MP", dataSet2.tryGetSample().getCode());
         assertEquals(false, dataSet2.isContainer());
-        assertNotNull(dataSet2.tryAsExternalData());
+        assertEquals(dataSet2, dataSet2.tryAsExternalData());
         ExternalDataPE externalData = dataSet2.tryAsExternalData();
         assertEquals("abcd", externalData.getLocation());
+        assertEquals(ExternalDataPE.class, dataSet2.getClass());
     }
 
     @Test

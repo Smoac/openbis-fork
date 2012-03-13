@@ -653,7 +653,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
      */
     public boolean isContainer()
     {
-        return dataSetType != null && getDataSetType().isContainerType();
+        return tryAsExternalData() == null;
     }
 
     @Transient

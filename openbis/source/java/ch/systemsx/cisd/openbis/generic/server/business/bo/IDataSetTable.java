@@ -63,7 +63,10 @@ public interface IDataSetTable
      */
     List<DataPE> getDataSets();
 
-    List<DataPE> getUnavailableContainedDataSets();
+    /**
+     * Returns the external (i.e. physical or contained) data sets which are non deletable.
+     */
+    List<ExternalDataPE> getNonDeletableExternalDataSets();
 
     /**
      * Returns the loaded {@link DataPE}-s filtered to instances of {@link ExternalDataPE}.

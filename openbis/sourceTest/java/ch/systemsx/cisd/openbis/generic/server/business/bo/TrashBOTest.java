@@ -174,7 +174,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getUnavailableContainedDataSets();
+                    one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
@@ -225,7 +225,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getUnavailableContainedDataSets();
+                    one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
@@ -286,7 +286,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(TechId.createList(70, 71, 72, 73));
-                    one(dataSetTable).getUnavailableContainedDataSets();
+                    one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
                     RecordingMatcher<List<TechId>> sampleIdsMatcher =
@@ -343,7 +343,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getUnavailableContainedDataSets();
+                    one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
                     one(dataDAO).listContainedDataSets(dataSetIds);
@@ -370,7 +370,7 @@ public final class TrashBOTest extends AbstractBOTest
             {
                 {
                     one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getUnavailableContainedDataSets();
+                    one(dataSetTable).getNonDeletableExternalDataSets();
                     ExternalDataPE dataSet = new ExternalDataPE();
                     dataSet.setCode("ds1");
                     dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
@@ -392,7 +392,7 @@ public final class TrashBOTest extends AbstractBOTest
         } catch (UserFailureException ex)
         {
             assertEquals(
-                    "Deletion not possible because the following data sets are not available:\n"
+                    "Deletion not possible because the following data sets are not deletable:\n"
                             + " Status: ARCHIVE_PENDING, data sets: [ds1]", ex.getMessage());
         }
 
