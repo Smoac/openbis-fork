@@ -164,6 +164,10 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                 codes.add(dataSet.getCode());
             }
         }
+        if (statusToCodesMap.isEmpty())
+        {
+            return;
+        }
 
         StringBuilder builder = new StringBuilder();
         Set<Entry<DataSetArchivingStatus, List<String>>> entrySet = statusToCodesMap.entrySet();
