@@ -41,6 +41,11 @@ public final class MockLogger implements ISimpleLogger
         messageChannel.assertNextMessage(expectedMessage);
     }
     
+    public void assertNextLogMessageContains(String expectedMessagePart)
+    {
+        messageChannel.assertNextMessageContains(expectedMessagePart);
+    }
+    
     public void assertNoMoreLogMessages()
     {
         messageChannel.assertEmpty();

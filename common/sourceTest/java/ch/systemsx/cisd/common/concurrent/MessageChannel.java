@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.concurrent;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -73,6 +74,22 @@ public class MessageChannel
         {
             assertEquals(expectedMessage,
                     _queue.poll(_timeOutInMilliSeconds, TimeUnit.MILLISECONDS));
+        } catch (InterruptedException e)
+        {
+            // ignored
+        }
+    }
+
+    /**
+     * Asserts specified expected message is part of next message to be received. Waits not longer
+     * than specified in the constructor.
+     */
+    public void assertNextMessageContains(Object expectedMessagePart)
+    {
+        try
+        {
+            assertTrue(_queue.poll(_timeOutInMilliSeconds, TimeUnit.MILLISECONDS).toString()
+                    .contains(expectedMessagePart.toString()));
         } catch (InterruptedException e)
         {
             // ignored
