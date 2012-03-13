@@ -33,7 +33,7 @@ LIBRARY_IMPORT_MENU_ITEM_tab_label: "Flexible Library Import",
 //
 // Experiment Viewer
 //
-experiment_samples_selction_title: "Plates",
+
 no_samples_found: "There are no plates in this experiment",
 
 //
@@ -88,6 +88,7 @@ IMAGE_DATA_SET: "Image Dataset",
 PLATE_MATERIAL_REVIEWER_TITLE: "Wells Search Results",
 PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "E.g. gene symbols, gene ids, gene descriptions, control names or compound names. Separate items with commas (\",\") or specify one item per line.",
 
+EXPERIMENT_PLATE_SECTION: "Plates",
 EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Search",
 EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
 EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION: "Analysis Summary",

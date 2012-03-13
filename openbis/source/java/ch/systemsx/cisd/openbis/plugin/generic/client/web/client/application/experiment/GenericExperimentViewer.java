@@ -195,7 +195,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                     GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
                     attachManagedPropertiesSections(rightPanel, experiment);
-                    moduleSectionManager.initialize(rightPanel, experiment);
+                    attachModuleSpecificSections(rightPanel, experiment);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
                 }
@@ -263,8 +263,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
         allPanels.addAll(createAdditionalBrowserSectionPanels());
 
-        final ExperimentSamplesSection sampleSection =
-                new ExperimentSamplesSection(viewContext, experimentType, experimentId);
+        final DisposableTabContent sampleSection = createExperimentSampleSection();
         allPanels.add(sampleSection);
 
         final DisposableTabContent dataSection = createExperimentDataSetSection();
@@ -275,6 +274,13 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         allPanels.add(attachmentsSection);
 
         return allPanels;
+    }
+
+    protected DisposableTabContent createExperimentSampleSection()
+    {
+        return new ExperimentSamplesSection(viewContext,
+                viewContext.getMessage(Dict.EXPERIMENT_SAMPLES_SELCTION_TITLE), experimentType,
+                experimentId);
     }
 
     private DisposableTabContent createExperimentDataSetSection()

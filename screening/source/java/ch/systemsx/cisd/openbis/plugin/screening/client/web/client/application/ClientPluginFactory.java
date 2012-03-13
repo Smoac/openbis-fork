@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryUsingWildcards;
@@ -51,13 +53,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingMaterialViewer;
@@ -101,7 +106,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     {
         return checkEnabledProperty("screening");
     }
-    
+
     @Override
     protected final ScreeningViewContext createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -139,6 +144,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         {
             types.add(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
             types.add(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+        } else if (entityKind == EntityKind.EXPERIMENT)
+        {
+            types.add(ScreeningConstants.HCS_EXPERIMENT_TYPE_PATTERN);
         }
         return types;
     }
@@ -166,7 +174,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (EntityKind.DATA_SET.equals(entityKind))
         {
             return (IClientPlugin<T, I>) new ImageDataSetViewerPlugin(viewContext);
+        } else if (EntityKind.EXPERIMENT.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin(viewContext);
         }
+
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
     }
@@ -188,6 +200,57 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         {
             return createImagingMaterialViewerTabFactory(entity, null,
                     AnalysisProcedureCriteria.createNoProcedures(), getViewContext());
+        }
+    }
+
+    private final class ExperimentClientPlugin extends DelegatedClientPlugin<ExperimentType>
+    {
+        private ExperimentClientPlugin(IViewContext<IScreeningClientServiceAsync> viewContext)
+        {
+            super(viewContext, EntityKind.EXPERIMENT);
+        }
+
+        @Override
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
+        {
+            return new AbstractTabItemFactory()
+                {
+                    @Override
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent experimentViewer =
+                                ExperimentViewer.create(getViewContext(), entity.getEntityType(),
+                                        entity);
+                        return DefaultTabItem.create(getTabTitle(), experimentViewer,
+                                getViewContext(), false);
+                    }
+
+                    @Override
+                    public String getId()
+                    {
+                        return GenericExperimentViewer.createId(entity);
+                    }
+
+                    @Override
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.EXPERIMENT, entity, getViewContext());
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return LinkExtractor.tryExtract(entity);
+                    }
+                };
         }
     }
 

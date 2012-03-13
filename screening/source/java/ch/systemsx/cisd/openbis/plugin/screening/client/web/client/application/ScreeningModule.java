@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -33,10 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabA
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummarySection;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
@@ -108,14 +105,7 @@ public class ScreeningModule implements IModule
     public Collection<? extends TabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        ArrayList<TabContent> sections = new ArrayList<TabContent>();
-        if (entity.getEntityKind() == EntityKind.EXPERIMENT)
-        {
-            sections.add(WellSearchComponent.create(viewContext, entity));
-            sections.add(new ExperimentWellMaterialsSection(viewContext, entity));
-            sections.add(new ExperimentAnalysisSummarySection(viewContext, entity));
-        }
-        return sections;
+        return Collections.emptyList();
     }
 
 }

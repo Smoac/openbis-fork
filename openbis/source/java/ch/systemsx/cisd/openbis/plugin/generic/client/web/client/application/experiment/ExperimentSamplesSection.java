@@ -49,11 +49,10 @@ public class ExperimentSamplesSection extends DisposableTabContent
 
     private final CheckBox showOnlyDirectlyConnectedCheckBox;
 
-    public ExperimentSamplesSection(IViewContext<?> viewContext, BasicEntityType experimentType,
-            IIdAndCodeHolder experimentId)
+    public ExperimentSamplesSection(IViewContext<?> viewContext, String header,
+            BasicEntityType experimentType, IIdAndCodeHolder experimentId)
     {
-        super(viewContext.getMessage(Dict.EXPERIMENT_SAMPLES_SELCTION_TITLE), viewContext,
-                experimentId);
+        super(header, viewContext, experimentId);
         this.experimentType = experimentType;
         this.experimentId = new TechId(experimentId.getId());
         setIds(DisplayTypeIDGenerator.EXPERIMENT_SAMPLES_SECTION);

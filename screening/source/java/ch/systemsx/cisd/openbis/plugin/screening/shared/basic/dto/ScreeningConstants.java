@@ -97,7 +97,7 @@ public class ScreeningConstants
 
     // --- HCS experiment types
 
-    public static final String HCS_EXPERIMENT_TYPE_PATTERN = "HCS_.*";
+    public static final String HCS_EXPERIMENT_TYPE_PATTERN = ".*HCS.*";
 
     // --- Microscopy
 

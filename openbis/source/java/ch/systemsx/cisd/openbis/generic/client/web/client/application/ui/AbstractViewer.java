@@ -399,6 +399,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
     }
 
+    protected void attachModuleSpecificSections(final SectionsPanel container,
+            final IEntityInformationHolderWithProperties entity)
+    {
+        moduleSectionManager.initialize(container, entity);
+    }
+
     protected TabContent createManagedPropertySection(final String header,
             final IEntityInformationHolder entity, final IManagedProperty managedProperty)
     {
