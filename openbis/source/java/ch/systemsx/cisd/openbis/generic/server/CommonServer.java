@@ -2564,4 +2564,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         List<DataStorePE> dataStorePEs = dataStoreDAO.listDataStores();
         return DataStoreTranslator.translate(dataStorePEs);
     }
+
+    public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
+    {
+        final Session session = getSession(sessionToken);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        return searchHelper.searchForMaterials(criteria);
+    }
 }

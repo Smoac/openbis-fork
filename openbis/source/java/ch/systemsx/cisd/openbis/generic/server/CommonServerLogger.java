@@ -1185,4 +1185,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
+    {
+        logAccess(sessionToken, "search_for_materials", "criteria(%s)", criteria);
+        return null;
+    }
+
 }

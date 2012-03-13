@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -51,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -664,4 +667,26 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateProjects(commonServer.listProjects(sessionToken));
     }
 
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @Capability("GET_MATERIALS_BY_CODES")
+    public List<Material> getMaterialByCodes(String sessionToken,
+            List<MaterialIdentifier> materialIdentifier)
+    {
+        throw new NotImplementedException();
+        // TODO Auto-generated method stub
+    }
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @Capability("SEARCH_FOR_MATERIALS")
+    public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria)
+    {
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                        SearchableEntityKind.MATERIAL, searchCriteria);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materials =
+                commonServer.searchForMaterials(sessionToken, detailedSearchCriteria);
+        return Translator.translateMaterials(materials);
+    }
 }

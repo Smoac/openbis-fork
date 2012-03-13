@@ -129,15 +129,16 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
 
     private PropertyTypePE createMaterialPropertyType(MaterialTypePE materialType)
     {
-        return createPropertyType(daoFactory.getPropertyTypeDAO().getDataTypeByCode(
-                DataTypeCode.MATERIAL), "USER.MATERIAL-PROPERTY-TYPE", null, materialType);
+        return createPropertyType(
+                daoFactory.getPropertyTypeDAO().getDataTypeByCode(DataTypeCode.MATERIAL),
+                "USER.MATERIAL-PROPERTY-TYPE", null, materialType);
     }
 
     @Test
     public final void testListMaterialTypes()
     {
         final IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
-        assertEquals(7, entityTypeDAO.listEntityTypes().size());
+        assertEquals(8, entityTypeDAO.listEntityTypes().size());
     }
 
     @Test(dependsOnMethods = "testListMaterialTypes")

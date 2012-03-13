@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 
@@ -67,6 +68,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
         translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CHILD, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.MATERIAL, new MaterialAttributeTranslator());
     }
 
     private static IMatchClauseAttributeTranslator translatorFor(SearchableEntityKind entityKind)
@@ -104,6 +106,8 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 return AssociatedEntityKind.SAMPLE_PARENT;
             case SAMPLE_CHILD:
                 return AssociatedEntityKind.SAMPLE_CHILD;
+            case MATERIAL:
+                return AssociatedEntityKind.MATERIAL;
         }
         return null; // can't happen
     }
@@ -179,11 +183,32 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     ans = ExperimentAttributeSearchFieldKind.PROJECT;
                     break;
                 default:
-                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.EXPERIMENT);
             }
             return ans;
         }
 
+    }
+
+    public static class MaterialAttributeTranslator implements IMatchClauseAttributeTranslator
+    {
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseAttribute attribute)
+        {
+            IAttributeSearchFieldKind ans = null;
+            switch (attribute)
+            {
+                case CODE:
+                    ans = MaterialAttributeSearchFieldKind.CODE;
+                    break;
+                case TYPE:
+                    ans = MaterialAttributeSearchFieldKind.MATERIAL_TYPE;
+                    break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
+            }
+            return ans;
+        }
     }
 
     public static class DataSetAttributeTranslator implements IMatchClauseAttributeTranslator

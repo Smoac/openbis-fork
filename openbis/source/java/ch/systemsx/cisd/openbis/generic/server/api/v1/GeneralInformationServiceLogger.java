@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -212,6 +214,21 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "list-data-sets-for-experiments",
                 "EXPERIMENTS(%s) CONNECTIONS(%s)", abbreviate(experiments), connectionsToGet);
+        return null;
+    }
+
+    public List<Material> getMaterialByCodes(String sessionToken,
+            List<MaterialIdentifier> materialIdentifier)
+    {
+        logAccess(sessionToken, "get-material-by-codes", "MATERIAL_IDENTIFIERS(%s)",
+                abbreviate(materialIdentifier));
+
+        return null;
+    }
+
+    public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "search-for-materials", "SEARCH_CRITERIA(%s)", searchCriteria);
         return null;
     }
 }

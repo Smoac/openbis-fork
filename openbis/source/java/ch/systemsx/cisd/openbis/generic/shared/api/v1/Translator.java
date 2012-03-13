@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
@@ -36,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTyp
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.MaterialInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
@@ -56,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * @author Franz-Josef Elmer
@@ -129,7 +135,8 @@ public class Translator
             initializer.setExperimentIdentifierOrNull(experimentOrNull.getIdentifier());
         }
 
-        EntityRegistrationDetails registrationDetails = translateRegistrationDetailsWithModificationDate(privateSample);
+        EntityRegistrationDetails registrationDetails =
+                translateRegistrationDetailsWithModificationDate(privateSample);
         initializer.setRegistrationDetails(registrationDetails);
 
         return new Sample(initializer);
@@ -374,7 +381,8 @@ public class Translator
                     break;
             }
         }
-        EntityRegistrationDetails registrationDetails = translateRegistrationDetailsWithModificationDate(externalDatum);
+        EntityRegistrationDetails registrationDetails =
+                translateRegistrationDetailsWithModificationDate(externalDatum);
         initializer.setRegistrationDetails(registrationDetails);
 
         return new DataSet(initializer);
@@ -431,5 +439,72 @@ public class Translator
         initializer.setUrlTemplate(privateVocabulary.getURLTemplate());
         initializer.setTerms(translate(privateVocabulary.getTerms()));
         return new Vocabulary(initializer);
+    }
+
+    public static Material translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material material,
+            Map<Long, Material> materialsCache)
+    {
+        MaterialInitializer mi = new MaterialInitializer();
+
+        mi.setMaterialCode(material.getCode());
+
+        MaterialTypeIdentifier typeIdentifier =
+                new MaterialTypeIdentifier(material.getMaterialType().getCode());
+
+        mi.setMaterialTypeIdentifier(typeIdentifier);
+
+        material.getProperties();
+
+        List<IEntityProperty> originalProperties = material.getProperties();
+        Map<String, String> properties = EntityHelper.convertToStringMap(originalProperties);
+        Map<String, Material> materialProperties =
+                convertMaterialProperties(originalProperties, materialsCache);
+
+        mi.setMaterialProperties(materialProperties);
+
+        mi.setProperties(properties);
+
+        mi.setRegistrationDetails(translateRegistrationDetails(material));
+
+        return new Material(mi);
+    }
+
+    private static Map<String, Material> convertMaterialProperties(
+            List<IEntityProperty> properties, Map<Long, Material> materialsCache)
+    {
+        HashMap<String, Material> result = new HashMap<String, Material>();
+        if (properties != null)
+        {
+            for (IEntityProperty property : properties)
+            {
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material material =
+                        property.getMaterial();
+                if (material != null)
+                {
+                    Material apiMaterial = materialsCache.get(material.getId());
+                    if (apiMaterial == null)
+                    {
+                        apiMaterial = translate(material, materialsCache);
+                        materialsCache.put(material.getId(), apiMaterial);
+                    }
+                    String propCode = property.getPropertyType().getCode();
+                    result.put(propCode, apiMaterial);
+                }
+            }
+        }
+        return result;
+    }
+
+    public static List<Material> translateMaterials(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materials)
+    {
+        Map<Long, Material> materialsCache = new HashMap<Long, Material>();
+        List<Material> list = new LinkedList<Material>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material material : materials)
+        {
+            list.add(translate(material, materialsCache));
+        }
+        return list;
     }
 }
