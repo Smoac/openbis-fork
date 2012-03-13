@@ -281,7 +281,7 @@ public class WellContentLoader extends AbstractContentLoader
                         .loadRawLocations(materialCriteria);
         Collection<Long> materialIds = extractMaterialIds(locations);
         return businessObjectFactory.createMaterialLister(session).list(
-                new ListMaterialCriteria(materialIds), true);
+                ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }
 
     @SuppressWarnings("deprecation")

@@ -158,7 +158,7 @@ class LibraryRegistrationTask implements IASyncAction
                         ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
         MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
         List<Material> materials =
-                commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType),
+                commonServer.listMaterials(sessionToken, ListMaterialCriteria.createFromMaterialType(materialType),
                         true);
 
         return new TableMap<String, Material>(materials,

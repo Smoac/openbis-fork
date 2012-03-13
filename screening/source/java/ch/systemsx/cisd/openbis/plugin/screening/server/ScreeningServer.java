@@ -306,7 +306,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             materialIds.add(id);
         }
         return commonServer
-                .listMaterials(sessionToken, new ListMaterialCriteria(materialIds), true);
+                .listMaterials(sessionToken, ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,

@@ -120,7 +120,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     private List<Material> fetchMaterials(Set<Long> materialIds)
     {
         return businessObjectFactory.createMaterialLister(session).list(
-                new ListMaterialCriteria(materialIds), true);
+                ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }
 
     private static Set<Long> extractMaterialIds(List<MaterialIdFeatureVectorSummary> summaries)

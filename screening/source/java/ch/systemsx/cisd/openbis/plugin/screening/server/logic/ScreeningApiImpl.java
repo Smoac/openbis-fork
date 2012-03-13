@@ -948,7 +948,7 @@ public class ScreeningApiImpl
                     Material apiMaterial = materialsCache.get(material.getId());
                     if (apiMaterial == null)
                     {
-                        apiMaterial = asApiMaterial(material);
+                        apiMaterial = asApiMaterial(material, materialsCache);
                         materialsCache.put(material.getId(), apiMaterial);
                     }
                     String propCode = property.getPropertyType().getCode();
@@ -960,35 +960,16 @@ public class ScreeningApiImpl
     }
 
     private Material asApiMaterial(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialDto)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialDto,  Map<Long, Material> materialsCache)
     {
         MaterialTypeIdentifier typeIdentifier =
                 new MaterialTypeIdentifier(materialDto.getMaterialType().getCode());
 
         List<IEntityProperty> originalProperties = materialDto.getProperties();
         Map<String, String> properties = EntityHelper.convertToStringMap(originalProperties);
-        Map<String, Material> materialProperties = extractMaterialProperties(originalProperties);
+        Map<String, Material> materialProperties = convertMaterialProperties(originalProperties, materialsCache);
 
         return new Material(typeIdentifier, materialDto.getCode(), properties, materialProperties);
-    }
-
-    /**
-     * extracts from the given property list only the one representing the material.
-     */
-    private Map<String, Material> extractMaterialProperties(List<IEntityProperty> properties)
-    {
-        Map<String, Material> map = new HashMap<String, Material>();
-        if (properties != null)
-        {
-            for (IEntityProperty prop : properties)
-            {
-                if (prop.getMaterial() != null)
-                {
-                    map.put(prop.getPropertyType().getCode(), asApiMaterial(prop.getMaterial()));
-                }
-            }
-        }
-        return map;
     }
 
     public ExperimentImageMetadata getExperimentImageMetadata(
