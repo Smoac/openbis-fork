@@ -217,7 +217,33 @@ public class ShareIdManager implements IShareIdManager
         GuardedShareID guardedShareId = map.get(dataSetCode);
         if (guardedShareId != null)
         {
-            guardedShareId.await();
+            try
+            {
+                guardedShareId.await();
+            } catch (EnvironmentFailureException ex)
+            {
+                if (ex.getMessage().contains("time out"))
+                {
+                    final Set<Thread> set = lockedDataSets.get(dataSetCode);
+                    if (set != null)
+                    {
+                        final StringBuilder b = new StringBuilder();
+                        for (Thread t : set)
+                        {
+                            b.append(t.getName());
+                            b.append(',');
+                        }
+                        if (b.length() > 0)
+                        {
+                            b.setLength(b.length() - 1);
+                        }
+                        operationLog.error("Timeout: Lock for data set " + dataSetCode
+                                + " is held by threads '" + b.toString() + "' for "
+                                + lockingTimeOut + " seconds.");
+                    }
+                }
+                throw ex;
+            }
         }
     }
 
