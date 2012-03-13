@@ -131,7 +131,7 @@ class Person(Entity):
 			("id", int),
 			("first_name", random_string),
 			("last_name", random_string),
-			("user_id", random_string),
+			("user_id", lambda : "admin"),
 			("email", random_string),
 			("dbin_id", association(database_instance)),
 			("space_id", null),
@@ -139,6 +139,21 @@ class Person(Entity):
 			("per_id_registerer", null),
 			("display_settings", null))
 		self.tablename = "persons"
+		RoleAssignment(self)
+		
+class RoleAssignment(Entity):
+	def __init__(self, person):
+		super(RoleAssignment, self).__init__(
+			("id", int),
+			("role_code", lambda : "ADMIN"),
+			("space_id", null),
+			("dbin_id", association(database_instance)),
+			("pers_id_grantee", association(person)),
+			("ag_id_grantee", null),
+			("pers_id_registerer", association(person)),
+			("registration_timestamp", now))
+		self.tablename = "role_assignments"
+
 
 class Space(Entity):
 	def __init__(self):
@@ -341,5 +356,9 @@ create_data("10000_large", 10000, large)
 create_data("100000_small", 100000, small)
 create_data("100000_medium", 100000, medium)
 create_data("100000_large", 100000, large)
+
+create_data("500000_small", 500000, small)
+create_data("500000_medium", 500000, medium)
+create_data("500000_large", 500000, large)
 
 end_print()
