@@ -176,6 +176,7 @@ public class SegmentedStoreUtils
             Set<String> incomingShares, IFreeSpaceProvider freeSpaceProvider,
             IEncapsulatedOpenBISService service, ISimpleLogger log)
     {
+        final long start = System.currentTimeMillis();
         List<Share> shares =
                 getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
                         SystemTimeProvider.SYSTEM_TIME_PROVIDER);
@@ -183,6 +184,9 @@ public class SegmentedStoreUtils
         {
             share.setIncoming(incomingShares.contains(share.getShareId()));
         }
+        log.log(LogLevel.INFO,
+                String.format("Obtained the list of all datasets in all shares in %.2f s.",
+                        (System.currentTimeMillis() - start) / 1000.0));
         return shares;
     }
 
@@ -282,7 +286,7 @@ public class SegmentedStoreUtils
         }
         File dataSetDirInNewShare = new File(share, relativePath);
         dataSetDirInNewShare.mkdirs();
-        copyToShare(dataSetDirInStore, dataSetDirInNewShare);
+        copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
         long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
         String shareId = share.getName();
         service.updateShareIdAndSize(dataSetCode, shareId, size);
@@ -345,10 +349,16 @@ public class SegmentedStoreUtils
         deleteDataSet(dataSetCode, new File(shareFolder, location), shareIdManager, logger);
     }
 
-    private static void copyToShare(File file, File share)
+    private static void copyToShare(File file, File share, ISimpleLogger logger)
     {
-        RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
+        final long start = System.currentTimeMillis();
+        logger.log(LogLevel.INFO, String.format("Start moving directory '%s' to new share '%s'",
+                file.getPath(), share.getPath()));
+        final RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
         copier.copyContent(file, share);
+        logger.log(LogLevel.INFO, String.format(
+                "Finished moving directory '%s' to new share '%s' in %.2f s", file.getPath(),
+                share.getPath(), (System.currentTimeMillis() - start) / 1000.0));
     }
 
     private static long assertEqualSizeAndChildren(File source, File destination)
@@ -402,12 +412,12 @@ public class SegmentedStoreUtils
         {
             throw new EnvironmentFailureException("Destination file '"
                     + destination.getAbsolutePath() + "' has checksum " + destinationChecksum
-                    + " but source file '" + source.getAbsolutePath() + "' has checksum " + sourceChecksum
-                    + ".");
+                    + " but source file '" + source.getAbsolutePath() + "' has checksum "
+                    + sourceChecksum + ".");
         }
         return sourceSize;
     }
-    
+
     private static long calculateCRC(File file)
     {
         try

@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -251,6 +252,10 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                             "Data set ds2 successfully moved from share 1 to 4.");
 
                     one(logger).log(LogLevel.WARN, "No share found for shuffling data set ds4.");
+                    allowing(logger).log(
+                            with(LogLevel.INFO),
+                            with(Matchers.startsWith("Obtained the list of all "
+                                    + "datasets in all shares")));
                 }
             });
 

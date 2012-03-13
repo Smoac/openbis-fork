@@ -44,24 +44,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=SegmentedStoreUtils.class)
+@Friend(toClasses = SegmentedStoreUtils.class)
 public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_STORE_CODE = "ds-code";
-    
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private IShareIdManager shareIdManager;
+
     private MockLogger log;
+
     private IFreeSpaceProvider freeSpaceProvider;
+
     private ITimeProvider timeProvider;
 
     private File store;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -96,7 +99,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testGetDataSetsPerShare()
     {
@@ -130,9 +133,9 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 {
                     one(service).listDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4, ds5)));
-                    
+
                     one(service).updateShareIdAndSize("ds-1", "1", 10L);
-                    
+
                     try
                     {
                         one(freeSpaceProvider).freeSpaceKb(with(fileMatcher));
@@ -143,13 +146,13 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     }
                 }
             });
-        
+
         List<Share> shares =
                 SegmentedStoreUtils.getDataSetsPerShare(store, DATA_STORE_CODE, freeSpaceProvider,
                         service, log, timeProvider);
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();
-        
+
         assertEquals("WARN: Speed file " + speedFile2 + " doesn't contain a number: not a number\n"
                 + "INFO: Calculating size of " + ds1File + "\n" + "INFO: " + ds1File
                 + " contains 10 bytes (calculated in 0 msec)\n"
@@ -168,7 +171,8 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(new File(store, "2").toString(), shares.get(1).getShare().toString());
         assertEquals("2", shares.get(1).getShareId());
         assertSame(ds3, shares.get(1).getDataSetsOrderedBySize().get(0));
-        assertEquals(123456789L, shares.get(1).getDataSetsOrderedBySize().get(0).getDataSetSize().longValue());
+        assertEquals(123456789L, shares.get(1).getDataSetsOrderedBySize().get(0).getDataSetSize()
+                .longValue());
         assertEquals(1, shares.get(1).getDataSetsOrderedBySize().size());
         assertEquals(Math.abs(Constants.DEFAULT_SPEED_HINT), shares.get(1).getSpeed());
         assertEquals(123456789L, shares.get(1).getTotalSizeOfDataSets());
@@ -198,7 +202,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 {
                     one(service).tryGetDataSet("ds-1");
                     will(returnValue(new DataSet()));
-                    
+
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
                     one(shareIdManager).setShareId("ds-1", "2");
                     one(shareIdManager).await("ds-1");
@@ -206,10 +210,18 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
         assertEquals(true, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "22");
-        
+
         SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
                 shareIdManager, log);
 
+        log.assertNextLogMessage("Start moving directory 'targets/unit-test-wd/ch.systemsx.cisd."
+                + "openbis.dss.generic.shared.utils.SegmentedStoreUtilsTest/store/1/uuid/01/02/03/ds-1' "
+                + "to new share 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.shared.utils."
+                + "SegmentedStoreUtilsTest/store/2/uuid/01/02/03/ds-1'");
+        log.assertNextLogMessageContains("Finished moving directory 'targets/unit-test-wd/ch.systemsx.cisd."
+                + "openbis.dss.generic.shared.utils.SegmentedStoreUtilsTest/store/1/uuid/01/02/03/ds-1'"
+                + " to new share 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.shared.utils."
+                + "SegmentedStoreUtilsTest/store/2/uuid/01/02/03/ds-1'");
         log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
         log.assertNextLogMessage("Start deleting data set ds-1 at " + share1
                 + "/uuid/01/02/03/ds-1");
@@ -221,7 +233,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 FileUtilities.loadToString(new File(share2uuid01, "02/03/ds-1/original/hello.txt")));
         log.assertNoMoreLogMessages();
     }
-    
+
     @Test
     public void testCleanupOld()
     {
@@ -233,13 +245,13 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 {
                     one(shareIdManager).getShareId("ds-1");
                     will(returnValue("2"));
-                    
+
                     one(shareIdManager).await("ds-1");
                 }
             });
-        
+
         SegmentedStoreUtils.cleanUp(dataSet, store, "2", shareIdManager, log);
-        
+
         assertEquals(false, ds1In1.exists());
         assertEquals(true, ds1In2.exists());
         log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
@@ -272,7 +284,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         log.assertNextLogMessage("Deletion of data set ds-1 at " + ds1In2 + " failed.");
         log.assertNoMoreLogMessages();
     }
-    
+
     @Test
     public void testFindIncomingShare()
     {
@@ -281,9 +293,9 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         File share1 = new File(store, "1");
         share1.mkdirs();
         FileUtilities.writeToFile(new File(share1, "share.properties"), "withdraw-share = true");
-        
+
         String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
-        
+
         assertEquals("1", share);
         assertEquals(
                 "WARN: Incoming folder [targets/unit-test-wd/"
@@ -291,7 +303,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                         + "/incoming] can not be assigned to share 1 because its property "
                         + "withdraw-share is set to true.\n", log.toString());
     }
-    
+
     private File dataSetFile(String shareId, boolean empty)
     {
         File share = new File(store, shareId);
@@ -304,7 +316,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(dataSetFile, "read.me"), "do nothing");
         return dataSetFile;
     }
-    
+
     private void assertFileNames(File file, String... names)
     {
         File[] files = file.listFiles();
@@ -316,7 +328,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         }
         assertEquals(Arrays.asList(names).toString(), actualNames.toString());
     }
-    
+
     private SimpleDataSetInformationDTO dataSet(File dataSetFile, String dataStoreCode, Long size)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();

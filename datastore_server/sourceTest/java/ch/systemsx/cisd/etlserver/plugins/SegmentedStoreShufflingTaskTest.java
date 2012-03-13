@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
@@ -50,35 +51,41 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses={ShareFactory.class, SegmentedStoreShufflingTask.class})
+@Friend(toClasses =
+    { ShareFactory.class, SegmentedStoreShufflingTask.class })
 public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_STORE_CODE = "DATA-STORE-1";
 
     private static void prepareAsWithdrawShare(File share)
     {
-        FileUtilities.writeToFile(new File(share, SHARE_PROPS_FILE), WITHDRAW_SHARE_PROP + " = true");
+        FileUtilities.writeToFile(new File(share, SHARE_PROPS_FILE), WITHDRAW_SHARE_PROP
+                + " = true");
     }
-    
+
     public static final class MockShuffling implements ISegmentedStoreShuffling
     {
         private final Properties properties;
+
         private boolean initialized;
+
         private List<Share> sourceShares;
+
         private List<Share> targetShares;
+
         private IEncapsulatedOpenBISService service;
+
         private IDataSetMover dataSetMover;
+
         private ISimpleLogger logger;
-        
+
         public MockShuffling(Properties properties)
         {
             this.properties = properties;
         }
-        
+
         public void init(ISimpleLogger l)
         {
             initialized = true;
@@ -95,14 +102,21 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
             logger = simpleLogger;
         }
     }
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private IFreeSpaceProvider spaceProvider;
+
     private IDataSetMover dataSetMover;
+
     private ISimpleLogger logger;
+
     private SegmentedStoreShufflingTask balancerTask;
+
     private File storeRoot;
 
     @BeforeMethod
@@ -121,7 +135,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         storeRoot = new File(workingDirectory, "store");
         storeRoot.mkdirs();
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -170,7 +184,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                     ds3.setDataStoreCode("other data store");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                     inSequence(sequence1);
-                    
+
                     SimpleDataSetInformationDTO ds1b = new SimpleDataSetInformationDTO();
                     ds1b.setDataStoreCode(DATA_STORE_CODE);
                     ds1b.setDataSetCode("ds1");
@@ -180,15 +194,20 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                     one(service).listDataSets();
                     will(returnValue(Arrays.asList(ds1b, ds2)));
                     inSequence(sequence1);
-                    
+
                     one(logger).log(with(LogLevel.WARN), with(logMessageRecordingMatcher));
+                    allowing(logger).log(
+                            with(LogLevel.INFO),
+                            with(Matchers.startsWith("Obtained the list of all "
+                                    + "datasets in all shares")));
                 }
             });
         logRecorder.resetLogContent();
-        
+
         balancerTask.execute();
-        
-        MockShuffling balancer = (SegmentedStoreShufflingTaskTest.MockShuffling) balancerTask.shuffling;
+
+        MockShuffling balancer =
+                (SegmentedStoreShufflingTaskTest.MockShuffling) balancerTask.shuffling;
         assertEquals("{class=" + balancer.getClass().getName() + "}",
                 balancer.properties.toString());
         assertEquals("1", balancer.sourceShares.get(0).getShareId());
@@ -208,8 +227,8 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                 + "INFO  NOTIFY.SegmentedStoreShufflingTask - "
                 + "The following shares were emptied by shuffling: [1]",
                 logRecorder.getLogContent());
-        assertEquals("Data set ds1 no longer exists in share 2.", 
-                logMessageRecordingMatcher.recordedObject().toString());
+        assertEquals("Data set ds1 no longer exists in share 2.", logMessageRecordingMatcher
+                .recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -225,13 +244,17 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                 {
                     exactly(2).of(service).listDataSets();
                     will(returnValue(Arrays.asList()));
-                    
+
                     one(logger).log(LogLevel.INFO, "Data Store Shares:");
+                    allowing(logger).log(
+                            with(LogLevel.INFO),
+                            with(Matchers.startsWith("Obtained the list of all "
+                                    + "datasets in all shares")));
                 }
             });
 
         balancerTask.execute();
-        
+
         context.assertIsSatisfied();
     }
 }

@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -287,6 +288,10 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
             {
                 one(service).listDataSets();
                 will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
+                one(logger).log(
+                        with(LogLevel.INFO),
+                        with(Matchers.startsWith("Obtained the list of all "
+                                + "datasets in all shares")));
             }
         });
     }

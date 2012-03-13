@@ -50,10 +50,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.test.AssertionUtil;
-import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
 /**
@@ -258,8 +256,6 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     public void testLastSeenDataSetFileExistsPriorToTheTask()
     {
         Properties properties = createDefaultProperties();
-
-        final Sequence sequence = context.sequence("tasks");
 
         // when there is lastSeenDataSetFile it means, that the marking of the dataset has not
         // succeeded.

@@ -342,9 +342,13 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
-                logRecorder.getLogContent());
+        assertTrue(
+                logRecorder.getLogContent(),
+                logRecorder
+                        .getLogContent()
+                        .startsWith(
+                                "INFO  OPERATION.AbstractDatastorePlugin - "
+                                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']"));
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
                 ShareFinder.properties.toString());
@@ -454,20 +458,20 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         archiver = new RsyncArchiver(properties, store, fileOperationsManager);
         archiver.deleteFromArchive(Arrays.asList(datasetLocation));
     }
-    
+
     @Test
     public void testDeleteFromArchiveOnlyMarkAsDeleted()
     {
         final DatasetLocation datasetLocation = new DatasetLocation();
         datasetLocation.setDataSetLocation("my-location");
         context.checking(new Expectations()
-        {
             {
-                one(fileOperationsManager).markAsDeleted(datasetLocation);
-                will(returnValue(Status.OK));
-            }
-        });
-        
+                {
+                    one(fileOperationsManager).markAsDeleted(datasetLocation);
+                    will(returnValue(Status.OK));
+                }
+            });
+
         archiver = new RsyncArchiver(properties, store, fileOperationsManager);
         archiver.deleteFromArchive(Arrays.asList(datasetLocation));
     }
