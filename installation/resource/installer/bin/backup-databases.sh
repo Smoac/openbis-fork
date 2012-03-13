@@ -46,18 +46,19 @@ function backupDatabase() {
   
   getProperty $DB_PROPS "database"
   database=$propValue
+  if [ `psql -U postgres -l | grep $database | wc -l` -gt 0 ]; then
+    getProperty $DB_PROPS "username"
+    username=$propValue
   
-  getProperty $DB_PROPS "username"
-  username=$propValue
+    local dumpFile=$BACKUP_DIR/$database.dmp
   
-  local dumpFile=$BACKUP_DIR/$database.dmp
+    echo "Backing up database $database to $dumpFile..."
+    pg_dump -U $username -Fc $database > $dumpFile
   
-  echo "Backing up database $database to $dumpFile..."
-  pg_dump -U $username -Fc $database > $dumpFile
-  
-  if [ "$?" -ne 0 ]; then
+    if [ "$?" -ne 0 ]; then
       echo "Failed to backup database '$database' !"
       exit 3
+    fi
   fi
 }
 
