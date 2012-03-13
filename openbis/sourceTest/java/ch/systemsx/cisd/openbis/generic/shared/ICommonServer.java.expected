@@ -1549,4 +1549,12 @@ public interface ICommonServer extends IServer
     public void deletePermanently(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
             final List<TechId> deletionIds, boolean force);
+
+    /**
+     * Performs an <i>Hibernate Search</i> based on given parameters.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria);
+
 }
