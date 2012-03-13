@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -282,4 +284,14 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all available projects.
      */
     public List<Project> listProjects(String sessionToken);
+    
+    /**
+     *  Returns the materials with specified identifiers (i.e. code and type).
+     */
+    public List<Material> getMaterialByCodes(String sessionToken, List<MaterialIdentifier> materialIdentifier);
+    
+    /**
+     *  Returns all material fulfilling specified search criteria.
+     */
+    public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria);
 }

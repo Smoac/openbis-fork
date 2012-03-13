@@ -7,7 +7,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
  */
 public enum SearchableEntityKind
 {
-    SAMPLE, EXPERIMENT, DATA_SET,
+    SAMPLE, EXPERIMENT, DATA_SET, MATERIAL,
     // sample subcriteria
     SAMPLE_CONTAINER, SAMPLE_PARENT, SAMPLE_CHILD,
     // data set subcriteria
