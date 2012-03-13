@@ -47,6 +47,6 @@ public class MaterialSearchManager extends AbstractSearchManager<IMaterialLister
                         ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
                         Collections.<DetailedSearchAssociationCriteria> emptyList());
 
-        return lister.list(new ListMaterialCriteria(materialIds), true);
+        return lister.list(ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }
 }

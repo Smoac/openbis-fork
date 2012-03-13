@@ -1309,7 +1309,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final MaterialType materialType =
                 MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType(), null);
-        final ListMaterialCriteria criteria = new ListMaterialCriteria(materialType);
+        final ListMaterialCriteria criteria =
+                ListMaterialCriteria.createFromMaterialType(materialType);
         context.checking(new Expectations()
             {
                 {

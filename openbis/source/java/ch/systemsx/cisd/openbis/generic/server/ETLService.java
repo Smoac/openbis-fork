@@ -1554,7 +1554,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 MaterialType materialTypeWithId = new MaterialType();
                 materialTypeWithId.setId(typeWithId.getId());
                 materialTypeWithId.setCode(materialTypeCode);
-                return new ListMaterialCriteria(materialTypeWithId);
+                return ListMaterialCriteria.createFromMaterialType(materialTypeWithId);
             }
         }
 

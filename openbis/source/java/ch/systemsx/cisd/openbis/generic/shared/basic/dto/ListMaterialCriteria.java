@@ -32,27 +32,44 @@ public final class ListMaterialCriteria implements Serializable
 
     private Collection<Long> materialIdsOrNull;
 
+    private Collection<MaterialIdentifier> materialIdentifiersOrNull;
+
     // GWT only
     public ListMaterialCriteria()
     {
     }
 
-    public ListMaterialCriteria(MaterialType materialType)
+    public static ListMaterialCriteria createFromMaterialType(MaterialType materialType)
     {
-        this(materialType, null);
+        return new ListMaterialCriteria(materialType, null, null);
     }
 
-    public ListMaterialCriteria(Collection<Long> materialIds)
+    public static ListMaterialCriteria createFromMaterialIds(Collection<Long> materialIds)
     {
-        this(null, materialIds);
+        return new ListMaterialCriteria(null, materialIds, null);
     }
 
-    private ListMaterialCriteria(MaterialType materialTypeOrNull, Collection<Long> materialIdsOrNull)
+    public static ListMaterialCriteria createFromMaterialIdentifiers(
+            Collection<MaterialIdentifier> materialIdentifiers)
     {
-        assert materialIdsOrNull != null || materialTypeOrNull != null;
-        assert materialIdsOrNull == null || materialTypeOrNull == null;
+        return new ListMaterialCriteria(null, null, materialIdentifiers);
+    }
+
+    private ListMaterialCriteria(MaterialType materialTypeOrNull,
+            Collection<Long> materialIdsOrNull,
+            Collection<MaterialIdentifier> materialIdentifiersOrNull)
+    {
+        boolean ids = materialIdsOrNull != null;
+        boolean types = materialTypeOrNull != null;
+        boolean codes = materialIdentifiersOrNull != null;
+
+        // assert exactly one of three
+        assert false == (ids && types && codes);
+        assert ids ^ types ^ codes;
+
         this.materialTypeOrNull = materialTypeOrNull;
         this.materialIdsOrNull = materialIdsOrNull;
+        this.materialIdentifiersOrNull = materialIdentifiersOrNull;
     }
 
     public MaterialType tryGetMaterialType()
@@ -63,6 +80,11 @@ public final class ListMaterialCriteria implements Serializable
     public Collection<Long> tryGetMaterialIds()
     {
         return materialIdsOrNull;
+    }
+
+    public Collection<MaterialIdentifier> tryGetMaterialIdentifiers()
+    {
+        return materialIdentifiersOrNull;
     }
 
 }

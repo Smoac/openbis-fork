@@ -41,7 +41,7 @@ public class ListMaterialDisplayCriteria extends
     private ListMaterialDisplayCriteria(final MaterialType materialType)
     {
         assert materialType != null : "material type not set";
-        this.listCriteria = new ListMaterialCriteria(materialType);
+        this.listCriteria = ListMaterialCriteria.createFromMaterialType(materialType);
     }
 
     public ListMaterialCriteria getListCriteria()

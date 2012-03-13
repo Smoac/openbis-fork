@@ -259,7 +259,8 @@ public class MaterialHelper
         MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
 
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
-        ListMaterialCriteria listByTypeCriteria = new ListMaterialCriteria(materialType);
+        ListMaterialCriteria listByTypeCriteria =
+                ListMaterialCriteria.createFromMaterialType(materialType);
         List<Material> materials = materialLister.list(listByTypeCriteria, false);
         return asCodeToMaterialMap(materials);
     }
