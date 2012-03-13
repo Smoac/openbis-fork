@@ -725,7 +725,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     for (String dataSetCode : dataSetCodes)
                     {
-                        one(shareIdManager).lock(dataSetCode);
+                        one(shareIdManager).lock(Arrays.asList(dataSetCode));
                     }
                     one(shareIdManager).releaseLocks();
                 }

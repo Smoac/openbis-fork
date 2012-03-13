@@ -218,7 +218,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).lock(dataSetCode);
+                    one(shareIdManager).lock(Arrays.asList(dataSetCode));
                     one(shareIdManager).releaseLocks();
                 }
             });

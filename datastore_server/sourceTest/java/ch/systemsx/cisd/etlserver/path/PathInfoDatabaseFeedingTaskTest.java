@@ -173,7 +173,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(new File(workingDirectory, "blabla")));
 
-                    one(shareIdManager).releaseLocks();
+                    exactly(2).of(shareIdManager).releaseLocks();
                 }
             });
         

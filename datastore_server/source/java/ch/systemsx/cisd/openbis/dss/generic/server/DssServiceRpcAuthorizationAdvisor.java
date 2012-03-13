@@ -214,7 +214,10 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             }
             boolean shouldLocksAutomaticallyBeReleased =
                     shouldLocksAutomaticallyBeReleased(methodInvocation.getMethod());
-            manager.lock(dataSetCodes);
+            if (dataSetCodes.isEmpty() == false)
+            {
+                manager.lock(dataSetCodes);
+            }
             try
             {
                 // At least one of the parameters must be annotated

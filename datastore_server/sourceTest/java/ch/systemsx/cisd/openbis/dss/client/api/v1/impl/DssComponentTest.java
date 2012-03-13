@@ -123,6 +123,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 //
                 // AbstractAutoProxyCreator
                 //
+                @SuppressWarnings("rawtypes")
                 @Override
                 protected final Object[] getAdvicesAndAdvisorsForBean(final Class beanClass,
                         final String beanName, final TargetSource customTargetSource)
@@ -454,7 +455,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                         {
                             will(throwException(new UserFailureException("Not allowed.")));
                         }
-                        exactly(lockingCount).of(shareIdManager).lock(DUMMY_DATA_SET_CODE);
+                        exactly(lockingCount).of(shareIdManager).lock(
+                                Arrays.asList(DUMMY_DATA_SET_CODE));
                         if (releaseLock)
                         {
                             exactly(lockingCount).of(shareIdManager).releaseLocks();
