@@ -9,6 +9,7 @@
 
 	<target name="dist" depends="clean">
 		<antcall target="openbis.make-dist">
+			<param name="actual.build.info.filename" value="BUILD-openbis.INFO" />
 			<param name="variant" value="-standard-technologies" />
 		</antcall>
 		<antcall target="screening.screening-api"/>

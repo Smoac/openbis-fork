@@ -353,7 +353,10 @@
       -->
   <target name="build-info" description="Creates build information.">
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+  	<condition property="used.build.info.filename" value="${actual.build.info.filename}" else="${build.info.filename}">
+  		<isset property="actual.build.info.filename"/>
+  	</condition>
+    <echo file="${classes}/${used.build.info.filename}">${version.number}:${revision.number}:${clean.flag}</echo>
   </target>
 
   <!--
