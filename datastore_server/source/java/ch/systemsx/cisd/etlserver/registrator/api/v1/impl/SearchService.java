@@ -162,7 +162,7 @@ class SearchService implements ISearchService
             MaterialType materialType = new MaterialType();
             materialType.setCode(typeCode);
             List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materialsOfType =
-                    openBisService.listMaterials(new ListMaterialCriteria(materialType), true);
+                    openBisService.listMaterials(ListMaterialCriteria.createFromMaterialType(materialType), true);
             accumulatedResults.addAll(materialsOfType);
         }
         return accumulatedResults;
