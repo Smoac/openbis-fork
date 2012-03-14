@@ -31,7 +31,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.PropertyConfigurator;
 
@@ -45,11 +47,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -117,6 +122,7 @@ public class ScreeningClientApiTest
 
         List<Plate> plates = facade.listPlates();
         print("Plates: " + plates);
+
         @SuppressWarnings("deprecation")
         // TODO 2011-02-16, CR, There is no non-deprecated method to get all data sets.
         // In the Test, Plate1 has a raw image data set, plates 2 and 3 have overlay image data
@@ -185,7 +191,46 @@ public class ScreeningClientApiTest
         loadImages(facade, getFirstTwo(facade, imageDatasets));
         // loadImagesFromFeatureVectors(facade, getFirstTwo(facade, featureVectorDatasets));
 
+        List<PlateMetadata> plateMetadata =
+                facade.getPlateMetadataList(Arrays.asList(plates.get(0), plates.get(1), plates.get(2)));
+        for (PlateMetadata metadata : plateMetadata)
+        {
+            WellMetadata well = metadata.getWell(1, 1);
+            if (well != null)
+            {
+                System.out.println(metadata.getAugmentedCode() + ": well:" + well.getCode()
+                        + " well properties:" + well.getProperties());
+                Map<String, Material> materialProperties = well.getMaterialProperties();
+                System.out.println(renderMaterialProperties(materialProperties));
+            }
+        }
         facade.logout();
+    }
+
+    private static String renderMaterialProperties(Map<String, Material> materialProperties)
+    {
+        StringBuilder builder = new StringBuilder();
+        renderMaterials(materialProperties, builder, "  ");
+        return builder.toString();
+    }
+
+    private static void renderMaterials(Map<String, Material> materialProperties, StringBuilder builder,
+            String indent)
+    {
+        Set<Entry<String, Material>> entrySet = materialProperties.entrySet();
+        for (Entry<String, Material> entry : entrySet)
+        {
+            builder.append(indent).append("material property of type ").append(entry.getKey()).append(":\n");
+            renderMaterial(entry.getValue(), builder, indent + "  ");
+        }
+    }
+    
+    private static void renderMaterial(Material material, StringBuilder builder, String indent)
+    {
+        builder.append(indent).append(material.getAugmentedCode()).append(" properties: ");
+        builder.append(material.getProperties()).append("\n");
+        Map<String, Material> materialProperties = material.getMaterialProperties();
+        renderMaterials(materialProperties, builder, indent);
     }
 
     private static <T extends DatasetIdentifier> List<T> getFirstTwo(
