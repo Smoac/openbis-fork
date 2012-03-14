@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.AttributeMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseFieldType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.PropertyMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
@@ -307,7 +309,11 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
     private DetailedSearchCriterion convertMatchClauseToDetailedSearchCriterion(
             MatchClause matchClause)
     {
-        if (matchClause.getDesiredValue() == null)
+
+        if (matchClause.getFieldType().equals(MatchClauseFieldType.ATTRIBUTE)
+                && (((AttributeMatchClause) matchClause).getAttribute().equals(
+                        MatchClauseAttribute.REGISTRATION_DATE) || ((AttributeMatchClause) matchClause)
+                        .getAttribute().equals(MatchClauseAttribute.MODIFICATION_DATE)))
         {
             CompareType t;
             switch (matchClause.getCompareMode())
@@ -325,7 +331,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     throw new IllegalArgumentException("" + matchClause.getCompareMode());
             }
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause), t,
-                    matchClause.getDate());
+                    new Date(Long.parseLong(matchClause.getDesiredValue())));
         } else
         {
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause),

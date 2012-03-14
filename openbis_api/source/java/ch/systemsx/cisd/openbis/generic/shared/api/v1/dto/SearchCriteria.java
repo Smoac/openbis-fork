@@ -125,8 +125,6 @@ public class SearchCriteria implements Serializable
         private String desiredValue;
         
         private CompareMode compareMode = CompareMode.EQUALS;
-        
-        private Date date;
 
         /**
          * Protected constructor. Use one of the factory methods to instantiate a MatchClause.
@@ -135,13 +133,12 @@ public class SearchCriteria implements Serializable
          * @param fieldCode
          * @param desiredValue
          */
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode, Date date)
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode)
         {
             this.fieldType = fieldType;
             this.fieldCode = fieldCode;
             this.desiredValue = desiredValue;
             this.compareMode = compareMode;
-            this.date = date;
         }
 
         /**
@@ -195,11 +192,11 @@ public class SearchCriteria implements Serializable
             return desiredValue;
         }
         
-        public Date getDate() {
-            return date;
-        }
         
         public CompareMode getCompareMode() {
+            if (this.compareMode == null) {
+                return CompareMode.EQUALS;
+            }
             return this.compareMode;
         }
 
@@ -221,7 +218,6 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode(), other.getFieldCode());
             builder.append(getDesiredValue(), other.getDesiredValue());
             builder.append(getCompareMode(), other.getCompareMode());
-            builder.append(getDate(), other.getDate());
             return builder.isEquals();
         }
 
@@ -233,7 +229,6 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
             builder.append(getCompareMode());
-            builder.append(getDate());
             return builder.toHashCode();
         }
 
@@ -245,7 +240,6 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
             builder.append(getCompareMode());
-            builder.append(getDate());
             return builder.toString();
         }
 
@@ -273,9 +267,6 @@ public class SearchCriteria implements Serializable
             this.compareMode = mode;
         }
         
-        private void setDate(Date date) {
-            this.date = date;
-        }
     }
 
     /**
@@ -298,7 +289,7 @@ public class SearchCriteria implements Serializable
          */
         protected PropertyMatchClause(String propertyCode, String desiredValue)
         {
-            super(MatchClauseFieldType.PROPERTY, propertyCode, desiredValue, CompareMode.EQUALS, null);
+            super(MatchClauseFieldType.PROPERTY, propertyCode, desiredValue, CompareMode.EQUALS);
             this.propertyCode = propertyCode;
             assert null != propertyCode;
             assert null != desiredValue;
@@ -346,13 +337,13 @@ public class SearchCriteria implements Serializable
          */
         protected AttributeMatchClause(MatchClauseAttribute attribute, String desiredValue)
         {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue, CompareMode.EQUALS, null);
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue, CompareMode.EQUALS);
             this.attribute = attribute;
         }
 
-        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, Date date)
+        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, Date desiredValue)
         {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), null, mode, date);
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), Long.toString(desiredValue.getTime()), mode);
             this.attribute = attribute;
         }
 
