@@ -167,7 +167,9 @@ public class ShareIdManager implements IShareIdManager
                 guardedShareId.lock();
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("Data set " + dataSetCode + " has been locked.");
+                    final Throwable th = new Throwable();
+                    th.fillInStackTrace();
+                    operationLog.debug("Data set " + dataSetCode + " has been locked.", th);
                 }
             }
             set.add(Thread.currentThread());
@@ -193,7 +195,9 @@ public class ShareIdManager implements IShareIdManager
                         guardedShareId.lock();
                         if (operationLog.isDebugEnabled())
                         {
-                            operationLog.debug("Data set " + dataSetCode + " has been locked.");
+                            final Throwable th = new Throwable();
+                            th.fillInStackTrace();
+                            operationLog.debug("Data set " + dataSetCode + " has been locked.", th);
                         }
                     }
                     set.add(Thread.currentThread());
