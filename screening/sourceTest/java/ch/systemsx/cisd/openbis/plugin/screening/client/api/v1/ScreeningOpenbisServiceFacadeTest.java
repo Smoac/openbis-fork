@@ -1005,11 +1005,11 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 facade.listPlates(new ExperimentIdentifier("E", "P", "S", null), "ap-42");
 
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE,EQUALS,<null>]],"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE,EQUALS]],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS,<null>], "
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS,<null>], "
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS,<null>]],[]]]]]",
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]],[]]]]]",
                 searchCriteriaMatcher.recordedObject().toString());
         assertEquals("/s/p1 [s-1] { Experiment: /S/P/E }", plates.get(0).toString());
         assertEquals(1, plates.size());
@@ -1132,9 +1132,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals("[ALPHA-42, FZ-87]", procedures.toString());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS,<null>], "
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS,<null>], "
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS,<null>]],[]]]]]",
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]],[]]]]]",
                 searchCriteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
