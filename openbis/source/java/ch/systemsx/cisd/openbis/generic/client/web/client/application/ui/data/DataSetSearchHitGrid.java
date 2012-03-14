@@ -166,6 +166,10 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
         this.forChooser = forChooser;
+        if (forChooser)
+        {
+            disallowMultipleSelection();
+        }
     }
 
     @Override

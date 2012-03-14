@@ -634,6 +634,11 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }
 
+    public void disallowMultipleSelection()
+    {
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    }
+
     private List<TableModelRowWithObject<T>> getGridElements()
     {
         List<BaseEntityModel<TableModelRowWithObject<T>>> models = grid.getStore().getModels();
