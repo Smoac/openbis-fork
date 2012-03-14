@@ -10,7 +10,7 @@ import os
 import glob
 import shutil
 import time
-from java.lang import RuntimeException
+#from java.lang import RuntimeException
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
@@ -29,6 +29,14 @@ def touch_markerfile(filename):
     open(filename, 'w').close()
   except:
     print('Could not touch ' + filename)  
+
+def renameFiles(dir, flowcellName):
+  print dir 
+  print flowcellName
+  for root, dirs, files in os.walk(dir):
+    for file in files:
+      print root + file
+      os.rename(root + '/' + file, root + "/" + flowcellName + "_" + file)
 
 
 # Create a "transaction" -- a way of grouping operations together so they all
@@ -56,6 +64,10 @@ laneList.sort()
 
 undeterminedList=glob.glob(incomingPath + '/'+ UNALIGNED_FOLDER + REGEX_UNDETERMINED)
 undeterminedList.sort()
+
+# add the Flow Cell Name to the Undetermined FASTQ files
+[renameFiles(dir, flowcell) for dir in undeterminedList]
+
 # Multiplexing:
 # First move the Undetermined reads to the other ones 
 [shutil.move(undeterminedLane, laneList[int(undeterminedLane.split('/')[-1][-1])-1] +'/' + undeterminedLane.split('/')[-1]) for undeterminedLane in undeterminedList]
@@ -76,6 +88,7 @@ transaction.createNewDirectory(dataSet, UNALIGNED_FOLDER)
 # move all files is data set
 [transaction.moveFile(file, dataSet, UNALIGNED_FOLDER)  for file in fileList]
 # move base call stat dir into data set
+print("flowcell: "+flowcell)
 transaction.moveFile(incomingPath + '/' + UNALIGNED_FOLDER + '/' +  BASECALL_STATS_FOLDER + flowcell, dataSet, UNALIGNED_FOLDER + '/')
   
 # Get the search service
