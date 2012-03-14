@@ -19,7 +19,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
-AFFILIATION= {'FMI': '/links/shared/dsu-dss/dss/customers/fmi/','BIOCENTER_BASEL': '/links/shared/dsu-dss/dss/customers/biozentrum/'}
+AFFILIATION= {'FMI': '/links/shared/dsu-dss/dss/customers/fmi/drop-box/','BIOCENTER_BASEL': '/links/shared/dsu-dss/dss/customers/biozentrum/drop-box/'}
 AFFILIATION_PROPERTY_NAME='AFFILIATION'
 
 # -------------------------------------------------------------------------------
@@ -90,9 +90,19 @@ name = incoming.getName()
 # expected incoming Name, e.g.: Project_110715_SN792_0054_BC035RACXX_1
 split=name.split("_")
 if (len(split) == 6):
-  incoming_sample=split[1]+ '_'+ split[2] + '_' + split[3] + '_' + split[4]+ ':' + split[-1]
+  runningDate = split[1]
+  sequencerId = split[2]
+  sequentialNumber = split[3]
+  hiseqTray = split[4][0]
+  flowCellId = split[4][1:]
+  flowLane = split[-1]
+  incoming_sample=runningDate+ '_'+ sequencerId + '_' + sequentialNumber + '_' + hiseqTray + flowCellId + ':' + flowLane 
+# expected Project_120112_63537AAXX_1
 if (len(split) ==4):
-  incoming_sample=split[1]+ '_'+ split[2] + ':' + split[-1]
+  runningDate = split[1]
+  flowCellId = split[2]
+  flowLane = split[-1]
+  incoming_sample=runningDate+ '_'+ flowCellId + ':' + flowLane
 
 # -------------------------------------------------------------------------------
 
@@ -156,11 +166,20 @@ for f in range(0,len(folders)):
       code = property.getPropertyType().getSimpleCode()
       parentPropertyTypes.append(code)
       parentPropertiesMap[code] = property
+      try:
+        barcode = parentPropertiesMap['BARCODE']
+        #print(str(barcode))
+      except:
+       barcode = "NoIndex"
+      # just use the first six nucleotides for the naming 
+      strBarcode=str(barcode).split()[-1][:-1]
 
     parentPropertyTypes.sort()
-    nameOfFile = parentCode + METADATA_FILE_SUFFIX
+    # BSSE-DSU-1754_C0364ACXX_CTTGTAA_L007_R1_001.fastq.gz
+    nameOfFile = parentCode + "_" + flowCellId + "_" + strBarcode + "_L00" + flowLane +METADATA_FILE_SUFFIX
 
-    if (parentCode == folders[f].split('_')[-1]):
+    if (parentCode == folders[f].split('_')[1]):
+      print("Creating metadata file:" + nameOfFile)
       # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
       pathToFile = transaction.createNewFile(dataSet, folders[f], nameOfFile)
       # use this file path to write to this file
