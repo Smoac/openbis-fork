@@ -982,10 +982,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    for (String dataSetCode : dataSetCodes)
-                    {
-                        one(shareIdManager).lock(dataSetCode);
-                    }
+                    one(shareIdManager).lock(Arrays.asList(dataSetCodes));
                     one(shareIdManager).releaseLocks();
                 }
             });
