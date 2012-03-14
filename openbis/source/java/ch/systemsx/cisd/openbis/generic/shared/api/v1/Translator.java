@@ -486,7 +486,9 @@ public class Translator
                     if (apiMaterial == null)
                     {
                         apiMaterial = translate(material, materialsCache);
-                        materialsCache.put(material.getId(), apiMaterial);
+                        // FIXME: Caching disabled because a not fully filled Material could be
+                        // cached
+                        // materialsCache.put(material.getId(), apiMaterial);
                     }
                     String propCode = property.getPropertyType().getCode();
                     result.put(propCode, apiMaterial);

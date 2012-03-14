@@ -949,7 +949,8 @@ public class ScreeningApiImpl
                     if (apiMaterial == null)
                     {
                         apiMaterial = asApiMaterial(material, materialsCache);
-                        materialsCache.put(material.getId(), apiMaterial);
+                        // FIXME: Caching disabled because a not fully filled Material could be cached
+//                        materialsCache.put(material.getId(), apiMaterial);
                     }
                     String propCode = property.getPropertyType().getCode();
                     result.put(propCode, apiMaterial);
