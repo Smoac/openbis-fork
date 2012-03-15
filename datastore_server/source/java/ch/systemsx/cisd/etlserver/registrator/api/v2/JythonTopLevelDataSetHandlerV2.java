@@ -17,29 +17,15 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
-import java.util.List;
 
-import org.python.core.Py;
-import org.python.core.PyBaseCode;
-import org.python.core.PyException;
-import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -111,6 +97,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         }
 
         /** Creates the transaction object. Can be overriden in subclasses. */
+        @Override
         protected DataSetRegistrationTransaction<T> createTransaction(
                 File rollBackStackParentFolder, File workingDir, File stagingDir,
                 IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
@@ -144,6 +131,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         /**
          * Commit any scheduled changes.
          */
+        @Override
         public void commit()
         {
             DataSetRegistrationTransaction<T> transaction = getTransaction();
