@@ -247,12 +247,12 @@ public class CorePluginsInjector
                     for (File pluginFolder : pluginFolders)
                     {
                         String pluginName = pluginFolder.getName();
-                        assertAndAddPluginName(pluginName, pluginNames, pluginType);
                         DssCorePlugin plugin =
                                 new DssCorePlugin(technology, pluginType, pluginFolder);
                         String fullPluginName = plugin.getName();
                         if (isDisabled(disabledPlugins, fullPluginName) == false)
                         {
+                            assertAndAddPluginName(pluginName, pluginNames, pluginType);
                             Map<String, DssCorePlugin> map = typeToPluginsMap.get(pluginType);
                             if (map == null)
                             {

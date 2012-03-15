@@ -250,6 +250,23 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testADuplicatedButDisabledReportingPluginVersion2()
+    {
+        new File(corePluginsFolder, "screening/1/dss/drop-boxes/my-drop-box").mkdirs();
+        File dropBox2 = new File(corePluginsFolder, "screening/2/dss/drop-boxes/k2");
+        dropBox2.mkdirs();
+        FileUtilities.writeToFile(new File(dropBox2, PLUGIN_PROPERTIES_FILE_NAME),
+                "class = blabla\n");
+        Properties properties = createProperties();
+        properties.setProperty(REPORTING_PLUGIN_NAMES, "k1, k2");
+        properties.setProperty(DISABLED_CORE_PLUGINS_KEY, "screening");
+        
+        injector.injectCorePlugins(properties);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testAMiscellaneousPlugin()
     {
         File misc = new File(corePluginsFolder, "screening/1/dss/miscellaneous/a");
