@@ -173,19 +173,6 @@ public class LogicalImageViewer
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
 
-                    int imageWidth;
-                    int imageHeight;
-
-                    if (resolution == null)
-                    {
-                        imageWidth = getImageWidth(ONE_IMAGE_SIZE_PX, logicalImageReference);
-                        imageHeight = getImageHeight(ONE_IMAGE_SIZE_PX, logicalImageReference);
-                    } else
-                    {
-                        imageWidth = resolution.getWidth();
-                        imageHeight = resolution.getHeight();
-                    }
-
                     ImagesDownloadListener downloadListener = new ImagesDownloadListener()
                         {
                             public void imagesDownloaded(LazyImageSeriesFrame frame)
@@ -193,6 +180,9 @@ public class LogicalImageViewer
                                 notifyImageRefresh();
                             }
                         };
+
+                    int imageWidth = getImageWidth(logicalImageReference, resolution);
+                    int imageHeight = getImageHeight(logicalImageReference, resolution);
 
                     return LogicalImageSeriesGrid.create(sessionId,
                             filterChannelStackImages(channelStackImages), channelReferences,
@@ -347,7 +337,11 @@ public class LogicalImageViewer
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(channelReferences, sessionId, ONE_IMAGE_SIZE_PX,
+
+                    int imageWidth = getImageWidth(logicalImageReference, resolution);
+                    int imageHeight = getImageHeight(logicalImageReference, resolution);
+
+                    return createTilesGrid(channelReferences, sessionId, imageWidth, imageHeight,
                             logicalImageClickHandler, downloadHandler);
                 }
 
@@ -490,6 +484,28 @@ public class LogicalImageViewer
     private static String getSessionId(IViewContext<?> viewContext)
     {
         return viewContext.getModel().getSessionContext().getSessionID();
+    }
+
+    private static int getImageHeight(LogicalImageReference images, ImageResolution resolution)
+    {
+        if (resolution == null)
+        {
+            return getImageHeight(ONE_IMAGE_SIZE_PX, images);
+        } else
+        {
+            return resolution.getHeight();
+        }
+    }
+
+    private static int getImageWidth(LogicalImageReference images, ImageResolution resolution)
+    {
+        if (resolution == null)
+        {
+            return getImageWidth(ONE_IMAGE_SIZE_PX, images);
+        } else
+        {
+            return resolution.getWidth();
+        }
     }
 
     private static int getImageHeight(int imageSizePx, LogicalImageReference images)
