@@ -101,7 +101,7 @@ public class SearchCriteria implements Serializable
     
     public static enum CompareMode
     {
-        LESS_THAN, EQUALS, MORE_THAN
+        LESS_THAN_OR_EQUAL, EQUALS, MORE_THAN_OR_EQUAL
     }
 
     /**
