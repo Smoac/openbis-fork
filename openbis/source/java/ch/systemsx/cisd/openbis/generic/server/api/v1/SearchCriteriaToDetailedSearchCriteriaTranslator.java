@@ -322,10 +322,10 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     t = CompareType.EQUALS;
                     break;
                 case LESS_THAN:
-                    t = CompareType.LESS_THAN;
+                    t = CompareType.LESS_THAN_OR_EQUAL;
                     break;
                 case MORE_THAN:
-                    t = CompareType.MORE_THAN;
+                    t = CompareType.MORE_THAN_OR_EQUAL;
                     break;
                 default:
                     throw new IllegalArgumentException("" + matchClause.getCompareMode());

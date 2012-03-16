@@ -105,20 +105,20 @@ public class DetailedQueryBuilder
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                Date lower = criterion.getDate();
                 Calendar c = Calendar.getInstance();
-                c.setTime(lower);
+                c.setTime(criterion.getDate());
                 c.add(Calendar.DAY_OF_MONTH, 1);
-                Date upper = c.getTime();
+                Date upper, lower;
+                upper = lower = c.getTime();
 
                 switch (criterion.getType())
                 {
                     case EQUALS:
                         break;
-                    case LESS_THAN:
+                    case LESS_THAN_OR_EQUAL:
                         lower = new Date(0);
                         break;
-                    case MORE_THAN:
+                    case MORE_THAN_OR_EQUAL:
                         upper = new Date(Long.MAX_VALUE);
                         break;
                 }

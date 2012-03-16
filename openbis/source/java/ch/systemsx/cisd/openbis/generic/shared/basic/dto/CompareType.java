@@ -18,5 +18,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 public enum CompareType
 {
-    LESS_THAN, EQUALS, MORE_THAN
+    LESS_THAN_OR_EQUAL, EQUALS, MORE_THAN_OR_EQUAL
 }
