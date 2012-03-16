@@ -161,13 +161,19 @@ public class ShareIdManagerTest extends AssertJUnit
             }, "T1").start();
         ch.assertNextMessage("Lock for data set ds1 hasn't been released after "
                 + "time out of 1 seconds.");
-        assertEquals("INFO  OPERATION.ShareIdManager - "
-                + "Share id manager initialized with 2 data sets.\n"
-                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"
-                + "DEBUG OPERATION.ShareIdManager - "
-                + "Data set ds1 is locked by the following threads: T1\n"
+        
+        
+        String logContent = logRecorder.getLogContent();
+
+        assertTrue(logContent.contains("INFO  OPERATION.ShareIdManager"
+                + " - Share id manager initialized with 2 data sets.\n"
+                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"));
+
+        assertTrue(logContent.contains("DEBUG OPERATION.ShareIdManager"
+                + " - Data set ds1 is locked by the following threads: T1\n"
                 + "ERROR OPERATION.ShareIdManager - Timeout: Lock for data set ds1 is held "
-                + "by threads 'T1' for 1 seconds.", logRecorder.getLogContent());
+                + "by threads 'T1' for 1 seconds."));
+
         ch.assertEmpty();
     }
 
@@ -197,13 +203,16 @@ public class ShareIdManagerTest extends AssertJUnit
         manager.await(DS1);
 
         ch1.assertNextMessage("unlocked"); // wait until thread is finished
-        assertEquals("INFO  OPERATION.ShareIdManager"
+
+        String logContent = logRecorder.getLogContent();
+
+        assertTrue(logContent.contains("INFO  OPERATION.ShareIdManager"
                 + " - Share id manager initialized with 2 data sets.\n"
-                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"
-                + "DEBUG OPERATION.ShareIdManager"
+                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"));
+
+        assertTrue(logContent.contains("DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T1\n"
-                + "DEBUG OPERATION.ShareIdManager - Unlock data set ds1",
-                logRecorder.getLogContent());
+                + "DEBUG OPERATION.ShareIdManager - Unlock data set ds1"));
     }
 
     @Test(groups = "slow")
@@ -246,16 +255,22 @@ public class ShareIdManagerTest extends AssertJUnit
             assertEquals("Lock for data set ds1 hasn't been released after time out of 1 seconds.",
                     ex.getMessage());
         }
-        assertEquals("INFO  OPERATION.ShareIdManager"
+        
+        
+        String logContent = logRecorder.getLogContent();
+
+        assertTrue(logContent.contains("INFO  OPERATION.ShareIdManager"
                 + " - Share id manager initialized with 2 data sets.\n"
-                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"
-                + "DEBUG OPERATION.ShareIdManager"
+                + "DEBUG OPERATION.ShareIdManager - Data set ds1 has been locked.\n"));
+
+        assertTrue(logContent.contains("DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T1\n"
                 + "DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T1, T2\n"
                 + "DEBUG OPERATION.ShareIdManager"
                 + " - Data set ds1 is locked by the following threads: T2\n"
                 + "ERROR OPERATION.ShareIdManager - Timeout: Lock for data set ds1 is held by "
-                + "threads 'T2' for 1 seconds.", logRecorder.getLogContent());
+                + "threads 'T2' for 1 seconds."));
+
     }
 }
