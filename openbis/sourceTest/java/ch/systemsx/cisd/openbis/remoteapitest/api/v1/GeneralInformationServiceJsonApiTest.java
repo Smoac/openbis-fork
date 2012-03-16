@@ -611,16 +611,16 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         {
 
             sc.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.REGISTRATION_DATE, SearchCriteria.CompareMode.LESS_THAN,
-                    lessThan));
+                    MatchClauseAttribute.REGISTRATION_DATE,
+                    SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, lessThan));
         }
 
         if (moreThan != null)
         {
 
             sc.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.REGISTRATION_DATE, SearchCriteria.CompareMode.MORE_THAN,
-                    moreThan));
+                    MatchClauseAttribute.REGISTRATION_DATE,
+                    SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, moreThan));
         }
 
         if (equal != null)
@@ -688,9 +688,9 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         SearchCriteria sc = new SearchCriteria();
 
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN, lower));
+                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lower));
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN, upper));
+                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upper));
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
 
         assertThat(
@@ -710,14 +710,14 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN, lowerReg));
+                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lowerReg));
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN, upperReg));
+                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upperReg));
 
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN, lowerMod));
+                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lowerMod));
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN, upperMod));
+                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upperMod));
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
 
         assertThat(
@@ -735,9 +735,9 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         SearchCriteria sc = new SearchCriteria();
 
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN, lower));
+                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lower));
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN, upper));
+                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upper));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
 
         assertThat(

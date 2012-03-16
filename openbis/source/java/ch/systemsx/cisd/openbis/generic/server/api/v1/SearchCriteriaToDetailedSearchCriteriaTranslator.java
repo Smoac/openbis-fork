@@ -321,10 +321,10 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case EQUALS:
                     t = CompareType.EQUALS;
                     break;
-                case LESS_THAN:
+                case LESS_THAN_OR_EQUAL:
                     t = CompareType.LESS_THAN_OR_EQUAL;
                     break;
-                case MORE_THAN:
+                case MORE_THAN_OR_EQUAL:
                     t = CompareType.MORE_THAN_OR_EQUAL;
                     break;
                 default:
