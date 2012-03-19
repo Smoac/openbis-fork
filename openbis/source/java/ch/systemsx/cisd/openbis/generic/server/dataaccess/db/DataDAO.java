@@ -263,13 +263,18 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             return Collections.emptyList();
         }
 
-        final Criterion codeIn = Restrictions.in("code", dataSetCodes);
-
-        final DetachedCriteria criteria = DetachedCriteria.forClass(DeletedDataPE.class);
-        criteria.add(codeIn);
-        criteria.setFetchMode("dataStore", FetchMode.SELECT);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
-        final List<DeletedDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<DeletedDataPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(DeletedDataPE.class);
+                            criteria.setFetchMode("dataStore", FetchMode.SELECT);
+                            criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+                            return criteria;
+                        }
+                    }, "code", dataSetCodes);
 
         if (operationLog.isDebugEnabled())
         {
@@ -325,32 +330,39 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     private List<DataPE> primFindFullDataSetsByCode(String identifierColumn,
-            Collection<?> identifiers, boolean withPropertyTypes, boolean lockForUpdate)
+            Collection<?> identifiers, final boolean withPropertyTypes, final boolean lockForUpdate)
     {
         if (identifiers.size() == 0)
         {
             return Collections.emptyList();
         }
 
-        final Criterion codeIn = Restrictions.in(identifierColumn, identifiers);
-
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
-        criteria.add(codeIn);
-        criteria.setFetchMode("dataSetType", FetchMode.SELECT);
-        criteria.setFetchMode("dataStore", FetchMode.SELECT);
-        criteria.setFetchMode("experimentInternal", FetchMode.SELECT);
-        criteria.setFetchMode("sampleInternal", FetchMode.SELECT);
-        criteria.setFetchMode("fileFormat", FetchMode.SELECT);
-        if (withPropertyTypes)
-        {
-            criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
-        }
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
-        if (lockForUpdate)
-        {
-            criteria.setLockMode(LockMode.UPGRADE);
-        }
-        final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<DataPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(ENTITY_CLASS);
+                            criteria.setFetchMode("dataSetType", FetchMode.SELECT);
+                            criteria.setFetchMode("dataStore", FetchMode.SELECT);
+                            criteria.setFetchMode("experimentInternal", FetchMode.SELECT);
+                            criteria.setFetchMode("sampleInternal", FetchMode.SELECT);
+                            criteria.setFetchMode("fileFormat", FetchMode.SELECT);
+                            if (withPropertyTypes)
+                            {
+                                criteria.setFetchMode(
+                                        "dataSetType.dataSetTypePropertyTypesInternal",
+                                        FetchMode.JOIN);
+                            }
+                            criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+                            if (lockForUpdate)
+                            {
+                                criteria.setLockMode(LockMode.UPGRADE);
+                            }
+                            return criteria;
+                        }
+                    }, identifierColumn, identifiers);
 
         if (operationLog.isDebugEnabled())
         {
@@ -964,9 +976,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         {
             return new ArrayList<DataPE>();
         }
-        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
-        criteria.add(Restrictions.in("code", values));
-        final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<DataPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), DataPE.class, "code", values);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d data set(s) have been found.", list.size()));
@@ -1007,11 +1018,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
         final List<Long> longIds = TechId.asLongs(samples);
-        criteria.setProjection(Projections.id());
-        criteria.add(Restrictions.in("sampleInternal.id", longIds));
-        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(DataPE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, "sampleInternal.id", longIds);
+
         if (operationLog.isDebugEnabled())
         {
             operationLog
@@ -1022,11 +1041,18 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> experiments)
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
         final List<Long> longIds = TechId.asLongs(experiments);
-        criteria.setProjection(Projections.id());
-        criteria.add(Restrictions.in("experimentInternal.id", longIds));
-        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(DataPE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, "experimentInternal.id", longIds);
         if (operationLog.isDebugEnabled())
         {
             operationLog.info(String.format("found %s data sets for given experiments",
@@ -1052,12 +1078,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                 public void execute(List<Long> batchIds)
                 {
-                    final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
-                    criteria.setProjection(Projections.id());
-                    criteria.add(Restrictions.in("containerInternal.id", batchIds));
-                    final List<Long> batchResults =
-                            cast(getHibernateTemplate().findByCriteria(criteria));
-                    totalResults.addAll(batchResults);
+                    List<Long> result =
+                            DAOUtils.listByCollection(getHibernateTemplate(),
+                                    new IDetachedCriteriaFactory()
+                                        {
+                                            public DetachedCriteria createCriteria()
+                                            {
+                                                final DetachedCriteria criteria =
+                                                        DetachedCriteria.forClass(DataPE.class);
+                                                criteria.setProjection(Projections.id());
+                                                return criteria;
+                                            }
+                                        }, "containerInternal.id", batchIds);
+                    totalResults.addAll(result);
                 }
 
                 public List<Long> getAllEntities()

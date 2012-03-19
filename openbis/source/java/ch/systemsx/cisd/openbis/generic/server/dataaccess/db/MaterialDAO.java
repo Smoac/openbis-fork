@@ -199,9 +199,8 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         {
             return Collections.emptyList();
         }
-        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
-        criteria.add(Restrictions.in("id", ids));
-        final List<MaterialPE> list = cast(criteria.list());
+        final List<MaterialPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), ENTITY_CLASS, "id", ids);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d materials have been found for ids: %s.",

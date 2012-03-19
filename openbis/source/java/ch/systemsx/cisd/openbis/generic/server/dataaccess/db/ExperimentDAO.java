@@ -142,11 +142,17 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             return new ArrayList<ExperimentPE>();
         }
-        DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.in("id", experimentIDs));
-        criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<ExperimentPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+                            criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
+                            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+                            return criteria;
+                        }
+                    }, "id", experimentIDs);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d experiments have been found for specified IDs.",
@@ -279,9 +285,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             return new ArrayList<ExperimentPE>();
         }
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ExperimentPE.class);
-        criteria.add(Restrictions.in(idName, ids));
-        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<ExperimentPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), ExperimentPE.class, idName, ids);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d experiment(s) have been found.", list.size()));

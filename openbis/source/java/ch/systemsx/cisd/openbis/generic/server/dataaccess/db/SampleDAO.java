@@ -380,9 +380,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         {
             return new ArrayList<SamplePE>();
         }
-        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
-        criteria.add(Restrictions.in(idName, values));
-        final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<SamplePE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), SamplePE.class, idName, values);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d sample(s) have been found.", list.size()));
@@ -479,11 +478,18 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     public List<TechId> listSampleIdsByContainerIds(final Collection<TechId> containers)
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
         final List<Long> longIds = TechId.asLongs(containers);
-        criteria.setProjection(Projections.id());
-        criteria.add(Restrictions.in("container.id", longIds));
-        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(SamplePE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, "container.id", longIds);
         if (operationLog.isDebugEnabled())
         {
             operationLog.info(String.format("found %s sample components for given containers",
@@ -494,11 +500,18 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
         final List<Long> longIds = TechId.asLongs(experiments);
-        criteria.setProjection(Projections.id());
-        criteria.add(Restrictions.in("experimentInternal.id", longIds));
-        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(SamplePE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, "experimentInternal.id", longIds);
         if (operationLog.isDebugEnabled())
         {
             operationLog.info(String.format("found %s samples for given experiments",
