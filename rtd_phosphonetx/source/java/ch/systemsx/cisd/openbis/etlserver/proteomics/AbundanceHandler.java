@@ -37,9 +37,11 @@ class AbundanceHandler extends AbstractSampleHandler
     private final SampleType sampleType;
 
     AbundanceHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
-            ExperimentIdentifier experimentIdentifier, Experiment experiment)
+            ExperimentIdentifier experimentIdentifier, Experiment experiment, String delimiter,
+            boolean restrictedSampleResolving)
     {
-        super(openbisService, dao, experimentIdentifier, experiment);
+        super(openbisService, dao, experimentIdentifier, experiment, delimiter,
+                restrictedSampleResolving);
         sampleType = new SampleType();
         sampleType.setCode(Constants.SEARCH_SAMPLE_TYPE);
     }

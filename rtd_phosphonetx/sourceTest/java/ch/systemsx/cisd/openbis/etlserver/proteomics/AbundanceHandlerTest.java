@@ -31,8 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.AbundanceHandler;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.IProtDAO;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.Parameter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -42,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
@@ -107,7 +106,7 @@ public class AbundanceHandlerTest extends AssertJUnit
         experiment = new Experiment();
         experiment.setPermID(EXPERIMENT_PERM_ID);
         experiment.setId(EXPERIMENT_ID);
-        handler = new AbundanceHandler(service, dao, EXPERIMENT_IDENTIFIER, experiment);
+        handler = new AbundanceHandler(service, dao, EXPERIMENT_IDENTIFIER, experiment, "+", false);
     }
 
     @AfterMethod
@@ -150,6 +149,27 @@ public class AbundanceHandlerTest extends AssertJUnit
 
         handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID, PROTEIN_NAME);
         handler.addAbundancesToDatabase(createParameter("1.5"), PROTEIN_ID, PROTEIN_NAME);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testAddTwoAbundanceValuesForASampleIdentifiedByCodeAndSpace()
+    {
+        String sampleIdentifier = "/" + SPACE_CODE + "/" + PARAMETER_NAME;
+        prepareCreateSampleIdentifiedByIdentifier(sampleIdentifier);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createAbundance(PROTEIN_ID, SAMPLE_ID, ABUNDANCE);
+                    one(dao).createAbundance(PROTEIN_ID, SAMPLE_ID, 1.5);
+                }
+            });
+
+        handler.addAbundancesToDatabase(createParameter(sampleIdentifier, PARAMETER_VALUE),
+                PROTEIN_ID, PROTEIN_NAME);
+        handler.addAbundancesToDatabase(createParameter(sampleIdentifier, "1.5"), PROTEIN_ID,
+                PROTEIN_NAME);
 
         context.assertIsSatisfied();
     }
@@ -248,25 +268,40 @@ public class AbundanceHandlerTest extends AssertJUnit
                 }
             });
 
-        handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID, PROTEIN_NAME);
+        handler.addAbundancesToDatabase(
+                createParameter(PARAMETER_NAME + "+blabla.xml", PARAMETER_VALUE), PROTEIN_ID,
+                PROTEIN_NAME);
 
         context.assertIsSatisfied();
     }
 
     private Parameter createParameter(String value)
     {
+        return createParameter(PARAMETER_NAME, value);
+    }
+
+    Parameter createParameter(String parameterName, String value)
+    {
         Parameter parameter = new Parameter();
-        parameter.setName(PARAMETER_NAME);
+        parameter.setName(parameterName);
         parameter.setValue(value);
         return parameter;
     }
 
     private void prepareCreateSampleIdentifiedByCode()
     {
+        prepareCreateSampleIdentifiedByIdentifier(PARAMETER_NAME);
+    }
+
+    void prepareCreateSampleIdentifiedByIdentifier(final String sampleIdentifier)
+    {
         Sample sample = new Sample();
         sample.setPermId(SAMPLE_PERM_ID);
-        sample.setIdentifier(PARAMETER_NAME);
-        prepareGetSample(sample);
+        sample.setIdentifier(sampleIdentifier);
+        prepareGetSample(
+                SampleIdentifierFactory
+                        .parse(sampleIdentifier, "/" + CommonConstants.MS_DATA_SPACE).toString(),
+                sample);
         prepareCreateSample();
         context.checking(new Expectations()
             {
@@ -283,7 +318,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                                             + EXPERIMENT_CODE, newSample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER.toString(),
                                             newSample.getExperimentIdentifier());
-                                    assertEquals(PARAMETER_NAME, newSample.getParentIdentifier());
+                                    assertEquals(sampleIdentifier, newSample.getParentIdentifier());
                                     return true;
                                 }
                                 return false;
@@ -314,7 +349,7 @@ public class AbundanceHandlerTest extends AssertJUnit
 
     private void prepareCreateSampleIdentifiedByProperty(final List<Sample> samples)
     {
-        prepareGetSample(null);
+        prepareGetSample(SAMPLE_IDENTIFER.toString(), null);
         context.checking(new Expectations()
             {
                 {
@@ -337,7 +372,7 @@ public class AbundanceHandlerTest extends AssertJUnit
             });
     }
 
-    private void prepareGetSample(final Sample sample)
+    private void prepareGetSample(final String expectedSampleIdentifier, final Sample sample)
     {
         context.checking(new Expectations()
             {
@@ -348,12 +383,12 @@ public class AbundanceHandlerTest extends AssertJUnit
 
                                     public boolean matches(Object item)
                                     {
-                                        return SAMPLE_IDENTIFER.toString().equals(item.toString());
+                                        return expectedSampleIdentifier.equals(item.toString());
                                     }
 
                                     public void describeTo(Description description)
                                     {
-                                        description.appendValue(SAMPLE_IDENTIFER);
+                                        description.appendValue(expectedSampleIdentifier);
 
                                     }
                                 }));

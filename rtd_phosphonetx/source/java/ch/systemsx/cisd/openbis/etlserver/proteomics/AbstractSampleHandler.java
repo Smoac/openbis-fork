@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
@@ -57,31 +58,49 @@ abstract class AbstractSampleHandler extends AbstractHandler
 
     private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
 
+    private final String delimiter;
+
+    private final boolean restrictedSampleResolving;
+
     AbstractSampleHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
-            ExperimentIdentifier experimentIdentifier, Experiment experiment)
+            ExperimentIdentifier experimentIdentifier, Experiment experiment, String delimiter,
+            boolean restrictedSampleResolving)
     {
         super(dao);
         this.openbisService = openbisService;
         this.experimentIdentifier = experimentIdentifier;
         this.experiment = experiment;
+        this.delimiter = delimiter;
+        this.restrictedSampleResolving = restrictedSampleResolving;
         String databaseInstanceCode = experimentIdentifier.getDatabaseInstanceCode();
         space = new SpaceIdentifier(databaseInstanceCode, CommonConstants.MS_DATA_SPACE);
     }
     
-    protected SampleOrError getOrCreateSampleOrError(String sampleName)
+    protected SampleOrError getOrCreateSampleOrError(String sampleNameAndMore)
     {
+        int indexOfDelimiter = sampleNameAndMore.indexOf(delimiter);
+        String sampleName;
+        if (indexOfDelimiter < 0)
+        {
+            sampleName = sampleNameAndMore;
+        } else
+        {
+            sampleName = sampleNameAndMore.substring(0, indexOfDelimiter);
+        }
         SampleOrError sampleOrError = samplesOrErrors.get(sampleName);
         if (sampleOrError == null)
         {
             // first we look for a sample in space MS_DATA
-            SampleIdentifier sampleIdentifier = new SampleIdentifier(space, sampleName);
+            SampleIdentifier sampleIdentifier =
+                    SampleIdentifierFactory.parse(sampleName, "/" + CommonConstants.MS_DATA_SPACE);
+            String sampleCode = sampleIdentifier.getSampleCode();
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             sampleOrError = new SampleOrError();
             if (sample != null)
             {
                 sampleOrError.sample = getOrCreateSample(sample.getPermId());
-            } else
+            } else if (restrictedSampleResolving == false)
             {
                 // second we look for a sample in same space as search experiment with
                 // a property specified by 'sampleName'
@@ -102,10 +121,13 @@ abstract class AbstractSampleHandler extends AbstractHandler
                     sample = list.get(0);
                     sampleOrError.sample = getOrCreateSample(sample.getPermId());
                 }
+            } else
+            {
+                sampleOrError.error = "Couldn't resolve sample: " + sampleIdentifier;
             }
             if (sample != null)
             {
-                handleSample(sampleName, sample);
+                handleSample(sampleCode, sample);
             }
             samplesOrErrors.put(sampleName, sampleOrError);
         }

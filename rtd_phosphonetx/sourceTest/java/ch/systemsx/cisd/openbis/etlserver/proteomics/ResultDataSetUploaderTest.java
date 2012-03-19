@@ -145,7 +145,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         dao = context.mock(IProtDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
 
-        uploader = new ResultDataSetUploader(dao, connection, service, true);
+        uploader = new ResultDataSetUploader(dao, connection, service, true, "+", false);
     }
 
     @AfterMethod
@@ -310,7 +310,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, CommonConstants.MS_DATA_SPACE);
+        final GroupIdentifier groupIdentifier = new GroupIdentifier((String) null, CommonConstants.MS_DATA_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
@@ -533,7 +533,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             {
                 {
                     one(service).tryGetSampleWithExperiment(
-                            new SampleIdentifier(new SpaceIdentifier(DB_INSTANCE,
+                            new SampleIdentifier(new SpaceIdentifier((String) null,
                                     CommonConstants.MS_DATA_SPACE), CELL_LYSATE1));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();

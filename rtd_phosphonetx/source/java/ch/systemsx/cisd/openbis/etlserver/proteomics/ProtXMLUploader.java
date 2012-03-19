@@ -44,6 +44,10 @@ public class ProtXMLUploader implements IDataSetUploader
     private static final String VALIDATING_XML = "validating-xml";
     
     private static final String ASSUMING_EXTENDED_PROT_XML = "assuming-extended-prot-xml";
+    
+    private static final String MS_INJECTION_SAMPLE_DELIMITER = "delimiter_for_sample_resolving";
+    
+    private static final String RESTRICTED_SAMPLE_RESOLVING = "restricted_sample_resolving";
 
     private static final String DATABASE_ENGINE = "database.engine";
 
@@ -80,6 +84,10 @@ public class ProtXMLUploader implements IDataSetUploader
 
     private final boolean assumingExtendedProtXML;
     
+    private final String msInjectionSampleDelimiter;
+    
+    private final boolean restrictedSampleResolving;
+    
     private ResultDataSetUploader currentResultDataSetUploader;
 
     public ProtXMLUploader(Properties properties, IEncapsulatedOpenBISService openbisService)
@@ -87,6 +95,8 @@ public class ProtXMLUploader implements IDataSetUploader
         dataSource = createDataSource(properties);
         this.openbisService = openbisService;
         assumingExtendedProtXML = PropertyUtils.getBoolean(properties, ASSUMING_EXTENDED_PROT_XML, false);
+        msInjectionSampleDelimiter = properties.getProperty(MS_INJECTION_SAMPLE_DELIMITER, "~");
+        restrictedSampleResolving = PropertyUtils.getBoolean(properties, RESTRICTED_SAMPLE_RESOLVING, true);
         loader = new ProtXMLLoader(PropertyUtils.getBoolean(properties, VALIDATING_XML, false));
     }
 
@@ -152,7 +162,8 @@ public class ProtXMLUploader implements IDataSetUploader
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        return new ResultDataSetUploader(connection, openbisService, assumingExtendedProtXML);
+        return new ResultDataSetUploader(connection, openbisService, assumingExtendedProtXML,
+                msInjectionSampleDelimiter, restrictedSampleResolving);
     }
 
     private File getProtXMLFile(File dataSet)

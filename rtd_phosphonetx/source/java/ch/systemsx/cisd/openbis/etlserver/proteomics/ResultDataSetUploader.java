@@ -75,18 +75,28 @@ class ResultDataSetUploader extends AbstractHandler
 
     private final boolean assumingExtendedProtXML;
 
-    ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService, boolean assumingExtendedProtXML)
+    private final String delimiter;
+
+    private final boolean restrictedSampleResolving;
+
+    ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService,
+            boolean assumingExtendedProtXML, String delimiter,
+            boolean restrictedSampleResolving)
     {
-        this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService, assumingExtendedProtXML);
+        this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService,
+                assumingExtendedProtXML, delimiter, restrictedSampleResolving);
     }
 
     ResultDataSetUploader(IProtDAO dao, Connection connection,
-            IEncapsulatedOpenBISService openbisService, boolean assumingExtendedProtXML)
+            IEncapsulatedOpenBISService openbisService, boolean assumingExtendedProtXML,
+            String delimiter, boolean restrictedSampleResolving)
     {
         super(dao);
         this.connection = connection;
         this.openbisService = openbisService;
         this.assumingExtendedProtXML = assumingExtendedProtXML;
+        this.delimiter = delimiter;
+        this.restrictedSampleResolving = restrictedSampleResolving;
         this.errorMessages = new StringBuffer();
     }
 
@@ -207,10 +217,11 @@ class ResultDataSetUploader extends AbstractHandler
         long dataSetID = dataSet.getId();
         Long databaseID = dataSet.getDatabaseID();
         AbundanceHandler abundanceHandler =
-                new AbundanceHandler(openbisService, dao, experimentIdentifier, experiment);
+                new AbundanceHandler(openbisService, dao, experimentIdentifier, experiment,
+                        delimiter, restrictedSampleResolving);
         ModificationFractionHandler modificationFractionHandler =
                 new ModificationFractionHandler(openbisService, dao, experimentIdentifier,
-                        experiment);
+                        experiment, delimiter, restrictedSampleResolving);
         ProbabilityToFDRCalculator calculator = createProbabilityToFDRMapping(dataSetID, summary);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)

@@ -32,9 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 class ModificationFractionHandler extends AbstractSampleHandler
 {
     public ModificationFractionHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
-            ExperimentIdentifier experimentIdentifier, Experiment experiment)
+            ExperimentIdentifier experimentIdentifier, Experiment experiment, String delimiter,
+            boolean restrictedSampleResolving)
     {
-        super(openbisService, dao, experimentIdentifier, experiment);
+        super(openbisService, dao, experimentIdentifier, experiment, delimiter,
+                restrictedSampleResolving);
     }
 
     @Override
