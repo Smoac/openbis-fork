@@ -80,3 +80,51 @@ text-decoration:none;
 {
 background-color:#6666FF;
 }
+
+#chemical_browser a:link,a:visited
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#6699FF;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+}
+#chemical_browser a:hover,a:active
+{
+background-color:#6666FF;
+}
+
+#oligo_browser a:link,a:visited
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#6699FF;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+}
+#oligo_browser a:hover,a:active
+{
+background-color:#6666FF;
+}
+
+#chemical_browser a:link,a:visited
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#6699FF;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+}
+#chemical_browser a:hover,a:active
+{
+background-color:#6666FF;
+}
