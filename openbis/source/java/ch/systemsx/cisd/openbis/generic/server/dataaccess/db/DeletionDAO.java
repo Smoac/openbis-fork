@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -448,10 +449,23 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         {
             return Collections.emptyList();
         }
-        DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
+        HibernateTemplate hibernateTemplate = getHibernateTemplate();
         List<Long> ids = TechId.asLongs(entityIds);
-        criteria.add(Restrictions.in(ID, ids));
-        return cast(getHibernateTemplate().findByCriteria(criteria));
+        int chunkSize = 30000;
+        List<IDeletablePE> result = new ArrayList<IDeletablePE>();
+        for (int i = 0, n = ids.size(); i < n; i += chunkSize)
+        {
+            DetachedCriteria criteria =
+                    DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
+            List<Long> subList = ids.subList(i, Math.min(n, i + chunkSize));
+            if (subList.isEmpty() == false)
+            {
+                criteria.add(Restrictions.in(ID, subList));
+                List<IDeletablePE> list = cast(hibernateTemplate.findByCriteria(criteria));
+                result.addAll(list);
+            }
+        }
+        return result;
     }
 
     public List<TechId> listDeletedEntitiesForType(EntityKind entityKind, TechId entityTypeId)
