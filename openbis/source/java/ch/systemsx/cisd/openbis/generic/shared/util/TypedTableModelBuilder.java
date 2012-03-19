@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell;
 
 /**
@@ -203,12 +205,27 @@ public class TypedTableModelBuilder<T extends Serializable>
                 switch (dataType)
                 {
                     case MATERIAL:
-                        value =
-                                new EntityTableCell(EntityKind.MATERIAL, property.getMaterial()
-                                        .getIdentifier());
+
+                        Material material = property.getMaterial();
+                        if (material == null) // if not yet calculated dynamic property
+                        {
+                            value = new StringTableCell("");
+                        } else
+                        {
+                            value =
+                                    new EntityTableCell(EntityKind.MATERIAL,
+                                            material.getIdentifier());
+                        }
                         break;
                     case CONTROLLEDVOCABULARY:
-                        value = new VocabularyTermTableCell(property.getVocabularyTerm());
+                        VocabularyTerm vocabularyTerm = property.getVocabularyTerm();
+                        if (vocabularyTerm == null) // if not yet calculated dynamic property
+                        {
+                            value = new StringTableCell("");
+                        } else
+                        {
+                            value = new VocabularyTermTableCell(vocabularyTerm);
+                        }
                         break;
                     default:
                         value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
