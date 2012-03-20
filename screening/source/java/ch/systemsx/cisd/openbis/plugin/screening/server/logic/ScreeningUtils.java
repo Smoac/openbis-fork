@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
@@ -376,5 +377,13 @@ public class ScreeningUtils
             sb.append(starExpr);
         }
         return sb.toString();
+    }
+
+    public static boolean isMatchingAnalysisProcedure(ExternalData dataset,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
+    {
+        String dataSetAnalysisProcedure =
+                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        return analysisProcedureCriteria.matches(dataSetAnalysisProcedure);
     }
 }

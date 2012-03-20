@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.EXPERIMENT_PERM_ID;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_PROPS_GROUP;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.EXPERIMENT_PERM_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTabl
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.IColumnMetaData;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
@@ -72,37 +77,73 @@ public class FeatureVectorSummaryProvider extends
         ExperimentFeatureVectorSummary fvSummary =
                 server.getExperimentFeatureVectorSummary(sessionToken, experimentId,
                         analysisProcedureCriteria);
+        TableModel tableModel = fvSummary.getTableModelOrNull();
+        if (tableModel == null)
+        {
+            buildTableFromSummary(builder, fvSummary);
+        } else
+        {
+            buildTableFromTableModel(builder, tableModel);
+        }
+        return builder.getModel();
+    }
 
+    private void buildTableFromTableModel(
+            TypedTableModelBuilder<MaterialFeatureVectorSummary> builder, TableModel tableModel)
+    {
+        List<TableModelColumnHeader> headers = tableModel.getHeader();
+        for (int i = 0; i < headers.size(); i++)
+        {
+            TableModelColumnHeader header = headers.get(i);
+            IColumnMetaData columnMetaData = builder.addColumn(header.getId()).withTitle(header.getTitle());
+            if (header.isNumeric())
+            {
+                columnMetaData.withDataType(header.getDataType());
+            }
+        }
+        List<TableModelRow> rows = tableModel.getRows();
+        for (TableModelRow row : rows)
+        {
+            builder.addRow(null);
+            List<ISerializableComparable> values = row.getValues();
+            for (int i = 0; i < values.size(); i++)
+            {
+                builder.column(headers.get(i).getId()).addValue(values.get(i));
+            }
+        }
+    }
+
+    private void buildTableFromSummary(TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,
+            ExperimentFeatureVectorSummary fvSummary)
+    {
         builder.addColumn(MATERIAL_ID);
         builder.addColumn(EXPERIMENT_PERM_ID).hideByDefault();
-
+        
         builder.columnGroup(MATERIAL_PROPS_GROUP);
-
+        
         List<CodeAndLabel> featureDescriptions = fvSummary.getFeatureDescriptions();
         List<String> featureColumnIds = new ArrayList<String>();
         List<String> rankColumnIds = new ArrayList<String>();
-
+        
         for (CodeAndLabel featureDescription : featureDescriptions)
         {
             String featureCode = featureDescription.getCode();
             String featureColumnId = getFeatureColumnId(featureCode);
             String featureLabel = featureDescription.getLabel();
             builder.addColumn(featureColumnId).withTitle(featureLabel)
-                    .withDataType(DataTypeCode.REAL);
+            .withDataType(DataTypeCode.REAL);
             featureColumnIds.add(featureColumnId);
-
+            
             String rankColumnId = getRankColumnId(featureCode);
             String rankTitle = ScreeningProviderMessages.RANK_COLUMN_MSG;
             builder.addColumn(rankColumnId).withTitle(rankTitle).withDataType(DataTypeCode.INTEGER);
             rankColumnIds.add(rankColumnId);
         }
-
+        
         for (MaterialFeatureVectorSummary summary : fvSummary.getMaterialsSummary())
         {
             addRow(builder, fvSummary.getExperiment(), summary, featureColumnIds, rankColumnIds);
         }
-
-        return builder.getModel();
     }
 
     private void addRow(TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,

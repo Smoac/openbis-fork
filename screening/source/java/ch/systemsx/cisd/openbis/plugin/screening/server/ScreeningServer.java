@@ -26,11 +26,13 @@ import javax.annotation.Resource;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -64,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AnalysisProcedureResult;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.AnalysisSettings;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.LogicalImageLoader;
@@ -123,13 +126,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolution
  */
 @Component(ResourceNames.SCREENING_PLUGIN_SERVER)
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
-        IScreeningServer, IScreeningApiServer
+        IScreeningServer, IScreeningApiServer, InitializingBean
 {
     /**
      * The minor version of this service.
      */
     public static final int MINOR_VERSION = 9;
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
+    
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
 
@@ -139,6 +145,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     // necessary to make it possible to run asynchronous actions
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
+
+    private AnalysisSettings analysisSettings;
 
     public ScreeningServer()
     {
@@ -156,6 +164,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         this.businessObjectFactory = businessObjectFactory;
     }
 
+    public void afterPropertiesSet() throws Exception
+    {
+        analysisSettings = new AnalysisSettings(configurer.getResolvedProps());
+    }
+    
     //
     // IInvocationLoggerFactory
     //
@@ -315,9 +328,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
-        return ExperimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(session,
-                businessObjectFactory, getDAOFactory(), experimentId, analysisProcedureCriteria,
-                settings);
+        ExperimentFeatureVectorSummaryLoader experimentFeatureVectorSummaryLoader =
+                new ExperimentFeatureVectorSummaryLoader(session, businessObjectFactory,
+                        getDAOFactory(), settings);
+        return experimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(experimentId,
+                analysisProcedureCriteria, analysisSettings);
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(

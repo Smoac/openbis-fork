@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,11 +28,15 @@ import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFun
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
@@ -48,23 +54,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  */
 public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 {
-    /**
-     * Loads feature vectors summaries for all the materials in the specified experiment.
-     */
-    public static ExperimentFeatureVectorSummary loadExperimentFeatureVectors(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria,
-            MaterialSummarySettings settings)
-    {
-        return new ExperimentFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                settings).loadExperimentFeatureVectors(experimentId, analysisProcedureCriteria);
-    }
-
     protected final MaterialSummarySettings settings;
 
     private final WellDataLoader wellDataLoader;
 
-    protected ExperimentFeatureVectorSummaryLoader(Session session,
+    public ExperimentFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             MaterialSummarySettings settings)
     {
@@ -74,15 +68,54 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 new WellDataLoader(session, businessObjectFactory, daoFactory, settings);
     }
 
-    private ExperimentFeatureVectorSummary loadExperimentFeatureVectors(TechId experimentId,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+    public ExperimentFeatureVectorSummary loadExperimentFeatureVectors(TechId experimentId,
+            AnalysisProcedureCriteria analysisProcedureCriteria, AnalysisSettings analysisSettings)
     {
-
+        ExperimentReference experiment = loadExperimentByTechId(experimentId);
+        if (analysisSettings.noAnalysisSettings() == false)
+        {
+            List<ExternalData> matchingDataSets =
+                    getMatchingDataSets(experimentId, analysisProcedureCriteria);
+            if (matchingDataSets.size() == 1)
+            {
+                ExternalData ds = matchingDataSets.get(0);
+                String reportingPluginKey = analysisSettings.tryToGetReportingPluginKey(ds);
+                if (reportingPluginKey != null)
+                {
+                    String dataStore = ds.getDataStore().getCode();
+                    List<String> codes = Arrays.asList(ds.getCode());
+                    IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+                    try
+                    {
+                        TableModel tabelModel =
+                                dataSetTable.createReportFromDatasets(reportingPluginKey, dataStore,
+                                        codes);
+                        return new ExperimentFeatureVectorSummary(experiment,
+                                Collections.<MaterialFeatureVectorSummary> emptyList(),
+                                Collections.<CodeAndLabel> emptyList(), tabelModel);
+                    } catch (UserFailureException ex)
+                    {
+                        String message = ex.getMessage();
+                        if (message.startsWith("Main "))
+                        {
+                            message +=
+                                    "\n\nHint: The file pattern for the data set type "
+                                            + ds.getDataSetType().getCode()
+                                            + " could be wrong.";
+                        }
+                        throw decorateException(ex, ds, "Reason: " + message);
+                    } catch (Exception ex)
+                    {
+                        throw decorateException(ex, ds, "See server logs for the reason.");
+                    }
+                }
+            }
+        }
+        
         MaterialIdSummariesAndFeatures summaries =
                 wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(experimentId,
                         settings.getReplicaMaterialTypeSubstrings(), analysisProcedureCriteria,
                         false);
-        ExperimentReference experiment = loadExperimentByTechId(experimentId);
         if (summaries == null)
         {
             return createEmptySummary(experiment);
@@ -90,7 +123,31 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         List<MaterialFeatureVectorSummary> enrichedFeatureSummaries =
                 enrichWithMaterials(summaries.getFeatureSummaries());
         return new ExperimentFeatureVectorSummary(experiment, enrichedFeatureSummaries,
-                summaries.getFeatureNames());
+                summaries.getFeatureNames(), null);
+    }
+
+    UserFailureException decorateException(Exception ex, ExternalData dataSet, String message)
+    {
+        return new UserFailureException(
+                "Analysis summary for data set "
+                        + dataSet.getCode()
+                        + " couldn't retrieved from Data Store Server. "
+                                + message, ex);
+    }
+
+    List<ExternalData> getMatchingDataSets(TechId experimentId,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
+    {
+        List<ExternalData> dataSets = businessObjectFactory.createDatasetLister(session).listByExperimentTechId(experimentId, true);
+        List<ExternalData> matchingDataSets = new ArrayList<ExternalData>();
+        for (ExternalData dataSet : dataSets)
+        {
+            if (ScreeningUtils.isMatchingAnalysisProcedure(dataSet, analysisProcedureCriteria))
+            {
+                matchingDataSets.add(dataSet);
+            }
+        }
+        return matchingDataSets;
     }
 
     private List<MaterialFeatureVectorSummary> enrichWithMaterials(
@@ -156,6 +213,6 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         List<MaterialFeatureVectorSummary> materialsSummary = Collections.emptyList();
         List<CodeAndLabel> featureDescriptions = Collections.emptyList();
-        return new ExperimentFeatureVectorSummary(experiment, materialsSummary, featureDescriptions);
+        return new ExperimentFeatureVectorSummary(experiment, materialsSummary, featureDescriptions, null);
     }
 }

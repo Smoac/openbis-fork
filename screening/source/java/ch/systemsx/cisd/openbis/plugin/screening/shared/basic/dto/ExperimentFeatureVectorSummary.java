@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
  * Aggregated feature vectors with their rankings in one experiment for all materials.
@@ -32,6 +33,8 @@ public class ExperimentFeatureVectorSummary implements Serializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private ExperimentReference experiment;
+    
+    private TableModel tableModelOrNull;
 
     // summaries without computed deviation
     private List<MaterialFeatureVectorSummary> materialsSummary;
@@ -47,11 +50,12 @@ public class ExperimentFeatureVectorSummary implements Serializable
 
     public ExperimentFeatureVectorSummary(ExperimentReference experiment,
             List<MaterialFeatureVectorSummary> materialsSummary,
-            List<CodeAndLabel> featureDescriptions)
+            List<CodeAndLabel> featureDescriptions, TableModel tableModelOrNull)
     {
         this.experiment = experiment;
         this.materialsSummary = materialsSummary;
         this.featureDescriptions = featureDescriptions;
+        this.tableModelOrNull = tableModelOrNull;
     }
 
     public ExperimentReference getExperiment()
@@ -67,6 +71,11 @@ public class ExperimentFeatureVectorSummary implements Serializable
     public List<CodeAndLabel> getFeatureDescriptions()
     {
         return featureDescriptions;
+    }
+
+    public TableModel getTableModelOrNull()
+    {
+        return tableModelOrNull;
     }
 
 }

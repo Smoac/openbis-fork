@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -161,17 +160,10 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         return isTypeMatching(dataset, ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    private boolean isMatchingAnalysisProcedure(ExternalData dataset)
-    {
-        String dataSetAnalysisProcedure =
-                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
-        return analysisProcedureCriteria.matches(dataSetAnalysisProcedure);
-    }
-
     private boolean isMatchingAnalysisDataSet(ExternalData dataset)
     {
         return isTypeMatching(dataset, HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN)
-                && isMatchingAnalysisProcedure(dataset);
+                && ScreeningUtils.isMatchingAnalysisProcedure(dataset, analysisProcedureCriteria);
     }
 
     private List<FeatureVectorDatasetReference> asFeatureVectorDatasetReferences()
