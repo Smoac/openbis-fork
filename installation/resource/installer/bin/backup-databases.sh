@@ -46,7 +46,7 @@ function backupDatabase() {
   
   getProperty $DB_PROPS "database"
   database=$propValue
-  if [ `psql -U postgres -l | grep $database | wc -l` -gt 0 ]; then
+  if [ `psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
     getProperty $DB_PROPS "username"
     username=$propValue
   
