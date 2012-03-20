@@ -99,7 +99,7 @@ public class WellContentLoader extends AbstractContentLoader
             TechId materialId, TechId experimentId)
     {
         WellContentLoader loader =
-                new WellContentLoader(session, businessObjectFactory, daoFactory);
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null);
         return loader.loadLocations(materialId, experimentId);
     }
 
@@ -109,7 +109,7 @@ public class WellContentLoader extends AbstractContentLoader
             TechId materialId)
     {
         final WellContentLoader loader =
-                new WellContentLoader(session, businessObjectFactory, daoFactory);
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null);
         return loader.loadLocations(materialId);
     }
 
@@ -119,7 +119,7 @@ public class WellContentLoader extends AbstractContentLoader
             TechId materialId, TechId projectId)
     {
         final WellContentLoader loader =
-                new WellContentLoader(session, businessObjectFactory, daoFactory);
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null);
         return loader.loadLocationsForProject(materialId, projectId);
     }
 
@@ -134,7 +134,7 @@ public class WellContentLoader extends AbstractContentLoader
     {
         long start = System.currentTimeMillis();
         WellContentLoader loader =
-                new WellContentLoader(session, businessObjectFactory, daoFactory);
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null);
         List<WellContent> locations = loader.loadLocations(materialCriteria);
 
         operationLog.info(String.format("[%d msec] Load %d locations.",
@@ -161,7 +161,7 @@ public class WellContentLoader extends AbstractContentLoader
             TechId materialId, TechId experimentId, MaterialSummarySettings settings)
     {
         WellContentLoader loader =
-                new WellContentLoader(session, businessObjectFactory, daoFactory);
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null);
         List<WellContent> locations = loader.loadLocations(materialId, experimentId);
         locations = loader.enrichWithSingleImageDatasets(locations);
         return annotateWithReplicaLabels(locations, settings);
@@ -277,7 +277,7 @@ public class WellContentLoader extends AbstractContentLoader
             WellSearchCriteria materialCriteria)
     {
         Iterable<WellContentQueryResult> locations =
-                new WellContentLoader(session, businessObjectFactory, daoFactory)
+                new WellContentLoader(session, businessObjectFactory, daoFactory, null)
                         .loadRawLocations(materialCriteria);
         Collection<Long> materialIds = extractMaterialIds(locations);
         return businessObjectFactory.createMaterialLister(session).list(
@@ -296,9 +296,10 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private WellContentLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            IScreeningQuery screeningQuery)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
     }
 
     private List<WellContent> enrichWithWellProperties(List<WellContent> locations)

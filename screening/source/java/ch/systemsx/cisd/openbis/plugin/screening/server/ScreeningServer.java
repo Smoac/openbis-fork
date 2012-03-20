@@ -330,7 +330,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         MaterialSummarySettings settings = createDefaultSettings();
         ExperimentFeatureVectorSummaryLoader experimentFeatureVectorSummaryLoader =
                 new ExperimentFeatureVectorSummaryLoader(session, businessObjectFactory,
-                        getDAOFactory(), settings);
+                        getDAOFactory(), null, settings);
         return experimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(experimentId,
                 analysisProcedureCriteria, analysisSettings);
     }

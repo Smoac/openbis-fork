@@ -48,6 +48,7 @@ public class AnalysisSettings
             String[] splittedProperty = property.split(",");
             for (String dataSetTypeSetting : splittedProperty)
             {
+                dataSetTypeSetting = dataSetTypeSetting.trim();
                 int indexOfColon = dataSetTypeSetting.indexOf(':');
                 if (indexOfColon < 0)
                 {

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
@@ -63,7 +64,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         MaterialAllReplicasFeatureVectors resultOrNull =
                 new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                        settings).tryLoadMaterialFeatureVectors(criteria);
+                        null, settings).tryLoadMaterialFeatureVectors(criteria);
 
         List<MaterialReplicaFeatureSummary> replicaRows = convertToFeatureRows(resultOrNull);
         List<String> subgroupLabels = tryGetSubgroupLabels(resultOrNull);
@@ -183,12 +184,13 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
     @Private
     MaterialFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            MaterialSummarySettings settings)
+            IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
         this.settings = settings;
         this.wellDataLoader =
-                new WellDataLoader(session, businessObjectFactory, daoFactory, settings);
+                new WellDataLoader(session, businessObjectFactory, daoFactory, screeningQuery,
+                        settings);
 
     }
 

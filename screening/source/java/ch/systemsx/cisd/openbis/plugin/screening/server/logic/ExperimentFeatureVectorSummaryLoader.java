@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
@@ -60,12 +61,13 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 
     public ExperimentFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            MaterialSummarySettings settings)
+            IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
         this.settings = settings;
         this.wellDataLoader =
-                new WellDataLoader(session, businessObjectFactory, daoFactory, settings);
+                new WellDataLoader(session, businessObjectFactory, daoFactory, screeningQuery,
+                        settings);
     }
 
     public ExperimentFeatureVectorSummary loadExperimentFeatureVectors(TechId experimentId,
@@ -101,7 +103,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                             message +=
                                     "\n\nHint: The file pattern for the data set type "
                                             + ds.getDataSetType().getCode()
-                                            + " could be wrong.";
+                                            + " might be wrong.";
                         }
                         throw decorateException(ex, ds, "Reason: " + message);
                     } catch (Exception ex)
@@ -112,6 +114,12 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             }
         }
         
+        return calculatedSummary(experimentId, analysisProcedureCriteria, experiment);
+    }
+
+    ExperimentFeatureVectorSummary calculatedSummary(TechId experimentId,
+            AnalysisProcedureCriteria analysisProcedureCriteria, ExperimentReference experiment)
+    {
         MaterialIdSummariesAndFeatures summaries =
                 wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(experimentId,
                         settings.getReplicaMaterialTypeSubstrings(), analysisProcedureCriteria,
@@ -126,19 +134,18 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 summaries.getFeatureNames(), null);
     }
 
-    UserFailureException decorateException(Exception ex, ExternalData dataSet, String message)
+    private UserFailureException decorateException(Exception ex, ExternalData dataSet, String message)
     {
-        return new UserFailureException(
-                "Analysis summary for data set "
-                        + dataSet.getCode()
-                        + " couldn't retrieved from Data Store Server. "
-                                + message, ex);
+        return new UserFailureException("Analysis summary for data set " + dataSet.getCode()
+                + " couldn't retrieved from Data Store Server. " + message, ex);
     }
 
-    List<ExternalData> getMatchingDataSets(TechId experimentId,
+    private List<ExternalData> getMatchingDataSets(TechId experimentId,
             AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        List<ExternalData> dataSets = businessObjectFactory.createDatasetLister(session).listByExperimentTechId(experimentId, true);
+        List<ExternalData> dataSets =
+                businessObjectFactory.createDatasetLister(session).listByExperimentTechId(
+                        experimentId, true);
         List<ExternalData> matchingDataSets = new ArrayList<ExternalData>();
         for (ExternalData dataSet : dataSets)
         {
@@ -213,6 +220,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         List<MaterialFeatureVectorSummary> materialsSummary = Collections.emptyList();
         List<CodeAndLabel> featureDescriptions = Collections.emptyList();
-        return new ExperimentFeatureVectorSummary(experiment, materialsSummary, featureDescriptions, null);
+        return new ExperimentFeatureVectorSummary(experiment, materialsSummary,
+                featureDescriptions, null);
     }
 }

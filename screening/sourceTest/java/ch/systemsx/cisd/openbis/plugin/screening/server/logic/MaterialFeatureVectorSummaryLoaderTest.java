@@ -80,7 +80,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
                 Arrays.asList(new CodeAndLabel("A", "A"), new CodeAndLabel("B", "B"));
 
         MaterialAllReplicasFeatureVectors featureVectors =
-                new MaterialFeatureVectorSummaryLoader(null, null, null, settings)
+                new MaterialFeatureVectorSummaryLoader(null, null, null, null, settings)
                         .createMaterialFeatureVectors(new TechId(replId), wellDataList, null,
                                 featuresDesc);
 

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -55,7 +54,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     {
         MaterialFeaturesFromAllExperimentsLoader loader =
                 new MaterialFeaturesFromAllExperimentsLoader(session, businessObjectFactory,
-                        daoFactory, settings);
+                        daoFactory, null, settings);
         List<ExperimentReference> experiments =
                 loader.fetchExperiments(materialId, projectTechIdOrNull);
         return loader.loadMaterialFeatureVectorsFromAllAssays(materialId,
@@ -103,11 +102,12 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
 
     private MaterialFeaturesFromAllExperimentsLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            MaterialSummarySettings settings)
+            IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
         this.wellDataLoader =
-                new WellDataLoader(session, businessObjectFactory, daoFactory, settings);
+                new WellDataLoader(session, businessObjectFactory, daoFactory, screeningQuery,
+                        settings);
     }
 
     /**

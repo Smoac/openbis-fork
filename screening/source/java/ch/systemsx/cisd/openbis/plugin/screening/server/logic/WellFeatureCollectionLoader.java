@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -52,9 +53,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
 public class WellFeatureCollectionLoader extends AbstractContentLoader
 {
     public WellFeatureCollectionLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            IScreeningQuery screeningQuery)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
     }
 
     /** Loads feature vectors for chosen plates and set of features */

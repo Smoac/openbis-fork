@@ -58,11 +58,13 @@ abstract class AbstractContentLoader
     private IScreeningQuery screeningDao = null;
 
     protected AbstractContentLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            IScreeningQuery screeningDaoOrNull)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
+        screeningDao = screeningDaoOrNull;
     }
 
     protected IScreeningQuery getScreeningDAO()

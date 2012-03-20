@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.BasicWellContentQueryResult;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PatternMatchingUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult;
@@ -69,9 +70,9 @@ class WellDataLoader extends AbstractContentLoader
     private final MaterialSummarySettings settings;
 
     public WellDataLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, MaterialSummarySettings settings)
+            IDAOFactory daoFactory, IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {
-        super(session, businessObjectFactory, daoFactory);
+        super(session, businessObjectFactory, daoFactory, screeningQuery);
         this.settings = settings;
     }
 
@@ -490,7 +491,7 @@ class WellDataLoader extends AbstractContentLoader
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
             Set<PlateIdentifier> plates, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory)
+        return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory, null)
                 .tryLoadWellSingleFeatureVectors(plates, settings.getFeatureCodes(),
                         analysisProcedureCriteria);
     }
