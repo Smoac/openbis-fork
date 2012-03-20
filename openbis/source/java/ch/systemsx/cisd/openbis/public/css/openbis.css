@@ -1,75 +1,73 @@
-body,div,td, .default-text {
-    font-family: verdana, tahoma, helvetica;
-    font-size: 12px;
+body,div,td,.default-text {
+	font-family: verdana, tahoma, helvetica;
+	font-size: 12px;
 }
 
 .default-text {
 	font-weight: normal;
 	color: black;
 }
-	
+
 .link-style {
-    color: blue;
-    text-decoration: underline;
-    cursor: pointer;
+	color: blue;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 .inline {
-    display: inline;
+	display: inline;
 }
 
 .force-float-left {
-    float: left !important;
+	float: left !important;
 }
-
 
 /*****************************
  * Login
  *****************************/
-
 .login-header {
-  position: absolute;
-  width: 100%;
-  top: 10;
-  left: 10;
-  right: 10;
+	position: absolute;
+	width: 100%;
+	top: 10;
+	left: 10;
+	right: 10;
 }
 
 .login-help {
-  position: absolute;
-  width: 100%;
-  bottom: 10;
-  left: 0;
-  right: 0;
+	position: absolute;
+	width: 100%;
+	bottom: 10;
+	left: 0;
+	right: 0;
 }
 
 .login-welcome-text {
-    font-size: 22px;
-    color: gray;
-    margin-left: -155px;
-    vertical-align: middle;
+	font-size: 22px;
+	color: gray;
+	margin-left: -155px;
+	vertical-align: middle;
 }
 
 .login-page {
-  background-color: white;
+	background-color: white;
 }
 
 .login-widget {
-    border: 1px solid #B5B8C8;
-    padding-bottom: 7px;
-    padding-right: 7px;
+	border: 1px solid #B5B8C8;
+	padding-bottom: 7px;
+	padding-right: 7px;
 }
 
 .footer {
-    width: 100%;
-    text-align: center;
-    font-size: 11px;
-    color: gray;
-    background-color: white;
+	width: 100%;
+	text-align: center;
+	font-size: 11px;
+	color: gray;
+	background-color: white;
 }
 
 .invalid {
-    text-decoration: line-through;
+	text-decoration: line-through;
 }
 
 /* uncomment if we don't want an underline for an invalidated link
@@ -81,64 +79,61 @@ body,div,td, .default-text {
 /*****************************
  * Property grid
  *****************************/
-
 .property-grid {
-    table-layout: fixed;
-    border-collapse: collapse;
+	table-layout: fixed;
+	border-collapse: collapse;
 }
 
 .property-grid td {
-    border: 1px solid #ffffff;
-    padding: 3px 5px 3px 5px;
-    vertical-align: top;
+	border: 1px solid #ffffff;
+	padding: 3px 5px 3px 5px;
+	vertical-align: top;
 }
 
 .property-grid .header {
-    font-weight: bold;
-    background-color: #dddddd;
+	font-weight: bold;
+	background-color: #dddddd;
 }
 
 /*****************************
  * MainTabPanel
  *****************************/
-
 .intro-tab {
-    font-size: large;
-    text-align: center;
+	font-size: large;
+	text-align: center;
 }
 
 .dummy-component {
-    text-align: center;
+	text-align: center;
 }
 
 .section-heading {
-    color: white;
-    background-color: #1e4e8f;
-    margin-top: 5;
-    padding: 3;
+	color: white;
+	background-color: #1e4e8f;
+	margin-top: 5;
+	padding: 3;
 }
 
 /*****************************
  * Overridden GXT stuff
  *****************************/
-
 .x-accordion-hd {
-    color: #15428B;
-    font-weight: bold;
-    font-size-adjust: none;
-    text-transform: capitalize;
+	color: #15428B;
+	font-weight: bold;
+	font-size-adjust: none;
+	text-transform: capitalize;
 }
 
 /* Remove the empty space if no icon has been specified for the tree. */
 .my-tree-icon div {
-    cursor: pointer;
-    margin-top: 1px;
-    height: 0%;
-    width: 0%;
+	cursor: pointer;
+	margin-top: 1px;
+	height: 0%;
+	width: 0%;
 }
 
-.x-tree3-node-text{
-    display: block !important;    
+.x-tree3-node-text {
+	display: block !important;
 }
 
 /* Show background image for button even if mouse is not over it. */
@@ -157,31 +152,38 @@ body,div,td, .default-text {
 .x-toolbar .x-btn-tl {
 	background-position: -6px 0;
 }
+
 .x-toolbar .x-btn-tr {
 	background-position: -9px 0;
 }
+
 .x-toolbar .x-btn-tc {
 	background-position: 0 -9px;
 }
+
 .x-toolbar .x-btn-ml {
 	background-position: -6px -24px;
 }
+
 .x-toolbar .x-btn-mr {
 	background-position: -9px -24px;
 }
+
 .x-toolbar .x-btn-mc {
 	background-position: 0 -2168px;
 }
+
 .x-toolbar .x-btn-bl {
 	background-position: -6px -3px;
 }
+
 .x-toolbar .x-btn-br {
 	background-position: -9px -3px;
 }
+
 .x-toolbar .x-btn-bc {
 	background-position: 0 -18px;
 }
-
 
 /* Don't show background image for button in top menu unless there is a mouse over it. 
 /* doesn't work
@@ -192,27 +194,35 @@ body,div,td, .default-text {
 .x-toolbar .x-btn-top-menu .x-btn-tl {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-tr {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-tc {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-ml {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-mr {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-mc {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-bl {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-br {
 	background-position: 500px 500px;
 }
+
 .x-toolbar .x-btn-top-menu .x-btn-bc {
 	background-position: 500px 500px;
 }
@@ -229,16 +239,14 @@ body,div,td, .default-text {
 /*****************************
  * Form
  *****************************/
-
 .x-form-trigger-generate {
-    background-image: url(../images/generate-trigger.gif) !important;
-
-    cursor: pointer;
+	background-image: url(../images/generate-trigger.gif) !important;
+	cursor: pointer;
 }
 
 .x-form-trigger-add {
-    background-image: url(../images/trigger-plus.png) !important;
-    cursor: pointer;
+	background-image: url(../images/trigger-plus.png) !important;
+	cursor: pointer;
 }
 
 .cisd-visible {
@@ -250,9 +258,18 @@ body,div,td, .default-text {
 }
 
 .hands {
-	cursor:hand;
+	cursor: hand;
 }
 
 .cisd-unofficial {
-	color: grey; font-style:italic;
+	color: grey;
+	font-style: italic;
+}
+
+/*****************************
+ * Movie buttons
+ *****************************/
+
+.movieButtons .x-btn {
+	margin-right: 5px;
 }

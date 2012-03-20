@@ -100,7 +100,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
         final int numberOfDepthLevels = model.getNumberOfDepthLevels();
         final Label depthSliderLabel = new Label();
         depthSliderContainer.add(depthSliderLabel);
-        final Slider depthSlider = createSlider(numberOfDepthLevels);
+        final Slider depthSlider = new SliderWithAutoWidth(numberOfDepthLevels);
         depthSliderContainer.add(depthSlider);
 
         final SliderWithMovieButtonsValueLoader valueLoader =
@@ -235,19 +235,6 @@ class LogicalImageSeriesGrid extends LayoutContainer
         int numberOfSequences = sortedPoints.size();
         String labelText = point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
         return new Label(labelText);
-    }
-
-    private static Slider createSlider(int maxValue)
-    {
-        final Slider slider = new Slider();
-        // we do not want the slider to be long when there are just few points
-        slider.setWidth(Math.min(230, Math.max(100, maxValue * 10)));
-        slider.setIncrement(1);
-        slider.setMinValue(1);
-        slider.setMaxValue(maxValue);
-        slider.setClickToChange(true);
-        slider.setUseTip(false);
-        return slider;
     }
 
     // private
@@ -607,7 +594,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
                 }
                 return;
             }
-
+            
             final LazyImageSeriesFrame newSelectedFrame = frames.get(newSelectionIndex);
 
             selectedFrameIndex = newSelectionIndex;

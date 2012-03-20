@@ -35,51 +35,68 @@ public class SliderWithMovieButtons extends Composite
 
     private MovieButtons buttons;
 
+    private Loading loading;
+
+    private int loadingCounter;
+
     private SliderWithMovieButtonsValueLoader valueLoader;
 
     public SliderWithMovieButtons(int numberOfValues)
     {
         valueLoader = SliderWithMovieButtonsValueLoader.NULL_LOADER;
 
+        loading = new Loading();
+
         buttons = new MovieButtons(numberOfValues);
         buttons.setFrameLoader(new MovieButtonsFrameLoader()
             {
-                public void loadFrame(int frame, AsyncCallback<Void> callback)
+                public void loadFrame(final int frame, final AsyncCallback<Void> callback)
                 {
+                    showLoading();
                     slider.setValue(frame + 1, true);
-                    valueLoader.loadValue(frame + 1, callback);
+                    valueLoader.loadValue(frame + 1, new AsyncCallback<Void>()
+                        {
+                            public void onSuccess(Void result)
+                            {
+                                hideLoading();
+                                callback.onSuccess(result);
+                            }
+
+                            public void onFailure(Throwable caught)
+                            {
+                                hideLoading();
+                                callback.onFailure(caught);
+                            }
+                        });
                 }
             });
 
-        slider = new Slider();
-        // we do not want the slider to be long when there are just few points
-        slider.setWidth(Math.min(230, Math.max(100, numberOfValues * 10)));
-        slider.setIncrement(1);
-        slider.setMinValue(1);
-        slider.setMaxValue(numberOfValues);
-        slider.setClickToChange(true);
-        slider.setUseTip(false);
+        slider = new SliderWithAutoWidth(numberOfValues);
         slider.addListener(Events.Change, new Listener<SliderEvent>()
             {
                 public void handleEvent(SliderEvent be)
                 {
+                    showLoading();
                     buttons.setFrame(be.getNewValue() - 1);
                     valueLoader.loadValue(be.getNewValue(), new AsyncCallback<Void>()
                         {
                             public void onSuccess(Void result)
                             {
+                                hideLoading();
                             }
 
                             public void onFailure(Throwable caught)
                             {
+                                hideLoading();
                             }
                         });
-                };
+                }
             });
 
         Panel panel = new VerticalPanel();
         panel.add(slider);
         panel.add(buttons);
+        panel.add(loading);
         initWidget(panel);
     }
 
@@ -105,6 +122,24 @@ public class SliderWithMovieButtons extends Composite
             throw new IllegalArgumentException("Value loader was null");
         }
         this.valueLoader = valueLoader;
+    }
+
+    private void showLoading()
+    {
+        loadingCounter++;
+        if (loadingCounter >= 0)
+        {
+            loading.showLoading();
+        }
+    }
+
+    private void hideLoading()
+    {
+        loadingCounter--;
+        if (loadingCounter <= 0)
+        {
+            loading.hideLoading();
+        }
     }
 
 }
