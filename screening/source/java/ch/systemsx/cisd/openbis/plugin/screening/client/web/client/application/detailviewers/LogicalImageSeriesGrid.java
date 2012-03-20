@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -106,7 +107,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
                     currentFrameIndex =
                             (timeSlider.getValue() - 1) * numberOfDepthLevels
                                     + (depthSlider.getValue() - 1);
-                    imageDownloader.frameSelectionChanged(oldIndex, currentFrameIndex);
+                    imageDownloader.frameSelectionChanged(oldIndex, currentFrameIndex, null);
                     int timeSliderValue = timeSlider.getValue();
                     int depthSliderValue = depthSlider.getValue();
                     setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel,
@@ -141,25 +142,21 @@ class LogicalImageSeriesGrid extends LayoutContainer
         final List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
         final LayoutContainer mainContainer = createMainContainer(imageDownloader);
 
-        Listener<SliderEvent> listener = new Listener<SliderEvent>()
-            {
-                public void handleEvent(SliderEvent e)
-                {
-                    int oldValue = e.getOldValue();
-                    int newValue = e.getNewValue();
-                    imageDownloader.frameSelectionChanged(oldValue - 1, newValue - 1);
-                    removeFirstItem(mainContainer);
-                    mainContainer.insert(createSeriesPointLabel(sortedPoints, newValue), 0);
-                    mainContainer.layout();
-                }
-
-            };
-        final Slider slider = createSlider(model.getSortedPoints().size());
-        slider.addListener(Events.Change, listener);
+        MovieButtonsWithSlider buttonsWithSlider =
+                new MovieButtonsWithSlider(model.getSortedPoints().size())
+                    {
+                        protected void loadFrame(int frame, AsyncCallback<Void> callback)
+                        {
+                            imageDownloader.frameSelectionChanged(frame, callback);
+                            removeFirstItem(mainContainer);
+                            mainContainer
+                                    .insert(createSeriesPointLabel(sortedPoints, frame + 1), 0);
+                            mainContainer.layout();
+                        }
+                    };
 
         mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
-        mainContainer.add(slider);
-
+        mainContainer.add(buttonsWithSlider);
         return mainContainer;
     }
 
@@ -536,7 +533,9 @@ class LogicalImageSeriesGrid extends LayoutContainer
 
         private boolean keepDownloading;
 
-        private int selectedFrameIndex = -1;
+        private int selectedFrameIndex = 0;
+
+        private int shownFrameIndex = 0;
 
         private ImagesDownloadListener imageDownloadListener;
 
@@ -558,7 +557,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
 
             if (!frames.isEmpty())
             {
-                frames.get(0).setImagesDownloadListener(imageDownloadListener);
+                frames.get(0).addImagesDownloadListener(imageDownloadListener);
             }
 
             for (int i = 0; i < numFrames; i++)
@@ -578,22 +577,61 @@ class LogicalImageSeriesGrid extends LayoutContainer
             keepDownloading = false;
         }
 
-        public void frameSelectionChanged(int oldSelectionIndex, int newSelectionIndex)
+        public void frameSelectionChanged(int newSelectionIndex, AsyncCallback<Void> callback)
         {
-            if (oldSelectionIndex >= 0)
+            frameSelectionChanged(selectedFrameIndex, newSelectionIndex, callback);
+        }
+
+        public void frameSelectionChanged(final int oldSelectionIndex, final int newSelectionIndex,
+                final AsyncCallback<Void> callback)
+        {
+            // do nothing when the requested frame is already selected
+            if (newSelectionIndex == selectedFrameIndex)
             {
-                frames.get(oldSelectionIndex).hide();
+                if (callback != null)
+                {
+                    callback.onSuccess(null);
+                }
+                return;
             }
 
+            final LazyImageSeriesFrame newSelectedFrame = frames.get(newSelectionIndex);
+
             selectedFrameIndex = newSelectionIndex;
-            LazyImageSeriesFrame selectedFrame = frames.get(selectedFrameIndex);
-            selectedFrame.show();
+
+            if (callback != null)
+            {
+                ImagesDownloadListener listener = new ImagesDownloadListener()
+                    {
+                        public void imagesDownloaded(LazyImageSeriesFrame frame)
+                        {
+                            // do not display the frame if selection changed during loading
+                            if (newSelectionIndex == selectedFrameIndex)
+                            {
+                                LazyImageSeriesFrame shownFrame = frames.get(shownFrameIndex);
+                                shownFrameIndex = newSelectionIndex;
+                                shownFrame.hide();
+                                newSelectedFrame.show();
+                            }
+                            callback.onSuccess(null);
+                        }
+                    };
+
+                if (newSelectedFrame.areImagesDownloaded())
+                {
+                    listener.imagesDownloaded(newSelectedFrame);
+                } else
+                {
+                    newSelectedFrame.addImagesDownloadListener(listener);
+                }
+            }
 
             if (false == fullDownloadStarted)
             {
                 fullDownloadStarted = true;
                 scheduleDownloadNextChunkOfImages();
             }
+
         }
 
         private void scheduleDownloadNextChunkOfImages()
@@ -650,7 +688,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
 
             for (LazyImageSeriesFrame frame : framesToDownload)
             {
-                frame.setImagesDownloadListener(downloadListener);
+                frame.addImagesDownloadListener(downloadListener);
                 frame.downloadImagesFromServer();
             }
         }

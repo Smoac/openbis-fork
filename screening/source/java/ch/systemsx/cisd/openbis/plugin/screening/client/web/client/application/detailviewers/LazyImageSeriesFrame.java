@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Label;
@@ -59,7 +60,10 @@ public class LazyImageSeriesFrame extends LayoutContainer
 
     private boolean needsImageDownload;
 
-    private ImagesDownloadListener imagesDownloadListener;
+    private boolean imagesDownloaded;
+
+    private List<ImagesDownloadListener> imagesDownloadListeners =
+            new ArrayList<ImagesDownloadListener>();
 
     private LogicalImageClickHandler imageClickHandler;
 
@@ -82,6 +86,11 @@ public class LazyImageSeriesFrame extends LayoutContainer
     public boolean needsImageDownload()
     {
         return needsImageDownload;
+    }
+
+    public boolean areImagesDownloaded()
+    {
+        return imagesDownloaded;
     }
 
     public synchronized void downloadImagesFromServer()
@@ -131,9 +140,16 @@ public class LazyImageSeriesFrame extends LayoutContainer
                 public void imageLoaded(FitImageLoadEvent event)
                 {
                     tilesDownloaded++;
-                    if (tilesDownloaded >= totalTilesToDownload && imagesDownloadListener != null)
+                    if (tilesDownloaded >= totalTilesToDownload)
                     {
-                        imagesDownloadListener.imagesDownloaded(LazyImageSeriesFrame.this);
+                        imagesDownloaded = true;
+                        if (imagesDownloadListeners != null)
+                        {
+                            for (ImagesDownloadListener listener : imagesDownloadListeners)
+                            {
+                                listener.imagesDownloaded(LazyImageSeriesFrame.this);
+                            }
+                        }
                     }
                 }
             };
@@ -203,9 +219,9 @@ public class LazyImageSeriesFrame extends LayoutContainer
         container.add(dummy);
     }
 
-    public void setImagesDownloadListener(ImagesDownloadListener imagesDownloadListener)
+    public void addImagesDownloadListener(ImagesDownloadListener imagesDownloadListener)
     {
-        this.imagesDownloadListener = imagesDownloadListener;
+        this.imagesDownloadListeners.add(imagesDownloadListener);
     }
 
     public void setImageClickHandler(LogicalImageClickHandler imageClickHandler)
