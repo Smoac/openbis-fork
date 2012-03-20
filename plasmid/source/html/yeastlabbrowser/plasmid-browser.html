@@ -146,7 +146,7 @@ function resizePlasmidTable()
 	var areInspectorsVisible;
 	var padding = 20;
 	if (inspectedPlasmids.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 3) - padding + "px";
+		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
 		areInspectorsVisible = true;
 	} else {
 		cellWidth = "100%";
@@ -352,7 +352,7 @@ function visualize(filterText)
 		.attr("class", "plasmid-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.PLASMID_NAME, sample.properties.OWNER]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -485,7 +485,7 @@ $(document).ready(function() {
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="plasmid-table" style="float: left">
-			  <tr class="plasmid-table-header"><th>Code</th><th>Plasmid Name</th><th>Owner</th></tr>
+			  <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
 		</div>

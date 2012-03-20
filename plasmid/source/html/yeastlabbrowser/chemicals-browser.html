@@ -352,7 +352,7 @@ function visualize(filterText)
 		.attr("class", "chemical-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectChemical)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -485,7 +485,7 @@ $(document).ready(function() {
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="chemical-table" style="float: left">
-			  <tr class="chemical-table-header"><th>Code</th><th>Chemical Name</th></tr>
+			  <tr class="chemical-table-header"><th>Chemical Code</th><th>Chemical Name</th><th>Supplier</th><th>Art. Number</th><th>Local ID</th><th>Storage</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
 		</div>

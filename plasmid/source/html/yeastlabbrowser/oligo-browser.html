@@ -352,7 +352,7 @@ function visualize(filterText)
 		.attr("class", "oligo-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectOligo)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.SEQUENCE]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.TARGET, sample.properties.DIRECTION,sample.properties.RESTRICTION_ENZYME, sample.properties.PROJECT]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -485,7 +485,7 @@ $(document).ready(function() {
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="oligo-table" style="float: left">
-			  <tr class="oligo-table-header"><th>Code</th><th>Sequence</th></tr>
+			  <tr class="oligo-table-header"><th>Oligo Code</th><th>Target</th><th>Direction</th><th>Restriction Enzyme</th><th>Project</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
 		</div>

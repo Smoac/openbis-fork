@@ -352,7 +352,7 @@ function visualize(filterText)
 		.attr("class", "yeast-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectYeast)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.YEAST_STRAIN_NAME, sample.properties.OWNER]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.PLASMIDS, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -484,7 +484,7 @@ $(document).ready(function() {
 
 		<div id="vis">
 			<table id="yeast-table" style="float: left">
-				<tr class="yeast-table-header"><th>Code</th><th>Yeast Strain Name</th><th>Owner</th></tr>
+				<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
 		</div>
