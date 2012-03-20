@@ -28,30 +28,35 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * @author pkupczyk
  */
-public abstract class MovieButtonsWithSlider extends Composite
+public class SliderWithMovieButtons extends Composite
 {
-
-    private MovieButtons buttons;
 
     private Slider slider;
 
-    public MovieButtonsWithSlider(int numberOfFrames)
+    private MovieButtons buttons;
+
+    private SliderWithMovieButtonsValueLoader valueLoader;
+
+    public SliderWithMovieButtons(int numberOfValues)
     {
-        buttons = new MovieButtons(numberOfFrames)
+        valueLoader = SliderWithMovieButtonsValueLoader.NULL_LOADER;
+
+        buttons = new MovieButtons(numberOfValues);
+        buttons.setFrameLoader(new MovieButtonsFrameLoader()
             {
-                protected void loadFrame(int frame, AsyncCallback<Void> callback)
+                public void loadFrame(int frame, AsyncCallback<Void> callback)
                 {
-                    MovieButtonsWithSlider.this.loadFrame(frame, callback);
                     slider.setValue(frame + 1, true);
+                    valueLoader.loadValue(frame + 1, callback);
                 }
-            };
+            });
 
         slider = new Slider();
         // we do not want the slider to be long when there are just few points
-        slider.setWidth(Math.min(230, Math.max(100, numberOfFrames * 10)));
+        slider.setWidth(Math.min(230, Math.max(100, numberOfValues * 10)));
         slider.setIncrement(1);
         slider.setMinValue(1);
-        slider.setMaxValue(numberOfFrames);
+        slider.setMaxValue(numberOfValues);
         slider.setClickToChange(true);
         slider.setUseTip(false);
         slider.addListener(Events.Change, new Listener<SliderEvent>()
@@ -59,17 +64,16 @@ public abstract class MovieButtonsWithSlider extends Composite
                 public void handleEvent(SliderEvent be)
                 {
                     buttons.setFrame(be.getNewValue() - 1);
-                    MovieButtonsWithSlider.this.loadFrame(be.getNewValue() - 1,
-                            new AsyncCallback<Void>()
-                                {
-                                    public void onSuccess(Void result)
-                                    {
-                                    }
+                    valueLoader.loadValue(be.getNewValue(), new AsyncCallback<Void>()
+                        {
+                            public void onSuccess(Void result)
+                            {
+                            }
 
-                                    public void onFailure(Throwable caught)
-                                    {
-                                    }
-                                });
+                            public void onFailure(Throwable caught)
+                            {
+                            }
+                        });
                 };
             });
 
@@ -79,6 +83,28 @@ public abstract class MovieButtonsWithSlider extends Composite
         initWidget(panel);
     }
 
-    protected abstract void loadFrame(int frame, AsyncCallback<Void> callback);
+    public int getValue()
+    {
+        return slider.getValue();
+    }
+
+    public void setValue(int value)
+    {
+        slider.setValue(value);
+    }
+
+    public SliderWithMovieButtonsValueLoader getValueLoader()
+    {
+        return valueLoader;
+    }
+
+    public void setValueLoader(SliderWithMovieButtonsValueLoader valueLoader)
+    {
+        if (valueLoader == null)
+        {
+            throw new IllegalArgumentException("Value loader was null");
+        }
+        this.valueLoader = valueLoader;
+    }
 
 }

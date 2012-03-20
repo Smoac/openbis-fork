@@ -28,12 +28,14 @@ import com.google.gwt.user.client.ui.Panel;
 /**
  * @author pkupczyk
  */
-public abstract class MovieButtons extends Composite
+public class MovieButtons extends Composite
 {
 
     private int currentFrame;
 
     private int numberOfFrames;
+
+    private MovieButtonsFrameLoader frameLoader;
 
     private MovieButtonsView view;
 
@@ -43,6 +45,7 @@ public abstract class MovieButtons extends Composite
     {
         this.currentFrame = 0;
         this.numberOfFrames = numberOfFrames;
+        this.frameLoader = MovieButtonsFrameLoader.NULL_LOADER;
         initView();
         initState();
     }
@@ -99,6 +102,20 @@ public abstract class MovieButtons extends Composite
         state.init();
     }
 
+    public MovieButtonsFrameLoader getFrameLoader()
+    {
+        return frameLoader;
+    }
+
+    public void setFrameLoader(MovieButtonsFrameLoader frameLoader)
+    {
+        if (frameLoader == null)
+        {
+            throw new IllegalArgumentException("Frame loader was null");
+        }
+        this.frameLoader = frameLoader;
+    }
+
     public int getFrame()
     {
         return state.handleGetFrame();
@@ -119,7 +136,10 @@ public abstract class MovieButtons extends Composite
         return getFrame() == (numberOfFrames - 1);
     }
 
-    protected abstract void loadFrame(int frame, AsyncCallback<Void> callback);
+    private void loadFrame(int frame, AsyncCallback<Void> callback)
+    {
+        frameLoader.loadFrame(frame, callback);
+    }
 
     private void loadFrame(int frame)
     {

@@ -31,8 +31,10 @@ import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -78,45 +80,56 @@ class LogicalImageSeriesGrid extends LayoutContainer
             final LazyImageDownloader imageDownloader, final LogicalImageSeriesViewerModel model)
     {
         final LayoutContainer mainContainer = createMainContainer(imageDownloader);
-        LayoutContainer sliderContainer = new LayoutContainer(new HBoxLayout());
+        Panel sliderContainer = new HorizontalPanel();
         mainContainer.add(sliderContainer);
-        LayoutContainer timeSliderContainer = new LayoutContainer();
+
+        Panel timeSliderContainer = new VerticalPanel();
         sliderContainer.add(timeSliderContainer);
         final int numberOfTimepoints = model.getNumberOfTimepoints();
         final Label timeSliderLabel = new Label();
         timeSliderContainer.add(timeSliderLabel);
-        final Slider timeSlider = createSlider(numberOfTimepoints);
+        final SliderWithMovieButtons timeSlider = new SliderWithMovieButtons(numberOfTimepoints);
         timeSliderContainer.add(timeSlider);
+
         Label spacer = new Label();
         spacer.setWidth(80);
         sliderContainer.add(spacer);
-        LayoutContainer depthSliderContainer = new LayoutContainer();
+
+        Panel depthSliderContainer = new VerticalPanel();
         sliderContainer.add(depthSliderContainer);
         final int numberOfDepthLevels = model.getNumberOfDepthLevels();
         final Label depthSliderLabel = new Label();
         depthSliderContainer.add(depthSliderLabel);
         final Slider depthSlider = createSlider(numberOfDepthLevels);
         depthSliderContainer.add(depthSlider);
-        Listener<SliderEvent> listener = new Listener<SliderEvent>()
-            {
-                private int currentFrameIndex;
 
+        final SliderWithMovieButtonsValueLoader valueLoader =
+                new SliderWithMovieButtonsValueLoader()
+                    {
+                        @Override
+                        public void loadValue(int value, AsyncCallback<Void> callback)
+                        {
+                            int frameIndex =
+                                    (timeSlider.getValue() - 1) * numberOfDepthLevels
+                                            + (depthSlider.getValue() - 1);
+                            imageDownloader.frameSelectionChanged(frameIndex, callback);
+                            int timeSliderValue = timeSlider.getValue();
+                            int depthSliderValue = depthSlider.getValue();
+                            setSliderLabels(model, timeSliderLabel, timeSliderValue,
+                                    depthSliderLabel, depthSliderValue);
+                            mainContainer.layout();
+                        }
+                    };
+
+        timeSlider.setValueLoader(valueLoader);
+        depthSlider.addListener(Events.Change, new Listener<SliderEvent>()
+            {
                 public void handleEvent(SliderEvent be)
                 {
-                    int oldIndex = currentFrameIndex;
-                    currentFrameIndex =
-                            (timeSlider.getValue() - 1) * numberOfDepthLevels
-                                    + (depthSlider.getValue() - 1);
-                    imageDownloader.frameSelectionChanged(oldIndex, currentFrameIndex, null);
-                    int timeSliderValue = timeSlider.getValue();
-                    int depthSliderValue = depthSlider.getValue();
-                    setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel,
-                            depthSliderValue);
-                    mainContainer.layout();
+                    valueLoader.loadValue(-1, null);
                 }
-            };
-        timeSlider.addListener(Events.Change, listener);
-        depthSlider.addListener(Events.Change, listener);
+            });
+
         setSliderLabels(model, timeSliderLabel, 1, depthSliderLabel, 1);
 
         return mainContainer;
@@ -142,21 +155,21 @@ class LogicalImageSeriesGrid extends LayoutContainer
         final List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
         final LayoutContainer mainContainer = createMainContainer(imageDownloader);
 
-        MovieButtonsWithSlider buttonsWithSlider =
-                new MovieButtonsWithSlider(model.getSortedPoints().size())
-                    {
-                        protected void loadFrame(int frame, AsyncCallback<Void> callback)
-                        {
-                            imageDownloader.frameSelectionChanged(frame, callback);
-                            removeFirstItem(mainContainer);
-                            mainContainer
-                                    .insert(createSeriesPointLabel(sortedPoints, frame + 1), 0);
-                            mainContainer.layout();
-                        }
-                    };
+        SliderWithMovieButtons slider = new SliderWithMovieButtons(model.getSortedPoints().size());
+        slider.setValueLoader(new SliderWithMovieButtonsValueLoader()
+            {
+                @Override
+                public void loadValue(int value, AsyncCallback<Void> callback)
+                {
+                    imageDownloader.frameSelectionChanged(value - 1, callback);
+                    removeFirstItem(mainContainer);
+                    mainContainer.insert(createSeriesPointLabel(sortedPoints, value), 0);
+                    mainContainer.layout();
+                }
+            });
 
         mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
-        mainContainer.add(buttonsWithSlider);
+        mainContainer.add(slider);
         return mainContainer;
     }
 
@@ -599,31 +612,31 @@ class LogicalImageSeriesGrid extends LayoutContainer
 
             selectedFrameIndex = newSelectionIndex;
 
-            if (callback != null)
-            {
-                ImagesDownloadListener listener = new ImagesDownloadListener()
+            ImagesDownloadListener listener = new ImagesDownloadListener()
+                {
+                    public void imagesDownloaded(LazyImageSeriesFrame frame)
                     {
-                        public void imagesDownloaded(LazyImageSeriesFrame frame)
+                        // do not display the frame if selection changed during loading
+                        if (newSelectionIndex == selectedFrameIndex)
                         {
-                            // do not display the frame if selection changed during loading
-                            if (newSelectionIndex == selectedFrameIndex)
-                            {
-                                LazyImageSeriesFrame shownFrame = frames.get(shownFrameIndex);
-                                shownFrameIndex = newSelectionIndex;
-                                shownFrame.hide();
-                                newSelectedFrame.show();
-                            }
+                            LazyImageSeriesFrame shownFrame = frames.get(shownFrameIndex);
+                            shownFrameIndex = newSelectionIndex;
+                            shownFrame.hide();
+                            newSelectedFrame.show();
+                        }
+                        if (callback != null)
+                        {
                             callback.onSuccess(null);
                         }
-                    };
+                    }
+                };
 
-                if (newSelectedFrame.areImagesDownloaded())
-                {
-                    listener.imagesDownloaded(newSelectedFrame);
-                } else
-                {
-                    newSelectedFrame.addImagesDownloadListener(listener);
-                }
+            if (newSelectedFrame.areImagesDownloaded())
+            {
+                listener.imagesDownloaded(newSelectedFrame);
+            } else
+            {
+                newSelectedFrame.addImagesDownloadListener(listener);
             }
 
             if (false == fullDownloadStarted)
