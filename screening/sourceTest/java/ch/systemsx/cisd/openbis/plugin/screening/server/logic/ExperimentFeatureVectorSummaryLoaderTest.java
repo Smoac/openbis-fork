@@ -222,7 +222,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                         AnalysisProcedureCriteria.createFromCode("extern"),
                         new AnalysisSettings(properties));
 
-        assertEquals(null, summary);
+        assertEquals(0, summary.getTableModelOrNull().getRows().size());
         context.assertIsSatisfied();
     }
 
@@ -244,7 +244,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                         AnalysisProcedureCriteria.createFromCode("intern"),
                         new AnalysisSettings(properties));
 
-        assertEquals(null, summary);
+        assertEquals(0, summary.getTableModelOrNull().getRows().size());
         context.assertIsSatisfied();
     }
 

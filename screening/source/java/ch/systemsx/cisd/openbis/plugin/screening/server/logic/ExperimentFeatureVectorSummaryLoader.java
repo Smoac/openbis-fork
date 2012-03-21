@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
@@ -78,6 +80,9 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             List<ExternalData> matchingDataSets =
                     getMatchingDataSets(experimentId, analysisProcedureCriteria);
+            TableModel tabelModel =
+                    new TableModel(Collections.<TableModelColumnHeader> emptyList(),
+                            Collections.<TableModelRow> emptyList());
             if (matchingDataSets.size() == 1)
             {
                 ExternalData ds = matchingDataSets.get(0);
@@ -89,12 +94,9 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                     IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
                     try
                     {
-                        TableModel tabelModel =
-                                dataSetTable.createReportFromDatasets(reportingPluginKey, dataStore,
-                                        codes);
-                        return new ExperimentFeatureVectorSummary(experiment,
-                                Collections.<MaterialFeatureVectorSummary> emptyList(),
-                                Collections.<CodeAndLabel> emptyList(), tabelModel);
+                        tabelModel =
+                                dataSetTable.createReportFromDatasets(reportingPluginKey,
+                                        dataStore, codes);
                     } catch (UserFailureException ex)
                     {
                         String message = ex.getMessage();
@@ -112,6 +114,9 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                     }
                 }
             }
+            return new ExperimentFeatureVectorSummary(experiment,
+                    Collections.<MaterialFeatureVectorSummary> emptyList(),
+                    Collections.<CodeAndLabel> emptyList(), tabelModel);
         }
         
         return calculatedSummary(experimentId, analysisProcedureCriteria, experiment);
