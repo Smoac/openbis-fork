@@ -175,6 +175,28 @@ public class GetSampleProperties
                     ii,
                     service.listSamples(sessionToken,
                             ListSampleCriteria.createForChild(new TechId(fl.getId()))));
+
+            for (Map.Entry<Integer, List<Sample>> entry : parentSamples.entrySet())
+            {
+
+                // System.out.println(entry.getKey() + " " + entry.getValue());
+                // System.out.println(entry.getValue().size());
+
+                for (int j = 0; j <= entry.getValue().size() - 1; ++j)
+                {
+                    // System.out.println(entry.getValue().get(0).getParents());
+                    Long s = entry.getValue().get(j).getId();
+                    // System.out.println(s);
+                    List<Sample> setParents =
+                            service.listSamples(sessionToken,
+                                    ListSampleCriteria.createForChild(new TechId(s)));
+                    // System.out.println(setParents);
+                }
+                // System.out.println(service.listSamples(sessionToken,
+                // ListSampleCriteria.createForChild(new TechId(entry.getKey()))));
+
+            }
+
         }
 
         for (Entry<Integer, List<Sample>> entry : parentSamples.entrySet())
@@ -190,6 +212,7 @@ public class GetSampleProperties
 
             for (int i = 0; i < samples.size(); i++)
             {
+
                 List<IEntityProperty> properties1 = samples.get(i).getProperties();
                 String sampleCode = samples.get(i).getCode();
                 HashMap<sampleProperties, String> propertiesPerSample =
@@ -218,14 +241,10 @@ public class GetSampleProperties
                                     "NO_REFERENCE_GENOME_AVAILABLE");
                             propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,
                                     bowtieIndexName);
-                        }
-                        if (PHIX_NAME.equals(bowtieIndexName))
-                        {
-                            propertiesPerSample.put(sampleProperties.ISPHIX, "Y");
-                        } else
-                        {
                             propertiesPerSample.put(sampleProperties.ISPHIX, "N");
+
                         }
+
                     }
 
                     if (property.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME))
