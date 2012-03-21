@@ -79,7 +79,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         if (analysisSettings.noAnalysisSettings() == false)
         {
             List<ExternalData> matchingDataSets =
-                    getMatchingDataSets(experimentId, analysisProcedureCriteria);
+                    getMatchingDataSets(experimentId, analysisProcedureCriteria, analysisSettings);
             TableModel tabelModel =
                     new TableModel(Collections.<TableModelColumnHeader> emptyList(),
                             Collections.<TableModelRow> emptyList());
@@ -87,31 +87,27 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             {
                 ExternalData ds = matchingDataSets.get(0);
                 String reportingPluginKey = analysisSettings.tryToGetReportingPluginKey(ds);
-                if (reportingPluginKey != null)
+                String dataStore = ds.getDataStore().getCode();
+                List<String> codes = Arrays.asList(ds.getCode());
+                IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+                try
                 {
-                    String dataStore = ds.getDataStore().getCode();
-                    List<String> codes = Arrays.asList(ds.getCode());
-                    IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-                    try
+                    tabelModel =
+                            dataSetTable.createReportFromDatasets(reportingPluginKey, dataStore,
+                                    codes);
+                } catch (UserFailureException ex)
+                {
+                    String message = ex.getMessage();
+                    if (message.startsWith("Main "))
                     {
-                        tabelModel =
-                                dataSetTable.createReportFromDatasets(reportingPluginKey,
-                                        dataStore, codes);
-                    } catch (UserFailureException ex)
-                    {
-                        String message = ex.getMessage();
-                        if (message.startsWith("Main "))
-                        {
-                            message +=
-                                    "\n\nHint: The file pattern for the data set type "
-                                            + ds.getDataSetType().getCode()
-                                            + " might be wrong.";
-                        }
-                        throw decorateException(ex, ds, "Reason: " + message);
-                    } catch (Exception ex)
-                    {
-                        throw decorateException(ex, ds, "See server logs for the reason.");
+                        message +=
+                                "\n\nHint: The file pattern for the data set type "
+                                        + ds.getDataSetType().getCode() + " might be wrong.";
                     }
+                    throw decorateException(ex, ds, "Reason: " + message);
+                } catch (Exception ex)
+                {
+                    throw decorateException(ex, ds, "See server logs for the reason.");
                 }
             }
             return new ExperimentFeatureVectorSummary(experiment,
@@ -146,7 +142,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     }
 
     private List<ExternalData> getMatchingDataSets(TechId experimentId,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+            AnalysisProcedureCriteria analysisProcedureCriteria, AnalysisSettings analysisSettings)
     {
         List<ExternalData> dataSets =
                 businessObjectFactory.createDatasetLister(session).listByExperimentTechId(
@@ -154,7 +150,8 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         List<ExternalData> matchingDataSets = new ArrayList<ExternalData>();
         for (ExternalData dataSet : dataSets)
         {
-            if (ScreeningUtils.isMatchingAnalysisProcedure(dataSet, analysisProcedureCriteria))
+            if (ScreeningUtils.isMatchingAnalysisProcedure(dataSet, analysisProcedureCriteria)
+                    && analysisSettings.tryToGetReportingPluginKey(dataSet) != null)
             {
                 matchingDataSets.add(dataSet);
             }
