@@ -152,6 +152,11 @@ public class SampleChooserButton extends Button implements
 
     public void setChosenEntities(List<TableModelRowWithObject<Sample>> entities)
     {
+        if (entities == null)
+        {
+            return;
+        }
+
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (TableModelRowWithObject<Sample> row : entities)
         {
