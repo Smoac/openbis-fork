@@ -223,8 +223,19 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             List<String> dataSetCodes, String reason, boolean force)
     {
         // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
+
+        // first load by codes to get the ids
         dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+
+        // get recursively all datasets that are contained and contained
+        List<TechId> ids =
+                daoFactory.getDataDAO().listContainedDataSetsRecursively(
+                        TechId.createList(dataSetTable.getDataSets()));
+
+        dataSetTable.loadByIds(ids);
+
         List<DataPE> dataSets = dataSetTable.getDataSets();
+
         Map<DataSetTypePE, List<DataPE>> groupedDataSets =
                 new LinkedHashMap<DataSetTypePE, List<DataPE>>();
         for (DataPE dataSet : dataSets)

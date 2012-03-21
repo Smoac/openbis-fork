@@ -144,6 +144,12 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<TechId> listContainedDataSets(final Collection<TechId> containerIds);
 
     /**
+     * Returs ids of contained data sets, and of datasets contained in those datasets etc. Also
+     * includes the input ids.
+     */
+    public List<TechId> listContainedDataSetsRecursively(final Collection<TechId> containersIds);
+
+    /**
      * Delete data sets with given ids by specified registrator with specified reason.
      */
     void delete(List<TechId> dataIds, PersonPE registrator, String reason)

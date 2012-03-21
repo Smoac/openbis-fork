@@ -119,16 +119,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
 
-        LinkedHashSet<TechId> allIds = new LinkedHashSet<TechId>();
-        // cascade deletion of contained datasets
-        List<TechId> containedDataSetIds = dataSetIds;
-
-        while (allIds.addAll(containedDataSetIds))
-        {
-            containedDataSetIds = getDataDAO().listContainedDataSets(containedDataSetIds);
-        }
-
-        List<TechId> allIdsAsList = new ArrayList<TechId>(allIds);
+        List<TechId> allIdsAsList = getDataDAO().listContainedDataSetsRecursively(dataSetIds);
         checkForNonDeletableDataSets(allIdsAsList);
 
         TrashBatchOperation batchOperation =

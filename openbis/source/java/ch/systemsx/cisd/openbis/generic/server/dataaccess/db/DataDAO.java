@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -1117,4 +1119,22 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         return transformNumbers2TechIdList(totalResults);
     }
+
+    public List<TechId> listContainedDataSetsRecursively(Collection<TechId> containersIds)
+    {
+        LinkedHashSet<TechId> allIds = new LinkedHashSet<TechId>();
+        // cascade deletion of contained datasets
+        List<TechId> containedDataSetIds = new LinkedList<TechId>();
+
+        containedDataSetIds.addAll(containersIds);
+
+        while (allIds.addAll(containedDataSetIds))
+        {
+            containedDataSetIds = listContainedDataSets(containedDataSetIds);
+        }
+
+        return new ArrayList<TechId>(allIds);
+
+    }
+
 }
