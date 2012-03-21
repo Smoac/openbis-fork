@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -227,15 +228,19 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         // first load by codes to get the ids
         dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
 
-        // get recursively all datasets that are contained and contained
-        List<TechId> ids =
-                daoFactory.getDataDAO().listContainedDataSetsRecursively(
-                        TechId.createList(dataSetTable.getDataSets()));
-
-        dataSetTable.loadByIds(ids);
-
         List<DataPE> dataSets = dataSetTable.getDataSets();
 
+        if (atLeastOneOfDataSetsIsContainer(dataSets))
+        {
+            // get recursively all datasets that are contained and contained
+            List<TechId> ids =
+                    daoFactory.getDataDAO().listContainedDataSetsRecursively(
+                            TechId.createList(dataSetTable.getDataSets()));
+
+            dataSetTable.loadByIds(ids);
+
+            dataSets = dataSetTable.getDataSets();
+        }
         Map<DataSetTypePE, List<DataPE>> groupedDataSets =
                 new LinkedHashMap<DataSetTypePE, List<DataPE>>();
         for (DataPE dataSet : dataSets)
@@ -255,6 +260,18 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
             plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason, force);
         }
+    }
+
+    private boolean atLeastOneOfDataSetsIsContainer(Collection<DataPE> dataSets)
+    {
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.isContainer())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,

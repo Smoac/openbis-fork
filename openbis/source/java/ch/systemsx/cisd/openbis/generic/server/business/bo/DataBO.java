@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -794,7 +795,28 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         assert experimentIdentifier != null;
         ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
-        data.setExperiment(experiment);
+        if (data.getExperiment() == null || data.getExperiment().getId() != experiment.getId())
+        {
+            if (data.isContainer())
+            {
+                updateExperimentForAllContainedDataSets(experiment);
+            } else
+            {
+                data.setExperiment(experiment);
+            }
+        }
+    }
+
+    private void updateExperimentForAllContainedDataSets(ExperimentPE experiment)
+    {
+        List<TechId> listIds = Collections.singletonList(TechId.create(data));
+        listIds = getDataDAO().listContainedDataSetsRecursively(listIds);
+
+        for (TechId techId : listIds)
+        {
+            DataPE dataObject = getDataDAO().getByTechId(techId);
+            dataObject.setExperiment(experiment);
+        }
     }
 
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)

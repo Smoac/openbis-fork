@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -194,8 +193,8 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listContainedDataSets(with(dsIdsMatcher));
-                    will(returnValue(Collections.emptyList()));
+                    one(dataDAO).listContainedDataSetsRecursively(with(dsIdsMatcher));
+                    will(returnValue(dataSetIds));
 
                     oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
                             with(same(deletion)));
@@ -239,8 +238,8 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
-                    will(returnValue(Collections.emptyList()));
+                    one(dataDAO).listContainedDataSetsRecursively(with(dataSetIdsMatcher));
+                    will(returnValue(dataSetIds));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
                             with(dataSetIdsMatcher), with(same(deletion)));
@@ -316,12 +315,8 @@ public final class TrashBOTest extends AbstractBOTest
                     RecordingMatcher<List<TechId>> dataSetIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
 
-                    final List<TechId> containedDataSetIds = TechId.createList(71, 73);
-                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
-                    will(returnValue(containedDataSetIds));
-
-                    one(dataDAO).listContainedDataSets(with(dataSetIdsMatcher));
-                    will(returnValue(Collections.emptyList()));
+                    one(dataDAO).listContainedDataSetsRecursively(with(dataSetIdsMatcher));
+                    will(returnValue(TechId.createList(70, 71, 72, 73)));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
                             with(dataSetIdsMatcher), with(same(deletion)));
@@ -346,11 +341,8 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
-                    one(dataDAO).listContainedDataSets(dataSetIds);
-                    will(returnValue(containedIds));
-
-                    one(dataDAO).listContainedDataSets(containedIds);
-                    will(returnValue(Collections.emptyList()));
+                    one(dataDAO).listContainedDataSetsRecursively(dataSetIds);
+                    will(returnValue(allIds));
 
                     one(deletionDAO).trash(EntityKind.DATA_SET, allIds, deletion);
                     will(returnValue(allIds.size()));
@@ -376,11 +368,9 @@ public final class TrashBOTest extends AbstractBOTest
                     dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
                     will(returnValue(Arrays.asList(dataSet)));
 
-                    one(dataDAO).listContainedDataSets(dataSetIds);
-                    will(returnValue(containedIds));
+                    one(dataDAO).listContainedDataSetsRecursively(dataSetIds);
+                    will(returnValue(allIds));
 
-                    one(dataDAO).listContainedDataSets(containedIds);
-                    will(returnValue(Collections.emptyList()));
                 }
             });
 
