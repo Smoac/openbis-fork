@@ -98,9 +98,9 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         for (IDataSet thumbnailDataset : thumbnailDatasets)
         {
             thumbnailDataset.setSample(sampleOrNull);
-            if (thumbnailDatasets instanceof DataSet)
+            if (thumbnailDataset instanceof DataSet)
             {
-                ((DataSet<?>) thumbnailDatasets).getRegistrationDetails().getDataSetInformation()
+                ((DataSet<?>) thumbnailDataset).getRegistrationDetails().getDataSetInformation()
                         .setLinkSample(establishSampleLinkForContainedDataSets);
             }
         }
