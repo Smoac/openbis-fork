@@ -49,82 +49,75 @@ input {
   -webkit-box-shadow: 0 1px 3px #999;
 }
 
-#browser a:link,a:visited
+
+#chemical_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#F0F8FF;
+background-color:#B2B2B2;
 width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
 }
-#browser a:hover,a:active
+#chemical_browser a:hover
 {
-background-color:#6666FF;
+background-color:#767676;
+color:#FFFFFF;
 }
 
-#plasmid_browser a:link,a:visited
+
+#oligo_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#6699FF;
+background-color:#94B8B8;
 width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
 }
-#plasmid_browser a:hover,a:active
+#oligo_browser a:hover
 {
-background-color:#6666FF;
+background-color:#426262;
+color:#FFFFFF;
 }
 
-#chemical_browser a:link,a:visited
+#yeast_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#6699FF;
+background-color:#A6A64D;
 width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
 }
-#chemical_browser a:hover,a:active
+#yeast_browser a:hover
 {
-background-color:#6666FF;
+background-color:#5C5C1F;
+color:#FFFFFF;
 }
 
-#oligo_browser a:link,a:visited
+#plasmid_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#6699FF;
+background-color:#DC7E9E;
 width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
 }
-#oligo_browser a:hover,a:active
+#plasmid_browser a:hover
 {
-background-color:#6666FF;
+background-color:#6E3F4F;
+color:#FFFFFF;
 }
 
-#chemical_browser a:link,a:visited
-{
-display:block;
-font-weight:bold;
-color:#FFFFFF;
-background-color:#6699FF;
-width:120px;
-text-align:center;
-padding:4px;
-text-decoration:none;
-}
-#chemical_browser a:hover,a:active
-{
-background-color:#6666FF;
-}
+
+

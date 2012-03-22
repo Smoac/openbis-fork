@@ -1,105 +1,4 @@
-body { font: 14px "Trebuchet MS", sans-serif; }
 
-h1 { font: 16px; }
-h3 { font: 12px; }
-
-div#vis { 
-	padding-top: 10px;
-	font: 12px "Verdana", sans-serif; }	
-}
-div#vis div { padding-top: 2px;}
-
-/* Inspector */
-
-div.inspector {
-	font: 14px "Verdana", sans-serif;
-	padding: 10px;
-	border: 1px solid gray;
-	margin: 10px 2px;
-	font-weight: bold;
-}
-
-.property {
-  font-size: 10px;
-  font-weight: normal;
-}
-
-.properties {
-	width: 100%;	
-}
-
-.properties td:nth-child(odd) {
-  background-color:#B2B2B2;
-}
-
-.properties td:nth-child(even) {
-  background-color:#ECEFEF;
-}
-
-
-.close {
-	float: right;
-}
-
-.close:hover {
-	opacity: 0.5;
-	color: #AAA;
-	cursor: pointer;
-}
-
-.downloads {
-	color: black;
-	background-color: #E3E3E3;
-}
-
-table.downloads {
-  font-family: "Trebuchet MS", sans-serif;
-	font-size: 14px;
-	table-layout: fixed;
-	border-collapse: collapse;
-	margin: 0px;
-	padding: 0px;
-}
-
-/*
-.downloads caption {
-	text-align: left;
-}
-*/
-
-.downloads tr {
-	padding: 0px;
-}
-
-.downloads td {
-	border: 2px solid #FFFFFF;	
-	padding: 2px;
-}
-
-.downloads td:hover {
-	cursor: pointer;
-	text-decoration: underline
-}
-
-input:focus{
-background-color: white;
-}
-
-/* Legend */
-
-.legend .sequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkGreen;
-}
-
-.legend .notsequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkRed;
-}
 .oligo-table-data-cell {
 	overflow: hidden;
 }
@@ -143,18 +42,8 @@ padding:5px;
 
 #chemical-table tr:nth-child(even) {
   background-color:#ECEFEF;
-  
 }
-
-#chemical-table tr.chemical-table-data:hover {
-  font-size : 105%;
-  font-weight: bold;
-  
-}
-
-
 #chemical-table td{
-
 padding:5px;
 }
 
@@ -195,9 +84,6 @@ padding:5px;
   color:#fff;
   background-color:#6E3F4F;	
 }
-
-
-
 
 .yeast-table-data-cell {
 	overflow: hidden;

@@ -146,8 +146,8 @@ function resizeChemicalTable()
 	var areInspectorsVisible;
 	var padding = 20;
 	if (inspectedChemicals.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 3) - padding + "px";
-		areInspectorsVisible = true;
+		cellWidth = "100%";
+		areInspectorsVisible = false;
 	} else {
 		cellWidth = "100%";
 		areInspectorsVisible = false;
@@ -466,7 +466,7 @@ $(document).ready(function() {
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
 		</div>
-		<div id="browser" style="position: absolute; left:800px; top:15px">
+		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
 		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
 		</div>
 		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
@@ -479,7 +479,7 @@ $(document).ready(function() {
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
 		<div> 
-		  <div style="padding-top: 50px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
+		  <div style="padding-top: 60px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
     </div>
     
 		<div id="vis">

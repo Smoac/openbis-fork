@@ -93,19 +93,30 @@ function translateDst(d)
 /**
  * Convert properties to pairs
  */
-function props_to_pairs(d)
+function props_to_pairs(data)
 {
+
+	d = data.properties;
+	
 	var pairs = [];
 	for (var prop in d) {
 		var pair = [prop, d[prop]];
 		pairs.push(pair);
 	}
-	pairs.sort(function(a, b) { 
-		if (a[0] == b[0]) return 0;
-		// Sort in reverse lexicographical
-		return (a[0] < b[0]) ? -1 : 1;
-	});
-	return pairs;
+	
+	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
+
+	order = ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS", "BOX_NUMBER", "ROW", "COLUMN","REGISTRATION_DATE"]
+	new_list = []
+	for (var i in order) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order[i]) {
+				new_list.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list;
 }
 
 /** Initialize the plasmids variable */
@@ -241,7 +252,7 @@ function updateInspectors(duration)
 	.remove();
 		
 	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.properties) })
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -466,7 +477,7 @@ $(document).ready(function() {
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
 		</div>
-		<div id="browser" style="position: absolute; left:800px; top:15px">
+		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
 		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
 		</div>
 		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
@@ -479,7 +490,7 @@ $(document).ready(function() {
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
 		<div> 
-		  <div style="padding-top: 50px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
+		  <div style="padding-top: 60px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
     </div>
     
 		<div id="vis">

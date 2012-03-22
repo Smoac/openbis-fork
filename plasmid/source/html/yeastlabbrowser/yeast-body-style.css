@@ -85,21 +85,7 @@ input:focus{
 background-color: white;
 }
 
-/* Legend */
 
-.legend .sequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkGreen;
-}
-
-.legend .notsequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkRed;
-}
 .oligo-table-data-cell {
 	overflow: hidden;
 }
@@ -201,6 +187,7 @@ padding:5px;
 
 .yeast-table-data-cell {
 	overflow: hidden;
+	
 }
 
 #yeast-table tr:nth-child(odd) {
@@ -221,6 +208,7 @@ padding:5px;
 #yeast-table td{
 
 padding:5px;
+
 }
 
 #yeast-table tr.yeast-table-header {
