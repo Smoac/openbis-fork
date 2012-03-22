@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -783,11 +782,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             throw createWrongSampleException(newSample,
                     "the new sample is not connected to any experiment");
         }
+
         // move dataset to the experiment if needed
-        if (experiment.equals(data.getExperiment()) == false)
-        {
-            data.setExperiment(experiment);
-        }
+        updateExperiment(experiment);
+
         data.setSample(newSample);
     }
 
@@ -795,27 +793,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         assert experimentIdentifier != null;
         ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
-        if (data.getExperiment() == null || data.getExperiment().getId() != experiment.getId())
-        {
-            if (data.isContainer())
-            {
-                updateExperimentForAllContainedDataSets(experiment);
-            } else
-            {
-                data.setExperiment(experiment);
-            }
-        }
+        updateExperiment(experiment);
     }
 
-    private void updateExperimentForAllContainedDataSets(ExperimentPE experiment)
+    private void updateExperiment(ExperimentPE experiment)
     {
-        List<TechId> listIds = Collections.singletonList(TechId.create(data));
-        listIds = getDataDAO().listContainedDataSetsRecursively(listIds);
-
-        for (TechId techId : listIds)
+        if (experiment.equals(data.getExperiment()) == false)
         {
-            DataPE dataObject = getDataDAO().getByTechId(techId);
-            dataObject.setExperiment(experiment);
+            data.setExperiment(experiment);
         }
     }
 

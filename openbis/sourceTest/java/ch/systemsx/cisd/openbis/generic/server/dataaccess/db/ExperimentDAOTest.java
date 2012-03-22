@@ -25,6 +25,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -36,6 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -415,6 +417,49 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final ExperimentPE experimentFound = experimentsAfter.get(0);
         assertEquals(codeModified, experimentFound.getCode());
         Assert.assertFalse(modificationTimestamp.equals(experimentFound.getModificationDate()));
+    }
+
+    public final void testChangeContainerExperimentUpdatesContainedElements()
+    {
+        // get data
+        IDataDAO dao = daoFactory.getDataDAO();
+
+        ExperimentPE exp = daoFactory.getExperimentDAO().getByTechId(new TechId(8));
+
+        ExperimentPE exp22 = daoFactory.getExperimentDAO().getByTechId(new TechId(22));
+
+        assertEquals("EXP-REUSE", exp.getCode());
+        assertEquals("EXP-Y", exp22.getCode());
+
+        DataPE container = dao.tryToFindDataSetByCode("20110509092359990-10");
+
+        List<TechId> containedIds =
+                dao.listContainedDataSetsRecursively(Collections.singleton(TechId.create(container)));
+
+        assertEquals(3, containedIds.size());
+
+        List<DataPE> contained = new LinkedList<DataPE>();
+        for (TechId techId : containedIds)
+        {
+            contained.add(dao.getByTechId(techId));
+        }
+
+        // change experiment for container
+        container.setExperiment(exp22);
+
+        // assert the contained datasets have experiment updated
+        for (DataPE data : contained)
+        {
+            assertEquals(exp22, data.getExperiment());
+        }
+
+        // revert to original state
+        container.setExperiment(exp);
+
+        for (DataPE data : contained)
+        {
+            assertEquals(exp, data.getExperiment());
+        }
     }
 
     @Test

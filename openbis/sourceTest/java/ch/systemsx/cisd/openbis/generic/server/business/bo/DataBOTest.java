@@ -576,6 +576,7 @@ public class DataBOTest extends AbstractBOTest
     {
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+        experiment.setProject(ManagerTestTool.EXAMPLE_PROJECT);
 
         final ExternalDataPE dataSet = createExternalData(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =
@@ -603,6 +604,7 @@ public class DataBOTest extends AbstractBOTest
     {
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+        experiment.setProject(ManagerTestTool.EXAMPLE_PROJECT);
 
         final ExternalDataPE dataSet = createExternalData(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =
@@ -638,6 +640,7 @@ public class DataBOTest extends AbstractBOTest
     {
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+        experiment.setProject(ManagerTestTool.EXAMPLE_PROJECT);
 
         final DataPE dataSet = createDataSet(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =
@@ -674,6 +677,7 @@ public class DataBOTest extends AbstractBOTest
     {
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+        experiment.setProject(ManagerTestTool.EXAMPLE_PROJECT);
 
         final DataPE dataSet = createDataSet(null, experiment);
         DataSetUpdatesDTO dataSetUpdatesDTO =

@@ -374,15 +374,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.dataSets = dataSets;
     }
 
-    public final void setDataSets(final List<DataPE> dataSets)
-    {
-        getExperimentDataSets().clear();
-        for (final DataPE child : dataSets)
-        {
-            addDataSet(child);
-        }
-    }
-
     public void addDataSet(final DataPE child)
     {
         final ExperimentPE parent = child.getExperiment();
