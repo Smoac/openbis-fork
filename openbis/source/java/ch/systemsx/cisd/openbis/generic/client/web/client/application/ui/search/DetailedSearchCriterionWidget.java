@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
@@ -213,12 +212,11 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         {
             String aCode = selectedFieldName.getAttributeCode();
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date;
             try
             {
-                date = sdf.parse(selectedValue);
-            } catch (ParseException ex)
+                date = DateRenderer.SHORT_DATE_TIME_FORMAT.parse(selectedValue);
+            } catch (IllegalArgumentException ex)
             {
                 return new DetailedSearchCriterion(selectedFieldName, selectedValue);
             }
@@ -265,8 +263,10 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
 
         if (criterion.getValue() == null && criterion.getDate() != null)
         {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            return name + " = " + sdf.format(criterion.getDate());
+            return name
+                    + " = "
+                    + DateRenderer.renderDate(criterion.getDate(),
+                            DateRenderer.SHORT_DATE_FORMAT_PATTERN);
         } else
         {
             return name + " = " + criterion.getValue();
