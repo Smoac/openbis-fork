@@ -182,15 +182,24 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return addFeatureGroupInternal(id, (FeaturesDefinition) features);
     }
 
+    void addFeatureGroupToInternalList(String key, FeatureGroup newFeatureGroup)
+    {
+        if (featureGroups.containsKey(key))
+        {
+            throw new IllegalArgumentException("Duplicate feature group code '"
+                    + newFeatureGroup.getId() + "'.");
+        }
+        featureGroups.put(key, newFeatureGroup);
+    }
+
     FeatureGroup addFeatureGroupInternal(final String id, final FeaturesDefinition features)
     {
         final String idUpperCase = id.toUpperCase();
         final HDF5CompoundType<Object[]> type =
                 base.writer.compounds().getType(getFeatureGroupTypePath(idUpperCase),
                         Object[].class, features.getMembers(hintsOrNull));
-        final FeatureGroup featureGroup =
-                new FeatureGroup(idUpperCase, features.getNamespace(), type);
-        addFeatureGroupToInternalList(featureGroup);
+        final FeatureGroup featureGroup = new FeatureGroup(id, features.getNamespace(), type);
+        addFeatureGroupToInternalList(idUpperCase, featureGroup);
         return featureGroup;
     }
 
