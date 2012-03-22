@@ -58,6 +58,10 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
             {
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
+                    if (featureGroups.size() == 0)
+                    {
+                        return;
+                    }
                     final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
                             base.writer.compounds().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),

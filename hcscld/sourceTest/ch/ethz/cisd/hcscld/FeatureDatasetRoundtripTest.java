@@ -106,6 +106,13 @@ public class FeatureDatasetRoundtripTest
         writer.close();
     }
 
+    private void createEmptyFeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        writer.close();
+    }
+
     private void createTwoFeatureGroupsSameNamespaceDataset(File file, String dsCode)
     {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
@@ -348,6 +355,27 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
             }
         }
+        reader.close();
+    }
+
+    @Test
+    public void testEmptyFeatureGroup()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "emptyFeatureGroup.cld");
+        f.delete();
+        f.deleteOnExit();
+        createEmptyFeatureGroupDataset(f, dsCode, null);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        int count = 0;
+        for (@SuppressWarnings("unused")
+        CellLevelFeatures clf : ds.getValues())
+        {
+            ++count;
+        }
+        assertEquals(0, count);
         reader.close();
     }
 
@@ -626,12 +654,10 @@ public class FeatureDatasetRoundtripTest
         }
         final IHDF5Reader reader = HDF5Factory.openForReading(f);
         HDF5CompoundType<FeatureGroupDescriptor> type =
-                reader.compounds().getDataSetType(
-                        "Dataset_123/FeatureGroups",
+                reader.compounds().getDataSetType("Dataset_123/FeatureGroups",
                         FeatureGroupDescriptor.class,
                         HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
-                            { 100 }),
-                        HDF5CompoundMemberMapping.mapping("namespaceId"));
+                            { 100 }), HDF5CompoundMemberMapping.mapping("namespaceId"));
         final FeatureGroupDescriptor[] featureGroups =
                 reader.compounds().readArray("/Dataset_123/FeatureGroups", type);
         assertEquals(3, featureGroups.length);

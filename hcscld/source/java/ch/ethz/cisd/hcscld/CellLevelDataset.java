@@ -195,6 +195,16 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return objectTypeStore.getObjectNamespaces();
     }
 
+    ObjectNamespace tryGetOnlyNamespace()
+    {
+        final Collection<ObjectNamespace> namespaces = getObjectNamespaces();
+        if (namespaces.size() > 1 || namespaces.isEmpty())
+        {
+            return null;
+        }
+        return namespaces.iterator().next();
+    }
+
     ObjectNamespace getOnlyNamespace()
     {
         final Collection<ObjectNamespace> namespaces = getObjectNamespaces();

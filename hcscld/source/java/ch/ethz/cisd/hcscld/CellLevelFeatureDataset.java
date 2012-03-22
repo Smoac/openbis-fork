@@ -50,6 +50,31 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     static final String ALL_FEATURE_GROUP_NAME = "ALL";
 
+    private final Iterable<CellLevelFeatures> EMPTY_ITERABLE = new Iterable<CellLevelFeatures>()
+        {
+            public Iterator<CellLevelFeatures> iterator()
+            {
+                return new Iterator<CellLevelFeatures>()
+                    {
+                        public boolean hasNext()
+                        {
+                            return false;
+                        }
+
+                        public CellLevelFeatures next()
+                        {
+                            throw new NoSuchElementException();
+                        }
+
+                        public void remove()
+                        {
+                            throw new UnsupportedOperationException();
+                        }
+
+                    };
+            }
+        };
+
     /**
      * The storage representation of a feature group.
      */
@@ -324,9 +349,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                     }
                                     final ImageId id = idIterator.next();
                                     final Object[][] data =
-                                            reader.compounds().readArray(
-                                                    ((FeatureGroup) featureGroup).getObjectPath(id),
-                                                    ((FeatureGroup) featureGroup).getType());
+                                            reader.compounds()
+                                                    .readArray(
+                                                            ((FeatureGroup) featureGroup)
+                                                                    .getObjectPath(id),
+                                                            ((FeatureGroup) featureGroup).getType());
                                     next = new CellLevelFeatures(featureGroup, id, data);
                                 }
                                 return true;
@@ -429,22 +456,50 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     public Iterable<CellLevelFeatures> getValues()
     {
-        return getValues(getOnlyNamespace());
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return EMPTY_ITERABLE;
+        } else
+        {
+            return getValues(namespaceOrNull);
+        }
     }
 
     public Object[] getValues(ImageId id, int cellId) throws IllegalStateException
     {
-        return getValues(id, getOnlyNamespace(), cellId);
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new Object[0];
+        } else
+        {
+            return getValues(id, namespaceOrNull, cellId);
+        }
     }
 
     public Object[][] getValues(ImageId id) throws IllegalStateException
     {
-        return getValues(id, getOnlyNamespace());
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new Object[0][0];
+        } else
+        {
+            return getValues(id, namespaceOrNull);
+        }
     }
 
     public boolean hasValues(ImageId id)
     {
-        return hasValues(id, getOnlyNamespace());
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return false;
+        } else
+        {
+            return hasValues(id, namespaceOrNull);
+        }
     }
 
     public Iterable<CellLevelFeatures> getValues(final ObjectNamespace namespace)
@@ -474,7 +529,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                             return false;
                                         }
                                         id = idIterator.next();
-                                    } while (all.hasWellFieldValues(id) == false); 
+                                    } while (all.hasWellFieldValues(id) == false);
                                     final Object[][] data = getValues(id, namespace);
                                     next = new CellLevelFeatures(all, id, data);
                                 }
