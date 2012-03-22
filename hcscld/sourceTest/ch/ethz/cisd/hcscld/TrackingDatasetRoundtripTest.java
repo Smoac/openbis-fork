@@ -101,6 +101,67 @@ public class TrackingDatasetRoundtripTest
     }
 
     @Test
+    public void testTrackingNeighbors()
+    {
+        File f = new File(workingDirectory, "TrackingNeighbors.cld");
+        f.delete();
+        f.deleteOnExit();
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
+        ICellLevelTrackingWritableDataset wds =
+                writer.addTrackingDataset("abc", new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace cellA = wds.addObjectNamespace("Cell_A");
+        ObjectTrackingType type = wds.createObjectTrackingType(cellA, cellA);
+        ObjectTrackingBuilder trackingBuilder = new ObjectTrackingBuilder();
+        trackingBuilder.addLink(1, 5);
+        trackingBuilder.addLink(1, 8);
+        trackingBuilder.addLink(0, 3);
+        trackingBuilder.addLink(0, 2);
+        trackingBuilder.addLink(0, 7);
+        trackingBuilder.addLink(2, 0);
+        trackingBuilder.addLink(3, 0);
+        trackingBuilder.addLink(3, 5);
+        trackingBuilder.addLink(5, 1);
+        trackingBuilder.addLink(5, 3);
+        trackingBuilder.addLink(7, 0);
+        trackingBuilder.addLink(8, 1);
+        wds.writeObjectTracking(new ImageSequenceId(1, 2, 3), type, trackingBuilder);
+        writer.close();
+
+        ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        ICellLevelTrackingDataset rds = reader.getDataSet("abc").toTrackingDataset();
+        ObjectTrackingTypes types = rds.getObjectTrackingTypes();
+        assertEquals(1, types.list().size());
+        ObjectTrackingType typeR =
+                types.get(rds.getObjectNamespace("Cell_A"), rds.getObjectNamespace("Cell_A"));
+        assertEquals(typeR, types.list().get(0));
+        assertEquals("CELL_A", typeR.getParentObjectNamespace().getId());
+        assertEquals("CELL_A", typeR.getChildObjectNamespace().getId());
+        assertEquals(0, typeR.getParentImageSequenceIdx());
+        assertEquals(0, typeR.getChildImageSequenceIdx());
+        assertTrue(rds.hasObjectTracking(new ImageSequenceId(1, 2, 3), typeR));
+        assertFalse(rds.hasObjectTracking(new ImageSequenceId(0, 0, 0), typeR));
+        ObjectTracking tracking = rds.getObjectTracking(new ImageSequenceId(1, 2, 3), typeR);
+        assertTrue(Arrays.equals(new int[]
+            { 2, 3, 7 }, tracking.getChildIds(0).toArray()));
+        assertTrue(Arrays.equals(new int[]
+            { 5, 8 }, tracking.getChildIds(1).toArray()));
+        assertTrue(Arrays.equals(new int[]
+            { 0 }, tracking.getChildIds(2).toArray()));
+        assertTrue(Arrays.equals(new int[]
+                { 0, 5 }, tracking.getChildIds(3).toArray()));
+        assertTrue(tracking.getChildIds(4).isEmpty());
+        assertTrue(Arrays.equals(new int[]
+                { 1, 3 }, tracking.getChildIds(5).toArray()));
+        assertTrue(tracking.getChildIds(6).isEmpty());
+        assertTrue(Arrays.equals(new int[]
+                { 0 }, tracking.getChildIds(7).toArray()));
+        assertTrue(Arrays.equals(new int[]
+                { 1 }, tracking.getChildIds(8).toArray()));
+
+        reader.close();
+    }
+
+    @Test
     public void testObjectTrackingTypeOrdering()
     {
         File f = new File(workingDirectory, "ObjectTrackingTypeOrdering.cld");
