@@ -40,6 +40,8 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
     private DataSet<ImageDataSetInformation> originalDataset;
 
     private List<IDataSet> thumbnailDatasets = Collections.emptyList();
+    
+    private boolean establishSampleLinkForContainedDataSets = false;
 
     public ImageContainerDataSet(
             DataSetRegistrationDetails<? extends DataSetInformation> registrationDetails,
@@ -51,6 +53,16 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
     public void setAnalysisProcedure(String analysisProcedure)
     {
         setPropertyValue(ScreeningConstants.ANALYSIS_PROCEDURE, analysisProcedure);
+    }
+
+    public void establishSampleLinkForContainedDataSets()
+    {
+        establishSampleLinkForContainedDataSets = true;
+    }
+
+    public boolean sampleLinkForContainedDataSetsShouldBeEstablished()
+    {
+        return establishSampleLinkForContainedDataSets;
     }
 
     public DataSet<ImageDataSetInformation> getOriginalDataset()
@@ -80,10 +92,17 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         if (originalDataset != null)
         {
             originalDataset.setSample(sampleOrNull);
+            originalDataset.getRegistrationDetails().getDataSetInformation()
+                    .setLinkSample(establishSampleLinkForContainedDataSets);
         }
         for (IDataSet thumbnailDataset : thumbnailDatasets)
         {
             thumbnailDataset.setSample(sampleOrNull);
+            if (thumbnailDatasets instanceof DataSet)
+            {
+                ((DataSet<?>) thumbnailDatasets).getRegistrationDetails().getDataSetInformation()
+                        .setLinkSample(establishSampleLinkForContainedDataSets);
+            }
         }
     }
 

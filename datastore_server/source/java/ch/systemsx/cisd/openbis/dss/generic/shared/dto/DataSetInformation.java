@@ -78,6 +78,8 @@ public class DataSetInformation implements Serializable
 
     /** sample with properties, enriched with connected experiment with properties. */
     private transient Sample sample;
+    
+    private transient boolean linkSample = true;
 
     private transient Experiment experiment;
 
@@ -283,6 +285,16 @@ public class DataSetInformation implements Serializable
     public final void setSampleCode(final String sampleCode)
     {
         this.sampleCode = sampleCode;
+    }
+
+    public boolean isLinkSample()
+    {
+        return linkSample;
+    }
+
+    public void setLinkSample(boolean linkSample)
+    {
+        this.linkSample = linkSample;
     }
 
     public final String getDataSetCode()

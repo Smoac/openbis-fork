@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -699,6 +700,19 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         AtomicEntityOperationDetails<T> createEntityOperationDetails(
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
+            for (DataSetRegistrationInformation<T> dataSetRegistrationInformation : dataSetRegistrations)
+            {
+                DataSetInformation dsInfo = dataSetRegistrationInformation.getDataSetInformation();
+                if (dsInfo.isLinkSample() == false)
+                {
+                    // A storage processor might need the sample even though the data sets should
+                    // not be linked to the sample because they are data sets of a container data
+                    // set.
+                    dsInfo.setSample(null);
+                    dsInfo.setSampleCode(null);
+                    dataSetRegistrationInformation.getExternalData().setSampleIdentifierOrNull(null);
+                }
+            }
 
             List<NewSpace> spaceRegistrations = convertSpacesToBeRegistered();
             List<NewProject> projectRegistrations = convertProjectsToBeRegistered();

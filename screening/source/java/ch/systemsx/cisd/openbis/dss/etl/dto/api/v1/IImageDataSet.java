@@ -33,4 +33,12 @@ public interface IImageDataSet extends IDataSet
 
     /** Sets analysis procedure. Makes sense only for segmentation datasets. */
     void setAnalysisProcedure(String analysisProcedure);
+    
+    /**
+     * If this method is called the contained data sets (original data set and thumbnails) will
+     * automatically linked to the sample specified by 
+     * {@link IDataSet#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable)}.
+     * By default there will be no such links.
+     */
+    void establishSampleLinkForContainedDataSets();
 }
