@@ -334,7 +334,7 @@ public class FeatureDatasetRoundtripTest
     public void testOneFeatureGroup()
     {
         final String dsCode = "123";
-        final File f = new File(workingDirectory, "main.cld");
+        final File f = new File(workingDirectory, "oneFeatureGroup.cld");
         f.delete();
         f.deleteOnExit();
         createMainFeatureGroupDataset(f, dsCode, null);
@@ -632,7 +632,7 @@ public class FeatureDatasetRoundtripTest
         final String dsCode = "123";
         final File f = new File(workingDirectory, "featureGroupSorting.cld");
         f.delete();
-        // f.deleteOnExit();
+        f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         try
         {
