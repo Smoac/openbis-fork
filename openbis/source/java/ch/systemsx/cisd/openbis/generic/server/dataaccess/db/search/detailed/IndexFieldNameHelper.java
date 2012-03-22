@@ -131,8 +131,12 @@ class IndexFieldNameHelper
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
             case REGISTRATION_DATE:
+            case REGISTRATION_DATE_BEFORE:
+            case REGISTRATION_DATE_AFTER:
                 return SearchFieldConstants.REGISTRATION_DATE;
             case MODIFICATION_DATE:
+            case MODIFICATION_DATE_BEFORE:
+            case MODIFICATION_DATE_AFTER:
                 return SearchFieldConstants.MODIFICATION_DATE;
         }
         throw new IllegalArgumentException(attributeKind.toString());
@@ -180,8 +184,12 @@ class IndexFieldNameHelper
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
             case REGISTRATION_DATE:
+            case REGISTRATION_DATE_BEFORE:
+            case REGISTRATION_DATE_AFTER:
                 return SearchFieldConstants.REGISTRATION_DATE;
             case MODIFICATION_DATE:
+            case MODIFICATION_DATE_BEFORE:
+            case MODIFICATION_DATE_AFTER:
                 return SearchFieldConstants.MODIFICATION_DATE;
         }
         throw new IllegalArgumentException(attributeKind.toString());

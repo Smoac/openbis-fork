@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -36,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -168,8 +172,8 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     {
         DetailedSearchCriterionWidget newCriterion =
                 new DetailedSearchCriterionWidget(parent, getChildId(),
-                        new DetailedSearchFieldsSelectionWidget(nameField, getChildId(), nameField
-                                .getEntityKind()));
+                        new DetailedSearchFieldsSelectionWidget(nameField, getChildId(),
+                                nameField.getEntityKind()));
         parent.addCriterion(newCriterion);
         generatedChildren++;
     }
@@ -204,9 +208,47 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
 
         final String selectedValue = valueField.getValue();
         final DetailedSearchField selectedFieldName = nameField.tryGetSelectedField();
+
         if (selectedFieldName != null && StringUtils.isBlank(selectedValue) == false)
         {
-            return new DetailedSearchCriterion(selectedFieldName, selectedValue);
+            String aCode = selectedFieldName.getAttributeCode();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date;
+            try
+            {
+                date = sdf.parse(selectedValue);
+            } catch (ParseException ex)
+            {
+                return new DetailedSearchCriterion(selectedFieldName, selectedValue);
+            }
+
+            CompareType compareType;
+            if ("REGISTRATION_DATE_BEFORE".equals(aCode))
+            {
+                compareType = CompareType.LESS_THAN_OR_EQUAL;
+            } else if ("REGISTRATION_DATE".equals(aCode))
+            {
+                compareType = CompareType.EQUALS;
+            } else if ("REGISTRATION_DATE_AFTER".equals(aCode))
+            {
+                compareType = CompareType.MORE_THAN_OR_EQUAL;
+            } else if ("MODIFICATION_DATE_BEFORE".equals(aCode))
+            {
+                compareType = CompareType.LESS_THAN_OR_EQUAL;
+            } else if ("MODIFICATION_DATE".equals(aCode))
+            {
+                compareType = CompareType.EQUALS;
+            } else if ("MODIFICATION_DATE_AFTER".equals(aCode))
+            {
+                compareType = CompareType.MORE_THAN_OR_EQUAL;
+            } else
+            {
+                return new DetailedSearchCriterion(selectedFieldName, selectedValue);
+            }
+
+            return new DetailedSearchCriterion(selectedFieldName, compareType, date);
+
         }
         return null;
 
@@ -221,7 +263,14 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
             return null;
         }
 
-        return name + " = " + criterion.getValue();
+        if (criterion.getValue() == null && criterion.getDate() != null)
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            return name + " = " + sdf.format(criterion.getDate());
+        } else
+        {
+            return name + " = " + criterion.getValue();
+        }
     }
 
     public List<PropertyType> getAvailablePropertyTypes()
