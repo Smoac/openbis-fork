@@ -93,9 +93,33 @@ function translateDst(d)
 /**
  * Convert properties to pairs
  */
-function props_to_pairs(data)
+function props_to_pairs1(data)
 {
-console.log(data);
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+		
+	order1 = ["TARGET", "DIRECTION", "RESTRICTION_ENZYME", "MODIFICATIONS", "SEQUENCE",  "PROJECT"]
+	new_list1 = []
+	for (var i in order1) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order1[i]) {
+				new_list1.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	
+	return new_list1;
+}
+
+
+function props_to_pairs2(data)
+{
 	d = data.properties;
 	
 	var pairs = [];
@@ -105,19 +129,22 @@ console.log(data);
 	}
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
-
-	order = ["TARGET", "DIRECTION", "RESTRICTION_ENZYME", "MODIFICATIONS", "SEQUENCE",  "PROJECT",  "BOX_NUMBER",  "ROW",  "COLUMN","REGISTRATION_DATE"]
-	new_list = []
-	for (var i in order) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order[i]) {
-				new_list.push(pairs[j]);
+	
+	order2 = [ "BOX_NUMBER",  "ROW",  "COLUMN","REGISTRATION_DATE"]
+	new_list2 = []
+	for (var a in order2) {
+		for (var b in pairs) {
+			if (pairs[b][0] == order2[a]) {
+				new_list2.push(pairs[b]);
 				break;
 			}
 		}
 	}
-	return new_list;
+	
+	return new_list2;
 }
+
+
 
 /** Initialize the oligos variable */
 function initializeOligos(result)
@@ -252,7 +279,7 @@ function updateInspectors(duration)
 	.remove();
 		
 	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d) })
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -263,6 +290,23 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");
+		
+						
+		
+		var propsTable2 = box.append("table").attr("class", "properties");
+		propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");		
+				
+
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	
@@ -272,30 +316,7 @@ function updateInspectors(duration)
 				.attr("width", "100%")
 				.attr("class", "downloads");
 			
-/*
-	// Add a caption, but make sure there is just one (this does not work with select())
-	downloadTable.selectAll("caption")
-			.data(downloadTableCaption)
-		.enter()
-			.append("caption").text(function(d) { return d; });
-			
-	// We just want to see non-directories here
-	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
-	downloadTableRow
-		.enter()
-			.append("tr")
-				.append("td")
-				.style("text-align", "left")
-				.on("click", downloadTableFile)
-				.text(function(d) { return d.label; });
-	downloadTableRow
-		.exit()
-			.transition()
-				.duration(duration)
-				.style("opacity", "0")
-				.remove();
-	
-*/
+
 }
 
 
@@ -343,7 +364,7 @@ function oligoFilter(filter, property, element, index, array) {
 	return false;
 }
 
-function visualize(codeFilterText, targetFilterText)
+function visualize(codeFilterText, targetFilterText, directionFilterText, enzymeFilterText, projectFilterText)
 {
 	if (codeFilterText == undefined) 
 	{
@@ -355,9 +376,26 @@ function visualize(codeFilterText, targetFilterText)
 		targetFilterText = "";
 	}
 
+	if (directionFilterText == undefined) 
+	{
+		directionFilterText = "";
+	}
 	
+	if (enzymeFilterText == undefined) 
+	{
+		enzymeFilterText = "";
+	}
+	
+	if (projectFilterText == undefined) 
+	{
+		projectFilterText = "";
+	}
+		
 	var displayedOligos = oligos.filter(oligoFilter.curry(codeFilterText, "CODE"));
 	displayedOligos = displayedOligos.filter(oligoFilter.curry(targetFilterText, "TARGET"));
+	displayedOligos = displayedOligos.filter(oligoFilter.curry(directionFilterText, "DIRECTION"));
+	displayedOligos = displayedOligos.filter(oligoFilter.curry(enzymeFilterText, "RESTRICTION_ENZYME"));
+	displayedOligos = displayedOligos.filter(oligoFilter.curry(projectFilterText, "PROJECT"));	
 
 
 	var selection = d3.select("#vis").select("#oligo-table").selectAll("tr.oligo-table-data").data(oligos);
@@ -448,12 +486,28 @@ $(document).ready(function() {
 	});
 	
 	$('#code_filter').keyup(function() {
-		visualize($('#code_filter').val(), $('#target_filter').val());
+		visualize($('#code_filter').val(), $('#target_filter').val(), $('#direction_filter').val(), $('#enzyme_filter').val(), $('#project_filter').val());
+	});	
+		
+	$('#target_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#target_filter').val(), $('#direction_filter').val(), $('#enzyme_filter').val(), $('#project_filter').val());
+	});
+	
+	$('#direction_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#target_filter').val(), $('#direction_filter').val(), $('#enzyme_filter').val(), $('#project_filter').val());
 	});
 
-	$('#target_filter').keyup(function() {
-		visualize($('#code_filter').val(), $('#target_filter').val());
+  $('#enzyme_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#target_filter').val(), $('#direction_filter').val(), $('#enzyme_filter').val(), $('#project_filter').val());
 	});
+	
+	$('#project_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#target_filter').val(), $('#direction_filter').val(), $('#enzyme_filter').val(), $('#project_filter').val());
+	});
+
+
+
+
 
 
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -499,13 +553,19 @@ $(document).ready(function() {
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
+		<div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
 		<div> 
-		  <div style="left:200px; padding-top: 60px"><span style="font-weight: bold">Code filter:</style> <input style="width: 200px" id="code_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Target</style> <input style="width: 200px" id="target_filter" type="text"></div> 		
     </div>
 		<div> 
-		  <div style="padding-top: 20px"><span style="font-weight: bold">Target filter:</style> <input style="width: 200px" id="target_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Direction</style> <input style="width: 200px" id="direction_filter" type="text"></div> 		
     </div>
-
+    <div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Restriction Enzyme</style> <input style="width: 200px" id="enzyme_filter" type="text"></div> 		
+    </div>
+		<div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Project</style> <input style="width: 200px" id="project_filter" type="text"></div> 		
+    </div>	
     
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">

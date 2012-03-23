@@ -25,15 +25,20 @@ div.inspector {
 }
 
 .properties {
-	width: 100%;	
+ padding-top:10px;
+ width:100%;
+ 
 }
+
 
 .properties td:nth-child(odd) {
   background-color:#94B8B8;
+  width: 30%;
 }
 
 .properties td:nth-child(even) {
   background-color:#ECEFEF;
+  width: 70%;
 }
 
 

@@ -93,7 +93,34 @@ function translateDst(d)
 /**
  * Convert properties to pairs
  */
-function props_to_pairs(data)
+function props_to_pairs1(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	
+
+	order1 = ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	new_list1 = []
+	for (var i in order1) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order1[i]) {
+				new_list1.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list1;
+}
+
+
+function props_to_pairs2(data)
 {
 
 	d = data.properties;
@@ -106,18 +133,20 @@ function props_to_pairs(data)
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order = ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS", "BOX_NUMBER", "ROW", "COLUMN","REGISTRATION_DATE"]
-	new_list = []
-	for (var i in order) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order[i]) {
-				new_list.push(pairs[j]);
+	order2 = ["BOX_NUMBER", "ROW", "COLUMN","REGISTRATION_DATE"]
+	new_list2 = []
+	for (var a in order2) {
+		for (var b in pairs) {
+			if (pairs[b][0] == order2[a]) {
+				new_list2.push(pairs[b]);
 				break;
 			}
 		}
 	}
-	return new_list;
+	return new_list2;
 }
+
+
 
 /** Initialize the plasmids variable */
 function initializePlasmids(result)
@@ -207,7 +236,7 @@ function filelist(plasmid, dataset, files) {
 			var fileTable = inspector.select("table");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
+			fileTable.append("tr").append("td").attr("colspan", "1").append("a").attr("href", downloadUrl).text(pathInDataSet);
 			if (/\.svg$/.test(pathInDataSet)) {
 					// Retrieve the svg file and inject it into the DOM
 					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
@@ -251,8 +280,8 @@ function updateInspectors(duration)
 	.style("opacity", "0")
 	.remove();
 		
-	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d) })
+  var propsTable = box.append("table").attr("class", "properties");
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -263,39 +292,30 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");
+						
+		
+		var propsTable2 = box.append("table").attr("class", "properties");
+		propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");		
+				
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
-	
 	downloadTable
 		.enter()
 			.append("table")
 				.attr("width", "100%")
 				.attr("class", "downloads");
 			
-/*
-	// Add a caption, but make sure there is just one (this does not work with select())
-	downloadTable.selectAll("caption")
-			.data(downloadTableCaption)
-		.enter()
-			.append("caption").text(function(d) { return d; });
-			
-	// We just want to see non-directories here
-	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
-	downloadTableRow
-		.enter()
-			.append("tr")
-				.append("td")
-				.style("text-align", "left")
-				.on("click", downloadTableFile)
-				.text(function(d) { return d.label; });
-	downloadTableRow
-		.exit()
-			.transition()
-				.duration(duration)
-				.style("opacity", "0")
-				.remove();
-	
-*/
+
 }
 
 

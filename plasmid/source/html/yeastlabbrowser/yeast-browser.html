@@ -93,7 +93,81 @@ function translateDst(d)
 /**
  * Convert properties to pairs
  */
-function props_to_pairs(data)
+function props_to_pairs1(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+
+	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS"]
+	new_list1 = []
+	for (var i in order1) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order1[i]) {
+				new_list1.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list1;
+}
+
+function props_to_pairs2(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	
+	order2 = ["GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID"]
+	new_list2 = []
+	for (var i in order2) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order2[i]) {
+				new_list2.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list2;
+}
+
+function props_to_pairs3(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	order3 = ["SOURCE","ORIGIN","STRAIN_CHECK"]
+	new_list3 = []
+	for (var i in order3) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order3[i]) {
+				new_list3.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list3;
+}
+
+function props_to_pairs4(data)
 {
 
 	d = data.properties;
@@ -106,17 +180,17 @@ function props_to_pairs(data)
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS",  "GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID", "SOURCE","ORIGIN","STRAIN_CHECK","BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
-	new_list = []
-	for (var i in order) {
+	order4 = [ "BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
+	new_list4 = []
+	for (var i in order4) {
 		for (var j in pairs) {
-			if (pairs[j][0] == order[i]) {
-				new_list.push(pairs[j]);
+			if (pairs[j][0] == order4[i]) {
+				new_list4.push(pairs[j]);
 				break;
 			}
 		}
 	}
-	return new_list;
+	return new_list4;
 }
 
 
@@ -251,9 +325,10 @@ function updateInspectors(duration)
 	.duration(duration)
 	.style("opacity", "0")
 	.remove();
-		
+	
+
 	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d) })
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -263,8 +338,49 @@ function updateInspectors(duration)
 				.text(function(d) { return d })
 			.transition()
 				.duration(duration)
-				.style("opacity", "1");
+				.style("opacity", "1");	
+
+	var propsTable2 = box.append("table").attr("class", "properties");
+	propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");	
+
+
+	var propsTable3 = box.append("table").attr("class", "properties");
+	propsTable3.selectAll("tr").data(function(d) { return props_to_pairs3(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");	
 				
+				
+	var propsTable4 = box.append("table").attr("class", "properties");
+	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");					
+	
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	
 	downloadTable
