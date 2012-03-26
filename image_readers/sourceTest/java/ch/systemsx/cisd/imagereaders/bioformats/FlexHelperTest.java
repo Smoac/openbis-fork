@@ -39,6 +39,8 @@ public class FlexHelperTest extends ImageReaderTestCase
 
         assertEquals(1, helper.getTileNumber(0));
         assertEquals("Exp1Cam1", helper.getChannelCode(0));
+        assertEquals("488", helper.getExcitationTag(0));
+        assertEquals("565/40", helper.getEmissionTag(0));
 
         Map<Integer, SpatialPoint> tileCoordinates = helper.getTileCoordinates();
         assertEquals(1, tileCoordinates.size());
@@ -59,16 +61,21 @@ public class FlexHelperTest extends ImageReaderTestCase
             { "Exp1", "Exp1", "Exp2" };
         final String[] CAMS = new String[]
             { "Cam1", "Cam3", "Cam2" };
-        
+        final String[] EXCITATION = new String[]
+            { "561,405", "561,405", "488" };
+        final String[] EMISSION = new String[]
+            { "450/50", "690/70", "565/40" };
+
         for (int i = 0; i < 12; i++)
         {
             int parsedTile = helper.getTileNumber(i);
-            String parsedChannelName = helper.getChannelCode(i);
             assertEquals((i / 3) + 1, parsedTile);
-            String channelName = EXPOSURES[ i % 3 ] + CAMS[ i % 3 ];
-            assertEquals(channelName, parsedChannelName);
+            String channelName = EXPOSURES[i % 3] + CAMS[i % 3];
+            assertEquals(channelName, helper.getChannelCode(i));
+            assertEquals(EXCITATION[i % 3], helper.getExcitationTag(i));
+            assertEquals(EMISSION[i % 3], helper.getEmissionTag(i));
         }
-        
+
         Map<Integer, SpatialPoint> tileCoordinates = helper.getTileCoordinates();
         assertEquals(4, tileCoordinates.size());
         assertEquals(new SpatialPoint(4.44E-4, 6.61E-4), tileCoordinates.get(1));

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.imagereaders.bioformats;
 
 import java.io.StringReader;
@@ -44,9 +43,9 @@ import ch.systemsx.cisd.common.geometry.SpatialPoint;
 /**
  * A helper class with utility methods that parse metadata from FLEX files.
  * <p>
- * Clients can implement their own utility methods on the top of FlexHelper, by parsing the 
- * metadata XML as returned by {@link #getMetadata()} or by directly executing XPath query 
- * via {@link #selectByXpathQuery(String)}.
+ * Clients can implement their own utility methods on the top of FlexHelper, by parsing the metadata
+ * XML as returned by {@link #getMetadata()} or by directly executing XPath query via
+ * {@link #selectByXpathQuery(String)}.
  * 
  * @author Kaloyan Enimanev
  */
@@ -60,6 +59,21 @@ public class FlexHelper
 
     private static final String SELECT_TILE_FOR_IMAGE =
             "//Images/Image[@BufferNo='%s']/Sublayout/text()";
+
+    private static final String SELECT_FILTER_REF_FOR_IMAGE =
+            "//Images/Image[@BufferNo='%s']/FilterCombinationRef/text()";
+
+    private static final String SELECT_LIGHTS_REF_FOR_IMAGE =
+            "//Images/Image[@BufferNo='%s']/LightSourceCombinationRef/text()";
+
+    private static final String SELECT_EMISSION_FOR_IMAGE =
+            "//FilterCombinations/FilterCombination[@ID='%s']/SliderRef[@ID='%s']";
+
+    private static final String SELECT_LASER_FOR_IMAGE =
+            "//LightSourceCombinations/LightSourceCombination[@ID='%s']/LightSourceRef/@ID";
+
+    private static final String SELECT_EXCITATION_FOR_IMAGE =
+            "//LightSources/LightSource[@ID='%s']/Wavelength/text()";
 
     private static final String SELECT_TILE_XCOORDS = "//Sublayouts/Sublayout/Field/OffsetX/text()";
 
@@ -95,7 +109,7 @@ public class FlexHelper
         String tile = nodeList.item(0).getNodeValue();
         return Integer.parseInt(tile.trim());
     }
-    
+
     public String getChannelCode(int imageIdx)
     {
         NodeList nodeList = selectByXpathQuery(SELECT_CHANNELS);
@@ -104,6 +118,100 @@ public class FlexHelper
             throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
         }
         return nodeList.item(imageIdx).getNodeValue();
+    }
+
+    public String getChannelDescription(int imageIdx)
+    {
+        String out =
+                getChannelCode(imageIdx) + " - Ex:" + getExcitationTag(imageIdx) + "nm Em:"
+                        + getEmissionTag(imageIdx) + "nm";
+        return out;
+    }
+
+    public String getExpCam(int imageIdx)
+    {
+        NodeList nodeList = selectByXpathQuery(SELECT_CHANNELS);
+        if (imageIdx < 0 || nodeList.getLength() <= imageIdx)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
+        }
+        return nodeList.item(imageIdx).getNodeValue();
+    }
+
+    public String getFilterRef(int imageIdx)
+    {
+        String query = String.format(SELECT_FILTER_REF_FOR_IMAGE, imageIdx);
+        NodeList nodeList = selectByXpathQuery(query);
+        if (nodeList.getLength() == 0)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
+        }
+        String filterRef = nodeList.item(0).getNodeValue();
+        return filterRef.trim();
+    }
+
+    public String getLightSRef(int imageIdx)
+    {
+        String query = String.format(SELECT_LIGHTS_REF_FOR_IMAGE, imageIdx);
+        NodeList nodeList = selectByXpathQuery(query);
+        if (nodeList.getLength() == 0)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
+        }
+        String filterRef = nodeList.item(0).getNodeValue();
+        return filterRef.trim();
+    }
+
+    public String getCamera(int imageIdx)
+    {
+        String expCam = getExpCam(imageIdx);
+        String cam = "Camera" + expCam.split("Cam")[1];
+        return cam.trim();
+    }
+
+    public String getEmissionTag(int imageIdx)
+    {
+        String query =
+                String.format(SELECT_EMISSION_FOR_IMAGE, getFilterRef(imageIdx),
+                        getCamera(imageIdx));
+        NodeList nodeList = selectByXpathQuery(query);
+        if (nodeList.getLength() == 0)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
+        }
+        String emissionTag = nodeList.item(0).getAttributes().getNamedItem("Filter").getNodeValue();
+        return emissionTag.trim();
+
+    }
+
+    public String getExcitationTag(int imageIdx)
+    {
+        String query = String.format(SELECT_LASER_FOR_IMAGE, getLightSRef(imageIdx));
+        NodeList nodeList = selectByXpathQuery(query);
+        if (nodeList.getLength() == 0)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + imageIdx);
+        }
+        String out = "";
+        for (int i = 0; i < nodeList.getLength(); i++)
+        {
+            out = out + getWaveLength(nodeList.item(i).getNodeValue()) + ",";
+        }
+        out = out.substring(0, out.length() - 1);
+        return out;
+
+    }
+
+    public String getWaveLength(String laser)
+    {
+        String query = String.format(SELECT_EXCITATION_FOR_IMAGE, laser);
+        NodeList nodeList = selectByXpathQuery(query);
+        if (nodeList.getLength() == 0)
+        {
+            throw new IllegalArgumentException("No image can be matched to idx=" + laser);
+        }
+        String waveLength = nodeList.item(0).getNodeValue();
+        return waveLength.trim();
     }
 
     public Map<Integer, SpatialPoint> getTileCoordinates()
@@ -193,11 +301,11 @@ public class FlexHelper
             return dBF.newDocumentBuilder().parse(is);
         } catch (Exception e)
         {
-            final String errorMessage = String.format(
-                    "Failed to parse FLEX metadata :\n\n%s\n\nisn't a well formed XML document. %s",
-                    value, e.getMessage());
+            final String errorMessage =
+                    String.format(
+                            "Failed to parse FLEX metadata :\n\n%s\n\nisn't a well formed XML document. %s",
+                            value, e.getMessage());
             throw new IllegalArgumentException(errorMessage);
         }
     }
-
 }
