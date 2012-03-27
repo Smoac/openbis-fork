@@ -73,17 +73,11 @@ class SearchService implements ISearchService
     public List<IDataSetImmutable> searchForDataSets(String property, String value,
             String typeOrNull)
     {
-        SearchCriteria sc = new SearchCriteria();
-        if (null != typeOrNull)
-        {
-            sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
-                    typeOrNull));
-        }
-        sc.addMatchClause(MatchClause.createPropertyMatch(property, value));
-        return searchForDataSets(sc);
+        return searchForDataSets(property, value, typeOrNull, false);
     }
 
-    public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull)
+    public List<IDataSetImmutable> searchForDataSets(String property, String value,
+            String typeOrNull, boolean escape)
     {
         SearchCriteria sc = new SearchCriteria();
         if (null != typeOrNull)
@@ -91,7 +85,27 @@ class SearchService implements ISearchService
             sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
                     typeOrNull));
         }
-        sc.addMatchClause(MatchClause.createPropertyMatch(property, value));
+        sc.addMatchClause(MatchClause.createPropertyMatch(property,
+                escape ? MatchClause.escape(value) : value));
+        return searchForDataSets(sc);
+    }
+
+    public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull)
+    {
+        return searchForSamples(property, value, typeOrNull, false);
+    }
+
+    public List<ISampleImmutable> searchForSamples(String property, String value,
+            String typeOrNull, boolean escape)
+    {
+        SearchCriteria sc = new SearchCriteria();
+        if (null != typeOrNull)
+        {
+            sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                    typeOrNull));
+        }
+        sc.addMatchClause(MatchClause.createPropertyMatch(property,
+                escape ? MatchClause.escape(value) : value));
         return searchForSamples(sc);
     }
 

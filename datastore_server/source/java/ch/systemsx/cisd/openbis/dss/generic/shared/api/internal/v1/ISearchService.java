@@ -41,7 +41,21 @@ public interface ISearchService
      * @param value The value the property should have. This may contain wildcards.
      * @return A list of matching data sets.
      */
-    public List<IDataSetImmutable> searchForDataSets(String property, String value, String typeOrNul);
+    public List<IDataSetImmutable> searchForDataSets(String property, String value,
+            String typeOrNull);
+
+    /**
+     * List all data sets with a given value for a particular property, optionally restricted to a
+     * specific type.
+     * 
+     * @param property The property of interest.
+     * @param value The value the property should have. This may contain wildcards if
+     *            <var>escape</var> is set to <code>false</code>.
+     * @param escape If <code>true</code>, escape the <var>value</var> to search for it verbatimly.
+     * @return A list of matching data sets.
+     */
+    public List<IDataSetImmutable> searchForDataSets(String property, String value,
+            String typeOrNull, boolean escape);
 
     /**
      * List all samples with a given value for a particular property, optionally restricted to a
@@ -52,6 +66,19 @@ public interface ISearchService
      * @return A list of matching samples.
      */
     public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull);
+
+    /**
+     * List all samples with a given value for a particular property, optionally restricted to a
+     * specific type.
+     * 
+     * @param property The property of interest.
+     * @param value The value the property should have. This may contain wildcards if
+     *            <var>escape</var> is set to <code>false</code>.
+     * @param escape If <code>true</code>, escape the <var>value</var> to search for it verbatimly.
+     * @return A list of matching samples.
+     */
+    public List<ISampleImmutable> searchForSamples(String property, String value,
+            String typeOrNull, boolean escape);
 
     /**
      * List all data sets that match the given searchCriteria.

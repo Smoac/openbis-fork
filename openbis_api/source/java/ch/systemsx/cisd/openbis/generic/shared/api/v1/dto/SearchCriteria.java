@@ -170,6 +170,29 @@ public class SearchCriteria implements Serializable
             return new AttributeMatchClause(attribute, mode, date);
         }
 
+        /**
+         * Returns a String where those characters that Lucene expects to be escaped are
+         * escaped by a preceding <code>\</code>.
+         * <p>
+         * Copy of Lucene's <code>QueryParser.escape()</code> method.
+         */
+        public static String escape(String s)
+        {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++)
+            {
+                final char c = s.charAt(i);
+                // These characters are part of the query syntax and must be escaped
+                if (c == '\\' || c == '+' || c == '-' || c == '!' || c == '(' || c == ')' || c == ':'
+                        || c == '^' || c == '[' || c == ']' || c == '\"' || c == '{' || c == '}'
+                        || c == '~' || c == '*' || c == '?' || c == '|' || c == '&')
+                {
+                    sb.append('\\');
+                }
+                sb.append(c);
+            }
+            return sb.toString();
+        }
         
         /**
          * The field type this MatchClause matches against. Could be either a property or attribute.
