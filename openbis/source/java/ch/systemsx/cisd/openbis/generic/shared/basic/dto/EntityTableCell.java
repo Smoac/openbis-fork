@@ -74,6 +74,11 @@ public class EntityTableCell implements ISerializableComparable
         return permId;
     }
 
+    public String getIdentifierOrNull()
+    {
+        return identifierOrNull;
+    }
+
     public boolean isMissing()
     {
         return identifierOrNull == null;

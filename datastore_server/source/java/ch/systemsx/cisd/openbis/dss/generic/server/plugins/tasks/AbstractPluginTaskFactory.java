@@ -65,7 +65,6 @@ public abstract class AbstractPluginTaskFactory<T>
     public final static String DATASET_CODES_PROPERTY_NAME = "dataset-types";
 
     /** Property name which stores a plugin class name. */
-    @Private
     public final static String CLASS_PROPERTY_NAME = "class";
 
     @Private
