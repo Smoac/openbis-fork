@@ -27,13 +27,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTabl
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
-import ch.systemsx.cisd.openbis.generic.shared.util.IColumnMetaData;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
@@ -80,40 +79,28 @@ public class FeatureVectorSummaryProvider extends
         TableModel tableModel = fvSummary.getTableModelOrNull();
         if (tableModel == null)
         {
-            buildTableFromSummary(builder, fvSummary);
-        } else
-        {
-            buildTableFromTableModel(builder, tableModel);
-        }
-        return builder.getModel();
+            return buildTableFromSummary(builder, fvSummary);
+        } 
+        return buildTableFromTableModel(tableModel);
     }
 
-    private void buildTableFromTableModel(
-            TypedTableModelBuilder<MaterialFeatureVectorSummary> builder, TableModel tableModel)
+    private TypedTableModel<MaterialFeatureVectorSummary> buildTableFromTableModel(
+            TableModel tableModel)
     {
         List<TableModelColumnHeader> headers = tableModel.getHeader();
-        for (int i = 0; i < headers.size(); i++)
-        {
-            TableModelColumnHeader header = headers.get(i);
-            IColumnMetaData columnMetaData = builder.addColumn(header.getId()).withTitle(header.getTitle());
-            if (header.isNumeric())
-            {
-                columnMetaData.withDataType(header.getDataType());
-            }
-        }
         List<TableModelRow> rows = tableModel.getRows();
+        List<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
+                new ArrayList<TableModelRowWithObject<MaterialFeatureVectorSummary>>();
         for (TableModelRow row : rows)
         {
-            builder.addRow(null);
-            List<ISerializableComparable> values = row.getValues();
-            for (int i = 0; i < values.size(); i++)
-            {
-                builder.column(headers.get(i).getId()).addValue(values.get(i));
-            }
+            list.add(new TableModelRowWithObject<MaterialFeatureVectorSummary>(null, row
+                    .getValues()));
         }
+        return new TypedTableModel<MaterialFeatureVectorSummary>(headers, list);
     }
 
-    private void buildTableFromSummary(TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,
+    private TypedTableModel<MaterialFeatureVectorSummary> buildTableFromSummary(
+            TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,
             ExperimentFeatureVectorSummary fvSummary)
     {
         builder.addColumn(MATERIAL_ID);
@@ -144,6 +131,7 @@ public class FeatureVectorSummaryProvider extends
         {
             addRow(builder, fvSummary.getExperiment(), summary, featureColumnIds, rankColumnIds);
         }
+        return builder.getModel();
     }
 
     private void addRow(TypedTableModelBuilder<MaterialFeatureVectorSummary> builder,
