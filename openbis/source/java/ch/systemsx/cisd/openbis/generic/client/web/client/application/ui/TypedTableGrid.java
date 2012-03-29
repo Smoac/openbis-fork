@@ -150,6 +150,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -278,10 +279,15 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                             MaterialIdentifier.tryParseIdentifier(permId);
                     OpenEntityDetailsTabHelper.open(viewContext, materialIdentifier,
                             specialKeyPressed);
-                } else
+                } else if (permId.length() != 0)
                 {
                     OpenEntityDetailsTabHelper.open(viewContext, entityTableCell.getEntityKind(),
                             permId, specialKeyPressed);
+                } else
+                {
+                    OpenEntityDetailsTabHelper.open(viewContext,
+                            new BasicEntityDescription(entityTableCell.getEntityKind(),
+                                    entityTableCell.getIdentifierOrNull()), specialKeyPressed);
                 }
             } else
             {

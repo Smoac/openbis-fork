@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -47,6 +48,13 @@ public class OpenEntityDetailsTabHelper
             boolean keyPressed)
     {
         viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
+                new OpenEntityDetailsTabCallback(viewContext, keyPressed));
+    }
+
+    public static void open(IViewContext<?> viewContext, BasicEntityDescription description,
+            boolean keyPressed)
+    {
+        viewContext.getCommonService().getEntityInformationHolder(description,
                 new OpenEntityDetailsTabCallback(viewContext, keyPressed));
 
     }
