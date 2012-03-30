@@ -102,7 +102,6 @@ class EntityChooserDialog<T> extends SimpleDialog
                 public void execute()
                 {
                     entityBrowser.dispose();
-                    chosenEntitySetter.setChosenEntities(null);
                 }
             };
     }
