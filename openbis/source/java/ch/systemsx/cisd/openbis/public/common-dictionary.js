@@ -19,6 +19,7 @@ var common = {
   perm_id: "PermID",
   registrator: "Registrator",
   registration_date: "Registration Date",
+  modification_date: "Modification Date",
   filter: "Filter",
   filters: "Filters",
   not_implemented: "Sorry, feature has not been implemented yet!",

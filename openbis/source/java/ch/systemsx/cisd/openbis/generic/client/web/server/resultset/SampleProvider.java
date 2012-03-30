@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INSTANCE_SAMPLE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
@@ -80,6 +81,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(IS_DELETED).hideByDefault();
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(EXPERIMENT);
         builder.addColumn(EXPERIMENT_IDENTIFIER).withDefaultWidth(200).hideByDefault();
         builder.addColumn(PROJECT);
@@ -104,6 +106,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                     SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(sample.getModificationDate());
             final Experiment experimentOrNull = sample.getExperiment();
             if (experimentOrNull != null)
             {

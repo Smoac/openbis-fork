@@ -30,6 +30,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_COMPLETE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PARENT_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
@@ -93,6 +94,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(PROJECT);
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(200).hideByDefault();
         builder.addColumn(IS_DELETED).hideByDefault();
         builder.addColumn(SOURCE_TYPE).hideByDefault();
         builder.addColumn(IS_COMPLETE).hideByDefault();
@@ -139,6 +141,7 @@ public abstract class AbstractExternalDataProvider extends
             }
             builder.column(REGISTRATOR).addPerson(dataSet.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(dataSet.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(dataSet.getModificationDate());
             builder.column(IS_DELETED).addString(
                     SimpleYesNoRenderer.render(DeletionUtils.isDeleted(dataSet)));
             builder.column(SOURCE_TYPE).addString(dataSet.getSourceType());

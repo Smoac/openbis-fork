@@ -35,6 +35,8 @@ public class SampleGridColumnIDs
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
+    public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
+
     public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
 
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
