@@ -439,37 +439,81 @@ function displayReturnedSamples(data)
 	visualize();
 }
 
-function yeastFilter(filter, element, index, array) {
+function yeastFilter(filter, property, element, index, array) {
 
-	filter = filter.toLowerCase();
 	
-	if (element.code.toLowerCase().indexOf(filter) != -1) {
-		return true;
-	}
+	filter = filter.toLowerCase();
 
-	if (element.identifier.toLowerCase().indexOf(filter) != -1) {
-		return true;
-	}
-
-	for (var propertyName in element.properties) {
-		if (!(element.properties[propertyName] instanceof Function)) {
-			if (element.properties[propertyName].toLowerCase().indexOf(filter) != -1) {
-				return true;
-			}
+	if (property == "CODE") {
+		if (element.code.toLowerCase().indexOf(filter) != -1) {
+			return true;
 		}
+	}	
+
+	if (element.properties[property] == undefined) {
+		return false;
+	}
+
+	if (element.properties[property].toLowerCase().indexOf(filter) != -1) {
+		return true;
 	}
 
 	return false;
 }
 
-function visualize(filterText)
+
+function visualize(ownerFilterText, ownerNumFilterText, yeastNameFilterText, projectFilterText, plasmidsFilterText, yeastParentsFilterText, geneticBackgroundFilterText, matingTypeFilterText )
 {
-	if (filterText == undefined) 
+	if (ownerFilterText == undefined) 
 	{
-		filterText = "";
+		ownerFilterText = "";
+	}
+
+	if (ownerNumFilterText == undefined) 
+	{
+		ownerNumFilterText = "";
 	}
 	
-	var displayedYeasts = yeasts.filter(yeastFilter.curry(filterText));
+	if (yeastNameFilterText == undefined) 
+	{
+		yeastNameFilterText = "";
+	}
+
+	if (projectFilterText == undefined) 
+	{
+		projectFilterText = "";
+	}
+	
+	if (plasmidsFilterText == undefined) 
+	{
+		plasmidsFilterText = "";
+	}
+
+	if (yeastParentsFilterText == undefined) 
+	{
+		yeastParentsFilterText = "";
+	}
+	
+		if (geneticBackgroundFilterText == undefined) 
+	{
+		geneticBackgroundFilterText = "";
+	}
+
+	if (matingTypeFilterText == undefined) 
+	{
+		matingTypeFilterText = "";
+	}
+	
+	var displayedYeasts = yeasts.filter(yeastFilter.curry(ownerFilterText, "OWNER"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(yeastNameFilterText, "YEAST_STRAIN_NAME"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(projectFilterText, "PROJECT"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(plasmidsFilterText, "PLASMIDS"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(yeastParentsFilterText, "YEAST_PARENTS"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(geneticBackgroundFilterText, "GENETIC_BACKGROUND"));
+	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(matingTypeFilterText, "MATING_TYPE"));
+	
+	
 
 	var selection = d3.select("#vis").select("#yeast-table").selectAll("tr.yeast-table-data").data(yeasts);
 		// Code under enter is run if there is no HTML element for a data element
@@ -558,10 +602,37 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#filter').keyup(function() {
-		visualize($('#filter').val());
+	$('#owner_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});	
+		
+	$('#ownerNum_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
 	});
 
+  $('#yeastName_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
+	
+	$('#project_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
+	
+	$('#plasmids_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
+	
+	$('#yeastParents_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
+	
+  $('#geneticBackground_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
+	
+	$('#matingType_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
+	});
 
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
@@ -604,10 +675,32 @@ $(document).ready(function() {
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
 		</div>
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
-		</div>
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
+		</div>   
+		< <div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
 		<div> 
-		  <div style="padding-top: 60px"><span style="font-weight: bold">Filter:</style> <input style="width: 200px" id="filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Owner</style> <input style="width: 200px" id="owner_filter" type="text"></div> 		
+    </div>
+		<div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Owner Number</style> <input style="width: 200px" id="ownerNum_filter" type="text"></div> 		
+    </div>
+    <div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Yeast Strain Name</style> <input style="width: 200px" id="yeastName_filter" type="text"></div> 		
+    </div>
+		<div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Project</style> <input style="width: 200px" id="project_filter" type="text"></div> 		
+    </div>
+    <div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Plasmids</style> <input style="width: 200px" id="plasmids_filter" type="text"></div> 		
+    </div>
+		<div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Yeast Parents</style> <input style="width: 200px" id="yeastParents_filter" type="text"></div> 		
+    </div>
+    <div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Genetic Background</style> <input style="width: 200px" id="geneticBackground_filter" type="text"></div> 		
+    </div>
+		<div> 
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Mating Type</style> <input style="width: 200px" id="matingType_filter" type="text"></div> 		
     </div>
 
 		<div id="vis">

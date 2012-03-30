@@ -1,8 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+plasmid-browser.html<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Chemical Browser</title>
-	<link type="text/css" rel="stylesheet" href="chemical-body-style.css" />
+	<title>Plasmid Browser</title>
+	<link type="text/css" rel="stylesheet" href="plasmid-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -19,11 +19,11 @@ openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'http
 
 // Some global variables we refer to
 
-/// All chemicals
-var chemicals = null;
+/// All plasmids
+var plasmids = null;
 
-/// The chemicals that are currently being inspected
-var inspectedChemicals = [];
+/// The plasmids that are currently being inspected
+var inspectedPlasmids = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -93,67 +93,106 @@ function translateDst(d)
 /**
  * Convert properties to pairs
  */
-function props_to_pairs(d)
+function props_to_pairs1(data)
 {
+
+	d = data.properties;
+	
 	var pairs = [];
 	for (var prop in d) {
 		var pair = [prop, d[prop]];
 		pairs.push(pair);
 	}
-	pairs.sort(function(a, b) { 
-		if (a[0] == b[0]) return 0;
-		// Sort in reverse lexicographical
-		return (a[0] < b[0]) ? -1 : 1;
-	});
-	return pairs;
+	
+	
+
+	order1 = ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	new_list1 = []
+	for (var i in order1) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order1[i]) {
+				new_list1.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list1;
 }
 
-/** Initialize the chemicals variable */
-function initializeChemicals(result)
+
+function props_to_pairs2(data)
 {
-	// Split the chemicals into two groups, the ones that start with FRC in their sample name and the other ones.
-	var frcChemicals = [], otherChemicals = [];
-	var frcRegex = /^FRC[0-9]+/;
-	frcRegex.compile(frcRegex);
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
+
+	order2 = ["BOX_NUMBER", "ROW", "COLUMN","REGISTRATION_DATE"]
+	new_list2 = []
+	for (var a in order2) {
+		for (var b in pairs) {
+			if (pairs[b][0] == order2[a]) {
+				new_list2.push(pairs[b]);
+				break;
+			}
+		}
+	}
+	return new_list2;
+}
+
+
+/** Initialize the plasmids variable */
+function initializePlasmids(result)
+{
+	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpPlasmids = [], otherPlasmids = [];
+	var frpRegex = /^FRP[0-9]+/;
+	frpRegex.compile(frpRegex);
 	result.forEach(function(sample) { 
-		if (frcRegex.test(sample.code)) {
-			frcChemicals.push(sample);
+		if (frpRegex.test(sample.code)) {
+			frpPlasmids.push(sample);
 		} else {
-			otherChemicals.push(sample);
+			otherPlasmids.push(sample);
 		}
 	});
 	
 	// Sort each of the groups
-	otherChemicals.sort(function(a, b) { 
+	otherPlasmids.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frcChemicals.sort(function(a, b) {
-		// Sort based on the FRC number
-		var frcNumberA = parseInt(a.code.substring(3));
-		var frcNumberB = parseInt(b.code.substring(3));
-		return (frcNumberA < frcNumberB) ? -1 : 1;
+	frpPlasmids.sort(function(a, b) {
+		// Sort based on the FRP number
+		var frpNumberA = parseInt(a.code.substring(3));
+		var frpNumberB = parseInt(b.code.substring(3));
+		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of chemicals
-	chemicals = frcChemicals.concat(otherChemicals);
+	// Combine the two groups back together to produce the full collection of plasmids
+	plasmids = frpPlasmids.concat(otherPlasmids);
 }
 
-/** Set the size of the chemical-table based on whether or not inspectors are visible */
-function resizeChemicalTable()
+/** Set the size of the plasmid-table based on whether or not inspectors are visible */
+function resizePlasmidTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 20;
-	if (inspectedChemicals.length > 0) {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
+	if (inspectedPlasmids.length > 0) {
+		cellWidth = ((getAppWidth() - inspectorsWidth) /6 ) - padding + "px";
+		areInspectorsVisible = true;
 	} else {
 		cellWidth = "100%";
 		areInspectorsVisible = false;
 	}
-	var chemicalTableTransition = d3.selectAll('div.chemical-table-data-cell');
-	chemicalTableTransition.style('width', cellWidth);
+	var plasmidTableTransition = d3.selectAll('div.plasmid-table-data-cell');
+	plasmidTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -161,38 +200,38 @@ function resizeChemicalTable()
 	}
 }
 
-function inspectChemical(chemical)
+function inspectPlasmid(plasmid)
 {
-	if (inspectedChemicals.indexOf(chemical) < 0) {
-		inspectedChemicals.push(chemical);
-		openbisServer.listDataSetsForSample(chemical, true, dataset.curry(chemical));
+	if (inspectedPlasmids.indexOf(plasmid) < 0) {
+		inspectedPlasmids.push(plasmid);
+		openbisServer.listDataSetsForSample(plasmid, true, dataset.curry(plasmid));
 	}
-	resizeChemicalTable();
+	resizePlasmidTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(chemical)
+function closeInspector(plasmid)
 {
-	var index = inspectedChemicals.indexOf(chemical);
+	var index = inspectedPlasmids.indexOf(plasmid);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedChemicals.splice(index, 1);
-	resizeChemicalTable();
+	inspectedPlasmids.splice(index, 1);
+	resizePlasmidTable();
 	updateInspectors(1000);
 }
 
-function dataset(chemical, data) {
+function dataset(plasmid, data) {
 	for (var i in data.result) {
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(chemical, data.result[i]));
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
 	}
 }
 
-function filelist(chemical, dataset, files) {
+function filelist(plasmid, dataset, files) {
 	for (var i in files.result) {
 		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+chemical.code+"_INSPECTOR");
+			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
 			var fileTable = inspector.select("table");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
@@ -219,7 +258,7 @@ function filelist(chemical, dataset, files) {
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedChemicals, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -241,7 +280,7 @@ function updateInspectors(duration)
 	.remove();
 		
 	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.properties) })
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -252,6 +291,23 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");
+		
+						
+		
+		var propsTable2 = box.append("table").attr("class", "properties");
+		propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");		
+				
+
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	
@@ -261,30 +317,7 @@ function updateInspectors(duration)
 				.attr("width", "100%")
 				.attr("class", "downloads");
 			
-/*
-	// Add a caption, but make sure there is just one (this does not work with select())
-	downloadTable.selectAll("caption")
-			.data(downloadTableCaption)
-		.enter()
-			.append("caption").text(function(d) { return d; });
-			
-	// We just want to see non-directories here
-	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
-	downloadTableRow
-		.enter()
-			.append("tr")
-				.append("td")
-				.style("text-align", "left")
-				.on("click", downloadTableFile)
-				.text(function(d) { return d.label; });
-	downloadTableRow
-		.exit()
-			.transition()
-				.duration(duration)
-				.style("opacity", "0")
-				.remove();
-	
-*/
+
 }
 
 
@@ -299,11 +332,11 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializeChemicals(data.result);
+	initializePlasmids(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (chemicals.length < 1) {
+	if (plasmids.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
@@ -311,7 +344,7 @@ function displayReturnedSamples(data)
 	visualize();
 }
 
-function chemicalFilter(filter, property, element, index, array) {
+function plasmidFilter(filter, property, element, index, array) {
 
 	filter = filter.toLowerCase();
 
@@ -333,63 +366,59 @@ function chemicalFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(nameFilterText, supplierFilterText, artnumFilterText, locidFilterText, storageFilterText)
+function visualize(ownerFilterText, ownernumFilterText, plasmidnameFilterText, antibioticFilterText, markerFilterText)
 {
-	if (nameFilterText == undefined) 
+	if (ownerFilterText == undefined) 
 	{
-		nameFilterText = "";
+		ownerFilterText = "";
 	}
-	
-	if (supplierFilterText == undefined) 
-	{
-		supplierFilterText = "";
-	}
-	
-	if (artnumFilterText == undefined) 
-	{
-		artnumFilterText = "";
-	}
-	
-	if (locidFilterText == undefined) 
-	{
-		locidFilterText = "";
-	}
-	
-	if (storageFilterText == undefined) 
-	{
-		storageFilterText = "";
-	}
-	
-	
-	
-	var displayedChemicals = chemicals.filter(chemicalFilter.curry(nameFilterText, "NAME"));
-	displayedChemicals = displayedChemicals.filter(chemicalFilter.curry(supplierFilterText, "SUPPLIER"));
-	displayedChemicals = displayedChemicals.filter(chemicalFilter.curry(artnumFilterText, "ARTICLE_NUMBER"));
-	displayedChemicals = displayedChemicals.filter(chemicalFilter.curry(locidFilterText, "LOCAL_ID"));
-	displayedChemicals = displayedChemicals.filter(chemicalFilter.curry(storageFilterText, "STORAGE"));
-	
-	
-	
 
-	var selection = d3.select("#vis").select("#chemical-table").selectAll("tr.chemical-table-data").data(chemicals);
+	if (ownernumFilterText == undefined) 
+	{
+		ownernumFilterText = "";
+	}
+
+	if (plasmidnameFilterText == undefined) 
+	{
+		plasmidnameFilterText = "";
+	}
+	
+	if (antibioticFilterText == undefined) 
+	{
+		antibioticFilterText = "";
+	}
+	
+	if (markerFilterText == undefined) 
+	{
+		markerFilterText = "";
+	}
+		
+	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(ownerFilterText, "CODE"));
+	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(ownernumFilterText, "TARGET"));
+	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidnameFilterText, "DIRECTION"));
+	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(antibioticFilterText, "RESTRICTION_ENZYME"));
+	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(markerFilterText, "PROJECT"));	
+
+
+	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
 		// Code under enter is run if there is no HTML element for a data element
 	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "chemical-table-data")
+		.attr("class", "plasmid-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectChemical)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
+		.on("click", inspectPlasmid)
+			.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "chemical-table-data-cell")
+			.attr("class", "plasmid-table-data-cell")
 			.text(String)
 
 		selection.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedChemicals) != -1) {
+				if ($.inArray(data, displayedPlasmids) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -399,7 +428,7 @@ function visualize(nameFilterText, supplierFilterText, artnumFilterText, locidFi
 }
 
 /**
- * Request samples matching some criteria from the server and show them in the Page.
+ * Request samples matching some criteria frpm the server and show them in the Page.
  */
 function showMatchingSamples()
 {
@@ -409,7 +438,7 @@ function showMatchingSamples()
 			[ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "CHEMICAL" 
+				desiredValue : "PLASMID" 
 			} ],
 		operator : "MATCH_ALL_CLAUSES"
 	};
@@ -458,26 +487,30 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#name_filter').keyup(function() {
-		visualize($('#name_filter').val(), $('#supplier_filter').val(), $('#artnum_filter').val(), $('#locid_filter').val(), $('#storage_filter').val());
+	$('#owner_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownernum_filter').val(), $('#plasmidname_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});	
+		
+	$('#ownernum_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownernum_filter').val(), $('#plasmidname_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	});
 	
-	$('#supplier_filter').keyup(function() {
-		visualize($('#name_filter').val(), $('#supplier_filter').val(), $('#artnum_filter').val(), $('#locid_filter').val(), $('#storage_filter').val());
-	});	
-	
-		$('#artnum_filter').keyup(function() {
-		visualize($('#name_filter').val(), $('#supplier_filter').val(), $('#artnum_filter').val(), $('#locid_filter').val(), $('#storage_filter').val());
-	});	
-	
-	$('#locid_filter').keyup(function() {
-		visualize($('#name_filter').val(), $('#supplier_filter').val(), $('#artnum_filter').val(), $('#locid_filter').val(), $('#storage_filter').val());
-	});		
-	
+	$('#plasmidname_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownernum_filter').val(), $('#plasmidname_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	});
 
-	$('#storage_filter').keyup(function() {
-		visualize($('#name_filter').val(), $('#supplier_filter').val(), $('#artnum_filter').val(), $('#locid_filter').val(), $('#storage_filter').val());
-	});		
+  $('#antibiotic_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownernum_filter').val(), $('#plasmidname_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	});
+	
+	$('#marker_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownernum_filter').val(), $('#plasmidname_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	});
+
+
+
+
+
 
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
@@ -516,33 +549,30 @@ $(document).ready(function() {
 		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
 		</div>
-		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
+		<div id="plasmid_browser"	style="position: absolute; left:400px; top:15px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
 		</div>
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
 		<div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
 		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Name</style> <input style="width: 200px" id="name_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Target</style> <input style="width: 200px" id="ownernum_filter" type="text"></div> 		
     </div>
 		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Supplier</style> <input style="width: 200px" id="supplier_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Direction</style> <input style="width: 200px" id="plasmidname_filter" type="text"></div> 		
     </div>
     <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Article Number</style> <input style="width: 200px" id="artnum_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Restriction Enzyme</style> <input style="width: 200px" id="antibiotic_filter" type="text"></div> 		
     </div>
 		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Local ID</style> <input style="width: 200px" id="locid_filter" type="text"></div> 		
-    </div>
-    	<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Storage</style> <input style="width: 200px" id="storage_filter" type="text"></div> 		
+		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Project</style> <input style="width: 200px" id="marker_filter" type="text"></div> 		
     </div>	
     
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">
-			<table id="chemical-table" style="float: left">
-			  <tr class="chemical-table-header"><th>Chemical Code</th><th>Chemical Name</th><th>Supplier</th><th>Art. Number</th><th>Local ID</th><th>Storage</th></tr>
+			<table id="plasmid-table" style="float: left">
+			   <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
 		</div>
