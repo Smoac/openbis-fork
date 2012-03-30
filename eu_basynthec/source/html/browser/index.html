@@ -397,22 +397,30 @@ function updateInspectors(duration)
 				.style("opacity", "0")
 				.remove();
 				
+	var height = 200, width = 200;
 	var dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
-	var aCurve = dataDisplay
+	dataDisplay
 		.enter()
 	.append("svg:svg")
-		.attr("height", "200")
-		.attr("width", "200")
-		.selectAll("g").data(function(d) { return d; })
+		.attr("height", height)
+		.attr("width", width);
+	// Reinitialize the variable
+	dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
+	var aCurve = dataDisplay.selectAll("g").data(function(d) { return [d[1]]; })
 				.enter()
 			.append("svg:g");
-	aCurve.selectAll("line").data(function(d) { return d; })
+	// Reinitialize the variable
+	aCurve = dataDisplay.selectAll("g").data(curveData);
+		// The first two columns of data are the strain name and human-readable desc
+	aCurve.selectAll("line").data(lineData)
 		.enter()
 	.append("svg:line")
-		.attr("x1", "0")
-		.attr("y1", "0")
-		.attr("x2", function(d, i) { return i;})
-		.attr("y2", function(d) { return d * 200; });
+		.attr("x1", function(d, i) { return (i / (this.parentNode.__data__.length)) * width; })
+		.attr("y1", function(d, i) { return height - (d[0] * height); })
+		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
+		.attr("y2", function(d) { return height - (d[1] * height); })
+		.style("stroke", "rgb(0,0,0)")
+		.style("stroke-width", "1");
 	
 	inspector.exit().transition()
 		.duration(duration)
@@ -529,6 +537,7 @@ function od600DataForDataSet(d)
 	if (undefined == d.od600) return [[]];
 	
 	return [d.od600.slice(1)];
+//		return [d.od600[1]];
 }
 
 /** 
@@ -557,6 +566,37 @@ function retrieveOd600DataForDataSet(ds)
 		ds.loadingOd600 = false; 
 		updateInspectors(500);
 	});	
+}
+
+function curveData(d)
+{
+	if (!d) return [];
+	if (d.length < 2) return [];
+	var data = d[1].slice(2);
+	return [{length : data.length, max : d3.max(data), values: data}]
+}
+
+function lineData(d)
+{
+	if (!d) return [];
+	
+	var data = d.values;
+	// convert the data into pairs
+	var pairs = data.reduce(function(sum, elt) {
+		// initialization
+		if (sum.length < 1) {
+			sum.push([elt / d.max]);
+			return sum;
+		}
+		
+		// add the current elt as the second in the last pair and the first in the new pair
+		sum[sum.length - 1].push(elt / d.max);
+		// don't add the very last element
+		if (sum.length < data.length - 1) sum.push([elt / d.max]);
+		return sum;
+	}, []);
+	
+	return pairs;
 }
 
 function shouldRenderProperty(prop, value) {
