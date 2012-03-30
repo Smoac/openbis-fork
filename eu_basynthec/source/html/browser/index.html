@@ -8,6 +8,7 @@
   <script type="text/javascript" src="d3.js"></script>
   <script type="text/javascript" src="d3.layout.js"></script>
   <script type="text/javascript" src="d3.time.js"></script>
+<script type="text/javascript" src="d3.tsv.js"></script>
   <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="openbis-utils.js"></script>
   <script type="text/javascript" src="openbis.js"></script>
@@ -16,8 +17,12 @@
   <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
   <script>
 
-basynthec = new openbis_basynthec('https://basynthec.ethz.ch/openbis/openbis', 'https://basynthec.ethz.ch/datastore_server');
-// basynthec = new openbis_basynthec('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+// var openBisUrl = 'https://basynthec.ethz.ch/openbis/openbis';
+// var dssUrl = https://basynthec.ethz.ch/datastore_server';
+var openBisUrl = 'http://localhost:8888/openbis/openbis';
+var dssUrl = 'http://localhost:8889/datastore_server';
+
+basynthec = new openbis_basynthec(openBisUrl, dssUrl);
 
 var w = 500;
 
@@ -315,7 +320,6 @@ function switchToStrainView()
 	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
 }
 
-
 /**
  * Draw / update node inspectors
  */
@@ -392,6 +396,23 @@ function updateInspectors(duration)
 				.duration(duration)
 				.style("opacity", "0")
 				.remove();
+				
+	var dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
+	var aCurve = dataDisplay
+		.enter()
+	.append("svg:svg")
+		.attr("height", "200")
+		.attr("width", "200")
+		.selectAll("g").data(function(d) { return d; })
+				.enter()
+			.append("svg:g");
+	aCurve.selectAll("line").data(function(d) { return d; })
+		.enter()
+	.append("svg:line")
+		.attr("x1", "0")
+		.attr("y1", "0")
+		.attr("x2", function(d, i) { return i;})
+		.attr("y2", function(d) { return d * 200; });
 	
 	inspector.exit().transition()
 		.duration(duration)
@@ -475,7 +496,7 @@ function retrieveFilesForDataSets(dataSets)
 function retrieveFilesForDataSet(ds)
 {
 	if (ds.files) {
-		//already retrieved
+		// already retrieved
 		return;
 	}
 	
@@ -490,8 +511,52 @@ function retrieveFilesForDataSet(ds)
 		ds.files = ds.files.concat(data.result);
 		
 		ds.loadingFiles = false; 
-		updateInspectors(500);		
+		updateInspectors(500);
+		
+		if (isOd600DataSet(ds)) {
+			retrieveOd600DataForDataSet(ds)
+		}
+				
 	});
+}
+
+function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode}
+
+function od600DataForDataSet(d)
+{
+	if (!isOd600DataSet(d)) return [];
+
+	if (undefined == d.od600) return [[]];
+	
+	return [d.od600.slice(1)];
+}
+
+/** 
+ * Load the OD600 data from the server. This function assumes that the files are already known.
+ */
+function retrieveOd600DataForDataSet(ds)
+{
+	if (ds.od600) {
+		// already retrieved
+		return;
+	}
+	
+	ds.loadingOd600 = true;
+	ds.od600 = [];
+	
+	// Figure out the path to the multistrain TSV file -- this path ends with "xls.tsv".
+	var tsvPathInDataSet = "";
+	ds.files.forEach(function (file) { if (endsWith(file.pathInDataSet, "xls.tsv")) tsvPathInDataSet = file.pathInDataSet});
+		
+	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.sessionToken;
+
+	d3.text(tsvUrl, "text/tsv", function(text) {
+		var rows = d3.tsv.parseRows(text, "\t");
+		
+		ds.od600 = rows;
+		ds.loadingOd600 = false; 
+		updateInspectors(500);
+	});	
 }
 
 function shouldRenderProperty(prop, value) {
