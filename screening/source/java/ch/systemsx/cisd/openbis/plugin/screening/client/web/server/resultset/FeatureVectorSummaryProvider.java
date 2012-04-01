@@ -80,7 +80,7 @@ public class FeatureVectorSummaryProvider extends
         if (tableModel == null)
         {
             return buildTableFromSummary(builder, fvSummary);
-        } 
+        }
         return buildTableFromTableModel(tableModel);
     }
 
@@ -93,7 +93,10 @@ public class FeatureVectorSummaryProvider extends
                 new ArrayList<TableModelRowWithObject<MaterialFeatureVectorSummary>>();
         for (TableModelRow row : rows)
         {
-            list.add(new TableModelRowWithObject<MaterialFeatureVectorSummary>(null, row
+            // WORKAROUND: create an empty summary for the links to be rendered correctly (LMS-2859)
+            MaterialFeatureVectorSummary summary =
+                    new MaterialFeatureVectorSummary(null, null, null, null, 0);
+            list.add(new TableModelRowWithObject<MaterialFeatureVectorSummary>(summary, row
                     .getValues()));
         }
         return new TypedTableModel<MaterialFeatureVectorSummary>(headers, list);
@@ -105,28 +108,28 @@ public class FeatureVectorSummaryProvider extends
     {
         builder.addColumn(MATERIAL_ID);
         builder.addColumn(EXPERIMENT_PERM_ID).hideByDefault();
-        
+
         builder.columnGroup(MATERIAL_PROPS_GROUP);
-        
+
         List<CodeAndLabel> featureDescriptions = fvSummary.getFeatureDescriptions();
         List<String> featureColumnIds = new ArrayList<String>();
         List<String> rankColumnIds = new ArrayList<String>();
-        
+
         for (CodeAndLabel featureDescription : featureDescriptions)
         {
             String featureCode = featureDescription.getCode();
             String featureColumnId = getFeatureColumnId(featureCode);
             String featureLabel = featureDescription.getLabel();
             builder.addColumn(featureColumnId).withTitle(featureLabel)
-            .withDataType(DataTypeCode.REAL);
+                    .withDataType(DataTypeCode.REAL);
             featureColumnIds.add(featureColumnId);
-            
+
             String rankColumnId = getRankColumnId(featureCode);
             String rankTitle = ScreeningProviderMessages.RANK_COLUMN_MSG;
             builder.addColumn(rankColumnId).withTitle(rankTitle).withDataType(DataTypeCode.INTEGER);
             rankColumnIds.add(rankColumnId);
         }
-        
+
         for (MaterialFeatureVectorSummary summary : fvSummary.getMaterialsSummary())
         {
             addRow(builder, fvSummary.getExperiment(), summary, featureColumnIds, rankColumnIds);
