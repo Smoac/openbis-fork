@@ -45,9 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 
 /**
- * Post registration task, that checks if the segmentation dataset has been properly imported.
- * If not it copies the dataset to the dropbox again.
- * This is a workaround for SOB-38.
+ * Post registration task, that checks if the segmentation dataset has been properly imported. If
+ * not it copies the dataset to the dropbox again. This is a workaround for SOB-38.
  * 
  * @author jakubs
  */
@@ -121,46 +120,80 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             {
                 if (dao.tryGetImageDatasetByPermId(data.getCode()) == null)
                 {
+                    File dataSetDir = extractDataSetFile(data);
 
-                    String location = tryExtractLocation(data);
-
-                    if (location == null)
+                    if (dataSetDir != null)
                     {
-                        operationLog.error("Couldn't extract original location of the dataset "
-                                + dataSetCode);
-                        return;
-                    }
-
-                    File dataSetDir = new File(storeRoot, location);
-                    
-                    if (false == dataSetDir.exists())
-                    {
-                        operationLog
-                                .error("Error occured. The data set not present under " + dataSetDir.getAbsolutePath());
-                        return;
+                        operationLog.info("Bad segmentation dataset found "+ dataSetCode);
                     }
                     
-                    String dropboxPath = properties.getProperty("dropbox-path");
+                    File dropboxDir = extractDropboxDir();
 
-                    if (dropboxPath == null)
+                    if (dataSetDir != null && dropboxDir != null)
                     {
-                        operationLog
-                                .error("Property 'dropbox-path' must be specified for this task");
-                        return;
+                        makeHardlinkCopy(dataSetDir, dropboxDir);
                     }
-
-                    File dropboxDir = new File(dropboxPath);
-
-                    if (false == (dropboxDir.exists() && dropboxDir.isDirectory()))
-                    {
-                        operationLog
-                                .error("Property 'dropbox-path' must point to an existing directory");
-                        return;
-                    }
-
-                    makeHardlinkCopy(dataSetDir, dropboxDir);
                 }
             }
+        }
+
+        private File extractDropboxDir()
+        {
+            String dropboxPath = properties.getProperty("dropbox-path");
+
+            if (dropboxPath == null)
+            {
+                operationLog.error("Property 'dropbox-path' must be specified for this task");
+                return null;
+            }
+
+            File dropboxDir = new File(dropboxPath);
+
+            if (false == (dropboxDir.exists() && dropboxDir.isDirectory()))
+            {
+                operationLog.error("Property 'dropbox-path' must point to an existing directory");
+                return null;
+            }
+            return dropboxDir;
+        }
+
+        private File extractDataSetFile(ExternalData data)
+        {
+            String location = tryExtractLocation(data);
+
+            if (location == null)
+            {
+                operationLog.error("Couldn't extract original location of the dataset "
+                        + dataSetCode);
+                return null;
+            }
+
+            File dataSetDir = new File(storeRoot, location);
+
+            if (false == dataSetDir.exists())
+            {
+                operationLog.error("Error occured. The data set not present under "
+                        + dataSetDir.getAbsolutePath());
+                return null;
+            }
+
+            return descendIntoOriginalDirectory(dataSetDir);
+        }
+
+        /**
+         * Recursively go into original directory.
+         */
+        private File descendIntoOriginalDirectory(File directory)
+        {
+            File[] dirContents = directory.listFiles();
+            for (File f : dirContents)
+            {
+                if (f.getName().equals("original") && f.isDirectory())
+                {
+                    return descendIntoOriginalDirectory(f);
+                }
+            }
+            return directory;
         }
 
         private boolean makeHardlinkCopy(File inputFile, File destinationDirectory)
@@ -169,14 +202,12 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             boolean linkWasMade = false;
             if (null != hardlinkMaker)
             {
-                Status status =
-                        hardlinkMaker.copyImmutably(inputFile, destinationDirectory,
-                                null);
+                Status status = hardlinkMaker.copyImmutably(inputFile, destinationDirectory, null);
                 linkWasMade = status.isOK();
             }
             return linkWasMade;
         }
-        
+
         public ICleanupTask createCleanupTask()
         {
             return new NoCleanupTask();
