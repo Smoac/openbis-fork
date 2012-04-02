@@ -145,6 +145,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         treeGrid.setAutoExpandColumn(ModelDataPropertyNames.CODE);
         treeGrid.getTreeView().setForceFit(true);
         treeGrid.getTreeView().setSortingEnabled(false);
+        treeGrid.getTreeView().setBufferEnabled(false);
         GWTUtils.setToolTip(treeGrid, viewContext.getMessage(Dict.PROJECT_SELECTOR_TOOLTIP));
         // switchOffFolderIcons
         treeGrid.getStyle().setNodeCloseIcon(null);
