@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.postregistration.AbstractPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
@@ -40,7 +39,6 @@ import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 
@@ -52,9 +50,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
  */
 public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
 {
-    private File storeRoot;
+    private final File storeRoot;
 
-    private IImagingQueryDAO dao;
+    private final IImagingQueryDAO dao;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             RedoSegmentationOnFailureTask.class);
@@ -67,12 +65,11 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
         dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
         dao.listSpots(0L); // testing correct database set up
         storeRoot =
-                new File(PropertyUtils.getMandatoryProperty(properties,
-                        DssPropertyParametersUtil.STOREROOT_DIR_KEY));
+                ServiceProvider.getDataStoreService().getDataSetDirectoryProvider().getStoreRoot();
         if (storeRoot.isDirectory() == false)
         {
             throw new ConfigurationFailureException(
-                    "Store root does not exists or is not a directory: ");
+                    "Store root does not exist or is not a directory: ");
         }
 
     }
@@ -124,9 +121,9 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
 
                     if (dataSetDir != null)
                     {
-                        operationLog.info("Bad segmentation dataset found "+ dataSetCode);
+                        operationLog.info("Bad segmentation dataset found " + dataSetCode);
                     }
-                    
+
                     File dropboxDir = extractDropboxDir();
 
                     if (dataSetDir != null && dropboxDir != null)
