@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractMate
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialDisambiguationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
@@ -90,6 +91,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public final class ScreeningClientService extends AbstractClientService implements
         IScreeningClientService
 {
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer commonServer;
 
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningServer server;
@@ -307,7 +310,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         FeatureVectorSummaryProvider provider =
-                new FeatureVectorSummaryProvider(server, getSessionToken(), experimentId,
+                new FeatureVectorSummaryProvider(commonServer, server, getSessionToken(), experimentId,
                         analysisProcedureCriteria);
         return listEntities(provider, criteria);
 

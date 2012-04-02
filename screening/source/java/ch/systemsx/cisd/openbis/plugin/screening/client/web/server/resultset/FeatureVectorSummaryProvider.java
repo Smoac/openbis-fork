@@ -21,13 +21,21 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.F
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_PROPS_GROUP;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -59,9 +67,12 @@ public class FeatureVectorSummaryProvider extends
 
     private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
-    public FeatureVectorSummaryProvider(IScreeningServer server, String sessionToken,
+    private final ICommonServer commonServer;
+
+    public FeatureVectorSummaryProvider(ICommonServer commonServer, IScreeningServer server, String sessionToken,
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
+        this.commonServer = commonServer;
         this.server = server;
         this.sessionToken = sessionToken;
         this.experimentId = experimentId;
@@ -89,17 +100,103 @@ public class FeatureVectorSummaryProvider extends
     {
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         List<TableModelRow> rows = tableModel.getRows();
+        Map<String, Material> materialsByIdentifer = new HashMap<String, Material>();
+        int materialColumnIndex = findMaterialColumnIndex(tableModel);
+        if (materialColumnIndex >= 0)
+        {
+            int indexOfMaterialId = getIndexOfHeaderById(headers, MATERIAL_ID);
+            if (indexOfMaterialId != materialColumnIndex && indexOfMaterialId >= 0)
+            {
+                throw new IllegalArgumentException("There is already a column with id '"
+                        + MATERIAL_ID + "'. Column index: " + indexOfMaterialId);
+            }
+            headers.get(materialColumnIndex).setId(MATERIAL_ID);
+            List<Material> materials = loadMaterials(rows, materialColumnIndex);
+            for (Material material : materials)
+            {
+                materialsByIdentifer.put(material.getIdentifier(), material);
+            }
+        }
         List<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
                 new ArrayList<TableModelRowWithObject<MaterialFeatureVectorSummary>>();
         for (TableModelRow row : rows)
         {
-            // WORKAROUND: create an empty summary for the links to be rendered correctly (LMS-2859)
+            List<ISerializableComparable> values = row.getValues();
+            Material material = null;
+            if (materialColumnIndex >= 0)
+            {
+                String identifierOrNull = getMaterialIdentifier(values, materialColumnIndex);
+                material = materialsByIdentifer.get(identifierOrNull);
+            }
             MaterialFeatureVectorSummary summary =
-                    new MaterialFeatureVectorSummary(null, null, null, null, 0);
-            list.add(new TableModelRowWithObject<MaterialFeatureVectorSummary>(summary, row
-                    .getValues()));
+                    new MaterialFeatureVectorSummary(material, null, null, null, 0);
+            list.add(new TableModelRowWithObject<MaterialFeatureVectorSummary>(summary, values));
         }
         return new TypedTableModel<MaterialFeatureVectorSummary>(headers, list);
+    }
+    
+    private int getIndexOfHeaderById(List<TableModelColumnHeader> headers, String id)
+    {
+        for (int i = 0; i < headers.size(); i++)
+        {
+            TableModelColumnHeader header = headers.get(i);
+            if (id.equals(header.getId()))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private List<Material> loadMaterials(List<TableModelRow> rows, int materialColumnIndex)
+    {
+        List<MaterialIdentifier> materialIdentifiers = new ArrayList<MaterialIdentifier>();
+        for (TableModelRow row : rows)
+        {
+            List<ISerializableComparable> values = row.getValues();
+            String identifierOrNull = getMaterialIdentifier(values, materialColumnIndex);
+            materialIdentifiers.add(MaterialIdentifier.tryParseIdentifier(identifierOrNull));
+        }
+        ListMaterialCriteria criteria =
+                ListMaterialCriteria.createFromMaterialIdentifiers(materialIdentifiers);
+        return commonServer.listMaterials(sessionToken, criteria, false);
+    }
+
+    private String getMaterialIdentifier(List<ISerializableComparable> values,
+            int materialColumnIndex)
+    {
+        if (materialColumnIndex >= values.size())
+        {
+            throw new IllegalArgumentException("Material column index " + materialColumnIndex
+                    + " is out of bounds for row: " + values);
+        }
+        ISerializableComparable cell = values.get(materialColumnIndex);
+        if (cell instanceof EntityTableCell == false)
+        {
+            throw new IllegalArgumentException("Material column index " + materialColumnIndex
+                    + " points to a cell which isn't a entity table cell: " + values);
+        }
+        String identifierOrNull = ((EntityTableCell) cell).getIdentifierOrNull();
+        if (identifierOrNull == null)
+        {
+            throw new IllegalArgumentException("Material column index " + materialColumnIndex
+                    + " points to an entity table cell which hasn't an identifier: " + values);
+        }
+        return identifierOrNull.toUpperCase();
+    }
+    
+    private int findMaterialColumnIndex(TableModel tableModel)
+    {
+        List<TableModelColumnHeader> headers = tableModel.getHeader();
+        for (int i = 0; i < headers.size(); i++)
+        {
+            TableModelColumnHeader header = headers.get(i);
+            if (EntityKind.MATERIAL.equals(header.tryGetEntityKind()))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private TypedTableModel<MaterialFeatureVectorSummary> buildTableFromSummary(
