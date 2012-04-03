@@ -319,7 +319,7 @@ public class MovieButtons extends Composite
     private class MovieButtonsPlayingState implements MovieButtonsState
     {
 
-        private static final int PREFFERED_DELAY_BETWEEN_FRAMES_IN_MILLIS = 100;
+        private static final int PREFFERED_DELAY_BETWEEN_FRAMES_IN_MILLIS = 500;
 
         public void init()
         {

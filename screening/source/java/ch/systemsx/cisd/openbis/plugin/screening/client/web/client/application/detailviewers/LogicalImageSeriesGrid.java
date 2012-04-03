@@ -525,7 +525,7 @@ class LogicalImageSeriesGrid extends LayoutContainer
 
         public static int NUM_FRAMES_TO_PREFETCH = 15;
 
-        public static int NUM_FRAMES_IN_DOWLOAD_CHUNK = 5;
+        public static int NUM_FRAMES_IN_DOWLOAD_CHUNK = 1;
 
         private List<LazyImageSeriesFrame> frames;
 
