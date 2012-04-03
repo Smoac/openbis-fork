@@ -126,7 +126,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolution
  */
 @Component(ResourceNames.SCREENING_PLUGIN_SERVER)
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
-        IScreeningServer, IScreeningApiServer, InitializingBean
+        IScreeningServer, IScreeningApiServer, InitializingBean, IAnalysisSettingSetter
 {
     /**
      * The minor version of this service.
@@ -166,7 +166,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public void afterPropertiesSet() throws Exception
     {
-        analysisSettings = new AnalysisSettings(configurer.getResolvedProps());
+        setAnalysisSettings(new AnalysisSettings(configurer.getResolvedProps()));
+    }
+    
+    public void setAnalysisSettings(AnalysisSettings analysisSettings)
+    {
+        this.analysisSettings = analysisSettings;
     }
     
     //

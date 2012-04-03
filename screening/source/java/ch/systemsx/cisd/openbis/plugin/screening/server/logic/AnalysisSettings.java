@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class AnalysisSettings
 {
-    static final String KEY = "data-set-types-with-available-analysis-summary";
+    public static final String KEY = "data-set-types-with-available-analysis-summary";
     
     private final Map<String, String> dataSetType2reportingPluginMap = new HashMap<String, String>();
     

@@ -28,10 +28,11 @@ def create_plate(tr, experiment, plateCode, gene):
     return plate
 
 
-def create_analysis_data_set(tr, plate, builder, ds_file):    
+def create_analysis_data_set(tr, plate, builder, analysis_procedure, ds_file):    
     analysis_registration_details = factory.createFeatureVectorDatasetDetails(builder)    
     analysis_data_set = tr.createNewDataSet(analysis_registration_details)
     analysis_data_set.setSample(plate)
+    analysis_data_set.setPropertyValue("$ANALYSIS_PROCEDURE", analysis_procedure)
     analysis_data_set_file = tr.moveFile(incoming.getPath() + "/" + ds_file, analysis_data_set)
 
 def create_dataset_with_features1(tr, experiment, gene):
@@ -46,7 +47,7 @@ def create_dataset_with_features1(tr, experiment, gene):
     featureY.addValue(1, 1, "3")
     featureY.addValue(1, 2, "2")
 
-    create_analysis_data_set(tr, plate1, builder, "data-set-1.file")    
+    create_analysis_data_set(tr, plate1, builder, "p1", "data-set-1.csv")    
 
 def create_dataset_with_features2(tr, experiment, gene):
     plate2 = create_plate(tr, experiment, "PLATE2", gene)
@@ -64,7 +65,7 @@ def create_dataset_with_features2(tr, experiment, gene):
     featureX.addValue(1, 1, "5")
     featureX.addValue(1, 2, "6")
 
-    create_analysis_data_set(tr, plate2, builder, "data-set-2.file")    
+    create_analysis_data_set(tr, plate2, builder, "p2", "data-set-2.file")    
 
 
 tr = service.transaction()
