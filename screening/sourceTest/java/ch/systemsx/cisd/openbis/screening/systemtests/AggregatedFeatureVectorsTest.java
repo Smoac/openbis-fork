@@ -126,6 +126,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @AfterMethod
     public void tearDown()
     {
+        analysisSettingSetter.setAnalysisSettings(new AnalysisSettings(new Properties()));
         File[] files = getIncomingDirectory().listFiles();
         for (File file : files)
         {
