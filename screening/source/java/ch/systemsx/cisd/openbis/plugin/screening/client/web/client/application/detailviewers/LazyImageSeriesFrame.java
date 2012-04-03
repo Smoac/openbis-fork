@@ -67,7 +67,7 @@ public class LazyImageSeriesFrame extends LayoutContainer
 
     private LogicalImageClickHandler imageClickHandler;
 
-    LazyImageSeriesFrame(List<ImageChannelStack> seriesPointStacks,
+    public LazyImageSeriesFrame(List<ImageChannelStack> seriesPointStacks,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
     {

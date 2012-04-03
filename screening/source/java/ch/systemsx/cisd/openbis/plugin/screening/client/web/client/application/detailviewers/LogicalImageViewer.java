@@ -51,6 +51,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.TileImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image.TileImageInitializer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.logicalimage.LogicalImageSeriesGrid;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.logicalimage.LogicalImageSeriesGridInitializer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
@@ -184,9 +186,16 @@ public class LogicalImageViewer
                     int imageWidth = getImageWidth(logicalImageReference, resolution);
                     int imageHeight = getImageHeight(logicalImageReference, resolution);
 
-                    return LogicalImageSeriesGrid.create(sessionId,
-                            filterChannelStackImages(channelStackImages), channelReferences,
-                            imageWidth, imageHeight, logicalImageClickHandler, downloadListener);
+                    LogicalImageSeriesGridInitializer initializer =
+                            new LogicalImageSeriesGridInitializer();
+                    initializer.setSessionId(sessionId);
+                    initializer.setChannelStackImages(filterChannelStackImages(channelStackImages));
+                    initializer.setChannelReferences(channelReferences);
+                    initializer.setImageSize(new LogicalImageSize(imageWidth, imageHeight));
+                    initializer.setImageClickHandler(logicalImageClickHandler);
+                    initializer.setImageDownloadListener(downloadListener);
+
+                    return new LogicalImageSeriesGrid(initializer);
                 }
             };
         return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);

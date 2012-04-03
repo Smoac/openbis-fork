@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.logicalimage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +22,10 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesGrid.ImageSeriesPoint;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesGrid.LogicalImageSeriesViewerModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
- * Unit tests of {@link LogicalImageSeriesViewerModel}.
+ * Unit tests of {@link LogicalImageSeriesModel}.
  * 
  * @author Tomasz Pylak
  */
@@ -44,24 +42,24 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         Integer series[] = new Integer[]
             { 1, 2, 3, null };
 
-        LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        LogicalImageSeriesModel model = createModel(times, depths, series);
         
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfDepthLevels());
         assertEquals(3, model.getNumberOfTimepoints());
 
-        List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
-        ImageSeriesPoint firstPoint = new ImageSeriesPoint(null, null, null);
+        List<LogicalImageSeriesPoint> sortedPoints = model.getSortedPoints();
+        LogicalImageSeriesPoint firstPoint = new LogicalImageSeriesPoint(null, null, null);
         assertEquals(firstPoint, sortedPoints.get(0));
-        ImageSeriesPoint lastPoint = new ImageSeriesPoint(6.6f, 66.6f, 3);
+        LogicalImageSeriesPoint lastPoint = new LogicalImageSeriesPoint(6.6f, 66.6f, 3);
         assertEquals(lastPoint, sortedPoints.get(sortedPoints.size() - 1));
 
         List<List<ImageChannelStack>> stackSeriesPoints = model.getSortedChannelStackSeriesPoints();
         List<ImageChannelStack> firstList = stackSeriesPoints.get(0);
-        assertEquals(firstPoint, new ImageSeriesPoint(firstList.get(0)));
+        assertEquals(firstPoint, new LogicalImageSeriesPoint(firstList.get(0)));
 
         List<ImageChannelStack> lastList = stackSeriesPoints.get(stackSeriesPoints.size() - 1);
-        assertEquals(lastPoint, new ImageSeriesPoint(lastList.get(0)));
+        assertEquals(lastPoint, new LogicalImageSeriesPoint(lastList.get(0)));
     }
     
     @Test
@@ -74,7 +72,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         Integer series[] = new Integer[]
             { null };
         
-        LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        LogicalImageSeriesModel model = createModel(times, depths, series);
         
         assertEquals(true, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfTimepoints());
@@ -91,7 +89,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         Integer series[] = new Integer[]
             { 1 };
         
-        LogicalImageSeriesViewerModel model = createModel(times, depths, series);
+        LogicalImageSeriesModel model = createModel(times, depths, series);
         
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfTimepoints());
@@ -105,7 +103,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         stacks.add(stack(1, 1, null, 2.5f, null));
         stacks.add(stack(1, 1, 1f, 2.5f, null));
         
-        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
         
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(1, model.getNumberOfTimepoints());
@@ -119,7 +117,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         stacks.add(stack(1, 1, 1f, null, null));
         stacks.add(stack(1, 1, 1f, 2.5f, null));
         
-        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
         
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(1, model.getNumberOfTimepoints());
@@ -134,14 +132,14 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         stacks.add(stack(1, 1, 1f, 2f, null));
         stacks.add(stack(1, 1, 2f, 2f, null));
         
-        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(stacks);
+        LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
         
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(2, model.getNumberOfTimepoints());
         assertEquals(2, model.getNumberOfDepthLevels());
     }
 
-    private LogicalImageSeriesViewerModel createModel(Float[] times, Float[] depths,
+    private LogicalImageSeriesModel createModel(Float[] times, Float[] depths,
             Integer[] series)
     {
         List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
@@ -156,7 +154,7 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
                 }
             }
         }
-        return new LogicalImageSeriesViewerModel(stacks);
+        return new LogicalImageSeriesModel(stacks);
     }
 
     private static ImageChannelStack stack(int row, int col, Float tOrNull, Float zOrNull,
