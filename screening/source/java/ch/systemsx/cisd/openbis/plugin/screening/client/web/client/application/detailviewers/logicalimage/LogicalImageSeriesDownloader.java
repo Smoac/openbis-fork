@@ -102,16 +102,6 @@ class LogicalImageSeriesDownloader
     public void frameSelectionChanged(final int oldSelectionIndex, final int newSelectionIndex,
             final AsyncCallback<Void> callback)
     {
-        // do nothing when the requested frame is already selected
-        if (newSelectionIndex == selectedFrameIndex)
-        {
-            if (callback != null)
-            {
-                callback.onSuccess(null);
-            }
-            return;
-        }
-
         final LazyImageSeriesFrame newSelectedFrame = frames.get(newSelectionIndex);
 
         selectedFrameIndex = newSelectionIndex;

@@ -37,8 +37,6 @@ public class SliderWithMovieButtons extends Composite
 
     private Loading loading;
 
-    private int loadingCounter;
-
     private SliderWithMovieButtonsValueLoader valueLoader;
 
     public SliderWithMovieButtons(int numberOfValues)
@@ -52,19 +50,20 @@ public class SliderWithMovieButtons extends Composite
             {
                 public void loadFrame(final int frame, final AsyncCallback<Void> callback)
                 {
+                    final int value = frame + 1;
                     showLoading();
-                    slider.setValue(frame + 1, true);
-                    valueLoader.loadValue(frame + 1, new AsyncCallback<Void>()
+                    slider.setValue(value, true);
+                    valueLoader.loadValue(value, new AsyncCallback<Void>()
                         {
                             public void onSuccess(Void result)
                             {
-                                hideLoading();
+                                hideLoading(value);
                                 callback.onSuccess(result);
                             }
 
                             public void onFailure(Throwable caught)
                             {
-                                hideLoading();
+                                hideLoading(value);
                                 callback.onFailure(caught);
                             }
                         });
@@ -76,18 +75,19 @@ public class SliderWithMovieButtons extends Composite
             {
                 public void handleEvent(SliderEvent be)
                 {
+                    final int value = be.getNewValue();
                     showLoading();
-                    buttons.setFrame(be.getNewValue() - 1);
-                    valueLoader.loadValue(be.getNewValue(), new AsyncCallback<Void>()
+                    buttons.setFrame(value - 1);
+                    valueLoader.loadValue(value, new AsyncCallback<Void>()
                         {
                             public void onSuccess(Void result)
                             {
-                                hideLoading();
+                                hideLoading(value);
                             }
 
                             public void onFailure(Throwable caught)
                             {
-                                hideLoading();
+                                hideLoading(value);
                             }
                         });
                 }
@@ -126,17 +126,12 @@ public class SliderWithMovieButtons extends Composite
 
     private void showLoading()
     {
-        loadingCounter++;
-        if (loadingCounter >= 0)
-        {
-            loading.showLoading();
-        }
+        loading.showLoading();
     }
 
-    private void hideLoading()
+    private void hideLoading(int value)
     {
-        loadingCounter--;
-        if (loadingCounter <= 0)
+        if (slider.getValue() == value)
         {
             loading.hideLoading();
         }
