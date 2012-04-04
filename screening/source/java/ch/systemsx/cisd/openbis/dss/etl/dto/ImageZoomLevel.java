@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Describes an image dataset with 1. all images resized in the same way or 2. original images.
  * 
@@ -37,8 +40,11 @@ public class ImageZoomLevel
 
     private final String fileType;
 
+    private final Map<String, String> transformations;
+
     public ImageZoomLevel(String physicalDatasetPermId, boolean isOriginal, String rootPath,
-            Integer width, Integer height, Integer colorDepth, String fileType)
+            Integer width, Integer height, Integer colorDepth, String fileType,
+            Map<String, String> transformations)
     {
         this.physicalDatasetPermId = physicalDatasetPermId;
         this.isOriginal = isOriginal;
@@ -47,6 +53,7 @@ public class ImageZoomLevel
         this.height = height;
         this.colorDepth = colorDepth;
         this.fileType = fileType;
+        this.transformations = Collections.unmodifiableMap(transformations);
     }
 
     public String getPhysicalDatasetPermId()
@@ -82,5 +89,10 @@ public class ImageZoomLevel
     public String getFileType()
     {
         return fileType;
+    }
+
+    public Map<String, String> getTransformation()
+    {
+        return transformations;
     }
 }

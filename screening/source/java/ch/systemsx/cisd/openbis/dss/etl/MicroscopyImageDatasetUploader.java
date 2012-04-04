@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Uploads microscopy imagaes (no spots, no container) into imaging database.
@@ -46,7 +49,27 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
         long datasetId = createMicroscopyDataset(dataset);
         ImagingChannelsMap channelsMap =
                 ImagingDatabaseHelper.createDatasetChannels(dao, datasetId, channels);
+
+        for (ImageZoomLevel imageZoomLevel : dataset.getImageDatasetInfo().getImageZoomLevels())
+        {
+            long zoomLevelId = dao.addImageZoomLevel(convert(datasetId, imageZoomLevel));
+            for (Map.Entry<String, String> entry : imageZoomLevel.getTransformation().entrySet())
+            {
+                dao.addImageZoomLevelTransformation(zoomLevelId,
+                        channelsMap.getChannelId(entry.getKey()), entry.getValue());
+            }
+        }
+
         createImages(images, createDummySpotProvider(), channelsMap, datasetId);
+    }
+
+    private ImgImageZoomLevelDTO convert(long imageContainerDatasetId, ImageZoomLevel imageZoomLevel)
+    {
+        return new ImgImageZoomLevelDTO(imageZoomLevel.getPhysicalDatasetPermId(),
+                imageZoomLevel.isOriginal(), imageZoomLevel.getRootPath(),
+                imageZoomLevel.getWidth(), imageZoomLevel.getHeight(),
+                imageZoomLevel.getColorDepth(), imageZoomLevel.getFileType(),
+                imageContainerDatasetId);
     }
 
     private static ISpotProvider createDummySpotProvider()

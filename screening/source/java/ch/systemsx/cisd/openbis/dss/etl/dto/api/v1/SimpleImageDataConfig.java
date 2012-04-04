@@ -501,6 +501,11 @@ abstract public class SimpleImageDataConfig
         }
     }
 
+    public void addImageRepresentation(IThumbnailsConfiguration configuration)
+    {
+        imagePyramid.add(configuration);
+    }
+
     /** the maximal width and height of the generated thumbnails */
     public void setMaxThumbnailWidthAndHeight(int maxThumbnailWidthAndHeight)
     {

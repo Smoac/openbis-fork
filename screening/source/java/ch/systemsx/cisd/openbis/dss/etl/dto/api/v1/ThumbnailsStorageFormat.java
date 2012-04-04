@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  */
 public class ThumbnailsStorageFormat extends AbstractHashable
 {
+
     public enum FileFormat
     {
         PNG
@@ -156,6 +157,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     private String thumbnailsFileName;
 
     private FileFormat fileFormat = FileFormat.PNG;
+
+    private final Map<String, String> transformations = new HashMap<String, String>();
 
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
@@ -307,5 +310,20 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     public FileFormat getFileFormat()
     {
         return fileFormat;
+    }
+
+    public void setTransformations(Map<String, String> transformations)
+    {
+        this.transformations.putAll(transformations);
+    }
+
+    public String getTransformationCode(String channelCode)
+    {
+        return transformations.get(channelCode.toUpperCase());
+    }
+
+    public Map<String, String> getTransformations()
+    {
+        return transformations;
     }
 }

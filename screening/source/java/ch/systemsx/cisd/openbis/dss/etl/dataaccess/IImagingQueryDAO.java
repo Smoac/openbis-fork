@@ -94,6 +94,12 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "values(?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}, ?{1.rootPath}, ?{1.width}, ?{1.height}, ?{colorDepth}, ?{1.fileType}) returning ID")
     public long addImageZoomLevel(ImgImageZoomLevelDTO dataset);
 
+    @Select("insert into image_zoom_level_transformations (zoom_level_id, channel_id, image_transformation_id) "
+            + "values (?{1}, ?{2}, (select id from image_transformations where code = ?{3} and channel_id = ?{2})) "
+            + "returning ID")
+    public long addImageZoomLevelTransformation(long zoomLevelId, long channelId,
+            String transformationCode);
+
     @Select("insert into ANALYSIS_DATA_SETS (PERM_ID, CONT_ID)                     "
             + "values(?{1.permId}, ?{1.containerId}) returning ID")
     public long addAnalysisDataset(ImgAnalysisDatasetDTO dataset);

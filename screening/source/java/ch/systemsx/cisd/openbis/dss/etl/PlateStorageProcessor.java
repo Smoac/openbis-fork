@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -165,7 +166,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             super(containerDatasetPermId, originalDataset);
             this.imageZoomLevels = createZoomLevels(originalDataset, thumbnailsInfosOrNull);
         }
-        
+
         private static Integer nullifyIfZero(int value)
         {
             return value == 0 ? null : value;
@@ -183,9 +184,11 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                 width = nullifyIfZero(imageDataSet.getMaximumImageWidth());
                 height = nullifyIfZero(imageDataSet.getMaximumImageHeight());
             }
+            @SuppressWarnings("unchecked")
             ImageZoomLevel originalZoomLevel =
                     new ImageZoomLevel(originalDataset.getDataSetCode(), true,
-                            StringUtils.EMPTY_STRING, width, height, null, null);
+                            StringUtils.EMPTY_STRING, width, height, null, null,
+                            Collections.EMPTY_MAP);
             zoomLevels.add(originalZoomLevel);
             if (thumbnailsInfosOrNull != null)
             {
@@ -210,7 +213,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                     // TODO add color depth
                     ImageZoomLevel thumbnailZoomLevel =
                             new ImageZoomLevel(permId, false, rootPath, width, height, null,
-                                    fileTypeString);
+                                    fileTypeString,
+                                    thumbnailsInfosOrNull.getTransformations(permId));
                     zoomLevels.add(thumbnailZoomLevel);
                 }
             }

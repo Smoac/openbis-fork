@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 
@@ -27,6 +30,8 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
     private String fileName;
 
     private String fileFormat;
+
+    private Map<String, String> transformations = new HashMap<String, String>();
 
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
     {
@@ -42,6 +47,7 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
                 .getThumbnailsGenerationImageMagicParams());
         thumbnailsStorageFormat.setHighQuality(config.getGenerateThumbnailsIn8BitHighQuality());
         setFileFormat(thumbnailsStorageFormat, config.getThumbnailsFileFormat());
+        thumbnailsStorageFormat.setTransformations(transformations);
         return thumbnailsStorageFormat;
     }
 
@@ -82,5 +88,10 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
         {
             thumbnailsStorageFormat.setFileFormat(defaultValue);
         }
+    }
+
+    public String setTransformation(String channelCode, String transformarionCode)
+    {
+        return transformations.put(channelCode.toUpperCase(), transformarionCode);
     }
 }

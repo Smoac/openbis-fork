@@ -30,10 +30,14 @@ public class ThumbnailsInfo
 
         private FileFormat fileType;
 
-        public PhysicalDatasetInfo(String rootPath, FileFormat fileType)
+        private Map<String, String> transformations;
+
+        public PhysicalDatasetInfo(String rootPath, FileFormat fileType,
+                Map<String, String> transformations)
         {
             this.rootPath = rootPath;
             this.fileType = fileType;
+            this.transformations = transformations;
         }
     }
 
@@ -47,9 +51,10 @@ public class ThumbnailsInfo
         this.datasetInfos = new HashMap<String, ThumbnailsInfo.PhysicalDatasetInfo>();
     }
 
-    public void putDataSet(String permId, String rootPath, FileFormat fileFormat)
+    public void putDataSet(String permId, String rootPath, FileFormat fileFormat,
+            Map<String, String> transformations)
     {
-        datasetInfos.put(permId, new PhysicalDatasetInfo(rootPath, fileFormat));
+        datasetInfos.put(permId, new PhysicalDatasetInfo(rootPath, fileFormat, transformations));
     }
 
     /**
@@ -100,6 +105,12 @@ public class ThumbnailsInfo
             return datasetInfo.fileType;
         }
         return null;
+    }
+
+    public Map<String, String> getTransformations(String permId)
+    {
+        PhysicalDatasetInfo datasetInfo = datasetInfos.get(permId);
+        return datasetInfo != null ? datasetInfo.transformations : null;
     }
 
     @Override

@@ -25,4 +25,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 public interface IThumbnailsConfiguration
 {
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config);
+
+    public String setTransformation(String channelCode, String transformarionCode);
 }
