@@ -647,6 +647,19 @@ $(document).ready(function() {
 	});
 });
 
+
+function ShowHide(divId)
+{
+	if(document.getElementById(divId).style.display == 'none')
+	{
+		document.getElementById(divId).style.display='block';
+	}
+	else
+	{
+	document.getElementById(divId).style.display = 'none';
+	}
+}
+
 </script>
 
 </head>
@@ -677,34 +690,26 @@ $(document).ready(function() {
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
 		</div>   
-		< <div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Owner</style> <input style="width: 200px" id="owner_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Owner Number</style> <input style="width: 200px" id="ownerNum_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Yeast Strain Name</style> <input style="width: 200px" id="yeastName_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Project</style> <input style="width: 200px" id="project_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Plasmids</style> <input style="width: 200px" id="plasmids_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Yeast Parents</style> <input style="width: 200px" id="yeastParents_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Genetic Background</style> <input style="width: 200px" id="geneticBackground_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Mating Type</style> <input style="width: 200px" id="matingType_filter" type="text"></div> 		
-    </div>
-
+		
+		<div id="filter-button"	style="position: absolute; left:20px; top:70px; font-weight:bold">
+		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
+		</div> 		
+	 <div class="mid" id="HiddenDiv" style="DISPLAY: none; padding-top: 90px;"> 
+		<table>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Yeast Strain Name</td><td> <input style="width: 200px" id="yeastName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmids</td><td> <input style="width: 200px" id="plasmids_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Yeast Parents</td><td> <input style="width: 200px" id="yeastParents_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Genetic Background</td><td> <input style="width: 200px" id="geneticBackground_filter" type="text"></td></tr>		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Mating Type</td><td> <input style="width: 200px" id="matingType_filter" type="text"></td></tr> 		
+ 	</table>
+ 	</div>
+ 	
+ 		  
 		<div id="vis">
-			<table id="yeast-table" style="float: left">
+			<table id="yeast-table" style="float: left; padding-top:100px;">
 				<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>
