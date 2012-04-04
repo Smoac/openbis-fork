@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
+import java.util.StringTokenizer;
 
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -33,48 +34,103 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 /**
  * @author Antti Luomi
  */
-public class FetchModeCreator
+public class IndexingQueryOptimizer
 {
 
-    private FetchModeCreator()
+    private static int DEFAULT_MAX_DEPTH = 4;
+
+    private IndexingQueryOptimizer()
     {
     }
 
-    public static Criteria addFetchModes(Class<?> clazz, Criteria criteria)
+    /**
+     * Modifies a Criteria instance to optimize database queries that are used to do full text
+     * indexing. Sets fetch mode to FetchMode.JOIN for all properties of an entity class that are
+     * either annotated with IndexedEmbedded or they are eagerly fetched associations annotated with
+     * OneToOne, ManyToOne, OneToMany or ManyToMany.
+     * 
+     * @param clazz Entity class whose instances are to be queried
+     * @param criteria Criteria query to be optimized
+     * @param maxDepth Maximum depth of recursive properties to set FetchMode to
+     * @return Same criteria instance that was given as a parameter, but with new fetch modes.
+     */
+    public static Criteria minimizeAmountOfSubqueries(Class<?> clazz, Criteria criteria,
+            int maxDepth)
     {
-        addFetchModes(clazz, criteria, "", new HashSet<Class<?>>());
+        minimizeAmountOfSubqueries(clazz, criteria, maxDepth, "");
         return criteria;
     }
 
-    private static void addFetchModes(Class<?> clazz, Criteria criteria, String path,
-            Set<Class<?>> handledClasses)
+    public static Criteria minimizeAmountOfSubqueries(Class<?> clazz, Criteria criteria)
     {
-        if (handledClasses.contains(clazz))
-        {
-            return;
-        }
+        minimizeAmountOfSubqueries(clazz, criteria, DEFAULT_MAX_DEPTH, "");
+        return criteria;
+    }
 
-        handledClasses.add(clazz);
-
-        for (Method method : clazz.getDeclaredMethods())
+    private static void minimizeAmountOfSubqueries(Class<?> clazz, Criteria criteria, int maxDepth,
+            String path)
+    {
+        Class<?> iterClass = clazz;
+        while (iterClass != null)
         {
-            addFetchMode(method, criteria, path, handledClasses);
+            for (Method method : iterClass.getDeclaredMethods())
+            {
+                if (!method.getReturnType().equals(iterClass))
+                {
+                    addFetchMode(method, criteria, maxDepth, path);
+                }
+            }
+
+            iterClass = iterClass.getSuperclass();
         }
     }
 
-    private static void addFetchMode(Method method, Criteria criteria, String path,
-            Set<Class<?>> handledClasses)
+    private static void addFetchMode(Method method, Criteria criteria, int maxDepth, String path)
     {
-        if (propertyNeedsJoinedFetch(method, handledClasses))
+        if (propertyNeedsJoinedFetch(method))
         {
             String newPath = calculatePath(path, method);
+
+            if (depthOf(newPath) > maxDepth)
+            {
+                return;
+            }
+
+            System.out.println("fetch: " + newPath);
             criteria.setFetchMode(newPath, FetchMode.JOIN);
-            addFetchModes(method.getReturnType(), criteria, newPath, handledClasses);
+
+            Class<?> clazz = method.getReturnType();
+            if (isCollection(clazz))
+            {
+                ParameterizedType t = (ParameterizedType) method.getGenericReturnType();
+                clazz = (Class<?>) t.getActualTypeArguments()[0];
+            }
+
+            minimizeAmountOfSubqueries(clazz, criteria, maxDepth, newPath);
         }
     }
 
-    private static boolean propertyNeedsJoinedFetch(Method method, Set<Class<?>> handledClasses)
+    private static boolean isCollection(Class<?> clazz)
     {
+        for (Class<?> c : clazz.getInterfaces())
+        {
+            if (c.equals(Collection.class))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int depthOf(String path)
+    {
+        StringTokenizer tokenizer = new StringTokenizer(path, ".");
+        return tokenizer.countTokens();
+    }
+
+    private static boolean propertyNeedsJoinedFetch(Method method)
+    {
+
         if (isAnnotatedToBeEagerlyFetched(method))
         {
             return true;

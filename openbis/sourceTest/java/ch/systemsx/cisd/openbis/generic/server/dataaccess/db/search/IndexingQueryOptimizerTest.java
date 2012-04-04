@@ -20,6 +20,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 
+import java.util.Set;
+
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -39,7 +41,7 @@ import org.testng.annotations.Test;
  * @author anttil
  */
 
-public class FetchModeCreatorTest
+public class IndexingQueryOptimizerTest
 {
 
     private Mockery context;
@@ -79,7 +81,8 @@ public class FetchModeCreatorTest
                 }
             });
 
-        Criteria returnedCriteria = FetchModeCreator.addFetchModes(Entity.class, criteria);
+        Criteria returnedCriteria =
+                IndexingQueryOptimizer.minimizeAmountOfSubqueries(Entity.class, criteria);
         assertThat(returnedCriteria, is(sameInstance(criteria)));
     }
 
@@ -117,7 +120,7 @@ public class FetchModeCreatorTest
                 }
             });
 
-        FetchModeCreator.addFetchModes(Entity.class, criteria);
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(Entity.class, criteria);
     }
 
     @Test
@@ -194,7 +197,7 @@ public class FetchModeCreatorTest
                 }
             });
 
-        FetchModeCreator.addFetchModes(LazyEagerEntity.class, criteria);
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(LazyEagerEntity.class, criteria);
     }
 
     @Test
@@ -233,6 +236,136 @@ public class FetchModeCreatorTest
                 }
             });
 
-        FetchModeCreator.addFetchModes(NonPublicEntity.class, criteria);
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(NonPublicEntity.class, criteria);
+    }
+
+    final class RecursiveEntity1
+    {
+        @IndexedEmbedded
+        public RecursiveEntity2 getOne()
+        {
+            return null;
+        }
+    }
+
+    final class RecursiveEntity2
+    {
+        @IndexedEmbedded
+        public RecursiveEntity1 getAnother()
+        {
+            return null;
+        }
+    }
+
+    @Test
+    public void respectsGivenDepth() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(criteria).setFetchMode("one", FetchMode.JOIN);
+                    oneOf(criteria).setFetchMode("one.another", FetchMode.JOIN);
+                    oneOf(criteria).setFetchMode("one.another.one", FetchMode.JOIN);
+                }
+            });
+
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(RecursiveEntity1.class, criteria, 3);
+    }
+
+    @Test
+    public void breaksDirectSelfReferences() throws Exception
+    {
+        final class RecursiveEntity
+        {
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public RecursiveEntity getSelf()
+            {
+                return null;
+            }
+
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public Object getSome()
+            {
+                return null;
+            }
+        }
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(criteria).setFetchMode("some", FetchMode.JOIN);
+                }
+            });
+
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(RecursiveEntity.class, criteria);
+    }
+
+    @Test
+    public void setsFetchModeToJoinToInheritedMethods() throws Exception
+    {
+
+        class Super
+        {
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public Object getObject()
+            {
+                return null;
+            }
+        }
+
+        class Derived extends Super
+        {
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public Object getAnotherObject()
+            {
+                return null;
+            }
+        }
+
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(criteria).setFetchMode("object", FetchMode.JOIN);
+                    oneOf(criteria).setFetchMode("anotherObject", FetchMode.JOIN);
+                }
+            });
+
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(Derived.class, criteria);
+    }
+
+    @Test
+    public void setsFetchModeToJoinToCollectionAssociations() throws Exception
+    {
+        class AnotherEntity
+        {
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public Object getValue()
+            {
+                return null;
+            }
+        }
+        class Entity
+        {
+            @SuppressWarnings("unused")
+            @IndexedEmbedded
+            public Set<AnotherEntity> getSet()
+            {
+                return null;
+            }
+        }
+
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(criteria).setFetchMode("set", FetchMode.JOIN);
+                    oneOf(criteria).setFetchMode("set.value", FetchMode.JOIN);
+                }
+            });
+
+        IndexingQueryOptimizer.minimizeAmountOfSubqueries(Entity.class, criteria);
     }
 }

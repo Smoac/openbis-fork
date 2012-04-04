@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
@@ -77,56 +75,39 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
+        // we index entities in batches loading them in groups restricted by id:
+        // [ ids[index], ids[min(index+batchSize, maxIndex))] )
         Transaction transaction = null;
         try
         {
             transaction = fullTextSession.beginTransaction();
-            fullTextSession.setFlushMode(FlushMode.MANUAL);
-            fullTextSession.setCacheMode(CacheMode.IGNORE);
-
-            Criteria criteria = createCriteria(fullTextSession, clazz);
-            criteria = FetchModeCreator.addFetchModes(clazz, criteria);
-            criteria.setFetchSize(this.batchSize);
-
-            /* Query can return duplicates. To be able to remove them without excessive 
-             * memory usage, the results are ordered by id. */
-            criteria.addOrder(Order.asc(ID_PROPERTY_NAME));
-
-            operationLog.info(String.format("Starting to index %ss", clazz.getSimpleName()));
-
-            ScrollableResults results = criteria.scroll(ScrollMode.FORWARD_ONLY);
-            int count = 0;
-            Object last = null;
-            while (results.next())
+            int index = 0;
+            final List<Long> ids = getAllIds(fullTextSession, clazz);
+            final int idsSize = ids.size();
+            operationLog.info(String.format("... got %d '%s' ids...", idsSize,
+                    clazz.getSimpleName()));
+            final int maxIndex = idsSize - 1;
+            // need to increment last id because we use 'lt' condition
+            if (maxIndex > -1)
             {
-                Object entity = results.get(0);
-                if (entity.equals(last))
-                {
-                    continue;
-                }
-                last = entity;
-
-                fullTextSession.index(entity);
-                count++;
-                if (count % batchSize == 0)
-                {
-                    fullTextSession.flushToIndexes();
-                    fullTextSession.clear();
-                    operationLog.info(String.format("%d %ss have been indexed...", count,
-                            clazz.getSimpleName()));
-
-                }
+                ids.set(maxIndex, ids.get(maxIndex) + 1);
             }
-
-            fullTextSession.flushToIndexes();
-            fullTextSession.clear();
-
-            operationLog.info(String.format("Indexing %ss complete - total %d instances indexed",
-                    clazz.getSimpleName(), count));
-
+            while (index < maxIndex)
+            {
+                final int nextIndex = getNextIndex(index, maxIndex);
+                final long minId = ids.get(index);
+                final long maxId = ids.get(nextIndex);
+                final List<T> results =
+                        listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
+                indexEntities(fullTextSession, results);
+                index = nextIndex;
+                operationLog.info(String.format("%d/%d %ss have been indexed...", index + 1,
+                        maxIndex + 1, clazz.getSimpleName()));
+            }
             fullTextSession.getSearchFactory().optimize(clazz);
             transaction.commit();
-
+            operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
+                    clazz.getSimpleName(), index + 1));
         } catch (Exception e)
         {
             operationLog.error(e.getMessage());
