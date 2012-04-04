@@ -2,7 +2,7 @@
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
   <property name="mainfolder" value="openbis_knime"/>
-	<property name="version" value="11.11.0"/>
+	<property name="version" value="12.04.0"/>
   <property name="jar.file.name" value="openbis-knime.jar"/>
   <property name="jar.file" value="${dist}/${jar.file.name}"/>
   <property name="original.dist" value="../${ant.project.name}/dist" />
@@ -65,7 +65,9 @@
     			<include name="**/*"/>
     		</fileset>
     		<zipfileset prefix="lib" file="${lib}/openbis-apis/query/openbis-query-api.jar"/>
+    		<zipfileset prefix="lib" file="${lib}/openbis-apis/dss/dss_client.jar"/>
     		<zipfileset prefix="lib" file="${lib}/cisd-base/cisd-base.jar"/>
+        <zipfileset prefix="lib" file="${lib}/commons-lang/commons-lang.jar"/>
         <zipfileset prefix="lib" file="${lib}/commons-codec/commons-codec.jar"/>
         <zipfileset prefix="lib" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
         <zipfileset prefix="lib" file="${lib}/commons-logging/commons-logging.jar"/>

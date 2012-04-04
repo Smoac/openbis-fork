@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.knime.query;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,17 +26,8 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -53,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
+import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
+import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -157,73 +149,22 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
             return;
         }
         List<DataSet> dataSets = loadDataSets(description, facade);
-        JTable table = new JTable(createTableModel(dataSets));
-        table.setPreferredScrollableViewportSize(new Dimension(600, 400));
-        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
-        table.setRowSorter(sorter);
-        JScrollPane scrollPane = new JScrollPane(table);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel("Choose a data set:"), BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        JPanel filterPanel = new JPanel(new BorderLayout());
-        filterPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
-        JTextField filterField = createFilterField(sorter);
-        filterPanel.add(filterField, BorderLayout.CENTER);
-        panel.add(filterPanel, BorderLayout.SOUTH);
-        JOptionPane.showMessageDialog(getPanel(), panel);
-        int[] selectedRows = table.getSelectedRows();
-        if (selectedRows.length > 0)
+        List<DataSet> selectedDataSets = Util.getSelectedDataSets(getPanel(), dataSets, false);
+        if (selectedDataSets.isEmpty())
         {
-            StringBuilder builder = new StringBuilder();
-            for (int rowIndex : selectedRows)
-            {
-                if (builder.length() > 0)
-                {
-                    builder.append(DELIMITER);
-                }
-                builder.append(dataSets.get(sorter.convertRowIndexToModel(rowIndex)).getCode());
-            }
-            dataSetCodeFields.setText(builder.toString());
+            return;
         }
-    }
+        StringBuilder builder = new StringBuilder();
+        for (DataSet dataSet : selectedDataSets)
+        {
 
-    private JTextField createFilterField(final TableRowSorter<TableModel> sorter)
-    {
-        final JTextField filterField = new JTextField();
-        filterField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-                newFilter();
+            if (builder.length() > 0)
+            {
+                builder.append(DELIMITER);
             }
-            public void insertUpdate(DocumentEvent e) {
-                newFilter();
-            }
-            public void removeUpdate(DocumentEvent e) {
-                newFilter();
-            }
-
-                private void newFilter()
-                {
-                    final String text = filterField.getText().toLowerCase();
-                    RowFilter<TableModel, Object> rf = new RowFilter<TableModel, Object>()
-                        {
-                            @Override
-                            public boolean include(
-                                    Entry<? extends TableModel, ? extends Object> entry)
-                            {
-                                for (int i = 0, n = entry.getValueCount(); i < n; i++)
-                                {
-                                    if (entry.getStringValue(i).toLowerCase().indexOf(text) >= 0)
-                                    {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }
-                        };
-                    sorter.setRowFilter(rf);
-                }
-            });
-        return filterField;
+            builder.append(dataSet.getCode());
+        }
+        dataSetCodeFields.setText(builder.toString());
     }
 
     private List<DataSet> loadDataSets(ReportDescription description, IQueryApiFacade facade)
@@ -241,15 +182,4 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
         return dataSets;
     }
-
-    private TableModel createTableModel(final List<DataSet> dataSets)
-    {
-        TableModelBuilder builder = new TableModelBuilder();
-        for (DataSet dataSet : dataSets)
-        {
-            builder.add(dataSet);
-        }
-        return builder.getTableModel();
-    }
-    
 }

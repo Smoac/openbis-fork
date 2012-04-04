@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.query;
+package ch.systemsx.cisd.openbis.knime.common;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
  *
  * @author Franz-Josef Elmer
  */
-final class TableModelBuilder
+public class TableModelBuilder
 {
     private static final class Column
     {
@@ -152,7 +152,7 @@ final class TableModelBuilder
     
     private int numberOfAddedDataSets;
     
-    TableModel getTableModel()
+    public TableModel getTableModel()
     {
         final List<Column> columns = new ArrayList<Column>(propertyColumns.values());
         Collections.sort(columns, new Comparator<Column>()
@@ -175,7 +175,7 @@ final class TableModelBuilder
         return new DataSetTableModel(columns);
     }
     
-    void add(DataSet dataSet)
+    public void add(DataSet dataSet)
     {
         codeColumn.addValueAt(numberOfAddedDataSets, dataSet.getCode());
         typeColumn.addValueAt(numberOfAddedDataSets, dataSet.getDataSetTypeCode());

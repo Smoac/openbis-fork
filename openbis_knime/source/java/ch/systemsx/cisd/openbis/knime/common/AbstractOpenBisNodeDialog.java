@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.query;
+package ch.systemsx.cisd.openbis.knime.common;
 
-import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.PASSWORD_KEY;
-import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.URL_KEY;
-import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.USER_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.PASSWORD_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.URL_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.USER_KEY;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -33,6 +33,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -40,6 +41,7 @@ import javax.swing.JTextField;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
@@ -53,21 +55,24 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
  */
 public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 {
-    private JTextField urlField;
+    protected NodeLogger logger;
+    
+    protected JTextField urlField;
 
-    private JTextField userField;
+    protected JTextField userField;
 
-    private JPasswordField passwordField;
+    protected JPasswordField passwordField;
 
     protected AbstractOpenBisNodeDialog(String tabTitle)
     {
         addTab(tabTitle, createTab());
+        logger = NodeLogger.getLogger(getClass());
     }
 
     private Component createTab()
     {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setPreferredSize(new Dimension(400, 450));
+        panel.setPreferredSize(new Dimension(600, 450));
         JPanel connectionPanel = new JPanel(new GridBagLayout());
         connectionPanel.setBorder(BorderFactory.createTitledBorder("Connection Parameters"));
         urlField = addField(connectionPanel, "openBIS URL", new JTextField(20));
@@ -112,6 +117,13 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         settings.addString(PASSWORD_KEY, Util.getEncryptedPassword(passwordField.getPassword()));
         saveAdditionalSettingsTo(settings);
     }
+    
+    protected void showException(Throwable throwable)
+    {
+        logger.error("Exception", throwable);
+        JOptionPane.showMessageDialog(getPanel(), throwable.toString(), "Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
 
     protected abstract void defineQueryForm(JPanel queryPanel);
     
@@ -125,11 +137,18 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     
     protected IQueryApiFacade createFacade()
     {
-        String url = urlField.getText();
-        String userID = userField.getText();
-        String password = new String(passwordField.getPassword());
-        IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
-        return facade;
+        try
+        {
+            String url = urlField.getText();
+            String userID = userField.getText();
+            String password = new String(passwordField.getPassword());
+            IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
+            return facade;
+        } catch (RuntimeException ex)
+        {
+            showException(ex);
+            throw ex;
+        }
     }
     
     protected <T extends JComponent> T addField(JPanel panel, String label, T field)

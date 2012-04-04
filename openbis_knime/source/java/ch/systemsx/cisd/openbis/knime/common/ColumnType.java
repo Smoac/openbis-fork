@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.query;
+package ch.systemsx.cisd.openbis.knime.common;
 
 import java.io.Serializable;
 

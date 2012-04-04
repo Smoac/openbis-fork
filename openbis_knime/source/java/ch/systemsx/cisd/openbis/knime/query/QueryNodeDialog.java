@@ -44,6 +44,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 

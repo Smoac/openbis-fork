@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.query;
+package ch.systemsx.cisd.openbis.knime.common;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -29,13 +27,8 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
 
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
@@ -48,46 +41,10 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractOpenBisNodeModel extends NodeModel
+public abstract class AbstractOpenBisNodeTableModel extends AbstractOpenBisNodeModel
 {
-    static final String URL_KEY = "url";
-    static final String USER_KEY = "user";
-    static final String PASSWORD_KEY = "password";
-    
-    private String url;
-    private String userID;
-    private String password;
-    
-    protected AbstractOpenBisNodeModel()
-    {
-        super(0, 1);
-    }
-    
-    protected abstract void loadAdditionalValidatedSettingsFrom(NodeSettingsRO settings)
-            throws InvalidSettingsException;
-    
-    protected abstract void saveAdditionalSettingsTo(NodeSettingsWO settings);
-    
     protected abstract QueryTableModel getData(IQueryApiFacade facade);
     
-    @Override
-    protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException
-    {
-        url = settings.getString(URL_KEY);
-        userID = settings.getString(USER_KEY);
-        password = Util.getDecryptedPassword(settings);
-        loadAdditionalValidatedSettingsFrom(settings);
-    }
-
-    @Override
-    protected void saveSettingsTo(NodeSettingsWO settings)
-    {
-        settings.addString(URL_KEY, url);
-        settings.addString(USER_KEY, userID);
-        settings.addString(PASSWORD_KEY, Util.getEncryptedPassword(password.toCharArray()));
-        saveAdditionalSettingsTo(settings);
-    }
-
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec)
             throws Exception
@@ -136,27 +93,4 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     {
         return new DataTableSpec[1];
     }
-
-    @Override
-    protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException
-    {
-    }
-    
-    @Override
-    protected void reset()
-    {
-    }
-
-    @Override
-    protected void saveInternals(File arg0, ExecutionMonitor arg1) throws IOException,
-            CanceledExecutionException
-    {
-    }
-
-    @Override
-    protected void loadInternals(File arg0, ExecutionMonitor arg1) throws IOException,
-    CanceledExecutionException
-    {
-    }
-    
 }

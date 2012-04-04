@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.knime.query;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
 

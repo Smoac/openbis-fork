@@ -20,6 +20,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel;
+import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -29,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  *
  * @author Franz-Josef Elmer
  */
-public class QueryNodeModel extends AbstractOpenBisNodeModel
+public class QueryNodeModel extends AbstractOpenBisNodeTableModel
 {
     static final String QUERY_DESCRIPTION_KEY = "query-description";
     

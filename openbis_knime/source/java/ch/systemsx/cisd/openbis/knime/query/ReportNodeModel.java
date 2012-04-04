@@ -22,6 +22,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel;
+import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -31,7 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
  *
  * @author Franz-Josef Elmer
  */
-public class ReportNodeModel extends AbstractOpenBisNodeModel
+public class ReportNodeModel extends AbstractOpenBisNodeTableModel
 {
     static final String REPORT_DESCRIPTION_KEY = "report-description";
     static final String DATA_SET_CODES_KEY = "data-set-codes";

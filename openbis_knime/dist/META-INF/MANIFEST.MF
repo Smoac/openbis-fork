@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: openBIS nodes
 Bundle-SymbolicName: ch.systemsx.cisd.openbis.knime; singleton:=true
 Bundle-Version: 10.05.0
-Bundle-ClassPath: openbis-knime.jar,lib/cisd-base.jar,lib/commons-codec.jar,
+Bundle-ClassPath: openbis-knime.jar,lib/cisd-base.jar,lib/commons-codec.jar,lib/commons-lang.jar,
  lib/commons-httpclient.jar,lib/commons-logging.jar,lib/log4j.jar,lib/openbis-query-api.jar,
- lib/spring.jar,lib/stream-supporting-httpinvoker.jar
+ lib/dss_client.jar,lib/spring.jar,lib/stream-supporting-httpinvoker.jar
 Bundle-Vendor: CISD
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,
