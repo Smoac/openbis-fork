@@ -177,6 +177,7 @@ public class MovieButtons extends Composite
 
     private class MovieButtonsView extends Composite
     {
+
         private Button playButton;
 
         private Button stopButton;
@@ -185,12 +186,15 @@ public class MovieButtons extends Composite
 
         private Button nextButton;
 
+        private MovieDelay delayInput;
+
         public MovieButtonsView()
         {
             playButton = new Button("Play");
             stopButton = new Button("Stop");
             previousButton = new Button("<<");
             nextButton = new Button(">>");
+            delayInput = new MovieDelay();
 
             Panel panel = new HorizontalPanel();
             panel.setStyleName("movieButtons");
@@ -198,6 +202,7 @@ public class MovieButtons extends Composite
             panel.add(stopButton);
             panel.add(previousButton);
             panel.add(nextButton);
+            panel.add(delayInput);
 
             initWidget(panel);
         }
@@ -240,6 +245,11 @@ public class MovieButtons extends Composite
         public void setNextEnabled(boolean enabled)
         {
             nextButton.setEnabled(enabled);
+        }
+
+        public int getDelay()
+        {
+            return delayInput.getDelay();
         }
 
     }
@@ -319,8 +329,6 @@ public class MovieButtons extends Composite
     private class MovieButtonsPlayingState implements MovieButtonsState
     {
 
-        private static final int PREFFERED_DELAY_BETWEEN_FRAMES_IN_MILLIS = 500;
-
         public void init()
         {
             view.setPlayEnabled(false);
@@ -383,13 +391,13 @@ public class MovieButtons extends Composite
                                     {
                                         if (MovieButtonsPlayingState.this == getState())
                                         {
+                                            int prefferedDelay = view.getDelay();
                                             int currentDelay =
                                                     (int) (System.currentTimeMillis() - startTime);
 
-                                            if (currentDelay < PREFFERED_DELAY_BETWEEN_FRAMES_IN_MILLIS)
+                                            if (currentDelay < prefferedDelay)
                                             {
-                                                loadNextFrame(PREFFERED_DELAY_BETWEEN_FRAMES_IN_MILLIS
-                                                        - currentDelay);
+                                                loadNextFrame(prefferedDelay - currentDelay);
                                             } else
                                             {
                                                 loadNextFrame(1);
