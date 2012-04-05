@@ -45,7 +45,7 @@ public final class Sample implements Serializable, IIdentifierHolder
 
     public static enum Connections
     {
-        PARENTS, CHILDREN, ASCENDANTS, DESCENDANTS
+        PARENTS, CHILDREN, ANCESTORS, DESCENDANTS
     }
 
     /**
