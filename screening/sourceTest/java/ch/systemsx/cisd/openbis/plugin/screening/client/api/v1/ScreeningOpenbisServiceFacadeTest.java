@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -57,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
@@ -982,7 +985,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             {
                 {
                     one(generalInformationService).searchForSamples(with(SESSION_TOKEN),
-                            with(searchCriteriaMatcher));
+                            with(searchCriteriaMatcher),
+                            with(new IsNull<EnumSet<SampleFetchOption>>()));
                     List<Sample> samples =
                             Arrays.asList(new SampleBuilder(1).code("p1").identifier("/s/p1")
                                     .type("s").typeID(42).permID("s-1").experiment("/S/P/E")

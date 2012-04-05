@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -102,10 +103,10 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
-            EnumSet<Sample.Connections> connectionsToGet)
+            EnumSet<SampleFetchOption> fetchOptions)
     {
-        logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s) CONNECTIONS(%s)",
-                searchCriteria, connectionsToGet);
+        logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s)",
+                searchCriteria, fetchOptions);
         return null;
     }
 

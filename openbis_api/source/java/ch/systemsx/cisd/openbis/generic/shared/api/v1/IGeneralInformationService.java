@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -104,11 +105,11 @@ public interface IGeneralInformationService extends IRpcService
      * Return all samples that match the search criteria. Available since minor version 16.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
-     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @param fetchOptions Options that control which parts of the samples are fetched.
      * @since 1.16
      */
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
-            EnumSet<Sample.Connections> connectionsToGet);
+            EnumSet<SampleFetchOption> fetchOptions);
 
     /**
      * Return all samples that belong to the supplied experiment. Available since minor version 1.

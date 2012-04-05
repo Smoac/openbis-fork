@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 
@@ -99,11 +100,11 @@ public interface ISimpleOpenbisServiceFacade
      * sample identifiers does not exist in openBIS it will be silently ignored.
      * 
      * @param sampleIdentifiers sample identifiers for which samples should be retrieved
-     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @param fetchOptions Options that control which parts of the samples are fetched.
      */
     @Retry
     List<Sample> getSamples(List<String> sampleIdentifiers,
-            EnumSet<Sample.Connections> connectionsToGet);
+            EnumSet<SampleFetchOption> fetchOptions);
 
     /**
      * Return all samples for a given list of experiments identifiers. If some of the specified
@@ -117,11 +118,11 @@ public interface ISimpleOpenbisServiceFacade
      * experiment identifiers does not exist in openBIS it will be silently ignored.
      * 
      * @param experimentIdentifiers experiment identifiers for which samples should be retrieved
-     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @param fetchOptions Options that control which parts of the samples are fetched.
      */
     @Retry
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers,
-            EnumSet<Sample.Connections> connectionsToGet);
+            EnumSet<SampleFetchOption> fetchOptions);
 
     /**
      * Return all samples for a given list of project identifiers. If some of the specified project
@@ -135,11 +136,11 @@ public interface ISimpleOpenbisServiceFacade
      * identifiers does not exist in openBIS it will be silently ignored.
      * 
      * @param projectIdentifiers project identifiers for which samples should be retrieved
-     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @param fetchOptions Options that control which parts of the samples are fetched.
      */
     @Retry
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
-            EnumSet<Sample.Connections> connectionsToGet);
+            EnumSet<SampleFetchOption> fetchOptions);
 
     /**
      * Return a {@link DataSet} object for for the given code. If some of the specified data set

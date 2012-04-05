@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -244,7 +245,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     public List<Sample> getSamples(final List<String> sampleIdentifiers,
-            final EnumSet<Sample.Connections> connectionsToGet)
+            final EnumSet<SampleFetchOption> fetchOptions)
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
@@ -255,7 +256,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         }
 
         List<Sample> samples =
-                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
+                service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
@@ -275,13 +276,13 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     public List<Sample> listSamplesForExperiments(final List<String> experimentIdentifiers,
-            final EnumSet<Sample.Connections> connectionsToGet)
+            final EnumSet<SampleFetchOption> fetchOptions)
     {
         SearchCriteria searchCriteria =
                 searchCriteriaForExperimentIdentifiers(experimentIdentifiers);
 
         List<Sample> samples =
-                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
+                service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
@@ -300,7 +301,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
-            EnumSet<Sample.Connections> connectionsToGet)
+            EnumSet<SampleFetchOption> fetchOptions)
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
@@ -311,7 +312,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         }
 
         List<Sample> samples =
-                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
+                service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
         return samples;
     }
 
@@ -500,9 +501,9 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,
-            EnumSet<Sample.Connections> connectionsToGet)
+            EnumSet<SampleFetchOption> fetchOptions)
     {
-        return service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
+        return service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
     }
 
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria)

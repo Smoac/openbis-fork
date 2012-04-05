@@ -43,11 +43,6 @@ public final class Sample implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
 
-    public static enum Connections
-    {
-        PARENTS, CHILDREN, ANCESTORS, DESCENDANTS
-    }
-
     /**
      * Class used to initialize a new sample instance. Necessary since all the fields of a sample
      * are final.
@@ -79,15 +74,11 @@ public final class Sample implements Serializable, IIdentifierHolder
 
         private EntityRegistrationDetails registrationDetails;
 
-        private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
+        private EnumSet<SampleFetchOption> retrievedFetchOptions = EnumSet.noneOf(SampleFetchOption.class);
 
-        private List<String> parentCodes = Collections.emptyList();
+        private List<Sample> parents = Collections.emptyList();
 
-        private List<String> childrenCodes = Collections.emptyList();
-
-        private List<String> ascendantsCodes = Collections.emptyList();
-
-        private List<String> descendantsCodes = Collections.emptyList();
+        private List<Sample> children = Collections.emptyList();
 
         public void setId(Long id)
         {
@@ -189,60 +180,37 @@ public final class Sample implements Serializable, IIdentifierHolder
             return registrationDetails;
         }
 
-        public void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+        public void setRetrievedFetchOptions(EnumSet<SampleFetchOption> retrievedFetchOptions)
         {
-            this.retrievedConnections =
-                    (null == retrievedConnections) ? EnumSet.noneOf(Connections.class)
-                            : retrievedConnections;
+            this.retrievedFetchOptions =
+                    (null == retrievedFetchOptions) ? EnumSet.noneOf(SampleFetchOption.class)
+                            : retrievedFetchOptions;
         }
 
-        public EnumSet<Connections> getRetrievedConnections()
+        public EnumSet<SampleFetchOption> getRetrievedFetchOptions()
         {
-            return retrievedConnections;
+            return retrievedFetchOptions;
         }
 
-        public void setParentCodes(List<String> parentCodes)
+        public void setParents(List<Sample> parents)
         {
-            this.parentCodes = (null == parentCodes) ? new ArrayList<String>() : parentCodes;
+            this.parents = (null == parents) ? new ArrayList<Sample>() : parents;
         }
 
-        public List<String> getParentCodes()
+        public List<Sample> getParents()
         {
-            return parentCodes;
+            return parents;
         }
 
-        public List<String> getChildrenCodes()
+        public List<Sample> getChildren()
         {
-            return childrenCodes;
+            return children;
         }
 
-        public void setChildrenCodes(List<String> childrenCodes)
+        public void setChildren(List<Sample> children)
         {
-            this.childrenCodes = (null == childrenCodes) ? new ArrayList<String>() : childrenCodes;
+            this.children = (null == children) ? new ArrayList<Sample>() : children;
         }
-
-        public void setAscendantsCodes(List<String> ascendantsCodes)
-        {
-            this.ascendantsCodes =
-                    (null == ascendantsCodes) ? new ArrayList<String>() : ascendantsCodes;
-        }
-
-        public List<String> getAscendantsCodes()
-        {
-            return ascendantsCodes;
-        }
-
-        public void setDescendantsCodes(List<String> descendantsCodes)
-        {
-            this.descendantsCodes =
-                    (null == descendantsCodes) ? new ArrayList<String>() : descendantsCodes;
-        }
-
-        public List<String> getDescendantsCodes()
-        {
-            return descendantsCodes;
-        }
-
     }
 
     private Long id;
@@ -265,15 +233,11 @@ public final class Sample implements Serializable, IIdentifierHolder
 
     private EntityRegistrationDetails registrationDetails;
 
-    private EnumSet<Connections> retrievedConnections;
+    private EnumSet<SampleFetchOption> retrievedFetchOptions;
 
-    private List<String> parentCodes = Collections.emptyList();
+    private List<Sample> parents = Collections.emptyList();
 
-    private List<String> childrenCodes = Collections.emptyList();
-
-    private List<String> ascendantsCodes = Collections.emptyList();
-
-    private List<String> descendantsCodes = Collections.emptyList();
+    private List<Sample> children = Collections.emptyList();
 
     /**
      * Creates a new instance with the provided initializer
@@ -312,11 +276,9 @@ public final class Sample implements Serializable, IIdentifierHolder
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
 
-        this.retrievedConnections = initializer.getRetrievedConnections();
-        this.parentCodes = initializer.getParentCodes();
-        this.childrenCodes = initializer.getChildrenCodes();
-        this.ascendantsCodes = initializer.getAscendantsCodes();
-        this.descendantsCodes = initializer.getDescendantsCodes();
+        this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
+        this.parents = initializer.getParents();
+        this.children = initializer.getChildren();
     }
 
     /**
@@ -396,55 +358,53 @@ public final class Sample implements Serializable, IIdentifierHolder
     }
 
     /**
-     * Returns types of retrieved connections.
+     * Returns fetch options used to retrieved this sample object.
      */
-    public EnumSet<Connections> getRetrievedConnections()
+    public EnumSet<SampleFetchOption> getRetrievedFetchOptions()
     {
-        return retrievedConnections;
+        return retrievedFetchOptions;
     }
 
     /**
-     * Return the parent codes. This throws an IllegalArgumentException if the parent codes were not
-     * retrieved.
+     * Return the children. 
      * 
-     * @return A list of parent data set codes or an empty list if there are no parents.
-     * @throws IllegalArgumentException Thrown if the parent codes were not retrieved from the
+     * @return Children of this sample or an empty list if there are no children.
+     * @throws IllegalArgumentException Thrown if the children were not retrieved from the
      *             server.
      */
     @JsonIgnore
-    public List<String> getParentCodes() throws IllegalArgumentException
+    public List<Sample> getChildren() throws IllegalArgumentException
     {
-        if (getRetrievedConnections().contains(Connections.PARENTS))
+        if (getRetrievedFetchOptions().contains(SampleFetchOption.CHILDREN))
         {
-            return Collections.unmodifiableList(parentCodes);
+            return Collections.unmodifiableList(children);
         } else
         {
-            throw new IllegalArgumentException("Parent codes were not retrieved for data set "
-                    + getCode() + ".");
+            throw new IllegalArgumentException("Children were not retrieved for sample "
+                    + getIdentifier() + ".");
         }
     }
 
     /**
-     * Return the children codes. This throws an IllegalArgumentException if the children codes were
-     * not retrieved.
+     * Return the parents. 
      * 
-     * @return A list of chidlren data set codes or an empty list if there are no children.
-     * @throws IllegalArgumentException Thrown if the children codes were not retrieved from the
+     * @return All parents of this sample or an empty list if there are no parents.
+     * @throws IllegalArgumentException Thrown if the parents were not retrieved from the
      *             server.
      */
     @JsonIgnore
-    public List<String> getChildrenCodes() throws IllegalArgumentException
+    public List<Sample> getParents() throws IllegalArgumentException
     {
-        if (getRetrievedConnections().contains(Connections.CHILDREN))
+        if (getRetrievedFetchOptions().contains(SampleFetchOption.PARENTS))
         {
-            return Collections.unmodifiableList(childrenCodes);
+            return Collections.unmodifiableList(parents);
         } else
         {
-            throw new IllegalArgumentException("Children codes were not retrieved for data set "
-                    + getCode() + ".");
+            throw new IllegalArgumentException("Parents were not retrieved for sample "
+                    + getIdentifier() + ".");
         }
     }
-
+    
     @Override
     public boolean equals(Object obj)
     {
@@ -539,9 +499,9 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.registrationDetails = registrationDetails;
     }
 
-    private void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+    private void setRetrievedFetchOptions(EnumSet<SampleFetchOption> fetchOptions)
     {
-        this.retrievedConnections = retrievedConnections;
+        this.retrievedFetchOptions = fetchOptions;
     }
 
 }

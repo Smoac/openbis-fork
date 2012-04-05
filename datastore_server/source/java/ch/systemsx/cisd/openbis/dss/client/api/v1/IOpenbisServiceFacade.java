@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -55,11 +56,11 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * Return all samples that match the search criteria.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
-     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @param fetchOptions Describes the amount of information about the sample that is needed
      */
     @Retry
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,
-            EnumSet<Sample.Connections> connectionsToGet);
+            EnumSet<SampleFetchOption> fetchOptions);
 
     /**
      * Return all data sets matching a specified search criteria.

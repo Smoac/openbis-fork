@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.hamcrest.Matcher;
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -55,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseFieldType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -181,8 +184,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                     List<Sample> moreSamples = new ArrayList<Sample>(samples);
                     // will be filtered out in the facade
                     moreSamples.add(createSample("s3", null));
-                    one(service)
-                            .searchForSamples(with(equal(SESSION_TOKEN)), with(criteriaMatcher));
+                    one(service).searchForSamples(with(equal(SESSION_TOKEN)),
+                            with(criteriaMatcher), with(new IsNull<EnumSet<SampleFetchOption>>()));
                     will(returnValue(moreSamples));
                 }
             });
@@ -214,8 +217,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                     List<Sample> moreSamples = new ArrayList<Sample>(samples);
                     // will be filtered out in the facade
                     moreSamples.add(createSample("s3", null));
-                    one(service)
-                            .searchForSamples(with(equal(SESSION_TOKEN)), with(criteriaMatcher));
+                    one(service).searchForSamples(with(equal(SESSION_TOKEN)),
+                            with(criteriaMatcher), with(new IsNull<EnumSet<SampleFetchOption>>()));
                     will(returnValue(moreSamples));
                 }
             });
@@ -247,8 +250,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service)
-                            .searchForSamples(with(equal(SESSION_TOKEN)), with(criteriaMatcher));
+                    one(service).searchForSamples(with(equal(SESSION_TOKEN)),
+                            with(criteriaMatcher), with(new IsNull<EnumSet<SampleFetchOption>>()));
                     will(returnValue(samples));
                 }
             });
@@ -457,7 +460,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).searchForSamples(SESSION_TOKEN, sc);
+                    one(service).searchForSamples(SESSION_TOKEN, sc, null);
                     will(returnValue(result));
                 }
             });

@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -282,13 +283,13 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     @Capability("SEARCH_FOR_SAMPLES")
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
-            EnumSet<Sample.Connections> connectionsToGet)
+            EnumSet<SampleFetchOption> SampleFetchOption)
     {
         checkSession(sessionToken);
 
-        EnumSet<Sample.Connections> connections =
-                (connectionsToGet != null) ? connectionsToGet : EnumSet
-                        .noneOf(Sample.Connections.class);
+        EnumSet<SampleFetchOption> sampleFetchOptions =
+                (SampleFetchOption != null) ? SampleFetchOption : EnumSet
+                        .noneOf(SampleFetchOption.class);
 
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
