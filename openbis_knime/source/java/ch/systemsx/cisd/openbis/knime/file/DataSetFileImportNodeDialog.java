@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.knime.file;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -50,7 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
- * 
+ * Node for downloading a file of an openBIS data set.
  *
  * @author Franz-Josef Elmer
  */
@@ -64,16 +65,19 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     private JTextComponent dataSetCodeField;
     private JTextComponent filePathField;
     private JTextComponent downloadsPathField;
+    private JCheckBox reuseCheckBox;
+    private final IDataSetProvider dataSetProvider;
 
-    DataSetFileImportNodeDialog()
+    DataSetFileImportNodeDialog(IDataSetProvider dataSetProvider)
     {
         super("Data Set File Importer Settings");
+        this.dataSetProvider = dataSetProvider;
     }
 
     @Override
     protected void defineQueryForm(JPanel queryPanel, JComboBox reportComboBox)
     {
-        JPanel panel = new JPanel(new GridLayout(0, 2));
+        JPanel panel = new JPanel(new GridBagLayout());
         dataSetCodeField = createTextFieldWithButton("Data Set Code", new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -96,6 +100,8 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
                             chooseTempFolder();
                         }
                     }, panel);
+        reuseCheckBox = new JCheckBox();
+        addField(panel, "Reuse already downloaded file", reuseCheckBox);
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(panel, BorderLayout.NORTH);
         queryPanel.add(northPanel, BorderLayout.CENTER);
@@ -105,7 +111,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             JPanel panel)
     {
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
-        JTextField field = new JTextField();
+        JTextField field = new JTextField(20);
         textFieldWithButton.add(field, BorderLayout.CENTER);
         JButton button = new JButton("...");
         button.addActionListener(actionListener);
@@ -143,6 +149,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         filePathField.setText(settings.getString(DataSetFileImportNodeModel.FILE_PATH_KEY, ""));
         downloadsPathField.setText(settings.getString(
                 DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, ""));
+        reuseCheckBox.setSelected(settings.getBoolean(DataSetFileImportNodeModel.REUSE_FILE, true));
     }
 
     @Override
@@ -166,6 +173,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             throw new InvalidSettingsException("Location of downloads hasn't been specified.");
         }
         settings.addString(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, downloadsPath);
+        settings.addBoolean(DataSetFileImportNodeModel.REUSE_FILE, reuseCheckBox.isSelected());
     }
 
     private void chooseDataSet(IQueryApiFacade facade)
@@ -203,7 +211,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         try
         {
             ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
-                    DataSetUtil.getDataSetProxy(url, userID, password, dataSetCode);
+                    dataSetProvider.getDataSet(url, userID, password, dataSetCode);
             if (dataSet == null)
             {
                 JOptionPane.showMessageDialog(getPanel(), "Unknown data set: " + dataSetCode);

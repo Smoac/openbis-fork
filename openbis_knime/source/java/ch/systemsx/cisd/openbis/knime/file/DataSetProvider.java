@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
  *
  * @author Franz-Josef Elmer
  */
-class DataSetUtil
+class DataSetProvider implements IDataSetProvider
 {
 
-    static DataSet getDataSetProxy(String url, String userID, String password, String dataSetCode)
+    public DataSet getDataSet(String url, String userID, String password, String dataSetCode)
     {
         IOpenbisServiceFacade service =
                 OpenbisServiceFacadeFactory.tryCreate(userID, password, url, 10000);

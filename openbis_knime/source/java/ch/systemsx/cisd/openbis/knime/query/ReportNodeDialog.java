@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.knime.query;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
@@ -66,10 +66,10 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
     @Override
     protected void defineQueryForm(JPanel queryPanel, JComboBox reportComboBox)
     {
-        JPanel panel = new JPanel(new GridLayout(0, 2));
+        JPanel panel = new JPanel(new GridBagLayout());
         addField(panel, "Reports", reportComboBox);
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
-        dataSetCodeFields = new JTextField();
+        dataSetCodeFields = new JTextField(20);
         textFieldWithButton.add(dataSetCodeFields, BorderLayout.CENTER);
         JButton button = new JButton("...");
         button.addActionListener(new ActionListener()

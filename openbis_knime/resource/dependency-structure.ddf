@@ -1,3 +1,15 @@
 #show allResults
 
 {project} = ch.systemsx.cisd.openbis.knime
+
+[common] = ${project}.common.*
+[file] = ${project}.file.*
+[query] = ${project}.query.*
+
+check sets [common] [file] [query]
+
+layer layer-common = [common]
+layer layer-nodes = [file] [query]
+
+check layeringOf layer-common layer-nodes
+

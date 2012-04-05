@@ -27,17 +27,18 @@ import org.knime.core.node.NodeView;
  */
 public class DataSetFileImportNodeFactory extends NodeFactory<DataSetFileImportNodeModel>
 {
+    private final IDataSetProvider dataSetProvider = new DataSetProvider();
 
     @Override
     protected NodeDialogPane createNodeDialogPane()
     {
-        return new DataSetFileImportNodeDialog();
+        return new DataSetFileImportNodeDialog(dataSetProvider);
     }
 
     @Override
     public DataSetFileImportNodeModel createNodeModel()
     {
-        return new DataSetFileImportNodeModel();
+        return new DataSetFileImportNodeModel(dataSetProvider);
     }
 
     @Override

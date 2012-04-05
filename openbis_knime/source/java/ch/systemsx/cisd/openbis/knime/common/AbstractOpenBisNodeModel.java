@@ -35,9 +35,9 @@ import org.knime.core.node.port.PortType;
  */
 public abstract class AbstractOpenBisNodeModel extends NodeModel
 {
-    protected static final String URL_KEY = "url";
-    protected static final String USER_KEY = "user";
-    protected static final String PASSWORD_KEY = "password";
+    public static final String URL_KEY = "url";
+    public static final String USER_KEY = "user";
+    public static final String PASSWORD_KEY = "password";
     
     protected NodeLogger logger;
     protected String url;

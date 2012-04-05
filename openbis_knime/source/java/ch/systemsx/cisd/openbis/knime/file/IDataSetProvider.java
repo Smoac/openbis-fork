@@ -16,27 +16,15 @@
 
 package ch.systemsx.cisd.openbis.knime.file;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 
 /**
- * 
+ * Provider of a {@link DataSet} object from which data set files can be downloaded.
  *
  * @author Franz-Josef Elmer
  */
-public class TestDataSetFileImportNodeDialog
+interface IDataSetProvider
 {
-    public static void main(String[] args)
-    {
-        LogInitializer.init();
-        JFrame frame = new JFrame("test");
-        JPanel panel = new JPanel();
-        frame.getContentPane().add(panel);
-        panel.add(new DataSetFileImportNodeDialog(new DataSetProvider()).getPanel());
-        frame.setSize(600, 600);
-        frame.setVisible(true);
-    }
-
+    DataSet getDataSet(String url,
+            String userID, String password, String dataSetCode);
 }
