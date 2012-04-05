@@ -52,6 +52,16 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
 
     /**
+     * Return all samples that match the search criteria.
+     * 
+     * @param searchCriteria The sample metadata values to be matched against.
+     * @param connectionsToGet connections to be retrieved for the returned samples
+     */
+    @Retry
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria,
+            EnumSet<Sample.Connections> connectionsToGet);
+
+    /**
      * Return all data sets matching a specified search criteria.
      * 
      * @param searchCriteria the criteria used for searching.

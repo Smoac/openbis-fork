@@ -101,6 +101,16 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
+     * Return all samples that match the search criteria. Available since minor version 16.
+     * 
+     * @param searchCriteria The sample metadata values to be matched against.
+     * @param connectionsToGet connections to be retrieved for the returned samples
+     * @since 1.16
+     */
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
+            EnumSet<Sample.Connections> connectionsToGet);
+
+    /**
      * Return all samples that belong to the supplied experiment. Available since minor version 1.
      * 
      * @param experimentIdentifierString The identifier of the experiment samples will be listed
@@ -250,8 +260,8 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns meta data for all specified data sets. Which parts of the data sets objects are
-     * fetched is controlled with the <code>fetchOptions</code> parameter. Available since
-     * minor version 16.
+     * fetched is controlled with the <code>fetchOptions</code> parameter. Available since minor
+     * version 16.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @param fetchOptions Options that control which parts of the data sets are fetched.
@@ -284,14 +294,15 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all available projects.
      */
     public List<Project> listProjects(String sessionToken);
-    
+
     /**
-     *  Returns the materials with specified identifiers (i.e. code and type).
+     * Returns the materials with specified identifiers (i.e. code and type).
      */
-    public List<Material> getMaterialByCodes(String sessionToken, List<MaterialIdentifier> materialIdentifier);
-    
+    public List<Material> getMaterialByCodes(String sessionToken,
+            List<MaterialIdentifier> materialIdentifier);
+
     /**
-     *  Returns all material fulfilling specified search criteria.
+     * Returns all material fulfilling specified search criteria.
      */
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria);
 }

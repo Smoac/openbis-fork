@@ -101,6 +101,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
+            EnumSet<Sample.Connections> connectionsToGet)
+    {
+        logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s) CONNECTIONS(%s)",
+                searchCriteria, connectionsToGet);
+        return null;
+    }
+
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLES(%s)", abbreviate(samples));

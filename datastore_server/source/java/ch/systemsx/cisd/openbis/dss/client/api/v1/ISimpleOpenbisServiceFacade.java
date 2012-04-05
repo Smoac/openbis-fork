@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +95,17 @@ public interface ISimpleOpenbisServiceFacade
     List<Sample> getSamples(List<String> sampleIdentifiers);
 
     /**
+     * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified
+     * sample identifiers does not exist in openBIS it will be silently ignored.
+     * 
+     * @param sampleIdentifiers sample identifiers for which samples should be retrieved
+     * @param connectionsToGet connections to be retrieved for the returned samples
+     */
+    @Retry
+    List<Sample> getSamples(List<String> sampleIdentifiers,
+            EnumSet<Sample.Connections> connectionsToGet);
+
+    /**
      * Return all samples for a given list of experiments identifiers. If some of the specified
      * experiment identifiers does not exist in openBIS it will be silently ignored.
      */
@@ -101,11 +113,33 @@ public interface ISimpleOpenbisServiceFacade
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers);
 
     /**
+     * Return all samples for a given list of experiments identifiers. If some of the specified
+     * experiment identifiers does not exist in openBIS it will be silently ignored.
+     * 
+     * @param experimentIdentifiers experiment identifiers for which samples should be retrieved
+     * @param connectionsToGet connections to be retrieved for the returned samples
+     */
+    @Retry
+    List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers,
+            EnumSet<Sample.Connections> connectionsToGet);
+
+    /**
      * Return all samples for a given list of project identifiers. If some of the specified project
      * identifiers does not exist in openBIS it will be silently ignored.
      */
     @Retry
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers);
+
+    /**
+     * Return all samples for a given list of project identifiers. If some of the specified project
+     * identifiers does not exist in openBIS it will be silently ignored.
+     * 
+     * @param projectIdentifiers project identifiers for which samples should be retrieved
+     * @param connectionsToGet connections to be retrieved for the returned samples
+     */
+    @Retry
+    public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
+            EnumSet<Sample.Connections> connectionsToGet);
 
     /**
      * Return a {@link DataSet} object for for the given code. If some of the specified data set

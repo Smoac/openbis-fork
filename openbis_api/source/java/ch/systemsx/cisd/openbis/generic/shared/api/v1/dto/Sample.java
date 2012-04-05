@@ -17,15 +17,20 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
@@ -37,6 +42,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 public final class Sample implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
+
+    public static enum Connections
+    {
+        PARENTS, CHILDREN, ASCENDANTS, DESCENDANTS
+    }
 
     /**
      * Class used to initialize a new sample instance. Necessary since all the fields of a sample
@@ -68,6 +78,16 @@ public final class Sample implements Serializable, IIdentifierHolder
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         private EntityRegistrationDetails registrationDetails;
+
+        private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
+
+        private List<String> parentCodes = Collections.emptyList();
+
+        private List<String> childrenCodes = Collections.emptyList();
+
+        private List<String> ascendantsCodes = Collections.emptyList();
+
+        private List<String> descendantsCodes = Collections.emptyList();
 
         public void setId(Long id)
         {
@@ -168,6 +188,61 @@ public final class Sample implements Serializable, IIdentifierHolder
         {
             return registrationDetails;
         }
+
+        public void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+        {
+            this.retrievedConnections =
+                    (null == retrievedConnections) ? EnumSet.noneOf(Connections.class)
+                            : retrievedConnections;
+        }
+
+        public EnumSet<Connections> getRetrievedConnections()
+        {
+            return retrievedConnections;
+        }
+
+        public void setParentCodes(List<String> parentCodes)
+        {
+            this.parentCodes = (null == parentCodes) ? new ArrayList<String>() : parentCodes;
+        }
+
+        public List<String> getParentCodes()
+        {
+            return parentCodes;
+        }
+
+        public List<String> getChildrenCodes()
+        {
+            return childrenCodes;
+        }
+
+        public void setChildrenCodes(List<String> childrenCodes)
+        {
+            this.childrenCodes = (null == childrenCodes) ? new ArrayList<String>() : childrenCodes;
+        }
+
+        public void setAscendantsCodes(List<String> ascendantsCodes)
+        {
+            this.ascendantsCodes =
+                    (null == ascendantsCodes) ? new ArrayList<String>() : ascendantsCodes;
+        }
+
+        public List<String> getAscendantsCodes()
+        {
+            return ascendantsCodes;
+        }
+
+        public void setDescendantsCodes(List<String> descendantsCodes)
+        {
+            this.descendantsCodes =
+                    (null == descendantsCodes) ? new ArrayList<String>() : descendantsCodes;
+        }
+
+        public List<String> getDescendantsCodes()
+        {
+            return descendantsCodes;
+        }
+
     }
 
     private Long id;
@@ -189,6 +264,16 @@ public final class Sample implements Serializable, IIdentifierHolder
     private HashMap<String, String> properties;
 
     private EntityRegistrationDetails registrationDetails;
+
+    private EnumSet<Connections> retrievedConnections;
+
+    private List<String> parentCodes = Collections.emptyList();
+
+    private List<String> childrenCodes = Collections.emptyList();
+
+    private List<String> ascendantsCodes = Collections.emptyList();
+
+    private List<String> descendantsCodes = Collections.emptyList();
 
     /**
      * Creates a new instance with the provided initializer
@@ -227,6 +312,11 @@ public final class Sample implements Serializable, IIdentifierHolder
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
 
+        this.retrievedConnections = initializer.getRetrievedConnections();
+        this.parentCodes = initializer.getParentCodes();
+        this.childrenCodes = initializer.getChildrenCodes();
+        this.ascendantsCodes = initializer.getAscendantsCodes();
+        this.descendantsCodes = initializer.getDescendantsCodes();
     }
 
     /**
@@ -305,6 +395,56 @@ public final class Sample implements Serializable, IIdentifierHolder
         return registrationDetails;
     }
 
+    /**
+     * Returns types of retrieved connections.
+     */
+    public EnumSet<Connections> getRetrievedConnections()
+    {
+        return retrievedConnections;
+    }
+
+    /**
+     * Return the parent codes. This throws an IllegalArgumentException if the parent codes were not
+     * retrieved.
+     * 
+     * @return A list of parent data set codes or an empty list if there are no parents.
+     * @throws IllegalArgumentException Thrown if the parent codes were not retrieved from the
+     *             server.
+     */
+    @JsonIgnore
+    public List<String> getParentCodes() throws IllegalArgumentException
+    {
+        if (getRetrievedConnections().contains(Connections.PARENTS))
+        {
+            return Collections.unmodifiableList(parentCodes);
+        } else
+        {
+            throw new IllegalArgumentException("Parent codes were not retrieved for data set "
+                    + getCode() + ".");
+        }
+    }
+
+    /**
+     * Return the children codes. This throws an IllegalArgumentException if the children codes were
+     * not retrieved.
+     * 
+     * @return A list of chidlren data set codes or an empty list if there are no children.
+     * @throws IllegalArgumentException Thrown if the children codes were not retrieved from the
+     *             server.
+     */
+    @JsonIgnore
+    public List<String> getChildrenCodes() throws IllegalArgumentException
+    {
+        if (getRetrievedConnections().contains(Connections.CHILDREN))
+        {
+            return Collections.unmodifiableList(childrenCodes);
+        } else
+        {
+            throw new IllegalArgumentException("Children codes were not retrieved for data set "
+                    + getCode() + ".");
+        }
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -358,7 +498,7 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         this.spaceCode = spaceCode;
     }
-    
+
     private void setPermId(String permId)
     {
         this.permId = permId;
@@ -398,4 +538,10 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         this.registrationDetails = registrationDetails;
     }
+
+    private void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+    {
+        this.retrievedConnections = retrievedConnections;
+    }
+
 }

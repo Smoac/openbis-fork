@@ -274,7 +274,21 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Capability("SEARCH_FOR_SAMPLES")
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
+        return searchForSamples(sessionToken, searchCriteria, null);
+    }
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
+    @Capability("SEARCH_FOR_SAMPLES")
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
+            EnumSet<Sample.Connections> connectionsToGet)
+    {
         checkSession(sessionToken);
+
+        EnumSet<Sample.Connections> connections =
+                (connectionsToGet != null) ? connectionsToGet : EnumSet
+                        .noneOf(Sample.Connections.class);
 
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(

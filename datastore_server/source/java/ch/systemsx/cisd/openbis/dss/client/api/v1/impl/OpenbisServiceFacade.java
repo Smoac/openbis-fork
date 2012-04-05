@@ -240,6 +240,12 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<Sample> getSamples(final List<String> sampleIdentifiers)
             throws EnvironmentFailureException
     {
+        return getSamples(sampleIdentifiers, null);
+    }
+
+    public List<Sample> getSamples(final List<String> sampleIdentifiers,
+            final EnumSet<Sample.Connections> connectionsToGet)
+    {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
         for (SampleIdentifier sampleIdentifier : parseSampleIdentifiers(sampleIdentifiers))
@@ -248,7 +254,8 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                     MatchClauseAttribute.CODE, sampleIdentifier.getSampleCode()));
         }
 
-        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
+        List<Sample> samples =
+                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
@@ -264,10 +271,17 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<Sample> listSamplesForExperiments(final List<String> experimentIdentifiers)
             throws EnvironmentFailureException
     {
+        return listSamplesForExperiments(experimentIdentifiers, null);
+    }
+
+    public List<Sample> listSamplesForExperiments(final List<String> experimentIdentifiers,
+            final EnumSet<Sample.Connections> connectionsToGet)
+    {
         SearchCriteria searchCriteria =
                 searchCriteriaForExperimentIdentifiers(experimentIdentifiers);
 
-        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
+        List<Sample> samples =
+                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
@@ -282,6 +296,12 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers)
     {
+        return listSamplesForProjects(projectIdentifiers, null);
+    }
+
+    public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
+            EnumSet<Sample.Connections> connectionsToGet)
+    {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
         for (ProjectIdentifier projectIdentifier : parseProjectIdentifiers(projectIdentifiers))
@@ -290,7 +310,8 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                     MatchClauseAttribute.PROJECT, projectIdentifier.getProjectCode()));
         }
 
-        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
+        List<Sample> samples =
+                service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
         return samples;
     }
 
@@ -475,7 +496,13 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     //
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
-        return service.searchForSamples(sessionToken, searchCriteria);
+        return searchForSamples(searchCriteria, null);
+    }
+
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria,
+            EnumSet<Sample.Connections> connectionsToGet)
+    {
+        return service.searchForSamples(sessionToken, searchCriteria, connectionsToGet);
     }
 
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria)
