@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
@@ -124,6 +125,21 @@ public class MovieButtons extends Composite
     public void setFrame(int frame)
     {
         state.handleSetFrame(frame);
+    }
+
+    public int getDelay()
+    {
+        return view.getDelay();
+    }
+
+    public void setDelay(int delay)
+    {
+        view.setDelay(delay);
+    }
+
+    public void addDelayChangeHandler(ChangeHandler handler)
+    {
+        view.addDelayChangeHandler(handler);
     }
 
     private boolean isFirstFrame()
@@ -250,6 +266,16 @@ public class MovieButtons extends Composite
         public int getDelay()
         {
             return delayInput.getDelay();
+        }
+
+        public void setDelay(int delay)
+        {
+            delayInput.setDelay(delay);
+        }
+
+        public void addDelayChangeHandler(ChangeHandler handler)
+        {
+            delayInput.addDelayChangeHandler(handler);
         }
 
     }

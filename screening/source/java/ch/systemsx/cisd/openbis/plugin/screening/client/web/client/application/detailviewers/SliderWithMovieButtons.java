@@ -20,10 +20,13 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.Slider;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author pkupczyk
@@ -93,11 +96,31 @@ public class SliderWithMovieButtons extends Composite
                 }
             });
 
+        initWidget(new HTML());
+    }
+
+    public Widget getWidgets()
+    {
         Panel panel = new VerticalPanel();
-        panel.add(slider);
-        panel.add(buttons);
-        panel.add(loading);
-        initWidget(panel);
+        panel.add(getSliderWidget());
+        panel.add(getButtonsWidget());
+        panel.add(getLoadingWidget());
+        return panel;
+    }
+
+    public Widget getSliderWidget()
+    {
+        return slider;
+    }
+
+    public Widget getButtonsWidget()
+    {
+        return buttons;
+    }
+
+    public Widget getLoadingWidget()
+    {
+        return loading;
     }
 
     public int getValue()
@@ -108,6 +131,21 @@ public class SliderWithMovieButtons extends Composite
     public void setValue(int value)
     {
         slider.setValue(value);
+    }
+
+    public int getDelay()
+    {
+        return buttons.getDelay();
+    }
+
+    public void setDelay(int delay)
+    {
+        buttons.setDelay(delay);
+    }
+
+    public void addDelayChangeHandler(ChangeHandler handler)
+    {
+        buttons.addDelayChangeHandler(handler);
     }
 
     public SliderWithMovieButtonsValueLoader getValueLoader()

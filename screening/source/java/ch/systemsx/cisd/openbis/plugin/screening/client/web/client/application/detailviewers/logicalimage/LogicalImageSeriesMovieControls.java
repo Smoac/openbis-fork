@@ -18,8 +18,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.SliderWithMovieButtons;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.SliderWithMovieButtonsValueLoader;
 
@@ -29,14 +33,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 public class LogicalImageSeriesMovieControls extends LogicalImageSeriesControls
 {
 
-    public LogicalImageSeriesMovieControls(final LogicalImageSeriesDownloader imageDownloader,
-            final LogicalImageSeriesModel imageModel)
+    public LogicalImageSeriesMovieControls(IViewContext<IScreeningClientServiceAsync> viewContext,
+            String displayTypeId, LogicalImageSeriesDownloader imageDownloader,
+            LogicalImageSeriesModel imageModel)
     {
-        super(imageDownloader, imageModel);
+        super(viewContext, displayTypeId, imageDownloader, imageModel);
 
         final List<LogicalImageSeriesPoint> sortedPoints = getImageModel().getSortedPoints();
-        SliderWithMovieButtons slider = new SliderWithMovieButtons(sortedPoints.size());
-        slider.setValueLoader(new SliderWithMovieButtonsValueLoader()
+        final SliderWithMovieButtons sliderWithButtons =
+                new SliderWithMovieButtons(sortedPoints.size());
+        sliderWithButtons.setDelay(getSettingsManager().getDefaultMovieDelay(displayTypeId));
+        sliderWithButtons.addDelayChangeHandler(new ChangeHandler()
+            {
+                public void onChange(ChangeEvent event)
+                {
+                    getSettingsManager().setDefaultMovieDelay(getDisplayTypeId(),
+                            sliderWithButtons.getDelay());
+                }
+            });
+        sliderWithButtons.setValueLoader(new SliderWithMovieButtonsValueLoader()
             {
                 @Override
                 public void loadValue(int value, AsyncCallback<Void> callback)
@@ -49,7 +64,7 @@ public class LogicalImageSeriesMovieControls extends LogicalImageSeriesControls
             });
 
         add(new LogicalImageSeriesPointLabel(sortedPoints, 1));
-        add(slider);
+        add(sliderWithButtons.getWidgets());
     }
 
 }

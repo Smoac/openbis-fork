@@ -18,19 +18,31 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+
 /**
  * @author pkupczyk
  */
 public class LogicalImageSeriesControls extends LayoutContainer
 {
 
+    private IViewContext<IScreeningClientServiceAsync> viewContext;
+
+    private String displayTypeId;
+
     private LogicalImageSeriesDownloader imageDownloader;
 
     private LogicalImageSeriesModel imageModel;
 
-    public LogicalImageSeriesControls(LogicalImageSeriesDownloader downloader,
+    public LogicalImageSeriesControls(IViewContext<IScreeningClientServiceAsync> viewContext,
+            String displayTypeId, LogicalImageSeriesDownloader downloader,
             LogicalImageSeriesModel model)
     {
+        this.viewContext = viewContext;
+        this.displayTypeId = displayTypeId;
         this.imageDownloader = downloader;
         this.imageModel = model;
     }
@@ -49,6 +61,16 @@ public class LogicalImageSeriesControls extends LayoutContainer
         getImageDownloader().stop();
     }
 
+    protected IViewContext<IScreeningClientServiceAsync> getViewContext()
+    {
+        return viewContext;
+    }
+
+    protected String getDisplayTypeId()
+    {
+        return displayTypeId;
+    }
+
     protected LogicalImageSeriesDownloader getImageDownloader()
     {
         return imageDownloader;
@@ -57,6 +79,11 @@ public class LogicalImageSeriesControls extends LayoutContainer
     protected LogicalImageSeriesModel getImageModel()
     {
         return imageModel;
+    }
+
+    protected ScreeningDisplaySettingsManager getSettingsManager()
+    {
+        return ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(getViewContext());
     }
 
 }

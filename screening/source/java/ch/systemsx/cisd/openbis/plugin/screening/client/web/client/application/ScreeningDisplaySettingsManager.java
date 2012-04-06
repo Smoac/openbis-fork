@@ -123,4 +123,28 @@ public class ScreeningDisplaySettingsManager
         return transformations;
     }
 
+    public Integer getDefaultMovieDelay(String displayTypeId)
+    {
+        Map<String, Integer> delays = screeningSettings.getDefaultMovieDelays();
+
+        if (delays != null && delays.get(displayTypeId) != null)
+        {
+            return delays.get(displayTypeId);
+        } else
+        {
+            return 500;
+        }
+    }
+
+    public void setDefaultMovieDelay(String displayTypeId, Integer delay)
+    {
+        Map<String, Integer> delays = screeningSettings.getDefaultMovieDelays();
+        if (delays == null)
+        {
+            delays = new HashMap<String, Integer>();
+            screeningSettings.setDefaultMovieDelays(delays);
+        }
+        delays.put(displayTypeId, delay);
+    }
+
 }

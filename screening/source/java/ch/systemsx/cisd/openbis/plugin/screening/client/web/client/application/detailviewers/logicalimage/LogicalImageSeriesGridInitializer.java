@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LazyImageSeriesFrame.ImagesDownloadListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageClickHandler;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSize;
@@ -30,7 +32,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelSt
 public class LogicalImageSeriesGridInitializer
 {
 
-    private String sessionId;
+    private IViewContext<IScreeningClientServiceAsync> viewContext;
+
+    private String displayTypeId;
 
     private List<ImageChannelStack> channelStackImages;
 
@@ -42,14 +46,24 @@ public class LogicalImageSeriesGridInitializer
 
     private ImagesDownloadListener imageDownloadListener;
 
-    public String getSessionId()
+    public IViewContext<IScreeningClientServiceAsync> getViewContext()
     {
-        return sessionId;
+        return viewContext;
     }
 
-    public void setSessionId(String sessionId)
+    public void setViewContext(IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        this.sessionId = sessionId;
+        this.viewContext = viewContext;
+    }
+
+    public String getDisplayTypeId()
+    {
+        return displayTypeId;
+    }
+
+    public void setDisplayTypeId(String displayTypeId)
+    {
+        this.displayTypeId = displayTypeId;
     }
 
     public List<ImageChannelStack> getChannelStackImages()

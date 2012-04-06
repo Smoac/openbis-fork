@@ -37,6 +37,8 @@ public class ScreeningDisplaySettings implements Serializable
 
     private Map<String, ImageResolution> defaultResolutions;
 
+    private Map<String, Integer> defaultMovieDelays;
+
     private String defaultAnalysisProcedure;
 
     /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
@@ -100,5 +102,15 @@ public class ScreeningDisplaySettings implements Serializable
     private void setDefaultTransformations(Map<String, Map<String, String>> defaultTransformations)
     {
         this.defaultTransformations = defaultTransformations;
+    }
+
+    public Map<String, Integer> getDefaultMovieDelays()
+    {
+        return defaultMovieDelays;
+    }
+
+    public void setDefaultMovieDelays(Map<String, Integer> defaultMovieDelays)
+    {
+        this.defaultMovieDelays = defaultMovieDelays;
     }
 }

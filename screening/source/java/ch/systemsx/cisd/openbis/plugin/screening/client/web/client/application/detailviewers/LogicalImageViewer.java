@@ -83,6 +83,8 @@ public class LogicalImageViewer
 
     private final String experimentIdentifier;
 
+    private final String experimentPermId;
+
     private final boolean showColorAdjustmentButton;
 
     private String currentlySelectedChannelCode;
@@ -98,7 +100,8 @@ public class LogicalImageViewer
         this.logicalImageReference = logicalImageReference;
         this.viewContext = viewContext;
         this.experimentIdentifier = experimentIdentifier;
-        this.channelState = createDefaultChannelState(viewContext, experimentPermId);
+        this.experimentPermId = experimentPermId;
+        this.channelState = createDefaultChannelState();
         this.showColorAdjustmentButton = showColorAdjustmentButton && isImageEditorEnabled();
     }
 
@@ -171,7 +174,6 @@ public class LogicalImageViewer
                         ImageResolution resolution)
                 {
                     currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
-                    String sessionId = getSessionId(viewContext);
                     setAdjustColorsButtonState(adjustColorsButton,
                             channelReferences.getChannelCodes());
 
@@ -188,7 +190,8 @@ public class LogicalImageViewer
 
                     LogicalImageSeriesGridInitializer initializer =
                             new LogicalImageSeriesGridInitializer();
-                    initializer.setSessionId(sessionId);
+                    initializer.setViewContext(viewContext);
+                    initializer.setDisplayTypeId(createDisplayTypeId());
                     initializer.setChannelStackImages(filterChannelStackImages(channelStackImages));
                     initializer.setChannelReferences(channelReferences);
                     initializer.setImageSize(new LogicalImageSize(imageWidth, imageHeight));
@@ -358,14 +361,16 @@ public class LogicalImageViewer
         return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
     }
 
-    private static IDefaultChannelState createDefaultChannelState(
-            final IViewContext<?> viewContext, final String experimentPermId)
+    private String createDisplayTypeId()
     {
         final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
                 ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
-        final String displayTypeID = wellSearchChannelIdGenerator.createID(experimentPermId);
+        return wellSearchChannelIdGenerator.createID(experimentPermId);
+    }
 
-        return new DefaultChannelState(viewContext, displayTypeID);
+    private IDefaultChannelState createDefaultChannelState()
+    {
+        return new DefaultChannelState(viewContext, createDisplayTypeId());
     }
 
     /** Launches external image editor for the displayed image in the chosen channel. */

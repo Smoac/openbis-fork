@@ -53,10 +53,14 @@ public class LogicalImageSeriesGrid extends LayoutContainer
 
         if (model.isMatrixViewPossible())
         {
-            controls = new LogicalImageSeriesTimeAndDepthControls(downloader, model);
+            controls =
+                    new LogicalImageSeriesTimeAndDepthControls(initializer.getViewContext(),
+                            initializer.getDisplayTypeId(), downloader, model);
         } else
         {
-            controls = new LogicalImageSeriesMovieControls(downloader, model);
+            controls =
+                    new LogicalImageSeriesMovieControls(initializer.getViewContext(),
+                            initializer.getDisplayTypeId(), downloader, model);
         }
 
         for (LazyImageSeriesFrame frame : frames)
@@ -70,12 +74,15 @@ public class LogicalImageSeriesGrid extends LayoutContainer
     private List<LazyImageSeriesFrame> createFrames(LogicalImageSeriesModel model)
     {
         final List<LazyImageSeriesFrame> frames = new ArrayList<LazyImageSeriesFrame>();
+        final String sessionId =
+                initializer.getViewContext().getModel().getSessionContext().getSessionID();
+
         for (List<ImageChannelStack> seriesPointStacks : model.getSortedChannelStackSeriesPoints())
         {
             final LazyImageSeriesFrame frame =
                     new LazyImageSeriesFrame(seriesPointStacks, initializer.getChannelReferences(),
-                            initializer.getSessionId(), initializer.getImageSize().getWidth(),
-                            initializer.getImageSize().getHeight());
+                            sessionId, initializer.getImageSize().getWidth(), initializer
+                                    .getImageSize().getHeight());
             frame.setImageClickHandler(initializer.getImageClickHandler());
 
             boolean isFirstFrame = frames.isEmpty();

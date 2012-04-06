@@ -51,7 +51,6 @@ public class MovieDelay extends Composite
         input.setMaxLength(DEFAULT_DELAY_INPUT_LENGTH);
         input.addChangeHandler(new ChangeHandler()
             {
-                @Override
                 public void onChange(ChangeEvent event)
                 {
                     int delay = parseDelay(input.getValue());
@@ -97,6 +96,16 @@ public class MovieDelay extends Composite
     public int getDelay()
     {
         return parseDelay(input.getValue());
+    }
+
+    public void setDelay(int delay)
+    {
+        input.setValue(String.valueOf(delay));
+    }
+
+    public void addDelayChangeHandler(ChangeHandler handler)
+    {
+        input.addChangeHandler(handler);
     }
 
 }
