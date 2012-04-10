@@ -91,7 +91,7 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
     {
         IHierarchicalContentNode contentNode = hierarchicalContent.getNode(image.getFilePath());
         return ImageUtil.loadJavaAdvancedImagingTiff(contentNode.getFileContent(),
-                ImageUtil.parseImageID(image.getImageID()));
+                ImageUtil.parseImageID(image.getImageID(), null));
     }
 
     private static IImageTransformerFactoryProvider createImageTransformerFactoryProvider(
