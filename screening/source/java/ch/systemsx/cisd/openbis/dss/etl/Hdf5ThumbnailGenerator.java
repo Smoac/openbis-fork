@@ -73,14 +73,11 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         private final int height;
 
-        private final String transformationCode;
-
-        private ThumbnailData(byte[] data, int width, int height, String transformationCode)
+        private ThumbnailData(byte[] data, int width, int height)
         {
             this.data = data;
             this.width = width;
             this.height = height;
-            this.transformationCode = transformationCode;
         }
     }
 
@@ -286,11 +283,10 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 thumbnail = transformer.transform(thumbnail);
                 ByteArrayOutputStream bufferOutputStream = new ByteArrayOutputStream();
                 thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
-                return new ThumbnailData(bufferOutputStream.toByteArray(), width, height,
-                        transformationCodeOrNull);
+                return new ThumbnailData(bufferOutputStream.toByteArray(), width, height);
             } else
             {
-                return new ThumbnailData(result.getBinaryOutput(), width, height, null);
+                return new ThumbnailData(result.getBinaryOutput(), width, height);
             }
         }
     }
@@ -327,7 +323,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
         return new ThumbnailData(bufferOutputStream.toByteArray(), thumbnail.getWidth(),
-                thumbnail.getHeight(), transformationCodeOrNull);
+                thumbnail.getHeight());
     }
 
     private IImageTransformer tryCreateImageTransformer(String transformationCodeOrNull,
