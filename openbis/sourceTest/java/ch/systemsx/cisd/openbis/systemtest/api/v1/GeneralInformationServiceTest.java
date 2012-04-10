@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -136,13 +137,56 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/CISD/EMPTY-MP, /CISD/MP002-1, /CISD/MP1-MIXED, /CISD/MP2-NO-CL, /MP]",
                 samples);
-        assertEquals(1225873217877L, samples.get(0).getRegistrationDetails().getRegistrationDate()
+        assertEquals(1225873363584L, samples.get(0).getRegistrationDetails().getRegistrationDate()
                 .getTime());
         assertEquals(1237369819475L, samples.get(0).getRegistrationDetails().getModificationDate()
                 .getTime());
 
         loginAsObserver();
         samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
+
+        assertEntities("[]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesWithChildren()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "DILUTION_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3V-125, /CISD/3V-126, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /DP]",
+                samples);
+        assertEquals(fetchOptions, samples.get(0).getRetrievedFetchOptions());
+        assertEquals("3V-125", samples.get(0).getCode());
+        assertEquals("CISD", samples.get(0).getSpaceCode());
+        assertEquals(979L, samples.get(0).getId().longValue());
+        assertEquals("200811050945092-976", samples.get(0).getPermId());
+        assertEquals("DILUTION_PLATE", samples.get(0).getSampleTypeCode());
+        assertEquals(2L, samples.get(0).getSampleTypeId().longValue());
+        assertEquals("test", samples.get(0).getRegistrationDetails().getUserId());
+        assertEquals("John", samples.get(0).getRegistrationDetails().getUserFirstName());
+        assertEquals("Doe", samples.get(0).getRegistrationDetails().getUserLastName());
+        assertEquals("franz-josef.elmer@systemsx.ch", samples.get(0).getRegistrationDetails()
+                .getUserEmail());
+        assertEquals("{OFFSET=49}", samples.get(0).getProperties().toString());
+        List<Sample> children = samples.get(0).getChildren();
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", children);
+        assertEquals("3VCP5", children.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES), children.get(0)
+                .getRetrievedFetchOptions());
+        assertEquals("{}", children.get(0).getProperties().toString());
+
+        loginAsObserver();
+        samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
 
         assertEntities("[]", samples);
     }

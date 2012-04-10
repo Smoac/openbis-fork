@@ -92,6 +92,11 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
     public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
             throws DataAccessException
     {
+        return lister.list(new ListOrSearchSampleCriteria(searchForSampleIDs(criteria)));
+    }
+
+    public Collection<Long> searchForSampleIDs(DetailedSearchCriteria criteria)
+    {
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         List<DetailedSearchSubCriteria> otherSubCriterias =
@@ -116,8 +121,8 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
                             CHILDREN_RELATIONSHIP_HANDLER);
         }
 
-        return lister.list(new ListOrSearchSampleCriteria(
-                restrictResultSetIfNecessary(filteredSampleIds)));
+        Collection<Long> sampleIDs = restrictResultSetIfNecessary(filteredSampleIds);
+        return sampleIDs;
     }
 
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,

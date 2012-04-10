@@ -41,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.DataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.IDataSetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.SampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
@@ -275,7 +278,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Capability("SEARCH_FOR_SAMPLES")
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
-        return searchForSamples(sessionToken, searchCriteria, null);
+        return searchForSamples(sessionToken, searchCriteria,
+                EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PROPERTIES));
     }
 
     @Transactional(readOnly = true)
@@ -283,20 +287,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     @Capability("SEARCH_FOR_SAMPLES")
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
-            EnumSet<SampleFetchOption> SampleFetchOption)
+            EnumSet<SampleFetchOption> fetchOption)
     {
         checkSession(sessionToken);
 
         EnumSet<SampleFetchOption> sampleFetchOptions =
-                (SampleFetchOption != null) ? SampleFetchOption : EnumSet
-                        .noneOf(SampleFetchOption.class);
-
+                (fetchOption != null) ? fetchOption : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
                         SearchableEntityKind.SAMPLE, searchCriteria);
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
-                commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
-        return Translator.translateSamples(privateSamples);
+        Collection<Long> sampleIDs =
+                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), null)
+                        .searchForSampleIDs(detailedSearchCriteria);
+        return createSampleLister().getSamples(sampleIDs, sampleFetchOptions);
+    }
+
+    protected ISampleLister createSampleLister()
+    {
+        return new SampleLister(getDAOFactory());
     }
 
     @Transactional(readOnly = true)

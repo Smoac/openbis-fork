@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
  */
-public enum SampleFetchOption implements FetchOption
+public interface ISampleLister
 {
-
-    BASIC, PROPERTIES, PARENTS, CHILDREN, ANCESTORS, DESCENDANTS
+    public List<Sample> getSamples(Collection<Long> sampleIDs,
+            EnumSet<SampleFetchOption> fetchOptions);
 }

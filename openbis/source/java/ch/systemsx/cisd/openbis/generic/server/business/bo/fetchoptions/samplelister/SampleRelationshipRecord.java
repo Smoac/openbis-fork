@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
  */
-public enum SampleFetchOption implements FetchOption
+public class SampleRelationshipRecord
 {
+    public long sample_id_parent;
 
-    BASIC, PROPERTIES, PARENTS, CHILDREN, ANCESTORS, DESCENDANTS
+    public long sample_id_child;
 }
