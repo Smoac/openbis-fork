@@ -90,8 +90,8 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
         }
     }
 
-    public String setTransformation(String channelCode, String transformarionCode)
+    public String setTransformation(String channelCode, String transformationCode)
     {
-        return transformations.put(channelCode.toUpperCase(), transformarionCode);
+        return transformations.put(channelCode.toUpperCase(), transformationCode);
     }
 }

@@ -196,6 +196,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return caller.callWithRetry();
     }
 
+    /**
+     * This constructor is only for use in tests. Do not use it otherwise.
+     */
+    public static IScreeningOpenbisServiceFacade tryCreateForTest(String sessionToken, String serverUrl,
+            final IScreeningApiServer openbisServer)
+    {
+        return tryCreate(sessionToken, serverUrl, openbisServer);
+    }
+
     private static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl,
             final IScreeningApiServer openbisServer)
     {

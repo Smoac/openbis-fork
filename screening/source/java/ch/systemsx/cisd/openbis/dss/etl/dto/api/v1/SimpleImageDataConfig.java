@@ -428,16 +428,38 @@ abstract public class SimpleImageDataConfig
         // Verify the arguments
         for (double scaleFactor : scaleFactors)
         {
+            // This check is duplicated in addImageRepresentationUsingScale
             if (scaleFactor <= 0)
             {
                 throw new IllegalArgumentException(
-                        "Scale factors for generated image representations must be greater than 0.");
+                        "Scale factors for generated image representations must be greater than 0. " + scaleFactor + " <= 0");
             }
         }
-        for (double zoomLevel : scaleFactors)
+        for (double scale : scaleFactors)
         {
-            imagePyramid.add(new ZoomLevelBasedThumbnailsConfiguration(zoomLevel));
+            addGeneratedImageRepresentationWithScale(scale);
         }
+    }
+
+    /**
+     * Registers a request for an alternate image representation to be generated based on the
+     * original image. The alternate image representations vary with respect to resolution from the
+     * original image.
+     * 
+     * @param scale The scale factor applied to the original resolution. Scale factors must be
+     *            greater than 0.
+     * @return The configuration for the image representation
+     */
+    public IThumbnailsConfiguration addGeneratedImageRepresentationWithScale(double scale)
+    {
+        if (scale <= 0)
+        {
+            throw new IllegalArgumentException(
+                    "Scale factors for generated image representations must be greater than 0. " + scale + " <= 0");
+        }
+        ZoomLevelBasedThumbnailsConfiguration imageRep = new ZoomLevelBasedThumbnailsConfiguration(scale);
+        imagePyramid.add(imageRep);
+        return imageRep;
     }
 
     /**
@@ -486,24 +508,64 @@ abstract public class SimpleImageDataConfig
         {
             for (String resolution : resolutions)
             {
-                String[] dimension = resolution.split("x");
-                if (dimension.length != 2)
-                {
-                    throw new IllegalArgumentException(
-                            "Resolution must be specified in format width x height, e. g. '400x300', but was: '"
-                                    + resolution + "'");
-                }
-                int width = Integer.parseInt(dimension[0].trim());
-                int height = Integer.parseInt(dimension[1].trim());
-                imagePyramid.add(new ResolutionBasedThumbnailsConfiguration(width, height,
-                        allowEnlarging));
+                addGeneratedImageRepresentationWithResolution(resolution, allowEnlarging);
             }
         }
     }
 
-    public void addImageRepresentation(IThumbnailsConfiguration configuration)
+    /**
+     * Registers a request for an alternate image representation to be generated based on the
+     * original image. The alternate image representations vary with respect to resolution from the
+     * original image. Enlarging is allowed. To prevent enlarging of the image, use
+     * {@link #addGeneratedImageRepresentationWithoutEnlargingWithResolution}.
+     * 
+     * @param resolution The resolution of the representation.
+     * @return The configuration for the image representation.
+     */
+    public IThumbnailsConfiguration addGeneratedImageRepresentationWithResolution(String resolution)
     {
-        imagePyramid.add(configuration);
+        return addGeneratedImageRepresentationWithResolution(resolution, true);
+    }
+
+    /**
+     * Registers a request for an alternate image representation to be generated based on the
+     * original image. The alternate image representations vary with respect to resolution from the
+     * original image. Enlarging is not allowed. To allow enlarging of the image, use
+     * {@link #addGeneratedImageRepresentationWithResolution}.
+     * 
+     * @param resolution The resolution of the representation.
+     * @return The configuration for the image representation.
+     */
+    public IThumbnailsConfiguration addGeneratedImageRepresentationWithoutEnlargingWithResolution(String resolution)
+    {
+        return addGeneratedImageRepresentationWithResolution(resolution, false);
+    }
+
+    /**
+     * Registers a request for an alternate image representation to be generated based on the
+     * original image. The alternate image representations vary with respect to resolution from the
+     * original image.
+     * 
+     * @param resolution The resolution of the representation.
+     * @param allowEnlarging If true, the generated representation may be <b>larger</b> than the
+     *            original image.
+     * @return The configuration for the image representation.
+     */
+    private IThumbnailsConfiguration addGeneratedImageRepresentationWithResolution(String resolution, boolean allowEnlarging)
+    {
+        String[] dimension = resolution.split("x");
+        if (dimension.length != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Resolution must be specified in format width x height, e. g. '400x300', but was: '"
+                            + resolution + "'");
+        }
+        int width = Integer.parseInt(dimension[0].trim());
+        int height = Integer.parseInt(dimension[1].trim());
+        ResolutionBasedThumbnailsConfiguration imageRep = new ResolutionBasedThumbnailsConfiguration(width, height,
+                allowEnlarging);
+        imagePyramid.add(imageRep);
+        return imageRep;
     }
 
     /** the maximal width and height of the generated thumbnails */
