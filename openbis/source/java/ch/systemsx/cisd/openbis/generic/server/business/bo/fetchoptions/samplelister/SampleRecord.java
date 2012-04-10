@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister;
 
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 
 /**
  * @author Franz-Josef Elmer
@@ -50,10 +53,18 @@ public class SampleRecord
 
     public String pe_email;
 
+    public String exp_code;
+
+    public String proj_code;
+
+    public String proj_space_code;
+
     public List<SampleRecord> children;
 
     public List<SampleRecord> parents;
 
     public Map<String, String> properties;
+
+    public EnumSet<SampleFetchOption> fetchOptions;
 
 }

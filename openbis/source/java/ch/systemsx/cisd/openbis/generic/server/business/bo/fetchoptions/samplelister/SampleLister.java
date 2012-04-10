@@ -108,9 +108,11 @@ public class SampleLister implements ISampleLister
         {
             descendants = query.getChildren(getRelationShipType(), rootSampleIdSet);
         }
+        LongSet descendentIdSet = new LongOpenHashSet();
         for (SampleRelationshipRecord relationShip : descendants)
         {
             sampleIdSet.add(relationShip.sample_id_child);
+            descendentIdSet.add(relationShip.sample_id_child);
         }
         List<SampleRelationshipRecord> ancestors = Collections.emptyList();
         if (fetchOptions.contains(SampleFetchOption.ANCESTORS))
@@ -120,34 +122,72 @@ public class SampleLister implements ISampleLister
         {
             ancestors = query.getParents(getRelationShipType(), rootSampleIdSet);
         }
+        LongSet ancestorIdSet = new LongOpenHashSet();
         for (SampleRelationshipRecord relationShip : ancestors)
         {
             sampleIdSet.add(relationShip.sample_id_parent);
+            ancestorIdSet.add(relationShip.sample_id_parent);
         }
-        List<SampleRecord> list = query.listSamplesByIds(sampleIdSet);
         TableMap<Long, SampleRecord> sampleRecords =
-                new TableMap<Long, SampleRecord>(list, ID_EXTRACTOR);
+                getAllSamples(sampleIdSet, rootSampleIdSet, descendentIdSet, ancestorIdSet,
+                        fetchOptions);
         if (fetchOptions.contains(SampleFetchOption.PROPERTIES))
         {
             enrichWithProperties(sampleRecords, sampleIdSet);
         }
-        enrichWithDescendants(descendants, sampleRecords);
-        enrichWithAncestors(ancestors, sampleRecords);
+        enrichWithDescendants(descendants, sampleRecords,
+                fetchOptions.contains(SampleFetchOption.DESCENDANTS));
+        enrichWithAncestors(ancestors, sampleRecords,
+                fetchOptions.contains(SampleFetchOption.ANCESTORS));
         List<Sample> samples = new ArrayList<Sample>();
         for (Long rootSampleID : sampleIDs)
         {
             SampleRecord sampleRecord = sampleRecords.tryGet(rootSampleID);
             if (sampleRecord != null)
             {
-                samples.add(createSample(sampleRecord, fetchOptions));
+                samples.add(createSample(sampleRecord));
             }
         }
         Collections.sort(samples, SAMPLE_COMPARATOR);
         return samples;
     }
 
+    public TableMap<Long, SampleRecord> getAllSamples(LongSet sampleIdSet, LongSet rootSampleIdSet,
+            LongSet descendentIdSet, LongSet ancestorIdSet, EnumSet<SampleFetchOption> fetchOptions)
+    {
+        List<SampleRecord> list = query.listSamplesByIds(sampleIdSet);
+        TableMap<Long, SampleRecord> sampleRecords =
+                new TableMap<Long, SampleRecord>(list, ID_EXTRACTOR);
+        for (SampleRecord sampleRecord : sampleRecords)
+        {
+            sampleRecord.fetchOptions = createAppropriateFetchOptions(fetchOptions);
+            if (rootSampleIdSet.contains(sampleRecord.s_id))
+            {
+                if (fetchOptions.contains(SampleFetchOption.CHILDREN)
+                        || fetchOptions.contains(SampleFetchOption.DESCENDANTS))
+                {
+                    sampleRecord.fetchOptions.add(SampleFetchOption.CHILDREN);
+                }
+                if (fetchOptions.contains(SampleFetchOption.PARENTS)
+                        || fetchOptions.contains(SampleFetchOption.ANCESTORS))
+                {
+                    sampleRecord.fetchOptions.add(SampleFetchOption.PARENTS);
+                }
+            } else if (fetchOptions.contains(SampleFetchOption.ANCESTORS)
+                    && ancestorIdSet.contains(sampleRecord.s_id))
+            {
+                sampleRecord.fetchOptions.add(SampleFetchOption.PARENTS);
+            } else if (fetchOptions.contains(SampleFetchOption.DESCENDANTS)
+                    && descendentIdSet.contains(sampleRecord.s_id))
+            {
+                sampleRecord.fetchOptions.add(SampleFetchOption.CHILDREN);
+            }
+        }
+        return sampleRecords;
+    }
+
     public void enrichWithAncestors(List<SampleRelationshipRecord> ancestors,
-            TableMap<Long, SampleRecord> sampleRecords)
+            TableMap<Long, SampleRecord> sampleRecords, boolean allAncestors)
     {
         for (SampleRelationshipRecord ancestor : ancestors)
         {
@@ -158,6 +198,10 @@ public class SampleLister implements ISampleLister
                 if (child.parents == null)
                 {
                     child.parents = new LinkedList<SampleRecord>();
+                    if (allAncestors)
+                    {
+                        child.fetchOptions.add(SampleFetchOption.PARENTS);
+                    }
                 }
                 child.parents.add(parent);
             }
@@ -165,7 +209,7 @@ public class SampleLister implements ISampleLister
     }
 
     public void enrichWithDescendants(List<SampleRelationshipRecord> descendants,
-            TableMap<Long, SampleRecord> sampleRecords)
+            TableMap<Long, SampleRecord> sampleRecords, boolean allDescendants)
     {
         for (SampleRelationshipRecord descendant : descendants)
         {
@@ -176,15 +220,20 @@ public class SampleLister implements ISampleLister
                 if (parent.children == null)
                 {
                     parent.children = new LinkedList<SampleRecord>();
+                    if (allDescendants)
+                    {
+                        parent.fetchOptions.add(SampleFetchOption.CHILDREN);
+                    }
                 }
                 parent.children.add(child);
             }
         }
     }
 
-    private void enrichWithProperties(TableMap<Long, SampleRecord> sampleRecords, LongSet sampleIDs)
+    private void enrichWithProperties(TableMap<Long, SampleRecord> sampleRecords,
+            LongSet sampleIdSet)
     {
-        List<PropertyRecord> properties = query.getProperties(sampleIDs);
+        List<PropertyRecord> properties = query.getProperties(sampleIdSet);
         for (PropertyRecord propertyRecord : properties)
         {
             SampleRecord sampleRecord = sampleRecords.tryGet(propertyRecord.entity_id);
@@ -199,7 +248,7 @@ public class SampleLister implements ISampleLister
         }
     }
 
-    private Sample createSample(SampleRecord sampleRecord, EnumSet<SampleFetchOption> fetchOptions)
+    private Sample createSample(SampleRecord sampleRecord)
     {
         Sample.SampleInitializer initializer = new Sample.SampleInitializer();
         initializer.setId(sampleRecord.s_id);
@@ -221,6 +270,11 @@ public class SampleLister implements ISampleLister
         initializer.setRegistrationDetails(new EntityRegistrationDetails(detailsInitializer));
         initializer.setSampleTypeId(sampleRecord.st_id);
         initializer.setSampleTypeCode(sampleRecord.st_code);
+        if (sampleRecord.exp_code != null)
+        {
+            initializer.setExperimentIdentifierOrNull("/" + sampleRecord.proj_space_code + "/"
+                    + sampleRecord.proj_code + "/" + sampleRecord.exp_code);
+        }
         Map<String, String> properties = sampleRecord.properties;
         if (properties != null)
         {
@@ -229,36 +283,14 @@ public class SampleLister implements ISampleLister
                 initializer.putProperty(entry.getKey(), entry.getValue());
             }
         }
-        EnumSet<SampleFetchOption> rootFetchOptions = createAppropriateFetchOptions(fetchOptions);
-        if (fetchOptions.contains(SampleFetchOption.CHILDREN)
-                || fetchOptions.contains(SampleFetchOption.DESCENDANTS))
-        {
-            rootFetchOptions.add(SampleFetchOption.CHILDREN);
-        }
-        if (fetchOptions.contains(SampleFetchOption.PARENTS)
-                || fetchOptions.contains(SampleFetchOption.ANCESTORS))
-        {
-            rootFetchOptions.add(SampleFetchOption.PARENTS);
-        }
-        initializer.setRetrievedFetchOptions(rootFetchOptions);
+        initializer.setRetrievedFetchOptions(sampleRecord.fetchOptions);
         if (sampleRecord.children != null)
         {
-            EnumSet<SampleFetchOption> childrenOptions =
-                    createAppropriateFetchOptions(fetchOptions);
-            if (fetchOptions.contains(SampleFetchOption.DESCENDANTS))
-            {
-                childrenOptions.add(SampleFetchOption.CHILDREN);
-            }
-            initializer.setChildren(createChildren(sampleRecord.children, childrenOptions));
+            initializer.setChildren(createChildren(sampleRecord.children));
         }
         if (sampleRecord.parents != null)
         {
-            EnumSet<SampleFetchOption> parentsOptions = createAppropriateFetchOptions(fetchOptions);
-            if (fetchOptions.contains(SampleFetchOption.ANCESTORS))
-            {
-                parentsOptions.add(SampleFetchOption.PARENTS);
-            }
-            initializer.setParents(createParents(sampleRecord.parents, parentsOptions));
+            initializer.setParents(createParents(sampleRecord.parents));
         }
         return new Sample(initializer);
     }
@@ -271,25 +303,23 @@ public class SampleLister implements ISampleLister
                         : SampleFetchOption.BASIC);
     }
 
-    private List<Sample> createChildren(List<SampleRecord> childRecords,
-            EnumSet<SampleFetchOption> fetchOptions)
+    private List<Sample> createChildren(List<SampleRecord> childRecords)
     {
         List<Sample> children = new ArrayList<Sample>();
         for (SampleRecord childRecord : childRecords)
         {
-            children.add(createSample(childRecord, fetchOptions));
+            children.add(createSample(childRecord));
         }
         Collections.sort(children, SAMPLE_COMPARATOR);
         return children;
     }
 
-    private List<Sample> createParents(List<SampleRecord> parentRecords,
-            EnumSet<SampleFetchOption> fetchOptions)
+    private List<Sample> createParents(List<SampleRecord> parentRecords)
     {
         List<Sample> parents = new ArrayList<Sample>();
         for (SampleRecord parentRecord : parentRecords)
         {
-            parents.add(createSample(parentRecord, fetchOptions));
+            parents.add(createSample(parentRecord));
         }
         Collections.sort(parents, SAMPLE_COMPARATOR);
         return parents;

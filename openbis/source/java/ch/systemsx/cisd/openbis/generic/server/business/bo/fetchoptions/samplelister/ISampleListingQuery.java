@@ -41,9 +41,13 @@ public interface ISampleListingQuery extends BaseQuery
             + "s.registration_timestamp as s_registration_timestamp, "
             + "s.modification_timestamp as s_modification_timestamp, sp.code as sp_code, "
             + "st.id as st_id, st.code as st_code, pe.first_name as pe_first_name, "
-            + "pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email "
+            + "pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, "
+            + "e.code as exp_code, p.code as proj_code, ps.code as proj_space_code "
             + "from samples as s join sample_types as st on s.saty_id = st.id "
             + "left join spaces as sp on s.space_id = sp.id "
+            + "left join experiments as e on s.expe_id = e.id "
+            + "left join projects as p on e.proj_id = p.id "
+            + "left join spaces as ps on p.space_id = ps.id "
             + "join persons as pe on s.pers_id_registerer = pe.id where s.id = any(?{1}) ", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRecord> listSamplesByIds(LongSet sampleIDs);
@@ -67,7 +71,7 @@ public interface ISampleListingQuery extends BaseQuery
     public List<SampleRelationshipRecord> getDescendants(Long relationshipID, LongSet sampleIDs);
 
     @Select(sql = "with recursive connected_relationships as (select * from sample_relationships "
-            + "where relationship_id = ?{1} and sample_id_parent = any(?{2}) "
+            + "where relationship_id = ?{1} and sample_id_child = any(?{2}) "
             + "union select sr.* from connected_relationships as cr "
             + "join sample_relationships as sr on cr.sample_id_parent = sr.sample_id_child) "
             + "select * from connected_relationships", parameterBindings =

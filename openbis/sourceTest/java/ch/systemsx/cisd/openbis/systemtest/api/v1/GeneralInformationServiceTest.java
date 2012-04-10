@@ -192,6 +192,149 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesWithParents()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "DILUTION_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.PARENTS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3V-125, /CISD/3V-126, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /DP]",
+                samples);
+        assertEquals(fetchOptions, samples.get(0).getRetrievedFetchOptions());
+        List<Sample> parents = samples.get(0).getParents();
+        assertEntities("[/CISD/MP002-1]", parents);
+        assertEquals("MP002-1", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES), parents.get(0)
+                .getRetrievedFetchOptions());
+        assertEquals("{PLATE_GEOMETRY=384_WELLS_16X24}", parents.get(0).getProperties().toString());
+    }
+
+    @Test
+    public void testSearchForSamplesWithParentsButNoProperties()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "DILUTION_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions = EnumSet.of(SampleFetchOption.PARENTS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3V-125, /CISD/3V-126, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /DP]",
+                samples);
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS), samples.get(0)
+                .getRetrievedFetchOptions());
+        assertEquals(null, samples.get(0).getExperimentIdentifierOrNull());
+        assertEquals("{}", samples.get(0).getProperties().toString());
+        List<Sample> parents = samples.get(0).getParents();
+        assertEntities("[/CISD/MP002-1]", parents);
+        assertEquals("MP002-1", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
+        assertEquals("{}", parents.get(0).getProperties().toString());
+    }
+
+    @Test
+    public void testSearchForSamplesWithParentsAndDescendentsButNoProperties()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "DILUTION_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PARENTS, SampleFetchOption.DESCENDANTS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3V-125, /CISD/3V-126, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /DP]",
+                samples);
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
+                SampleFetchOption.CHILDREN), samples.get(0).getRetrievedFetchOptions());
+        assertEquals(null, samples.get(0).getExperimentIdentifierOrNull());
+        assertEquals("{}", samples.get(0).getProperties().toString());
+        List<Sample> parents = samples.get(0).getParents();
+        assertEntities("[/CISD/MP002-1]", parents);
+        assertEquals("MP002-1", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
+        assertEquals("{}", parents.get(0).getProperties().toString());
+        List<Sample> children = samples.get(0).getChildren();
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", children);
+        assertEquals("3VCP5", children.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.CHILDREN),
+                children.get(0).getRetrievedFetchOptions());
+        assertEquals("{}", children.get(0).getProperties().toString());
+        assertEntities("[]", children.get(0).getChildren());
+    }
+
+    @Test
+    public void testSearchForSamplesWithAncestors()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "3VCP*"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.ANCESTORS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", samples);
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.PARENTS), samples
+                .get(0).getRetrievedFetchOptions());
+        assertEquals("/CISD/NEMO/EXP10", samples.get(0).getExperimentIdentifierOrNull());
+        List<Sample> parents = samples.get(0).getParents();
+        assertEntities("[/CISD/3V-125]", parents);
+        assertEquals("3V-125", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.PARENTS), parents
+                .get(0).getRetrievedFetchOptions());
+        List<Sample> grandParents = parents.get(0).getParents();
+        assertEntities("[/CISD/MP002-1]", grandParents);
+        assertEquals("MP002-1", grandParents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.PARENTS),
+                grandParents.get(0).getRetrievedFetchOptions());
+        assertEquals("{PLATE_GEOMETRY=384_WELLS_16X24}", grandParents.get(0).getProperties()
+                .toString());
+        assertEntities("[]", grandParents.get(0).getParents());
+    }
+
+    @Test
+    public void testSearchForSamplesWithDescendants()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "MP002-1 "));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.DESCENDANTS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/MP002-1]", samples);
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN), samples
+                .get(0).getRetrievedFetchOptions());
+        List<Sample> children = samples.get(0).getChildren();
+        assertEntities("[/CISD/3V-125, /CISD/3V-126]", children);
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN), children
+                .get(0).getRetrievedFetchOptions());
+        List<Sample> grandChildren = children.get(0).getChildren();
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", grandChildren);
+        assertEquals("3VCP5", grandChildren.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.CHILDREN),
+                grandChildren.get(0).getRetrievedFetchOptions());
+        assertEquals("{}", grandChildren.get(0).getProperties().toString());
+        assertEntities("[]", grandChildren.get(0).getChildren());
+    }
+
+    @Test
     public void testListSamplesForExperiment()
     {
         List<Sample> samples =
