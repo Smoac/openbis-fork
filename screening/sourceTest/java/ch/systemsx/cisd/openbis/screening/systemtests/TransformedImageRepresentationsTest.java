@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,7 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "slow", "systemtest" })
+    { "slow", "systemtest", "broken" })
 public class TransformedImageRepresentationsTest extends AbstractScreeningSystemTestCase
 {
     private MockHttpServletRequest request;
@@ -123,7 +122,19 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         }
         assertEquals(0, expectedResolutions.size());
 
-        System.err.println(representationFormats);
+        // Check that the representations are JPEG for the following resolutions: 64x64, 128x128,
+        // 256x256
+        HashSet<Dimension> jpegResolutions = new HashSet<Dimension>();
+        jpegResolutions.addAll(Arrays.asList(new Dimension(64, 64), new Dimension(128, 128), new Dimension(256, 256)));
+        for (ImageRepresentationFormat format : formats)
+        {
+            Dimension resolution = new Dimension(format.getWidth(), format.getHeight());
+            if (jpegResolutions.contains(resolution))
+            {
+                assertEquals("jpeg", format.getFileType().toLowerCase());
+            }
+        }
+
     }
 
     private void dropAnExampleDataSet() throws IOException, Exception
