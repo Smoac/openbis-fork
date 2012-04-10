@@ -102,11 +102,28 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
-     * Return all samples that match the search criteria. Available since minor version 16.
+     * Return all samples that match the search criteria. Available since minor version 17.
+     * <p>
+     * The fetch options set is interpreted by the following rules.
+     * <ul>
+     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are
+     * returned for all samples including possible ancestors and descendants.
+     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if
+     * {@link SampleFetchOption#DESCENDANTS} is in the set.
+     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS}
+     * is in the set.
+     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/
+     * {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
+     * {@link SampleFetchOption#ANCESTORS}.
+     * </ul>
+     * The samples of the returned list also contain appropriated fetch options sets which tells
+     * whether one can expect properties, children, or parents. Note, that only the top-level
+     * samples can have both children or samples. For descendants and ancestors navigation is
+     * possible only in one direction.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      * @param fetchOptions Options that control which parts of the samples are fetched.
-     * @since 1.16
+     * @since 1.17
      */
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions);

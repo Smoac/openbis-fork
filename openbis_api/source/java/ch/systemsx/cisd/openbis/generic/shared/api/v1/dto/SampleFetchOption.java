@@ -16,13 +16,42 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 
 /**
- * @author pkupczyk
+ * Fetch options for
+ * {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, java.util.EnumSet)}.
+ * The {@link Sample} objects return by the search method also contain a fetch option (
+ * {@link Sample#getRetrievedFetchOptions()}) which tells which attributes are filled and which not.
+ * 
+ * @author Franz-Josef Elmer
  */
 public enum SampleFetchOption implements FetchOption
 {
-
-    BASIC, PROPERTIES, PARENTS, CHILDREN, ANCESTORS, DESCENDANTS
+    /**
+     * Samples will only basic attributes (id, code, type, space code, experiment identifier,
+     * registrator, registration date, modification date) but no properties.
+     */
+    BASIC,
+    /**
+     * Samples contain basic attributes and all properties.
+     */
+    PROPERTIES,
+    /**
+     * Samples contain also their parent samples.
+     */
+    PARENTS,
+    /**
+     * Samples contain also their children samples.
+     */
+    CHILDREN, 
+    /**
+     * Ask for all ancestors.
+     */
+    ANCESTORS,
+    /**
+     * Ask for all descendants.
+     */
+    DESCENDANTS
 }
