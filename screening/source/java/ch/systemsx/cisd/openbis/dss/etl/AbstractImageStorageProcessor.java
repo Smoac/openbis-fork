@@ -665,10 +665,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         ImageDataSetStructure imageDataSetStructure = dataSetInformation.getImageDataSetStructure();
         if (imageDataSetStructure.isValid() == false)
         {
-            throw ConfigurationFailureException
-                    .fromTemplate("Invalid image dataset info object, check if your jython script fills all the required fields. "
-                            + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
-                            + imageDataSetStructure);
+            throw new ConfigurationFailureException("Invalid image dataset info object, check if your jython script fills all the required fields. "
+                    + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
+                    + imageDataSetStructure);
         }
         Geometry tileGeometry =
                 new Geometry(imageDataSetStructure.getTileRowsNumber(),
