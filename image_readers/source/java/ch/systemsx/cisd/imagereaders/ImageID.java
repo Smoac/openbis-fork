@@ -49,6 +49,15 @@ public class ImageID
     private final int focalPlaneIndex;
     private final int colorChannelIndex;
     private final String id;
+    private String filename;
+    
+    public void setFileName(String f) {
+        this.filename = f;
+    }
+    
+    public String getFileName() {
+        return this.filename;
+    }
     
     /**
      * Creates an instance for the specified series index, time series (or T) index, focal plane (or

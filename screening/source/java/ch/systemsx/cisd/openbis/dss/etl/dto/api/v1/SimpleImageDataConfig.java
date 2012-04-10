@@ -203,7 +203,7 @@ abstract public class SimpleImageDataConfig
     private boolean isMeasured = false;
 
     private String[] recognizedImageExtensions = new String[]
-        { "tiff", "tif", "png", "gif", "jpg", "jpeg" };
+        { "tiff", "tif", "png", "gif", "jpg", "jpeg", "c01" };
 
     private List<IThumbnailsConfiguration> imagePyramid = new ArrayList<IThumbnailsConfiguration>();
 
@@ -348,7 +348,7 @@ abstract public class SimpleImageDataConfig
 
     /**
      * Only files with these extensions will be recognized as images (e.g. ["jpg", "png"]).<br>
-     * By default it is set to [ "tiff", "tif", "png", "gif", "jpg", "jpeg" ].
+     * By default it is set to [ "tiff", "tif", "png", "gif", "jpg", "jpeg", "c01" ].
      */
     public void setRecognizedImageExtensions(String[] recognizedImageExtensions)
     {

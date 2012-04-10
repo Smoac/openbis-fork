@@ -153,7 +153,7 @@ final class BioFormatsImageUtils
 
     static List<ImageID> listImageIDs(IFormatReader reader, IRandomAccess handle)
     {
-        String handleId = generateHandleId(reader);
+        String handleId = generateHandleId(reader, null);
         // Add to static map.
         Location.mapFile(handleId, handle);
         try
@@ -200,7 +200,8 @@ final class BioFormatsImageUtils
     static BufferedImage readImage(IFormatReader reader, IRandomAccess handle, ImageID imageID)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        String handleId = generateHandleId(reader);
+        String handleId = generateHandleId(reader, imageID);
+        
         // Add to static map.
         Location.mapFile(handleId, handle);
         try
@@ -243,7 +244,7 @@ final class BioFormatsImageUtils
             ImageID imageID)
     {
         // Add to static map.
-        String handleId = generateHandleId(reader);
+        String handleId = generateHandleId(reader, imageID);
         Location.mapFile(handleId, handle);
 
         try
@@ -284,7 +285,8 @@ final class BioFormatsImageUtils
             IllegalArgumentException
     {
         // Add to static map.
-        String handleId = generateHandleId(reader);
+        String handleId = generateHandleId(reader, imageID);
+        
         Location.mapFile(handleId, handle);
         try
         {
@@ -320,7 +322,7 @@ final class BioFormatsImageUtils
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         // Add to static map.
-        String handleId = generateHandleId(reader);
+        String handleId = generateHandleId(reader, imageID);
         Location.mapFile(handleId, handle);
         try
         {
@@ -344,9 +346,14 @@ final class BioFormatsImageUtils
         }
     }
 
-    public static String generateHandleId(IFormatHandler formatHandler)
+    public static String generateHandleId(IFormatHandler formatHandler, ImageID imageId)
     {
-        return UUID.randomUUID().toString() + "." + formatHandler.getSuffixes()[0];
+        String id = UUID.randomUUID().toString() + "." + formatHandler.getSuffixes()[0];
+        if (imageId != null && imageId.getFileName() != null && (imageId.getFileName().endsWith(".c01") || imageId.getFileName().endsWith("C01"))) {
+            id = imageId.getFileName();
+        }
+        return id;
+        
     }
 
     private static void nullSafeAddAll(HashMap<String, Object> accumulator,

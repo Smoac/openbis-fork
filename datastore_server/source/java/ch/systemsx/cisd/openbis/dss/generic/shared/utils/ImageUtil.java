@@ -316,7 +316,8 @@ public class ImageUtil
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
-        ImageID imageID = parseImageID(imageIdOrNull);
+        ImageID imageID = parseImageID(imageIdOrNull, contentNode);
+               
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
             IImageReader reader =
@@ -353,7 +354,8 @@ public class ImageUtil
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
-        ImageID imageID = parseImageID(imageIdOrNull);
+        ImageID imageID = parseImageID(imageIdOrNull, contentNode);
+
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
             IImageReader reader =
@@ -538,9 +540,16 @@ public class ImageUtil
      * Parses specified string representation of an {@link ImageID}. If the argument is
      * <code>null</code> {@link ImageID#NULL} will be returned.
      */
-    public static ImageID parseImageID(String imageIdOrNull)
+    public static ImageID parseImageID(String imageIdOrNull, IHierarchicalContentNode contentNode)
     {
-        return imageIdOrNull == null ? ImageID.NULL : ImageID.parse(imageIdOrNull);
+        ImageID id = imageIdOrNull == null ? ImageID.NULL : ImageID.parse(imageIdOrNull);
+        try
+        {
+            id.setFileName(contentNode.getFile().getCanonicalPath());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return id;
     }
 
     private static BufferedImage loadImageGuessingLibrary(IHierarchicalContentNode contentNode,

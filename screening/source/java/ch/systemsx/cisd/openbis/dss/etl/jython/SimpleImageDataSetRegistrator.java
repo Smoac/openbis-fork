@@ -263,7 +263,10 @@ public class SimpleImageDataSetRegistrator
             if (readerOrNull != null)
             {
                 // NOTE: ugly side effect which is used later on
-                imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+            //    if (null == imageLibraryInfoOrNull.getReaderName())
+            //    {
+                    imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+            //    }
             } else
             {
                 throw ConfigurationFailureException.fromTemplate(
