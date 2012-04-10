@@ -55,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
+    public static final int SYSTEM_TEST_CASE_SERVER_PORT = 8888;
+
     private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
 
     private static final String TARGETS_DIRECTORY = "targets";
@@ -111,7 +113,7 @@ public abstract class SystemTestCase extends AssertJUnit
         setUpDatabaseProperties();
         Server server = new Server();
         Connector connector = new SelectChannelConnector();
-        connector.setPort(8888);
+        connector.setPort(SYSTEM_TEST_CASE_SERVER_PORT);
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
             {
@@ -234,7 +236,7 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         boolean dataSetImported = false;
         String logContent = "";
-        final int maxLoops = 20;
+        final int maxLoops = dataSetImportWaitDurationInSeconds();
         for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
         {
             Thread.sleep(1000);
@@ -253,6 +255,14 @@ public abstract class SystemTestCase extends AssertJUnit
             fail("Failed to determine whether data set import was successful:" + logContent);
         }
 
+    }
+
+    /**
+     * Time to wait to determine if a data set has been registered or not. Subclasses may override.
+     */
+    protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 20;
     }
 
     protected void moveFileToIncoming(File exampleDataSet) throws IOException
