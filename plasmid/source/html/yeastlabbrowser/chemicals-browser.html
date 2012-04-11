@@ -389,12 +389,20 @@ function visualize(nameFilterText, supplierFilterText, artnumFilterText, locidFi
 
 		selection.style("display", 
 			function(data) {
+				return "table-row"
+				});
+
+
+/*
+		selection.style("display", 
+			function(data) {
 				if ($.inArray(data, displayedChemicals) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
 				}
 			});
+*/			
 		
 }
 
@@ -492,6 +500,18 @@ $(document).ready(function() {
 	});
 });
 
+function ShowHide(divId)
+{
+	if(document.getElementById(divId).style.display == 'none')
+	{
+		document.getElementById(divId).style.display='block';
+	}
+	else
+	{
+	document.getElementById(divId).style.display = 'none';
+	}
+}
+
 </script>
 
 </head>
@@ -522,22 +542,21 @@ $(document).ready(function() {
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
-		<div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Name</style> <input style="width: 200px" id="name_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Supplier</style> <input style="width: 200px" id="supplier_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Article Number</style> <input style="width: 200px" id="artnum_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Local ID</style> <input style="width: 200px" id="locid_filter" type="text"></div> 		
-    </div>
-    	<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Storage</style> <input style="width: 200px" id="storage_filter" type="text"></div> 		
+	
+	
+	<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
+		</div> 		
+	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
+		<table>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Chemical Name</td><td><input style="width: 200px" id="name_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Supplier</td><td><input style="width: 200px" id="supplier_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Art. Number</td><td> <input style="width: 200px" id="artnum_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Local ID</td><td> <input style="width: 200px" id="locid_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Storage</td><td> <input style="width: 200px" id="storage_filter" type="text"></td></tr> 		
+   	  </table> 		
     </div>	
+		
     
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">

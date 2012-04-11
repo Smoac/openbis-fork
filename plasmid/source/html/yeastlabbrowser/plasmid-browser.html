@@ -233,10 +233,12 @@ function filelist(plasmid, dataset, files) {
 	for (var i in files.result) {
 		if (!files.result[i].isDirectory) {
 			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
-			var fileTable = inspector.select("table");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			fileTable.append("tr").append("td").attr("colspan", "1").append("a").attr("href", downloadUrl).text(pathInDataSet);
+			
+			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
+			inspector.select("td.data_sets").append("br");
+			
 			if (/\.svg$/.test(pathInDataSet)) {
 					// Retrieve the svg file and inject it into the DOM
 					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
@@ -314,6 +316,16 @@ function updateInspectors(duration)
 			.append("table")
 				.attr("width", "100%")
 				.attr("class", "downloads");
+	
+	// Add table row for data sets
+	var dataSetRow = box.select("table.properties").append("tr");
+	dataSetRow
+				.append("td")
+					.attr("class", "property")
+					.text("DATA_SETS");
+	dataSetRow
+				.append("td")
+					.attr("class", "data_sets");
 			
 
 }
@@ -424,13 +436,20 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 
 		selection.style("display", 
 			function(data) {
+				return "table-row"
+				});
+
+/*
+		selection.style("display", 
+			function(data) {
 				if ($.inArray(data, displayedPlasmids) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
 				}
 			});
-		
+*/	
+	
 }
 
 /**
@@ -531,6 +550,17 @@ $(document).ready(function() {
 	});
 });
 
+function ShowHide(divId)
+{
+	if(document.getElementById(divId).style.display == 'none')
+	{
+		document.getElementById(divId).style.display='block';
+	}
+	else
+	{
+	document.getElementById(divId).style.display = 'none';
+	}
+}
 </script>
 
 </head>
@@ -561,25 +591,23 @@ $(document).ready(function() {
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
-	 <div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Owner</style> <input style="width: 200px" id="owner_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Owner Number</style> <input style="width: 200px" id="ownerNum_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Plasmid Name</style> <input style="width: 200px" id="plasmidName_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Backbone</style> <input style="width: 200px" id="backbone_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Bacterial Antibitioc Resistance</style> <input style="width: 200px" id="antibiotic_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">(Yeast) Marker</style> <input style="width: 200px" id="marker_filter" type="text"></div> 		
-    </div>
+		
+	<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
+		</div> 		
+	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
+		<table>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
+   	  </table> 		
+    </div>	
+		
+		
+	
     
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">

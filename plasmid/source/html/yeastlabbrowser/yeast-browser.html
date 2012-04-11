@@ -533,13 +533,20 @@ function visualize(ownerFilterText, ownerNumFilterText, yeastNameFilterText, pro
 
 		selection.style("display", 
 			function(data) {
+				return "table-row"
+				});
+
+
+/* Original function -> not displaying all samples!
+		selection.style("display", 
+			function(data) {
 				if ($.inArray(data, displayedYeasts) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
 				}
 			});
-		
+*/		
 }
 
 /**
@@ -659,7 +666,8 @@ function ShowHide(divId)
 	document.getElementById(divId).style.display = 'none';
 	}
 }
-
+    
+  
 </script>
 
 </head>
@@ -691,10 +699,10 @@ function ShowHide(divId)
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
 		</div>   
 		
-		<div id="filter-button"	style="position: absolute; left:20px; top:70px; font-weight:bold">
+		<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
-	 <div class="mid" id="HiddenDiv" style="DISPLAY: none; padding-top: 90px;"> 
+	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
 			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
 			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
@@ -709,7 +717,7 @@ function ShowHide(divId)
  	
  		  
 		<div id="vis">
-			<table id="yeast-table" style="float: left; padding-top:100px;">
+			<table id="yeast-table" style="float: left; ">
 				<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
 			</table>
 			<span id="inspectorsContainer"></span>

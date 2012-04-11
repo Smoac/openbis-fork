@@ -12,7 +12,7 @@ div#vis div { padding-top: 2px;}
 /* Inspector */
 
 div.inspector {
-	font: 14px "Verdana", sans-serif;
+	font: 10px "Verdana", sans-serif;
 	padding: 10px;
 	border: 1px solid gray;
 	margin: 10px 2px;
@@ -31,7 +31,7 @@ div.inspector {
 
 .properties td:nth-child(odd) {
   background-color:#DC7E9E;
-  width:30%;
+  width:50%;
 }
 
 .properties td:nth-child(even) {
@@ -88,102 +88,26 @@ input:focus{
 background-color: white;
 }
 
-/* Legend */
-
-.legend .sequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkGreen;
-}
-
-.legend .notsequenced circle {
-   font: 14px "Verdana", sans-serif;
-   stroke-width: 1.5px;
-   fill: white;
-   stroke: DarkRed;
-}
-.oligo-table-data-cell {
-	overflow: hidden;
-}
-
-#oligo-table tr:nth-child(odd) {
-  background-color:#94B8B8;
-}
-
-#oligo-table tr:nth-child(even) {
-  background-color:#ECEFEF;
-  
-}
-
-#oligo-table tr.oligo-table-data:hover {
-  font-size : 105%;
-  font-weight: bold;
-  
-}
-
-
-#oligo-table td{
-
-padding:5px;
-}
-
-#oligo-table tr.oligo-table-header {
-  font-size:18px;
-  font-weight: bold;
-  color:#fff;
-  background-color:#426262;	
-}
-
-
-.chemical-table-data-cell {
-	overflow: hidden;
-}
-
-#chemical-table tr:nth-child(odd) {
-  background-color:#B2B2B2;
-}
-
-#chemical-table tr:nth-child(even) {
-  background-color:#ECEFEF;
-  
-}
-
-#chemical-table tr.chemical-table-data:hover {
-  font-size : 105%;
-  font-weight: bold;
-  
-}
-
-
-#chemical-table td{
-
-padding:5px;
-}
-
-#chemical-table tr.chemical-table-header {
-  font-size:18px;
-  font-weight: bold;
-  color:#fff;
-  background-color:#767676;	
-}
+/* Table */
 
 
 .plasmid-table-data-cell {
 	overflow: hidden;
+	
 }
 
-#plasmid-table tr:nth-child(odd) {
+
+#plasmid-table tr:nth-child(odd) td{
   background-color:#DC7E9E;
 }
 
-#plasmid-table tr:nth-child(even) {
+
+#plasmid-table tr:nth-child(even) td{
   background-color:#ECEFEF;
 }
 
 #plasmid-table tr.plasmid-table-data:hover {
-  font-size : 105%;
-  font-weight: bold;
+   font-weight: bold;
   
 }
 
@@ -201,35 +125,4 @@ padding:5px;
 
 
 
-
-.yeast-table-data-cell {
-	overflow: hidden;
-}
-
-#yeast-table tr:nth-child(odd) {
-  background-color:#A6A64D;
-}
-
-#yeast-table tr:nth-child(even) {
-  background-color:#ECEFEF;
-  
-}
-
-#yeast-table tr.yeast-table-data:hover {
-  font-size : 105%;
-  font-weight: bold;
-  
-}
-
-#yeast-table td{
-
-padding:5px;
-}
-
-#yeast-table tr.yeast-table-header {
-  font-size:18px;
-  font-weight: bold;
-  color:#fff;
-  background-color:#5C5C1F;	
-}
 

@@ -60,6 +60,10 @@ width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
 }
 #chemical_browser a:hover
 {
@@ -78,6 +82,10 @@ width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
 }
 #oligo_browser a:hover
 {
@@ -95,6 +103,10 @@ width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
 }
 #yeast_browser a:hover
 {
@@ -112,6 +124,10 @@ width:120px;
 text-align:center;
 padding:4px;
 text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
 }
 #plasmid_browser a:hover
 {
@@ -120,4 +136,23 @@ color:#FFFFFF;
 }
 
 
-
+#filter-button a:link
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#0000FF;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#filter-button a:hover
+{
+background-color:steelblue;
+color:#FFFFFF;
+}

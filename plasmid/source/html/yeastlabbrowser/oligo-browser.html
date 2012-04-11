@@ -415,6 +415,14 @@ function visualize(codeFilterText, targetFilterText, directionFilterText, enzyme
 			.attr("class", "oligo-table-data-cell")
 			.text(String)
 
+
+		selection.style("display", 
+			function(data) {
+				return "table-row"
+				});
+
+
+/*
 		selection.style("display", 
 			function(data) {
 				if ($.inArray(data, displayedOligos) != -1) {
@@ -423,6 +431,7 @@ function visualize(codeFilterText, targetFilterText, directionFilterText, enzyme
 					return  "none"
 				}
 			});
+*/
 		
 }
 
@@ -524,6 +533,18 @@ $(document).ready(function() {
 	});
 });
 
+function ShowHide(divId)
+{
+	if(document.getElementById(divId).style.display == 'none')
+	{
+		document.getElementById(divId).style.display='block';
+	}
+	else
+	{
+	document.getElementById(divId).style.display = 'none';
+	}
+}
+
 </script>
 
 </head>
@@ -554,20 +575,20 @@ $(document).ready(function() {
 		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
 		</div>
-		<div style= "padding-top:50px; font-weight: bold; font-size:18px">Filter by:</div> 
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Target</style> <input style="width: 200px" id="target_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold;  padding-left: 100px">Direction</style> <input style="width: 200px" id="direction_filter" type="text"></div> 		
-    </div>
-    <div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Restriction Enzyme</style> <input style="width: 200px" id="enzyme_filter" type="text"></div> 		
-    </div>
-		<div> 
-		  <div style="padding-top: 15px"><span style="font-weight: bold; padding-left: 100px">Project</style> <input style="width: 200px" id="project_filter" type="text"></div> 		
+		
+<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
+		</div> 		
+	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
+		<table>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Target</td><td><input style="width: 200px" id="target_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Direction</td><td><input style="width: 200px" id="direction_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Restriction Enzyme</td><td> <input style="width: 200px" id="enzyme_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
+   	  </table> 		
     </div>	
-    
+		
+		    
 		<div id="vis">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="oligo-table" style="float: left">
