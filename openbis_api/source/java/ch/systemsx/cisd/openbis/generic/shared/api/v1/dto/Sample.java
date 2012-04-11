@@ -366,11 +366,10 @@ public final class Sample implements Serializable, IIdentifierHolder
     }
 
     /**
-     * Return the children. 
+     * Return the children.
      * 
      * @return Children of this sample or an empty list if there are no children.
-     * @throws IllegalArgumentException Thrown if the children were not retrieved from the
-     *             server.
+     * @throws IllegalArgumentException Thrown if the children were not retrieved from the server.
      */
     @JsonIgnore
     public List<Sample> getChildren() throws IllegalArgumentException
@@ -386,11 +385,10 @@ public final class Sample implements Serializable, IIdentifierHolder
     }
 
     /**
-     * Return the parents. 
+     * Return the parents.
      * 
      * @return All parents of this sample or an empty list if there are no parents.
-     * @throws IllegalArgumentException Thrown if the parents were not retrieved from the
-     *             server.
+     * @throws IllegalArgumentException Thrown if the parents were not retrieved from the server.
      */
     @JsonIgnore
     public List<Sample> getParents() throws IllegalArgumentException
@@ -404,7 +402,7 @@ public final class Sample implements Serializable, IIdentifierHolder
                     + getIdentifier() + ".");
         }
     }
-    
+
     @Override
     public boolean equals(Object obj)
     {
@@ -437,7 +435,18 @@ public final class Sample implements Serializable, IIdentifierHolder
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getIdentifier());
         builder.append(getSampleTypeCode());
-        builder.append(getProperties());
+        if (retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES))
+        {
+            builder.append(getProperties());
+        }
+        if (retrievedFetchOptions.contains(SampleFetchOption.PARENTS))
+        {
+            builder.append("parents", getParents());
+        }
+        if (retrievedFetchOptions.contains(SampleFetchOption.CHILDREN))
+        {
+            builder.append("children", getChildren());
+        }
         return builder.toString();
     }
 
