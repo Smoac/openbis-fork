@@ -21,6 +21,7 @@ import java.io.File;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
  * A class for running python scripts that register master data.
@@ -51,7 +52,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
-        PythonInterpreter interpreter = new PythonInterpreter();
+        PythonInterpreter interpreter = PythonUtils.createIsolatedPythonInterpreter();
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Invoke the evaluator

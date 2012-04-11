@@ -32,6 +32,7 @@ import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.utilities.JythonUtils;
+import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -76,7 +77,7 @@ public class ValidationScriptRunner
 
     private ValidationScriptRunner(String scriptString)
     {
-        this.interpreter = new PythonInterpreter();
+        this.interpreter = PythonUtils.createIsolatedPythonInterpreter();
         // Load the script
         this.scriptString = scriptString;
 

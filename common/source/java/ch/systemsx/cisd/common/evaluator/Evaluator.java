@@ -39,6 +39,8 @@ import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.utilities.PythonUtils;
+
 /**
  * A class for evaluating expressions, based on Jython.
  * <p>
@@ -122,7 +124,7 @@ public final class Evaluator
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
-        this.interpreter = new PythonInterpreter();
+        this.interpreter = PythonUtils.createIsolatedPythonInterpreter();
         // Security: do not allow file access.
 
         try

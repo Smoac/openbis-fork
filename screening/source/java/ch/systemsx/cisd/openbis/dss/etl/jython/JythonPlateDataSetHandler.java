@@ -21,6 +21,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
@@ -346,7 +347,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     {
         return new JythonDataSetRegistrationService<DataSetInformation>(this, incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                new PythonInterpreter(), getGlobalState())
+                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState())
             {
                 @SuppressWarnings("unchecked")
                 @Override

@@ -21,6 +21,7 @@ import java.io.File;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -60,7 +61,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         return createJythonDataSetRegistrationServiceV2(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                new PythonInterpreter(), getGlobalState());
+                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState());
     }
 
     /**

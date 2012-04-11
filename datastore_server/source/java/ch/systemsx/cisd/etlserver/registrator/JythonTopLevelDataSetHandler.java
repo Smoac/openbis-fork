@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
@@ -198,7 +199,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         return createJythonDataSetRegistrationService(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                new PythonInterpreter(), getGlobalState());
+                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState());
     }
 
     /**
