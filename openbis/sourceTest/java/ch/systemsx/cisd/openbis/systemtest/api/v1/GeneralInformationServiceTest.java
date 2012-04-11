@@ -232,12 +232,24 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS), samples.get(0)
                 .getRetrievedFetchOptions());
         assertEquals(null, samples.get(0).getExperimentIdentifierOrNull());
-        assertEquals("{}", samples.get(0).getProperties().toString());
+        try
+        {
+            samples.get(0).getProperties();
+            fail("Get properties should have thrown an illegal argument exception");
+        } catch (IllegalArgumentException e)
+        {
+        }
         List<Sample> parents = samples.get(0).getParents();
         assertEntities("[/CISD/MP002-1]", parents);
         assertEquals("MP002-1", parents.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
-        assertEquals("{}", parents.get(0).getProperties().toString());
+        try
+        {
+            parents.get(0).getProperties();
+            fail("Get properties should have thrown an illegal argument exception");
+        } catch (IllegalArgumentException e)
+        {
+        }
     }
 
     @Test
@@ -258,18 +270,37 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
                 SampleFetchOption.CHILDREN), samples.get(0).getRetrievedFetchOptions());
         assertEquals(null, samples.get(0).getExperimentIdentifierOrNull());
-        assertEquals("{}", samples.get(0).getProperties().toString());
+        try
+        {
+            samples.get(0).getProperties();
+            fail("Get properties should have thrown an illegal argument exception");
+        } catch (IllegalArgumentException e)
+        {
+        }
         List<Sample> parents = samples.get(0).getParents();
         assertEntities("[/CISD/MP002-1]", parents);
         assertEquals("MP002-1", parents.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
-        assertEquals("{}", parents.get(0).getProperties().toString());
+        try
+        {
+            parents.get(0).getProperties();
+            fail("Get properties should have thrown an illegal argument exception");
+        } catch (IllegalArgumentException e)
+        {
+
+        }
         List<Sample> children = samples.get(0).getChildren();
         assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", children);
         assertEquals("3VCP5", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.CHILDREN),
                 children.get(0).getRetrievedFetchOptions());
-        assertEquals("{}", children.get(0).getProperties().toString());
+        try
+        {
+            children.get(0).getProperties();
+            fail("Get properties should have thrown an illegal argument exception");
+        } catch (IllegalArgumentException e)
+        {
+        }
         assertEntities("[]", children.get(0).getChildren());
     }
 

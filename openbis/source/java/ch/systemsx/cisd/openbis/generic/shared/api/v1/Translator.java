@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.Prop
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
@@ -127,6 +128,7 @@ public class Translator
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
+        initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PROPERTIES));
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
                 privateSample.getExperiment();
