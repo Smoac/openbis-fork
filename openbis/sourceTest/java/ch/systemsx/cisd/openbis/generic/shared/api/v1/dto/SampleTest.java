@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import java.util.EnumSet;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -56,6 +58,7 @@ public class SampleTest extends AssertJUnit
         EntityRegistrationDetails registrationDetails =
                 new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
         initializer.setRegistrationDetails(registrationDetails);
+        initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.PROPERTIES));
 
         sample = new Sample(initializer);
     }
