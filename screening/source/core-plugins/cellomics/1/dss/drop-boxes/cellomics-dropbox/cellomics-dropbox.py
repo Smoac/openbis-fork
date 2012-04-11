@@ -80,7 +80,8 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
 if incoming.isDirectory():
     imageDataset = MyImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
-    #imageDataset.setGenerateThumbnails(True)
+    imageDataset.setGenerateThumbnails(True)
+    imageDataset.setUseImageMagicToGenerateThumbnails(False)
     imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
     imageDataset.setImageLibrary('BioFormats', 'CellomicsReader##SINGLE_IMAGE')
     registrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)  
