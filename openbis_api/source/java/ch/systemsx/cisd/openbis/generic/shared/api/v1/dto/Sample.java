@@ -438,14 +438,24 @@ public final class Sample implements Serializable, IIdentifierHolder
         if (retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES))
         {
             builder.append(getProperties());
+        } else
+        {
+            builder.append("properties=?");
         }
         if (retrievedFetchOptions.contains(SampleFetchOption.PARENTS))
         {
             builder.append("parents", getParents());
+        } else
+        {
+            builder.append("parents=?");
         }
         if (retrievedFetchOptions.contains(SampleFetchOption.CHILDREN))
         {
             builder.append("children", getChildren());
+        }
+        else
+        {
+            builder.append("children=?");
         }
         return builder.toString();
     }
