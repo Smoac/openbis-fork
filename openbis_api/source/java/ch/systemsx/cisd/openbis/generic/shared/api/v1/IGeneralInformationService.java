@@ -94,7 +94,11 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken, String databaseInstanceCodeOrNull);
 
     /**
-     * Return all samples that match the search criteria. Available since minor version 1.
+     * Return all samples that match the search criteria. Available since minor version 1. 
+     * This is a short cut for
+     * <pre>
+     * searchForSamples(sessionToken, searchCritera, EnumSet.of(SampleFetchOption.PROPERTIES))
+     * </pre>
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      * @since 1.1

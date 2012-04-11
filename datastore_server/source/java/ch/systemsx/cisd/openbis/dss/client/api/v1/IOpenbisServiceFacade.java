@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
@@ -46,6 +47,10 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
 
     /**
      * Return all samples that match the search criteria.
+     * This is a short cut for
+     * <pre>
+     * searchForSamples(searchCritera, EnumSet.of(SampleFetchOption.PROPERTIES))
+     * </pre>
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      */
@@ -56,7 +61,10 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * Return all samples that match the search criteria.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
-     * @param fetchOptions Describes the amount of information about the sample that is needed
+     * @param fetchOptions Describes the amount of information about the sample that is needed. For
+     *            more details see
+     *            {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, EnumSet)}
+     *            .
      */
     @Retry
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,
