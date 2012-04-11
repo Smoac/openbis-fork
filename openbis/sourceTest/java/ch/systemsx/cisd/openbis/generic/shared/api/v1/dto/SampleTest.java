@@ -119,6 +119,6 @@ public class SampleTest extends AssertJUnit
     public void testToString()
     {
         String stringRepresentation = sample.toString();
-        assertEquals("Sample[/space/sample-code,sample-type,{PROP1=value1}]", stringRepresentation);
+        assertEquals("Sample[/space/sample-code,sample-type,{PROP1=value1},parents=?,children=?]", stringRepresentation);
     }
 }
