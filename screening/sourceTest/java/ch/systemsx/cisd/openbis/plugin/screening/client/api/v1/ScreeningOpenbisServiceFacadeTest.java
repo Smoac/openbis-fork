@@ -985,8 +985,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             {
                 {
                     one(generalInformationService).searchForSamples(with(SESSION_TOKEN),
-                            with(searchCriteriaMatcher),
-                            with(new IsNull<EnumSet<SampleFetchOption>>()));
+                            with(searchCriteriaMatcher));
                     List<Sample> samples =
                             Arrays.asList(new SampleBuilder(1).code("p1").identifier("/s/p1")
                                     .type("s").typeID(42).permID("s-1").experiment("/S/P/E")
