@@ -98,6 +98,10 @@ public class SampleLister implements ISampleLister
     public List<Sample> getSamples(Collection<Long> sampleIDs,
             EnumSet<SampleFetchOption> fetchOptions)
     {
+        if (sampleIDs.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         LongSet sampleIdSet = new LongOpenHashSet(sampleIDs);
         LongSet rootSampleIdSet = new LongOpenHashSet(sampleIDs);
         List<SampleRelationshipRecord> descendants = Collections.emptyList();

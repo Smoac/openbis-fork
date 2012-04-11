@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -193,6 +194,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IDeletionTable deletionTable;
 
+    protected IHibernateSearchDAO hibernateSearchDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -224,6 +227,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         dataStoreDAO = context.mock(IDataStoreDAO.class);
         queryDAO = context.mock(IQueryDAO.class);
         deletionDAO = context.mock(IDeletionDAO.class);
+        hibernateSearchDAO = context.mock(IHibernateSearchDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
@@ -281,6 +285,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(dataStoreDAO));
                     allowing(daoFactory).getDeletionDAO();
                     will(returnValue(deletionDAO));
+                    allowing(daoFactory).getHibernateSearchDAO();
+                    will(returnValue(hibernateSearchDAO));
                 }
             });
     }

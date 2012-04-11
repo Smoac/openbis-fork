@@ -38,7 +38,9 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.DataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.IDataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.ISampleLister;
@@ -114,15 +116,20 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
 
+    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
+    private ICommonBusinessObjectFactory boFactory;
+
     // Default constructor needed by Spring
     public GeneralInformationService()
     {
     }
 
     GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager, ICommonServer commonServer)
+            ICommonBusinessObjectFactory boFactory, IPropertiesBatchManager propertiesBatchManager,
+            ICommonServer commonServer)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
+        this.boFactory = boFactory;
         this.commonServer = commonServer;
     }
 
@@ -279,7 +286,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         return searchForSamples(sessionToken, searchCriteria,
-                EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PROPERTIES));
+                EnumSet.of(SampleFetchOption.PROPERTIES));
     }
 
     @Transactional(readOnly = true)
@@ -289,15 +296,17 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOption)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         EnumSet<SampleFetchOption> sampleFetchOptions =
                 (fetchOption != null) ? fetchOption : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
                         SearchableEntityKind.SAMPLE, searchCriteria);
+        ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
+                boFactory.createSampleLister(session);
         Collection<Long> sampleIDs =
-                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), null)
+                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
                         .searchForSampleIDs(detailedSearchCriteria);
         return createSampleLister().getSamples(sampleIDs, sampleFetchOptions);
     }
