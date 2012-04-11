@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -133,8 +132,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
-    private IHibernateSearchDAO hibernateSearchDao;
-
     @Override
     @BeforeMethod
     public final void setUp()
@@ -143,7 +140,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
-        hibernateSearchDao = context.mock(IHibernateSearchDAO.class);
         MaterialConfigurationProvider.initializeForTesting(false);
     }
 
@@ -1113,15 +1109,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createSampleLister(SESSION);
                     will(returnValue(sampleLister));
 
-                    one(daoFactory).getHibernateSearchDAO();
-                    will(returnValue(hibernateSearchDao));
-
-                    one(hibernateSearchDao).searchForEntityIds(
+                    one(hibernateSearchDAO).searchForEntityIds(
                             with(aNonNull(DetailedSearchCriteria.class)),
                             with(equal(EntityKind.SAMPLE)), with(aNonNull(List.class)));
                     will(returnValue(Arrays.asList(new Long(1), new Long(2))));
 
-                    one(hibernateSearchDao).getResultSetSizeLimit();
+                    one(hibernateSearchDAO).getResultSetSizeLimit();
                     will(returnValue(100));
 
                     one(sampleLister).list(with(aNonNull(ListOrSearchSampleCriteria.class)));
