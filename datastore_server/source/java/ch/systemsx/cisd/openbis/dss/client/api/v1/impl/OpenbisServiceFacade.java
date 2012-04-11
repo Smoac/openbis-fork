@@ -497,7 +497,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     //
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
-        return searchForSamples(searchCriteria, null);
+        return service.searchForSamples(sessionToken, searchCriteria);
     }
 
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,

@@ -460,7 +460,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).searchForSamples(SESSION_TOKEN, sc, null);
+                    one(service).searchForSamples(SESSION_TOKEN, sc);
                     will(returnValue(result));
                 }
             });
