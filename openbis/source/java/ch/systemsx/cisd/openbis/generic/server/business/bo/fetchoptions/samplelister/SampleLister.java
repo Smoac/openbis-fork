@@ -259,6 +259,11 @@ public class SampleLister implements ISampleLister
         String spaceCode = sampleRecord.sp_code;
         initializer.setSpaceCode(spaceCode);
         String sampleCode = sampleRecord.s_code;
+        String containerCode = sampleRecord.container_code;
+        if (containerCode != null)
+        {
+            sampleCode = containerCode + ":" + sampleCode;
+        }
         initializer.setCode(sampleCode);
         initializer.setIdentifier(spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
                 + sampleCode);

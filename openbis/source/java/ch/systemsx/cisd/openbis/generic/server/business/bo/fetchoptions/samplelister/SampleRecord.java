@@ -35,6 +35,8 @@ public class SampleRecord
 
     public String s_code;
 
+    public String container_code;
+
     public Date s_registration_timestamp;
 
     public Date s_modification_timestamp;

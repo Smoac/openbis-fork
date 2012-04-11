@@ -38,12 +38,13 @@ public interface ISampleListingQuery extends BaseQuery
     public long getRelationshipTypeId(String code, boolean internalNamespace);
 
     @Select(sql = "Select s.id as s_id, s.perm_id as s_perm_id, s.code as s_code, "
-            + "s.registration_timestamp as s_registration_timestamp, "
+            + "cs.code as container_code, s.registration_timestamp as s_registration_timestamp, "
             + "s.modification_timestamp as s_modification_timestamp, sp.code as sp_code, "
             + "st.id as st_id, st.code as st_code, pe.first_name as pe_first_name, "
             + "pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, "
             + "e.code as exp_code, p.code as proj_code, ps.code as proj_space_code "
             + "from samples as s join sample_types as st on s.saty_id = st.id "
+            + "left join samples as cs on s.samp_id_part_of = cs.id "
             + "left join spaces as sp on s.space_id = sp.id "
             + "left join experiments as e on s.expe_id = e.id "
             + "left join projects as p on e.proj_id = p.id "
