@@ -29,6 +29,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -342,9 +343,17 @@ public final class Sample implements Serializable, IIdentifierHolder
         return sampleTypeCode;
     }
 
-    public Map<String, String> getProperties()
+    @JsonIgnore
+    public Map<String, String> getProperties() throws IllegalArgumentException
     {
-        return Collections.unmodifiableMap(properties);
+        if (getRetrievedFetchOptions().contains(SampleFetchOption.PROPERTIES))
+        {
+            return Collections.unmodifiableMap(properties);
+        } else
+        {
+            throw new IllegalArgumentException("Properties were not retrieved for sample "
+                    + getIdentifier() + ".");
+        }
     }
 
     /**
@@ -508,6 +517,12 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.sampleTypeCode = sampleTypeCode;
     }
 
+    @JsonProperty(value = "properties")
+    public Map<String, String> getPropertiesJson()
+    {
+        return retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES) ? properties : null;
+    }
+
     private void setProperties(HashMap<String, String> properties)
     {
         this.properties = properties;
@@ -521,6 +536,28 @@ public final class Sample implements Serializable, IIdentifierHolder
     private void setRetrievedFetchOptions(EnumSet<SampleFetchOption> fetchOptions)
     {
         this.retrievedFetchOptions = fetchOptions;
+    }
+
+    @JsonProperty(value = "children")
+    public List<Sample> getChildrenJson()
+    {
+        return retrievedFetchOptions.contains(SampleFetchOption.CHILDREN) ? children : null;
+    }
+
+    @JsonProperty(value = "parents")
+    public List<Sample> getParentsJson()
+    {
+        return retrievedFetchOptions.contains(SampleFetchOption.PARENTS) ? parents : null;
+    }
+
+    private void setParents(List<Sample> parents)
+    {
+        this.parents = parents;
+    }
+
+    private void setChildren(List<Sample> children)
+    {
+        this.children = children;
     }
 
 }
