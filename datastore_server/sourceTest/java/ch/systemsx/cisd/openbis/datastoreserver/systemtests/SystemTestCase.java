@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 
@@ -100,7 +103,24 @@ public abstract class SystemTestCase extends AssertJUnit
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
     }
+    
+    @BeforeMethod
+    public void beforeTest(Method method)
+    {
+        System.out.println("BEFORE " + render(method));
+    }
 
+    @AfterMethod
+    public void afterTest(Method method)
+    {
+        System.out.println("AFTER  " + render(method));
+    }
+    
+    private String render(Method method)
+    {
+        return method.getDeclaringClass().getName() + "." + method.getName();
+    }
+    
     @BeforeTest
     public void setUpLogAppender()
     {

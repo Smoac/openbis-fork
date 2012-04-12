@@ -26,6 +26,7 @@ import java.util.Properties;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -102,9 +103,16 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.link-columns", "GENEID");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.GENEID.entity-kind", "MATERIAL");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.GENEID.material-type", "GENE");
-
     }
-
+    
+    @BeforeTest
+    public void dropAnExampleDataSet() throws IOException, Exception
+    {
+        File exampleDataSet = createExampleIncoming();
+        moveFileToIncoming(exampleDataSet);
+        waitUntilDataSetImported();
+    }
+    
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -137,7 +145,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testGetMaterialFeatureVectorSummary() throws Exception
     {
-        dropAnExampleDataSet();
         Material geneG = commonServer.getMaterialInfo(sessionToken, new MaterialIdentifier("G", "GENE"));
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
@@ -158,7 +165,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testGetExperimentFeatureVectorSummary() throws Exception
     {
-        dropAnExampleDataSet();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
@@ -180,7 +186,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testListExperimentFeatureVectorSummaryCalculated() throws Exception
     {
-        dropAnExampleDataSet();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
@@ -208,7 +213,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testListExperimentFeatureVectorSummaryFromFile() throws Exception
     {
-        dropAnExampleDataSet();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
@@ -236,7 +240,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testListExperimentFeatureVectorSummaryFromFileButTwoDataSets() throws Exception
     {
-        dropAnExampleDataSet();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
@@ -255,7 +258,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     @Test
     public void testListExperimentFeatureVectorSummaryFromFileButNoDataSets() throws Exception
     {
-        dropAnExampleDataSet();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
@@ -340,13 +342,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         return null;
     }
 
-    private void dropAnExampleDataSet() throws IOException, Exception
-    {
-        File exampleDataSet = createExampleIncoming();
-        moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
-    }
-    
     private File createExampleIncoming() throws IOException
     {
         File exampleDataSet = new File(workingDirectory, "test-data");
