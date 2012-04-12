@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "slow", "systemtest", "broken" })
+    { "slow", "systemtest" })
 public class TransformedImageRepresentationsTest extends AbstractScreeningSystemTestCase
 {
     private MockHttpServletRequest request;
@@ -100,7 +100,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testTransformedThumbnails() throws Exception
     {
         dropAnExampleDataSet();
