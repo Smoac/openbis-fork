@@ -538,7 +538,10 @@ function loadFilesForSample(sample, callback){
                   file.dataset = ds;
                   file.label = file.pathInListing.split("/").pop();
                 });
-                data.result = data.result.filter(function(file){ return !file.isDirectory; });
+
+                data.result = data.result.filter(function(file) { 
+                  var regex= /gz/;
+                  return (regex.test(file.pathInListing) & !file.isDirectory); });
                 sample.files = sample.files.concat(data.result);
                 datasetDeferrer.dependencyCompleted(ds.bis.code);
               })
@@ -754,7 +757,10 @@ function enterApp(data)
 
 
 $(document).ready(function() {
-	$('#main').hide()
+	if ( $.browser.msie ) {
+          alert("Currently no Internet Explorer is supported!");
+        }
+        $('#main').hide()
 	
 	$('#logout-button').click(function() { 
            dsu.server.logout(function(data) {$(location).attr('href',logouturl)});
@@ -794,7 +800,7 @@ function log(msg){
 <link rel="icon" type="image/png" href="../images/favicon.png" /> 
 
 <div id="login-form-div">
-  <h1>openBIS Quantitative Genomics Facility</h1>
+  <h1>Quantitative Genomics Facility - BSSE</h1>
   <form id="login-form" action="javascript:">
     <input id="username" type="text" required="required"> <input id="password" type="password" required="required"> </input>
     <button id="login-button" type="submit">Login</button>
