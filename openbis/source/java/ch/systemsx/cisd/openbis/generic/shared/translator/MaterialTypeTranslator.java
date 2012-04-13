@@ -60,6 +60,9 @@ public class MaterialTypeTranslator
         {
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
         }
+
+        // used for checking of dynamic properties assignment in dropboxes
+        HibernateUtils.initialize(entityTypeOrNull.getMaterialTypePropertyTypes());
         result.setMaterialTypePropertyTypes(EntityType
                 .sortedInternally(MaterialTypePropertyTypeTranslator.translate(
                         entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull)));

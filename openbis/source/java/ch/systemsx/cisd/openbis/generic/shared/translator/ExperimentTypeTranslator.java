@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,9 +38,13 @@ public class ExperimentTypeTranslator
         final ExperimentType result = new ExperimentType();
         result.setCode(experimentTypePE.getCode());
         result.setDescription(experimentTypePE.getDescription());
+
+        // used for checking of dynamic properties assignment in dropboxes
+        HibernateUtils.initialize(experimentTypePE.getExperimentTypePropertyTypes());
         result.setExperimentTypePropertyTypes(EntityType
                 .sortedInternally(ExperimentTypePropertyTypeTranslator.translate(
                         experimentTypePE.getExperimentTypePropertyTypes(), result, cachedOrNull)));
+
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentTypePE
                 .getDatabaseInstance()));
         return result;

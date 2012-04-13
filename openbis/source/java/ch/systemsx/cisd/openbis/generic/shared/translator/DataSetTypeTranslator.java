@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Translates {@link DataSetTypePE} to {@link DataSetType}.
@@ -50,9 +51,13 @@ public class DataSetTypeTranslator
         result.setDescription(entityTypeOrNull.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
+
+        // used for checking of dynamic properties assignment in dropboxes
+        HibernateUtils.initialize(entityTypeOrNull.getDataSetTypePropertyTypes());
         result.setDataSetTypePropertyTypes(EntityType
                 .sortedInternally(DataSetTypePropertyTypeTranslator.translate(
                         entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull)));
+
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
         result.setContainerType(entityTypeOrNull.isContainerType());

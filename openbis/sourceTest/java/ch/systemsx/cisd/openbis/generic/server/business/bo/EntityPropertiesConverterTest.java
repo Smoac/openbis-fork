@@ -65,8 +65,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
     private IPropertyValueValidator propertyValueValidator;
 
-    private IDynamicPropertiesUpdateChecker dynamicPropertiesChecker;
-
     private IPropertyPlaceholderCreator placeholderCreator;
 
     @Override
@@ -75,7 +73,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         super.beforeMethod();
         propertyValueValidator = context.mock(IPropertyValueValidator.class);
-        dynamicPropertiesChecker = context.mock(IDynamicPropertiesUpdateChecker.class);
         placeholderCreator = context.mock(IPropertyPlaceholderCreator.class);
 
     }
@@ -84,7 +81,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
             final EntityKind entityKind)
     {
         return new EntityPropertiesConverter(entityKind, daoFactory, propertyValueValidator,
-                dynamicPropertiesChecker, placeholderCreator);
+                placeholderCreator);
     }
 
     private void prepareForConvertion(final Expectations exp)
@@ -181,14 +178,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
             {
                 {
                     prepareForConvertion(this);
-                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
-                            new CollectionMatcher<Set<String>>(new HashSet<String>());
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
                                     new ArrayList<String>()));
-                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
-                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
-
                     one(placeholderCreator).addDynamicPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                     one(placeholderCreator).addManagedPropertiesPlaceholders(
@@ -238,14 +230,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
 
-                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
-                            new CollectionMatcher<Set<String>>(new HashSet<String>(Arrays
-                                    .asList(VARCHAR_PROPERTY_TYPE_CODE)));
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
                                     new ArrayList<String>()));
-                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
-                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
 
                     ArrayList<IEntityProperty> listOfProperties = new ArrayList<IEntityProperty>();
                     for (IEntityProperty p : properties)
@@ -298,14 +285,9 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
 
-                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
-                            new CollectionMatcher<Set<String>>(new HashSet<String>(Arrays
-                                    .asList(VARCHAR_PROPERTY_TYPE_CODE)));
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
                                     new ArrayList<String>()));
-                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
-                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
 
                     ArrayList<IEntityProperty> listOfProperties = new ArrayList<IEntityProperty>();
                     for (IEntityProperty p : properties)
@@ -324,8 +306,8 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         assertEquals(1, convertedProperties.size());
         context.assertIsSatisfied();
     }
-    
-//    @Test
+
+    // @Test
     public void testUpdateProperties()
     {
         final SampleTypePE entityType = createSampleType(SAMPLE_TYPE_CODE);
@@ -351,8 +333,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 Arrays.<IEntityProperty> asList(p1.getProperty(), p2.getProperty());
         IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
-        final RecordingMatcher<Set<String>> matcherOfPropertiesToUpdate =
-                new RecordingMatcher<Set<String>>();
         final RecordingMatcher<Set<IEntityProperty>> matcherOfProperties =
                 new RecordingMatcher<Set<IEntityProperty>>();
         context.checking(new Expectations()
@@ -370,9 +350,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     allowing(entityPropertyTypeDAO).listEntityPropertyTypes(entityType);
                     will(returnValue(assignments));
 
-                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
-                            with(matcherOfPropertiesToUpdate),
-                            with(Collections.<String> emptySet()));
                     one(placeholderCreator).addDynamicPropertiesPlaceholders(
                             with(matcherOfProperties), with(Collections.<String> emptySet()));
 

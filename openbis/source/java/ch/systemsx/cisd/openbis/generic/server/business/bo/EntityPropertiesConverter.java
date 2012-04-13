@@ -92,31 +92,25 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private final IPropertyValueValidator propertyValueValidator;
 
-    private final IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker;
-
     private final IPropertyPlaceholderCreator placeholderCreator;
 
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
-        this(entityKind, daoFactory, new PropertyValidator(), new DynamicPropertiesUpdateChecker(),
-                new PlaceholderPropertyCreator());
+        this(entityKind, daoFactory, new PropertyValidator(), new PlaceholderPropertyCreator());
     }
 
     @Private
     EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
             final IPropertyValueValidator propertyValueValidator,
-            IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker,
             IPropertyPlaceholderCreator placeholderCreator)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert daoFactory != null : "Unspecified DAO factory.";
         assert propertyValueValidator != null : "Unspecified property value validator.";
-        assert dynamicPropertiesUpdateChecker != null : "Unspecified dynamic properties update checker.";
 
         this.daoFactory = daoFactory;
         this.entityKind = entityKind;
         this.propertyValueValidator = propertyValueValidator;
-        this.dynamicPropertiesUpdateChecker = dynamicPropertiesUpdateChecker;
         this.placeholderCreator = placeholderCreator;
         this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory, null);
     }
@@ -302,9 +296,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         Set<String> managedProperties = getManagedProperties(entityTypePE);
         Set<IEntityProperty> definedProperties =
                 new LinkedHashSet<IEntityProperty>(Arrays.asList(properties));
-        Set<String> propertiesToUpdate = extractPropertiesToUpdate(properties);
-        dynamicPropertiesUpdateChecker.checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate,
-                dynamicProperties);
         if (createDynamicPropertiesPlaceholders)
         {
             placeholderCreator.addDynamicPropertiesPlaceholders(definedProperties,
@@ -326,16 +317,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
         return list;
-    }
-
-    private Set<String> extractPropertiesToUpdate(IEntityProperty[] properties)
-    {
-        HashSet<String> result = new HashSet<String>();
-        for (IEntityProperty p : properties)
-        {
-            result.add(p.getPropertyType().getCode());
-        }
-        return result;
     }
 
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
