@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.common.utilities.IPredicate;
@@ -95,15 +94,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     private static final String SAMPLE_PERM_ID = "sample-perm-id";
 
-    private BufferedAppender logAppender;
-
     @BeforeMethod
     @Override
     public void setUp() throws IOException
     {
         super.setUp();
-
-        logAppender = new BufferedAppender();
     }
 
     public ArrayList<TestCaseParameters> multipleVersionsOfTestCase(TestCaseParameters params)
@@ -114,10 +109,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return list;
     }
 
-    public TestCaseParameters versionV2(TestCaseParameters params)
+    public TestCaseParameters versionV2(final TestCaseParameters other)
     {
-        params = params.clone();
-        params.overrideProperties = (HashMap<String, String>) params.overrideProperties.clone();
+        TestCaseParameters params = other.clone();
+        params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
         params.overrideProperties.put("TEST_V2_API", "");
         params.title += " - V2";
         return params;
@@ -396,7 +391,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             this.title = title;
             this.overrideProperties = new HashMap<String, String>();
-        };
+        }
 
         @Override
         public TestCaseParameters clone()
