@@ -53,20 +53,20 @@ public class RoleWithHierarchyTest extends AssertJUnit
     @Test
     public void testValueOf() throws Exception
     {
-        assertEquals(RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.valueOf(
-                RoleLevel.INSTANCE, RoleCode.OBSERVER));
-        assertEquals(RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.valueOf(RoleLevel.SPACE,
-                RoleCode.ADMIN));
+        assertEquals(RoleWithHierarchy.INSTANCE_OBSERVER,
+                RoleWithHierarchy.valueOf(RoleLevel.INSTANCE, RoleCode.OBSERVER));
+        assertEquals(RoleWithHierarchy.SPACE_ADMIN,
+                RoleWithHierarchy.valueOf(RoleLevel.SPACE, RoleCode.ADMIN));
     }
 
     @Test
     public void testFigureRoleCode() throws Exception
     {
         assertEquals(RoleCode.USER, RoleWithHierarchy.figureRoleCode("SPACE_USER", RoleLevel.SPACE));
-        assertEquals(RoleCode.POWER_USER, RoleWithHierarchy.figureRoleCode("SPACE_POWER_USER",
-                RoleLevel.SPACE));
-        assertEquals(RoleCode.ADMIN, RoleWithHierarchy.figureRoleCode("INSTANCE_ADMIN",
-                RoleLevel.INSTANCE));
+        assertEquals(RoleCode.POWER_USER,
+                RoleWithHierarchy.figureRoleCode("SPACE_POWER_USER", RoleLevel.SPACE));
+        assertEquals(RoleCode.ADMIN,
+                RoleWithHierarchy.figureRoleCode("INSTANCE_ADMIN", RoleLevel.INSTANCE));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -80,6 +80,15 @@ public class RoleWithHierarchyTest extends AssertJUnit
     {
         assertEquals(RoleLevel.SPACE, RoleWithHierarchy.figureRoleLevel("SPACE_USER"));
         assertEquals(RoleLevel.INSTANCE, RoleWithHierarchy.figureRoleLevel("INSTANCE_USER"));
+    }
+
+    @Test
+    public void testFigureRoleLevelNone() throws Exception
+    {
+        assertEquals(RoleLevel.INSTANCE, RoleWithHierarchy.figureRoleLevel("INSTANCE_NONE"));
+        assertEquals(RoleCode.NONE,
+                RoleWithHierarchy.figureRoleCode("INSTANCE_NONE", RoleLevel.INSTANCE));
+        assertTrue(RoleWithHierarchy.INSTANCE_NONE.getRoles().isEmpty());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

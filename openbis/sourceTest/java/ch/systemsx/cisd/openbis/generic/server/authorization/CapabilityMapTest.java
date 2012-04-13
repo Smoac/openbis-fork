@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
@@ -88,4 +89,15 @@ public class CapabilityMapTest
                 String.class)));
         assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
     }
+
+    @Test
+    public void testUserRoleNone() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap = new CapabilityMap(Arrays.asList("A: INSTANCE_NONE\t"), "<memory>");
+        assertEquals(RoleWithHierarchy.INSTANCE_NONE,
+                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
+        assertTrue(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .getRoles().isEmpty());
+    }
+
 }

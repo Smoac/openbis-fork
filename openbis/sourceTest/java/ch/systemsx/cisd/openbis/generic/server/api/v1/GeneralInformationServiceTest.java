@@ -133,18 +133,19 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertNamedRoles("INSTANCE_ADMIN", "[ADMIN(instance)]", entries.get(0));
         assertNamedRoles("INSTANCE_ETL_SERVER", "[ADMIN(instance), " + "ETL_SERVER(instance)]",
                 entries.get(1));
+        assertNamedRoles("INSTANCE_NONE", "[]", entries.get(2));
         assertNamedRoles("INSTANCE_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]",
-                entries.get(2));
-        assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(3));
+                entries.get(3));
+        assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(4));
         assertNamedRoles("SPACE_ETL_SERVER", "[ADMIN(instance), "
-                + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(4));
+                + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(5));
         assertNamedRoles("SPACE_OBSERVER", "[ADMIN(instance), ADMIN(space), OBSERVER(instance), "
-                + "OBSERVER(space), POWER_USER(space), USER(space)]", entries.get(5));
+                + "OBSERVER(space), POWER_USER(space), USER(space)]", entries.get(6));
         assertNamedRoles("SPACE_POWER_USER", "[ADMIN(instance), ADMIN(space), POWER_USER(space)]",
-                entries.get(6));
+                entries.get(7));
         assertNamedRoles("SPACE_USER",
-                "[ADMIN(instance), ADMIN(space), POWER_USER(space), USER(space)]", entries.get(7));
-        assertEquals(8, entries.size());
+                "[ADMIN(instance), ADMIN(space), POWER_USER(space), USER(space)]", entries.get(8));
+        assertEquals(9, entries.size());
         context.assertIsSatisfied();
     }
 

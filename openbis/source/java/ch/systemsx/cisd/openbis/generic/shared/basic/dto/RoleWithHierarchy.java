@@ -54,6 +54,8 @@ public enum RoleWithHierarchy implements Serializable
     // it will be used to automatically figure the RoleLevel and RoleCode.
     //
 
+    INSTANCE_NONE(true),
+
     INSTANCE_ADMIN,
 
     INSTANCE_OBSERVER(INSTANCE_ADMIN),
@@ -84,7 +86,7 @@ public enum RoleWithHierarchy implements Serializable
     // domain.
     public static enum RoleCode implements IsSerializable
     {
-        ADMIN, USER, POWER_USER, OBSERVER, ETL_SERVER;
+        NONE, ADMIN, USER, POWER_USER, OBSERVER, ETL_SERVER;
     }
 
     /**
@@ -104,10 +106,20 @@ public enum RoleWithHierarchy implements Serializable
 
     private final RoleLevel roleLevel;
 
+    private final boolean completelyEmpty;
+
     private final Set<RoleWithHierarchy> strongerRoles = new LinkedHashSet<RoleWithHierarchy>();
+
+    private RoleWithHierarchy(boolean completelyEmpty)
+    {
+        this.completelyEmpty = completelyEmpty;
+        roleLevel = figureRoleLevel(name());
+        roleCode = figureRoleCode(name(), roleLevel);
+    }
 
     private RoleWithHierarchy(RoleWithHierarchy... strongerRoles)
     {
+        completelyEmpty = false;
         roleLevel = figureRoleLevel(name());
         roleCode = figureRoleCode(name(), roleLevel);
         for (RoleWithHierarchy strongerRole : strongerRoles)
@@ -153,7 +165,10 @@ public enum RoleWithHierarchy implements Serializable
     public Set<RoleWithHierarchy> getRoles()
     {
         Set<RoleWithHierarchy> roles = new LinkedHashSet<RoleWithHierarchy>();
-        roles.add(this);
+        if (completelyEmpty == false)
+        {
+            roles.add(this);
+        }
         roles.addAll(strongerRoles);
         return roles;
     }
