@@ -131,9 +131,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 }
             });
         assertNamedRoles("INSTANCE_ADMIN", "[ADMIN(instance)]", entries.get(0));
+        assertNamedRoles("INSTANCE_DISABLED", "[]", entries.get(1));
         assertNamedRoles("INSTANCE_ETL_SERVER", "[ADMIN(instance), " + "ETL_SERVER(instance)]",
-                entries.get(1));
-        assertNamedRoles("INSTANCE_NONE", "[]", entries.get(2));
+                entries.get(2));
         assertNamedRoles("INSTANCE_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]",
                 entries.get(3));
         assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(4));

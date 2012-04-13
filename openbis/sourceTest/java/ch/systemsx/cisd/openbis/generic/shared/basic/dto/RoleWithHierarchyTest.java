@@ -83,12 +83,12 @@ public class RoleWithHierarchyTest extends AssertJUnit
     }
 
     @Test
-    public void testFigureRoleLevelNone() throws Exception
+    public void testFigureRoleLevelDisabled() throws Exception
     {
-        assertEquals(RoleLevel.INSTANCE, RoleWithHierarchy.figureRoleLevel("INSTANCE_NONE"));
-        assertEquals(RoleCode.NONE,
-                RoleWithHierarchy.figureRoleCode("INSTANCE_NONE", RoleLevel.INSTANCE));
-        assertTrue(RoleWithHierarchy.INSTANCE_NONE.getRoles().isEmpty());
+        assertEquals(RoleLevel.INSTANCE, RoleWithHierarchy.figureRoleLevel("INSTANCE_DISABLED"));
+        assertEquals(RoleCode.DISABLED,
+                RoleWithHierarchy.figureRoleCode("INSTANCE_DISABLED", RoleLevel.INSTANCE));
+        assertTrue(RoleWithHierarchy.INSTANCE_DISABLED.getRoles().isEmpty());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

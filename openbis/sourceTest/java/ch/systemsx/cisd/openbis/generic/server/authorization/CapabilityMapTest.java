@@ -91,10 +91,11 @@ public class CapabilityMapTest
     }
 
     @Test
-    public void testUserRoleNone() throws SecurityException, NoSuchMethodException
+    public void testUserRoleDisabled() throws SecurityException, NoSuchMethodException
     {
-        CapabilityMap capMap = new CapabilityMap(Arrays.asList("A: INSTANCE_NONE\t"), "<memory>");
-        assertEquals(RoleWithHierarchy.INSTANCE_NONE,
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>");
+        assertEquals(RoleWithHierarchy.INSTANCE_DISABLED,
                 capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
         assertTrue(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
                 .getRoles().isEmpty());

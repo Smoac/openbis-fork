@@ -54,7 +54,7 @@ public enum RoleWithHierarchy implements Serializable
     // it will be used to automatically figure the RoleLevel and RoleCode.
     //
 
-    INSTANCE_NONE(true),
+    INSTANCE_DISABLED(true),
 
     INSTANCE_ADMIN,
 
@@ -86,7 +86,7 @@ public enum RoleWithHierarchy implements Serializable
     // domain.
     public static enum RoleCode implements IsSerializable
     {
-        NONE, ADMIN, USER, POWER_USER, OBSERVER, ETL_SERVER;
+        DISABLED, ADMIN, USER, POWER_USER, OBSERVER, ETL_SERVER;
     }
 
     /**
