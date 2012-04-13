@@ -133,8 +133,7 @@ if incoming.isDirectory():
     representation = imageDataset.addGeneratedImageRepresentationWithResolution(resolution)
     for channel in ["DAPI", "GFP", "Cy5"]:
       representation.setTransformation(channel, transforms[1].getCode())
-    storageFormat = representation.getThumbnailsStorageFormat(imageDataset)
-    storageFormat.setFileFormat('JPEG')
+    representation.setFileFormat('JPEG')
 
   imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
   datasetInfo = imageRegistrationDetails.getDataSetInformation()

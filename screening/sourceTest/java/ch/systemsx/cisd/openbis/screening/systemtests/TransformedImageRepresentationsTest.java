@@ -131,7 +131,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
             Dimension resolution = new Dimension(format.getWidth(), format.getHeight());
             if (jpegResolutions.contains(resolution))
             {
-                assertEquals("jpeg", format.getFileType().toLowerCase());
+                assertEquals("jpg", format.getFileType().toLowerCase());
             }
         }
 
@@ -163,7 +163,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 60;
+        return 6000;
     }
 
 }
