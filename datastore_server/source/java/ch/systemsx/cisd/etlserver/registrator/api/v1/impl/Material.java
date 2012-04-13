@@ -55,6 +55,12 @@ public class Material extends MaterialImmutable implements IMaterial
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
+        if (isDynamicProperty(propertyCode))
+        {
+            throw new IllegalStateException("Setting value of dynamic property " + propertyCode
+                    + " is forbidden");
+        }
+        
         EntityHelper.createOrUpdateProperty(getMaterial(), propertyCode, propertyValue);
     }
 }

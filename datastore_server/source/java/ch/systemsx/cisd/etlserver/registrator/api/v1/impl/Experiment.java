@@ -50,6 +50,12 @@ class Experiment extends ExperimentImmutable implements IExperiment
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
+        if (isDynamicProperty(propertyCode))
+        {
+            throw new IllegalStateException("Setting value of dynamic property " + propertyCode
+                    + " is forbidden");
+        }
+        
         EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
     }
 

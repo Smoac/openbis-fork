@@ -92,6 +92,12 @@ public class Sample extends SampleImmutable implements ISample
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
+        if (isDynamicProperty(propertyCode))
+        {
+            throw new IllegalStateException("Setting value of dynamic property " + propertyCode
+                    + " is forbidden");
+        }
+        
         EntityHelper.createOrUpdateProperty(getSample(), propertyCode, propertyValue);
     }
 

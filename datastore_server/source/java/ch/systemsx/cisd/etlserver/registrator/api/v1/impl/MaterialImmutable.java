@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -29,6 +33,8 @@ public class MaterialImmutable implements IMaterialImmutable
 
     private final boolean existingMaterial;
 
+    private final Set<String> dynamicPropertiesCodes;
+    
     public MaterialImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material material)
     {
         this(material, true);
@@ -39,6 +45,20 @@ public class MaterialImmutable implements IMaterialImmutable
     {
         this.material = material;
         this.existingMaterial = existingMaterial;
+        
+        dynamicPropertiesCodes = new HashSet<String>();
+        for (MaterialTypePropertyType pt : material.getMaterialType().getAssignedPropertyTypes())
+        {
+            if (pt.isDynamic())
+            {
+                dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
+            }
+        }
+    }
+
+    protected boolean isDynamicProperty(String code)
+    {
+        return dynamicPropertiesCodes.contains(code);
     }
 
     public String getMaterialIdentifier()

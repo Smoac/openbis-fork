@@ -86,6 +86,12 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
 
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
+        if (isDynamicProperty(propertyCode))
+        {
+            throw new IllegalStateException("Setting value of dynamic property " + propertyCode
+                    + " is forbidden");
+        }
+        
         EntityHelper.createOrUpdateProperty(dataSet, propertyCode, propertyValue);
     }
 
