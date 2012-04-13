@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -128,6 +129,23 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     public boolean isContainerDataSet()
     {
         return dataSet.isContainer();
+    }
+
+    public boolean isContainedDataSet()
+    {
+        return dataSet.tryGetContainer() != null;
+    }
+
+    public String getContainerDataSet()
+    {
+        ContainerDataSet container = dataSet.tryGetContainer();
+        if (container != null)
+        {
+            return container.getCode();
+        } else
+        {
+            return null;
+        }
     }
 
     public List<String> getContainedDataSetCodes()
