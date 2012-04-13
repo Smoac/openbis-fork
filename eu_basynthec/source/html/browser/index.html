@@ -51,6 +51,9 @@ $(document).ready(function() {
 	$("#groupradio2").change(function(event){
 		switchToStrainView();
 	});
+	$("#groupradio3").change(function(event){
+		switchToOD600View();
+	});
 	
 	$('#login-form').submit(function() {
 		$("#login-failed").hide();

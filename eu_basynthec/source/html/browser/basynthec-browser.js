@@ -1,53 +1,30 @@
 var w = 500;
 
-// The strain visualization
-var strainVis;
-
-// a map holding data sets by strain
-var dataSetsByStrain = { };
-
-// prefixes of strain names to be grouped togehter
-var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
-
-// The names to show the user for the strain groups
-var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-DIn", "JJS-MGP" : "JJS-MGP" };
-
-// Groups of strains to be displayed  
-var strainGroups = [];
-
-// The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
-
-// A map holding data sets by type
-var dataSetsByType = { };
-
-// Variables for determining if a particular object is a data set or a strain
-var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
-
-var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
-
-//The inspected strains
-var inspected = [];
-
-//The node inspectors
-var inspectors;
-
-/** Hides the explanation and shows the element to display the explanation again */
-function hideExplanation() {
-	$('#explanation').hide();
-	$('#explanation-show').show();	
+/**
+ * An object responsible for managing the view
+ */ 
+function AppPresenter() {
+	
 }
 
-/** Display the explanation again */
-function showExplanation() {
-	$('#explanation-show').hide();		
-	$('#explanation').show();
+/**
+ * An object responsible for managing the data to show
+ */
+function AppModel() {
+	// a map holding data sets by strain
+	this.dataSetsByStrain = { };
+
+	// Groups of strains to be displayed  
+	this.strainGroups = [];
+
+	// A map holding data sets by type
+	this.dataSetsByType = { };
 }
 
 /** Compute the dataSetsByType variable */
-function initializeDataSetsByType() {
+AppModel.prototype.initializeDataSetsByType = function() {
 	// Group data sets by type
-	dataSetsByType = basynthec.dataSetList.reduce(
+	this.dataSetsByType = basynthec.dataSetList.reduce(
 		function(result, dataSet) {
 			var listForType = result[dataSet.dataSetTypeCode];
 			if (listForType == null) {
@@ -60,9 +37,9 @@ function initializeDataSetsByType() {
 }
 
 /** Compute the dataSetsByStrain variable */
-function initializeDataSetsByStrain() {
+AppModel.prototype.initializeDataSetsByStrain = function() {
 	// group dataSets
-	dataSetsByStrain = basynthec.dataSetList.reduce(
+	this.dataSetsByStrain = basynthec.dataSetList.reduce(
 		function(result, dataSet) { 
 			var uniqueStrains = uniqueElements(basynthec.getStrains(dataSet).sort());
 			
@@ -76,34 +53,23 @@ function initializeDataSetsByStrain() {
 		}, {});
 }
 
-/**
- * Shows the list of data sets retrieved from the openBIS server.
- */
-function showDataSets(bisDataSets) {
-	if (null == bisDataSets) return;
-	
-	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
-		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
-  });
-	
-	// sort data sets
-	var sortByTypeAndRegistration = function(a, b) {
-		if (a.dataSetTypeCode == b.dataSetTypeCode) {
-			return b.registrationDetails.registrationDate - a.registrationDetails.registrationDate;
-		}
-		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
-	};
-	
-	basynthec.dataSetList.sort(sortByTypeAndRegistration);
-	
-	initializeDataSetsByType();
-	initializeDataSetsByStrain();
-	
-	refreshDataSetTypeTables();
-	refreshStrainTables();
+AppModel.prototype.initializeStrainGroups = function() {
+	var strains = []
+	for (strainName in this.dataSetsByStrain) {
+		strains.push(strainName)
+	}
+	this.strainGroups = createStrainGroups(strains);
 }
 
+/**
+ * A utility function that groups strains together based on strain name
+ */ 
 function createStrainGroups(strains) {
+	// prefixes of strain names to be grouped togehter
+	var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
+
+	// The names to show the user for the strain groups
+	var STRAIN_GROUP_PREFIXES_DISPLAY_NAME = {"JJS-DIN" : "JJS-DIn", "JJS-MGP" : "JJS-MGP" };
 	
 	var groups = STRAIN_GROUP_PREFIXES.map(
 			function(strainPrefix) {
@@ -130,12 +96,72 @@ function createStrainGroups(strains) {
 	return groups.filter(function(group) { return group.strains.length > 0 });
 }
 
+var model = new AppModel();
+
+// Variables for determining if a particular object is a data set or a strain
+var typeDataSet = "DATA_SET", typeStrain = "STRAIN";	
+
+// The data set type visualization
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+
+// The strain visualization
+var strainVis;
+
+// The data set type visualization
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+
+// Variables for determining if a particular object is a data set or a strain
+var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
+
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
+
+//The inspected strains
+var inspected = [];
+
+//The node inspectors
+var inspectors;
+
+/** Hides the explanation and shows the element to display the explanation again */
+function hideExplanation() {
+	$('#explanation').hide();
+	$('#explanation-show').show();	
+}
+
+/** Display the explanation again */
+function showExplanation() {
+	$('#explanation-show').hide();		
+	$('#explanation').show();
+}
+
+/**
+ * Shows the list of data sets retrieved from the openBIS server.
+ */
+function showDataSets(bisDataSets) {
+	if (null == bisDataSets) return;
+	
+	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
+		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
+  });
+	
+	// sort data sets
+	var sortByTypeAndRegistration = function(a, b) {
+		if (a.dataSetTypeCode == b.dataSetTypeCode) {
+			return b.registrationDetails.registrationDate - a.registrationDetails.registrationDate;
+		}
+		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
+	};
+	
+	basynthec.dataSetList.sort(sortByTypeAndRegistration);
+	
+	model.initializeDataSetsByType();
+	model.initializeDataSetsByStrain();
+	
+	refreshDataSetTypeTables();
+	refreshStrainTables();
+}
+
 function refreshStrainTables() {
-	var strains = []
-	for (strainName in dataSetsByStrain) {
-		strains.push(strainName)
-	}
-	strainGroups = createStrainGroups(strains);
+	model.initializeStrainGroups();
 	
   createVis();
  	updateStrainDiagram(1000);
@@ -207,7 +233,7 @@ function updateDataSetTypeDiagram(duration)
 
 function updateStrainDiagram(duration)
 {
-	var strainDiv = strainVis.selectAll("div.strains").data(strainGroups)
+	var strainDiv = strainVis.selectAll("div.strains").data(model.strainGroups)
 		.enter()
 	.append("div")
 		.attr("class", "strains");
@@ -235,7 +261,7 @@ function updateStrainDiagram(duration)
 
 function updateDataSetTypeView(aView, type)
 {
-	var dataSetsForType = dataSetsByType[type];
+	var dataSetsForType = model.dataSetsByType[type];
 	
 	if (dataSetsForType == null) {
 		aView.selectAll("p")
@@ -289,6 +315,13 @@ function switchToDataSetTypeView()
 
 /** Show the data sets by strain*/
 function switchToStrainView()
+{
+	hideExplanation();
+	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
+}
+
+/** Show the data sets by strain*/
+function switchToOD600View()
 {
 	hideExplanation();
 	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
@@ -440,7 +473,7 @@ function toggle_inspected(d) {
 			d.dataSets = [{ bis : d.dataSet }];
 			retrieveFilesForDataSets(d.dataSets);
 		} else if (!d.dataSets) {
-			d.dataSets = dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
+			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
 			retrieveFilesForDataSets(d.dataSets);
 		}
 	}
@@ -574,14 +607,11 @@ function lineData(d)
 }
 
 function shouldRenderProperty(prop, value) {
-	if (prop == STRAIN_PROP_NAME) {
-		// strain properties are dealt with separately
-		return false;
-	}
-	if (!value) {
-		// do not show properties with no values
-		return false;
-	}
+	// strain properties are dealt with separately	
+	if (prop == STRAIN_PROP_NAME) return false;
+
+	// do not show properties with no values	
+	if (!value) return false;
 	return true;
 }
 
@@ -626,61 +656,4 @@ function enterApp()
 	
 	$('#openbis-logo').height(50)
 	
-}
-
-function groupBy(numElts)
-{
-	var groupBy = function(groups, elt) {
-		if (groups.length < 1) {
-			groups.push([elt]);
-			return groups;
-		}
-		
-		var lastGrp = groups[groups.length - 1];
-		if (lastGrp.length < numElts) {
-			lastGrp.push(elt);
-		} else {
-			groups.push([elt]);
-		}
-	
-		return groups;
-	}
-	return groupBy;
-}
-
-/**
- * Check if the current elt number = last elt number + 1
- */
-function isRun(lastElt, currentElt) {
-	var lastNumber = Number(lastElt.label);
-	var currentNumber = Number(currentElt.label);
-	// Assume that non numeric values are runs
-	if (lastNumber == NaN || currentNumber == NaN) return true;
-	
-	return currentNumber == (lastNumber + 1);
-}
-
-function groupByRuns(maxNumEltsPerGroup)
-{
-  var lastSeen = "";
-	var groupBy = function(groups, elt) {
-		// Initialize the groups
-		if (groups.length < 1) { groups.push([elt]); return groups; }
-
-		// Check if we should append to the last group or create a new one
-		var lastGrp = groups[groups.length - 1];
-		var createNewGroup = false;
-		if (lastGrp.length >= maxNumEltsPerGroup) {
-			// We've reached the size limit of the group
-			createNewGroup = true;
-		} else {
-			// See if this is a run, if not create a new group
-			createNewGroup = !isRun(lastGrp[lastGrp.length - 1], elt);
-		}
-
-		(createNewGroup) ? groups.push([elt]) : lastGrp.push(elt);
-	
-		return groups;
-	}
-	return groupBy;
 }
