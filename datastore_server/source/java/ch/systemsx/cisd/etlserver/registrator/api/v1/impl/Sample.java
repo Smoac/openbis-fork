@@ -94,7 +94,7 @@ public class Sample extends SampleImmutable implements ISample
     {
         if (isDynamicProperty(propertyCode))
         {
-            throw new IllegalStateException("Setting value of dynamic property " + propertyCode
+            throw new IllegalArgumentException("Setting value of dynamic property " + propertyCode
                     + " is forbidden");
         }
         
