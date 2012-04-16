@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
@@ -83,8 +84,18 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     @Test
     public void testNoCorePluginsDefined()
     {
-        injector.injectCorePlugins(new Properties());
+        final RecordingMatcher<String> logMatcher = new RecordingMatcher<String>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(logger).log(with(LogLevel.WARN), with(logMatcher));
+                }
+            });
         
+        injector.injectCorePlugins(new Properties());
+
+        assertEquals("Core plugins folder '" + CorePluginsInjector.DEFAULT_CORE_PLUGINS_FOLDER
+                + "' does not exists.", logMatcher.recordedObject());
         context.assertIsSatisfied();
     }
     

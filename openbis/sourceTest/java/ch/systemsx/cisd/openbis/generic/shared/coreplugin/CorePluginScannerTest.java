@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.MockLogger;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
@@ -95,7 +94,8 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         String output =
                 String.format(
                         "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n"
-                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. Plugin version must be non-negative integer numbers.\n",
+                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. "
+                                + "Plugin version must be non-negative integer numbers.\n",
                         pluginsDir.getAbsolutePath(), pluginsDir.getAbsolutePath());
         assertEquals(output, logger.toString());
     }
@@ -118,10 +118,18 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         return scanner.tryLoadToString(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
     }
 
-    @Test(expectedExceptions = ConfigurationFailureException.class)
-    public void testWithInvalidFolder()
+    @Test
+    public void testWithNonExistingFolder()
     {
-        new CorePluginScanner("/invalid-folder", ScannerType.AS);
+        new CorePluginScanner("non-existing-folder", ScannerType.AS);
+    }
+
+    @Test(expectedExceptions = ConfigurationFailureException.class)
+    public void testWithFolderIsFile() throws IOException
+    {
+        File file = new File(workingDirectory, "file");
+        file.createNewFile();
+        new CorePluginScanner(file.getPath(), ScannerType.AS);
     }
 
 }

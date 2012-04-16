@@ -76,12 +76,19 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     {
         this.pluginsFolder = new File(pluginsFolderName);
         this.scannerType = scannerType;
-        if (false == pluginsFolder.isDirectory())
-        {
-            throw ConfigurationFailureException.fromTemplate("Invalid core-plugins folder '%s'",
-                    pluginsFolderName);
-        }
         this.log = logger;
+        if (pluginsFolder.exists())
+        {
+            if (false == pluginsFolder.isDirectory())
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Core-plugins folder '%s' is a file.", pluginsFolderName);
+            }
+        } else
+        {
+            log.log(LogLevel.WARN, "Core plugins folder '" + pluginsFolderName
+                    + "' does not exists.");
+        }
     }
 
     public String tryLoadToString(CorePlugin plugin, String path)
@@ -99,14 +106,17 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     public List<CorePlugin> scanForPlugins()
     {
         List<CorePlugin> result = new ArrayList<CorePlugin>();
-        List<File> pluginDirectories = FileUtilities.listDirectories(pluginsFolder, false);
-        Collections.sort(pluginDirectories);
-        for (File pluginDir : pluginDirectories)
+        if (pluginsFolder.isDirectory())
         {
-            CorePlugin plugin = tryLoadLatestVersion(pluginDir);
-            if (plugin != null)
+            List<File> pluginDirectories = FileUtilities.listDirectories(pluginsFolder, false);
+            Collections.sort(pluginDirectories);
+            for (File pluginDir : pluginDirectories)
             {
-                result.add(plugin);
+                CorePlugin plugin = tryLoadLatestVersion(pluginDir);
+                if (plugin != null)
+                {
+                    result.add(plugin);
+                }
             }
         }
         return result;

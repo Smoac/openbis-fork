@@ -59,6 +59,8 @@ public class CorePluginsInjector
 
     public static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
     
+    public static final String DEFAULT_CORE_PLUGINS_FOLDER = "../core-plugins";
+    
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
     
     static final String DISABLED_MARKER_FILE_NAME = "disabled";
@@ -131,11 +133,8 @@ public class CorePluginsInjector
     
     void injectCorePlugins(Properties properties)
     {
-        String corePluginsFolderPath = properties.getProperty(CORE_PLUGINS_FOLDER_KEY);
-        if (corePluginsFolderPath == null)
-        {
-            return;
-        }
+        String corePluginsFolderPath =
+                properties.getProperty(CORE_PLUGINS_FOLDER_KEY, DEFAULT_CORE_PLUGINS_FOLDER);
         injectCorePlugins(properties, corePluginsFolderPath);
     }
 

@@ -91,12 +91,11 @@ public class BackupDatabaseDescriptionGenerator
     private Properties readPropertiesAndInjectCorePlugins(File file)
     {
         Properties properties = ExtendedProperties.createWith(readProperties(file));
-        String property = properties.getProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY);
-        if (property != null)
-        {
-            CorePluginsInjector injector = new CorePluginsInjector();
-            injector.injectCorePlugins(properties, file.getParentFile().getParent() + "/" + property);
-        }
+        String property =
+                properties.getProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY,
+                        CorePluginsInjector.DEFAULT_CORE_PLUGINS_FOLDER);
+        CorePluginsInjector injector = new CorePluginsInjector();
+        injector.injectCorePlugins(properties, file.getParentFile().getParent() + "/" + property);
         return properties;
     }
 
