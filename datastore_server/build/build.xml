@@ -9,6 +9,7 @@
 	<property name="dss-jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
 	<property name="core-plugins.folder" value="dist/core-plugins"/>
+	<property name="core-plugins.package.marker.file" value="package-to-dist"/>
 	<property name="plugin-jar.file" value="${dist}/datastore_server-plugin.jar" />
 	<property name="dss-build.info.filename" value="BUILD-datastore_server.INFO"/>
 	<property name="dss-build.info.file" value="${classes}/${dss-build.info.filename}"/>
@@ -112,12 +113,33 @@
   </target>
 	
   <target name="copy-dss-core-plugins">
-  	<copy todir="${dist}/core-plugins">
-  		<fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
-  			<include name="*/*/dss/**/*"/>
-  		</fileset>
-  	</copy>
+    <pathconvert pathsep="," property="core-plugin-paths">
+      <fileset dir="${project-path}${core-plugins.folder}">
+        <include name="*/${core-plugins.package.marker.file}"/>
+      </fileset>
+      <mapper type="regexp" from=".*/${core-plugins.folder}/(.*)/${core-plugins.package.marker.file}" 
+                            to="\1/*/dss/**/*"/>
+    </pathconvert>
+    <echo file="${dist}/core-plugin-paths">${core-plugin-paths}</echo>
+    <!-- replace ',' by newline -->
+    <replace file="${dist}/core-plugin-paths">
+      <replacetoken>,</replacetoken>
+      <replacevalue><![CDATA[
+]]></replacevalue>
+    </replace>
+    <copy todir="${dist}/core-plugins">
+      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false"
+               includesfile="${dist}/core-plugin-paths"/>
+    </copy>
+  	<delete file="${dist}/core-plugin-paths"/>
   </target>
+
+  <target name="test-file-set" >
+    <antcall target="copy-dss-core-plugins">
+      <param name="project-path" value="../rtd_phosphonetx/"/>
+    </antcall>
+  </target>
+
 
 	<target name="dist">
 		<antcall target="make-dist">
