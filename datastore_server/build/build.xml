@@ -114,7 +114,7 @@
 	
   <target name="copy-dss-core-plugins">
     <pathconvert pathsep="," property="core-plugin-paths">
-      <fileset dir="${project-path}${core-plugins.folder}">
+      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
         <include name="*/${core-plugins.package.marker.file}"/>
       </fileset>
       <mapper type="regexp" from=".*/${core-plugins.folder}/(.*)/${core-plugins.package.marker.file}" 
