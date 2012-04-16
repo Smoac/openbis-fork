@@ -33,10 +33,18 @@ public class AccessionNumberBuilderTest extends AssertJUnit
     {
         check(null, "", "");
         check(null, "abc", "abc");
+        check(null, "DECOY_abc", "DECOY_abc");
         check("", "abc", "|abc");
+        check("", "DECOY_abc", "DECOY_|abc");
         check("", "ab", "|ab|c");
+        check("a", "b", "a|b");
+        check("a", "DECOY_b", "DECOY_a|b");
+        check("a", "DECOY_b", "DECOY_a|DECOY_b");
         check("a", "b", "a|b|c");
+        check("a", "DECOY_b", "DECOY_a|b|c");
+        check("a", "DECOY_b", "DECOY_a|DECOY_b|c");
         check("a", "", "a||c");
+        check("a", "DECOY_", "DECOY_a||c");
         check("", "", "||c");
         check("", "", "||");
         check("", "", "|");

@@ -42,6 +42,7 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
 
     private static final class Counter
     {
+
         private final double fdrLevel;
 
         private final Set<Long> proteins;
@@ -77,7 +78,7 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
             if (Double.isNaN(fdr) || fdr <= fdrLevel)
             {
                 String accessionNumber = protein.getAccessionNumber();
-                if (accessionNumber.startsWith("DECOY_"))
+                if (accessionNumber.startsWith(AccessionNumberBuilder.DECOY_PREFIX))
                 {
                     decoyProteins.add(protein.getId());
                     decoyPeptides.add(protein.getPeptideSequence());
