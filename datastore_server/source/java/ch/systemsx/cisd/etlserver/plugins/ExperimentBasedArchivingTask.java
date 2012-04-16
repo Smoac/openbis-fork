@@ -82,28 +82,33 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             missingEstimates.add(dataSetType);
         }
         
-        boolean hasMessage()
+        public boolean hasMessages()
         {
-            return archivingMessages.length() > 0 || missingEstimates.isEmpty() == false;
+            return archivingMessages.length() > 0;
         }
 
-        @Override
-        public String toString()
+        boolean hasMissingEstimates()
+        {
+            return missingEstimates.isEmpty() == false;
+        }
+        
+        String renderMissingEstimates()
         {
             StringBuilder builder = new StringBuilder();
-            if (missingEstimates.isEmpty() == false)
-            {
-                builder.append("Failed to estimate the avarage size for the following data set types: ");
-                builder.append(missingEstimates).append("\n");
-                builder.append("Please, configure the maintenance task with a property '");
-                builder.append(DATA_SET_SIZE_PREFIX);
-                builder.append("<data set type>' for each of these data set types. ");
-                builder.append("Alternatively, the property '");
-                builder.append(DATA_SET_SIZE_PREFIX).append(DEFAULT_DATA_SET_TYPE);
-                builder.append("' can be specified.\n\n");
-            }
-            builder.append("Archiving summary:").append(archivingMessages);
+            builder.append("Failed to estimate the avarage size for the following data set types: ");
+            builder.append(missingEstimates).append("\n");
+            builder.append("Please, configure the maintenance task with a property '");
+            builder.append(DATA_SET_SIZE_PREFIX);
+            builder.append("<data set type>' for each of these data set types. ");
+            builder.append("Alternatively, the property '");
+            builder.append(DATA_SET_SIZE_PREFIX).append(DEFAULT_DATA_SET_TYPE);
+            builder.append("' can be specified.");
             return builder.toString();
+        }
+
+        String renderMessages()
+        {
+            return "Archiving summary:" + archivingMessages;
         }
     }
 
@@ -285,9 +290,13 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
         } finally
         {
-            if (notificationMessageBuilder.hasMessage())
+            if (notificationMessageBuilder.hasMissingEstimates())
             {
-                notificationLog.info(notificationMessageBuilder.toString());
+                notificationLog.error(notificationMessageBuilder.renderMissingEstimates());
+            }
+            if (notificationMessageBuilder.hasMessages())
+            {
+                notificationLog.info(notificationMessageBuilder.renderMessages());
             }
         }
     }

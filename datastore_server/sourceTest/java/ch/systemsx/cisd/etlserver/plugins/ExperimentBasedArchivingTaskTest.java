@@ -67,12 +67,18 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     private static final String LOG_ENTRY_PREFIX_TEMPLATE =
             "INFO  %s.ExperimentBasedArchivingTask - ";
 
+    private static final String ERROR_LOG_ENTRY_PREFIX_TEMPLATE =
+            "ERROR %s.ExperimentBasedArchivingTask - ";
+    
     private static final String LOG_ENTRY_PREFIX = String.format(LOG_ENTRY_PREFIX_TEMPLATE,
             LogCategory.OPERATION);
 
     private static final String NOTIFY_LOG_ENTRY_PREFIX = String.format(LOG_ENTRY_PREFIX_TEMPLATE,
             LogCategory.NOTIFY);
 
+    private static final String NOTIFY_ERROR_LOG_ENTRY_PREFIX = String.format(
+            ERROR_LOG_ENTRY_PREFIX_TEMPLATE, LogCategory.NOTIFY);
+    
     private static final String FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY = LOG_ENTRY_PREFIX
             + "Free space is below threshold, searching for datasets to archive.";
 
@@ -392,9 +398,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             operationLogBuilder.append("\n").append(LOG_ENTRY_PREFIX).append(entry);
             notifyMessageBuilder.append("\n").append(entry);
         }
-        if (dataSetsWithMissingEstimates.size() > 0 || archivingEntries.length > 0)
+        if (dataSetsWithMissingEstimates.size() > 0)
         {
-            operationLogBuilder.append("\n").append(NOTIFY_LOG_ENTRY_PREFIX);
+            operationLogBuilder.append("\n").append(NOTIFY_ERROR_LOG_ENTRY_PREFIX);
             if (dataSetsWithMissingEstimates.size() > 0)
             {
                 operationLogBuilder
@@ -404,8 +410,12 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
                         .append("\nPlease, configure the maintenance task with a property " +
                         		"'estimated-data-set-size-in-KB.<data set type>' " +
                         		"for each of these data set types. Alternatively, the property " +
-                        		"'estimated-data-set-size-in-KB.DEFAULT' can be specified.\n\n");
+                        		"'estimated-data-set-size-in-KB.DEFAULT' can be specified.");
             }
+        }
+        if (archivingEntries.length > 0)
+        {
+            operationLogBuilder.append("\n").append(NOTIFY_LOG_ENTRY_PREFIX);
             operationLogBuilder.append("Archiving summary:").append(
                     notifyMessageBuilder.toString().replaceAll("Starting archiving ", "Archived "));
         }
