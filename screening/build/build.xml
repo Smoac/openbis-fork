@@ -334,7 +334,7 @@
       </fileset>
     </copy>
     <copy todir="${webapp.file}.unpacked/core-plugins" overwrite="true">
-      <fileset dir="../screening/dist/core-plugins">
+      <fileset dir="../screening/source/core-plugins">
         <include name="**/*.*" />
         <exclude name="**/.svn/*.*" />
       </fileset>

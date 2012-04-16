@@ -153,7 +153,7 @@
 				<exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
 			</classes>
-	    <zipfileset dir="../rtd_phosphonetx/dist/core-plugins" prefix="core-plugins">
+	    <zipfileset dir="../rtd_phosphonetx/source/core-plugins" prefix="core-plugins">
 	      <include name="**/*.*" />
 	      <exclude name="**/.svn/*.*" />
       </zipfileset>
