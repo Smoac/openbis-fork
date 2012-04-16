@@ -95,7 +95,7 @@
 	
   <target name="make-plugin-dist">
 		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
-  	<antcall target="copy-core-plugins">
+  	<antcall target="openbis.copy-core-plugins">
       <param name="project-path" value="" />
       <param name="plugin-kind" value="dss" />
   	</antcall>

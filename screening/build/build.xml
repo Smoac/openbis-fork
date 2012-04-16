@@ -84,7 +84,7 @@
   <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, calculate-screening-core-plugins-checksum, compute-dss-checksum">
     <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
   	<antcall target="add-stuff-to-dss-dist"/>
-  	<antcall target="copy-core-plugins">
+  	<antcall target="openbis.copy-core-plugins">
   		<param name="project-path" value="../screening/" />
       <param name="plugin-kind" value="dss" />
   	</antcall>
