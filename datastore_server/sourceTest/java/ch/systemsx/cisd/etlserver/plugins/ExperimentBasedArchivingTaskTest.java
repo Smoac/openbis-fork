@@ -236,7 +236,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         task.setUp("", properties);
         task.execute();
 
-        checkLog(logEntry(e1, dataSetOfIgnoredType, youngDataSet));
+        checkLog(false, false, logEntry(e1, dataSetOfIgnoredType, youngDataSet));
         context.assertIsSatisfied();
     }
 
@@ -319,8 +319,27 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         task.setUp("", properties);
         task.execute();
 
-        checkLog(true, logEntry(e3, dataSetWithNoModificationDate),
+        checkLog(false, true, logEntry(e3, dataSetWithNoModificationDate),
                 logEntry(e2, oldDataSet, youngDataSet), logEntry(e1, veryYoungDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testArchiveDataSetsWithNoSizeEstimates()
+    {
+        prepareFreeSpaceProvider(90L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, veryYoungDataSet, oldDataSet, youngDataSet);
+        lockedDataSet.setSize(1000L);
+        oldDataSet.setSize(500L);
+        youngDataSet.setSize(700L);
+        prepareArchivingDataSets(veryYoungDataSet, oldDataSet, youngDataSet);
+        prepareSizesAndTypes(oldDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(true, true, Arrays.asList("A"), logEntry(e1, veryYoungDataSet, oldDataSet, youngDataSet));
         context.assertIsSatisfied();
     }
 
@@ -347,12 +366,23 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private void checkLog(String... archivingEntries)
     {
-        checkLog(false, archivingEntries);
+        checkLog(true, false, archivingEntries);
     }
 
-    private void checkLog(boolean free90mb, String... archivingEntries)
+    private void checkLog(boolean noDefault, boolean free90mb, String... archivingEntries)
+    {
+        checkLog(noDefault, free90mb, Arrays.<String>asList(), archivingEntries);
+    }
+
+    private void checkLog(boolean noDefault, boolean free90mb,
+            List<String> dataSetsWithMissingEstimates, String... archivingEntries)
     {
         StringBuilder operationLogBuilder = new StringBuilder();
+        if (noDefault)
+        {
+            operationLogBuilder.append("WARN  OPERATION.ExperimentBasedArchivingTask - "
+                    + "No default estimated data set size specified.\n");
+        }
         operationLogBuilder.append(free90mb ? FREE_SPACE_LOG_ENTRY2 : FREE_SPACE_LOG_ENTRY);
         operationLogBuilder.append('\n');
         operationLogBuilder.append(FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY);
@@ -362,9 +392,20 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             operationLogBuilder.append("\n").append(LOG_ENTRY_PREFIX).append(entry);
             notifyMessageBuilder.append("\n").append(entry);
         }
-        if (archivingEntries.length > 0)
+        if (dataSetsWithMissingEstimates.size() > 0 || archivingEntries.length > 0)
         {
             operationLogBuilder.append("\n").append(NOTIFY_LOG_ENTRY_PREFIX);
+            if (dataSetsWithMissingEstimates.size() > 0)
+            {
+                operationLogBuilder
+                        .append("Failed to estimate the avarage size for the following data set types: ");
+                operationLogBuilder.append(dataSetsWithMissingEstimates);
+                operationLogBuilder
+                        .append("\nPlease, configure the maintenance task with a property " +
+                        		"'estimated-data-set-size-in-KB.<data set type>' " +
+                        		"for each of these data set types. Alternatively, the property " +
+                        		"'estimated-data-set-size-in-KB.DEFAULT' can be specified.\n\n");
+            }
             operationLogBuilder.append("Archiving summary:").append(
                     notifyMessageBuilder.toString().replaceAll("Starting archiving ", "Archived "));
         }

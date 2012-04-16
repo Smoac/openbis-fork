@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -66,6 +67,46 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
  */
 public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanceTask
 {
+    private static final class NotificationMessageBuilder
+    {
+        private final StringBuilder archivingMessages = new StringBuilder();
+        private final Set<String> missingEstimates = new TreeSet<String>();
+        
+        void addArchivingMessage(String message)
+        {
+            archivingMessages.append('\n').append("Archived " + message);
+        }
+        
+        void addMissingEstimatesFor(String dataSetType)
+        {
+            missingEstimates.add(dataSetType);
+        }
+        
+        boolean hasMessage()
+        {
+            return archivingMessages.length() > 0 || missingEstimates.isEmpty() == false;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder();
+            if (missingEstimates.isEmpty() == false)
+            {
+                builder.append("Failed to estimate the avarage size for the following data set types: ");
+                builder.append(missingEstimates).append("\n");
+                builder.append("Please, configure the maintenance task with a property '");
+                builder.append(DATA_SET_SIZE_PREFIX);
+                builder.append("<data set type>' for each of these data set types. ");
+                builder.append("Alternatively, the property '");
+                builder.append(DATA_SET_SIZE_PREFIX).append(DEFAULT_DATA_SET_TYPE);
+                builder.append("' can be specified.\n\n");
+            }
+            builder.append("Archiving summary:").append(archivingMessages);
+            return builder.toString();
+        }
+    }
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ExperimentBasedArchivingTask.class);
 
@@ -187,7 +228,10 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             {
                 result.put(dataSetType, estimatedSizeInBytes);
             }
-
+        }
+        if (result.get(DEFAULT_DATA_SET_TYPE) == null)
+        {
+            operationLog.warn("No default estimated data set size specified.");
         }
         return result;
     }
@@ -226,28 +270,28 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
         }
         Collections.sort(infos, new ExperimentDataSetsInfoComparator());
-        StringBuilder archivingMessages = new StringBuilder();
+        NotificationMessageBuilder notificationMessageBuilder = new NotificationMessageBuilder();
 
         try
         {
             for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
             {
                 ExperimentDataSetsInfo info = infos.get(i);
-                long estimatedSpaceFreed = info.estimateSize();
-                if (archive(info, archivingMessages))
+                long estimatedSpaceFreed = info.estimateSize(notificationMessageBuilder);
+                if (archive(info, notificationMessageBuilder))
                 {
                     freeSpace += estimatedSpaceFreed;
                 }
             }
         } finally
         {
-            if (archivingMessages.length() > 0)
+            if (notificationMessageBuilder.hasMessage())
             {
-                notificationLog.info("Archiving summary:" + archivingMessages);
+                notificationLog.info(notificationMessageBuilder.toString());
             }
         }
     }
-
+    
     private long getFreeSpace()
     {
         try
@@ -260,7 +304,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
     }
 
-    private boolean archive(ExperimentDataSetsInfo info, StringBuilder archivingMessages)
+    private boolean archive(ExperimentDataSetsInfo info, NotificationMessageBuilder builder)
     {
         List<DataSet> dataSets = info.getDataSetsToBeArchived();
         if (dataSets.isEmpty())
@@ -277,7 +321,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                         + info.getExperimentIdentifier() + ": " + dataSetCodes;
         operationLog.info("Starting archiving " + message);
         service.archiveDataSets(dataSetCodes, true);
-        archivingMessages.append('\n').append("Archived " + message);
+        builder.addArchivingMessage(message);
         return true;
     }
 
@@ -325,17 +369,17 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
         }
 
-        public long estimateSize()
+        public long estimateSize(NotificationMessageBuilder builder)
         {
             long sum = 0L;
             for (DataSet dataSetToBeArchived : getDataSetsToBeArchived())
             {
-                sum += estimateSize(dataSetToBeArchived);
+                sum += estimateSize(dataSetToBeArchived, builder);
             }
             return sum;
         }
 
-        private long estimateSize(DataSet dataSet)
+        private long estimateSize(DataSet dataSet, NotificationMessageBuilder builder)
         {
             String dataSetType = dataSet.getDataSetType().getCode().toUpperCase();
             Long estimatedDataSetSize = estimatedDataSetSizes.get(dataSetType);
@@ -345,13 +389,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
             if (estimatedDataSetSize == null)
             {
-                throw ConfigurationFailureException
-                        .fromTemplate(
-                                "Failed to estimate the average size for data set type '%s'. "
-                                        + "Please, configure the maintenance task with a '%s' or a '%s' property. ",
-                                dataSetType, DATA_SET_SIZE_PREFIX + dataSetType,
-                                DATA_SET_SIZE_PREFIX + DEFAULT_DATA_SET_TYPE);
-
+                builder.addMissingEstimatesFor(dataSetType);
+                estimatedDataSetSize = 0L;
             }
             return estimatedDataSetSize.longValue();
         }
