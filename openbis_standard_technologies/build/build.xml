@@ -24,15 +24,17 @@
 		<!-- proteomics -->
 		<antcall target="rtd_phosphonetx.make-dss-plugin-jar"/>
 		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-proteomics.jar" />
-		<antcall target="copy-dss-core-plugins">
+		<antcall target="copy-core-plugins">
       <param name="project-path" value="../rtd_phosphonetx/" />
+      <param name="plugin-kind" value="dss" />
 		</antcall>
 		
 		<!-- screening -->
 		<antcall target="screening.make-dss-plugin-jar"/>
     <move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-screening.jar" />
-		<antcall target="copy-dss-core-plugins">
+		<antcall target="copy-core-plugins">
       <param name="project-path" value="../screening/" />
+      <param name="plugin-kind" value="dss" />
 		</antcall>
 		<antcall target="screening.add-stuff-to-dss-dist"/>
 		<antcall target="screening.compute-dss-checksum"/>

@@ -8,8 +8,6 @@
 	<property name="dist.datastore_server.lib" value="${dist.datastore_server}/lib" />
 	<property name="dss-jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
-	<property name="core-plugins.folder" value="source/core-plugins"/>
-	<property name="core-plugins.package.marker.file" value="package-to-dist"/>
 	<property name="plugin-jar.file" value="${dist}/datastore_server-plugin.jar" />
 	<property name="dss-build.info.filename" value="BUILD-datastore_server.INFO"/>
 	<property name="dss-build.info.file" value="${classes}/${dss-build.info.filename}"/>
@@ -97,8 +95,9 @@
 	
   <target name="make-plugin-dist">
 		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
-  	<antcall target="copy-dss-core-plugins">
+  	<antcall target="copy-core-plugins">
       <param name="project-path" value="" />
+      <param name="plugin-kind" value="dss" />
   	</antcall>
   	<move todir="${dist.datastore_server}">
   		<fileset dir="${dist}">
@@ -112,28 +111,6 @@
   	<delete dir="${dist.datastore_server}"/>
   </target>
 	
-  <target name="copy-dss-core-plugins">
-    <pathconvert pathsep="," property="core-plugin-paths">
-      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
-        <include name="*/${core-plugins.package.marker.file}"/>
-      </fileset>
-      <mapper type="regexp" from=".*/${core-plugins.folder}/(.*)/${core-plugins.package.marker.file}" 
-                            to="\1/*/dss/**/*"/>
-    </pathconvert>
-    <echo file="${dist}/core-plugin-paths">${core-plugin-paths}</echo>
-    <!-- replace ',' by newline -->
-    <replace file="${dist}/core-plugin-paths">
-      <replacetoken>,</replacetoken>
-      <replacevalue><![CDATA[
-]]></replacevalue>
-    </replace>
-    <copy todir="${dist}/core-plugins">
-      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false"
-               includesfile="${dist}/core-plugin-paths"/>
-    </copy>
-  	<delete file="${dist}/core-plugin-paths"/>
-  </target>
-
 	<target name="dist">
 		<antcall target="make-dist">
 			<param name="variant" value="" />

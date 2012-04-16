@@ -39,6 +39,10 @@
 
   <property name="webapp.file.name" value="openBIS.war" />
   <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
+	
+	<property name="core-plugins.folder" value="source/core-plugins"/>
+	<property name="core-plugins.package.marker.file" value="package-to-dist"/>
+
 
   <!-- Properties for testing javascript, in particular common-dictionary.js -->
   <property name="rhino.lib" value="${lib}/rhino/js.jar" />
@@ -607,6 +611,29 @@
       </zipfileset>
     </jar>
   </target>
+	
+  <target name="copy-core-plugins">
+    <pathconvert pathsep="," property="core-plugin-paths">
+      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
+        <include name="*/${core-plugins.package.marker.file}"/>
+      </fileset>
+      <mapper type="regexp" from=".*/${core-plugins.folder}/(.*)/${core-plugins.package.marker.file}" 
+                            to="\1/*/${plugin-kind}/**/*"/>
+    </pathconvert>
+    <echo file="${dist}/core-plugin-paths">${core-plugin-paths}</echo>
+    <!-- replace ',' by newline -->
+    <replace file="${dist}/core-plugin-paths">
+      <replacetoken>,</replacetoken>
+      <replacevalue><![CDATA[
+]]></replacevalue>
+    </replace>
+    <copy todir="${dist}/core-plugins">
+      <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false"
+               includesfile="${dist}/core-plugin-paths"/>
+    </copy>
+  	<delete file="${dist}/core-plugin-paths"/>
+  </target>
+
 
   <!--
       // Creates WAR file.
