@@ -43,26 +43,39 @@ public class DataSetImmutable extends AbstractDataSetImmutable
 {
     protected final ExternalData dataSet;
 
-    private final Set<String> dynamicPropertiesCodes;
-    
+    private Set<String> dynamicPropertiesCodes;
+
     public DataSetImmutable(ExternalData dataSet, IEncapsulatedOpenBISService service)
     {
         super(service);
         this.dataSet = dataSet;
-        
-        dynamicPropertiesCodes = new HashSet<String>();
-        for (DataSetTypePropertyType pt : dataSet.getDataSetType().getAssignedPropertyTypes())
-        {
-            if (pt.isDynamic())
-            {
-                dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-            }
-        }
+
     }
 
     protected boolean isDynamicProperty(String code)
     {
-        return dynamicPropertiesCodes.contains(code);
+        return getDynamicPropertiesCodes().contains(code);
+    }
+
+    private Set<String> getDynamicPropertiesCodes()
+    {
+        if (dynamicPropertiesCodes == null)
+        {
+            dynamicPropertiesCodes = new HashSet<String>();
+            if (dataSet.getDataSetType() != null
+                    && dataSet.getDataSetType().getAssignedPropertyTypes() != null)
+            {
+                for (DataSetTypePropertyType pt : dataSet.getDataSetType()
+                        .getAssignedPropertyTypes())
+                {
+                    if (pt.isDynamic())
+                    {
+                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
+                    }
+                }
+            }
+        }
+        return dynamicPropertiesCodes;
     }
 
     public String getDataSetCode()

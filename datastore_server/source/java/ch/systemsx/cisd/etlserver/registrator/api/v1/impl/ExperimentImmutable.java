@@ -31,27 +31,39 @@ public class ExperimentImmutable implements IExperimentImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
 
-    private final Set<String> dynamicPropertiesCodes;
-    
+    private Set<String> dynamicPropertiesCodes;
+
     public ExperimentImmutable(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment)
     {
         this.experiment = experiment;
-        dynamicPropertiesCodes = new HashSet<String>();
-        for (ExperimentTypePropertyType pt : experiment.getExperimentType().getAssignedPropertyTypes())
-        {
-            if (pt.isDynamic())
-            {
-                dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-            }
-        }
     }
 
     protected boolean isDynamicProperty(String code)
     {
-        return dynamicPropertiesCodes.contains(code);
+        return getDynamicPropertiesCodes().contains(code);
     }
-    
+
+    private Set<String> getDynamicPropertiesCodes()
+    {
+        if (dynamicPropertiesCodes == null)
+        {
+            dynamicPropertiesCodes = new HashSet<String>();
+            if (experiment.getExperimentType() != null
+                    && experiment.getExperimentType().getAssignedPropertyTypes() != null)
+            {
+                for (ExperimentTypePropertyType pt : experiment.getExperimentType()
+                        .getAssignedPropertyTypes())
+                {
+                    if (pt.isDynamic())
+                    {
+                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
+                    }
+                }
+            }
+        }
+        return dynamicPropertiesCodes;
+    }
 
     public String getExperimentIdentifier()
     {

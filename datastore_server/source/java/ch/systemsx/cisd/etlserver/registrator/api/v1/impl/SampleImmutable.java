@@ -36,7 +36,7 @@ public class SampleImmutable implements ISampleImmutable
 
     private final boolean existingSample;
 
-    private final Set<String> dynamicPropertiesCodes;
+    private Set<String> dynamicPropertiesCodes;
     
     public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
@@ -48,20 +48,32 @@ public class SampleImmutable implements ISampleImmutable
     {
         this.sample = sample;
         this.existingSample = existingSample;
-        
-        dynamicPropertiesCodes = new HashSet<String>();
-        for (SampleTypePropertyType pt : sample.getSampleType().getAssignedPropertyTypes())
-        {
-            if (pt.isDynamic())
-            {
-                dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-            }
-        }
     }
 
     protected boolean isDynamicProperty(String code)
     {
-        return dynamicPropertiesCodes.contains(code);
+        return getDynamicPropertiesCodes().contains(code);
+    }
+
+    private Set<String> getDynamicPropertiesCodes()
+    {
+        if (dynamicPropertiesCodes == null)
+        {
+            dynamicPropertiesCodes = new HashSet<String>();
+            if (sample.getSampleType() != null
+                    && sample.getSampleType().getAssignedPropertyTypes() != null)
+            {
+                for (SampleTypePropertyType pt : sample.getSampleType()
+                        .getAssignedPropertyTypes())
+                {
+                    if (pt.isDynamic())
+                    {
+                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
+                    }
+                }
+            }
+        }
+        return dynamicPropertiesCodes;
     }
     
     public IExperimentImmutable getExperiment()
