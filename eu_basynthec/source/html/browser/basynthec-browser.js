@@ -283,14 +283,35 @@ AppPresenter.prototype.retrieveOd600DataForDataSet = function(ds)
 	ds.files.forEach(function (file) { if (endsWith(file.pathInDataSet, "xls.tsv")) tsvPathInDataSet = file.pathInDataSet});
 		
 	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.sessionToken;
+	
+	var lexicalParent = this;
 
 	d3.text(tsvUrl, "text/tsv", function(text) {
 		var rows = d3.tsv.parseRows(text, "\t");
-		
 		ds.od600Rows = rows;
-		ds.loadingOd600 = false; 
+		lexicalParent.initializeOd600Map(ds);
+		ds.loadingOd600 = false;
 		presenter.updateInspectors(500);
 	});	
+}
+
+/** 
+ * Initialize a map of the OD600 data, where the key is the strain and the value is an array 
+ * 
+ * Assumes that ds.od600Rows has already been set
+ */
+AppPresenter.prototype.initializeOd600Map = function(ds) 
+{
+	ds.od600Map = {};
+	// The first line of data contains the timepoints
+	ds.od600Timepoints = ds.od600Rows[0].slice(2);
+	var i;
+	for (i = 1; i < ds.od600Rows.length; ++i) {
+		var line = ds.od600Rows[i];
+		var strain = line[0].toUpperCase();
+		var data = line.slice(2);
+		ds.od600Map[strain] = data;
+	}
 }
 
 
@@ -637,7 +658,6 @@ function od600DataForDataSet(d)
 	if (undefined == d.od600Rows) return [[]];
 	
 	return [d.od600Rows.slice(1)];
-//		return [d.od600[1]];
 }
 
 function curveData(d)
