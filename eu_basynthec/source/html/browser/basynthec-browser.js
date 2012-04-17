@@ -53,11 +53,15 @@ StrainWrapper.prototype = new AbstractThingWrapper();
 StrainWrapper.prototype.constructor = StrainWrapper;
 StrainWrapper.prototype.isStrain = function() { return true; }
 
+var presenterModeTypeDataSet = "DATA_SET", presenterModeTypeStrain = "STRAIN";
+
 /**
  * An object responsible for managing the view
  */ 
 function AppPresenter() {
 	this.didCreateVis = false;
+	this.presenterMode = presenterModeTypeDataSet;
+	this.visualizationContainers = [];
 }
 
 /** Hides the explanation and shows the element to display the explanation again */
@@ -75,39 +79,47 @@ AppPresenter.prototype.showExplanation = function() {
 /** Show the data sets grouped by type */
 AppPresenter.prototype.switchToDataSetTypeView = function()
 {
+	this.presenterMode = presenterModeTypeDataSet;
 	this.hideExplanation();
-	this.toggleDisplayedVisualizations(dataSetTypeVis, strainVis);
+	this.toggleDisplayedVisualizations(dataSetTypeVis);
+	inspectorView.updateView();	
 }
 
 /** Show the data sets by strain*/
 AppPresenter.prototype.switchToStrainView = function()
 {
+	this.presenterMode = presenterModeTypeDataSet;
 	this.hideExplanation();
-	this.toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
+	this.toggleDisplayedVisualizations(strainVis);
+	inspectorView.updateView();		
 }
 
 /** Show the data sets by strains with OD600 data*/
 AppPresenter.prototype.switchToOD600View = function()
 {
+	this.presenterMode = presenterModeTypeStrain;
 	this.hideExplanation();
-	this.toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
+	this.toggleDisplayedVisualizations(strainVis);
+	inspectorView.removeAll(250);	
 }
 
 /** Utility function to gracefully switch from one visualization to another */
-AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow, visToHide)
+AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow)
 {
-	// TODO: Only include visToShow and hide all other visualizations, since we know what they are
-	visToShow
-	.style("display", "inline")
-		.transition()
-	.duration(1000)
-	.style("opacity", 1);
-	
-	visToHide
-		.transition()
-	.duration(1000)
-	.style("opacity", 0)
-	.style("display", "none");
+	this.visualizationContainers.forEach(function(vis) {
+		if (vis == visToShow) {
+			vis.style("display", "inline")
+				.transition()
+			.duration(1000)
+			.style("opacity", 1);
+		} else {
+			vis
+				.transition()
+			.duration(1000)
+			.style("opacity", 0)
+			.style("display", "none")
+		}
+	});
 }
 
 /**
@@ -182,6 +194,8 @@ AppPresenter.prototype.createVis = function()
 	strainVis.style("width", w + "px");
 	strainView = new StrainView();
 	
+	this.visualizationContainers = [dataSetTypeVis, strainVis];
+	
 	inspectorView = new InspectorView();
 	
 	this.didCreateVis = true;
@@ -189,7 +203,12 @@ AppPresenter.prototype.createVis = function()
 
 AppPresenter.prototype.updateInspectors = function(duration) 
 {
-	inspectorView.updateView(duration);
+	if (this.presenterMode == presenterModeTypeDataSet)
+	{
+		inspectorView.updateView(duration);
+	} else {
+		// Do nothing.
+	}
 }
 
 /** Download a file referenced in a table. */
@@ -601,6 +620,16 @@ InspectorView.prototype.updateView = function(duration)
 		.style("stroke", "rgb(0,0,0)")
 		.style("stroke-width", "1");
 	
+	inspector.exit().transition()
+		.duration(duration)
+		.style("opacity", "0")
+		.remove();
+}
+
+/** Removes all nodes from the view, without affecting the model */
+InspectorView.prototype.removeAll = function(duration) 
+{
+	var inspector = inspectors.selectAll("div.inspector").data([]);
 	inspector.exit().transition()
 		.duration(duration)
 		.style("opacity", "0")
