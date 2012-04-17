@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.rpc.server;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -35,8 +34,7 @@ public class File2GBUploadServlet extends AbstractFileUploadDownloadServlet
     {
     }
 
-    @Private
-    File2GBUploadServlet(IExtendedCIFEXRPCService service, IDomainModel domainModel)
+    protected File2GBUploadServlet(IExtendedCIFEXRPCService service, IDomainModel domainModel)
     {
         super(service, domainModel);
     }

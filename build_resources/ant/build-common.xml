@@ -149,7 +149,6 @@
 	</target>
 
 	<target name="check-restrictions" depends="compile, compile-tests">
-	  <!-- TODO didn't work after libraries update (r24921) -->
 		<exec executable="sh" failonerror="true">
 			<arg value="../libraries/restrictionchecker/jrc" />
 			<arg value="-r" />

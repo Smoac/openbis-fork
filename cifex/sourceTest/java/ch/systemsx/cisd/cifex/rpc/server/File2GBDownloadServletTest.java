@@ -31,7 +31,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient;
 import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
@@ -43,7 +42,6 @@ import ch.systemsx.cisd.common.utilities.Template;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-@Friend(toClasses = File2GBDownloadServlet.class)
 public class File2GBDownloadServletTest extends AssertJUnit
 {
     private static final String SCHEME = "http";
