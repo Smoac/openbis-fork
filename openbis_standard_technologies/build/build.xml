@@ -8,6 +8,14 @@
 	<target name="ci" depends="build-common.ci, dist" />
 
 	<target name="dist" depends="clean">
+	  <antcall target="copy-core-plugins">
+	    <param name="project-path" value="../rtd_phosphonetx/"/>
+	    <param name="plugin-kind" value="as"/>
+	  </antcall>
+	  <antcall target="copy-core-plugins">
+	    <param name="project-path" value="../screening/"/>
+	    <param name="plugin-kind" value="as"/>
+	  </antcall>
 		<antcall target="openbis.make-dist">
 			<param name="actual.build.info.filename" value="BUILD-openbis.INFO" />
 			<param name="variant" value="-standard-technologies" />
