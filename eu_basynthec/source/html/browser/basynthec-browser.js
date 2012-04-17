@@ -2,6 +2,58 @@
 var w = 500;
 
 /**
+ * Abstract superclass for the wrapper classes.
+ *
+ * @constructor
+ */
+function AbstractThingWrapper() {
+	this.isDataSet = function() { return false; }
+	this.isStrain = function() { return false; }
+}
+
+/**
+ * Create a wrapper on a data set designed to be displayed as a data set.
+ * 
+ * @constructor
+ */
+function DataSetWrapper(dataSet) {
+	var strainNames;
+	if (dataSet.properties[STRAIN_PROP_NAME] != null)
+		strainNames = dataSet.properties[STRAIN_PROP_NAME].split(",");
+	else
+		strainNames = [dataSet.properties["STRAIN_NAME"]];
+				
+	this.strainNames = strainNames;
+	this.dataSet = dataSet;
+	this.dateString = timeformat(new Date(dataSet.registrationDetails.registrationDate));
+	this.strainString = 
+							(strainNames.length < 3) ?
+								strainNames.join(" ") :
+								"" + strainNames.length + " strain(s)";
+	this.userEmail = dataSet.registrationDetails.userEmail;
+	this.name = dataSet.code;
+}
+
+DataSetWrapper.prototype = new AbstractThingWrapper();
+DataSetWrapper.prototype.constructor = DataSetWrapper;
+DataSetWrapper.prototype.isDataSet = function() { return true; }
+
+/**
+ * Create a wrapper that represents a strain to be displayed
+ *
+ * @constructor
+ */
+function StrainWrapper(strainName)
+{
+	this.strainName = strainName;
+	this.dataSets = [];
+}
+
+StrainWrapper.prototype = new AbstractThingWrapper();
+StrainWrapper.prototype.constructor = StrainWrapper;
+StrainWrapper.prototype.isStrain = function() { return true; }
+
+/**
  * An object responsible for managing the view
  */ 
 function AppPresenter() {
@@ -173,7 +225,7 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 		d.inspected = true;
 		d.connectedNode = connectedNode;
 		inspected.push(d);
-		if (d.type === typeDataSet) {
+		if (d instanceof DataSetWrapper) {
 			d.dataSets = [{ bis : d.dataSet }];
 			retrieveFilesForDataSets(d.dataSets);
 		} else if (!d.dataSets) {
@@ -561,20 +613,11 @@ function filesForDataSet(d)
 var model = new AppModel();
 var presenter = new AppPresenter();
 
-// Variables for determining if a particular object is a data set or a strain
-var typeDataSet = "DATA_SET", typeStrain = "STRAIN";	
-
 // The data set type visualization
 var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
 
 // The strain visualization
 var strainVis, strainView;
-
-// The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
-
-// Variables for determining if a particular object is a data set or a strain
-var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
 
 var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
 
