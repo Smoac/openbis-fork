@@ -277,4 +277,15 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         throw new UnsupportedOperationException("The operation is not supported for data "
                 + "sets not existing prior the transaction start.");
     }
+
+    //the dataset cannot be contained before it is created
+    public boolean isContainedDataSet()
+    {
+        return false;
+    }
+
+    public String getContainerDataSet()
+    {
+        return null;
+    }
 }

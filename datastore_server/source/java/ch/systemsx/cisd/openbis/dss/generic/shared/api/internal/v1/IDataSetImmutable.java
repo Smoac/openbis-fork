@@ -118,4 +118,14 @@ public interface IDataSetImmutable
      */
     public List<String> getContainedDataSetCodes();
 
+    /**
+     * Return true if this data set is contained in other data set
+     */
+    public boolean isContainedDataSet();
+
+    /**
+     * Return the code of the container in which this data set is contained
+     */
+    public String getContainerDataSet();
+    
 }
