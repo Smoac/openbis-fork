@@ -17,14 +17,11 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -36,8 +33,6 @@ public class SampleImmutable implements ISampleImmutable
 
     private final boolean existingSample;
 
-    private Set<String> dynamicPropertiesCodes;
-    
     public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         this(sample, true);
@@ -50,32 +45,6 @@ public class SampleImmutable implements ISampleImmutable
         this.existingSample = existingSample;
     }
 
-    protected boolean isDynamicProperty(String code)
-    {
-        return getDynamicPropertiesCodes().contains(code);
-    }
-
-    private Set<String> getDynamicPropertiesCodes()
-    {
-        if (dynamicPropertiesCodes == null)
-        {
-            dynamicPropertiesCodes = new HashSet<String>();
-            if (sample.getSampleType() != null
-                    && sample.getSampleType().getAssignedPropertyTypes() != null)
-            {
-                for (SampleTypePropertyType pt : sample.getSampleType()
-                        .getAssignedPropertyTypes())
-                {
-                    if (pt.isDynamic())
-                    {
-                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-                    }
-                }
-            }
-        }
-        return dynamicPropertiesCodes;
-    }
-    
     public IExperimentImmutable getExperiment()
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =

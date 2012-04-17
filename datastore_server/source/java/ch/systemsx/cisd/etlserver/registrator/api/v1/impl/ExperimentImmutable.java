@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -31,38 +27,10 @@ public class ExperimentImmutable implements IExperimentImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
 
-    private Set<String> dynamicPropertiesCodes;
-
     public ExperimentImmutable(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment)
     {
         this.experiment = experiment;
-    }
-
-    protected boolean isDynamicProperty(String code)
-    {
-        return getDynamicPropertiesCodes().contains(code);
-    }
-
-    private Set<String> getDynamicPropertiesCodes()
-    {
-        if (dynamicPropertiesCodes == null)
-        {
-            dynamicPropertiesCodes = new HashSet<String>();
-            if (experiment.getExperimentType() != null
-                    && experiment.getExperimentType().getAssignedPropertyTypes() != null)
-            {
-                for (ExperimentTypePropertyType pt : experiment.getExperimentType()
-                        .getAssignedPropertyTypes())
-                {
-                    if (pt.isDynamic())
-                    {
-                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-                    }
-                }
-            }
-        }
-        return dynamicPropertiesCodes;
     }
 
     public String getExperimentIdentifier()

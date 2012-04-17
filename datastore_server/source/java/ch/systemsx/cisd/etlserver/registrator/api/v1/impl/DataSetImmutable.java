@@ -18,9 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
@@ -29,7 +27,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -43,39 +40,10 @@ public class DataSetImmutable extends AbstractDataSetImmutable
 {
     protected final ExternalData dataSet;
 
-    private Set<String> dynamicPropertiesCodes;
-
     public DataSetImmutable(ExternalData dataSet, IEncapsulatedOpenBISService service)
     {
         super(service);
         this.dataSet = dataSet;
-
-    }
-
-    protected boolean isDynamicProperty(String code)
-    {
-        return getDynamicPropertiesCodes().contains(code);
-    }
-
-    private Set<String> getDynamicPropertiesCodes()
-    {
-        if (dynamicPropertiesCodes == null)
-        {
-            dynamicPropertiesCodes = new HashSet<String>();
-            if (dataSet.getDataSetType() != null
-                    && dataSet.getDataSetType().getAssignedPropertyTypes() != null)
-            {
-                for (DataSetTypePropertyType pt : dataSet.getDataSetType()
-                        .getAssignedPropertyTypes())
-                {
-                    if (pt.isDynamic())
-                    {
-                        dynamicPropertiesCodes.add(pt.getPropertyType().getCode());
-                    }
-                }
-            }
-        }
-        return dynamicPropertiesCodes;
     }
 
     public String getDataSetCode()
