@@ -6,8 +6,8 @@
   <property name="gwt.extended.sources" value="${gwt.sources}:../rtd_phosphonetx/${sources}:../screening/${sources}" />
 
 	<target name="ci" depends="build-common.ci, dist" />
-
-	<target name="dist" depends="clean">
+  
+  <target name="core-plugins-dist" depends="openbis.core-plugins-dist">
 	  <antcall target="copy-core-plugins">
 	    <param name="project-path" value="../rtd_phosphonetx/"/>
 	    <param name="plugin-kind" value="as"/>
@@ -16,6 +16,9 @@
 	    <param name="project-path" value="../screening/"/>
 	    <param name="plugin-kind" value="as"/>
 	  </antcall>
+  </target>
+
+	<target name="dist" depends="clean">
 		<antcall target="openbis.make-dist">
 			<param name="actual.build.info.filename" value="BUILD-openbis.INFO" />
 			<param name="variant" value="-standard-technologies" />
