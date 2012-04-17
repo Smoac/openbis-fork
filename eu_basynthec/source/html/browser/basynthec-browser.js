@@ -140,6 +140,47 @@ AppPresenter.prototype.updateInspectors = function(duration)
 	inspectorView.updateView(duration);
 }
 
+/** Download a file referenced in a table. */
+AppPresenter.prototype.downloadTableFile = function(d)
+{
+	// If there is no dataset, this is just a marker for loading
+	if (!d.dataset) return;
+	
+	var action = function(data) { 
+		try {
+			document.location.href = data.result
+		} catch (err) {
+			// just ignore errors		
+		} 
+	};
+	basynthec.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
+}
+
+AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
+	this.hideExplanation();
+
+	if (d.inspected) {
+		var index = inspected.indexOf(d) 
+		if (index > -1)	inspected.splice(index, 1);
+		d.inspected = false;
+	} else {
+		d.inspected = true;
+		d.connectedNode = connectedNode;
+		inspected.push(d);
+		if (d.type === typeDataSet) {
+			d.dataSets = [{ bis : d.dataSet }];
+			retrieveFilesForDataSets(d.dataSets);
+		} else if (!d.dataSets) {
+			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
+			retrieveFilesForDataSets(d.dataSets);
+		}
+	}
+	
+	d3.select(d.connectedNode).attr("class", classForNode(d))
+  this.updateInspectors(500);
+}
+
+
 /**
  * An object responsible for managing the data to show
  */
@@ -277,7 +318,7 @@ DataSummaryView.prototype.updateView = function()
 			.data(function (d) { return d})
 		.enter()
 			.append("tr")
-			.on("click", toggle_inspected)
+			.on("click", toggleInspected)
 				.selectAll("td")
 					.data(function (d) { return [d.dateString, d.userEmail, d.strainString] })
 				.enter()
@@ -314,7 +355,7 @@ StrainView.prototype.updateView = function(duration)
 			.selectAll("td").data(function(d) { return d })
 				.enter()
 			.append("td")
-			.on("click", toggle_inspected)
+			.on("click", toggleInspected)
 			.text(function(d) { return d.label });
 }
 
@@ -332,7 +373,7 @@ InspectorView.prototype.updateView = function(duration)
 
 	box.append("span")
 		.attr("class", "close")
-		.on("click", toggle_inspected)
+		.on("click", toggleInspected)
 		.text("x");
 	
 	var dataSetList = inspector.selectAll("ul").data(function (d) { return [d] });
@@ -427,10 +468,9 @@ InspectorView.prototype.updateView = function(duration)
 		.remove();
 }
 
-function dataSetLabel(d) {
-	return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate)); 
-}
+function dataSetLabel(d) { return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate));  }
 
+function downloadTableFile(d) { presenter.downloadTableFile(d) }
 
 
 var model = new AppModel();
@@ -460,47 +500,10 @@ var inspected = [];
 var inspectors, inspectorView;
 
 
-function downloadTableFile(d)
-{
-	// If there is no dataset, this is just a marker for loading
-	if (!d.dataset) return;
-	
-	var action = function(data) { 
-		try {
-			document.location.href = data.result
-		} catch (err) {
-			// just ignore errors		
-		} 
-	};
-	basynthec.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
-}
+function toggleInspected(d) { presenter.toggleInspected(d, this) }
 
 function classForNode(d) { 
 	return  (d.inspected) ? "inspected" : "";
-}
-
-function toggle_inspected(d) {
-	presenter.hideExplanation();
-
-	if (d.inspected) {
-		var index = inspected.indexOf(d) 
-		if (index > -1)	inspected.splice(index, 1);
-		d.inspected = false;
-	} else {
-		d.inspected = true;
-		d.strainNode = this;
-		inspected.push(d);
-		if (d.type === typeDataSet) {
-			d.dataSets = [{ bis : d.dataSet }];
-			retrieveFilesForDataSets(d.dataSets);
-		} else if (!d.dataSets) {
-			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
-			retrieveFilesForDataSets(d.dataSets);
-		}
-	}
-	
-	d3.select(d.strainNode).attr("class", classForNode(d))
-  presenter.updateInspectors(500);
 }
 
 function filesForDataSet(d)
