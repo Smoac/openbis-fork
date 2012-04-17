@@ -26,6 +26,8 @@ import org.python.core.Py;
 import org.python.core.PyException;
 
 /**
+ * Splits jython code into smaller batches to overcome 64KB script size limitation.
+ * 
  * @author pkupczyk
  */
 public class JythonScriptSplitter
@@ -43,23 +45,20 @@ public class JythonScriptSplitter
 
         for (String line : script.getLines())
         {
-            if (isEmptyLine(line))
-            {
-                batch.addLine(line);
-                continue;
-            }
-            if (batch.getSize() < getBatchSize())
+            if (isEmptyLine(line) || batch.getSize() < getBatchSize())
             {
                 batch.addLine(line);
             } else
             {
                 if (compile(line))
                 {
+                    // the line contains a full command or a beginning of a new complex command
                     batches.add(batch);
                     batch = new JythonScriptBatch();
                     batch.addLine(line);
                 } else
                 {
+                    // the line contains a continuation of a complex command
                     batch.addLine(line);
                 }
             }

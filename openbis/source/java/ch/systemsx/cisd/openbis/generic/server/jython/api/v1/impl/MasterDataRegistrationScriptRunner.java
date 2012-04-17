@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.io.File;
+import java.util.List;
 
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
@@ -55,8 +57,14 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         PythonInterpreter interpreter = PythonUtils.createIsolatedPythonInterpreter();
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
+        // Split the script to overcome 64KB limit (see LMS-2749)
+        List<String> batches = new JythonScriptSplitter().split(jythonScript);
+
         // Invoke the evaluator
-        interpreter.exec(jythonScript);
+        for (String batch : batches)
+        {
+            interpreter.exec(batch);
+        }
 
         service.commit();
     }
