@@ -30,6 +30,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 /**
  * @author pkupczyk
  */
+
+@Test(groups =
+    { "slow" })
 public class JythonScriptSplitterTest
 {
 
@@ -62,14 +65,16 @@ public class JythonScriptSplitterTest
     @Test
     public void testSplittingScriptBiggerThanBatchSizeShouldReturnMultipleBatches()
     {
-        List<String> batches = testSplittingScript(10, 100);
-        Assert.assertTrue(batches.size() > 1);
+        List<String> batches = testSplittingScript(1, 10);
+        Assert.assertEquals(batches.size(), 2);
+        Assert.assertEquals(batches.get(0), getTestScriptCodeBatch1());
+        Assert.assertEquals(batches.get(1), getTestScriptCodeBatch2());
     }
 
     @Test
     public void testSplittingScriptBiggerThanJavaLimitShouldReturnMultipleBatches()
     {
-        List<String> batches = testSplittingScript(1000, 100);
+        List<String> batches = testSplittingScript(200, 100);
         Assert.assertTrue(batches.size() > 1);
     }
 
@@ -116,6 +121,16 @@ public class JythonScriptSplitterTest
     private String getTestScriptCode(int scriptSize)
     {
         return getTestFile("testScriptCode.py", scriptSize);
+    }
+
+    private String getTestScriptCodeBatch1()
+    {
+        return getTestFile("testScriptCodeBatch1.py", 1);
+    }
+
+    private String getTestScriptCodeBatch2()
+    {
+        return getTestFile("testScriptCodeBatch2.py", 1);
     }
 
     private String getTestScriptOutput(int scriptSize)

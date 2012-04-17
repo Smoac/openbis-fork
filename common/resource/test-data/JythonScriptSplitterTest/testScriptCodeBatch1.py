@@ -16,6 +16,3 @@ if True:
             print 'circus'
 else:
     print 'Not possible...'
-if False:
-    print 'Not possible...'
-print '>>> END'
