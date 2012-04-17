@@ -310,7 +310,7 @@
     <copy file="${original.openbis.server.dist}/export-master-data.sh" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/export-master-data.py" todir="${server.dist}" />
     <zip destfile="${server.dist}/core-plugins.zip">
-      <zipfileset dir="${dist}/core-plugins" includes="**" prefix="core-plugins"/>
+      <zipfileset dir="${dist}/core-plugins" includes="**" prefix="core-plugins" erroronmissingdir="false"/>
     </zip>
     <delete dir="${dist}/gwt-unitCache"/>
     <delete dir="${dist}/core-plugins"/>
