@@ -1,5 +1,6 @@
 <project name="deep_sequencing_unit" default="ci" basedir="..">
 	<import file="../../datastore_server/build/build.xml" />
+	<import file="../../openbis/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
 	<property name="original.dist" value="dist" />
