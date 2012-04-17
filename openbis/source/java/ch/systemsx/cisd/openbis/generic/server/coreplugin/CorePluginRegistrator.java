@@ -51,7 +51,7 @@ public class CorePluginRegistrator implements InitializingBean
     public void registerPlugins()
     {
         if ("${core-plugins-folder}".equals(pluginsFolderName)
-                || pluginsFolderName.contains("webapp/core-plugins"))
+                || pluginsFolderName.contains("webapps/openbis/core-plugins"))
         {
             pluginsFolderName = "../../core-plugins";
         }
