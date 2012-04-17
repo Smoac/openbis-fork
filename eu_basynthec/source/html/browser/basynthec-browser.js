@@ -1,10 +1,143 @@
+// The width of the visualization
 var w = 500;
 
 /**
  * An object responsible for managing the view
  */ 
 function AppPresenter() {
+	this.didCreateVis = false;
+}
+
+/** Hides the explanation and shows the element to display the explanation again */
+AppPresenter.prototype.hideExplanation = function() {
+	$('#explanation').hide();
+	$('#explanation-show').show();	
+}
+
+/** Display the explanation again */
+AppPresenter.prototype.showExplanation = function() {
+	$('#explanation-show').hide();		
+	$('#explanation').show();
+}
+
+/** Show the data sets grouped by type */
+AppPresenter.prototype.switchToDataSetTypeView = function()
+{
+	this.hideExplanation();
+	this.toggleDisplayedVisualizations(dataSetTypeVis, strainVis);
+}
+
+/** Show the data sets by strain*/
+AppPresenter.prototype.switchToStrainView = function()
+{
+	this.hideExplanation();
+	this.toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
+}
+
+/** Show the data sets by strains with OD600 data*/
+AppPresenter.prototype.switchToOD600View = function()
+{
+	this.hideExplanation();
+	this.toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
+}
+
+/** Utility function to gracefully switch from one visualization to another */
+AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow, visToHide)
+{
+	// TODO: Only include visToShow and hide all other visualizations, since we know what they are
+	visToShow
+	.style("display", "inline")
+		.transition()
+	.duration(1000)
+	.style("opacity", 1);
 	
+	visToHide
+		.transition()
+	.duration(1000)
+	.style("opacity", 0)
+	.style("display", "none");
+}
+
+/**
+ * Shows the list of data sets retrieved from the openBIS server.
+ */
+AppPresenter.prototype.showDataSets = function(bisDataSets) {
+	if (null == bisDataSets) return;
+	
+	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
+		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
+  });
+	
+	// sort data sets
+	var sortByTypeAndRegistration = function(a, b) {
+		if (a.dataSetTypeCode == b.dataSetTypeCode) {
+			return b.registrationDetails.registrationDate - a.registrationDetails.registrationDate;
+		}
+		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
+	};
+	
+	basynthec.dataSetList.sort(sortByTypeAndRegistration);
+	
+	model.initializeDataSetsByType();
+	model.initializeDataSetsByStrain();
+	
+	presenter.refreshDataSetTypeTables();
+	presenter.refreshStrainTables();
+}
+
+AppPresenter.prototype.refreshStrainTables = function() {
+	model.initializeStrainGroups();
+	
+  this.createVis();
+ 	strainView.updateView(1000);
+}
+
+AppPresenter.prototype.refreshDataSetTypeTables = function() {
+  this.createVis();
+
+	od600View.updateView();
+	metabolomicsView.updateView();
+	transcriptomicsView.updateView();
+	proteomicsView.updateView();
+}
+
+AppPresenter.prototype.createVis = function()
+{
+	if (this.didCreateVis) return;
+	
+	var top = d3.select("#main");
+	var tableRoot = top.append("div").attr("id", "table-root").style("width", w + 5 + "px").style("float", "left");
+	
+	
+	// An element for the inspectors.
+	inspectors = top.append("span")
+		.style("width", "500px")
+		.style("position", "relative")
+		.style("overflow", "auto")
+		.style("float", "left")
+		.style("left", "20px");
+
+	// Create the dataSetType visualization
+	dataSetTypeVis = tableRoot.append("div");
+	dataSetTypeVis.style("width", w + "px");
+	od600View = new DataSummaryView(dataSetTypeVis, "OD600", "od600", "OD600");
+	metabolomicsView = new DataSummaryView(dataSetTypeVis, "Metabolomics", "metabolomics", "METABOLITE_INTENSITIES");
+	transcriptomicsView = new DataSummaryView(dataSetTypeVis, "Transcriptomics", "transcriptomics", "TRANSCRIPTOMICS");
+	proteomicsView = new DataSummaryView(dataSetTypeVis, "Proteomics", "proteomics", "PROTEIN_QUANTIFICATIONS");
+	
+	// Initially hide the strain view -- it is activated by the radio button
+	strainVis = tableRoot.append("div").style("display", "none");
+	strainVis.style("width", w + "px");
+	strainView = new StrainView();
+	
+	inspectorView = new InspectorView();
+	
+	this.didCreateVis = true;
+}
+
+AppPresenter.prototype.updateInspectors = function(duration) 
+{
+	inspectorView.updateView(duration);
 }
 
 /**
@@ -96,142 +229,68 @@ function createStrainGroups(strains) {
 	return groups.filter(function(group) { return group.strains.length > 0 });
 }
 
-var model = new AppModel();
-
-// Variables for determining if a particular object is a data set or a strain
-var typeDataSet = "DATA_SET", typeStrain = "STRAIN";	
-
-// The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
-
-// The strain visualization
-var strainVis;
-
-// The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
-
-// Variables for determining if a particular object is a data set or a strain
-var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
-
-var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
-
-//The inspected strains
-var inspected = [];
-
-//The node inspectors
-var inspectors;
-
-/** Hides the explanation and shows the element to display the explanation again */
-function hideExplanation() {
-	$('#explanation').hide();
-	$('#explanation-show').show();	
-}
-
-/** Display the explanation again */
-function showExplanation() {
-	$('#explanation-show').hide();		
-	$('#explanation').show();
-}
-
 /**
- * Shows the list of data sets retrieved from the openBIS server.
+ * View that groups data sets by type.
  */
-function showDataSets(bisDataSets) {
-	if (null == bisDataSets) return;
-	
-	basynthec.dataSetList = bisDataSets.filter(function(dataSet) { 
-		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
-  });
-	
-	// sort data sets
-	var sortByTypeAndRegistration = function(a, b) {
-		if (a.dataSetTypeCode == b.dataSetTypeCode) {
-			return b.registrationDetails.registrationDate - a.registrationDetails.registrationDate;
-		}
-		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
-	};
-	
-	basynthec.dataSetList.sort(sortByTypeAndRegistration);
-	
-	model.initializeDataSetsByType();
-	model.initializeDataSetsByStrain();
-	
-	refreshDataSetTypeTables();
-	refreshStrainTables();
+function DataSummaryView(group, typeName, id, type) {
+	this.group = group;
+	this.dataSetTypeName = typeName;
+	this.dataSetType = type;
+	this.nodeId = id;
+	this.viewNode = this.createDataSetSummaryViewNode();
 }
 
-function refreshStrainTables() {
-	model.initializeStrainGroups();
-	
-  createVis();
- 	updateStrainDiagram(1000);
-}
-
-function refreshDataSetTypeTables() {
-  createVis();
- 	updateDataSetTypeDiagram(1000);
-}
-
-function createDataSetSummaryView(group, type, id)
+DataSummaryView.prototype.createDataSetSummaryViewNode = function()
 {
 	var container, result;
-	container = group.append("div");
+	container = this.group.append("div");
 
-	container.append("h2").attr("class", "datasetsummarytable").text(type);
+	container.append("h2").attr("class", "datasetsummarytable").text(this.dataSetTypeName);
 	
 	result =  
 		container.append("div")
-			.attr("id", id)
+			.attr("id", this.nodeId)
 			.attr("class", "datasummaryview");
 			
 	return result;
 }
 
-var didCreateVis = false;
-
-function createVis()
+DataSummaryView.prototype.updateView = function()
 {
-	if (didCreateVis) return;
+	var dataSetsForType = model.dataSetsByType[this.dataSetType];
 	
-	var top = d3.select("#main");
-	var tableRoot = top.append("div").attr("id", "table-root").style("width", w + 5 + "px").style("float", "left");
+	if (dataSetsForType == null) {
+		this.viewNode.selectAll("p")
+			.data(["No Data"])
+		.enter()
+			.append("p")
+			.text("No Data");
+		return;
+	}
 	
-	
-	// An element for the inspectors.
-	inspectors = top.append("span")
-		.style("width", "500px")
-		.style("position", "relative")
-		.style("overflow", "auto")
-		.style("float", "left")
-		.style("left", "20px");
-
-	// Create the dataSetType visualization
-	dataSetTypeVis = tableRoot.append("div");
-	dataSetTypeVis.style("width", w + "px");
-	od600View = createDataSetSummaryView(dataSetTypeVis, "OD600", "od600");
-	metabolomicsView = createDataSetSummaryView (dataSetTypeVis, "Metabolomics", "metabolomics");
-	transcriptomicsView = createDataSetSummaryView (dataSetTypeVis, "Transcriptomics", "transcriptomics");
-	proteomicsView = createDataSetSummaryView (dataSetTypeVis, "Proteomics", "proteomics");
-	
-	// Initially hide the strain view -- it is activated by the radio button
-	strainVis = tableRoot.append("div").style("display", "none");
-	strainVis.style("width", w + "px");
-	
-	
-	didCreateVis = true;
+	this.viewNode.selectAll("table")
+		.data([dataSetsForType])
+	.enter()
+		.append("table")
+		.attr("class", "datasetsummarytable")
+		.selectAll("tr")
+			.data(function (d) { return d})
+		.enter()
+			.append("tr")
+			.on("click", toggle_inspected)
+				.selectAll("td")
+					.data(function (d) { return [d.dateString, d.userEmail, d.strainString] })
+				.enter()
+					.append("td")
+					.style("width", "33%")
+					.text(function (d) { return d});
 }
 
-function updateDataSetTypeDiagram(duration)
-{
-	// Update the OD600 View
-	updateDataSetTypeView(od600View, "OD600");
-	updateDataSetTypeView(metabolomicsView, "METABOLITE_INTENSITIES");
-	updateDataSetTypeView(transcriptomicsView, "TRANSCRIPTOMICS");
-	updateDataSetTypeView(proteomicsView, "PROTEIN_QUANTIFICATIONS");
+function StrainView() {
+	
 }
 
-
-function updateStrainDiagram(duration)
+StrainView.prototype.updateView = function(duration)
 {
 	var strainDiv = strainVis.selectAll("div.strains").data(model.strainGroups)
 		.enter()
@@ -259,78 +318,11 @@ function updateStrainDiagram(duration)
 			.text(function(d) { return d.label });
 }
 
-function updateDataSetTypeView(aView, type)
-{
-	var dataSetsForType = model.dataSetsByType[type];
+function InspectorView() {
 	
-	if (dataSetsForType == null) {
-		aView.selectAll("p")
-			.data(["No Data"])
-		.enter()
-			.append("p")
-			.text("No Data");
-		return;
-	}
-	
-	aView.selectAll("table")
-		.data([dataSetsForType])
-	.enter()
-		.append("table")
-		.attr("class", "datasetsummarytable")
-		.selectAll("tr")
-			.data(function (d) { return d})
-		.enter()
-			.append("tr")
-			.on("click", toggle_inspected)
-				.selectAll("td")
-					.data(function (d) { return [d.dateString, d.userEmail, d.strainString] })
-				.enter()
-					.append("td")
-					.style("width", "33%")
-					.text(function (d) { return d});
 }
 
-/** Utility function to gracefully switch from one visualization to another */
-function toggleDisplayedVisualizations(visToShow, visToHide)
-{
-	visToShow
-	.style("display", "inline")
-		.transition()
-	.duration(1000)
-	.style("opacity", 1);
-	
-	visToHide
-		.transition()
-	.duration(1000)
-	.style("opacity", 0)
-	.style("display", "none");
-}
-
-/** Show the data sets grouped by type */
-function switchToDataSetTypeView()
-{
-	hideExplanation();
-	toggleDisplayedVisualizations(dataSetTypeVis, strainVis);
-}
-
-/** Show the data sets by strain*/
-function switchToStrainView()
-{
-	hideExplanation();
-	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
-}
-
-/** Show the data sets by strain*/
-function switchToOD600View()
-{
-	hideExplanation();
-	toggleDisplayedVisualizations(strainVis, dataSetTypeVis);
-}
-
-/**
- * Draw / update node inspectors
- */
-function updateInspectors(duration)
+InspectorView.prototype.updateView = function(duration)
 {	
 	var inspector = inspectors.selectAll("div.inspector").data(inspected, function (d) { return d.name });
 	
@@ -435,6 +427,39 @@ function updateInspectors(duration)
 		.remove();
 }
 
+function dataSetLabel(d) {
+	return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate)); 
+}
+
+
+
+var model = new AppModel();
+var presenter = new AppPresenter();
+
+// Variables for determining if a particular object is a data set or a strain
+var typeDataSet = "DATA_SET", typeStrain = "STRAIN";	
+
+// The data set type visualization
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+
+// The strain visualization
+var strainVis, strainView;
+
+// The data set type visualization
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+
+// Variables for determining if a particular object is a data set or a strain
+var typeDataSet = "DATA_SET", typeStrain = "STRAIN";
+
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
+
+//The inspected strains
+var inspected = [];
+
+//The node inspectors
+var inspectors, inspectorView;
+
+
 function downloadTableFile(d)
 {
 	// If there is no dataset, this is just a marker for loading
@@ -450,16 +475,12 @@ function downloadTableFile(d)
 	basynthec.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
 }
 
-function dataSetLabel(d) {
-	return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate)); 
-}
-
 function classForNode(d) { 
 	return  (d.inspected) ? "inspected" : "";
 }
 
 function toggle_inspected(d) {
-	hideExplanation();
+	presenter.hideExplanation();
 
 	if (d.inspected) {
 		var index = inspected.indexOf(d) 
@@ -479,7 +500,7 @@ function toggle_inspected(d) {
 	}
 	
 	d3.select(d.strainNode).attr("class", classForNode(d))
-  updateInspectors(500);
+  presenter.updateInspectors(500);
 }
 
 function filesForDataSet(d)
@@ -526,7 +547,7 @@ function retrieveFilesForDataSet(ds)
 		ds.files = ds.files.concat(data.result);
 		
 		ds.loadingFiles = false; 
-		updateInspectors(500);
+		presenter.updateInspectors(500);
 		
 		if (isOd600DataSet(ds)) {
 			retrieveOd600DataForDataSet(ds)
@@ -571,7 +592,7 @@ function retrieveOd600DataForDataSet(ds)
 		
 		ds.od600 = rows;
 		ds.loadingOd600 = false; 
-		updateInspectors(500);
+		presenter.updateInspectors(500);
 	});	
 }
 
@@ -651,7 +672,7 @@ function enterApp()
 	$("#login-form-div").hide();
 	$("#main").show();
 	basynthec.listAllDataSets(function(data) { 
-		showDataSets(data.result); 
+		presenter.showDataSets(data.result); 
 	});
 	
 	$('#openbis-logo').height(50)

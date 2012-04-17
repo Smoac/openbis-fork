@@ -18,8 +18,8 @@
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 	<script>
 
-//var openBisUrl = 'http://localhost:8888/openbis/openbis';
-//var dssUrl = 'http://localhost:8889/datastore_server';
+// var openBisUrl = 'http://localhost:8888/openbis/openbis';
+// var dssUrl = 'http://localhost:8889/datastore_server';
 
 var openBisUrl = 'https://basynthec.ethz.ch/openbis/openbis';
 var dssUrl = 'https://basynthec.ethz.ch/datastore_server';
@@ -46,13 +46,13 @@ $(document).ready(function() {
 	});
 	
 	$("#groupradio1").change(function(event){
-		switchToDataSetTypeView();
+		presenter.switchToDataSetTypeView();
 	});
 	$("#groupradio2").change(function(event){
-		switchToStrainView();
+		presenter.switchToStrainView();
 	});
 	$("#groupradio3").change(function(event){
-		switchToOD600View();
+		presenter.switchToOD600View();
 	});
 	
 	$('#login-form').submit(function() {
@@ -63,8 +63,8 @@ $(document).ready(function() {
 			function(data) { enterAppOrShowLoginError(data) })
 	});
 	
-	$('#explanation-show').click(function() {
-		showExplanation();
+	$('#explanation-show-text').click(function() {
+		presenter.showExplanation();
 	});
 
 	
@@ -91,7 +91,7 @@ $(document).ready(function() {
 <div id="button-group">
 	<button id="logout-button">Logout</button>
 	<div id="explanation-show" style="display: none;">
-		<span id="explanation-show-text">[Explanation]</span>
+		<span id="explanation-show-text">[Guide]</span>
 	</div>
 	<div id="explanation">
 		<p>
@@ -105,7 +105,7 @@ $(document).ready(function() {
 		<span style="position: relative; font-weight: bold">View:</span>
 		<input type="radio" name="groupgroup" id="groupradio1" checked> <label for="groupradio1">Data Set Type</label>
 		<input type="radio" name="groupgroup" id="groupradio2"> <label for="groupradio2">Strains</label>
-		<input type="radio" name="groupgroup" id="groupradio3"> <label for="groupradio2">OD600</label>
+		<input type="radio" name="groupgroup" id="groupradio3"> <label for="groupradio3">OD600</label>
 	</div>
 </div>
 
