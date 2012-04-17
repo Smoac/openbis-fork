@@ -195,6 +195,8 @@ AppPresenter.prototype.retrieveFilesForDataSet = function(ds)
 	
 	ds.loadingFiles = true;
 	ds.files = [];
+	
+	var lexicalParent = this;
 
 	basynthec.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
 		if (!data.result) { 
@@ -207,11 +209,38 @@ AppPresenter.prototype.retrieveFilesForDataSet = function(ds)
 		presenter.updateInspectors(500);
 		
 		if (isOd600DataSet(ds)) {
-			retrieveOd600DataForDataSet(ds)
+			lexicalParent.retrieveOd600DataForDataSet(ds)
 		}
 				
 	});
 }
+
+/** Load the OD600 data from the server. This function assumes that the files are already known. */
+AppPresenter.prototype.retrieveOd600DataForDataSet = function(ds)
+{
+	if (ds.od600Rows) {
+		// already retrieved
+		return;
+	}
+	
+	ds.loadingOd600 = true;
+	ds.od600Rows = [];
+	
+	// Figure out the path to the multistrain TSV file -- this path ends with "xls.tsv".
+	var tsvPathInDataSet = "";
+	ds.files.forEach(function (file) { if (endsWith(file.pathInDataSet, "xls.tsv")) tsvPathInDataSet = file.pathInDataSet});
+		
+	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.sessionToken;
+
+	d3.text(tsvUrl, "text/tsv", function(text) {
+		var rows = d3.tsv.parseRows(text, "\t");
+		
+		ds.od600Rows = rows;
+		ds.loadingOd600 = false; 
+		presenter.updateInspectors(500);
+	});	
+}
+
 
 function classForNode(d) { return  (d.inspected) ? "inspected" : ""; }
 
@@ -562,38 +591,10 @@ function od600DataForDataSet(d)
 {
 	if (!isOd600DataSet(d)) return [];
 
-	if (undefined == d.od600) return [[]];
+	if (undefined == d.od600Rows) return [[]];
 	
-	return [d.od600.slice(1)];
+	return [d.od600Rows.slice(1)];
 //		return [d.od600[1]];
-}
-
-/** 
- * Load the OD600 data from the server. This function assumes that the files are already known.
- */
-function retrieveOd600DataForDataSet(ds)
-{
-	if (ds.od600) {
-		// already retrieved
-		return;
-	}
-	
-	ds.loadingOd600 = true;
-	ds.od600 = [];
-	
-	// Figure out the path to the multistrain TSV file -- this path ends with "xls.tsv".
-	var tsvPathInDataSet = "";
-	ds.files.forEach(function (file) { if (endsWith(file.pathInDataSet, "xls.tsv")) tsvPathInDataSet = file.pathInDataSet});
-		
-	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.sessionToken;
-
-	d3.text(tsvUrl, "text/tsv", function(text) {
-		var rows = d3.tsv.parseRows(text, "\t");
-		
-		ds.od600 = rows;
-		ds.loadingOd600 = false; 
-		presenter.updateInspectors(500);
-	});	
 }
 
 function curveData(d)
