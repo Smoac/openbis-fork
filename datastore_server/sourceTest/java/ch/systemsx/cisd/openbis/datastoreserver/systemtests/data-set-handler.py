@@ -5,7 +5,7 @@ transaction = service.transaction(incoming)
 
 
 #test for LMS-2879
-sample = transaction.getSample("/CISD/CP-TEST-1")    
+sample = transaction.getSample("/CISD/DYNA-TEST-1")    
 sa = transaction.getSampleForUpdate(sample.getSampleIdentifier())
 
 sa.setPropertyValue('COMMENT', 'comment')
