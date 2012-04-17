@@ -77,5 +77,6 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-search/jsr250-api.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
