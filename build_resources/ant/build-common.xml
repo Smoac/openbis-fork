@@ -149,7 +149,8 @@
 	</target>
 
 	<target name="check-restrictions" depends="compile, compile-tests">
-		<exec executable="sh" failonerror="true">
+	  <!-- TODO didn't work after libraries update (r24921) -->
+		<!--exec executable="sh" failonerror="true">
 			<arg value="../libraries/restrictionchecker/jrc" />
 			<arg value="-r" />
 			<arg value="../${mainfolder}/${classes}" />
@@ -157,7 +158,7 @@
 			<arg value="../libraries" />
 			<arg value="-cp" />
 			<arg value="${ecp}" />
-		</exec>
+		</exec-->
 	</target>
 
 	<!-- = = = = = = = = = = = = = = = = =
