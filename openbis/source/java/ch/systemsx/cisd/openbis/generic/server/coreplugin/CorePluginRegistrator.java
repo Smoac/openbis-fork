@@ -50,26 +50,23 @@ public class CorePluginRegistrator implements InitializingBean
      */
     public void registerPlugins()
     {
-        if ("${core-plugins-folder}".equals(pluginsFolderName))
+        if ("${core-plugins-folder}".equals(pluginsFolderName)
+                || pluginsFolderName.contains("webapp/core-plugins"))
         {
-            operationLog.info("No 'core-plugins-folder' configuration specified. "
-                    + "Skipping registration of core plugins... ");
-        } else
+            pluginsFolderName = "../../core-plugins";
+        }
+        CorePluginScanner pluginScanner = new CorePluginScanner(pluginsFolderName, ScannerType.AS);
+        String sessionToken = getSessionToken();
+        for (CorePlugin plugin : pluginScanner.scanForPlugins())
         {
-            CorePluginScanner pluginScanner =
-                    new CorePluginScanner(pluginsFolderName, ScannerType.AS);
-            String sessionToken = getSessionToken();
-            for (CorePlugin plugin : pluginScanner.scanForPlugins())
+            if (disabledTechnologies.contains(plugin.getName()) == false)
             {
-                if (disabledTechnologies.contains(plugin.getName()) == false)
+                try
                 {
-                    try
-                    {
-                        commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
-                    } catch (Exception ex)
-                    {
-                        operationLog.error("Failed to install core plugin: " + plugin, ex);
-                    }
+                    commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
+                } catch (Exception ex)
+                {
+                    operationLog.error("Failed to install core plugin: " + plugin, ex);
                 }
             }
         }

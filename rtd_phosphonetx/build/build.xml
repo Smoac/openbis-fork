@@ -64,6 +64,13 @@
         -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 
+  <target name="core-plugins-dist" depends="openbis.core-plugins-dist">
+    <antcall target="copy-core-plugins">
+      <param name="project-path" value="../rtd_phosphonetx/"/>
+      <param name="plugin-kind" value="as"/>
+    </antcall>
+  </target>
+
   <!-- Tasks for Raw Data API -->
 	
   <target name="jar" depends="openbis.jar">
@@ -153,10 +160,6 @@
 				<exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
 			</classes>
-	    <zipfileset dir="../rtd_phosphonetx/source/core-plugins" prefix="core-plugins">
-	      <include name="**/*.*" />
-	      <exclude name="**/.svn/*.*" />
-      </zipfileset>
 			<lib dir="${lib}/jaxb">
 				<include name="*.jar" />
 			</lib>

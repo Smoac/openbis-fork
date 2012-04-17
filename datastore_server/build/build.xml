@@ -264,8 +264,8 @@
       </fileset>
     </checksum>
   	<replaceregexp byline="true">
-  		<regexp pattern="([0-6a-f]*) .*dist/(.*)"/>
-  		<substitution expression="\1  \2"/>
+  		<regexp pattern="([0-6a-f]*) .*source/(.*)"/>
+  		<substitution expression="\1  ../\2"/>
   		<fileset dir="${dist}">
 				<include name="**/*.MD5"/>
 			</fileset>

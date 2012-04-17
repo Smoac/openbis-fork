@@ -38,6 +38,14 @@
   	<delete file="${jars.to.be.signed.zip}"/>
 
 	</target>
+  
+  <target name="core-plugins-dist" depends="openbis.core-plugins-dist">
+    <antcall target="copy-core-plugins">
+      <param name="project-path" value="../screening/"/>
+      <param name="plugin-kind" value="as"/>
+    </antcall>
+  </target>
+
     			
   <target name="dss-plugin-jar" depends="compile">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
@@ -332,12 +340,6 @@
       </fileset>
       <fileset dir="${lib}/csv">
         <include name="*.jar" />
-      </fileset>
-    </copy>
-    <copy todir="${webapp.file}.unpacked/core-plugins" overwrite="true">
-      <fileset dir="../screening/source/core-plugins">
-        <include name="**/*.*" />
-        <exclude name="**/.svn/*.*" />
       </fileset>
     </copy>
     <war warfile="${webapp.file}">
