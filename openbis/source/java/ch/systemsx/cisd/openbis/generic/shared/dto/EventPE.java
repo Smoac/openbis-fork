@@ -30,12 +30,12 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.validator.Length;
-import org.hibernate.validator.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionStyle;
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * Persistent entity representing an event which changed some entities in the persistent layer.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Entity
 @Table(name = TableNames.EVENTS_TABLE)
@@ -166,7 +166,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     //
     // Object
-    // 
+    //
 
     @Override
     public final String toString()

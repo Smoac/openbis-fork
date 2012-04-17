@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.Length;
-import org.hibernate.validator.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -35,7 +35,7 @@ public abstract class AbstractGridExpressionPE<T> extends AbstractExpressionPE<T
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String gridId;
-    
+
     @Column(name = ColumnNames.GRID_ID_COLUMN)
     @NotNull(message = ValidationMessages.GRID_ID_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 200, message = ValidationMessages.GRID_ID_LENGTH_MESSAGE)

@@ -24,7 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.hibernate.validator.ValidatorClass;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
 /**
  * <code>boolean</code> value has to be <code>false</code> for entities that must not be in the
@@ -36,7 +37,7 @@ import org.hibernate.validator.ValidatorClass;
     { METHOD, FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ValidatorClass(InternalNamespaceValidator.class)
+@Constraint(validatedBy = InternalNamespaceValidator.class)
 public @interface InternalNamespace
 {
 
@@ -49,4 +50,9 @@ public @interface InternalNamespace
     boolean value() default false;
 
     String message() default "{validator.internalnamespace}";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
 }

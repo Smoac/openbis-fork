@@ -24,7 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.hibernate.validator.ValidatorClass;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
 /**
  * <code>String</code> value has to be a location.
@@ -35,7 +36,7 @@ import org.hibernate.validator.ValidatorClass;
     { METHOD, FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ValidatorClass(LocationValidator.class)
+@Constraint(validatedBy = LocationValidator.class)
 public @interface Location
 {
 
@@ -45,4 +46,9 @@ public @interface Location
     boolean relative() default true;
 
     String message() default "{validator.location}";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
 }

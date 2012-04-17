@@ -35,6 +35,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,8 +51,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
-import org.hibernate.validator.Length;
-import org.hibernate.validator.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
 
@@ -140,8 +140,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
             String attachmentTitleFieldName =
                     name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_TITLE;
-            document
-                    .add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
+            document.add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
 
             String attachmentDescriptionFieldName =
                     name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_DESCRIPTION;
@@ -151,8 +150,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
         private static Field createField(String name, String value, LuceneOptions luceneOptions)
         {
-            return new Field(name, (value == null) ? "" : value, Field.Store.YES, luceneOptions
-                    .getIndex());
+            return new Field(name, (value == null) ? "" : value, Field.Store.YES,
+                    luceneOptions.getIndex());
         }
 
         private static boolean isSearchable(AttachmentPE attachment)

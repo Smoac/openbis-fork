@@ -19,7 +19,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
@@ -51,7 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
@@ -75,5 +73,11 @@
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-isserializable.jar"/>
 	<classpathentry kind="lib" path="/libraries/sshd/sshd-core.jar" sourcepath="/libraries/sshd/sshd-core-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

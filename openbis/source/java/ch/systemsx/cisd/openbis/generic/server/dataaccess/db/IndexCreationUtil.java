@@ -50,15 +50,14 @@ public final class IndexCreationUtil
 {
     static final String DATABASE_NAME_PREFIX = "openbis_";
 
-    private static final Template DROP_DATABASE_TEMPLATE =
-            new Template("drop database if exists ${duplicated-database}");
+    private static final Template DROP_DATABASE_TEMPLATE = new Template(
+            "drop database if exists ${duplicated-database}");
 
-    private static final Template CREATE_DATABASE_TEMPLATE =
-            new Template(
-                    "create database ${duplicated-database} with owner ${owner} template ${database}");
+    private static final Template CREATE_DATABASE_TEMPLATE = new Template(
+            "create database ${duplicated-database} with owner ${owner} template ${database}");
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, IndexCreationUtil.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            IndexCreationUtil.class);
 
     private static HibernateSearchContext hibernateSearchContext;
 
@@ -89,8 +88,9 @@ public final class IndexCreationUtil
         final BeanFactory factory = getBeanFactory();
         final IFullTextIndexUpdater updater = createDummyUpdater();
         final FullTextIndexerRunnable fullTextIndexer =
-                new FullTextIndexerRunnable((SessionFactory) factory
-                        .getBean("hibernate-session-factory"), hibernateSearchContext, updater);
+                new FullTextIndexerRunnable(
+                        (SessionFactory) factory.getBean("hibernate-session-factory"),
+                        hibernateSearchContext, updater);
         fullTextIndexer.run();
     }
 
@@ -179,6 +179,7 @@ public final class IndexCreationUtil
         operationLog.info("Index of database '" + DATABASE_NAME_PREFIX + databaseKind
                 + "' successfully built in '" + indexFolder + "' after "
                 + ((stopWatch.getTime() + 30000) / 60000) + " minutes.");
+        Thread.sleep(10000);
         System.exit(0);
     }
 

@@ -26,10 +26,10 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-import org.hibernate.validator.NotNull;
 
 /**
  * A <i>Persistence Entity</i> which represents an entry in {@link TableNames#CORE_PLUGINS_TABLE}.

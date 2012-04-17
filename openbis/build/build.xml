@@ -39,7 +39,7 @@
 
   <property name="webapp.file.name" value="openBIS.war" />
   <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
-	
+
 	<property name="core-plugins.folder" value="source/core-plugins"/>
 	<property name="core-plugins.package.marker.file" value="package-to-dist"/>
 
@@ -279,7 +279,7 @@
   	<delete file="${query.api.doc.zip}"/>
   	<delete file="${query.api.src.zip}"/>
   </target>
-	
+
   <target name="core-plugins-dist">
     <antcall target="copy-core-plugins">
       <param name="project-path" value=""/>
@@ -312,7 +312,7 @@
     <zip destfile="${server.dist}/core-plugins.zip">
       <zipfileset dir="${dist}/core-plugins" includes="**" prefix="core-plugins" erroronmissingdir="false"/>
     </zip>
-    <delete dir="${dist}/gwt-unitCache"/>
+  	<delete dir="${dist}/gwt-unitCache"/>
     <delete dir="${dist}/core-plugins"/>
     <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
     <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
@@ -463,22 +463,20 @@
       <fileset dir="${lib}/dom4j">
         <include name="dom4j.jar" />
       </fileset>
-      <fileset dir="${lib}/hibernate">
-        <include name="hibernate3.jar" />
+      <fileset dir="${lib}/hibernate-core">
+        <include name="hibernate-core.jar" />
       </fileset>
-      <fileset dir="${lib}/hibernate/jta">
+      <fileset dir="${lib}/jta">
         <include name="jta.jar" />
+      </fileset>
+      <fileset dir="${lib}/hibernate-commons-annotations">
+        <include name="*.jar" />
       </fileset>
       <fileset dir="${lib}/ehcache">
         <include name="ehcache.jar" />
       </fileset>
       <fileset dir="${lib}/cglib">
-        <include name="asm.jar" />
-        <include name="asm-attrs.jar" />
         <include name="cglib.jar" />
-      </fileset>
-      <fileset dir="${lib}/hibernate-annotations">
-        <include name="*.jar" />
       </fileset>
       <fileset dir="${lib}/hibernate-validator">
         <include name="*.jar" />
@@ -493,13 +491,6 @@
       <fileset dir="${lib}/slf4j/log4j12">
         <include name="*.jar" />
         <exclude name="src.jar" />
-      </fileset>
-      <!-- Beanlib -->
-      <fileset dir="${lib}/beanlib">
-        <include name="beanlib.jar" />
-      </fileset>
-      <fileset dir="${lib}/beanlib-hibernate">
-        <include name="beanlib-hibernate.jar" />
       </fileset>
       <!-- Hibernate Search -->
       <fileset dir="${lib}/hibernate-search">
@@ -622,7 +613,7 @@
       </zipfileset>
     </jar>
   </target>
-	
+
   <target name="copy-core-plugins">
     <pathconvert pathsep="," property="core-plugin-paths">
       <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false">
@@ -780,21 +771,19 @@
       <lib dir="${lib}/dom4j">
         <include name="dom4j.jar" />
       </lib>
-      <lib dir="${lib}/hibernate">
-        <include name="hibernate3.jar" />
+      <lib dir="${lib}/hibernate-core">
+        <include name="hibernate-core.jar" />
       </lib>
-      <lib dir="${lib}/hibernate/jta">
+      <lib dir="${lib}/jta">
         <include name="jta.jar" />
       </lib>
       <lib dir="${lib}/ehcache">
         <include name="ehcache.jar" />
       </lib>
       <lib dir="${lib}/cglib">
-        <include name="asm.jar" />
-        <include name="asm-attrs.jar" />
         <include name="cglib.jar" />
       </lib>
-      <lib dir="${lib}/hibernate-annotations">
+      <lib dir="${lib}/hibernate-commons-annotations">
         <include name="*.jar" />
       </lib>
       <lib dir="${lib}/hibernate-validator">
@@ -810,13 +799,6 @@
       <lib dir="${lib}/slf4j/log4j12">
         <include name="*.jar" />
         <exclude name="src.jar" />
-      </lib>
-      <!-- Beanlib -->
-      <lib dir="${lib}/beanlib">
-        <include name="beanlib.jar" />
-      </lib>
-      <lib dir="${lib}/beanlib-hibernate">
-        <include name="beanlib-hibernate.jar" />
       </lib>
       <!-- Hibernate Search -->
       <lib dir="${lib}/hibernate-search">

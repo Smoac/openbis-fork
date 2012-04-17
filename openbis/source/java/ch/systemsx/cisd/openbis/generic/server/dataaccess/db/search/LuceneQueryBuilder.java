@@ -27,6 +27,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
@@ -165,7 +166,7 @@ public class LuceneQueryBuilder
     public static Query parseQuery(final String fieldName, final String searchPattern,
             Analyzer analyzer) throws UserFailureException
     {
-        final QueryParser parser = new QueryParser(fieldName, analyzer);
+        final QueryParser parser = new QueryParser(Version.LUCENE_31, fieldName, analyzer);
         return parseQuery(searchPattern, searchPattern, parser);
     }
 

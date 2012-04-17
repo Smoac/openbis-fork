@@ -12,8 +12,6 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
@@ -38,7 +36,6 @@
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/sybit-image-viewer/image-viewer.jar"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/hibernate/hibernate3.jar" sourcepath="/libraries/hibernate/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/bioformats/bioformats.jar" sourcepath="/libraries/bioformats/bioformats_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar" sourcepath="/image_readers/source/java"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar" sourcepath="/image_readers/source/java"/>
@@ -54,5 +51,14 @@
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

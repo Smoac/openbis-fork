@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.validation.ValidationException;
+
 import junit.framework.Assert;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -556,6 +558,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
         {
             daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
         } catch (final DataIntegrityViolationException ex)
+        {
+            exceptionThrown = true;
+        } catch (final ValidationException ex)
         {
             exceptionThrown = true;
         }

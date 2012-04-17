@@ -17,19 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -37,8 +39,6 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-import org.hibernate.validator.ClassValidator;
-import org.hibernate.validator.InvalidValue;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -53,9 +53,6 @@ import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.CollectionStyle;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
@@ -84,45 +81,31 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         setSessionFactory(sessionFactory);
     }
 
+    /*
     private static Map<Class<?>, ClassValidator<?>> validators =
             new HashMap<Class<?>, ClassValidator<?>>();
-
+    */
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
-        ClassValidator<E> validator = (ClassValidator<E>) validators.get(pe.getClass());
-        if (validator == null)
-        {
-            validator = new ClassValidator(pe.getClass());
-            validators.put(pe.getClass(), validator);
-        }
-        validatePE(pe, validator);
-    }
 
-    /**
-     * Validates given <i>Persistence Entity</i> using the given {@link ClassValidator}.
-     */
-    private final static <E> void validatePE(final E pe, final ClassValidator<E> validator)
-            throws DataIntegrityViolationException
-    {
-        final InvalidValue[] validationMessages = validator.getInvalidValues(pe);
-        if (validationMessages.length > 0)
-        {
-            throw new DataIntegrityViolationException(CollectionUtils.abbreviate(
-                    validationMessages, -1, new IToStringConverter<InvalidValue>()
-                        {
-                            //
-                            // IToStringConverter
-                            //
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
 
-                            public final String toString(final InvalidValue value)
-                            {
-                                return String.format(value.getMessage(), value.getValue());
-                            }
-                        }, CollectionStyle.NO_BOUNDARY));
+        final Set<ConstraintViolation<E>> violations = validator.validate(pe);
+
+        if (violations.size() > 0)
+        {
+            String msg = "";
+            for (ConstraintViolation v : violations)
+            {
+                msg += ", " + v.getMessage();
+            }
+            throw new DataIntegrityViolationException(msg.substring(2));
         }
     }
 
@@ -148,7 +131,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected static final <T> List<T> cast(@SuppressWarnings("rawtypes") final List list)
+    protected static final <T> List<T> cast(@SuppressWarnings("rawtypes")
+    final List list)
     {
         return list;
     }
@@ -287,9 +271,27 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         return objects;
     }
 
-    protected final long getNextSequenceId(String sequenceName)
+    protected final long getNextSequenceId(final String sequenceName)
     {
-        return Hibernate3SequenceGenerator.nextval(sequenceName, getSession(true));
+        final Object result = getHibernateTemplate().execute(new HibernateCallback()
+            {
+                public Object doInHibernate(Session sess) throws HibernateException, SQLException
+                {
+                    SQLQuery sqlQuery =
+                            sess.createSQLQuery("select nextval('" + sequenceName + "')");
+                    return sqlQuery.uniqueResult();
+                }
+            });
+
+        Long toReturn;
+        if (result instanceof BigInteger)
+        {
+            toReturn = ((BigInteger) result).longValue();
+        } else
+        {
+            toReturn = (Long) result;
+        }
+        return toReturn;
     }
 
     protected final Object executeStatelessAction(final StatelessHibernateCallback action)

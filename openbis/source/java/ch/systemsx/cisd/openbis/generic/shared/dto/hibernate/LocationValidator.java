@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
 import java.io.Serializable;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.validator.Validator;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * 
  * @author Christian Ribeaud
  */
-public final class LocationValidator implements Validator<Location>, Serializable
+public final class LocationValidator implements ConstraintValidator<Location, String>, Serializable
 {
 
     private static final long serialVersionUID = IServer.VERSION;
@@ -44,9 +46,9 @@ public final class LocationValidator implements Validator<Location>, Serializabl
         relative = location.relative();
     }
 
-    public final boolean isValid(final Object value)
+    public final boolean isValid(final String location, ConstraintValidatorContext constraintContext)
     {
-        final String location = (String) value;
+
         final int prefixLength = FilenameUtils.getPrefixLength(location);
         if (relative)
         {

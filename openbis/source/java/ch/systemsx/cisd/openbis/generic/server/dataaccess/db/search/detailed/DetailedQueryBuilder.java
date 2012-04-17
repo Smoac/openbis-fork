@@ -25,11 +25,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.RangeQuery;
+import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
@@ -125,9 +124,9 @@ public class DetailedQueryBuilder
 
                 String fieldName = fieldNames.get(0);
                 DateBridge bridge = new DateBridge(Resolution.DAY);
-                RangeQuery q =
-                        new RangeQuery(new Term(fieldName, bridge.objectToString(lower)), new Term(
-                                fieldName, bridge.objectToString(upper)), true);
+                TermRangeQuery q =
+                        new TermRangeQuery(fieldName, bridge.objectToString(lower),
+                                bridge.objectToString(upper), true, true);
                 resultQuery.add(q, occureCondition);
             }
         }

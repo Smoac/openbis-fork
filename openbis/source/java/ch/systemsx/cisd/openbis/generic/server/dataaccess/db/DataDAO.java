@@ -109,7 +109,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
         criteria.add(Restrictions.eq("sampleInternal", sample));
         criteria.setProjection(Projections.rowCount());
-        Integer count = (Integer) getHibernateTemplate().findByCriteria(criteria).get(0);
+        Integer count =
+                ((Number) getHibernateTemplate().findByCriteria(criteria).get(0)).intValue();
         return count > 0;
     }
 

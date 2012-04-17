@@ -35,6 +35,7 @@ import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
 import org.apache.lucene.search.highlight.TokenSources;
@@ -331,6 +332,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             } catch (IOException ex)
             {
                 logSearchHighlightingError(ex);
+            } catch (InvalidTokenOffsetsException ex)
+            {
+                logSearchHighlightingError(ex);
             }
             return createMatchingEntity(doc, matchingText);
         }
@@ -428,7 +432,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return result;
     }
 
-    private static void logSearchHighlightingError(IOException ex)
+    private static void logSearchHighlightingError(Exception ex)
     {
         operationLog.error("error during search result highlighting: " + ex.getMessage());
     }
@@ -468,7 +472,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
 
         public String getBestFragment(String fieldContent, String fieldName, int documentId)
-                throws IOException
+                throws IOException, InvalidTokenOffsetsException
+
         {
             TokenStream tokenStream =
                     TokenSources.getAnyTokenStream(indexReader, documentId, fieldName, analyzer);

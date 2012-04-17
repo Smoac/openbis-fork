@@ -9,8 +9,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis_api"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/dbmigration"/>
@@ -18,14 +16,9 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-annotations/ejb3-persistence.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-annotations/hibernate-annotations.jar" sourcepath="/libraries/hibernate-annotations/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-validator/hibernate-validator.jar" sourcepath="/libraries/hibernate-validator/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/hibernate/hibernate3.jar" sourcepath="/libraries/hibernate/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/hibernate/jta/jta.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-annotations/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/dom4j/dom4j.jar"/>
 	<classpathentry kind="lib" path="/libraries/antlr/antlr.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
@@ -40,8 +33,6 @@
 	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/lucene-2.4.1-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar"/>
-	<classpathentry kind="lib" path="/libraries/beanlib-hibernate/beanlib-hibernate.jar" sourcepath="/libraries/beanlib-hibernate/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/beanlib/beanlib.jar" sourcepath="/libraries/beanlib/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
@@ -71,6 +62,20 @@
 	<classpathentry kind="lib" path="/libraries/gxt2.2.5/gxt.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration-1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-commons-annotations/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/jta/jta.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-jpa-2.0-api/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry kind="lib" path="/libraries/validation-api/validation-api.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

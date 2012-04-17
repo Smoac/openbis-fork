@@ -16,21 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharTokenizer;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
  * Extends {@link Analyzer} splitting text on characters not allowed in codes or words.
  * 
  * @author Piotr Buczek
  */
-public class SearchAnalyzer extends Analyzer
+public final class SearchAnalyzer extends Analyzer
 {
 
     @Override
@@ -76,73 +77,73 @@ public class SearchAnalyzer extends Analyzer
      */
     private static final class TrimSpecialCharsFilter extends TokenFilter
     {
+        private CharTermAttribute termAttr;
 
         public TrimSpecialCharsFilter(TokenStream input)
         {
             super(input);
+            this.termAttr = addAttribute(CharTermAttribute.class);
         }
 
         @Override
-        public final Token next(final Token reusableToken) throws java.io.IOException
+        public final boolean incrementToken() throws IOException
         {
-            assert reusableToken != null;
-            Token nextToken = input.next(reusableToken);
-
-            if (nextToken == null)
-                return null;
-
-            char[] buffer = nextToken.termBuffer();
-            final int bufferLength = nextToken.termLength();
-
-            int startCounter = 0; // counts chars to trim from the beginning
-            Set<Character> trimmedCharacters = CharacterHelper.getTrimmedSpecialCharacters();
-            for (int i = 0; i < bufferLength; i++)
+            while (input.incrementToken())
             {
-                if (trimmedCharacters.contains(buffer[i]))
+                char[] buffer = this.termAttr.buffer();
+                final int bufferLength = this.termAttr.length();
+
+                int startCounter = 0; // counts chars to trim from the beginning
+                Set<Character> trimmedCharacters = CharacterHelper.getTrimmedSpecialCharacters();
+                for (int i = 0; i < bufferLength; i++)
                 {
-                    startCounter++;
-                } else
-                {
-                    break;
+                    if (trimmedCharacters.contains(buffer[i]))
+                    {
+                        startCounter++;
+                    } else
+                    {
+                        break;
+                    }
                 }
-            }
 
-            // if all chars are special leave the token untouched
-            if (startCounter == bufferLength)
-            {
-                return nextToken;
-            }
-
-            int endCounter = 0; // counts chars to trim from the end
-            for (int i = bufferLength - 1; i > 0; i--)
-            {
-                if (trimmedCharacters.contains(buffer[i]))
+                // if all chars are special leave the token untouched
+                if (startCounter == bufferLength)
                 {
-                    endCounter++;
-                } else
-                {
-                    break;
+                    return true;
                 }
-            }
 
-            if (startCounter > 0)
-            {
-                // need to shift all characters (setting startPos to >0 breaks search equality)
-                // see: StandardFilter
-                for (int i = startCounter; i < bufferLength; i++)
+                int endCounter = 0; // counts chars to trim from the end
+                for (int i = bufferLength - 1; i > 0; i--)
                 {
-                    buffer[i - startCounter] = buffer[i];
+                    if (trimmedCharacters.contains(buffer[i]))
+                    {
+                        endCounter++;
+                    } else
+                    {
+                        break;
+                    }
                 }
-            }
 
-            // change length
-            if (startCounter + endCounter > 0)
-            {
-                int trimmedLength = bufferLength - (startCounter + endCounter);
-                nextToken.setTermLength(trimmedLength);
-            }
+                if (startCounter > 0)
+                {
+                    // need to shift all characters (setting startPos to >0 breaks search equality)
+                    // see: StandardFilter
+                    for (int i = startCounter; i < bufferLength; i++)
+                    {
+                        buffer[i - startCounter] = buffer[i];
+                    }
+                }
 
-            return nextToken;
+                // change length
+                if (startCounter + endCounter > 0)
+                {
+                    int trimmedLength = bufferLength - (startCounter + endCounter);
+                    this.termAttr.setLength(trimmedLength);
+                }
+
+                return true;
+            }
+            return false;
         }
     }
 

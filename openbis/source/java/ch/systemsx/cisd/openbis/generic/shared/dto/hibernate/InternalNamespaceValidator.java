@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
 import java.io.Serializable;
 
-import org.hibernate.validator.Validator;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -27,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * 
  * @author Christian Ribeaud
  */
-public final class InternalNamespaceValidator implements Validator<InternalNamespace>, Serializable
+public final class InternalNamespaceValidator implements
+        ConstraintValidator<InternalNamespace, Boolean>, Serializable
 {
 
     private static final long serialVersionUID = IServer.VERSION;
@@ -43,9 +45,9 @@ public final class InternalNamespaceValidator implements Validator<InternalNames
         this.internalNamespace = annotation.value();
     }
 
-    public final boolean isValid(final Object value)
+    public final boolean isValid(final Boolean value, ConstraintValidatorContext constraintContext)
     {
-        return ((Boolean) value) == internalNamespace;
+        return value == internalNamespace;
     }
 
 }

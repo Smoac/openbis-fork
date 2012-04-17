@@ -331,7 +331,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
         for (Object[] result : results)
         {
-            Integer numberOfUsages = (Integer) result[0];
+            Integer numberOfUsages = ((Number) result[0]).intValue();
             Long termId = (Long) result[1];
             termsById.get(termId).registerUsage(entityKind, numberOfUsages);
         }

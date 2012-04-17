@@ -49,7 +49,8 @@ final class DAOUtils
      */
     static int getCount(final Criteria criteria)
     {
-        int count = (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
+        int count =
+                ((Number) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
         // Undo the rowCount projection
         criteria.setProjection(null);
         criteria.setResultTransformer(Criteria.ROOT_ENTITY);
