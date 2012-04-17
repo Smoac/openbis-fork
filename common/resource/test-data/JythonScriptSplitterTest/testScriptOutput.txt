@@ -1,0 +1,5 @@
+>>> START
+letter: a word: abacus
+letter: b word: binoculars
+letter: c word: circus
+>>> END
