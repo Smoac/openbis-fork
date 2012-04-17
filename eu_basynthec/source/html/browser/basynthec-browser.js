@@ -159,6 +159,12 @@ AppPresenter.prototype.downloadTableFile = function(d)
 AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 	this.hideExplanation();
 
+	var lexicalParent = this;
+	
+	function retrieveFilesForDataSets(dataSets) { 
+		dataSets.forEach(function(ds) { lexicalParent.retrieveFilesForDataSet(ds); });
+	}
+
 	if (d.inspected) {
 		var index = inspected.indexOf(d) 
 		if (index > -1)	inspected.splice(index, 1);
@@ -179,6 +185,35 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 	d3.select(d.connectedNode).attr("class", classForNode(d))
   this.updateInspectors(500);
 }
+
+AppPresenter.prototype.retrieveFilesForDataSet = function(ds)
+{
+	if (ds.files) {
+		// already retrieved
+		return;
+	}
+	
+	ds.loadingFiles = true;
+	ds.files = [];
+
+	basynthec.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
+		if (!data.result) { 
+			return;
+		}
+		data.result.forEach(function (file) { file.dataset = ds });
+		ds.files = ds.files.concat(data.result);
+		
+		ds.loadingFiles = false; 
+		presenter.updateInspectors(500);
+		
+		if (isOd600DataSet(ds)) {
+			retrieveOd600DataForDataSet(ds)
+		}
+				
+	});
+}
+
+function classForNode(d) { return  (d.inspected) ? "inspected" : ""; }
 
 
 /**
@@ -327,6 +362,8 @@ DataSummaryView.prototype.updateView = function()
 					.text(function (d) { return d});
 }
 
+function toggleInspected(d) { presenter.toggleInspected(d, this) }
+
 function StrainView() {
 	
 }
@@ -472,6 +509,25 @@ function dataSetLabel(d) { return d.bis.dataSetTypeCode + " registered on " + ti
 
 function downloadTableFile(d) { presenter.downloadTableFile(d) }
 
+function filesForDataSet(d)
+{
+	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
+	
+	var fileFilter = function(file) {
+		if (!file.isDirectory) {
+			if (endsWith(file.pathInDataSet, "xls")) {
+				return true;
+			}
+			if (endsWith(file.pathInDataSet, "xls.tsv")) {
+				return true;
+			}
+		}
+		return false;
+	};
+	
+	return (d.files) ? d.files.filter(fileFilter) : [];
+}
+
 
 var model = new AppModel();
 var presenter = new AppPresenter();
@@ -499,65 +555,6 @@ var inspected = [];
 //The node inspectors
 var inspectors, inspectorView;
 
-
-function toggleInspected(d) { presenter.toggleInspected(d, this) }
-
-function classForNode(d) { 
-	return  (d.inspected) ? "inspected" : "";
-}
-
-function filesForDataSet(d)
-{
-	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
-	
-	var fileFilter = function(file) {
-		if (!file.isDirectory) {
-			if (endsWith(file.pathInDataSet, "xls")) {
-				return true;
-			}
-			if (endsWith(file.pathInDataSet, "xls.tsv")) {
-				return true;
-			}
-		}
-		return false;
-	};
-	
-	return (d.files) ? d.files.filter(fileFilter) : [];
-}
-
-function retrieveFilesForDataSets(dataSets)
-{
-	dataSets.forEach(function(ds) {
-		   retrieveFilesForDataSet(ds);
-	});	
-}
-
-function retrieveFilesForDataSet(ds)
-{
-	if (ds.files) {
-		// already retrieved
-		return;
-	}
-	
-	ds.loadingFiles = true;
-	ds.files = [];
-
-	basynthec.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
-		if (!data.result) { 
-			return;
-		}
-		data.result.forEach(function (file) { file.dataset = ds });
-		ds.files = ds.files.concat(data.result);
-		
-		ds.loadingFiles = false; 
-		presenter.updateInspectors(500);
-		
-		if (isOd600DataSet(ds)) {
-			retrieveOd600DataForDataSet(ds)
-		}
-				
-	});
-}
 
 function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode}
 
