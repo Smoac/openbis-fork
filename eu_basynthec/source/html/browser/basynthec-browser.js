@@ -716,31 +716,6 @@ DataSetInspectorView.prototype.updateView = function(duration)
 				.duration(duration)
 				.style("opacity", "0")
 				.remove();
-				
-	var height = 200, width = 200;
-	var dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
-	dataDisplay
-		.enter()
-	.append("svg:svg")
-		.attr("height", height)
-		.attr("width", width);
-	// Reinitialize the variable
-	dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
-	var aCurve = dataDisplay.selectAll("g").data(function(d) { return [d[1]]; })
-				.enter()
-			.append("svg:g");
-	// Reinitialize the variable
-	aCurve = dataDisplay.selectAll("g").data(curveData);
-		// The first two columns of data are the strain name and human-readable desc
-	aCurve.selectAll("line").data(lineData)
-		.enter()
-	.append("svg:line")
-		.attr("x1", function(d, i) { return (i / (this.parentNode.__data__.length)) * width; })
-		.attr("y1", function(d, i) { return height - (d[0] * height); })
-		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
-		.attr("y2", function(d) { return height - (d[1] * height); })
-		.style("stroke", "rgb(0,0,0)")
-		.style("stroke-width", "1");
 	
 	inspector.exit().transition()
 		.duration(duration)
@@ -771,11 +746,11 @@ Od600InspectorView.prototype.updateView = function(duration)
 {	
 	var inspector = inspectors.selectAll("div.od600inspector").data(od600Inspected, function (d) { return d.name });
 	
-	var box = inspector.enter().append("div")
+	var strainBox = inspector.enter().append("div")
 		.attr("class", "od600inspector")
 		.text(function(d) { return d.name });
 
-	box.append("span")
+	strainBox.append("span")
 		.attr("class", "close")
 		.on("click", toggleOd600Inspected)
 		.text("x");
@@ -789,68 +764,18 @@ Od600InspectorView.prototype.updateView = function(duration)
 	var dataSetElt = dataSetList.selectAll("li").data(function (d) { return d.dataSets });
 	dataSetElt.enter()
 	  .append("li")
-	  .text(function(d) { return dataSetLabel(d) });
-	
-	var dataSetDetailsElt = dataSetElt.selectAll("div.dataSetDetails").data(function(d) { return [d]; });
-	dataSetDetailsElt
-	  .enter()
-	    .append("div")
-	      .attr("class", "dataSetDetails"); 
-	
-	var propsTable = dataSetDetailsElt.selectAll("table.properties").data(function(d) {return [d]});
-	
-	propsTable.enter()
-	  .append("table")
-	  .attr("class", "properties");
-	
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.bis.properties) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d } ).enter()
-				.append("td")
-				.attr("class", function(d, i) { return (i == 0) ? "propkey" : "propvalue"})
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.style("opacity", "1");
-	
-	var downloadTable = dataSetDetailsElt.selectAll("table.downloads").data(function(d) { return [d] });
-	
-	downloadTable
-		.enter()
-			.append("table")
-				.attr("class", "downloads")
-			
-	// Add a caption, but make sure there is just one (this does not work with select())
-	downloadTable.selectAll("caption").data(["Files"])
-		.enter()
-			.append("caption").text(function(d) { return d; });
-			
-	// We just want to see non-directories here
-	var downloadTableRow = downloadTable.selectAll("tr").data(filesForDataSet, function(d) { return d.pathInDataSet });
-	downloadTableRow
-		.enter()
-			.append("tr")
-				.append("td")
-				.on("click", downloadTableFile)
-				.text(function(d) { return d.pathInListing });
-	downloadTableRow
-		.exit()
-			.transition()
-				.duration(duration)
-				.style("opacity", "0")
-				.remove();
+	  .text(function(d) { return d.bis.experimentIdentifier });
 				
 	var height = 200, width = 200;
-	var dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
+	var dataDisplay = inspector.selectAll("svg").data(od600DataForStrain);
 	dataDisplay
 		.enter()
 	.append("svg:svg")
 		.attr("height", height)
 		.attr("width", width);
 	// Reinitialize the variable
-	dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
-	var aCurve = dataDisplay.selectAll("g").data(function(d) { return [d[1]]; })
+	dataDisplay = inspector.selectAll("svg").data(od600DataForStrain);
+	var aCurve = dataDisplay.selectAll("g").data(curveData)
 				.enter()
 			.append("svg:g");
 	// Reinitialize the variable
@@ -930,21 +855,18 @@ var inspectors, dataSetInspectorView, od600InspectorView;
 
 function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode}
 
-function od600DataForDataSet(d)
-{
-	if (!isOd600DataSet(d)) return [];
-
-	if (undefined == d.od600Rows) return [[]];
+function od600DataForStrain(d) {
+	if (null == d.dataSets) return [];
 	
-	return [d.od600Rows.slice(1)];
+	var dataSets = d.dataSets.filter(function(ds) { return isOd600DataSet(ds) });
+	var data = dataSets.map(function(ds) { return (null == ds.od600Map) ? [] : ds.od600Map[d.name] });
+	return data;
 }
 
 function curveData(d)
 {
 	if (!d) return [];
-	if (d.length < 2) return [];
-	var data = d[1].slice(2);
-	return [{length : data.length, max : d3.max(data), values: data}]
+	return [{length : d.length, max : d3.max(d), values: d}]
 }
 
 function lineData(d)
