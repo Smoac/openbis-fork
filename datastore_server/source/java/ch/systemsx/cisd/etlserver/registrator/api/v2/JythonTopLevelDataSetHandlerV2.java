@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import java.io.File;
-
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -26,8 +24,6 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -81,70 +77,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 pythonInterpreter, globalState);
     }
 
-    public static class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
-            extends
-            ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T>
+    @Override
+    protected boolean shouldUseOldJythonHookFunctions()
     {
-
-        public JythonDataSetRegistrationServiceV2(JythonTopLevelDataSetHandlerV2<T> registrator,
-                DataSetFile incomingDataSetFile,
-                DataSetInformation userProvidedDataSetInformationOrNull,
-                IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
-                TopLevelDataSetRegistratorGlobalState globalState)
-        {
-            super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,
-                    globalCleanAfterwardsAction, delegate, interpreter, globalState);
-        }
-
-        /** Creates the transaction object. Can be overriden in subclasses. */
-        @Override
-        protected DataSetRegistrationTransaction<T> createTransaction(
-                File rollBackStackParentFolder, File workingDir, File stagingDir,
-                IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
-        {
-            if (transactions.isEmpty())
-            {
-                return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                        stagingDir, this, registrationDetailsFactory);
-            } else
-            {
-                throw new IllegalStateException(
-                        "Failed to create transaction. Transaction has already been created before.");
-            }
-        }
-
-        private DataSetRegistrationTransaction<T> getTransaction()
-        {
-            if (transactions.isEmpty())
-            {
-                return null;
-            } else if (transactions.size() > 1)
-            {
-                throw new IllegalStateException(
-                        "This version of DataSetRegistator doesn't allow multiple transactions, but there are some.");
-            } else
-            {
-                return transactions.get(0);
-            }
-        }
-
-        /**
-         * Commit any scheduled changes.
-         */
-        @Override
-        public void commit()
-        {
-            DataSetRegistrationTransaction<T> transaction = getTransaction();
-
-            transaction.commit();
-
-            logDssRegistrationResult();
-
-            // Execute the clean afterwards action as successful only if no errors occurred and we
-            // registered data sets
-            executeGlobalCleanAfterwardsAction(false == (didErrorsArise() || transaction.isRolledback()));
-        }
+        return false;
     }
-
+    
 }

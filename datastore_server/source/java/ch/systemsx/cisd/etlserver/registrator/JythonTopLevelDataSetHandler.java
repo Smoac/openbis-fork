@@ -276,6 +276,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeDidEncounterSecondaryTransactionErrorsFunction(service, transaction, secondaryErrors);
     }
 
+    /**
+     * If true than the old methods of jython hook functions will also be used (as a fallbacks in
+     * case of the new methods or missing, or normally)
+     */
+    protected boolean shouldUseOldJythonHookFunctions()
+    {
+        return true;
+    }
+
     private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
@@ -287,7 +296,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         if (null != function)
         {
             invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
-        } else
+        } else if (shouldUseOldJythonHookFunctions())
         {
             // No Rollback transaction function was called, see if the rollback service function was
             // defined, and call it.
@@ -311,7 +320,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
-        } else
+        } else if (shouldUseOldJythonHookFunctions())
         {
             function =
                     tryJythonFunction(interpreter,
@@ -352,14 +361,18 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
     {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter,
-                        JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
-        if (null != function)
+        if (shouldUseOldJythonHookFunctions())
         {
-            invokeDidEncounterSecondaryTransactionErrorsFunction(function, service, transaction,
-                    secondaryErrors);
+            PythonInterpreter interpreter = getInterpreterFromService(service);
+            PyFunction function =
+                    tryJythonFunction(
+                            interpreter,
+                            JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
+            if (null != function)
+            {
+                invokeDidEncounterSecondaryTransactionErrorsFunction(function, service,
+                        transaction, secondaryErrors);
+            }
         }
     }
 

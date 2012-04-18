@@ -114,6 +114,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         TestCaseParameters params = other.clone();
         params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
         params.overrideProperties.put("TEST_V2_API", "");
+        params.dontCallOldApiJythonHooks = true;
         params.title += " - V2";
         return params;
     }
@@ -281,22 +282,21 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
         testCases.addAll(multipleVersionsOfTestCase(testCase));
-        
+
         testCase = new TestCaseParameters("Dying script");
         testCase.dropboxScriptPath = "dying-script.py";
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
         testCases.addAll(multipleVersionsOfTestCase(testCase));
-                
+
         testCase = new TestCaseParameters("Rollback dying script");
         testCase.dropboxScriptPath = "rollback-dying-script.py";
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCase.incomingDataSetAfterRegistration = "untouched_two_datasets";
         testCases.addAll(multipleVersionsOfTestCase(testCase));
-                
-        
+
         testCase = new TestCaseParameters("Two transactions.");
         testCase.dropboxScriptPath = "testcase-double-transaction.py";
         testCase.shouldRegisterTwoDataSets = true;
@@ -381,6 +381,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
          * post_storage function is not. Used to check which of two should be checked for.
          */
         protected boolean postStorageFunctionNotDefinedInADropbox = false;
+
+        /**
+         * True if the jython dropbox is in version 2 and the old jython hook methods should not be
+         * called
+         */
+        protected boolean dontCallOldApiJythonHooks = false;
 
         /**
          * If true, than we expect that two datasets have been registered.
@@ -710,7 +716,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
             if (testCase.postStorageFunctionNotDefinedInADropbox)
             {
-                assertTrue(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+                if (testCase.dontCallOldApiJythonHooks)
+                {
+                    assertFalse(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+                } else
+                {
+                    assertTrue(handler.getExpectations().didCommitTransactionFunctionRunHappen);
+                }
                 assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
             } else
             {
@@ -1111,8 +1123,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
-
-
     private void createData()
     {
         incomingDataSetFile = createDirectory(workingDirectory, "data_set");
@@ -1437,6 +1447,5 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             };
     }
-
 
 }
