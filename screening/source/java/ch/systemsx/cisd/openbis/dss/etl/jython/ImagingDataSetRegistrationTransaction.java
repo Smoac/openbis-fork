@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * {@link DataSetInformation} at the same time.
  */
 @SuppressWarnings("rawtypes")
-class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTransaction implements
+public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTransaction implements
         IImagingDataSetRegistrationTransaction
 {
     private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
