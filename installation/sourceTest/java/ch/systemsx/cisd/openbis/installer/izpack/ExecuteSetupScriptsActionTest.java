@@ -1,0 +1,126 @@
+/*
+ * Copyright 2012 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.installer.izpack;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
+{
+    private File dssServicePropertiesFile;
+    private File jettyXMLFile;
+    private ExecuteSetupScriptsAction action;
+    private File myKeystoreFile;
+    private File keystoreFileAS;
+    private File keystoreFileDSS;
+
+    @BeforeMethod
+    public void setUpFiles() throws IOException
+    {
+        dssServicePropertiesFile =
+                new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        jettyXMLFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_XML_PATH);
+        FileUtils.copyFile(new File("../datastore_server/dist/etc/service.properties/"),
+                dssServicePropertiesFile);
+        FileUtils.copyFile(new File("../openbis/dist/server/jetty.xml/"), jettyXMLFile);
+
+        keystoreFileAS = new File(workingDirectory, Utils.AS_PATH + Utils.KEYSTORE_PATH);
+        keystoreFileDSS = new File(workingDirectory, Utils.DSS_PATH + Utils.KEYSTORE_PATH);
+        myKeystoreFile = new File(workingDirectory, "my-keystore");
+        FileUtils.writeStringToFile(myKeystoreFile, "my-keys");
+        action = new ExecuteSetupScriptsAction();
+    }
+    
+    @Test
+    public void testInstallKeyStoreWithUndefinedKeyStoreFileName() throws Exception
+    {
+        action.installKeyStore("", workingDirectory);
+        
+        assertEquals(false, keystoreFileAS.exists());
+        assertEquals(false, keystoreFileDSS.exists());
+    }
+    
+    @Test
+    public void testInstallKeyStoreWithKeyStoreFileName() throws Exception
+    {
+        action.installKeyStore(myKeystoreFile.getPath(), workingDirectory);
+        
+        assertEquals(true, keystoreFileAS.exists());
+        assertEquals("my-keys", FileUtils.readFileToString(keystoreFileAS));
+        assertEquals(true, keystoreFileDSS.exists());
+        assertEquals("my-keys", FileUtils.readFileToString(keystoreFileDSS));
+    }
+    
+    @Test
+    public void testInjectPasswords() throws Exception
+    {
+        action.injectPasswords("my-<store>", "my-<key>", workingDirectory);
+
+        Properties properties = loadProperties(dssServicePropertiesFile);
+        assertEquals("my-<store>", properties.getProperty(Utils.DSS_KEYSTORE_PASSWORD_KEY));
+        assertEquals("my-<key>", properties.getProperty(Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY));
+        assertEquals("[<Set name=\"Password\"><![CDATA[my-<store>]]></Set>, "
+                + "<Set name=\"KeyPassword\"><![CDATA[my-<key>]]></Set>]",
+                loadFilteredAndTrimmedJettyXMLFile().toString());
+    }
+
+    public List<String> loadFilteredAndTrimmedJettyXMLFile()
+    {
+        List<String> lines = FileUtilities.loadToStringList(jettyXMLFile);
+        List<String> result = new ArrayList<String>();
+        for (String line : lines)
+        {
+            if (line.indexOf("Password") > 0)
+            {
+                result.add(line.trim());
+            }
+        }
+        return result;
+    }
+
+    public Properties loadProperties(File propertiesFile) throws Exception
+    {
+        Properties properties = new Properties();
+        FileReader fileReader = null;
+        try
+        {
+            fileReader = new FileReader(propertiesFile);
+            properties.load(fileReader);
+        } finally
+        {
+            IOUtils.closeQuietly(fileReader);
+        }
+        return properties;
+    }
+}

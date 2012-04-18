@@ -8,6 +8,39 @@
     </field>
   </panel>
 
+  <panel id="UserInputPanel.KEY_STORE">
+    <field type="title" txt="Key Store" bold="true" size="2" />
+    <field type="staticText" align="left"
+      txt="Please, select a new key store if the current one should be replace." />
+    <field type="file" align="left" variable="KEY_STORE_FILE">
+      <spec txt="Key store" size="20" set="" mustExist="true" allowEmptyValue="true" />
+    </field>
+    <field type="staticText" align="left"
+      txt="Passwords need only be changed in case of a new key store with different password." />
+    <field type="password" align="left" variable="KEY_STORE_PASSWORD">
+      <spec>
+        <pwd txt="Key store password" size="20" set="" />
+        <pwd txt="Re-type key store password" size="20" set=""/>
+      </spec>
+      <validator class="com.izforge.izpack.panels.userinput.validator.PasswordEqualityValidator" txt="The specified key store passwords do not match." />
+      <validator class="com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator" txt="Key store password cannot be empty.">
+        <param name="pattern" value="^.+$" />
+      </validator>
+    </field>
+    <field type="password" align="left" variable="KEY_PASSWORD">
+      <spec>
+        <pwd txt="Key password" size="20" set="" />
+        <pwd txt="Re-type key password" size="20" set=""/>
+      </spec>
+      <validator class="com.izforge.izpack.panels.userinput.validator.PasswordEqualityValidator" txt="The specified key passwords do not match." />
+      <validator class="com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator" txt="key password cannot be empty.">
+        <param name="pattern" value="^.+$" />
+      </validator>
+    </field>
+    
+    
+  </panel>
+
   <panel id="UserInputPanel.TECHNOLOGIES">
     <field type="title" txt="Technologies" bold="true" size="2" />
     <field type="staticText" align="left"

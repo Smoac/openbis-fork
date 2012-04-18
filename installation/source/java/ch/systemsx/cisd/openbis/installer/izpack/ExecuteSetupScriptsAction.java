@@ -19,18 +19,26 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ADMIN_PASSWORD_VARNAME;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ETL_SERVER_PASSWORD_VARNAME;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+
 /**
- * Executes a script that configures the installation.
+ * Executes a script that configures the installation, copies key store (if specified) and inject
+ * passwords.
  * 
  * @author Kaloyan Enimanev
+ * @author Franz-Josef Elmer
  */
 public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements PanelAction
 {
@@ -53,8 +61,62 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         {
             executRestoreConfigScript(data);
         }
+        String keyStoreFileName =
+                data.getVariable(GlobalInstallationContext.KEY_STORE_FILE_VARNAME);
+        String keyStorePassword =
+                data.getVariable(GlobalInstallationContext.KEY_STORE_PASSWORD_VARNAME);
+        String certificatePassword =
+                data.getVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME);
+        File installDir = GlobalInstallationContext.installDir;
+        installKeyStore(keyStoreFileName, installDir);
+        injectPasswords(keyStorePassword, certificatePassword, installDir);
     }
 
+    void installKeyStore(String keyStoreFileName, File installDir)
+    {
+        if (keyStoreFileName != null && keyStoreFileName.length() > 0)
+        {
+            try
+            {
+                File keyStoreFile = new File(keyStoreFileName);
+                File keystoreFileAS = new File(installDir, Utils.AS_PATH + Utils.KEYSTORE_PATH);
+                FileUtils.copyFile(keyStoreFile, keystoreFileAS);
+                File keystoreFileDSS = new File(installDir, Utils.DSS_PATH + Utils.KEYSTORE_PATH);
+                FileUtils.copyFile(keyStoreFile, keystoreFileDSS);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
+    
+    void injectPasswords(String keyStorePassword, String keyPassword, File installDir)
+    {
+        File dssServicePropertiesFile =
+                new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        Utils.updateOrAppendProperty(dssServicePropertiesFile, Utils.DSS_KEYSTORE_PASSWORD_KEY,
+                keyStorePassword);
+        Utils.updateOrAppendProperty(dssServicePropertiesFile, Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY,
+                keyPassword);
+        
+        File jettyXMLFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_XML_PATH);
+        try
+        {
+            String jettyXML = FileUtils.readFileToString(jettyXMLFile);
+            jettyXML =
+                    jettyXML.replaceAll("<Set name=\"Password\">.*</Set>",
+                            "<Set name=\"Password\"><![CDATA[" + keyStorePassword + "]]></Set>")
+                            .replaceAll(
+                                    "<Set name=\"KeyPassword\">.*</Set>",
+                                    "<Set name=\"KeyPassword\"><![CDATA[" + keyPassword
+                                            + "]]></Set>");
+            FileUtils.writeStringToFile(jettyXMLFile, jettyXML);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+    
     private void executRestoreConfigScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, RESTORE_CONFIG_FROM_BACKUP_SCRIPT);

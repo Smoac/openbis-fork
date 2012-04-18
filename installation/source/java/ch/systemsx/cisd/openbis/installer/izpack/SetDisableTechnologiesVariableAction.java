@@ -19,15 +19,11 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.DISABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
@@ -67,44 +63,11 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
         if (isFirstTimeInstallation == false)
         {
             File configFile = new File(installDir, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-            List<String> list = FileUtilities.loadToStringList(configFile);
-            boolean defined = false;
-            boolean unchanged = false;
-            String propertiesEntry = DISABLED_TECHNOLOGIES_KEY + " = " + newTechnologyList;
-            for (int i = 0; i < list.size(); i++)
-            {
-                String line = list.get(i);
-                if (line.startsWith(DISABLED_TECHNOLOGIES_KEY))
-                {
-                    defined = true;
-                    String currentTechnologyList =
-                            line.substring(DISABLED_TECHNOLOGIES_KEY.length()).trim();
-                    if (currentTechnologyList.startsWith("="))
-                    {
-                        currentTechnologyList = currentTechnologyList.substring(1).trim();
-                    }
-                    unchanged = currentTechnologyList.equals(newTechnologyList);
-                    if (unchanged == false)
-                    {
-                        list.set(i, propertiesEntry);
-                    }
-                    break;
-                }
-            }
-            if (defined)
-            {
-                if (unchanged == false)
-                {
-                    updateConfigFile(configFile, list);
-                }
-            } else
-            {
-                appendEntryToConfigFile(configFile, propertiesEntry);
-            }
+            Utils.updateOrAppendProperty(configFile, DISABLED_TECHNOLOGIES_KEY, newTechnologyList);
             updateDisabledDssPluginsProperty(data, installDir);
         }
     }
-    
+
     private void updateDisabledDssPluginsProperty(AutomatedInstallData data, File installDir)
     {
         Set<String> disabledTechnologies = new LinkedHashSet<String>();
@@ -121,7 +84,7 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
         File configFile = new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         List<String> list = FileUtilities.loadToStringList(configFile);
         updateDisabledDssPluginsProperty(list, technologies, disabledTechnologies);
-        updateConfigFile(configFile, list);
+        Utils.updateConfigFile(configFile, list);
     }
 
     private void updateDisabledDssPluginsProperty(List<String> list, Set<String> technologies,
@@ -185,44 +148,6 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
             }
         }
         return builder.toString();
-    }
-
-    private void updateConfigFile(File configFile, List<String> list)
-    {
-        PrintWriter printWriter = null;
-        try
-        {
-            printWriter = new PrintWriter(configFile);
-            for (String line : list)
-            {
-                printWriter.println(line);
-            }
-        } catch (IOException ex)
-        {
-            throw new RuntimeException("Couldn't update " + configFile, ex);
-        } finally
-        {
-            IOUtils.closeQuietly(printWriter);
-        }
-    }
-
-    private void appendEntryToConfigFile(File configFile, String propertiesEntry)
-    {
-        FileWriter fileWriter = null;
-        try
-        {
-            fileWriter = new FileWriter(configFile, true);
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            printWriter.println();
-            printWriter.println(propertiesEntry);
-        } catch (IOException ex)
-        {
-            throw new RuntimeException("Couldn't append property " + DISABLED_TECHNOLOGIES_KEY
-                    + " to " + configFile, ex);
-        } finally
-        {
-            IOUtils.closeQuietly(fileWriter);
-        }
     }
 
 }

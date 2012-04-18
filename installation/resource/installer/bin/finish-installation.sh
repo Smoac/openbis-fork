@@ -16,6 +16,7 @@ DSS_ROOT_DIR=$3
 INSTALL_PATH=$4
 DISABLED_TECHNOLOGIES=$5
 
+echo Finish installation...
 source $BASE/chmodx-all-scripts.sh
 
 

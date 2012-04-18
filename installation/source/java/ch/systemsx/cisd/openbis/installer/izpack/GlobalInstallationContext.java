@@ -33,6 +33,12 @@ public class GlobalInstallationContext
 
     public static final String ETL_SERVER_PASSWORD_VARNAME = "ETLSERVER_PASSWORD";
 
+    public static final String KEY_STORE_FILE_VARNAME = "KEY_STORE_FILE";
+
+    public static final String KEY_STORE_PASSWORD_VARNAME = "KEY_STORE_PASSWORD";
+    
+    public static final String KEY_PASSWORD_VARNAME = "KEY_PASSWORD";
+    
     public static final String DATA_DIR_VARNAME = "DSS_ROOT_DIR";
 
     public static final String BACKUP_FOLDER_VARNAME = "BACKUP_FOLDER";

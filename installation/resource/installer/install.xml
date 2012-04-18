@@ -96,6 +96,12 @@
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
     </panel>
     
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.KEY_STORE" >
+      <actions>
+        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.KeystoreAction" />
+      </actions>
+    </panel>
+    
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES" condition="isStandardTechnologies">
       <actions>
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
