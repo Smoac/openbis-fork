@@ -1,6 +1,8 @@
 // The width of the visualization
 var w = 500;
 
+var curveColors = d3.scale.category20c().domain([0, 20]);
+
 /**
  * Abstract superclass for the wrapper classes.
  *
@@ -785,7 +787,7 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.attr("y1", function(d, i) { return height - (d[0] * height); })
 		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
 		.attr("y2", function(d) { return height - (d[1] * height); })
-		.style("stroke", "rgb(0,0,0)")
+		.style("stroke", function(d, i) { return this.parentNode.__data__.color;})
 		.style("stroke-width", "1");
 	
 	inspector.exit().transition()
@@ -812,13 +814,15 @@ function od600DataForStrain(d) {
 	return data;
 }
 
-function curveData(d)
+function curveData(d, i)
 {
+	var color = curveColors(i);
 	if (!d) return [];
 	if (0 == d.length) {
-		return [{length : 0, max : 0, values: d}]
+		return [{length : 0, max : 0, values: d, color : color}]
 	}
-	return [{length : d.length, max : d3.max(d), values: d}]
+	console.log({index : i, data : d, color : color});
+	return [{length : d.length, max : d3.max(d), values: d, color : color}]
 }
 
 function lineData(d)
