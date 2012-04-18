@@ -82,7 +82,8 @@ AppPresenter.prototype.switchToDataSetTypeView = function()
 	this.presenterMode = presenterModeTypeDataSet;
 	this.hideExplanation();
 	this.toggleDisplayedVisualizations(dataSetTypeVis);
-	inspectorView.updateView();	
+	od600InspectorView.removeAll(250);
+	dataSetInspectorView.updateView();	
 }
 
 /** Show the data sets by strain*/
@@ -91,7 +92,8 @@ AppPresenter.prototype.switchToStrainView = function()
 	this.presenterMode = presenterModeTypeDataSet;
 	this.hideExplanation();
 	this.toggleDisplayedVisualizations(strainVis);
-	inspectorView.updateView();		
+	od600InspectorView.removeAll(250);	
+	dataSetInspectorView.updateView();		
 }
 
 /** Show the data sets by strains with OD600 data*/
@@ -99,8 +101,9 @@ AppPresenter.prototype.switchToOD600View = function()
 {
 	this.presenterMode = presenterModeTypeStrain;
 	this.hideExplanation();
-	this.toggleDisplayedVisualizations(strainVis);
-	inspectorView.removeAll(250);	
+	this.toggleDisplayedVisualizations(od600StrainVis);
+	dataSetInspectorView.removeAll(250);
+	od600InspectorView.updateView();
 }
 
 /** Utility function to gracefully switch from one visualization to another */
@@ -142,16 +145,14 @@ AppPresenter.prototype.showDataSets = function(bisDataSets) {
 	
 	basynthec.dataSetList.sort(sortByTypeAndRegistration);
 	
-	model.initializeDataSetsByType();
-	model.initializeDataSetsByStrain();
+	model.initialize();
 	
-	presenter.refreshDataSetTypeTables();
-	presenter.refreshStrainTables();
+	this.refreshDataSetTypeTables();
+	this.refreshStrainTables();
+	this.refreshOd600StrainTables();
 }
 
 AppPresenter.prototype.refreshStrainTables = function() {
-	model.initializeStrainGroups();
-	
   this.createVis();
  	strainView.updateView(1000);
 }
@@ -163,6 +164,11 @@ AppPresenter.prototype.refreshDataSetTypeTables = function() {
 	metabolomicsView.updateView();
 	transcriptomicsView.updateView();
 	proteomicsView.updateView();
+}
+
+AppPresenter.prototype.refreshOd600StrainTables = function() {
+  this.createVis();
+ 	od600StrainView.updateView(1000);
 }
 
 AppPresenter.prototype.createVis = function()
@@ -194,9 +200,14 @@ AppPresenter.prototype.createVis = function()
 	strainVis.style("width", w + "px");
 	strainView = new StrainView();
 	
-	this.visualizationContainers = [dataSetTypeVis, strainVis];
+	od600StrainVis = tableRoot.append("div").style("display", "none");
+	od600StrainVis.style("width", w + "px");
+	od600StrainView = new Od600StrainView();
 	
-	inspectorView = new InspectorView();
+	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis];
+	
+	dataSetInspectorView = new DataSetInspectorView();
+	od600InspectorView = new Od600InspectorView();
 	
 	this.didCreateVis = true;
 }
@@ -205,9 +216,9 @@ AppPresenter.prototype.updateInspectors = function(duration)
 {
 	if (this.presenterMode == presenterModeTypeDataSet)
 	{
-		inspectorView.updateView(duration);
+		dataSetInspectorView.updateView(duration);
 	} else {
-		// Do nothing.
+		od600InspectorView.updateView(duration);
 	}
 }
 
@@ -235,6 +246,8 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 	function retrieveFilesForDataSets(dataSets) { 
 		dataSets.forEach(function(ds) { lexicalParent.retrieveFilesForDataSet(ds); });
 	}
+	
+	function classForNode(d) { return  (d.inspected) ? "inspected" : "" };
 
 	if (d.inspected) {
 		var index = inspected.indexOf(d) 
@@ -244,6 +257,38 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 		d.inspected = true;
 		d.connectedNode = connectedNode;
 		inspected.push(d);
+		if (d instanceof DataSetWrapper) {
+			d.dataSets = [{ bis : d.dataSet }];
+			retrieveFilesForDataSets(d.dataSets);
+		} else if (!d.dataSets) {
+			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
+			retrieveFilesForDataSets(d.dataSets);
+		}
+	}
+	
+	d3.select(d.connectedNode).attr("class", classForNode(d))
+  this.updateInspectors(500);
+}
+
+AppPresenter.prototype.toggleOd600Inspected = function(d, connectedNode) {
+	this.hideExplanation();
+
+	var lexicalParent = this;
+	
+	function retrieveFilesForDataSets(dataSets) { 
+		dataSets.forEach(function(ds) { lexicalParent.retrieveFilesForDataSet(ds); });
+	}
+	
+	function classForNode(d) { return  (d.od600Inspected) ? "inspected" : "" };
+
+	if (d.od600Inspected) {
+		var index = od600Inspected.indexOf(d) 
+		if (index > -1)	od600Inspected.splice(index, 1);
+		d.od600Inspected = false;
+	} else {
+		d.od600Inspected = true;
+		d.connectedNode = connectedNode;
+		od600Inspected.push(d);
 		if (d instanceof DataSetWrapper) {
 			d.dataSets = [{ bis : d.dataSet }];
 			retrieveFilesForDataSets(d.dataSets);
@@ -334,9 +379,6 @@ AppPresenter.prototype.initializeOd600Map = function(ds)
 }
 
 
-function classForNode(d) { return  (d.inspected) ? "inspected" : ""; }
-
-
 /**
  * An object responsible for managing the data to show
  */
@@ -349,6 +391,13 @@ function AppModel() {
 
 	// A map holding data sets by type
 	this.dataSetsByType = { };
+}
+
+AppModel.prototype.initialize = function() {
+	this.initializeDataSetsByType();
+	this.initializeDataSetsByStrain();
+	this.initializeStrainGroups();
+	this.initializeOd600Model();	
 }
 
 /** Compute the dataSetsByType variable */
@@ -389,6 +438,34 @@ AppModel.prototype.initializeStrainGroups = function() {
 		strains.push(strainName)
 	}
 	this.strainGroups = createStrainGroups(strains);
+}
+
+/** Initialize the state necessary for the OD600 visualization. This must be run after initializeDataSetsByType */
+AppModel.prototype.initializeOd600Model= function() {
+	var colors = d3.scale.category20c();
+	var dataSets = this.od600DataSets();
+	var od600ExperimentIdentifiers = dataSets.map(function(ds) {
+		return ds.dataSet.experimentIdentifier;
+	});
+	
+	od600ExperimentIdentifiers.sort();
+	this.od600Experiments = od600ExperimentIdentifiers.map(function(expId, i) {
+		return { identifier: expId, color: colors(i) };
+	});
+	
+	// Filter the strain groups to those that have OD600 data
+	this.od600StrainGroups = this.strainGroups.map(function(group) {
+		var strains = group.strains.filter(function(strain) {
+			return model.dataSetsByStrain[strain.name].dataSets.some(function(ds) {
+				return "OD600" == ds.dataSetTypeCode;
+			})
+		});
+		return {groupName : group.groupName, strains : strains };
+	});
+}
+
+AppModel.prototype.od600DataSets = function() {
+	return this.dataSetsByType["OD600"];
 }
 
 /**
@@ -483,11 +560,12 @@ DataSummaryView.prototype.updateView = function()
 					.text(function (d) { return d});
 }
 
-function toggleInspected(d) { presenter.toggleInspected(d, this) }
 
 function StrainView() {
 	
 }
+
+function toggleInspected(d) { presenter.toggleInspected(d, this) }
 
 StrainView.prototype.updateView = function(duration)
 {
@@ -517,11 +595,55 @@ StrainView.prototype.updateView = function(duration)
 			.text(function(d) { return d.label });
 }
 
-function InspectorView() {
+	function toggleOd600Inspected(d) { presenter.toggleOd600Inspected(d, this) }
+
+/**
+ * The view for the OD600 strains
+ *
+ * @constructor
+ */
+function Od600StrainView() {
 	
 }
 
-InspectorView.prototype.updateView = function(duration)
+Od600StrainView.prototype.updateView = function(duration)
+{
+	var strainDiv = od600StrainVis.selectAll("div.strains").data(model.od600StrainGroups)
+		.enter()
+	.append("div")
+		.attr("class", "strains");
+
+	strainDiv
+		.append("h2")
+			.text(function(d) { return d.groupName });
+	strainDiv
+		.append("table")
+			.selectAll("tr").data(function(d) { 
+					// Group the different sets of strains differently
+					if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
+					if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
+				
+					// Group the JJS-DIn strains by runs
+					return d.strains.reduce(groupByRuns(10), []) })
+				.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d })
+				.enter()
+			.append("td")
+			.on("click", toggleOd600Inspected)
+			.text(function(d) { return d.label });
+}
+
+/**
+ * The view that shows data sets.
+ *
+ * @constructor
+ */
+function DataSetInspectorView() {
+	
+}
+
+DataSetInspectorView.prototype.updateView = function(duration)
 {	
 	var inspector = inspectors.selectAll("div.inspector").data(inspected, function (d) { return d.name });
 	
@@ -627,9 +749,133 @@ InspectorView.prototype.updateView = function(duration)
 }
 
 /** Removes all nodes from the view, without affecting the model */
-InspectorView.prototype.removeAll = function(duration) 
+DataSetInspectorView.prototype.removeAll = function(duration) 
 {
 	var inspector = inspectors.selectAll("div.inspector").data([]);
+	inspector.exit().transition()
+		.duration(duration)
+		.style("opacity", "0")
+		.remove();
+}
+
+/**
+ * The view that shows growth curves
+ *
+ * @constructor
+ */
+function Od600InspectorView() {
+	
+}
+
+Od600InspectorView.prototype.updateView = function(duration)
+{	
+	var inspector = inspectors.selectAll("div.od600inspector").data(od600Inspected, function (d) { return d.name });
+	
+	var box = inspector.enter().append("div")
+		.attr("class", "od600inspector")
+		.text(function(d) { return d.name });
+
+	box.append("span")
+		.attr("class", "close")
+		.on("click", toggleOd600Inspected)
+		.text("x");
+	
+	var dataSetList = inspector.selectAll("ul").data(function (d) { return [d] });
+	dataSetList.enter()
+	  .append("ul")
+	  .attr('class', 'dataSets');
+	
+	
+	var dataSetElt = dataSetList.selectAll("li").data(function (d) { return d.dataSets });
+	dataSetElt.enter()
+	  .append("li")
+	  .text(function(d) { return dataSetLabel(d) });
+	
+	var dataSetDetailsElt = dataSetElt.selectAll("div.dataSetDetails").data(function(d) { return [d]; });
+	dataSetDetailsElt
+	  .enter()
+	    .append("div")
+	      .attr("class", "dataSetDetails"); 
+	
+	var propsTable = dataSetDetailsElt.selectAll("table.properties").data(function(d) {return [d]});
+	
+	propsTable.enter()
+	  .append("table")
+	  .attr("class", "properties");
+	
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.bis.properties) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d } ).enter()
+				.append("td")
+				.attr("class", function(d, i) { return (i == 0) ? "propkey" : "propvalue"})
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.style("opacity", "1");
+	
+	var downloadTable = dataSetDetailsElt.selectAll("table.downloads").data(function(d) { return [d] });
+	
+	downloadTable
+		.enter()
+			.append("table")
+				.attr("class", "downloads")
+			
+	// Add a caption, but make sure there is just one (this does not work with select())
+	downloadTable.selectAll("caption").data(["Files"])
+		.enter()
+			.append("caption").text(function(d) { return d; });
+			
+	// We just want to see non-directories here
+	var downloadTableRow = downloadTable.selectAll("tr").data(filesForDataSet, function(d) { return d.pathInDataSet });
+	downloadTableRow
+		.enter()
+			.append("tr")
+				.append("td")
+				.on("click", downloadTableFile)
+				.text(function(d) { return d.pathInListing });
+	downloadTableRow
+		.exit()
+			.transition()
+				.duration(duration)
+				.style("opacity", "0")
+				.remove();
+				
+	var height = 200, width = 200;
+	var dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
+	dataDisplay
+		.enter()
+	.append("svg:svg")
+		.attr("height", height)
+		.attr("width", width);
+	// Reinitialize the variable
+	dataDisplay = dataSetDetailsElt.selectAll("svg").data(od600DataForDataSet);
+	var aCurve = dataDisplay.selectAll("g").data(function(d) { return [d[1]]; })
+				.enter()
+			.append("svg:g");
+	// Reinitialize the variable
+	aCurve = dataDisplay.selectAll("g").data(curveData);
+		// The first two columns of data are the strain name and human-readable desc
+	aCurve.selectAll("line").data(lineData)
+		.enter()
+	.append("svg:line")
+		.attr("x1", function(d, i) { return (i / (this.parentNode.__data__.length)) * width; })
+		.attr("y1", function(d, i) { return height - (d[0] * height); })
+		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
+		.attr("y2", function(d) { return height - (d[1] * height); })
+		.style("stroke", "rgb(0,0,0)")
+		.style("stroke-width", "1");
+	
+	inspector.exit().transition()
+		.duration(duration)
+		.style("opacity", "0")
+		.remove();
+}
+
+/** Removes all nodes from the view, without affecting the model */
+Od600InspectorView.prototype.removeAll = function(duration) 
+{
+	var inspector = inspectors.selectAll("div.od600inspector").data([]);
 	inspector.exit().transition()
 		.duration(duration)
 		.style("opacity", "0")
@@ -669,13 +915,17 @@ var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomics
 // The strain visualization
 var strainVis, strainView;
 
+// The OD600 strain visualization
+var od600StrainVis, od600StrainView;
+
 var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
 
-//The inspected strains
+//The inspected strains and data sets
 var inspected = [];
+var od600Inspected = [];
 
 //The node inspectors
-var inspectors, inspectorView;
+var inspectors, dataSetInspectorView, od600InspectorView;
 
 
 function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode}
