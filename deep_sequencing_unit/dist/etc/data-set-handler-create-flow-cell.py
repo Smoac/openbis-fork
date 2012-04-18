@@ -125,8 +125,8 @@ if IS_HISEQ_RUN:
     newFlowCell.setPropertyValue("END_TYPE", "PAIRED_END") 
     newFlowCell.setPropertyValue("PAIRED_END_KIT", runParameters.getXmlElement(RUNPARAMETERS_XML['PE']))
   
-  indexRead = runParameters.getAllchildren('IndexRead')
-  newFlowCell.setPropertyValue("INDEXREAD", indexRead[0].text) 
+  indexRead1 = runParameters.getAllchildren('IndexRead1')
+  newFlowCell.setPropertyValue("INDEXREAD", indexRead1[0].text) 
 
   def setFcProperty(searchId, dict):
     children = runInfo.getAllchildren(searchId) 
