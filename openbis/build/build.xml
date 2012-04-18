@@ -774,6 +774,9 @@
       <lib dir="${lib}/hibernate-core">
         <include name="hibernate-core.jar" />
       </lib>
+      <lib dir="${lib}/hibernate-jpa-2.0-api">
+        <include name="hibernate-jpa-2.0-api.jar" />
+      </lib>
       <lib dir="${lib}/jta">
         <include name="jta.jar" />
       </lib>
