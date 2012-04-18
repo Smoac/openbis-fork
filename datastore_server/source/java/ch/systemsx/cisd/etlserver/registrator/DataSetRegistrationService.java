@@ -164,7 +164,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory);
+                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.DontUseAutoRecovery);
     }
 
     /**

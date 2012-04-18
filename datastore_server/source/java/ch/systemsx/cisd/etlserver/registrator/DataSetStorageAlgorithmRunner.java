@@ -97,11 +97,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IEncapsulatedOpenBISService openBISService;
 
+    // this is unused because it is only here as the prerequisite for the auto-recovery
+    private final AutoRecoverySettings shouldUseAutomaticRecovery;
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            DataSetRegistrationTransaction<T> transaction,
-            IRollbackStack rollbackStack, DssRegistrationLogger dssRegistrationLog,
-            IEncapsulatedOpenBISService openBISService,
-            IPrePostRegistrationHook<T> postPreRegistrationHooks)
+            DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
+            DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
+            IPrePostRegistrationHook<T> postPreRegistrationHooks, AutoRecoverySettings shouldUseAutomaticRecovery)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
@@ -112,6 +114,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
+        this.shouldUseAutomaticRecovery = shouldUseAutomaticRecovery;
     }
 
     /**
@@ -288,8 +291,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            String dataSetCode = storageAlgorithm.getDataSetInformation()
-                    .getDataSetCode();
+            String dataSetCode = storageAlgorithm.getDataSetInformation().getDataSetCode();
             openBISService.setStorageConfirmed(dataSetCode);
         }
     }
@@ -301,7 +303,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             DataSetStorageAlgorithm<T> anAlgorithm = dataSetStorageAlgorithms.get(0);
             File precommitDirectory = anAlgorithm.getPreCommitDirectory();
-            dssRegistrationLog.log("Data has been moved to the pre-commit directory: " + precommitDirectory.getAbsolutePath());
+            dssRegistrationLog.log("Data has been moved to the pre-commit directory: "
+                    + precommitDirectory.getAbsolutePath());
         } else
         {
             dssRegistrationLog.log("In pre-commit state; no data needed to be moved.");

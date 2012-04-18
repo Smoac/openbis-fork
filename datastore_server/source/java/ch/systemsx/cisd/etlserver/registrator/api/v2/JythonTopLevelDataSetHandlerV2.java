@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
+import java.io.File;
+
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -78,9 +80,21 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     @Override
+    protected void configureEvaluator(
+            File dataSetFile,
+            ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T> service,
+            PythonInterpreter interpreter)
+    {
+        interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
+        interpreter.set(TRANSACTION_VARIABLE_NAME, service.transaction());
+        interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
+        interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+    }
+
+    @Override
     protected boolean shouldUseOldJythonHookFunctions()
     {
         return false;
     }
-    
+
 }

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -87,6 +88,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
+
+    private final AutoRecoverySettings autoRecoverySettings;
 
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationTransaction.class);
@@ -168,15 +171,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, AutoRecoverySettings autoRecoverySettings)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
-                registrationService, registrationDetailsFactory);
+                registrationService, registrationDetailsFactory, autoRecoverySettings);
     }
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, AutoRecoverySettings autoRecoverySettings)
     {
         state =
                 new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
@@ -186,6 +189,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 this.registrationService.getRegistratorContext().getGlobalState()
                         .getOpenBisService();
         this.registrationContext = new DataSetRegistrationContext();
+        this.autoRecoverySettings = autoRecoverySettings;
     }
 
     public String getUserId()
@@ -502,5 +506,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             DataSetRegistrationTransaction.operationLog.warn(
                     "Failed to invoke secondary transaction error hook:" + t.getMessage(), t);
         }
+    }
+    
+    AutoRecoverySettings getAutoRecoverySettings()
+    {
+        return autoRecoverySettings;
     }
 }

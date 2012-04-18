@@ -98,24 +98,29 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    private static final String FACTORY_VARIABLE_NAME = "factory";
+    protected static final String FACTORY_VARIABLE_NAME = "factory";
 
     /**
      * The name of the local variable under which the service is made available to the script.
      */
-    private static final String SERVICE_VARIABLE_NAME = "service";
+    protected static final String SERVICE_VARIABLE_NAME = "service";
 
     /**
      * The name of the local variable under which the global state
      */
-    private static final String STATE_VARIABLE_NAME = "state";
+    protected static final String STATE_VARIABLE_NAME = "state";
 
     /**
      * The name of the local variable under which the incoming directory is made available to the
      * script.
      */
-    private static final String INCOMING_DATA_SET_VARIABLE_NAME = "incoming";
+    protected static final String INCOMING_DATA_SET_VARIABLE_NAME = "incoming";
 
+    /**
+     * The name of the local variable under which the transaction is made available to the script.
+     */
+    protected static final String TRANSACTION_VARIABLE_NAME = "transaction";
+    
     // The key for the script in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
 
@@ -154,10 +159,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         // Configure the evaluator
         PythonInterpreter interpreter = service.interpreter;
-        interpreter.set(SERVICE_VARIABLE_NAME, service);
-        interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
-        interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
-        interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+        configureEvaluator(dataSetFile, service, interpreter);
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
@@ -185,6 +187,16 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                 }
             }
         }
+    }
+
+    protected void configureEvaluator(File dataSetFile, JythonDataSetRegistrationService<T> service,
+            PythonInterpreter interpreter)
+    {
+        interpreter.set(SERVICE_VARIABLE_NAME, service);
+        interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
+        interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
+        interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+        interpreter.set(TRANSACTION_VARIABLE_NAME, Py.None);
     }
 
     /**

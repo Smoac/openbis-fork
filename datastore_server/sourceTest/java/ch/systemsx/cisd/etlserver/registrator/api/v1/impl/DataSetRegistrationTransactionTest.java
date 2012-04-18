@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator;
+import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -724,7 +725,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createHandler();
         tr =
                 new DataSetRegistrationTransaction<DataSetInformation>(workingDirectory,
-                        workingDirectory, stagingDirectory, service, handler);
+                        workingDirectory, stagingDirectory, service, handler, AutoRecoverySettings.DontUseAutoRecovery);
     }
 
 }

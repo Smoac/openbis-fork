@@ -23,6 +23,7 @@ import org.python.util.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -77,10 +78,10 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory);
+                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.UseAutoRecovery);
     }
 
-    private DataSetRegistrationTransaction<T> getTransaction()
+    public DataSetRegistrationTransaction<T> getTransaction()
     {
         if (transactions.isEmpty())
         {
