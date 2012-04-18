@@ -15,19 +15,17 @@ ENCODING = "utf-8"
 OUTPUT_DIR_PROP_KEY = "master.data.output.dir"
 
 VARNAME_PREFIXES = {
-  "EXPERIMENT" : "exp_type_",
-  "SAMPLE" : "samp_type_",
-  "DATA_SET" : "data_set_type_",
-  "MATERIAL" : "material_type_",
-  "PROPERTY" : "prop_type_",
-  "ASSIGNMENT" : "assignment_",
-  "FILE_FORMAT" : "file_type_",
-  "VOCABULARY" : "vocabulary_",
+  "EXPERIMENT" : "exp_type_",               
+  "SAMPLE" : "samp_type_",               
+  "DATA_SET" : "data_set_type_",               
+  "MATERIAL" : "material_type_",               
+  "PROPERTY" : "prop_type_",               
+  "ASSIGNMENT" : "assignment_",               
+  "FILE_FORMAT" : "file_type_",               
+  "VOCABULARY" : "vocabulary_",               
   "VOCABULARY_TERM" : "vocabulary_term_"               
 }
 
-# Those already exist by default in each openBIS installation. Therefore we want to exclude them
-# in our master data export
 EXISTING_FILE_TYPES = ['HDF5', 'PROPRIETARY', 'SRF', 'TIFF', 'TSV', 'XML']
 EXISTING_DATASET_TYPES = ['UNKNOWN']
 EXISTING_VOCABULARY = {'$STORAGE_FORMAT' : ['PROPRIETARY', 'BDS_DIRECTORY']}
@@ -35,7 +33,7 @@ EXISTING_VOCABULARY = {'$STORAGE_FORMAT' : ['PROPRIETARY', 'BDS_DIRECTORY']}
 def getVarName(type, var):
     # remove minuses, dots and colons 
     # they are not valid characters for Python variables
-    normalized = re.sub("[\\-\\.:\\$]+", "", var)
+    normalized =  re.sub("[\\-\\.:\\$]+", "", var)
     return VARNAME_PREFIXES[type] + normalized
 
 def is_ascii(str):
@@ -53,7 +51,7 @@ def strLiteral(var):
     if var:
         if is_ascii(var):
             # ASCII string
-            return ("'" + sanitize(var) + "'").replace('\n', '\\ ')
+            return ("'" + sanitize(var) + "'").replace('\n','\\ ')
         else:
             # UNICODE string
             return "u'" + var + "'"
@@ -101,20 +99,35 @@ def exportVocabulary(vocabulary):
 %(var)s.setChosenFromList(%(isChosenFromList)s)
 """ % vars()
     
+    # dictionary for sorting the vocabulary terms 
+    termDict = {}
+     
     for term in vocabulary.getTerms():
         term_var = getVarName("VOCABULARY_TERM", vocabulary.getCode() + "_" + term.getCode())
-        term_code = codeLiteral(term.getCode())
         term_description = strLiteral(term.getDescription())
         term_label = strLiteral(term.getLabel())
-        term_ordinal = term.getOrdinal()
         if vocabulary.getCode() in EXISTING_VOCABULARY:
-            if  not(term.getCode() in EXISTING_VOCABULARY[vocabulary.getCode()]):
-                result = result + """
-%(term_var)s = tr.createNewVocabularyTerm(%(term_code)s)
-%(term_var)s.setDescription(%(term_description)s)
-%(term_var)s.setLabel(%(term_label)s)
-%(term_var)s.setOrdinal(%(term_ordinal)s)
-%(var)s.addTerm(%(term_var)s)
+            if not (term.getCode() in EXISTING_VOCABULARY[vocabulary.getCode()]):
+                termDict[int(term.getOrdinal())] = [term_var, term.getCode(), term_description, term_label]
+        else:
+             termDict[int(term.getOrdinal())] = [term_var, term.getCode(), term_description, term_label]
+
+    if termDict:
+        maxOrdinal = max(termDict.keys())
+    else:
+        maxOrdinal = 0
+    for term in range(1,maxOrdinal+1): 
+        if term in termDict:
+            termvar = termDict[term][0]
+            newTerm = codeLiteral(termDict[term][1])
+            term_description = termDict[term][2]
+            term_label = termDict[term][3]
+            result = result + """
+%(termvar)s = tr.createNewVocabularyTerm(%(newTerm)s)
+%(termvar)s.setDescription(%(term_description)s)
+%(termvar)s.setLabel(%(term_label)s)
+%(termvar)s.setOrdinal(%(term)s)
+%(var)s.addTerm(%(termvar)s)
 """ % vars()
 
     return result
@@ -197,9 +210,9 @@ def exportPropertyType(propertyType):
 
 def exportAssignment(assignment):
     
-    var = getVarName("ASSIGNMENT",
+    var = getVarName("ASSIGNMENT", 
                      assignment.getEntityKind().name() + "_" + 
-                     assignment.getEntityTypeCode() + "_" + 
+                     assignment.getEntityTypeCode()+ "_" + 
                      assignment.getPropertyTypeCode())
     entityVar = getVarName(assignment.getEntityKind().name(), assignment.getEntityTypeCode())
     propertyVar = getVarName("PROPERTY", assignment.getPropertyTypeCode())
@@ -229,12 +242,12 @@ print "Exporting master data to ", outDir, "..."
 
 tr = service.transaction()
 
-exportedContent = (
+exportedContent =  ( 
   [exportFileFormatType(fileType) for fileType in tr.listFileFormatTypes()] + 
   [exportVocabulary(vocabulary)   for vocabulary in tr.listVocabularies()] + 
   [exportExperimentType(expType)  for expType in tr.listExperimentTypes()] + 
-  [exportSampleType(sampleType)   for sampleType in tr.listSampleTypes()] + 
-  [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] + 
+  [exportSampleType(sampleType)   for sampleType in tr.listSampleTypes()] +
+  [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] +
   [exportMaterialType(materialType) for materialType in tr.listMaterialTypes()] + 
   [exportPropertyType(propertyType) for propertyType in tr.listPropertyTypes()] + 
   [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] 
