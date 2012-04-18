@@ -744,40 +744,37 @@ function Od600InspectorView() {
 
 Od600InspectorView.prototype.updateView = function(duration)
 {	
+	var height = 100, width = 100;
 	var inspector = inspectors.selectAll("div.od600inspector").data(od600Inspected, function (d) { return d.name });
 	
 	var strainBox = inspector.enter().append("div")
 		.attr("class", "od600inspector")
-		.text(function(d) { return d.name });
+		.style("width", width + "px")
+		.style("float", "left")
+		.style("padding", "5px");
 
-	strainBox.append("span")
-		.attr("class", "close")
-		.on("click", toggleOd600Inspected)
-		.text("x");
-	
-	var dataSetList = inspector.selectAll("ul").data(function (d) { return [d] });
-	dataSetList.enter()
-	  .append("ul")
-	  .attr('class', 'dataSets');
-	
-	
-	var dataSetElt = dataSetList.selectAll("li").data(function (d) { return d.dataSets });
-	dataSetElt.enter()
-	  .append("li")
-	  .text(function(d) { return d.bis.experimentIdentifier });
-				
-	var height = 200, width = 200;
-	var dataDisplay = inspector.selectAll("svg").data(od600DataForStrain);
-	dataDisplay
-		.enter()
-	.append("svg:svg")
+	strainBox
+		.append("div")
+			.text(function(d) { return d.name })
+		.append("span")
+			.attr("class", "close")
+			.on("click", toggleOd600Inspected)
+			.text("x");
+		
+	strainBox.append("svg:svg")
 		.attr("height", height)
-		.attr("width", width);
+		.attr("width", width);	
+
+	var dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
+	dataDisplay.enter()
+		.append("svg:g")
+			.attr("class", "curve");
 	// Reinitialize the variable
-	dataDisplay = inspector.selectAll("svg").data(od600DataForStrain);
-	var aCurve = dataDisplay.selectAll("g").data(curveData)
+	dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
+	var aCurve = dataDisplay.selectAll("g.lines").data(curveData)
 				.enter()
-			.append("svg:g");
+			.append("svg:g")
+				.attr("class", "lines");
 	// Reinitialize the variable
 	aCurve = dataDisplay.selectAll("g").data(curveData);
 		// The first two columns of data are the strain name and human-readable desc
@@ -805,6 +802,46 @@ Od600InspectorView.prototype.removeAll = function(duration)
 		.duration(duration)
 		.style("opacity", "0")
 		.remove();
+}
+
+function od600DataForStrain(d) {
+	if (null == d.dataSets) return [];
+	
+	var dataSets = d.dataSets.filter(function(ds) { return isOd600DataSet(ds) });
+	var data = dataSets.map(function(ds) { return (null == ds.od600Map) ? [] : ds.od600Map[d.name] });
+	return data;
+}
+
+function curveData(d)
+{
+	if (!d) return [];
+	if (0 == d.length) {
+		return [{length : 0, max : 0, values: d}]
+	}
+	return [{length : d.length, max : d3.max(d), values: d}]
+}
+
+function lineData(d)
+{
+	if (!d) return [];
+	
+	var data = d.values;
+	// convert the data into pairs
+	var pairs = data.reduce(function(sum, elt) {
+		// initialization
+		if (sum.length < 1) {
+			sum.push([elt / d.max]);
+			return sum;
+		}
+		
+		// add the current elt as the second in the last pair and the first in the new pair
+		sum[sum.length - 1].push(elt / d.max);
+		// don't add the very last element
+		if (sum.length < data.length - 1) sum.push([elt / d.max]);
+		return sum;
+	}, []);
+	
+	return pairs;
 }
 
 function dataSetLabel(d) { return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate));  }
@@ -853,44 +890,7 @@ var od600Inspected = [];
 var inspectors, dataSetInspectorView, od600InspectorView;
 
 
-function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode}
-
-function od600DataForStrain(d) {
-	if (null == d.dataSets) return [];
-	
-	var dataSets = d.dataSets.filter(function(ds) { return isOd600DataSet(ds) });
-	var data = dataSets.map(function(ds) { return (null == ds.od600Map) ? [] : ds.od600Map[d.name] });
-	return data;
-}
-
-function curveData(d)
-{
-	if (!d) return [];
-	return [{length : d.length, max : d3.max(d), values: d}]
-}
-
-function lineData(d)
-{
-	if (!d) return [];
-	
-	var data = d.values;
-	// convert the data into pairs
-	var pairs = data.reduce(function(sum, elt) {
-		// initialization
-		if (sum.length < 1) {
-			sum.push([elt / d.max]);
-			return sum;
-		}
-		
-		// add the current elt as the second in the last pair and the first in the new pair
-		sum[sum.length - 1].push(elt / d.max);
-		// don't add the very last element
-		if (sum.length < data.length - 1) sum.push([elt / d.max]);
-		return sum;
-	}, []);
-	
-	return pairs;
-}
+function isOd600DataSet(d) { return "OD600" == d.bis.dataSetTypeCode }
 
 function shouldRenderProperty(prop, value) {
 	// strain properties are dealt with separately	
