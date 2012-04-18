@@ -1,7 +1,7 @@
 // The width of the visualization
 var w = 500;
 
-var curveColors = d3.scale.category20c().domain([0, 20]);
+var curveColors = d3.scale.category10().domain([0, 9]);
 
 /**
  * Abstract superclass for the wrapper classes.
@@ -383,7 +383,7 @@ AppPresenter.prototype.initializeOd600Map = function(ds)
 	for (i = 1; i < ds.od600Rows.length; ++i) {
 		var line = ds.od600Rows[i];
 		var strain = line[0].toUpperCase();
-		var data = line.slice(2);
+		var data = line.slice(2).map(function(str) { return parseFloat(str)});
 		ds.od600Map[strain] = data;
 	}
 }
@@ -786,7 +786,7 @@ Od600InspectorView.prototype.updateView = function(duration)
 			.append("svg:g")
 				.attr("class", "lines");
 	// Reinitialize the variable
-	aCurve = dataDisplay.selectAll("g").data(curveData);
+	aCurve = dataDisplay.selectAll("g.lines").data(curveData);
 		// The first two columns of data are the strain name and human-readable desc
 	aCurve.selectAll("line").data(lineData)
 		.enter()
@@ -795,7 +795,7 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.attr("y1", function(d, i) { return height - (d[0] * height); })
 		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
 		.attr("y2", function(d) { return height - (d[1] * height); })
-		.style("stroke", function(d, i) { return this.parentNode.__data__.color;})
+		.style("stroke", function(d) { return this.parentNode.__data__.color;})
 		.style("stroke-width", "1");
 	
 	inspector.exit().transition()
@@ -818,19 +818,21 @@ function od600DataForStrain(d) {
 	if (null == d.dataSets) return [];
 	
 	var dataSets = d.dataSets.filter(function(ds) { return isOd600DataSet(ds) });
-	var data = dataSets.map(function(ds) { return (null == ds.od600Map) ? [] : ds.od600Map[d.name] });
+	var idx = -1;
+	var data = dataSets.map(function(ds) { 
+		idx = idx + 1;		
+		if (null == ds.od600Map) return {};
+		return { strain: d, index: idx, values: ds.od600Map[d.name] }
+	});
 	return data;
 }
 
 function curveData(d, i)
 {
-	var color = curveColors(i);
-	if (!d) return [];
-	if (0 == d.length) {
-		return [{length : 0, max : 0, values: d, color : color}]
-	}
-	console.log({index : i, data : d, color : color});
-	return [{length : d.length, max : d3.max(d), values: d, color : color}]
+	if (!d.values) return [];
+	var color = curveColors(d.index);	
+	var maxValue = (0 == d.values.length) ? 0 : d3.max(d.values);
+	return [{length : d.values.length, max : maxValue, values: d.values, color : color}]
 }
 
 function lineData(d)
