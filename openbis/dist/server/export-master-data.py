@@ -15,22 +15,27 @@ ENCODING = "utf-8"
 OUTPUT_DIR_PROP_KEY = "master.data.output.dir"
 
 VARNAME_PREFIXES = {
-  "EXPERIMENT" : "exp_type_",               
-  "SAMPLE" : "samp_type_",               
-  "DATA_SET" : "data_set_type_",               
-  "MATERIAL" : "material_type_",               
-  "PROPERTY" : "prop_type_",               
-  "ASSIGNMENT" : "assignment_",               
-  "FILE_FORMAT" : "file_type_",               
-  "VOCABULARY" : "vocabulary_",               
+  "EXPERIMENT" : "exp_type_",
+  "SAMPLE" : "samp_type_",
+  "DATA_SET" : "data_set_type_",
+  "MATERIAL" : "material_type_",
+  "PROPERTY" : "prop_type_",
+  "ASSIGNMENT" : "assignment_",
+  "FILE_FORMAT" : "file_type_",
+  "VOCABULARY" : "vocabulary_",
   "VOCABULARY_TERM" : "vocabulary_term_"               
 }
 
+# Those already exist by default in each openBIS installation. Therefore we want to exclude them
+# in our master data export
+EXISTING_FILE_TYPES = ['HDF5', 'PROPRIETARY', 'SRF', 'TIFF', 'TSV', 'XML']
+EXISTING_DATASET_TYPES = ['UNKNOWN']
+EXISTING_VOCABULARY = {'$STORAGE_FORMAT' : ['PROPRIETARY', 'BDS_DIRECTORY']}
 
 def getVarName(type, var):
     # remove minuses, dots and colons 
     # they are not valid characters for Python variables
-    normalized =  re.sub("[\\-\\.:\\$]+", "", var)
+    normalized = re.sub("[\\-\\.:\\$]+", "", var)
     return VARNAME_PREFIXES[type] + normalized
 
 def is_ascii(str):
@@ -42,10 +47,13 @@ def is_ascii(str):
     return True
     
 def strLiteral(var):
+    def sanitize(dirtyString):
+      return dirtyString.replace("'", "\\'")
+
     if var:
         if is_ascii(var):
             # ASCII string
-            return "'" + var + "'"
+            return ("'" + sanitize(var) + "'").replace('\n', '\\ ')
         else:
             # UNICODE string
             return "u'" + var + "'"
@@ -64,11 +72,13 @@ def exportFileFormatType(fileType):
     var = getVarName("FILE_FORMAT", fileType.getCode())
     code = codeLiteral(fileType.getCode())
     description = strLiteral(fileType.getDescription())
-
-    return """
+    if (fileType.getCode() in EXISTING_FILE_TYPES):
+        return "" 
+    else:
+        return """
 %(var)s = tr.createNewFileFormatType(%(code)s)
 %(var)s.setDescription(%(description)s)
-""" % vars()
+   """ % vars()
 
 
 def exportVocabulary(vocabulary):
@@ -79,8 +89,10 @@ def exportVocabulary(vocabulary):
     isManagedInternally = vocabulary.isManagedInternally();
     isInternalNamespace = vocabulary.isInternalNamespace();
     isChosenFromList = vocabulary.isChosenFromList();
-    
-    result = """
+    if (vocabulary.getCode() in EXISTING_VOCABULARY):
+        result = ""
+    else:
+        result = """
 %(var)s = tr.createNewVocabulary(%(code)s)
 %(var)s.setDescription(%(description)s)
 %(var)s.setUrlTemplate(%(urlTemplate)s)
@@ -95,7 +107,9 @@ def exportVocabulary(vocabulary):
         term_description = strLiteral(term.getDescription())
         term_label = strLiteral(term.getLabel())
         term_ordinal = term.getOrdinal()
-        result = result + """
+        if vocabulary.getCode() in EXISTING_VOCABULARY:
+            if  not(term.getCode() in EXISTING_VOCABULARY[vocabulary.getCode()]):
+                result = result + """
 %(term_var)s = tr.createNewVocabularyTerm(%(term_code)s)
 %(term_var)s.setDescription(%(term_description)s)
 %(term_var)s.setLabel(%(term_label)s)
@@ -137,7 +151,10 @@ def exportDataSetType(dataSetType):
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
     isContainerType = dataSetType.isContainerType()
-    return """
+    if (dataSetType.getCode() in EXISTING_DATASET_TYPES):
+        return ""
+    else:
+        return """
 %(var)s = tr.createNewDataSetType(%(code)s)
 %(var)s.setDescription(%(description)s)
 %(var)s.setContainerType(%(isContainerType)s)
@@ -180,9 +197,9 @@ def exportPropertyType(propertyType):
 
 def exportAssignment(assignment):
     
-    var = getVarName("ASSIGNMENT", 
+    var = getVarName("ASSIGNMENT",
                      assignment.getEntityKind().name() + "_" + 
-                     assignment.getEntityTypeCode()+ "_" + 
+                     assignment.getEntityTypeCode() + "_" + 
                      assignment.getPropertyTypeCode())
     entityVar = getVarName(assignment.getEntityKind().name(), assignment.getEntityTypeCode())
     propertyVar = getVarName("PROPERTY", assignment.getPropertyTypeCode())
@@ -212,12 +229,12 @@ print "Exporting master data to ", outDir, "..."
 
 tr = service.transaction()
 
-exportedContent =  ( 
+exportedContent = (
   [exportFileFormatType(fileType) for fileType in tr.listFileFormatTypes()] + 
   [exportVocabulary(vocabulary)   for vocabulary in tr.listVocabularies()] + 
   [exportExperimentType(expType)  for expType in tr.listExperimentTypes()] + 
-  [exportSampleType(sampleType)   for sampleType in tr.listSampleTypes()] +
-  [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] +
+  [exportSampleType(sampleType)   for sampleType in tr.listSampleTypes()] + 
+  [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] + 
   [exportMaterialType(materialType) for materialType in tr.listMaterialTypes()] + 
   [exportPropertyType(propertyType) for propertyType in tr.listPropertyTypes()] + 
   [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] 
