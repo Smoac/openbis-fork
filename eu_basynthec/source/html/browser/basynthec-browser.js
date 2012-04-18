@@ -113,7 +113,13 @@ AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow)
 {
 	this.visualizationContainers.forEach(function(vis) {
 		if (vis == visToShow) {
-			vis.style("display", "inline")
+			if (od600StrainVis == vis) {
+				// So that scrolling works
+				vis.style("display", "block");
+			} else {
+				vis.style("display", "inline");
+			}
+			vis
 				.transition()
 			.duration(1000)
 			.style("opacity", 1);
@@ -204,6 +210,8 @@ AppPresenter.prototype.createVis = function()
 	
 	od600StrainVis = tableRoot.append("div").style("display", "none");
 	od600StrainVis.style("width", w + "px");
+	od600StrainVis.style("height",w + "px");
+	od600StrainVis.style("overflow-y", "scroll");	
 	od600StrainView = new Od600StrainView();
 	
 	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis];
