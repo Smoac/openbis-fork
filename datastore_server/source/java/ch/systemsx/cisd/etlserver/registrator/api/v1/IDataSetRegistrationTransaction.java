@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -244,6 +245,10 @@ public interface IDataSetRegistrationTransaction
      * 
      * @return The context, a hash-map-like object.
      */
-    DataSetRegistrationContext getRegistrationContext();
+    DataSetRegistrationContext getTransactionPersistentMap();
 
+    /**
+     * Returns the service registrator context.
+     */
+    OmniscientTopLevelDataSetRegistratorState getRegistratorContext();
 }

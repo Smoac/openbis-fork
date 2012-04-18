@@ -8,5 +8,5 @@ class AClass:
 
 x = AClass()
 
-transaction.getRegistrationContext().put("nonSerializableObject",x)
+transaction.getTransactionPersistentMap().put("nonSerializableObject",x)
 

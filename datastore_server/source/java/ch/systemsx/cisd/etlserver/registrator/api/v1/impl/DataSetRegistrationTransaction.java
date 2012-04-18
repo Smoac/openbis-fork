@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -348,7 +349,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         getStateAsLiveState().deleteFile(src);
     }
 
-    public DataSetRegistrationContext getRegistrationContext()
+    public DataSetRegistrationContext getTransactionPersistentMap()
     {
         return registrationContext;
     }
@@ -506,6 +507,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             DataSetRegistrationTransaction.operationLog.warn(
                     "Failed to invoke secondary transaction error hook:" + t.getMessage(), t);
         }
+    }
+    
+    public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
+    {
+        return registrationService.getRegistratorContext();
     }
     
     AutoRecoverySettings getAutoRecoverySettings()

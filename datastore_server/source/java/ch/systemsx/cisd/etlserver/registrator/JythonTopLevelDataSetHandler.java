@@ -424,7 +424,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private void invokeTransactionFunctionWithContext(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
-        invokeFuncion(service, function, transaction, transaction.getRegistrationContext());
+        invokeFuncion(service, function, transaction, transaction.getTransactionPersistentMap());
     }
 
     private void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,
