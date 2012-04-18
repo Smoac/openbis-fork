@@ -8,6 +8,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -64,7 +65,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 {
                     return new ImagingDataSetRegistrationTransaction(rollBackStackParentFolder,
                             workingDirectory, stagingDirectory, this, registrationDetailsFactory,
-                            originalDirName);
+                            originalDirName, AutoRecoverySettings.DontUseAutoRecovery);
                 }
             };
     }

@@ -27,6 +27,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -80,10 +81,10 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             File workingDirectory, File stagingDirectory,
             DataSetRegistrationService<DataSetInformation> registrationService,
             IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory,
-            String originalDirName)
+            String originalDirName, AutoRecoverySettings autoRecoverySettings)
     {
         super(rollBackStackParentFolder, workingDirectory, stagingDirectory, registrationService,
-                registrationDetailsFactory);
+                registrationDetailsFactory, autoRecoverySettings);
 
         assert registrationDetailsFactory instanceof JythonPlateDatasetFactory : "JythonPlateDatasetFactory expected, but got: "
                 + registrationDetailsFactory.getClass().getCanonicalName();
