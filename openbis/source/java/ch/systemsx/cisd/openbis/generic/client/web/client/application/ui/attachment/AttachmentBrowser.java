@@ -196,7 +196,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
 
     private void linkFile()
     {
-        registerListenerAndLinkGenerator(AttachmentGridColumnIDs.FILE_NAME,
+        registerListenerAndLinkGeneratorForAnyMode(AttachmentGridColumnIDs.FILE_NAME,
                 new ICellListenerAndLinkGenerator<AttachmentVersions>()
                     {
                         public void handle(TableModelRowWithObject<AttachmentVersions> rowItem,
@@ -214,11 +214,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
-                            Attachment current = entity.getCurrent();
-                            final String fileName = current.getFileName();
-                            final int version = current.getVersion();
-                            return AttachmentDownloadHelper.createURL(fileName, version,
-                                    attachmentHolder);
+                            return "";
                         }
                     });
     }

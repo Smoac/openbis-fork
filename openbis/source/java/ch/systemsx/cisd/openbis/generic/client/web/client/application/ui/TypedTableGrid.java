@@ -632,6 +632,12 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
+    protected final void registerLinkClickListenerForAnyMode(final String columnID,
+            final ICellListener<TableModelRowWithObject<T>> listener)
+    {
+        columnListener.registerLinkClickListener(columnID, listener);
+    }
+
     /**
      * Allows multiple selection instead of single selection.
      */
@@ -2557,6 +2563,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         listenerLinkGenerators.put(columnID, listenerLinkGenerator);
         registerLinkClickListenerFor(columnID, listenerLinkGenerator);
+    }
+
+    protected void registerListenerAndLinkGeneratorForAnyMode(String columnID,
+            final ICellListenerAndLinkGenerator<T> listenerLinkGenerator)
+    {
+        listenerLinkGenerators.put(columnID, listenerLinkGenerator);
+        registerLinkClickListenerForAnyMode(columnID, listenerLinkGenerator);
     }
 
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> createColDefinitions()
