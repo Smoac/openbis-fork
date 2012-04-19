@@ -31,13 +31,13 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 /**
  * Storage processor that keeps data in an HDF5 container on the file system.
  * <p>
- * In the data store, the data set is stored in a file named container.h5 .
+ * In the data store, the data set is stored in a file named <code>container.h5ar</code>.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class HDF5StorageProcessor extends AbstractStorageProcessor
 {
-    private static final String HDF5_CONTAINER_FILE_NAME = "container.h5";
+    private static final String HDF5_CONTAINER_FILE_NAME = "container.h5ar";
 
     public final static String COMPRESS_DATA_PROPERTY = "compress-data";
 

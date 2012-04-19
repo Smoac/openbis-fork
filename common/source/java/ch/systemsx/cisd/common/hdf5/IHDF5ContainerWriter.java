@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.hdf5;
 
+import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -35,12 +36,21 @@ public interface IHDF5ContainerWriter
      *            <code>istream</code>!</i>
      * @param size The size of the file represented by the <var>istream</var>.
      */
-    void writeToHDF5Container(final String objectPath, final InputStream istream, final long size)
+    public void writeToHDF5Container(final String objectPath, final InputStream istream, final long size)
             throws IOExceptionUnchecked;
+
+    /**
+     * Archives the given <var>file</var>
+     * 
+     * @param rootPath The path in the HDF5 container where <var>file</var> will be archived.
+     * @param file The file or directory that will be archived (recursively) in the container.
+     */
+    public void archiveToHDF5Container(String rootPath, File file);
 
     /**
      * Closes this object and the file referenced by this object. This object must not be used after
      * being closed.
      */
     public void close();
+
 }

@@ -18,8 +18,6 @@ package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
 
-
-import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
@@ -94,8 +92,7 @@ public class HDF5Container
      */
     private IHDF5ContainerWriter createSimpleWriter(boolean isContentCompressed)
     {
-        return new HDF5ContainerWriter(this, HDF5FactoryProvider.get().open(hdf5Container),
-                isContentCompressed);
+        return new HDF5ContainerWriter(this, hdf5Container, isContentCompressed);
     }
 
     /**

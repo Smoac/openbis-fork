@@ -19,9 +19,11 @@ package ch.systemsx.cisd.common.hdf5;
 import java.io.OutputStream;
 import java.util.List;
 
+import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
+
 /**
  * A simple abstraction of the methods needed to read from an HDF5 container.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IHDF5ContainerReader
@@ -39,12 +41,7 @@ public interface IHDF5ContainerReader
      * @param groupPath The path of the group to get the members for.
      * @throws IllegalArgumentException If <var>groupPath</var> is not a group.
      */
-    public List<String> getGroupMembers(final String groupPath);
-
-    /**
-     * Returns <code>true</code>, if <var>objectPath</var> exists and <code>false</code> otherwise.
-     */
-    public boolean exists(final String objectPath);
+    public List<ArchiveEntry> getGroupMembers(final String groupPath);
 
     /**
      * Returns <code>true</code> if the <var>objectPath</var> exists and represents a group and
@@ -56,7 +53,16 @@ public interface IHDF5ContainerReader
      * Reads the data set <var>objectPath</var> into the <var>ostream</var>.
      * 
      * @param objectPath The name (including path information) of the data set object in the file.
+     * <br>
+     * <b>For unit tests only!</b>
      */
     public void readFromHDF5Container(final String objectPath, final OutputStream ostream);
+
+    /**
+     * Returns <code>true</code>, if <var>objectPath</var> exists and <code>false</code> otherwise.
+     * <br>
+     * <b>For unit tests only!</b>
+     */
+    public boolean exists(final String objectPath);
 
 }

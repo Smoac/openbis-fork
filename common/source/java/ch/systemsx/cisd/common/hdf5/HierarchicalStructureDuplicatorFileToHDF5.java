@@ -17,13 +17,9 @@
 package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Takes the hierarchical structure of a file and applies it to an HDF5 container.
@@ -96,77 +92,9 @@ public class HierarchicalStructureDuplicatorFileToHDF5
     {
         if (false == file.exists())
         {
-            writer.close();
             throw new IllegalArgumentException("File does not exist " + file);
         }
-
-        if (file.isFile())
-        {
-            // If there the file is a normal file, create an HDF5 container with the file in the
-            // root
-            String name = file.getName();
-            String hdf5Path = rootPath + name;
-            mirrorDataSet(file, hdf5Path);
-        } else
-        {
-            // Mirror the whole file structure
-            mirrorGroup(file, rootPath);
-        }
+        writer.archiveToHDF5Container(rootPath, file);
     }
 
-    private void mirrorGroup(File directory, String groupPath)
-    {
-        File[] files = directory.listFiles();
-        for (File fileOrDirectory : files)
-        {
-            String childPath = groupPath + fileOrDirectory.getName();
-            if (fileOrDirectory.isDirectory())
-            {
-                // recursively mirror the directory
-                mirrorGroup(fileOrDirectory, childPath + "/");
-            } else
-            {
-                // mirror the data set
-                mirrorDataSet(fileOrDirectory, childPath);
-            }
-
-        }
-    }
-
-    private void mirrorDataSet(File normalFile, String hdf5Path)
-    {
-        if (FileUtilities.isSymbolicLink(normalFile))
-        {
-            throw new IllegalArgumentException(
-                    "Symbolic links are not supported for mirroring in a HDF5 container.");
-        }
-
-        InputStream istream = null;
-        IOException e = null;
-        try
-        {
-            istream = new FileInputStream(normalFile);
-            writer.writeToHDF5Container(hdf5Path, istream, normalFile.length());
-        } catch (IOException ex)
-        {
-            e = ex;
-            throw new IOExceptionUnchecked(ex);
-        } finally
-        {
-            if (istream != null)
-            {
-                try
-                {
-                    istream.close();
-                } catch (IOException ex)
-                {
-                    if (e == null)
-                    {
-                        throw new IOExceptionUnchecked(ex);
-                    }
-                }
-            }
-        }
-
-    }
 }

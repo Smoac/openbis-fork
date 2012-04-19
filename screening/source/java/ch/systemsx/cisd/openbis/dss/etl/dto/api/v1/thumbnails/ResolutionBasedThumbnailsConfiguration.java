@@ -56,6 +56,6 @@ public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsCo
     @Override
     protected String getDefaultFileName()
     {
-        return String.format("thumbnails_%dx%d.h5", maxWidth, maxHeight);
+        return String.format("thumbnails_%dx%d.h5ar", maxWidth, maxHeight);
     }
 }

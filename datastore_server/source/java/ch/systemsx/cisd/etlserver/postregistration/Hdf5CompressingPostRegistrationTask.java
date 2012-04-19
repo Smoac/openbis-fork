@@ -68,9 +68,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * 1) The data set is part of a container. This is required, because the contents of the new data set will 
  * overshadow the existing data set in the container.
  * 2) The data set type must match a configuration property
- * 3) The data set must contain a folder of a specified name which ends with ".h5" i.e. instead of 
- * "original" the root directory with contents must be named "original.h5". This is requirement enforces
- * that no links in the UI are broken when the non-compressed data set gets deleted.
+ * 3) The data set must contain a folder of a specified name which ends with ".h5ar" i.e. instead of 
+ * "original" the root directory with contents must be named "original.h5ar". This is requirement 
+ * enforces that no links in the UI are broken when the non-compressed data set gets deleted.
  * 
  * </pre>
  * 

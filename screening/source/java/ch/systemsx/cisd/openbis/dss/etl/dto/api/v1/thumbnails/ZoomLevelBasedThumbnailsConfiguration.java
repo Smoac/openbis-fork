@@ -42,6 +42,6 @@ public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsCon
     @Override
     protected String getDefaultFileName()
     {
-        return String.format("thumbnails_%.0fpct.h5", zoomLevel * 100.0);
+        return String.format("thumbnails_%.0fpct.h5ar", zoomLevel * 100.0);
     }
 }

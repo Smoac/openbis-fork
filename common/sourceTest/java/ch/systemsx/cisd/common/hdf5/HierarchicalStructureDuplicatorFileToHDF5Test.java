@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.hdf5.HDF5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5ReaderClient;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -99,16 +99,14 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
         verifyDuplicate(sourceFolder);
     }
 
-    /**
-     * Symbolic links are not supported
-     */
-    @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    @Test
     public void testSymbolicLinks()
     {
         File sourceFolder = getTestData("file-structure-with-links");
         container.runWriterClient(false,
                 new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
+        
+        verifyDuplicate(sourceFolder);
     }
 
     @Test(expectedExceptions =
@@ -118,6 +116,8 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
         File sourceFolder = getTestData("does-not-exist");
         container.runWriterClient(false,
                 new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
+        
+        verifyDuplicate(sourceFolder);
     }
 
     private File getTestData(String folderOrFile)
@@ -127,7 +127,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
 
     private void verifyDuplicate(final File sourceFolderOrFile)
     {
-        container.runReaderClient(new IHdf5ReaderClient()
+        container.runReaderClient(new IHDF5ReaderClient()
             {
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {

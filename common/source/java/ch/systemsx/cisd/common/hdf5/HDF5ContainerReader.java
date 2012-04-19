@@ -17,15 +17,13 @@
 package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
-import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
+import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
+import ch.systemsx.cisd.hdf5.h5ar.HDF5ArchiverFactory;
+import ch.systemsx.cisd.hdf5.h5ar.IHDF5ArchiveReader;
+import ch.systemsx.cisd.hdf5.h5ar.ListParameters;
 
 /**
  * An implementation of {@link IHDF5ContainerReader}.
@@ -34,70 +32,36 @@ import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
  */
 final class HDF5ContainerReader implements IHDF5ContainerReader
 {
-    private final byte[] buffer = new byte[HDF5ContainerWriter.BUFFER_SIZE];
-
-    private final IHDF5Reader innerReader;
+    private final IHDF5ArchiveReader archiveReader;
 
     HDF5ContainerReader(final File hdf5Container)
     {
-        this.innerReader = HDF5FactoryProvider.get().openForReading(hdf5Container);
+        this.archiveReader = HDF5ArchiverFactory.openForReading(hdf5Container);
     }
 
     public void close()
     {
-        innerReader.close();
+        archiveReader.close();
     }
 
     public boolean exists(String objectPath)
     {
-        return innerReader.exists(objectPath);
+        return archiveReader.exists(objectPath);
     }
 
     public boolean isGroup(String objectPath)
     {
-        return innerReader.isGroup(objectPath);
+        return archiveReader.isDirectory(objectPath);
     }
 
-    public List<String> getGroupMembers(String groupPath)
+    public List<ArchiveEntry> getGroupMembers(String groupPath)
     {
-        return innerReader.getGroupMembers(groupPath);
-    }
-
-    private long copy(InputStream input, OutputStream output) throws IOException
-    {
-        long count = 0;
-        int n = 0;
-        while (-1 != (n = input.read(buffer)))
-        {
-            output.write(buffer, 0, n);
-            count += n;
-        }
-        return count;
+        return archiveReader.list(groupPath, ListParameters.build().nonRecursive()
+                .noReadLinkTarget().get());
     }
 
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
     {
-        final InputStream istream = HDF5IOAdapterFactory.asInputStream(innerReader, objectPath);
-        Exception e = null;
-        try
-        {
-            copy(istream, ostream);
-        } catch (IOException ex)
-        {
-            e = ex;
-            throw new IOExceptionUnchecked(ex);
-        } finally
-        {
-            try
-            {
-                istream.close();
-            } catch (IOException ex)
-            {
-                if (e == null)
-                {
-                    throw new IOExceptionUnchecked(ex);
-                }
-            }
-        }
-    }
+        archiveReader.extractFile(objectPath, ostream);
+  }
 }
