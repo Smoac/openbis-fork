@@ -57,7 +57,7 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     public List<ArchiveEntry> getGroupMembers(String groupPath)
     {
         return archiveReader.list(groupPath, ListParameters.build().nonRecursive()
-                .noReadLinkTarget().get());
+                .resolveSymbolicLinks().get());
     }
 
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
