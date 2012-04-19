@@ -19,18 +19,23 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * Collection of helper functions.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Utils
 {
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageUtil.class);
 
     public static BufferedImage loadUnchangedImage(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
@@ -49,6 +54,14 @@ public class Utils
     public static Size loadUnchangedImageSize(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
+        try
+        {
+            operationLog.debug("Trying to process file: " + contentNode.getRelativePath());
+        } catch (Exception e)
+        {
+            // do nothing
+        }
+
         String imageLibraryNameOrNull = null;
         String imageLibraryReaderNameOrNull = null;
         if (imageLibraryOrNull != null)
@@ -56,9 +69,9 @@ public class Utils
             imageLibraryNameOrNull = imageLibraryOrNull.getName();
             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
         }
-        Dimension dimension = ImageUtil.loadUnchangedImageDimension(contentNode, imageIdOrNull,
-                imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
+        Dimension dimension =
+                ImageUtil.loadUnchangedImageDimension(contentNode, imageIdOrNull,
+                        imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
         return new Size(dimension.width, dimension.height);
     }
-
 }
