@@ -116,7 +116,6 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                 }
                             });
 
-        deletePermanentlyButton.hide(); // FIXME rollback of deleted data sets is not possible
         addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow deletion/revert of multiple deletions
 
