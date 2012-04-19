@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
@@ -97,7 +100,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                 new EmptyTrashButton(viewContext, createRefreshCallback(asActionInvoker()));
         addButton(emptyTrashButtonMenu);
 
-        Button deletePermanentlyButton =
+        final Button deletePermanentlyButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
                         new AbstractCreateDialogListener()
                             {
@@ -117,7 +120,14 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                             });
 
         addButton(deletePermanentlyButton);
-        allowMultipleSelection(); // we allow deletion/revert of multiple deletions
+        allowMultipleSelection(); // we allow revert of multiple deletions
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionChangedEvent<ModelData> be)
+                {
+                    deletePermanentlyButton.setEnabled(be.getSelection().size() == 1);
+                }
+            });
 
         addEntityOperationsSeparator();
     }
