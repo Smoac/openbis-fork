@@ -16,35 +16,23 @@
 
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
@@ -65,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
-import ch.systemsx.cisd.openbis.remoteapitest.api.v1.GeneralInformationServiceJsonApiTest.ContainsDataSetMatcher.CheckMode;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
@@ -199,8 +186,10 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-TEST-1"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(1, result.size());
+        System.out.println(result);
+        assertEquals(2, result.size());
         assertEquals("/CISD/NEMO/EXP-TEST-1", result.get(0).getExperimentIdentifierOrNull());
+        assertEquals("/CISD/NEMO/EXP-TEST-1", result.get(1).getExperimentIdentifierOrNull());
     }
 
     @Test
@@ -495,274 +484,6 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         fail("result didn't contain data set" + expectedDataSetCode);
     }
 
-    /**
-     * reads date in format "y-M-d"
-     */
-    private Date getDate(String date)
-    {
-        SimpleDateFormat sdf = new SimpleDateFormat("y-M-d");
-        try
-        {
-            return sdf.parse(date);
-        } catch (ParseException ex)
-        {
-            throw new IllegalArgumentException(date);
-        }
-    }
-
-    @DataProvider(name = "testSearchForDataSetsWithRegistrationDate")
-    public Object[][] dataForDataSetRegistrationDateTest()
-    {
-        // datasets from 2008-11-05
-        String[] a =
-                new String[]
-                    { "20081105092159188-3", "20081105092259000-8", "20081105092259000-9",
-                            "20081105092259900-0", "20081105092259900-1", "20081105092359990-2",
-                            "20081105092259000-18", "20081105092259000-19", "20081105092259000-20",
-                            "20081105092259000-21" };
-        // 2009-02-09
-        String[] b =
-                new String[]
-                    { "20110805092359990-17", "20081105092159111-1", "20081105092159222-2",
-                            "20081105092159333-3" };
-        // 2011-05-09
-        String[] c = new String[]
-            { "20110509092359990-10", "20110509092359990-11", "20110509092359990-12" };
-
-        String[] ab = (String[]) ArrayUtils.addAll(a, b);
-        String[] bc = (String[]) ArrayUtils.addAll(b, c);
-        String[] abc = (String[]) ArrayUtils.addAll(ab, c);
-        String[] ac = (String[]) ArrayUtils.addAll(a, c);
-
-        return new Object[][]
-            {
-                        { "less than now", getDate("2012-01-01"), null, null, abc, null },
-                        { "less than late+1", getDate("2011-05-10"), null, null, abc, null },
-                        { "less than late", getDate("2011-05-09"), null, null, abc, null },
-                        { "less than late-1", getDate("2011-05-08"), null, null, ab, c },
-                        { "less than beetween middle / late", getDate("2011-01-01"), null, null,
-                                ab, c },
-                        { "less than middle+1", getDate("2009-02-10"), null, null, ab, c },
-                        { "less than middle", getDate("2009-02-09"), null, null, ab, c },
-                        { "less than middle-1", getDate("2009-02-08"), null, null, a, bc },
-                        { "less than beetween middle / early", getDate("2009-01-01"), null, null,
-                                a, bc },
-                        { "less than early+1", getDate("2008-11-06"), null, null, a, bc },
-                        { "less than early", getDate("2008-11-05"), null, null, a, bc },
-                        { "less than early-1", getDate("2008-11-04"), null, null, null, abc },
-                        { "less than in the past", getDate("2007-12-30"), null, null, null, abc },
-
-                        { "more than now", null, getDate("2012-01-01"), null, null, abc },
-                        { "more than late+1", null, getDate("2011-05-10"), null, null, abc },
-                        { "more than late", null, getDate("2011-05-09"), null, c, ab },
-                        { "more than late-1", null, getDate("2011-05-08"), null, c, ab },
-                        { "more than beetween middle / late", null, getDate("2011-01-01"), null, c,
-                                ab },
-                        { "more than middle+1", null, getDate("2009-02-10"), null, c, ab },
-                        { "more than middle", null, getDate("2009-02-09"), null, bc, a },
-                        { "more than middle-1", null, getDate("2009-02-08"), null, bc, a },
-                        { "more than beetween middle / early", null, getDate("2009-01-01"), null,
-                                bc, a },
-                        { "more than early+1", null, getDate("2008-11-06"), null, bc, a },
-                        { "more than early", null, getDate("2008-11-05"), null, abc, null },
-                        { "more than early-1", null, getDate("2008-11-04"), null, abc, null },
-                        { "more than in the past", null, getDate("2007-12-30"), null, abc, null },
-
-                        { "equal now", null, null, getDate("2012-01-01"), null, abc },
-                        { "equal late+1", null, null, getDate("2011-05-10"), null, abc },
-                        { "equal late", null, null, getDate("2011-05-09"), c, ab },
-                        { "equal late-1", null, null, getDate("2011-05-08"), null, abc },
-                        { "equal beetween middle / late", null, null, getDate("2011-01-01"), null,
-                                abc },
-                        { "equal middle+1", null, null, getDate("2009-02-10"), null, abc },
-                        { "equal middle", null, null, getDate("2009-02-09"), b, ac },
-                        { "equal middle-1", null, null, getDate("2009-02-08"), null, abc },
-                        { "equal beetween middle / early", null, null, getDate("2009-01-01"), null,
-                                abc },
-                        { "equal early+1", null, null, getDate("2008-11-06"), null, abc },
-                        { "equal early", null, null, getDate("2008-11-05"), a, bc },
-                        { "equal early-1", null, null, getDate("2008-11-04"), null, abc },
-                        { "equal in the past", null, null, getDate("2007-12-30"), null, abc },
-
-                        { "later/earlier constraint for all data", getDate("2011-05-09"),
-                                getDate("2008-11-05"), null, abc, null },
-                        { "triple constraint for middle data", getDate("2011-05-09"),
-                                getDate("2008-11-05"), getDate("2009-02-09"), b, ac },
-                        { "invalid contraint constraint for middle data", getDate("2009-01-01"),
-                                getDate("2009-01-01"), null, null, abc },
-                        { "later/earlier constraint for the middle data", getDate("2011-05-08"),
-                                getDate("2008-11-06"), getDate("2009-02-09"), b, ac }, };
-
-    }
-
-    @Test(dataProvider = "testSearchForDataSetsWithRegistrationDate")
-    public void testSearchForDataSetsWithRegistrationDate(String description, Date lessThan,
-            Date moreThan, Date equal, String[] expectedDatasets, String[] unexpectedDataSets)
-    {
-
-        if (lessThan == null && moreThan == null && equal == null)
-        {
-            throw new IllegalArgumentException("Specify at least one date criterium for this test.");
-        }
-
-        SearchCriteria sc = new SearchCriteria();
-
-        if (lessThan != null)
-        {
-
-            sc.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.REGISTRATION_DATE,
-                    SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, lessThan));
-        }
-
-        if (moreThan != null)
-        {
-
-            sc.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.REGISTRATION_DATE,
-                    SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, moreThan));
-        }
-
-        if (equal != null)
-        {
-
-            sc.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.REGISTRATION_DATE, SearchCriteria.CompareMode.EQUALS,
-                    equal));
-        }
-
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
-
-        if (expectedDatasets != null)
-        {
-            assertThat(result, containsDataSets(expectedDatasets));
-        }
-
-        if (unexpectedDataSets != null)
-        {
-            assertThat(result, doesntContainDataSets(unexpectedDataSets));
-        }
-    }
-
-    @Test
-    public void testSearchForDataSetsWithMultipleSameEqualsClauses()
-    {
-        Date date1 = getDate("2009-02-09");
-        Date date2 = getDate("2009-02-09");
-
-        SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.EQUALS, date1));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.EQUALS, date2));
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
-
-        assertThat(
-                result,
-                containsDataSets("20081105092159111-1", "20081105092159222-2",
-                        "20081105092159333-3", "20110805092359990-17"));
-    }
-
-    @Test
-    public void testSearchForDataSetsWithMultipleDifferentEqualsClausesOnRegistrationDate()
-    {
-        Date date1 = getDate("2011-05-09");
-        Date date2 = getDate("2009-02-09");
-
-        SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.EQUALS, date1));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.EQUALS, date2));
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
-
-        assertThat(result.size(), is(0));
-    }
-
-    @Test
-    public void testSearchForDataSetsWithModificationDateRange()
-    {
-        Date lower = getDate("2011-01-22");
-        Date upper = getDate("2012-04-23");
-
-        SearchCriteria sc = new SearchCriteria();
-
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lower));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upper));
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
-
-        assertThat(
-                result,
-                containsDataSets("20110509092359990-10", "20110509092359990-11",
-                        "20110509092359990-12"));
-    }
-
-    @Test
-    public void testSearchForDataSetsWithRegistrationDateRangeAndModificationDateRange()
-    {
-
-        Date lowerReg = getDate("2009-02-01");
-        Date upperReg = getDate("2009-04-15");
-        Date lowerMod = getDate("2009-03-22");
-        Date upperMod = getDate("2009-04-23");
-
-        SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lowerReg));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upperReg));
-
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lowerMod));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upperMod));
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
-
-        assertThat(
-                result,
-                containsDataSets("20081105092159111-1", "20081105092159222-2",
-                        "20081105092159333-3", "20110805092359990-17"));
-    }
-
-    @Test
-    public void testSearchSamplesWithOneDayRegistrationDateRange()
-    {
-        Date lower = getDate("2009-02-09");
-        Date upper = getDate("2009-02-09");
-
-        SearchCriteria sc = new SearchCriteria();
-
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, lower));
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE,
-                SearchCriteria.CompareMode.LESS_THAN_OR_EQUAL, upper));
-        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-
-        assertThat(
-                result,
-                containsSamples("CP-TEST-1", "CP-TEST-2", "CP-TEST-3", "PLATE_WELLSEARCH",
-                        "PLATE_WELLSEARCH:WELL-A01", "PLATE_WELLSEARCH:WELL-A02"));
-    }
-
-    @Test
-    public void testSearchSamplesWithModificationDate()
-    {
-        Date date = getDate("2009-08-18");
-
-        SearchCriteria sc = new SearchCriteria();
-
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE,
-                SearchCriteria.CompareMode.EQUALS, date));
-        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-
-        assertThat(
-                result,
-                containsSamples("CP-TEST-1", "CP-TEST-2", "PLATE_WELLSEARCH",
-                        "PLATE_WELLSEARCH:WELL-A01", "PLATE_WELLSEARCH:WELL-A02"));
-    }
-
     @Test
     public void testSearchForDataSetsByExperiments()
     {
@@ -925,118 +646,4 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         }
         return null;
     }
-
-    public static Matcher<Collection<DataSet>> containsDataSets(String... codes)
-    {
-        return new ContainsDataSetMatcher(CheckMode.CHECK_CONTAINS, codes);
-    }
-
-    public static Matcher<Collection<DataSet>> doesntContainDataSets(String... codes)
-    {
-        return new ContainsDataSetMatcher(CheckMode.CHECK_DOESNT_CONTAIN, codes);
-    }
-
-    public static class ContainsDataSetMatcher extends TypeSafeMatcher<Collection<DataSet>>
-    {
-        public enum CheckMode
-        {
-            CHECK_CONTAINS, CHECK_DOESNT_CONTAIN
-        }
-
-        private final CheckMode checkMode;
-
-        private final Collection<String> codes;
-
-        private String fatalString;
-
-        public ContainsDataSetMatcher(CheckMode checkMode, String... datasetCodes)
-        {
-            this.codes = Collections.unmodifiableCollection(Arrays.asList(datasetCodes));
-            this.checkMode = checkMode;
-        }
-
-        public void describeTo(Description description)
-        {
-            description.appendText("a collection containing unwanted " + fatalString
-                    + " as well as all datasets " + this.codes);
-        }
-
-        @Override
-        public boolean matchesSafely(Collection<DataSet> actualDataSets)
-        {
-
-            Set<String> actualCodes = new HashSet<String>();
-            for (DataSet set : actualDataSets)
-            {
-                actualCodes.add(set.getCode());
-            }
-
-            for (String code : this.codes)
-            {
-                boolean codeContained = actualCodes.contains(code);
-
-                switch (checkMode)
-                {
-                    case CHECK_CONTAINS:
-                        if (false == codeContained)
-                        {
-                            fatalString = code;
-                            return false;
-                        }
-                        break;
-                    case CHECK_DOESNT_CONTAIN:
-                        if (codeContained)
-                        {
-                            fatalString = code;
-                            return false;
-                        }
-                        break;
-                }
-            }
-            return true;
-        }
-    }
-
-    public static Matcher<Collection<Sample>> containsSamples(String... codes)
-    {
-        return new ContainsSampleMatcher(codes);
-    }
-
-    public static class ContainsSampleMatcher extends TypeSafeMatcher<Collection<Sample>>
-    {
-
-        private Collection<String> codes;
-
-        public ContainsSampleMatcher(String... sampleCodes)
-        {
-            this.codes = Collections.unmodifiableCollection(Arrays.asList(sampleCodes));
-        }
-
-        public void describeTo(Description description)
-        {
-            description.appendText("a collection containing all samples " + this.codes);
-        }
-
-        @Override
-        public boolean matchesSafely(Collection<Sample> actualSamples)
-        {
-
-            Set<String> actualCodes = new HashSet<String>();
-            for (Sample sample : actualSamples)
-            {
-                actualCodes.add(sample.getCode());
-            }
-
-            for (String code : this.codes)
-            {
-                if (!actualCodes.contains(code))
-                {
-                    return false;
-                }
-            }
-            return true;
-
-        }
-    }
-
 }

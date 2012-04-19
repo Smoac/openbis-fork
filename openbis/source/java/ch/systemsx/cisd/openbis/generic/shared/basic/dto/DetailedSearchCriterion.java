@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author Izabela Adamczyk
@@ -33,7 +32,9 @@ public class DetailedSearchCriterion implements Serializable
 
     private String value;
 
-    private Date date;
+    private String date;
+
+    private String timezone;
 
     public DetailedSearchCriterion()
     {
@@ -47,11 +48,13 @@ public class DetailedSearchCriterion implements Serializable
         this.type = CompareType.EQUALS;
     }
 
-    public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Date date)
+    public DetailedSearchCriterion(DetailedSearchField field, CompareType type, String date,
+            String timezone)
     {
         this.field = field;
         this.date = date;
         this.type = type;
+        this.timezone = timezone;
     }
 
     public DetailedSearchField getField()
@@ -79,9 +82,14 @@ public class DetailedSearchCriterion implements Serializable
         return this.type;
     }
 
-    public Date getDate()
+    public String getDate()
     {
         return this.date;
+    }
+
+    public String getTimeZone()
+    {
+        return this.timezone;
     }
 
     @Override

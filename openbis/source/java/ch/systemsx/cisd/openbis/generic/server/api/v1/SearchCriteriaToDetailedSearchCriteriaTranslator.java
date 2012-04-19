@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -331,7 +330,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     throw new IllegalArgumentException("" + matchClause.getCompareMode());
             }
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause), t,
-                    new Date(Long.parseLong(matchClause.getDesiredValue())));
+                    matchClause.getDesiredValue(), matchClause.getTimeZone());
         } else
         {
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause),

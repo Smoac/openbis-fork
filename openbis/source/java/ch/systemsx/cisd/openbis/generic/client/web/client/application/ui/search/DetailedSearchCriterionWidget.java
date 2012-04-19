@@ -245,7 +245,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
                 return new DetailedSearchCriterion(selectedFieldName, selectedValue);
             }
 
-            return new DetailedSearchCriterion(selectedFieldName, compareType, date);
+            return new DetailedSearchCriterion(selectedFieldName, compareType, selectedValue, "+1");
 
         }
         return null;
@@ -265,8 +265,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         {
             return name
                     + " = "
-                    + DateRenderer.renderDate(criterion.getDate(),
-                            DateRenderer.SHORT_DATE_FORMAT_PATTERN);
+                    + criterion.getDate();
         } else
         {
             return name + " = " + criterion.getValue();

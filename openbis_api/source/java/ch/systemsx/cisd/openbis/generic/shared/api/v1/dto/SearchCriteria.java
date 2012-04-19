@@ -124,20 +124,21 @@ public class SearchCriteria implements Serializable
 
         private String desiredValue;
         
+        private String timezone;
+        
         private CompareMode compareMode = CompareMode.EQUALS;
 
-        /**
-         * Protected constructor. Use one of the factory methods to instantiate a MatchClause.
-         * 
-         * @param fieldType
-         * @param fieldCode
-         * @param desiredValue
-         */
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode)
+        
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode) {
+            this(fieldType, fieldCode, desiredValue, null, compareMode);
+        }
+        
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, String timezone, CompareMode compareMode)
         {
             this.fieldType = fieldType;
             this.fieldCode = fieldCode;
             this.desiredValue = desiredValue;
+            this.timezone = timezone;
             this.compareMode = compareMode;
         }
 
@@ -165,9 +166,9 @@ public class SearchCriteria implements Serializable
         }
 
         public static MatchClause createAttributeMatch(MatchClauseAttribute attribute,
-                CompareMode mode, Date date)
+                CompareMode mode, String date, String timezone)
         {
-            return new AttributeMatchClause(attribute, mode, date);
+            return new AttributeMatchClause(attribute, mode, date, timezone);
         }
 
         /**
@@ -215,6 +216,9 @@ public class SearchCriteria implements Serializable
             return desiredValue;
         }
         
+        public String getTimeZone() {
+            return this.timezone;
+        }
         
         public CompareMode getCompareMode() {
             if (this.compareMode == null) {
@@ -241,6 +245,7 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode(), other.getFieldCode());
             builder.append(getDesiredValue(), other.getDesiredValue());
             builder.append(getCompareMode(), other.getCompareMode());
+            builder.append(getTimeZone(), other.getTimeZone());
             return builder.isEquals();
         }
 
@@ -252,6 +257,7 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
             builder.append(getCompareMode());
+            builder.append(getTimeZone());
             return builder.toHashCode();
         }
 
@@ -290,6 +296,9 @@ public class SearchCriteria implements Serializable
             this.compareMode = mode;
         }
         
+        private void setTimeZone(String timezone) {
+            this.timezone = timezone;
+        }
     }
 
     /**
@@ -364,9 +373,9 @@ public class SearchCriteria implements Serializable
             this.attribute = attribute;
         }
 
-        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, Date desiredValue)
+        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, String desiredDate, String timezone)
         {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), Long.toString(desiredValue.getTime()), mode);
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredDate, timezone, mode);
             this.attribute = attribute;
         }
 

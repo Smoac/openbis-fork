@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -95,7 +97,7 @@ public class DetailedQueryBuilder
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField());
 
-            if (criterion.getValue() != null)
+            if (criterion.getTimeZone() == null)
             {
                 String searchPattern =
                         LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
@@ -104,11 +106,38 @@ public class DetailedQueryBuilder
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                Calendar c = Calendar.getInstance();
-                c.setTime(criterion.getDate());
-                c.add(Calendar.DAY_OF_MONTH, 1);
-                Date upper, lower;
-                upper = lower = c.getTime();
+                String tzs = criterion.getTimeZone();
+                if (tzs.startsWith("+"))
+                {
+                    tzs = tzs.substring(1);
+                } else if (tzs.equals("Z"))
+                {
+                    tzs = "0";
+                }
+
+                int offset;
+                try
+                {
+                    offset = (-Integer.parseInt(tzs) * 3600000);
+                } catch (NumberFormatException e)
+                {
+                    offset = 0;
+                }
+
+                SimpleDateFormat sdf = new SimpleDateFormat("y-M-d");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                Date lower;
+                try
+                {
+                    lower = sdf.parse(criterion.getDate());
+                } catch (ParseException ex)
+                {
+                    throw new IllegalArgumentException(criterion.getDate(), ex);
+                }
+
+                lower.setTime(lower.getTime() + offset);
+                Date upper = new Date(lower.getTime() + 24 * 3600 * 1000);
 
                 switch (criterion.getType())
                 {
@@ -123,7 +152,7 @@ public class DetailedQueryBuilder
                 }
 
                 String fieldName = fieldNames.get(0);
-                DateBridge bridge = new DateBridge(Resolution.DAY);
+                DateBridge bridge = new DateBridge(Resolution.HOUR);
                 TermRangeQuery q =
                         new TermRangeQuery(fieldName, bridge.objectToString(lower),
                                 bridge.objectToString(upper), true, true);
