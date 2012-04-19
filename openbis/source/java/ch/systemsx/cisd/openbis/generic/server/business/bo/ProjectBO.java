@@ -24,14 +24,18 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -42,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -301,12 +306,56 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         loadDataByTechId(projectId);
         try
         {
-            // Experiments need to be initialized because Hibernate Search updates index after
-            // deletion and LazyInitializationException occurs if this collection is not
-            // initialized.
-            HibernateUtils.initialize(project.getExperiments());
-            getProjectDAO().delete(project);
-            getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
+            List<String> codes = new ArrayList<String>();
+            List<String> trashedCodes = new ArrayList<String>();
+            List<ExperimentPE> experiments =
+                    getExperimentDAO().listExperimentsWithProperties(project, false, false);
+            for (ExperimentPE experiment : experiments)
+            {
+                codes.add(experiment.getCode());
+            }
+            IDeletionDAO deletionDAO = getDeletionDAO();
+            List<DeletionPE> deletionPEs = deletionDAO.listAllEntities();
+            List<TechId> ids = new ArrayList<TechId>();
+            for (DeletionPE deletion : deletionPEs)
+            {
+                ids.add(new TechId(deletion.getId()));
+            }
+            List<TechId> deletedExperimentIds = deletionDAO.findTrashedExperimentIds(ids);
+            List<DeletedExperimentPE> deletedExperiments =
+                    cast(deletionDAO.listDeletedEntities(EntityKind.EXPERIMENT,
+                            deletedExperimentIds));
+            for (DeletedExperimentPE deletedExperiment : deletedExperiments)
+            {
+                if (deletedExperiment.getProject().getId() == project.getId())
+                {
+                    trashedCodes.add(deletedExperiment.getCode());
+                }
+            }
+            if (codes.isEmpty() && trashedCodes.isEmpty())
+            {
+                getProjectDAO().delete(project);
+                getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
+            } else
+            {
+                StringBuilder builder = new StringBuilder();
+                if (codes.isEmpty() == false)
+                {
+                    builder.append("the following experiments still exist: ");
+                    builder.append(CollectionUtils.abbreviate(codes, 10));
+                }
+                if (trashedCodes.isEmpty() == false)
+                {
+                    if (codes.isEmpty() == false)
+                    {
+                        builder.append("\nIn addition ");
+                    }
+                    builder.append("the following experiments are in the trash can: ");
+                    builder.append(CollectionUtils.abbreviate(trashedCodes, 10));
+                }
+                throw new UserFailureException("Project '" + project.getCode()
+                        + "' can not be deleted because " + builder);
+            }
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Project '%s'", project.getCode()));
@@ -324,6 +373,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         event.setRegistrator(registrator);
 
         return event;
+    }
+
+    @SuppressWarnings("unchecked")
+    private final static <T> T cast(final Object object)
+    {
+        return (T) object;
     }
 
     private static String getDeletionDescription(ProjectPE project)
