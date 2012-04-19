@@ -694,7 +694,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return GenericDataSetViewer.createId(sampleId);
+                        return GenericSampleViewer.createId(sampleId);
                     }
 
                     @Override
