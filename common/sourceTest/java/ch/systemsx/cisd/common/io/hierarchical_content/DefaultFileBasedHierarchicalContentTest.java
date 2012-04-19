@@ -449,7 +449,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testListMatchingNodesWithStartingPathInsideHDF5ContainerWithOriginalPrepended()
             throws IOExceptionUnchecked, UnsupportedOperationException, IOException
     {
