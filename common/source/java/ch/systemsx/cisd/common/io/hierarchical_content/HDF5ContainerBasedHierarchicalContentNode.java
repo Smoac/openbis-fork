@@ -22,15 +22,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
 import ch.systemsx.cisd.hdf5.io.HDF5DataSetRandomAccessFile;
 import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
@@ -89,10 +87,10 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     {
         if (entry.isDirectory())
         {
-            return new HDF5GroupNode(this, entry.getPath(), entry.getName());
+            return new HDF5GroupNode(this, entry);
         } else
         {
-            return new HDF5FileNode(this, entry.getPath(), entry.getName());
+            return new HDF5FileNode(this, entry);
         }
     }
 
@@ -102,13 +100,17 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         final IHDF5ContainerReader reader = createReader();
         try
         {
-            final String fileName = FileUtilities.getFileNameFromRelativePath(childPath);
-            if (reader.isGroup(childPath))
+            final ArchiveEntry childEntry = reader.tryGetEntry(childPath);
+            if (childEntry == null)
             {
-                return new HDF5GroupNode(this, childPath, fileName);
+                throw new IOExceptionUnchecked("Path '" + childPath + "' does not exist.");
+            }
+            if (childEntry.isDirectory())
+            {
+                return new HDF5GroupNode(this, childEntry);
             } else
             {
-                return new HDF5FileNode(this, childPath, fileName);
+                return new HDF5FileNode(this, childEntry);
             }
         } finally
         {
@@ -167,30 +169,26 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
     class HDF5GroupNode extends AbstractHierarchicalDirectoryContentNode
     {
-
-        private final String relativePath; // internal path in HDF5 container
-
-        private final String groupName;
+        private final ArchiveEntry entry;
 
         private final HDF5ContainerBasedHierarchicalContentNode containerNode;
 
         public HDF5GroupNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
-                String relativePath, String groupName)
+                ArchiveEntry entry)
         {
             this.containerNode = containerNode;
-            this.relativePath = relativePath;
-            this.groupName = groupName;
+            this.entry = entry;
         }
 
         public String getName()
         {
-            return groupName;
+            return entry.getName();
         }
 
         @Override
         public String doGetRelativePath()
         {
-            return containerNode.getRelativePath() + File.separator + relativePath;
+            return containerNode.getRelativePath() + entry.getPath();
         }
 
         public boolean exists()
@@ -205,7 +203,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         public long getLastModified()
         {
-            return file.lastModified();
+            return entry.getLastModified() < 0 ? file.lastModified() : entry.getLastModified() * 1000;
         }
 
         public File getFile() throws UnsupportedOperationException
@@ -221,17 +219,15 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             {
                 final List<IHierarchicalContentNode> result =
                         new ArrayList<IHierarchicalContentNode>();
-                final List<ArchiveEntry> children = reader.getGroupMembers(relativePath);
+                final List<ArchiveEntry> children = reader.getGroupMembers(entry.getPath());
                 for (ArchiveEntry childEntry : children)
                 {
                     if (childEntry.isDirectory())
                     {
-                        result.add(new HDF5GroupNode(containerNode, childEntry.getPath(),
-                                childEntry.getName()));
+                        result.add(new HDF5GroupNode(containerNode, childEntry));
                     } else
                     {
-                        result.add(new HDF5FileNode(containerNode, childEntry.getPath(), childEntry
-                                .getName()));
+                        result.add(new HDF5FileNode(containerNode, childEntry));
                     }
                 }
                 return result;
@@ -245,39 +241,35 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         public String toString()
         {
             return "HDF5GroupNode [containerPath=" + containerNode.getRelativePath()
-                    + ", relativePath=" + relativePath + ", groupName=" + groupName + "]";
+                    + ", relativePath=" + entry.getPath() + ", groupName=" + entry.getName() + "]";
         }
 
     }
 
     class HDF5FileNode extends AbstractHierarchicalFileContentNode
     {
-
-        private final String relativePath; // internal path in HDF5 container
-
-        private final String fileName;
+        private final ArchiveEntry entry;
 
         private HDF5DataSetBasedContent contentOrNull;
 
         private final HDF5ContainerBasedHierarchicalContentNode containerNode;
 
         public HDF5FileNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
-                String relativePath, String fileName)
+                ArchiveEntry entry)
         {
             this.containerNode = containerNode;
-            this.relativePath = relativePath;
-            this.fileName = fileName;
+            this.entry = entry;
         }
 
         public String getName()
         {
-            return fileName;
+            return entry.getName();
         }
 
         @Override
         public String doGetRelativePath()
         {
-            return containerNode.getRelativePath() + File.separator + relativePath;
+            return containerNode.getRelativePath() + entry.getPath();
         }
 
         public boolean exists()
@@ -292,7 +284,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         public long getLastModified()
         {
-            return file.lastModified();
+            return entry.getLastModified() < 0 ? file.lastModified() : entry.getLastModified() * 1000;
         }
 
         public File getFile() throws UnsupportedOperationException
@@ -303,7 +295,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         @Override
         protected long doGetFileLength()
         {
-            return getContent().getSize();
+            return entry.getSize();
         }
 
         @Override
@@ -322,7 +314,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         {
             if (contentOrNull == null)
             {
-                contentOrNull = extractFileContent(file, relativePath);
+                contentOrNull = extractFileContent(file, entry);
             }
             return contentOrNull;
         }
@@ -331,73 +323,50 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         public String toString()
         {
             return "HDF5FileNode [containerPath=" + containerNode.getRelativePath()
-                    + ", relativePath=" + relativePath + ", fileName=" + fileName + "]";
+                    + ", relativePath=" + entry.getPath() + ", fileName=" + entry.getName() + "]";
         }
 
     }
 
-    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, String dataSetPath)
+    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, ArchiveEntry entry)
     {
-        return new HDF5DataSetBasedContent(hdf5File, dataSetPath);
+        return new HDF5DataSetBasedContent(hdf5File, entry);
     }
 
     public static class HDF5DataSetBasedContent implements Closeable
     {
         private final File hdf5File;
 
-        private final String dataSetPath;
-
-        private final String name;
-
-        private final boolean exists;
-
-        private final long size;
-
+        private final ArchiveEntry entry;
+        
         private final List<HDF5DataSetRandomAccessFile> randomAccessFiles;
 
-        public HDF5DataSetBasedContent(File hdf5File, String dataSetPath)
+        public HDF5DataSetBasedContent(File hdf5File, ArchiveEntry entry)
         {
             this.hdf5File = hdf5File;
-            this.dataSetPath = dataSetPath;
-            this.name = FileUtilities.getFileNameFromRelativePath(dataSetPath);
-            final IHDF5Reader reader = HDF5FactoryProvider.get().openForReading(hdf5File);
-            try
-            {
-                if (reader.isDataSet(dataSetPath))
-                {
-                    this.exists = true;
-                    this.size = reader.getSize(dataSetPath);
-                } else
-                {
-                    this.exists = false;
-                    this.size = 0L;
-                }
-            } finally
-            {
-                reader.close();
-            }
+            this.entry = entry;
             this.randomAccessFiles = new ArrayList<HDF5DataSetRandomAccessFile>();
         }
 
         public String tryGetName()
         {
-            return name;
+            return entry.getName();
         }
 
         public long getSize()
         {
-            return size;
+            return entry.getSize();
         }
 
         public boolean exists()
         {
-            return exists;
+            return entry.isRegularFile();
         }
 
         public IRandomAccessFile getReadOnlyRandomAccessFile()
         {
             final HDF5DataSetRandomAccessFile randomAccessFile =
-                    HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, dataSetPath);
+                    HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, entry.getPath());
             randomAccessFiles.add(randomAccessFile);
             return randomAccessFile;
         }

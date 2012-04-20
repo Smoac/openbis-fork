@@ -44,23 +44,21 @@ public interface IHDF5ContainerReader
     public List<ArchiveEntry> getGroupMembers(final String groupPath);
 
     /**
-     * Returns <code>true</code> if the <var>objectPath</var> exists and represents a group and
-     * <code>false</code> otherwise.
+     * Returns the entry for <var>path</var>, or <code>null</code>, if such a path does not exist in
+     * the container.
      */
-    public boolean isGroup(final String objectPath);
+    public ArchiveEntry tryGetEntry(final String path);
 
     /**
      * Reads the data set <var>objectPath</var> into the <var>ostream</var>.
      * 
-     * @param objectPath The name (including path information) of the data set object in the file.
-     * <br>
-     * <b>For unit tests only!</b>
+     * @param objectPath The name (including path information) of the data set object in the file. <br>
+     *            <b>For unit tests only!</b>
      */
     public void readFromHDF5Container(final String objectPath, final OutputStream ostream);
 
     /**
-     * Returns <code>true</code>, if <var>objectPath</var> exists and <code>false</code> otherwise.
-     * <br>
+     * Returns <code>true</code>, if <var>objectPath</var> exists and <code>false</code> otherwise. <br>
      * <b>For unit tests only!</b>
      */
     public boolean exists(final String objectPath);

@@ -49,9 +49,9 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
         return archiveReader.exists(objectPath);
     }
 
-    public boolean isGroup(String objectPath)
+    public ArchiveEntry tryGetEntry(String path)
     {
-        return archiveReader.isDirectory(objectPath);
+        return archiveReader.tryGetResolvedEntry(path, true);
     }
 
     public List<ArchiveEntry> getGroupMembers(String groupPath)
