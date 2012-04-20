@@ -74,7 +74,7 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
             // We've already parsed this
             return;
         }
-
+        
         // First parse the metadata for the replica
         File metadataFile = new File(folder, REPLICA_METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
@@ -157,7 +157,7 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
      */
     public String getCollectionName()
     {
-        return folder.getName();
+        return folder.getParentFile().getName();
     }
 
     public File getFolder()

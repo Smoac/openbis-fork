@@ -31,7 +31,7 @@ public class BundleMetadataExtractorTest extends AssertJUnit
     public void testMetadataExtraction()
     {
         File folder =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
         BundleMetadataExtractor metadata = new BundleMetadataExtractor(folder);
         metadata.prepare();
 

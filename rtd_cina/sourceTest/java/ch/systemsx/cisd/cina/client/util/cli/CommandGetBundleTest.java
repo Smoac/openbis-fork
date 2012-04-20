@@ -365,8 +365,9 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
     {
         String[] bundleContents = outputFolder.list();
         Arrays.sort(bundleContents);
+        
         assertEquals(BundleStructureConstants.METADATA_FOLDER_NAME, bundleContents[0]);
-        assertEquals(BundleStructureConstants.BUNDLE_METADATA_FILE_NAME, bundleContents[1]);
+        assertEquals(BundleStructureConstants.OLD_BUNDLE_METADATA_FILE_NAME, bundleContents[1]);
         assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[2]);
         assertEquals(3, bundleContents.length);
     }

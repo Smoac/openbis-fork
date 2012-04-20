@@ -48,14 +48,20 @@ package ch.systemsx.cisd.cina.shared.constants;
  */
 public class BundleStructureConstants
 {
-    public static final String METADATA_FOLDER_NAME = "Annotations";
+    public static final String COLLECTIONS_FOLDER_NAME = "Collections";
 
+    public static final String METADATA_FOLDER_NAME = "Annotations";
+    
     public static final String RAW_IMAGES_FOLDER_NAME = "RawData";
 
     public static final String ANNOTATED_IMAGES_FOLDER_NAME = "Representations";
 
-    public static final String BUNDLE_METADATA_FILE_NAME = "BundleMetadata.xml";
+    public static final String BUNDLE_METADATA_FOLDER_NAME = "Annotations";
 
+    public static final String BUNDLE_METADATA_FILE_NAME = "CollectionMetadata.xml";
+    
+    public static final String OLD_BUNDLE_METADATA_FILE_NAME = "BundleMetadata.xml";
+    
     public final static String IMAGE_METADATA_FILE_NAME = "metadata.xml";
 
     public static final String GRID_PREP_SAMPLE_CODE_KEY = "database id";

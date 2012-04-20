@@ -69,12 +69,14 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
     public void register()
     {
         retrieveOrCreateGridPrepSample();
-
+        
         // Register the bundle metadata data set
         DataSetInformation metadataDataSetInfo = createDataSetInformation();
-        File metadataFile = new File(dataSet, BundleStructureConstants.BUNDLE_METADATA_FILE_NAME);
+        File metadataFile = new File(new File(dataSet, BundleStructureConstants.BUNDLE_METADATA_FOLDER_NAME),  BundleStructureConstants.BUNDLE_METADATA_FILE_NAME);
+        
         List<DataSetInformation> registeredBundleMetadataDataSets =
                 registerDataSet(metadataFile, metadataDataSetInfo);
+        
         DataSetInformation registeredBundleMetadataDataSet =
                 registeredBundleMetadataDataSets.get(0);
 

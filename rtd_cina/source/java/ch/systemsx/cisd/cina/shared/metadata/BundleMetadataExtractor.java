@@ -30,11 +30,17 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
  */
 public class BundleMetadataExtractor
 {
+    private static final String COLLECTIONS_FOLDER_NAME =
+            BundleStructureConstants.COLLECTIONS_FOLDER_NAME;
+    
     private static final String METADATA_FOLDER_NAME =
             BundleStructureConstants.METADATA_FOLDER_NAME;
 
     private static final String BUNDLE_METADATA_FILE_NAME =
             BundleStructureConstants.BUNDLE_METADATA_FILE_NAME;
+
+    private static final String BUNDLE_METADATA_FOLDER_NAME =
+            BundleStructureConstants.BUNDLE_METADATA_FOLDER_NAME;
 
     private static final String GRID_PREP_SAMPLE_CODE_KEY =
             BundleStructureConstants.GRID_PREP_SAMPLE_CODE_KEY;
@@ -60,7 +66,8 @@ public class BundleMetadataExtractor
     {
         this.bundle = bundle;
         replicaMetadataExtractors = new ArrayList<CollectionMetadataExtractor>();
-        bundleMetadataFile = new File(bundle, BUNDLE_METADATA_FILE_NAME);
+        bundleMetadataFile =
+                new File(new File(bundle, BUNDLE_METADATA_FOLDER_NAME), BUNDLE_METADATA_FILE_NAME);
         this.metadataMap = new HashMap<String, String>();
     }
 
@@ -104,19 +111,26 @@ public class BundleMetadataExtractor
 
     private void processDirectory(File file)
     {
-        if (false == file.isDirectory())
+        File annotationsDirectory = new File(file, METADATA_FOLDER_NAME);
+        
+        if (false == annotationsDirectory.exists())
+        {
+            return;
+        }
+        
+        if (false == annotationsDirectory.isDirectory())
         {
             return;
         }
 
-        if (false == CollectionMetadataExtractor.doesFolderContainReplicaMetadata(file))
+        if (false == CollectionMetadataExtractor.doesFolderContainReplicaMetadata(annotationsDirectory))
         {
             return;
         }
 
-        CollectionMetadataExtractor replicaMetadataExtractor = new CollectionMetadataExtractor(file);
+        CollectionMetadataExtractor replicaMetadataExtractor =
+                new CollectionMetadataExtractor(annotationsDirectory);
         replicaMetadataExtractor.prepare();
-
         replicaMetadataExtractors.add(replicaMetadataExtractor);
     }
 
@@ -127,7 +141,7 @@ public class BundleMetadataExtractor
 
     private void prepareReplicaMetadataExtractors()
     {
-        File metadataFolder = new File(bundle, METADATA_FOLDER_NAME);
+        File metadataFolder = new File(bundle, COLLECTIONS_FOLDER_NAME);
 
         // Then get the replica metadata
         File[] replicaContents = metadataFolder.listFiles();
@@ -137,7 +151,7 @@ public class BundleMetadataExtractor
             {
                 continue;
             }
-
+            
             processDirectory(replicaFile);
         }
     }

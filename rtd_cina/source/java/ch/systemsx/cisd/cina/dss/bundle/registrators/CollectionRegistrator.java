@@ -46,6 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class CollectionRegistrator extends BundleDataSetHelper
 {
+    private static final String COLLECTIONS_FOLDER_NAME =
+            BundleStructureConstants.COLLECTIONS_FOLDER_NAME;
+
     private static final String RAW_IMAGES_FOLDER_NAME =
             BundleStructureConstants.RAW_IMAGES_FOLDER_NAME;
 
@@ -187,8 +190,12 @@ public class CollectionRegistrator extends BundleDataSetHelper
     private void registerRawImages()
     {
         String collectionName = collectionMetadataExtractor.getCollectionName();
+
+        System.out.println("COllectionName: " + collectionName);
+
         File collectionOriginalImages =
-                new File(new File(dataSet, RAW_IMAGES_FOLDER_NAME), collectionName);
+                new File(new File(new File(dataSet, COLLECTIONS_FOLDER_NAME), collectionName), RAW_IMAGES_FOLDER_NAME);
+
         CollectionRawImagesRegistrator registrator =
                 new CollectionRawImagesRegistrator(globalState, collectionMetadataExtractor,
                         collectionSample, collectionSampleId, collectionOriginalImages);

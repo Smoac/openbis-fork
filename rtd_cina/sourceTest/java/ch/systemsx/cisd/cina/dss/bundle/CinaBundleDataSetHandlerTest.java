@@ -42,14 +42,14 @@ public class CinaBundleDataSetHandlerTest extends CinaBundleRegistrationTest
         setupCallerDataSetInfoExpectations();
 
         File dataSetFile =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
 
         setupNewEntititesExpectations();
 
         setupExistingGridPrepExpectations();
-        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
-        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
-        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
+        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/RawData");
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/Annotations");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Annotations/CollectionMetadata.xml");
 
         initializeDataSetHandler();
         handler.handleDataSet(dataSetFile);
@@ -68,12 +68,12 @@ public class CinaBundleDataSetHandlerTest extends CinaBundleRegistrationTest
         setupCallerDataSetInfoExpectations();
 
         File dataSetFile =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
 
         setupExistingGridPrepExpectations();
         setupExistingCollectionSampleExpectations();
-        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
-        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/Annotations");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Annotations/CollectionMetadata.xml");
 
         initializeDataSetHandler();
         handler.handleDataSet(dataSetFile);
