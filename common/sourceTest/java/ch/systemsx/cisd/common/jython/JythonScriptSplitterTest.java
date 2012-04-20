@@ -66,9 +66,10 @@ public class JythonScriptSplitterTest
     public void testSplittingScriptBiggerThanBatchSizeShouldReturnMultipleBatches()
     {
         List<String> batches = testSplittingScript(1, 10);
-        Assert.assertEquals(batches.size(), 2);
-        Assert.assertEquals(batches.get(0), getTestScriptCodeBatch1());
-        Assert.assertEquals(batches.get(1), getTestScriptCodeBatch2());
+        Assert.assertEquals(batches.size(), 3);
+        Assert.assertEquals(batches.get(0), getTestScriptCodeBatch(1));
+        Assert.assertEquals(batches.get(1), getTestScriptCodeBatch(2));
+        Assert.assertEquals(batches.get(2), getTestScriptCodeBatch(3));
     }
 
     @Test
@@ -123,14 +124,9 @@ public class JythonScriptSplitterTest
         return getTestFile("testScriptCode.py", scriptSize);
     }
 
-    private String getTestScriptCodeBatch1()
+    private String getTestScriptCodeBatch(int index)
     {
-        return getTestFile("testScriptCodeBatch1.py", 1);
-    }
-
-    private String getTestScriptCodeBatch2()
-    {
-        return getTestFile("testScriptCodeBatch2.py", 1);
+        return getTestFile("testScriptCodeBatch" + index + ".py", 1);
     }
 
     private String getTestScriptOutput(int scriptSize)

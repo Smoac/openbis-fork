@@ -19,7 +19,41 @@ package ch.systemsx.cisd.common.jython;
 /**
  * @author pkupczyk
  */
-class JythonScriptBatch extends JythonScriptLines
+public class JythonScriptLines
 {
+
+    private StringBuilder lines = new StringBuilder();
+
+    private int size;
+
+    public void addLine(String line)
+    {
+        if (size > 0)
+        {
+            lines.append("\n");
+        }
+        lines.append(line);
+        size++;
+    }
+
+    public void addLines(JythonScriptLines object)
+    {
+        if (size > 0)
+        {
+            lines.append("\n");
+        }
+        lines.append(object.getLines());
+        size += object.getSize();
+    }
+
+    public String getLines()
+    {
+        return lines.toString();
+    }
+
+    public int getSize()
+    {
+        return size;
+    }
 
 }

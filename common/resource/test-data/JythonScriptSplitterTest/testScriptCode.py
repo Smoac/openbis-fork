@@ -1,4 +1,5 @@
 print '>>> START'
+
 if True:
     letterA = "a"
     letterB = "b"
@@ -15,7 +16,32 @@ if True:
         elif letter == 'c':
             print 'circus'
 else:
-    print 'Not possible...'
+    print '''Not possible...
+Not possible...
+Not possible...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          '''
+
 if False:
     print 'Not possible...'
+
 print '>>> END'

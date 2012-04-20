@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.common.jython;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.python.core.CompileMode;
-import org.python.core.CompilerFlags;
-import org.python.core.Py;
 import org.python.core.PyException;
 
 /**
@@ -39,85 +34,39 @@ public class JythonScriptSplitter
 
     public List<String> split(String scriptToSplit) throws PyException
     {
-        List<JythonScriptBatch> batches = new ArrayList<JythonScriptBatch>();
-        JythonScriptBatch batch = new JythonScriptBatch();
         JythonScript script = new JythonScript(scriptToSplit);
+        JythonScriptBatches batches = new JythonScriptBatches();
+        JythonScriptBatch batch = new JythonScriptBatch();
+        JythonScriptCommand command = new JythonScriptCommand();
 
         for (String line : script.getLines())
         {
-            if (isEmptyLine(line) || batch.getSize() < getBatchSize())
+            if (command.getSize() > 0 && command.isNextCommand(line))
             {
-                batch.addLine(line);
+                if (batch.getSize() > 0 && batch.getSize() + command.getSize() > getBatchSize())
+                {
+                    batches.addBatch(batch);
+                    batch = new JythonScriptBatch();
+                }
+                batch.addLines(command);
+                command = new JythonScriptCommand();
+                command.addLine(line);
             } else
             {
-                if (compile(line))
-                {
-                    // the line contains a full command or a beginning of a new complex command
-                    batches.add(batch);
-                    batch = new JythonScriptBatch();
-                    batch.addLine(line);
-                } else
-                {
-                    // the line contains a continuation of a complex command
-                    batch.addLine(line);
-                }
+                command.addLine(line);
             }
         }
 
+        if (command.getSize() > 0)
+        {
+            batch.addLines(command);
+        }
         if (batch.getSize() > 0)
         {
-            batches.add(batch);
+            batches.addBatch(batch);
         }
 
-        return convert(batches);
-    }
-
-    private boolean compile(String line)
-    {
-        if (isIndentedLine(line))
-        {
-            return false;
-        } else
-        {
-            try
-            {
-                Py.compile_command_flags(line, "<input>", CompileMode.single, new CompilerFlags(),
-                        true);
-                return true;
-            } catch (PyException e)
-            {
-                return false;
-            }
-        }
-    }
-
-    private List<String> convert(List<JythonScriptBatch> batches)
-    {
-        Iterator<JythonScriptBatch> iterator = batches.iterator();
-        List<String> list = new ArrayList<String>();
-
-        while (iterator.hasNext())
-        {
-            String lines = iterator.next().getLines();
-
-            if (iterator.hasNext())
-            {
-                lines += "\n";
-            }
-
-            list.add(lines);
-        }
-        return list;
-    }
-
-    private boolean isEmptyLine(String line)
-    {
-        return line.trim().length() == 0;
-    }
-
-    private boolean isIndentedLine(String line)
-    {
-        return Character.isWhitespace(line.charAt(0));
+        return batches.getLines();
     }
 
     public int getBatchSize()
