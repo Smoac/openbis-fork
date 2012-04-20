@@ -478,9 +478,9 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         if (thumbnailFilePathsOrNull != null)
         {
             String relativeThumbnailPath =
-                    thumbnailFilePathsOrNull.getThumbnailPath(RelativeImageFile.create(imageInfo));
-            relativeThumbnailRef =
-                    new RelativeImageReference(relativeThumbnailPath, null, colorComponentOrNull);
+                    thumbnailFilePathsOrNull.getThumbnailPath(RelativeImageFile.create(imageInfo),
+                            colorComponentOrNull);
+            relativeThumbnailRef = new RelativeImageReference(relativeThumbnailPath, null, null);
         }
 
         Location wellLoc = null;

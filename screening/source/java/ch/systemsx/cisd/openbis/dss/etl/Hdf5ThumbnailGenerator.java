@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -55,8 +58,10 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
  * Utility class for generating thumbnails into an HDF5 container.
@@ -73,11 +78,14 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         private final int height;
 
-        private ThumbnailData(byte[] data, int width, int height)
+        private final String channelCode;
+
+        private ThumbnailData(byte[] data, int width, int height, String channelCode)
         {
             this.data = data;
             this.width = width;
             this.height = height;
+            this.channelCode = channelCode;
         }
     }
 
@@ -127,6 +135,9 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private final ImageDataSetStructure imageDataSetStructure;
 
+    private final Map<String, Map<String, ImageTransformation>> transformationsForChannels =
+            new HashMap<String, Map<String, ImageTransformation>>();
+
     private final File imagesParentDirectory;
 
     private String thumbnailPhysicalDatasetPermId;
@@ -138,6 +149,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private final ThumbnailsInfo thumbnailPathCollector;
 
     private final Logger logger;
+
+    private final Map<String, ColorComponent> channelColors = new HashMap<String, ColorComponent>();
 
     private Hdf5ThumbnailGenerator(ImageDataSetStructure imageDataSetStructure,
             File imagesParentDirectory, String thumbnailPhysicalDatasetPermId,
@@ -151,6 +164,31 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         this.imageLibraryOrNull = imageLibraryOrNull;
         this.thumbnailPathCollector = thumbnailPathCollector;
         this.logger = operationLog;
+
+        for (Channel ch : imageDataSetStructure.getChannels())
+        {
+            Map<String, ImageTransformation> transformations =
+                    new HashMap<String, ImageTransformation>();
+            transformationsForChannels.put(ch.getCode(), transformations);
+            if (ch.getAvailableTransformations() != null)
+            {
+                for (ImageTransformation it : ch.getAvailableTransformations())
+                {
+                    transformations.put(it.getCode().toUpperCase(), it);
+                }
+            }
+        }
+
+        if (imageDataSetStructure.getChannelColorComponents() != null
+                && imageDataSetStructure.getChannelColorComponents().size() > 0)
+        {
+            for (int i = 0; i < imageDataSetStructure.getChannelColorComponents().size(); i++)
+            {
+                channelColors.put(imageDataSetStructure.getChannels().get(i).getCode(),
+                        ColorComponent.getColorComponent(imageDataSetStructure
+                                .getChannelColorComponents().get(i)));
+            }
+        }
     }
 
     /**
@@ -161,54 +199,92 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private Status generateThumbnail(IHDF5ContainerWriter writer, ImageFileInfo image,
             ByteArrayOutputStream bufferOutputStream)
     {
-        String thumbnailPath = createThumbnailPath(image);
+        List<String> thumbnailPaths = new ArrayList<String>();
+        for (String channelCode : getChannelsToProcess(image.getChannelCode()))
+        {
+            thumbnailPaths.add(createThumbnailPath(image, channelCode));
+        }
 
         try
         {
             long start = System.currentTimeMillis();
             String imageIdOrNull = tryExtractImageID(image);
-            ThumbnailData thumbnailData =
+
+            List<ThumbnailData> thumbnailData =
                     generateThumbnail(bufferOutputStream, image, imageIdOrNull);
-            thumbnailPathCollector.saveThumbnailPath(thumbnailPhysicalDatasetPermId,
-                    RelativeImageFile.create(image), thumbnailPath, thumbnailData.width,
-                    thumbnailData.height);
+
+            for (int i = 0; i < thumbnailData.size(); i++)
+            {
+                thumbnailPathCollector.saveThumbnailPath(thumbnailPhysicalDatasetPermId,
+                        RelativeImageFile.create(image),
+                        channelColors.get(thumbnailData.get(i).channelCode), thumbnailPaths.get(i),
+                        thumbnailData.get(i).width, thumbnailData.get(i).height);
+            }
 
             if (logger.isDebugEnabled())
             {
+                int size = 0;
+                for (ThumbnailData td : thumbnailData)
+                {
+                    size += td.data.length;
+                }
+
                 long now = System.currentTimeMillis();
-                logger.debug(Thread.currentThread().getName() + " thumbnail " + thumbnailPath
-                        + " (" + thumbnailData.data.length + " bytes) generated in "
+                logger.debug(Thread.currentThread().getName() + " thumbnail "
+                        + thumbnailPaths.toString() + " (" + size + " bytes) generated in "
                         + (now - start) + " msec");
             }
             synchronized (writer)
             {
-                writer.writeToHDF5Container(thumbnailPath + "."
-                        + thumbnailsStorageFormat.getFileFormat().getFileExtension(),
-                        new ByteArrayInputStream(thumbnailData.data), thumbnailData.data.length);
+                for (int i = 0; i < thumbnailData.size(); i++)
+                {
+                    writer.writeToHDF5Container(thumbnailPaths.get(i) + "."
+                            + thumbnailsStorageFormat.getFileFormat().getFileExtension(),
+                            new ByteArrayInputStream(thumbnailData.get(i).data),
+                            thumbnailData.get(i).data.length);
+                }
             }
         } catch (IOException ex)
         {
-            return createStatus(thumbnailPath, ex);
+            return createStatus(thumbnailPaths.toString(), ex);
         }
         return Status.OK;
     }
 
-    private String createThumbnailPath(ImageFileInfo plateImage)
+    private String createThumbnailPath(ImageFileInfo plateImage, String channelCode)
     {
-        String imagePath = plateImage.getImageRelativePath();
-        String newImagePath = imagePath;
-        int lastIndex = imagePath.lastIndexOf('.');
-        if (lastIndex > 0)
+        StringBuilder newImagePath = new StringBuilder();
+        if (plateImage.hasWellLocation())
         {
-            newImagePath = imagePath.substring(0, lastIndex);
+            newImagePath.append("w").append(plateImage.tryGetWellLocation().toWellIdString());
         }
+        newImagePath.append(underscoreIfNeeded(newImagePath)).append("d")
+                .append(plateImage.getTileColumn()).append("-").append(plateImage.getTileRow());
+        if (plateImage.tryGetTimepoint() != null)
+        {
+            newImagePath.append("_t").append(plateImage.tryGetTimepoint());
+        }
+        if (plateImage.tryGetSeriesNumber() != null)
+        {
+            newImagePath.append("_s").append(plateImage.tryGetSeriesNumber());
+        }
+        if (plateImage.tryGetDepth() != null)
+        {
+            newImagePath.append("_h").append(plateImage.tryGetDepth());
+        }
+        newImagePath.append("_c").append(channelCode);
 
         String imageIdOrNull = tryExtractImageID(plateImage);
         if (imageIdOrNull != null)
         {
-            newImagePath += "_" + imageIdOrNull;
+            newImagePath.append(imageIdOrNull);
         }
-        return newImagePath;
+        return newImagePath.toString();
+    }
+
+    private static String underscoreIfNeeded(StringBuilder sb)
+    {
+        return sb.length() > 0 ? "_" : "";
     }
 
     private static String tryExtractImageID(ImageFileInfo image)
@@ -217,10 +293,10 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return imageIdentifier == null ? null : imageIdentifier.getUniqueStringIdentifier();
     }
 
-    private ThumbnailData generateThumbnail(ByteArrayOutputStream bufferOutputStream,
+    private List<ThumbnailData> generateThumbnail(ByteArrayOutputStream bufferOutputStream,
             ImageFileInfo img, String imageIdOrNull) throws IOException
     {
-        ThumbnailData thumbnailData;
+        List<ThumbnailData> thumbnailData;
         if (thumbnailsStorageFormat.isGenerateWithImageMagic())
         {
             thumbnailData = generateThumbnailWithImageMagic(img);
@@ -231,7 +307,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return thumbnailData;
     }
 
-    private ThumbnailData generateThumbnailWithImageMagic(ImageFileInfo imageFileInfo)
+    private List<ThumbnailData> generateThumbnailWithImageMagic(ImageFileInfo imageFileInfo)
             throws IOException
     {
         final File imageFile =
@@ -268,30 +344,41 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                     imageFilePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
         } else
         {
-            String transformationCodeOrNull =
-                    thumbnailsStorageFormat.getTransformationCode(imageFileInfo.getChannelCode());
-
-            IImageTransformer transformer =
-                    tryCreateImageTransformer(transformationCodeOrNull,
-                            imageFileInfo.getChannelCode());
-            if (transformer != null)
+            if ((imageDataSetStructure.getChannelColorComponents() != null && imageDataSetStructure
+                    .getChannelColorComponents().size() > 0)
+                    || transformationsForChannels.get(imageFileInfo.getChannelCode()).containsKey(
+                            thumbnailsStorageFormat.getTransformationCode(imageFileInfo
+                                    .getChannelCode())))
             {
-                BufferedImage thumbnail =
-                        Utils.loadUnchangedImage(
-                                new ByteArrayBasedContentNode(result.getBinaryOutput(), null),
-                                null, imageLibraryOrNull);
-                thumbnail = transformer.transform(thumbnail);
-                ByteArrayOutputStream bufferOutputStream = new ByteArrayOutputStream();
-                thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
-                return new ThumbnailData(bufferOutputStream.toByteArray(), width, height);
+                List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
+                for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
+                {
+                    BufferedImage thumbnail =
+                            Utils.loadUnchangedImage(
+                                    new ByteArrayBasedContentNode(result.getBinaryOutput(), null),
+                                    null, imageLibraryOrNull);
+
+                    thumbnail =
+                            applyTransformationsChain(thumbnail, channelCode,
+                                    channelColors.get(channelCode));
+
+                    ByteArrayOutputStream bufferOutputStream = new ByteArrayOutputStream();
+                    thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail,
+                            bufferOutputStream);
+                    thumbnails.add(new ThumbnailData(bufferOutputStream.toByteArray(), width,
+                            height, channelCode));
+
+                }
+                return thumbnails;
             } else
             {
-                return new ThumbnailData(result.getBinaryOutput(), width, height);
+                return Collections.singletonList(new ThumbnailData(result.getBinaryOutput(), width,
+                        height, imageFileInfo.getChannelCode()));
             }
         }
     }
 
-    private ThumbnailData generateThumbnailInternally(ImageFileInfo imageFileInfo,
+    private List<ThumbnailData> generateThumbnailInternally(ImageFileInfo imageFileInfo,
             String imageIdOrNull, ByteArrayOutputStream bufferOutputStream) throws IOException
     {
         BufferedImage image =
@@ -311,41 +398,80 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 ImageUtil.rescale(image, widht, height, false,
                         thumbnailsStorageFormat.isHighQuality());
 
-        String transformationCodeOrNull =
-                thumbnailsStorageFormat.getTransformationCode(imageFileInfo.getChannelCode());
-
-        IImageTransformer transformer =
-                tryCreateImageTransformer(transformationCodeOrNull, imageFileInfo.getChannelCode());
-        if (transformer != null)
+        final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
+        for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
         {
-            thumbnail = transformer.transform(thumbnail);
-        }
+            thumbnail =
+                    applyTransformationsChain(thumbnail, channelCode,
+                            channelColors.get(channelCode));
 
-        thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
-        return new ThumbnailData(bufferOutputStream.toByteArray(), thumbnail.getWidth(),
-                thumbnail.getHeight());
+            thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
+            thumbnails.add(new ThumbnailData(bufferOutputStream.toByteArray(),
+                    thumbnail.getWidth(), thumbnail.getHeight(), channelCode));
+        }
+        return thumbnails;
     }
 
-    private IImageTransformer tryCreateImageTransformer(String transformationCodeOrNull,
-            String channelCode)
+    private Collection<String> getChannelsToProcess(String channelCode)
     {
+        if (imageDataSetStructure.getChannelColorComponents() != null
+                && imageDataSetStructure.getChannelColorComponents().size() > 0)
+        {
+            return channelColors.keySet();
+        } else
+        {
+            return Collections.singleton(channelCode);
+        }
+    }
+
+    private BufferedImage applyTransformationsChain(BufferedImage image,
+            ColorComponent colorComponent, IImageTransformer transformer)
+    {
+        return applyTransformationIfNeeded(extractSingleChannelIfNeeded(image, colorComponent),
+                transformer);
+    }
+
+    private BufferedImage applyTransformationsChain(BufferedImage image, String channelCode,
+            ColorComponent colorComponent)
+    {
+        return applyTransformationsChain(image, colorComponent,
+                tryCreateImageTransformer(channelCode));
+    }
+
+    private static BufferedImage extractSingleChannelIfNeeded(BufferedImage image,
+            ColorComponent colorComponent)
+    {
+        if (colorComponent != null)
+        {
+            return ImageChannelsUtils.transformToChannel(image, colorComponent);
+        }
+
+        return image;
+    }
+
+    private static BufferedImage applyTransformationIfNeeded(BufferedImage image,
+            IImageTransformer transformer)
+    {
+        if (transformer != null)
+        {
+            return transformer.transform(image);
+        }
+
+        return image;
+    }
+
+    private IImageTransformer tryCreateImageTransformer(String channelCode)
+    {
+        String transformationCodeOrNull =
+                thumbnailsStorageFormat.getTransformationCode(channelCode);
         if (transformationCodeOrNull != null)
         {
-            for (Channel ch : imageDataSetStructure.getChannels())
+            ImageTransformation it =
+                    transformationsForChannels.get(channelCode).get(
+                            transformationCodeOrNull.toUpperCase());
+            if (it != null)
             {
-                if (ch.getCode().equalsIgnoreCase(channelCode))
-                {
-                    if (ch.getAvailableTransformations() != null)
-                    {
-                        for (ImageTransformation it : ch.getAvailableTransformations())
-                        {
-                            if (transformationCodeOrNull.equals(it.getCode()))
-                            {
-                                return it.getImageTransformerFactory().createTransformer();
-                            }
-                        }
-                    }
-                }
+                return it.getImageTransformerFactory().createTransformer();
             }
         }
 

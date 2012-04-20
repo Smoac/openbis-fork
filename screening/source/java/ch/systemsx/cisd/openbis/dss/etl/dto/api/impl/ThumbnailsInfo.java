@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
  * Stores the mapping between image and their thumbnails paths. Thread-safe class.
@@ -41,13 +42,14 @@ public class ThumbnailsInfo
         }
     }
 
-    private final Map<RelativeImageFile, String> imageToThumbnailPathMap;
+    private final Map<RelativeImageFile, HashMap<ColorComponent, String>> imageToThumbnailPathMap;
 
     private final Map<String, PhysicalDatasetInfo> datasetInfos;
 
     public ThumbnailsInfo()
     {
-        this.imageToThumbnailPathMap = new HashMap<RelativeImageFile, String>();
+        this.imageToThumbnailPathMap =
+                new HashMap<RelativeImageFile, HashMap<ColorComponent, String>>();
         this.datasetInfos = new HashMap<String, ThumbnailsInfo.PhysicalDatasetInfo>();
     }
 
@@ -62,9 +64,15 @@ public class ThumbnailsInfo
      * starts with the name of the thumbnail file.
      */
     public synchronized void saveThumbnailPath(String permId, RelativeImageFile image,
-            String thumbnailRelativePath, int width, int height)
+            ColorComponent colorComponentOrNull, String thumbnailRelativePath, int width, int height)
     {
-        imageToThumbnailPathMap.put(image, thumbnailRelativePath);
+        HashMap<ColorComponent, String> imageComponents = imageToThumbnailPathMap.get(image);
+        if (imageComponents == null)
+        {
+            imageComponents = new HashMap<ColorComponent, String>();
+            imageToThumbnailPathMap.put(image, imageComponents);
+        }
+        imageComponents.put(colorComponentOrNull, thumbnailRelativePath);
 
         PhysicalDatasetInfo datasetInfo = datasetInfos.get(permId);
         if (datasetInfo != null)
@@ -74,9 +82,10 @@ public class ThumbnailsInfo
         }
     }
 
-    public synchronized String getThumbnailPath(RelativeImageFile image)
+    public synchronized String getThumbnailPath(RelativeImageFile image,
+            ColorComponent colorComponentOrNull)
     {
-        return imageToThumbnailPathMap.get(image);
+        return imageToThumbnailPathMap.get(image).get(colorComponentOrNull);
     }
 
     public Set<String> getThumbnailPhysicalDatasetsPermIds()

@@ -21,9 +21,8 @@ import java.util.Arrays;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Test cases from {@link PlateGeometryOracle}.
@@ -46,36 +45,40 @@ public class PlateGeometryOracleTest extends AssertJUnit
     @Test
     public void testTwoSimilarMatchingGeometriesGetFirst() throws Exception
     {
-        assertEquals(GEOMETRY_12_WELLS_3X4, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(1, 1)), Arrays.asList(GEOMETRY_12_WELLS_3X4,
-                GEOMETRY_12_WELLS_4X3)));
-        assertEquals(GEOMETRY_12_WELLS_4X3, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(1, 1)), Arrays.asList(GEOMETRY_12_WELLS_4X3,
-                GEOMETRY_12_WELLS_3X4)));
+        assertEquals(
+                GEOMETRY_12_WELLS_3X4,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(1, 1)),
+                        Arrays.asList(GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3)));
+        assertEquals(
+                GEOMETRY_12_WELLS_4X3,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(1, 1)),
+                        Arrays.asList(GEOMETRY_12_WELLS_4X3, GEOMETRY_12_WELLS_3X4)));
     }
 
     @Test
     public void testGetSmallerGeometry() throws Exception
     {
-        assertEquals(GEOMETRY_12_WELLS_3X4, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(1, 1)), Arrays.asList(GEOMETRY_1200_WELLS_40X30,
-                GEOMETRY_12_WELLS_3X4)));
+        assertEquals(
+                GEOMETRY_12_WELLS_3X4,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(1, 1)),
+                        Arrays.asList(GEOMETRY_1200_WELLS_40X30, GEOMETRY_12_WELLS_3X4)));
     }
 
     @Test
     public void testGetSmallestMatchingGeometry() throws Exception
     {
-        assertEquals(GEOMETRY_1200_WELLS_40X30, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(3, 4)), Arrays.asList(GEOMETRY_12_WELLS_3X4,
-                GEOMETRY_1200_WELLS_40X30)));
+        assertEquals(
+                GEOMETRY_1200_WELLS_40X30,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(3, 4)),
+                        Arrays.asList(GEOMETRY_12_WELLS_3X4, GEOMETRY_1200_WELLS_40X30)));
     }
 
     @Test
     public void testGetSmallestMatchingGeometryForManyLocations() throws Exception
     {
         assertEquals(GEOMETRY_12_WELLS_4X3, PlateGeometryOracle.figureGeometry(Arrays.asList(
-                new Location(1, 1), new Location(3, 4)), Arrays.asList(GEOMETRY_12_WELLS_3X4,
-                GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30)));
+                new WellLocation(1, 1), new WellLocation(3, 4)), Arrays.asList(
+                GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30)));
     }
 
     @Test
@@ -83,8 +86,8 @@ public class PlateGeometryOracleTest extends AssertJUnit
             throws Exception
     {
         assertEquals(GEOMETRY_1200_WELLS_40X30, PlateGeometryOracle.figureGeometry(Arrays.asList(
-                new Location(1, 1), new Location(3, 4), new Location(4, 3)), Arrays.asList(
-                GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30)));
+                new WellLocation(1, 1), new WellLocation(3, 4), new WellLocation(4, 3)), Arrays
+                .asList(GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30)));
     }
 
     @Test
@@ -92,32 +95,38 @@ public class PlateGeometryOracleTest extends AssertJUnit
             throws Exception
     {
         assertEquals(GEOMETRY_16_WELLS_4X4, PlateGeometryOracle.figureGeometry(Arrays.asList(
-                new Location(1, 1), new Location(3, 4), new Location(4, 3)), Arrays.asList(
-                GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30,
-                GEOMETRY_16_WELLS_4X4)));
+                new WellLocation(1, 1), new WellLocation(3, 4), new WellLocation(4, 3)), Arrays
+                .asList(GEOMETRY_12_WELLS_3X4, GEOMETRY_12_WELLS_4X3, GEOMETRY_1200_WELLS_40X30,
+                        GEOMETRY_16_WELLS_4X4)));
     }
 
     @Test
     public void testSimpleGeometryCode() throws Exception
     {
-        assertEquals(GEOMETRY_3X4, PlateGeometryOracle.figureGeometry(Arrays.asList(new Location(1,
-                2)), Arrays.asList(GEOMETRY_3X4)));
+        assertEquals(
+                GEOMETRY_3X4,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(1, 2)),
+                        Arrays.asList(GEOMETRY_3X4)));
 
     }
 
     @Test
     public void testOneLocationOneGeometryMatching() throws Exception
     {
-        assertEquals(GEOMETRY_12_WELLS_3X4, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(1, 2)), Arrays.asList(GEOMETRY_12_WELLS_3X4)));
+        assertEquals(
+                GEOMETRY_12_WELLS_3X4,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(1, 2)),
+                        Arrays.asList(GEOMETRY_12_WELLS_3X4)));
 
     }
 
     @Test
     public void testOneLocationOneGeometryMatchingMaxValues() throws Exception
     {
-        assertEquals(GEOMETRY_12_WELLS_3X4, PlateGeometryOracle.figureGeometry(Arrays
-                .asList(new Location(4, 3)), Arrays.asList(GEOMETRY_12_WELLS_3X4)));
+        assertEquals(
+                GEOMETRY_12_WELLS_3X4,
+                PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(4, 3)),
+                        Arrays.asList(GEOMETRY_12_WELLS_3X4)));
     }
 
     @Test
@@ -126,8 +135,8 @@ public class PlateGeometryOracleTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            PlateGeometryOracle.figureGeometry(Arrays.asList(new Location(3, 4)), Arrays
-                    .asList(GEOMETRY_12_WELLS_3X4));
+            PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(3, 4)),
+                    Arrays.asList(GEOMETRY_12_WELLS_3X4));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -141,8 +150,8 @@ public class PlateGeometryOracleTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            PlateGeometryOracle.figureGeometry(Arrays.asList(new Location(5, 3)), Arrays
-                    .asList(GEOMETRY_12_WELLS_3X4));
+            PlateGeometryOracle.figureGeometry(Arrays.asList(new WellLocation(5, 3)),
+                    Arrays.asList(GEOMETRY_12_WELLS_3X4));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;

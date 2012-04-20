@@ -800,7 +800,7 @@ public class ImageChannelsUtils
     /**
      * Transforms the given <var>bufferedImage</var> by selecting a single channel from it.
      */
-    private static BufferedImage transformToChannel(BufferedImage bufferedImage,
+    public static BufferedImage transformToChannel(BufferedImage bufferedImage,
             ColorComponent colorComponent)
     {
         BufferedImage newImage = createNewRGBImage(bufferedImage);

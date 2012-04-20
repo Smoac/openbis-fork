@@ -317,7 +317,7 @@ public class ImageUtil
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
         ImageID imageID = parseImageID(imageIdOrNull, contentNode);
-               
+
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
             IImageReader reader =
@@ -546,7 +546,11 @@ public class ImageUtil
         try
         {
             id.setFileName(contentNode.getFile().getCanonicalPath());
-        } catch (Exception ex) {
+        } catch (UnsupportedOperationException ex)
+        {
+            // ignore
+        } catch (Exception ex)
+        {
             ex.printStackTrace();
         }
         return id;

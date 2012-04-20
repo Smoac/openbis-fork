@@ -27,6 +27,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Based on the list of available plate locations and geometries tries to figure the correct plate
@@ -37,24 +38,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 public class PlateGeometryOracle
 {
 
-    public static String figureGeometry(List<Location> plateLocations, List<String> plateGeometries)
+    public static String figureGeometry(List<WellLocation> plateLocations,
+            List<String> plateGeometries)
     {
         return getMatchingGeometry(getMaxLocation(plateLocations), plateGeometries);
     }
 
-    private static Location getMaxLocation(List<Location> locations)
+    private static Location getMaxLocation(List<WellLocation> locations)
     {
         int maxX = -1;
         int maxY = -1;
-        for (Location l : locations)
+        for (WellLocation l : locations)
         {
-            if (maxX < l.getX())
+            if (maxX < l.getColumn())
             {
-                maxX = l.getX();
+                maxX = l.getColumn();
             }
-            if (maxY < l.getY())
+            if (maxY < l.getRow())
             {
-                maxY = l.getY();
+                maxY = l.getRow();
             }
         }
         return new Location(maxX, maxY);

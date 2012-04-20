@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * DTO with information about one image file
@@ -9,7 +10,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
  */
 public final class ImageFileInfo
 {
-    private Location wellLocationOrNull;
+    private WellLocation wellLocationOrNull;
 
     private Location tileLocation;
 
@@ -22,7 +23,7 @@ public final class ImageFileInfo
     private Float depthOrNull;
 
     private Integer seriesNumberOrNull;
-    
+
     private ImageIdentifier imageIdentifier;
 
     public ImageFileInfo(String channelCode, int tileRow, int tileColumn, String imageRelativePath)
@@ -38,19 +39,20 @@ public final class ImageFileInfo
     public ImageIdentifier tryGetImageIdentifier()
     {
         return imageIdentifier;
-        
+
     }
+
     public Integer tryGetWellRow()
     {
-        return wellLocationOrNull == null ? null : wellLocationOrNull.getY();
+        return wellLocationOrNull == null ? null : wellLocationOrNull.getRow();
     }
 
     public Integer tryGetWellColumn()
     {
-        return wellLocationOrNull == null ? null : wellLocationOrNull.getX();
+        return wellLocationOrNull == null ? null : wellLocationOrNull.getColumn();
     }
 
-    public Location tryGetWellLocation()
+    public WellLocation tryGetWellLocation()
     {
         return wellLocationOrNull;
     }
@@ -96,7 +98,7 @@ public final class ImageFileInfo
     }
 
     // --- setters
-    
+
     public void setImageIdentifier(ImageIdentifier imageIdentifier)
     {
         this.imageIdentifier = imageIdentifier;
@@ -104,14 +106,19 @@ public final class ImageFileInfo
 
     public void setWell(int row, int column)
     {
-        this.wellLocationOrNull = Location.createLocationFromRowAndColumn(row, column);
+        this.wellLocationOrNull = new WellLocation(row, column);
     }
 
     /** @return true if well row and column could be parsed */
     public boolean setWell(String wellText)
     {
-        this.wellLocationOrNull =
-                Location.tryCreateLocationFromTransposedMatrixCoordinate(wellText);
+        try
+        {
+            this.wellLocationOrNull = WellLocation.parseLocationStr(wellText);
+        } catch (Exception e)
+        {
+            // do nothing
+        }
         return wellLocationOrNull != null;
     }
 
