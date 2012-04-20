@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import java.awt.Color;
 
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
+
 /**
  * @author Tomasz Pylak
  */
@@ -73,4 +75,18 @@ public enum ColorComponent
     /** creates the color which has only one component from the specified color, others are set to 0 */
     public abstract Color extractSingleComponent(int rgb);
 
+    public static ColorComponent getColorComponent(ChannelColorComponent channelColorComponent)
+    {
+        switch (channelColorComponent)
+        {
+            case BLUE:
+                return ColorComponent.BLUE;
+            case GREEN:
+                return ColorComponent.GREEN;
+            case RED:
+                return ColorComponent.RED;
+        }
+
+        return null;
+    }
 }
