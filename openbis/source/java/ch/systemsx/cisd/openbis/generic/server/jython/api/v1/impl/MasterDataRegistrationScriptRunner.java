@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
@@ -63,7 +64,16 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         // Invoke the evaluator
         for (String batch : batches)
         {
-            interpreter.exec(batch);
+            try
+            {
+                interpreter.exec(batch);
+            } catch (Exception e)
+            {
+                System.err.println(e.toString());
+                System.err.println("Problem is in the following code:");
+                System.err.println(batch);
+                throw CheckedExceptionTunnel.wrapIfNecessary(e);
+            }
         }
 
         service.commit();
