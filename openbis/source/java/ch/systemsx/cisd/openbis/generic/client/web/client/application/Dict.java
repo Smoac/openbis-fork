@@ -1176,6 +1176,10 @@ public abstract class Dict
 
     public static final String CONTAINER_TYPE_TOOLTIP = "container_type_tooltip";
 
+    public static final String DELETION_DISALLOW = "deletion_disallow";
+
+    public static final String DELETION_DISALLOW_TOOLTIP = "deletion_disallow_tooltip";
+
     public static final String MAIN_DATA_SET_PATH = "main_data_set_path";
 
     public static final String MAIN_DATA_SET_PATH_TOOLTIP = "main_data_set_path_tooltip";

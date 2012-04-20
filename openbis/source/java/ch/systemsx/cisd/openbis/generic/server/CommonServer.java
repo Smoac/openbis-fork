@@ -1174,6 +1174,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DataSetTypePE dataSetTypePE = (DataSetTypePE) entityTypePE;
             DataSetType dataSetType = (DataSetType) entityType;
+            dataSetTypePE.setDeletionDisallow(dataSetType.isDeletionDisallow());
             dataSetTypePE.setMainDataSetPath(dataSetType.getMainDataSetPath());
             dataSetTypePE.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
         }

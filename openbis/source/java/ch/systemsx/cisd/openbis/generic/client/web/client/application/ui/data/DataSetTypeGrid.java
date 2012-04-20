@@ -117,11 +117,17 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private final TextField<String> mainDataSetPathField;
 
+                private final CheckBoxField deletionDisallow;
+
                 {
                     descriptionField = createDescriptionField(viewContext);
                     FieldUtil
                             .setValueWithUnescaping(descriptionField, dataSetType.getDescription());
                     addField(descriptionField);
+
+                    deletionDisallow = createDeletionDisallowField();
+                    deletionDisallow.setValue(dataSetType.isDeletionDisallow());
+                    addField(deletionDisallow);
 
                     mainDataSetPatternField = createMainDataSetPatternField();
                     FieldUtil.setValueWithUnescaping(mainDataSetPatternField,
@@ -141,6 +147,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     dataSetType.setDescription(descriptionField.getValue());
+                    dataSetType.setDeletionDisallow(deletionDisallow.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
                     viewContext.getService().updateEntityType(entityKind, dataSetType,
@@ -169,9 +176,14 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private CheckBoxField containerTypeField;
 
+                private CheckBoxField deletionDisallow;
+
                 {
                     containerTypeField = createContainerField();
                     addField(containerTypeField);
+
+                    deletionDisallow = createDeletionDisallowField();
+                    addField(deletionDisallow);
 
                     mainDataSetPatternField = createMainDataSetPatternField();
                     addField(mainDataSetPatternField);
@@ -190,6 +202,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
                     dataSetType.setContainerType(containerTypeField.getValue());
+                    dataSetType.setDeletionDisallow(deletionDisallow.getValue());
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
                 }
 
@@ -229,4 +242,13 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
         GWTUtils.setToolTip(containerTypeField, viewContext.getMessage(Dict.CONTAINER_TYPE_TOOLTIP));
         return containerTypeField;
     }
+
+    private CheckBoxField createDeletionDisallowField()
+    {
+        String label = viewContext.getMessage(Dict.DELETION_DISALLOW);
+        CheckBoxField field = new CheckBoxField(label, false);
+        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.DELETION_DISALLOW_TOOLTIP));
+        return field;
+    }
+
 }

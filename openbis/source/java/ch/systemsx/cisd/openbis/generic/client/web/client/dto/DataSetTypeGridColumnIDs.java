@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * Column IDs for data set type grid.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetTypeGridColumnIDs extends EntityTypeGridColumnIDs
@@ -28,4 +28,7 @@ public class DataSetTypeGridColumnIDs extends EntityTypeGridColumnIDs
     public static final String MAIN_DATA_SET_PATTERN = "MAIN_DATA_SET_PATTERN";
 
     public static final String CONTAINER_TYPE = "CONTAINER_TYPE";
+
+    public static final String DELETION_DISALLOW = "DELETION_DISALLOW";
+
 }

@@ -61,6 +61,8 @@ public class DataSetTypePE extends EntityTypePE
 
     private boolean isContainerType;
 
+    private boolean deletionDisallow;
+
     @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_SEQUENCE)
@@ -158,4 +160,22 @@ public class DataSetTypePE extends EntityTypePE
     {
         this.isContainerType = isContainerType;
     }
+
+    /**
+     * Returns <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     */
+    @Column(name = ColumnNames.DELETION_DISALLOW)
+    public boolean isDeletionDisallow()
+    {
+        return deletionDisallow;
+    }
+
+    /**
+     * Set to <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     */
+    public void setDeletionDisallow(boolean deletionDisallow)
+    {
+        this.deletionDisallow = deletionDisallow;
+    }
+
 }

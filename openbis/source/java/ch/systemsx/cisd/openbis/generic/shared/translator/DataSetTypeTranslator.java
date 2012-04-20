@@ -58,6 +58,7 @@ public class DataSetTypeTranslator
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
         result.setContainerType(entityTypeOrNull.isContainerType());
+        result.setDeletionDisallow(entityTypeOrNull.isDeletionDisallow());
         return result;
     }
 

@@ -35,6 +35,8 @@ public class DataSetType extends EntityType
 
     private boolean isContainerType;
 
+    private boolean deletionDisallow;
+
     public void setMainDataSetPattern(String mainDataSetPattern)
     {
         this.mainDataSetPattern = mainDataSetPattern;
@@ -84,4 +86,15 @@ public class DataSetType extends EntityType
     {
         this.isContainerType = isContainerType;
     }
+
+    public boolean isDeletionDisallow()
+    {
+        return deletionDisallow;
+    }
+
+    public void setDeletionDisallow(boolean deletionDisallow)
+    {
+        this.deletionDisallow = deletionDisallow;
+    }
+
 }
