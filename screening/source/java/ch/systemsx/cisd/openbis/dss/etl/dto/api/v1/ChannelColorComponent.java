@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
+
 /**
  * Color component of an image which constitutes one channel. Useful if the image consists of all
  * channels merged together.
@@ -24,5 +26,20 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  */
 public enum ChannelColorComponent
 {
-    RED, GREEN, BLUE
+    RED, GREEN, BLUE;
+
+    public static ColorComponent getColorComponent(ChannelColorComponent channelColorComponent)
+    {
+        switch (channelColorComponent)
+        {
+            case BLUE:
+                return ColorComponent.BLUE;
+            case GREEN:
+                return ColorComponent.GREEN;
+            case RED:
+                return ColorComponent.RED;
+        }
+
+        return null;
+    }
 }

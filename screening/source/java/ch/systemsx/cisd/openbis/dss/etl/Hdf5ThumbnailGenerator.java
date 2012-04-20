@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
@@ -185,7 +186,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             for (int i = 0; i < imageDataSetStructure.getChannelColorComponents().size(); i++)
             {
                 channelColors.put(imageDataSetStructure.getChannels().get(i).getCode(),
-                        ColorComponent.getColorComponent(imageDataSetStructure
+                        ChannelColorComponent.getColorComponent(imageDataSetStructure
                                 .getChannelColorComponents().get(i)));
             }
         }
