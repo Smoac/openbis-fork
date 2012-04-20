@@ -48,7 +48,7 @@ if foundSamples.size() > 0:
       dataSet.setMeasuredData(False)
       dataSet.setSample(foundContainedSamples[fcs])
       # Add the incoming file into the data set
-      shutil.copytree(incomingPath, incomingPath + "_" + str(fcs))
-      transaction.moveFile(incomingPath + "_" + str(fcs), dataSet)
+      shutil.copytree(incomingPath, incomingPath + "_" + str(fcs+1))
+      transaction.moveFile(incomingPath + "_" + str(fcs+1), dataSet)
   
 shutil.rmtree(incomingPath)
