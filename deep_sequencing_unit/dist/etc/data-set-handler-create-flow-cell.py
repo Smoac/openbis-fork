@@ -13,12 +13,12 @@ from datetime import *
 import xml.etree.ElementTree as etree
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 
-IS_HISEQ_RUN = False
+IS_HISEQ_RUN=False
 RUNPARAMETERS = 'runParameters.xml'
 RUNINFO = 'RunInfo.xml'
-FLOWCELL_SPACE = '/BSSE_FLOWCELLS/'
-FLOWCELL_PROJECT = 'FLOWCELLS/'
-EXPERIMENT_TYPE_CODE = 'HT_SEQUENCING'
+FLOWCELL_SPACE='/BSSE_FLOWCELLS/'
+FLOWCELL_PROJECT='FLOWCELLS/'
+EXPERIMENT_TYPE_CODE='HT_SEQUENCING'
 
 # Mapping between XML file naming and used in here
 RUNPARAMETERS_XML = {'FLOWCELL':'Flowcell', 'RTAVERSION':'RTAVersion',
@@ -52,7 +52,7 @@ class parseXmlFile:
     '''
     for e in self.root.getchildren():
       # the '//' means look recursively for all children not only direct ones
-      childList = self.tree.findall('//' + elementName)
+      childList  = self.tree.findall('//' + elementName)
     return childList 
 
 # -----------------------------------------------------------------------------
@@ -61,9 +61,9 @@ def create_openbis_timestamp ():
   ''' 
   Create an openBIS conform timestamp
   '''
-  tz = localtime()[3] - gmtime()[3]
-  d = datetime.now()
-  return d.strftime("%Y-%m-%d %H:%M:%S GMT" + "%+.2d" % tz + ":00")
+  tz=localtime()[3]-gmtime()[3]
+  d=datetime.now()
+  return d.strftime("%Y-%m-%d %H:%M:%S GMT"+"%+.2d" % tz+":00")
 
 # -----------------------------------------------------------------------------
 
@@ -72,13 +72,14 @@ def create_openbis_timestamp ():
 transaction = service.transaction()
 
 incomingPath = incoming.getAbsolutePath()
+print(incomingPath)
 
 # Get the incoming name 
 name = incoming.getName()
 
-split = name.split("_")
+split=name.split("_")
 if (len(split) == 4):
-  IS_HISEQ_RUN = True
+  IS_HISEQ_RUN=True
 if (len(split) == 2):
   pass
 
@@ -88,10 +89,11 @@ sc = SearchCriteria()
 sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, name));
 foundSamples = search_service.searchForSamples(sc)
 if foundSamples.size() > 0:
-  raise NameError('Already found a Flow Cell with the following name: ' + name)  
+  raise NameError('Already found a Flow Cell with the following name: '+ name)  
 
 # Parse the RunInfo.xml file
 runInfo = parseXmlFile(incomingPath + '/' + RUNINFO) 
+print(runInfo)
 
 # Create a new Flow Cell and set the experiment
 newFlowCell = transaction.createNewSample(FLOWCELL_SPACE + name, "ILLUMINA_FLOW_CELL")
@@ -104,7 +106,7 @@ newFlowCell.setExperiment(exp)
 if IS_HISEQ_RUN:
   run = runInfo.getAllchildren('Run')[0].attrib
   if (run['Id'] != name):
-    raise NameError('Flowcell names do not match between directory name ' + name + 
+    raise NameError('Flowcell names do not match between directory name '+ name +
           ' and ' + RUNINFO + 'property file: ' + run['Id'])
 
   # The HiSeq is providing more infos, which we will parse here:
@@ -127,6 +129,9 @@ if IS_HISEQ_RUN:
   
   indexRead1 = runParameters.getAllchildren('IndexRead1')
   newFlowCell.setPropertyValue("INDEXREAD", indexRead1[0].text) 
+  
+  indexRead2 = runParameters.getAllchildren('IndexRead2')
+  newFlowCell.setPropertyValue("INDEXREAD2", indexRead2[0].text) 
 
   def setFcProperty(searchId, dict):
     children = runInfo.getAllchildren(searchId) 
@@ -155,6 +160,6 @@ def registerFlowLane(a_lane):
   newFlowLane = transaction.createNewSample(FLOWCELL_SPACE + name + ':' + str(a_lane), "ILLUMINA_FLOW_LANE")
   newFlowLane.setContainer(newFlowCell)
   
-[registerFlowLane(lane) for lane in range(1, int(maxLanes) + 1)]
+[registerFlowLane(lane) for lane in range(1,int(maxLanes)+1)]
 
 shutil.rmtree(incomingPath)
