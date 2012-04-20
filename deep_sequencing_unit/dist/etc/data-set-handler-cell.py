@@ -74,6 +74,7 @@ if (len(split) == 2):
 runInfoSample=glob.glob(incomingPath + REGEX_RUNINFO_SAMPLE)
 runInfoReport=glob.glob(incomingPath + REGEX_RUNINFO_REPORTS)
 runInfoList = runInfoSample + runInfoReport
+os.makedirs(RUNINFO_FOLDER + name + '/Data/')
 for runInfo in runInfoList:
   try:
     if os.path.isdir(runInfo):
