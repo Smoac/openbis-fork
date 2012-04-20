@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * @author jakubs
@@ -128,7 +128,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
     {
         List<ImageFileInfo> images =
                 registrationDetails.getDataSetInformation().getImageDataSetStructure().getImages();
-        List<Location> locations = extractLocations(images);
+        List<WellLocation> locations = extractLocations(images);
         List<String> plateGeometries =
                 loadPlateGeometries(registratorState.getGlobalState().getOpenBisService());
         return PlateGeometryOracle.figureGeometry(locations, plateGeometries);
@@ -146,9 +146,9 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
         return plateGeometries;
     }
 
-    private static List<Location> extractLocations(List<ImageFileInfo> images)
+    private static List<WellLocation> extractLocations(List<ImageFileInfo> images)
     {
-        List<Location> locations = new ArrayList<Location>();
+        List<WellLocation> locations = new ArrayList<WellLocation>();
         for (ImageFileInfo image : images)
         {
             locations.add(image.tryGetWellLocation());
