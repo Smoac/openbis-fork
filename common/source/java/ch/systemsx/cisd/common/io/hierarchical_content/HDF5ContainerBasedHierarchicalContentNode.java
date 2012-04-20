@@ -274,7 +274,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         public boolean exists()
         {
-            return getContent().exists();
+            return entry.isRegularFile();
         }
 
         public boolean isDirectory()
@@ -346,21 +346,6 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             this.hdf5File = hdf5File;
             this.entry = entry;
             this.randomAccessFiles = new ArrayList<HDF5DataSetRandomAccessFile>();
-        }
-
-        public String tryGetName()
-        {
-            return entry.getName();
-        }
-
-        public long getSize()
-        {
-            return entry.getSize();
-        }
-
-        public boolean exists()
-        {
-            return entry.isRegularFile();
         }
 
         public IRandomAccessFile getReadOnlyRandomAccessFile()
