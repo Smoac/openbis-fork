@@ -34,7 +34,7 @@ public class SizeCriterionTest extends AssertJUnit
         List<ImageRepresentationFormat> result =
                 criterion
                         .getMatching(Arrays.asList(format(10, 20), format(10, 21), format(11, 20)));
-        assertEquals("[ImageRepresentationFormat[true,10,20,8,png]]", result.toString());
+        assertEquals("[ImageRepresentationFormat[true,10,20,8,png,[]]]", result.toString());
     }
 
     @Test
@@ -45,9 +45,9 @@ public class SizeCriterionTest extends AssertJUnit
         List<ImageRepresentationFormat> result =
                 criterion.getMatching(Arrays.asList(format(10, 20), format(10, 21), format(11, 20),
                         format(9, 20), format(10, 19)));
-        assertEquals("[ImageRepresentationFormat[true,10,20,8,png], "
-                + "ImageRepresentationFormat[true,10,21,8,png], "
-                + "ImageRepresentationFormat[true,11,20,8,png]]", result.toString());
+        assertEquals("[ImageRepresentationFormat[true,10,20,8,png,[]], "
+                + "ImageRepresentationFormat[true,10,21,8,png,[]], "
+                + "ImageRepresentationFormat[true,11,20,8,png,[]]]", result.toString());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class SizeCriterionTest extends AssertJUnit
                 new SizeCriterion(10, 20, SizeCriterion.Type.SMALLEST_COVERING_BOUNDING_BOX);
         List<ImageRepresentationFormat> result =
                 criterion.getMatching(Arrays.asList(format(20, 20), format(9, 21), format(21, 20)));
-        assertEquals("[ImageRepresentationFormat[true,20,20,8,png]]", result.toString());
+        assertEquals("[ImageRepresentationFormat[true,20,20,8,png,[]]]", result.toString());
     }
 
     @Test
@@ -67,9 +67,9 @@ public class SizeCriterionTest extends AssertJUnit
         List<ImageRepresentationFormat> result =
                 criterion.getMatching(Arrays.asList(format(10, 20), format(10, 21), format(11, 20),
                         format(9, 20), format(10, 19)));
-        assertEquals("[ImageRepresentationFormat[true,10,20,8,png], "
-                + "ImageRepresentationFormat[true,9,20,8,png], "
-                + "ImageRepresentationFormat[true,10,19,8,png]]", result.toString());
+        assertEquals("[ImageRepresentationFormat[true,10,20,8,png,[]], "
+                + "ImageRepresentationFormat[true,9,20,8,png,[]], "
+                + "ImageRepresentationFormat[true,10,19,8,png,[]]]", result.toString());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class SizeCriterionTest extends AssertJUnit
         List<ImageRepresentationFormat> result =
                 criterion.getMatching(Arrays.asList(format(10, 21), format(1, 2), format(9, 20),
                         format(10, 19)));
-        assertEquals("[ImageRepresentationFormat[true,10,19,8,png]]", result.toString());
+        assertEquals("[ImageRepresentationFormat[true,10,19,8,png,[]]]", result.toString());
     }
 
     private ImageRepresentationFormat format(Integer width, Integer height)
