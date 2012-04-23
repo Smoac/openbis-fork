@@ -221,7 +221,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
 
     private void linkVersions()
     {
-        registerListenerAndLinkGenerator(AttachmentGridColumnIDs.VERSION,
+        registerListenerAndLinkGeneratorForAnyMode(AttachmentGridColumnIDs.VERSION,
                 new ICellListenerAndLinkGenerator<AttachmentVersions>()
                     {
                         public void handle(TableModelRowWithObject<AttachmentVersions> rowItem,
@@ -240,8 +240,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
-                            String linkText = viewContext.getMessage(Dict.SHOW_ALL_VERSIONS);
-                            return LinkRenderer.renderAsLinkWithAnchor(linkText);
+                            return "";
                         }
                     });
     }
