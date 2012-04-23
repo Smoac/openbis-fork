@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
-import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
-
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
@@ -63,18 +58,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
 
     private IScreeningOpenbisServiceFacade screeningFacade;
 
-    @Override
-    protected void setUpTestThread()
-    {
-        setUpTestThread(JythonPlateDataSetHandler.class, PlateStorageProcessor.class,
-                getTestDataFolder() + "data-set-handler.py");
-
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor.processor", DefaultStorageProcessor.class.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor.data-source", "imaging-db");
-    }
-
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -100,7 +83,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         }
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testTransformedThumbnails() throws Exception
     {
         dropAnExampleDataSet();

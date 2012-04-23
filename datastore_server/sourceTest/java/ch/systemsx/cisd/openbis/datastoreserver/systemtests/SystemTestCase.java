@@ -17,12 +17,10 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
-import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Connector;
@@ -43,12 +41,8 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
@@ -69,13 +63,13 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String ROOT_DIR_KEY = "root-dir";
 
-    private static final String ROOT_DIR_PREFIX = "${" + ROOT_DIR_KEY + "}/";
-
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
     protected File workingDirectory;
 
     protected File rootDir;
+
+    protected File store;
 
     protected GenericWebApplicationContext applicationContext;
 
@@ -85,6 +79,8 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         createWorkingDirectory();
         rootDir = new File(workingDirectory, "dss-root");
+        store = new File(rootDir, "store");
+        store.mkdirs();
     }
 
     protected void createWorkingDirectory()
@@ -157,37 +153,20 @@ public abstract class SystemTestCase extends AssertJUnit
         sch.addServlet(new ServletHolder(dispatcherServlet), "/*");
         server.start();
 
-        List<String> serviceProperties =
-                FileUtilities.loadToStringList(new File(SERVICE_PROPERTIES_FILE));
-        for (String property : serviceProperties)
-        {
-            int index = property.indexOf(ROOT_DIR_PREFIX);
-            if (index >= 0)
-            {
-                File folder =
-                        new File(rootDir, property.substring(index + ROOT_DIR_PREFIX.length()));
-                if (folder.exists())
-                {
-                    FileUtilities.deleteRecursively(folder);
-                }
-                assertEquals("Couldn't create folder " + folder.getAbsolutePath(), true,
-                        folder.mkdirs());
-            }
-        }
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs", "");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
+                "sourceTest/core-plugins");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH, getRegistrationLogDir()
+                .getAbsolutePath());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default",
+                "test");
 
-        setUpTestThread();
-        setUpDssRegistrationLog();
 
         DataStoreServer.main(new String[0]);
         ETLDaemon.runForTesting(new String[0]);
-    }
-
-    private void setUpDssRegistrationLog()
-    {
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH,
-                getRegistrationLogDir().getAbsolutePath());
     }
 
     /**
@@ -204,39 +183,6 @@ public abstract class SystemTestCase extends AssertJUnit
     protected String getApplicationContextLocation()
     {
         return "classpath:applicationContext.xml";
-    }
-
-    protected void setUpTestThread()
-    {
-        setUpTestThread(JythonTopLevelDataSetHandler.class, DefaultStorageProcessor.class,
-                "sourceTest/java/ch/systemsx/cisd/openbis/datastoreserver/systemtests/data-set-handler.py");
-    }
-
-    /**
-     * Set up a DSS dropbox to be used by the test.
-     */
-    @SuppressWarnings("rawtypes")
-    protected void setUpTestThread(
-            Class<? extends JythonTopLevelDataSetHandler> jythonTopLevelDataSetHandlerClass,
-            Class<? extends IStorageProcessorTransactional> storageProcessorClass, String scriptPath)
-    {
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default",
-                "dss-system-test-thread");
-
-        // Create a standard dss-system-test-thread configuration
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs",
-                "dss-system-test-thread");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.incoming-dir", getIncomingDirectory().getAbsolutePath());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.incoming-data-completeness-condition", "auto-detection");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.top-level-data-set-handler",
-                jythonTopLevelDataSetHandlerClass.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor", storageProcessorClass.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.script-path", scriptPath);
     }
 
     /**

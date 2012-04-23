@@ -67,8 +67,6 @@ public class DssComponentTest extends SystemTestCase
 
     private IDssComponent dss;
 
-    private File store;
-
     // Keep track of the number of times a data set was registered during the course of running the
     // tests
     private int putCount = 0;
@@ -76,8 +74,6 @@ public class DssComponentTest extends SystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
-        store = new File(rootDir, "store");
-        store.mkdirs();
         dss = createDssComponent("test");
     }
 

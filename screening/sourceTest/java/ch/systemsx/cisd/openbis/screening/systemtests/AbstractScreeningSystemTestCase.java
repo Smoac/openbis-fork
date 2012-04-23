@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
+import java.io.File;
+
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 
@@ -43,6 +45,12 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     protected void setUpDatabaseProperties()
     {
         TestInitializer.initEmptyDbNoIndex();
+    }
+
+    @Override
+    protected File getIncomingDirectory()
+    {
+        return new File(rootDir, "incoming-" + getClass().getSimpleName());
     }
 
 }

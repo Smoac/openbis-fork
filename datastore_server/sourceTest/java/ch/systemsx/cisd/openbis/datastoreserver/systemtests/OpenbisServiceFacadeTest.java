@@ -68,13 +68,9 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
     private IOpenbisServiceFacade serviceFacade;
 
-    private File store;
-
     @BeforeMethod
     public void beforeMethod()
     {
-        store = new File(rootDir, "store");
-        store.mkdirs();
         serviceFacade = createServiceFacade("test");
     }
 

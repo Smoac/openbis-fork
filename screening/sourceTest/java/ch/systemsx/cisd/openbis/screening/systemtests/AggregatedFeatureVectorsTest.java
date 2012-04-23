@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
-import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -31,12 +29,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
-import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DecoratingTableModelReportingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.EntityLinksDecorator;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TSVViewReportingPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -83,28 +75,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     private IScreeningServer screeningServer;
     private IAnalysisSettingSetter analysisSettingSetter;
 
-    @Override
-    protected void setUpTestThread()
-    {
-        setUpTestThread(JythonPlateDataSetHandler.class, FeatureVectorStorageProcessor.class,
-                getTestDataFolder() + "data-set-handler.py");
-        
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor.processor", DefaultStorageProcessor.class.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor.data-source", "imaging-db");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "reporting-plugins", "viewer");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.label", "Viewer");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.class", DecoratingTableModelReportingPlugin.class.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.dataset-types", ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE);
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.reporting-plugin.class", TSVViewReportingPlugin.class.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.reporting-plugin.separator", ",");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.class", EntityLinksDecorator.class.getName());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.link-columns", "GENEID");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.GENEID.entity-kind", "MATERIAL");
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "viewer.transformation.GENEID.material-type", "GENE");
-    }
-    
     @BeforeTest
     public void dropAnExampleDataSet() throws IOException, Exception
     {
@@ -277,7 +247,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     {
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY,
-                ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE + ":viewer");
+                ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE + ":" + getClass().getSimpleName() + "-viewer");
         analysisSettingSetter.setAnalysisSettings(new AnalysisSettings(properties));
         List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);
         for (DataSetType dataSetType : dataSetTypes)
@@ -350,11 +320,5 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         FileUtilities.writeToFile(new File(exampleDataSet, "data-set-2.file"), "dummy2");
         return exampleDataSet;
     }
-
-    private String getTestDataFolder()
-    {
-        return "../screening/resource/test-data/" + getClass().getSimpleName() + "/";
-    }
-
 
 }
