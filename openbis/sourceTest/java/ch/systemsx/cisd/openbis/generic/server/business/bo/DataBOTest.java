@@ -782,8 +782,6 @@ public class DataBOTest extends AbstractBOTest
 
                     ExperimentIdentifier identifier = EXPERIMENT_IDENTIFIER;
 
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
                     one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
                             identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_PROJECT));
