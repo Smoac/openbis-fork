@@ -616,6 +616,11 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                 {
                     return file;
                 }
+                
+                public File tryGetFile()
+                {
+                    return file;
+                }
 
                 public List<IHierarchicalContentNode> getChildNodes()
                         throws UnsupportedOperationException

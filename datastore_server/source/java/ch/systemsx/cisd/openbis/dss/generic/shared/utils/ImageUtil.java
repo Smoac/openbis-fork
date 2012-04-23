@@ -545,7 +545,11 @@ public class ImageUtil
         ImageID id = imageIdOrNull == null ? ImageID.NULL : ImageID.parse(imageIdOrNull);
         try
         {
-            id.setFileName(contentNode.getFile().getCanonicalPath());
+            final File fileOrNull = contentNode.tryGetFile();
+            if (fileOrNull != null)
+            {
+                id.setFileName(fileOrNull.getCanonicalPath());
+            }
         } catch (Exception ex)
         {
             operationLog.warn("Unable to set file name on image id. ", ex);

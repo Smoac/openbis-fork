@@ -78,6 +78,12 @@ public interface IHierarchicalContentNode
     File getFile() throws UnsupportedOperationException;
 
     /**
+     * Returns a file abstracted by this node, or <code>null</code>, if there is no file that
+     * represents this node.
+     */
+    File tryGetFile();
+
+    /**
      * Returns the length (in bytes) of a file abstracted by this node.
      * <p>
      * NOTE: Call {@link #isDirectory()} first to make sure this node is NOT a directory.

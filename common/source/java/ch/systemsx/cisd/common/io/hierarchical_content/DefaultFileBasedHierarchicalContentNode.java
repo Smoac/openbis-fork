@@ -75,6 +75,11 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
         return file;
     }
 
+    public File tryGetFile()
+    {
+        return file;
+    }
+
     public boolean exists()
     {
         return file.exists();

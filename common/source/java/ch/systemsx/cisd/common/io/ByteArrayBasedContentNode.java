@@ -103,6 +103,11 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     {
         throw new UnsupportedOperationException();
     }
+    
+    public File tryGetFile()
+    {
+        return null;
+    }
 
     public long getFileLength() throws UnsupportedOperationException
     {

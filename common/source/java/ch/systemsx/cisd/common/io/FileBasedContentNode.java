@@ -111,6 +111,11 @@ public class FileBasedContentNode implements IHierarchicalContentNode
         return file;
     }
 
+    public File tryGetFile()
+    {
+        return file;
+    }
+
     public long getFileLength() throws UnsupportedOperationException
     {
         return file.length();

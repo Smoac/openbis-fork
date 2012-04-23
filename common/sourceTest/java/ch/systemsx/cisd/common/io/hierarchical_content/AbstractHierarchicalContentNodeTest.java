@@ -182,6 +182,11 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 {
                     return null;
                 }
+
+                public File tryGetFile()
+                {
+                    return null;
+                }
             };
     }
 
@@ -241,6 +246,11 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
 
                 @Override
                 protected List<IHierarchicalContentNode> doGetChildNodes()
+                {
+                    return null;
+                }
+
+                public File tryGetFile()
                 {
                     return null;
                 }

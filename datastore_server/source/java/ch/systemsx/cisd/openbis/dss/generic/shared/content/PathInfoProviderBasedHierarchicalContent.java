@@ -249,6 +249,18 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             }
         }
 
+        public File tryGetFile()
+        {
+            File result = doGetFile();
+            if (result.exists())
+            {
+                return result;
+            } else
+            {
+                return null;
+            }
+        }
+
         @Override
         protected IRandomAccessFile doGetFileContent()
         {

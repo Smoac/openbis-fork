@@ -82,6 +82,11 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
             {
                 throw new UnsupportedOperationException();
             }
+            
+            public File tryGetFile()
+            {
+                return null;
+            }
 
             public List<IHierarchicalContentNode> getChildNodes()
                     throws UnsupportedOperationException
@@ -153,6 +158,11 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
     }
 
     public File getFile() throws UnsupportedOperationException
+    {
+        return getContent().getFile();
+    }
+
+    public File tryGetFile()
     {
         return getContent().getFile();
     }

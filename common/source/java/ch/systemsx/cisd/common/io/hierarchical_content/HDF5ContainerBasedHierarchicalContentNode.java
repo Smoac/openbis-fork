@@ -203,12 +203,18 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         public long getLastModified()
         {
-            return entry.getLastModified() < 0 ? file.lastModified() : entry.getLastModified() * 1000;
+            return entry.getLastModified() < 0 ? file.lastModified()
+                    : entry.getLastModified() * 1000;
         }
 
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException("This is not a normal directory node.");
+        }
+
+        public File tryGetFile()
+        {
+            return null;
         }
 
         @Override
@@ -284,12 +290,18 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         public long getLastModified()
         {
-            return entry.getLastModified() < 0 ? file.lastModified() : entry.getLastModified() * 1000;
+            return entry.getLastModified() < 0 ? file.lastModified()
+                    : entry.getLastModified() * 1000;
         }
 
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException("This is not a normal file node.");
+        }
+
+        public File tryGetFile()
+        {
+            return null;
         }
 
         @Override
@@ -338,7 +350,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         private final File hdf5File;
 
         private final ArchiveEntry entry;
-        
+
         private final List<HDF5DataSetRandomAccessFile> randomAccessFiles;
 
         public HDF5DataSetBasedContent(File hdf5File, ArchiveEntry entry)

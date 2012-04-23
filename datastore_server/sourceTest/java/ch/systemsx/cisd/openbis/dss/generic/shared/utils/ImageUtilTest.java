@@ -100,6 +100,11 @@ public class ImageUtilTest extends AssertJUnit
             return is;
         }
 
+        public File tryGetFile()
+        {
+            return null;
+        }
+
     }
 
     private static class MockRandomAccessFile extends ByteBufferRandomAccessFile
