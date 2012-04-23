@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageReprese
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat.ImageRepresentationTransformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
@@ -105,6 +106,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelTransformationEnrichedDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -308,12 +310,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
         ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
 
-        if (first == null || first.getWidth() == null || first.getHeight() == null) 
+        if (first == null || first.getWidth() == null || first.getHeight() == null)
         {
-            operationLog.warn("Image dimensions not found for the zoom level of the original image of specified dataset");
-            return getOriginalImageSizeFetchingImage(dataset, imageAccessor);            
+            operationLog
+                    .warn("Image dimensions not found for the zoom level of the original image of specified dataset");
+            return getOriginalImageSizeFetchingImage(dataset, imageAccessor);
         }
-        
+
         Size imageSize = new Size(first.getWidth(), first.getHeight());
         return imageSize;
     }
@@ -332,15 +335,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             operationLog.warn("No zoom-level found for the thumbnail of specified dataset");
             return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
         }
-        
+
         ImgImageZoomLevelDTO first = zoomLevelLists.get(0);
 
-        if (first == null || first.getWidth() == null || first.getHeight() == null) 
+        if (first == null || first.getWidth() == null || first.getHeight() == null)
         {
-            operationLog.warn("Image dimensions not found for the zoom level of the thumbnail of specified dataset");
+            operationLog
+                    .warn("Image dimensions not found for the zoom level of the thumbnail of specified dataset");
             return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
         }
-        
+
         Size imageSize = new Size(first.getWidth(), first.getHeight());
         return imageSize;
     }
@@ -898,7 +902,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             ImgImageDatasetDTO imageDataSet)
     {
         List<ImgImageZoomLevelDTO> zoomLevels = getDAO().listImageZoomLevels(imageDataSet.getId());
-        return convertZoomLevelsToRepresentationFormats(imageDataSet.getPermId(), zoomLevels);
+        List<ImgImageZoomLevelTransformationEnrichedDTO> zoomLevelsTransformations =
+                getDAO().listImageZoomLevelTransformations(imageDataSet.getId());
+        return convertZoomLevelsToRepresentationFormats(imageDataSet.getPermId(), zoomLevels,
+                zoomLevelsTransformations);
     }
 
     private Map<String, ImgImageDatasetDTO> createDataSetCodeToImageDataSetMap(
@@ -923,19 +930,51 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     private List<ImageRepresentationFormat> convertZoomLevelsToRepresentationFormats(
-            String dataSetCode, List<ImgImageZoomLevelDTO> zoomLevels)
+            String dataSetCode, List<ImgImageZoomLevelDTO> zoomLevels,
+            List<ImgImageZoomLevelTransformationEnrichedDTO> transformations)
     {
         ArrayList<ImageRepresentationFormat> results = new ArrayList<ImageRepresentationFormat>();
+        Map<String, List<ImageRepresentationTransformation>> transformationsPerDataSet =
+                mapTransformationsPerPhysicallDataSets(transformations);
+
         for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
         {
             ImageRepresentationFormat result =
                     new ImageRepresentationFormat(dataSetCode, zoomLevel.getId(),
                             zoomLevel.getIsOriginal(), zoomLevel.getWidth(), zoomLevel.getHeight(),
-                            zoomLevel.getColorDepth(), zoomLevel.getFileType());
+                            zoomLevel.getColorDepth(), zoomLevel.getFileType(),
+                            transformationsPerDataSet.get(zoomLevel.getPhysicalDatasetPermId()));
             results.add(result);
         }
 
         return results;
+    }
+
+    private Map<String, List<ImageRepresentationTransformation>> mapTransformationsPerPhysicallDataSets(
+            List<ImgImageZoomLevelTransformationEnrichedDTO> enrichedTransformations)
+    {
+        Map<String, List<ImageRepresentationTransformation>> transformations =
+                new HashMap<String, List<ImageRepresentationTransformation>>();
+
+        if (enrichedTransformations != null)
+        {
+            for (ImgImageZoomLevelTransformationEnrichedDTO transformation : enrichedTransformations)
+            {
+                List<ImageRepresentationTransformation> transformationsPerDataSet =
+                        transformations.get(transformation.getPhysicalDatasetPermId());
+                if (transformationsPerDataSet == null)
+                {
+                    transformationsPerDataSet = new ArrayList<ImageRepresentationTransformation>();
+                    transformations.put(transformation.getPhysicalDatasetPermId(),
+                            transformationsPerDataSet);
+                }
+                transformationsPerDataSet.add(new ImageRepresentationTransformation(transformation
+                        .getImageTransformationId(), transformation.getTransformationCode(),
+                        transformation.getChannelCode()));
+            }
+        }
+
+        return transformations;
     }
 
     private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)

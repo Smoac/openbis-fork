@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelTransformationEnrichedDTO;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
@@ -128,13 +129,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     private static final String DATASET_CODE = "ds1";
 
     private static final String DATASET_CODE2 = "ds2";
-    
+
     private static final String CHANNEL_CODE = "GFP";
 
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
     private static final long EXPERIMENT_ID = 333;
-    
+
     private static final String URL1 = "url1";
 
     private static final String SESSION_TOKEN = "session";
@@ -208,7 +209,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         streamRepository, shareIdManager, contentProvider, false)
                     {
                         @Override
-                        IImagingDatasetLoader createImageLoader(String datasetCode, 
+                        IImagingDatasetLoader createImageLoader(String datasetCode,
                                 IHierarchicalContent content)
                         {
                             return imageLoader;
@@ -458,6 +459,18 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgImageZoomLevelDTO level2 =
                             new ImgImageZoomLevelDTO("i2", false, "r2", 11, 21, 16, "blub", 103);
                     will(returnValue(Arrays.asList(level1, level2)));
+
+                    one(dao).listImageZoomLevelTransformations(42L);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform1 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR1", "ch1", "i2", 111,
+                                    11, 100);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform2 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR2", "ch2", "i2", 112,
+                                    12, 101);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform3 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR3", "ch3", "i2", 113,
+                                    13, 102);
+                    will(returnValue(Arrays.asList(transform1, transform2, transform3)));
                 }
             });
 
@@ -469,8 +482,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         dataSetIdentifiers);
 
         assertEquals("[DatasetImageRepresentationFormats[ds1,["
-                + "ImageRepresentationFormat[true,10,20,8,png], "
-                + "ImageRepresentationFormat[false,11,21,16,blub]]], "
+                + "ImageRepresentationFormat[true,10,20,8,png,[]], "
+                + "ImageRepresentationFormat[false,11,21,16,blub,"
+                + "[ImageRepresentationFormat.ImageRepresentationTransformation[ch1,100,TR1], "
+                + "ImageRepresentationFormat.ImageRepresentationTransformation[ch2,101,TR2], "
+                + "ImageRepresentationFormat.ImageRepresentationTransformation[ch3,102,TR3]]]]], "
                 + "DatasetImageRepresentationFormats[ds2,[]]]", formats.toString());
         context.assertIsSatisfied();
     }
@@ -501,7 +517,19 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgImageZoomLevelDTO level2 =
                             new ImgImageZoomLevelDTO("i2", false, "r2", 11, 21, null, null, 103);
                     will(returnValue(Arrays.asList(level1, level2)));
-                    
+
+                    one(dao).listImageZoomLevelTransformations(42L);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform1 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR1", "ch1", "i2", 111,
+                                    11, 100);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform2 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR2", "ch2", "i2", 112,
+                                    12, 101);
+                    ImgImageZoomLevelTransformationEnrichedDTO transform3 =
+                            new ImgImageZoomLevelTransformationEnrichedDTO("TR3", "ch3", "i2", 113,
+                                    13, 102);
+                    will(returnValue(Arrays.asList(transform1, transform2, transform3)));
+
                     RequestedImageSize thumbnailSize =
                             new RequestedImageSize(new Size(10, 20), false);
                     one(imageLoader).tryGetImage(
@@ -519,15 +547,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     will(returnValue(new AbsoluteImageReference(image("img1.png"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
                             new ImageTransfomationFactories(), null)));
-                    
+
                 }
             });
 
+        InputStream stream =
+                screeningService.loadImages(SESSION_TOKEN, Arrays.asList(plateRef1, plateRef2),
+                        new OriginalCriterion(true));
 
-        InputStream stream = screeningService.loadImages(SESSION_TOKEN,
-                Arrays.asList(plateRef1, plateRef2),
-                new OriginalCriterion(true));
-        
         ConcatenatedFileOutputStreamWriter imagesWriter =
                 new ConcatenatedFileOutputStreamWriter(stream);
         BufferedImage image1 = extractNextImage(imagesWriter);
@@ -537,7 +564,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         stream.close();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetImageTransformerFactoryForChannel()
     {

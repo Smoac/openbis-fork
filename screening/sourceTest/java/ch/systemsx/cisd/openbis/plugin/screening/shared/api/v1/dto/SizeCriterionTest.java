@@ -63,8 +63,7 @@ public class SizeCriterionTest extends AssertJUnit
     @Test
     public void testMatchingInsideBoundingBox()
     {
-        SizeCriterion criterion =
-                new SizeCriterion(10, 20, SizeCriterion.Type.INSIDE_BOUNDING_BOX);
+        SizeCriterion criterion = new SizeCriterion(10, 20, SizeCriterion.Type.INSIDE_BOUNDING_BOX);
         List<ImageRepresentationFormat> result =
                 criterion.getMatching(Arrays.asList(format(10, 20), format(10, 21), format(11, 20),
                         format(9, 20), format(10, 19)));
@@ -72,20 +71,20 @@ public class SizeCriterionTest extends AssertJUnit
                 + "ImageRepresentationFormat[true,9,20,8,png], "
                 + "ImageRepresentationFormat[true,10,19,8,png]]", result.toString());
     }
-    
+
     @Test
     public void testMatchingLargestInBoundingBox()
     {
         SizeCriterion criterion =
                 new SizeCriterion(10, 20, SizeCriterion.Type.LARGEST_IN_BOUNDING_BOX);
         List<ImageRepresentationFormat> result =
-                criterion.getMatching(Arrays.asList(format(10, 21), format(1, 2),
-                        format(9, 20), format(10, 19)));
+                criterion.getMatching(Arrays.asList(format(10, 21), format(1, 2), format(9, 20),
+                        format(10, 19)));
         assertEquals("[ImageRepresentationFormat[true,10,19,8,png]]", result.toString());
     }
 
     private ImageRepresentationFormat format(Integer width, Integer height)
     {
-        return new ImageRepresentationFormat("ds1", 1, true, width, height, 8, "png");
+        return new ImageRepresentationFormat("ds1", 1, true, width, height, 8, "png", null);
     }
 }

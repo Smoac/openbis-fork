@@ -80,6 +80,16 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     // joins
                     + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
 
+    public static final String SQL_ZOOM_LEVEL_TRANSFORMATIONS_ENRICHED =
+            "select izlt.zoom_level_id as zoom_level_id, izlt.channel_id as channel_id, "
+                    + "izlt.image_transformation_id as image_transformation_id, ch.code as channel_code, "
+                    + "it.code as image_transformation_code, zl.physical_dataset_perm_id as physical_dataset_perm_id "
+                    + "from image_zoom_levels zl, image_zoom_level_transformations izlt, image_transformations it, channels ch "
+                    + "where                                            "
+                    + "izlt.zoom_level_id = zl.id and                   "
+                    + "it.id = izlt.image_transformation_id and         "
+                    + "ch.id = izlt.channel_id ";
+
     // TODO 2010-12-10, Tomasz Pylak: uncomment when we are able to show a representative image
     public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
             " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
@@ -238,12 +248,16 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.CONTAINER_DATASET_ID = ?{1}", fetchSize = FETCH_SIZE)
     public List<ImgImageZoomLevelDTO> listImageZoomLevels(long datasetId);
 
+    @Select(sql = SQL_ZOOM_LEVEL_TRANSFORMATIONS_ENRICHED + " and zl.container_dataset_id = ?{1}", fetchSize = FETCH_SIZE)
+    public List<ImgImageZoomLevelTransformationEnrichedDTO> listImageZoomLevelTransformations(
+            long datasetId);
+
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and zoom.is_original")
     public List<ImgImageZoomLevelDTO> listOriginalImageZoomLevelsByPermId(String datasetPermId);
-    
+
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and not zoom.is_original")
     public List<ImgImageZoomLevelDTO> listThumbImageZoomLevelsByPermId(String datasetPermId);
-    
+
     @Select(sql = "select * from ANALYSIS_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(String... datasetPermIds);
@@ -364,7 +378,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_TILE_GEOMETRIES_FOR_EXPERIMENT)
     public List<WidthAndHeightDTO> listTileGeometriesForExperiment(long experimentId);
-    
+
     final static String SELECT_IMAGE_SIZES_FOR_EXPERIMENT =
             " select dataset.perm_id, level.width, level.height "
                     + "      from experiments exp "
@@ -372,9 +386,9 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     + "           join image_data_sets dataset on dataset.cont_id = container.id "
                     + "           join image_zoom_levels level on level.container_dataset_id = dataset.id "
                     + "      where exp.id = ?{1} and level.is_original = ?{2}";
-    
+
     @Select(sql = SELECT_IMAGE_SIZES_FOR_EXPERIMENT)
-    public List<WidthAndHeightAndPermIdDTO> listImageSizesForExperiment(long experimentId, boolean original);
-    
-    
+    public List<WidthAndHeightAndPermIdDTO> listImageSizesForExperiment(long experimentId,
+            boolean original);
+
 }

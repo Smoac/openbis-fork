@@ -32,8 +32,7 @@ public class ImgImageZoomLevelTransformationDTO extends AbstractImgIdentifiable
     @ResultColumn("image_transformation_id")
     private long imageTransformationId;
 
-    @SuppressWarnings("unused")
-    private ImgImageZoomLevelTransformationDTO()
+    protected ImgImageZoomLevelTransformationDTO()
     {
         // All Data-Object classes must have a default constructor.
     }

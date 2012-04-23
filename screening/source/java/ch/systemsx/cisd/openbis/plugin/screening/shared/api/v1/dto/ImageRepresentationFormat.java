@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -32,6 +34,92 @@ import org.apache.commons.lang.builder.ToStringStyle;
 @SuppressWarnings("unused")
 public class ImageRepresentationFormat implements Serializable
 {
+    public static class ImageRepresentationTransformation
+    {
+        private long transformationId;
+
+        private String transformationCode;
+
+        private String channelCode;
+
+        public ImageRepresentationTransformation(long transformationId, String transformationCode,
+                String channelCode)
+        {
+            this.transformationId = transformationId;
+            this.transformationCode = transformationCode;
+            this.channelCode = channelCode;
+        }
+
+        public long getTransformationId()
+        {
+            return transformationId;
+        }
+
+        public String getTransformationCode()
+        {
+            return transformationCode;
+        }
+
+        public String getChannelCode()
+        {
+            return channelCode;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+
+            ImageRepresentationTransformation other = (ImageRepresentationTransformation) obj;
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(channelCode, other.channelCode);
+            builder.append(transformationId, other.transformationId);
+            builder.append(transformationCode, other.transformationCode);
+            return builder.isEquals();
+        }
+
+        @Override
+        public String toString()
+        {
+            ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+            builder.append(channelCode);
+            builder.append(transformationId);
+            builder.append(transformationCode);
+
+            return builder.toString();
+        }
+
+        private ImageRepresentationTransformation()
+        {
+        }
+
+        private void setTransformationId(long transformationId)
+        {
+            this.transformationId = transformationId;
+        }
+
+        private void setTransformationCode(String transformationCode)
+        {
+            this.transformationCode = transformationCode;
+        }
+
+        private void setChannelCode(String channelCode)
+        {
+            this.channelCode = channelCode;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     private String dataSetCode;
@@ -48,6 +136,8 @@ public class ImageRepresentationFormat implements Serializable
 
     private String fileType;
 
+    private List<ImageRepresentationTransformation> transformations;
+
     /**
      * Constructor.
      * 
@@ -58,9 +148,11 @@ public class ImageRepresentationFormat implements Serializable
      * @param height
      * @param colorDepth
      * @param fileType
+     * @param transformations
      */
     public ImageRepresentationFormat(String dataSetCode, long id, boolean original, Integer width,
-            Integer height, Integer colorDepth, String fileType)
+            Integer height, Integer colorDepth, String fileType,
+            List<ImageRepresentationTransformation> transformations)
     {
         super();
         this.dataSetCode = dataSetCode;
@@ -70,6 +162,12 @@ public class ImageRepresentationFormat implements Serializable
         this.height = height;
         this.colorDepth = colorDepth;
         this.fileType = fileType;
+        this.transformations = new ArrayList<ImageRepresentationTransformation>();
+
+        if (transformations != null)
+        {
+            this.transformations.addAll(transformations);
+        }
     }
 
     /**
@@ -163,6 +261,7 @@ public class ImageRepresentationFormat implements Serializable
         builder.append(height, other.height);
         builder.append(colorDepth, other.colorDepth);
         builder.append(fileType, other.fileType);
+        builder.append(transformations, other.transformations);
         return builder.isEquals();
     }
 
@@ -175,6 +274,8 @@ public class ImageRepresentationFormat implements Serializable
         builder.append(height);
         builder.append(colorDepth);
         builder.append(fileType);
+        builder.append(transformations);
+
         return builder.toString();
     }
 
