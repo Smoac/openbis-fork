@@ -19,12 +19,14 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 /**
- * 
+ * The interface for a feeder of the path info database.
  *
  * @author Franz-Josef Elmer
  */
 public interface IDataSetPathsInfoFeeder
 {
     public long addPaths(String dataSetCode, String location, File dataSetRoot);
+    
+    public void commit();
     
 }

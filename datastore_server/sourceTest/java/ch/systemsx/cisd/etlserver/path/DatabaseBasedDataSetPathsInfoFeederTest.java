@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.hamcrest.core.IsNull;
@@ -33,16 +34,16 @@ import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchi
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemTestCase
 {
     private static final String ROOT_PATH = DatabaseBasedDataSetPathsInfoFeederTest.class.getName();
-    
+
     private Mockery context;
+
     private IPathsInfoDAO dao;
+
     private IDataSetPathsInfoFeeder feeder;
 
     @BeforeMethod
@@ -50,9 +51,11 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
     {
         context = new Mockery();
         dao = context.mock(IPathsInfoDAO.class);
-        feeder = new DatabaseBasedDataSetPathsInfoFeeder(dao, new DefaultFileBasedHierarchicalContentFactory());
+        feeder =
+                new DatabaseBasedDataSetPathsInfoFeeder(dao,
+                        new DefaultFileBasedHierarchicalContentFactory());
     }
-    
+
     @AfterMethod
     public void tearDown(Method method)
     {
@@ -65,16 +68,19 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void test()
     {
         final File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
-        FileUtilities.writeToFile(new File(dir, "hello.txt"), "hello world");
-        FileUtilities.writeToFile(new File(dir, "read.me"), "nothing to read");
+        final File file1 = new File(dir, "hello.txt");
+        FileUtilities.writeToFile(file1, "hello world");
+        final File file2 = new File(dir, "read.me");
+        FileUtilities.writeToFile(file2, "nothing to read");
         new File(dir, "dir").mkdirs();
-        FileUtilities.writeToFile(new File(workingDirectory, "read.me"), "hello reader");
+        final File file3 = new File(workingDirectory, "read.me");
+        FileUtilities.writeToFile(file3, "hello reader");
         context.checking(new Expectations()
             {
                 {
@@ -89,24 +95,24 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                             with(26L), with(true), with(any(Date.class)));
                     will(returnValue(101L));
 
-                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/hello.txt"),
-                            with("hello.txt"), with(11L), with(false), with(any(Date.class)));
-                    will(returnValue(102L));
-
-                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/read.me"),
-                            with("read.me"), with(15L), with(false), with(any(Date.class)));
-                    will(returnValue(103L));
-
                     one(dao).createDataSetFile(with(42L), with(101L), with("dir/dir"), with("dir"),
                             with(0L), with(true), with(any(Date.class)));
                     will(returnValue(104L));
 
-                    one(dao).createDataSetFile(with(42L), with(100L), with("read.me"),
-                            with("read.me"), with(12L), with(false), with(any(Date.class)));
-                    will(returnValue(105L));
+                    one(dao).createDataSetFiles(
+                            with(equal(Arrays.asList(
+                                    new PathEntryDTO(42L, 101L, "dir/hello.txt",
+                                            "hello.txt", 11L, new Date(file1.lastModified())),
+                                    new PathEntryDTO(42L, 101L, "dir/read.me",
+                                            "read.me", 15L, new Date(file2.lastModified())),
+                                    new PathEntryDTO(42L, 100L, "read.me", "read.me",
+                                            12L, new Date(file2.lastModified()))))));
+                    
+                    one(dao).commit();
                 }
             });
-        
+
         feeder.addPaths("ds-1", "a/b/c/", workingDirectory);
+        feeder.commit();
     }
 }

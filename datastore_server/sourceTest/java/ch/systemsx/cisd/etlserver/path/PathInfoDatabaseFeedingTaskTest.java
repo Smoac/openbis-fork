@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.common.utilities.IDelegatedAction.DO_NOTHING;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 import org.jmock.Expectations;
@@ -42,26 +43,32 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=PathInfoDatabaseFeedingTask.class)
+@Friend(toClasses = PathInfoDatabaseFeedingTask.class)
 public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "ds1";
-    
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private IDataSetDirectoryProvider directoryProvider;
+
     private IShareIdManager shareIdManager;
+
     private IPathsInfoDAO dao;
+
     private IHierarchicalContentFactory contentFactory;
+
     private IHierarchicalContentNode node;
+
     private IHierarchicalContent content;
+
     private PathInfoDatabaseFeedingTask task;
+
     private File dataSetFolder;
 
     @BeforeMethod
@@ -86,7 +93,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }
-    
+
     @AfterMethod
     public void tearDown(Method method)
     {
@@ -99,7 +106,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testAsMaintenanceTask()
     {
@@ -118,10 +125,10 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1);
         prepareFailing(ds2);
-        
+
         task.execute();
     }
-    
+
     @Test
     public void testPostRegistrationHappyCase()
     {
@@ -156,7 +163,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         task.createExecutor(DATA_SET_CODE, false).execute();
     }
-    
+
     @Test
     public void testNonExistingDataSetFolder()
     {
@@ -176,10 +183,10 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     exactly(2).of(shareIdManager).releaseLocks();
                 }
             });
-        
+
         task.createExecutor(DATA_SET_CODE, false).execute();
     }
-    
+
     @Test
     public void testAlreadyExistingDataSetInDatabaser()
     {
@@ -205,7 +212,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         task.createExecutor(DATA_SET_CODE, false).execute();
     }
-    
+
     private void prepareHappyCase(final IDatasetLocation dataSet)
     {
         context.checking(new Expectations()
@@ -242,9 +249,10 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(node).getLastModified();
                     will(returnValue(42L));
-                    
-                    one(dao).createDataSetFile(101L, null, "", "ds1-root", 12345L, false, new Date(42));
-                    will(returnValue(102L));
+
+                    one(dao).createDataSetFiles(
+                            with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
+                                    "", "ds1-root", 12345L, new Date(42))))));
 
                     one(dao).commit();
                     one(shareIdManager).releaseLocks();
@@ -261,7 +269,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(directoryProvider).getDataSetDirectory(dataSet);
                     will(returnValue(dataSetFolder));
-                    
+
                     one(dao).tryGetDataSetId(dataSet.getDataSetCode());
                     will(returnValue(null));
 

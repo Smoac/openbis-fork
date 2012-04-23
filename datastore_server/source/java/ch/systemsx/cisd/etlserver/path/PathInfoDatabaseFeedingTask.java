@@ -166,7 +166,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
             if (id == null)
             {
                 feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
-                dao.commit();
+                feeder.commit();
                 operationLog.info("Paths inside data set " + dataSetCode
                         + " successfully added to database.");
             }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
@@ -26,13 +27,18 @@ import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**
  * Data set paths info feeder feeding a data base.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFeeder
 {
+    private final static int BATCH_SIZE = 500;
+
     private final IPathsInfoDAO dao;
+
     private final IHierarchicalContentFactory hierarchicalContentFactory;
+
+    private final List<PathEntryDTO> filePaths = new ArrayList<PathEntryDTO>(BATCH_SIZE);
 
     public DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
             IHierarchicalContentFactory hierarchicalContentFactory)
@@ -54,27 +60,50 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         return root.getSizeInBytes();
     }
 
-    private void addPaths(long dataSetId, Long parentId, String pathPrefix, 
-            PathInfo pathInfo)
+    private void addPaths(long dataSetId, Long parentId, String pathPrefix, PathInfo pathInfo)
     {
-        boolean directory = pathInfo.isDirectory();
-        String fileName = pathInfo.getFileName();
-        String relativePath = parentId == null ? "" : pathPrefix + fileName;
-        long id =
-                dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
-                        pathInfo.getSizeInBytes(), directory, pathInfo.getLastModifiedDate());
-        if (relativePath.length() > 0)
-        {
-            relativePath += '/';
-        }
+        final boolean directory = pathInfo.isDirectory();
+        final String fileName = pathInfo.getFileName();
+        String relativePath = (parentId == null) ? "" : pathPrefix + fileName;
         if (directory)
         {
-            List<PathInfo> children = pathInfo.getChildren();
+            final long directoryId =
+                    dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
+                            pathInfo.getSizeInBytes(), directory, pathInfo.getLastModifiedDate());
+            if (relativePath.length() > 0)
+            {
+                relativePath += '/';
+            }
+            final List<PathInfo> children = pathInfo.getChildren();
             for (PathInfo child : children)
             {
-                addPaths(dataSetId, id, relativePath, child);
+                addPaths(dataSetId, directoryId, relativePath, child);
             }
+        } else
+        {
+            addFilePathToBatch(new PathEntryDTO(dataSetId, parentId, relativePath, fileName,
+                    pathInfo.getSizeInBytes(), pathInfo.getLastModifiedDate()));
         }
+    }
+
+    private void addFilePathToBatch(PathEntryDTO filePath)
+    {
+        filePaths.add(filePath);
+        if (filePaths.size() == BATCH_SIZE)
+        {
+            dao.createDataSetFiles(filePaths);
+            filePaths.clear();
+        }
+    }
+
+    public void commit()
+    {
+        if (filePaths.isEmpty() == false)
+        {
+            dao.createDataSetFiles(filePaths);
+            filePaths.clear();
+        }
+        dao.commit();
     }
 
 }
