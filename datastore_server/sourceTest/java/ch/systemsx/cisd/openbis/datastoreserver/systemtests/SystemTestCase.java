@@ -38,7 +38,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -65,13 +64,13 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
+    protected static GenericWebApplicationContext applicationContext;
+    
     protected File workingDirectory;
 
     protected File rootDir;
 
     protected File store;
-
-    protected GenericWebApplicationContext applicationContext;
 
     protected BufferedAppender logAppender;
 
@@ -117,11 +116,11 @@ public abstract class SystemTestCase extends AssertJUnit
         return method.getDeclaringClass().getName() + "." + method.getName();
     }
     
-    @BeforeTest
-    public void setUpLogAppender()
-    {
-        logAppender = new BufferedAppender();
-    }
+//    @BeforeTest
+//    public void setUpLogAppender()
+//    {
+//        logAppender = new BufferedAppender();
+//    }
 
     @BeforeSuite
     public void beforeSuite() throws Exception
@@ -203,6 +202,10 @@ public abstract class SystemTestCase extends AssertJUnit
         boolean dataSetImported = false;
         String logContent = "";
         final int maxLoops = dataSetImportWaitDurationInSeconds();
+        if (logAppender == null)
+        {
+            logAppender = new BufferedAppender(); 
+        }
         for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
         {
             Thread.sleep(1000);

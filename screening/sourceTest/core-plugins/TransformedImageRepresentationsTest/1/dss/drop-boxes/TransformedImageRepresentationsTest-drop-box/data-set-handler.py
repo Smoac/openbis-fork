@@ -92,8 +92,12 @@ def getAvailableChannelTransformations():
   return transforms.getTransformations()
   
 def create_experiment(tr):
-    space = tr.createNewSpace("TEST", "etlserver")
-    project = tr.createNewProject("/TEST/TEST-PROJECT")
+    space = tr.getSpace("TEST")
+    if space == None:
+        space = tr.createNewSpace("TEST", "etlserver")
+    project = tr.getProject("/TEST/TEST-PROJECT")
+    if project == None:
+        project = tr.createNewProject("/TEST/TEST-PROJECT")
     expid = "/TEST/TEST-PROJECT/TRANSFORMED_THUMBNAILS_EXP"
 
     exp = tr.createNewExperiment(expid, 'SIRNA_HCS')

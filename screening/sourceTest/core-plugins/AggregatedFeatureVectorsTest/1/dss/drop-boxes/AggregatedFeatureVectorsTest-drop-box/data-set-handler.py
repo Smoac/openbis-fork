@@ -2,8 +2,12 @@ PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
 def create_experiment(tr):
-    space = tr.createNewSpace("TEST", "etlserver")
-    project = tr.createNewProject("/TEST/TEST-PROJECT")
+    space = tr.getSpace("TEST")
+    if space == None:
+        space = tr.createNewSpace("TEST", "etlserver")
+    project = tr.getProject("/TEST/TEST-PROJECT")
+    if project == None:
+        project = tr.createNewProject("/TEST/TEST-PROJECT")
     expid = "/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"
 
     exp = tr.createNewExperiment(expid, 'SIRNA_HCS')

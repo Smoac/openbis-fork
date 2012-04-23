@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -58,6 +59,14 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
 
     private IScreeningOpenbisServiceFacade screeningFacade;
 
+    @BeforeTest
+    public void dropAnExampleDataSet() throws IOException, Exception
+    {
+        File exampleDataSet = createTestDataContents();
+        moveFileToIncoming(exampleDataSet);
+        waitUntilDataSetImported();
+    }
+    
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -86,7 +95,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Test
     public void testTransformedThumbnails() throws Exception
     {
-        dropAnExampleDataSet();
         // The components of the plate identifier come from the dropbox code
         // (resource/test-data/TransformedImageRepresentationsTest/data-set-handler.py)
         PlateIdentifier plate = new PlateIdentifier("TRANSFORMED-THUMB-PLATE", "TEST", null);
@@ -118,13 +126,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
             }
         }
 
-    }
-
-    private void dropAnExampleDataSet() throws IOException, Exception
-    {
-        File exampleDataSet = createTestDataContents();
-        moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
     }
 
     private File createTestDataContents() throws IOException
