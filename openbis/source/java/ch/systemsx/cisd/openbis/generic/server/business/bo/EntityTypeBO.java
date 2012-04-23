@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.springframework.dao.DataAccessException;
 
@@ -42,6 +44,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class EntityTypeBO extends AbstractBusinessObject implements IEntityTypeBO
 {
+    public static void assertValidDataSetTypeMainPattern(String pattern)
+    {
+        if (pattern == null)
+        {
+            return;
+        }
+        try
+        {
+            Pattern.compile(pattern);
+        } catch (PatternSyntaxException ex)
+        {
+            int index = ex.getIndex();
+            throw new UserFailureException("The pattern '" + pattern + "' is invalid: "
+                    + ex.getDescription() + (index < 0 ? "" : " at position " + (index + 1) + "."));
+        }
+    }
+
     private EntityTypePE entityTypePE;
 
     private EntityKind entityKind;
@@ -111,7 +130,9 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         dataSetTypePE.setDescription(entityType.getDescription());
         dataSetTypePE.setDatabaseInstance(getHomeDatabaseInstance());
         dataSetTypePE.setMainDataSetPath(entityType.getMainDataSetPath());
-        dataSetTypePE.setMainDataSetPattern(entityType.getMainDataSetPattern());
+        String mainDataSetPattern = entityType.getMainDataSetPattern();
+        assertValidDataSetTypeMainPattern(mainDataSetPattern);
+        dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
         dataSetTypePE.setContainerType(entityType.isContainerType());
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
 

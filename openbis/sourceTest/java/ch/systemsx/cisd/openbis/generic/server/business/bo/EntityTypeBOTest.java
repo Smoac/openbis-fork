@@ -72,4 +72,20 @@ public class EntityTypeBOTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
+
+    @Test
+    public void testAssertValidDataSetTypeMainPattern()
+    {
+        EntityTypeBO.assertValidDataSetTypeMainPattern(null);
+        EntityTypeBO.assertValidDataSetTypeMainPattern(".*\\.csv");
+        try
+        {
+            EntityTypeBO.assertValidDataSetTypeMainPattern("*.csv");
+            fail("UserFailureException expected.");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("The pattern '*.csv' is invalid: "
+                    + "Dangling meta character '*' at position 1.", ex.getMessage());
+        }
+    }
 }

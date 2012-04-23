@@ -52,7 +52,7 @@ var common = {
   main_data_set_path_example: "for example: original/images/",
   main_data_set_pattern: "Main Data Set Pattern",
   main_data_set_pattern_tooltip: "If there is just one data set with path matching chosen 'main data set' pattern, it will be automatically displayed.\nA Regular Expression is expected. Example: '.*\.jpg'",
-  main_data_set_pattern_example: "for example: .*\.jpg",
+  main_data_set_pattern_example: "for example: .*\\.jpg",
   auto_resolve_label: "Smart View",
   data_report_label: "Report:",
   explore_label: "Explore:",

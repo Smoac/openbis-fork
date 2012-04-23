@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -1176,7 +1177,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DataSetType dataSetType = (DataSetType) entityType;
             dataSetTypePE.setDeletionDisallow(dataSetType.isDeletionDisallow());
             dataSetTypePE.setMainDataSetPath(dataSetType.getMainDataSetPath());
-            dataSetTypePE.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
+            String mainDataSetPattern = dataSetType.getMainDataSetPattern();
+            EntityTypeBO.assertValidDataSetTypeMainPattern(mainDataSetPattern);
+            dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
         }
     }
 
