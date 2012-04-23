@@ -88,7 +88,7 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
                 {
                     return new ImagingDataSetRegistrationTransaction(rollBackStackParentFolder,
                             workingDirectory, stagingDirectory, this, registrationDetailsFactory,
-                            originalDirName, AutoRecoverySettings.UseAutoRecovery);
+                            originalDirName, AutoRecoverySettings.USE_AUTO_RECOVERY);
                 }
             };
     }

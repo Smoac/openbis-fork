@@ -78,7 +78,7 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.UseAutoRecovery);
+                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.USE_AUTO_RECOVERY);
     }
 
     public DataSetRegistrationTransaction<T> getTransaction()

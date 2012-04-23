@@ -21,6 +21,6 @@ package ch.systemsx.cisd.etlserver.registrator;
  */
 public enum AutoRecoverySettings
 {
-    UseAutoRecovery,
-    DontUseAutoRecovery
+    USE_AUTO_RECOVERY,
+    DO_NOT_USE_AUTO_RECOVERY
 }

@@ -725,7 +725,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createHandler();
         tr =
                 new DataSetRegistrationTransaction<DataSetInformation>(workingDirectory,
-                        workingDirectory, stagingDirectory, service, handler, AutoRecoverySettings.DontUseAutoRecovery);
+                        workingDirectory, stagingDirectory, service, handler, AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
     }
 
 }
