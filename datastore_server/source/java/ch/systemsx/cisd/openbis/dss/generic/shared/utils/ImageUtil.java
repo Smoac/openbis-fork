@@ -546,12 +546,9 @@ public class ImageUtil
         try
         {
             id.setFileName(contentNode.getFile().getCanonicalPath());
-        } catch (UnsupportedOperationException ex)
-        {
-            // ignore
         } catch (Exception ex)
         {
-            ex.printStackTrace();
+            operationLog.warn("Unable to set file name on image id. ", ex);
         }
         return id;
     }
