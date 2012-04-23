@@ -28,8 +28,8 @@
  }
  
  var openbis = {}
- openbis.url = 'https://sprint-openbis.ethz.ch/openbis/openbis/rmi-general-information-v1.json'
- openbis.dssUrl = 'https://sprint-openbis.ethz.ch:443/datastore_server/rmi-dss-api-v1.json'
+ openbis.url = 'http://localhost:8888/openbis/rmi-general-information-v1.json'
+ openbis.dssUrl = 'http://localhost:8889/datastore_server/rmi-dss-api-v1.json'
  
  openbis.login = function(username, password) {
      ajaxRequest({
@@ -187,8 +187,8 @@ function renderEntities(type, entities, rowRenderer) {
        $('.queryResults tr:has(td)').remove()
        
        query = $('#query').val()
-       // openbis.listProjects()
-       // openbis.searchForSamples(query)
+       openbis.listProjects()
+       openbis.searchForSamples(query)
        openbis.searchForDataSets(query)
       
     });
