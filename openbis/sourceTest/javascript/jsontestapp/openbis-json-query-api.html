@@ -29,6 +29,7 @@
  
  var openbis = {}
  openbis.url = 'https://sprint-openbis.ethz.ch/openbis/openbis/rmi-general-information-v1.json'
+ openbis.queryUrl = 'https://sprint-openbis.ethz.ch/openbis/openbis/rmi-query-v1.json'
  openbis.dssUrl = 'https://sprint-openbis.ethz.ch:443/datastore_server/rmi-dss-api-v1.json'
  
  openbis.login = function(username, password) {
@@ -51,15 +52,15 @@
 
  openbis.listProjects = function() {
      ajaxRequest({
-        url: openbis.url,
-        data: { "method" : "listProjects",
+        url: openbis.queryUrl,
+        data: { "method" : "listQueries",
                 "params" : [ openbis.sessionToken ] 
               },
         success: 
             function(data) {
                 renderEntities("projects", data.result, 
                                 function(entity) { 
-                                    identifier = "/" + entity.spaceCode + "/" + entity.code 
+                                    identifier = "(id="+ entity.id +") " + entity.name + " (" + entity.description +") params [" + entity.parameters + "]" 
                                     return '<tr><td>' + identifier + '</td></tr>'
                                 })
             },
@@ -68,23 +69,15 @@
  
  openbis.searchForSamples = function(query) {
      ajaxRequest({
-        url: openbis.url,
-        data: { "method" : "searchForSamples",
-                "params" : [ openbis.sessionToken,
-                             { "matchClauses" : 
-                                  [ {"@type":"AttributeMatchClause",
-                                     "attribute":"CODE",
-                                     "fieldType":"ATTRIBUTE",
-                                     "desiredValue": query + '*' }
-                                  ] 
-                              }
-                 ] 
+        url: openbis.queryUrl,
+        data: { "method" : "executeQuery",
+                "params" : [ openbis.sessionToken, query, {} ]
               },
         success: 
             function(data) {
                 renderEntities("samples", data.result, function(entity) {
-                     identifier = entity.identifier
-                     props = JSON.stringify(entity.properties)
+                     identifier = JSON.stringify(entity.columns)
+                     props = JSON.stringify(entity.rows)
                      return '<tr><td>' + identifier + '</td><td>' + props + '</td></tr>'
                 })
             },
@@ -187,10 +180,8 @@ function renderEntities(type, entities, rowRenderer) {
        $('.queryResults tr:has(td)').remove()
        
        query = $('#query').val()
-       // openbis.listProjects()
-       // openbis.searchForSamples(query)
-       openbis.searchForDataSets(query)
-      
+       openbis.listProjects()
+       openbis.searchForSamples(query)
     });
 
  });
@@ -217,35 +208,24 @@ function renderEntities(type, entities, rowRenderer) {
 
 <div id="search-results">
   <div id="projects" class="queryResults"> 
-     <h2>Projects</h2>
+     <h2>Queries</h2>
      <table>
        <tr>
-         <th>Identifier</th>
+         <th>Name (description)</th>
        </tr>
      </table>
   </div>
   <div id="samples" class="queryResults"> 
-     <h2>Samples</h2>
+     <h2>Query</h2>
      <table>
        <tr>
-         <th>Identifier</th>
-         <th>Properties</th>
+         <th>Columns</th>
+         <th>Result</th>
        </tr>
      </table>
   </div>
-  <div id="datasets" class="queryResults"> 
-     <h2>Data Sets</h2>
-     <table>
-       <tr>
-         <th>Identifier</th>
-         <th>Properties</th>
-         <th>Files</th>
-       </tr>
-     </table>
   </div>
-</div>
 
-<!-- end #mainContent -->
 </div>
 </body>
 </html>

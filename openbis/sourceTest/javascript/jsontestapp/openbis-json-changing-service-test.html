@@ -29,6 +29,7 @@
  
  var openbis = {}
  openbis.url = 'https://sprint-openbis.ethz.ch/openbis/openbis/rmi-general-information-v1.json'
+ openbis.changingUrl = 'https://sprint-openbis.ethz.ch/openbis/openbis/rmi-general-information-changing-v1.json'
  openbis.dssUrl = 'https://sprint-openbis.ethz.ch:443/datastore_server/rmi-dss-api-v1.json'
  
  openbis.login = function(username, password) {
@@ -46,6 +47,24 @@
         error: function() {
           alert("Login failed")
         }
+     });
+ }
+
+openbis.addVocabularyTerm = function(vocabularyId, query) {
+     ajaxRequest({
+        url: openbis.changingUrl,   
+        data: { "method" : "addUnofficialVocabularyTerm",
+                "params" : [ openbis.sessionToken, vocabularyId,
+                                   { "code":query,
+                                     "label":query,
+                                     "description":"Sprint demo",
+                                     "previousTermOrdinal":"1" }
+                 ] 
+              },
+        success: 
+            function(data) {
+							return 'OK'
+            }
      });
  }
 
@@ -182,14 +201,9 @@ function renderEntities(type, entities, rowRenderer) {
          openbis.login( $('#username').val(), $('#password').val() )
     });
     
-    $('#searchButton').click(function() {
-       $('.queryResults').hide()
-       $('.queryResults tr:has(td)').remove()
-       
+    $('#addButton').click(function() {
        query = $('#query').val()
-       // openbis.listProjects()
-       // openbis.searchForSamples(query)
-       openbis.searchForDataSets(query)
+       openbis.addVocabularyTerm(1, query)
       
     });
 
@@ -209,43 +223,9 @@ function renderEntities(type, entities, rowRenderer) {
 <div id="mainContent">
 
 <div id="search-query">
-  Search in openBIS <input id="query" type="text"></input> &nbsp; <input id="searchButton" type="button" value="Go!"></input>
-<div>
-
-<br></br>
-<br></br>
-
-<div id="search-results">
-  <div id="projects" class="queryResults"> 
-     <h2>Projects</h2>
-     <table>
-       <tr>
-         <th>Identifier</th>
-       </tr>
-     </table>
-  </div>
-  <div id="samples" class="queryResults"> 
-     <h2>Samples</h2>
-     <table>
-       <tr>
-         <th>Identifier</th>
-         <th>Properties</th>
-       </tr>
-     </table>
-  </div>
-  <div id="datasets" class="queryResults"> 
-     <h2>Data Sets</h2>
-     <table>
-       <tr>
-         <th>Identifier</th>
-         <th>Properties</th>
-         <th>Files</th>
-       </tr>
-     </table>
-  </div>
-</div>
-
+  Add ad-hoc vocabulary term: <input id="query" type="text"></input> &nbsp; <input id="addButton" type="button" value="Go!"></input>
 <!-- end #mainContent -->
+</div>
 </div>
 </body>
 </html>

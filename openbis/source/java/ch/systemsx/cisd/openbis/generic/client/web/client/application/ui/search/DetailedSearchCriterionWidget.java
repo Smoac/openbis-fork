@@ -212,6 +212,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         {
             String aCode = selectedFieldName.getAttributeCode();
 
+            @SuppressWarnings("unused")
             Date date;
             try
             {
@@ -222,22 +223,22 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
             }
 
             CompareType compareType;
-            if ("REGISTRATION_DATE_BEFORE".equals(aCode))
+            if ("REGISTRATION_DATE_FROM".equals(aCode))
             {
                 compareType = CompareType.LESS_THAN_OR_EQUAL;
             } else if ("REGISTRATION_DATE".equals(aCode))
             {
                 compareType = CompareType.EQUALS;
-            } else if ("REGISTRATION_DATE_AFTER".equals(aCode))
+            } else if ("REGISTRATION_DATE_UNTIL".equals(aCode))
             {
                 compareType = CompareType.MORE_THAN_OR_EQUAL;
-            } else if ("MODIFICATION_DATE_BEFORE".equals(aCode))
+            } else if ("MODIFICATION_DATE_FROM".equals(aCode))
             {
                 compareType = CompareType.LESS_THAN_OR_EQUAL;
             } else if ("MODIFICATION_DATE".equals(aCode))
             {
                 compareType = CompareType.EQUALS;
-            } else if ("MODIFICATION_DATE_AFTER".equals(aCode))
+            } else if ("MODIFICATION_DATE_UNTIL".equals(aCode))
             {
                 compareType = CompareType.MORE_THAN_OR_EQUAL;
             } else
@@ -263,9 +264,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
 
         if (criterion.getValue() == null && criterion.getDate() != null)
         {
-            return name
-                    + " = "
-                    + criterion.getDate();
+            return name + " = " + criterion.getDate();
         } else
         {
             return name + " = " + criterion.getValue();

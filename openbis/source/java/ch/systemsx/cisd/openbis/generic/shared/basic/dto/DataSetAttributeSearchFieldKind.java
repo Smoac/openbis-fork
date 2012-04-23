@@ -35,13 +35,13 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     MODIFICATION_DATE("Modification date equals"),
 
-    REGISTRATION_DATE_BEFORE("Registration date before"),
+    REGISTRATION_DATE_FROM("Registration date from"),
 
-    MODIFICATION_DATE_BEFORE("Modification date before"),
+    MODIFICATION_DATE_FROM("Modification date from"),
 
-    REGISTRATION_DATE_AFTER("Registration date after"),
+    REGISTRATION_DATE_UNTIL("Registration date until"),
 
-    MODIFICATION_DATE_AFTER("Modification date after");
+    MODIFICATION_DATE_UNTIL("Modification date until");
 
     private final String description;
 
