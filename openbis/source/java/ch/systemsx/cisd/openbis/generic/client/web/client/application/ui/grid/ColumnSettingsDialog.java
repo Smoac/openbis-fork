@@ -54,6 +54,7 @@ public class ColumnSettingsDialog extends Dialog
         setLayout(new FitLayout());
         setButtons(OK);
         setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE));
+        setModal(true);
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext, this, createHelpPageIdentifier());
     }
