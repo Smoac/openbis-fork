@@ -16,26 +16,192 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jmock.Expectations;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Test cases for corresponding {@link ProjectBO} class.
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = DeletedExperimentPE.class)
 public final class ProjectBOTest extends AbstractBOTest
 {
+
+    private static final ProjectPE EXAMPLE_PROJECT = ManagerTestTool.EXAMPLE_PROJECT;
+
+    private static final TechId EXAMPLE_PROJECT_ID = new TechId(EXAMPLE_PROJECT.getId());
 
     private final ProjectBO createProjectBO()
     {
         return new ProjectBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+    }
+
+    @Test
+    public void testDeleteProjectWithNoExperiments()
+    {
+        final RecordingMatcher<EventPE> eventRecorder = new RecordingMatcher<EventPE>();
+        prepareGetProject();
+        prepareGetUndeletedExperiments();
+        prepareGetTrashedExperiments();
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).delete(EXAMPLE_PROJECT);
+
+                    one(eventDAO).persist(with(eventRecorder));
+                }
+            });
+
+        ProjectBO projectBO = createProjectBO();
+        projectBO.deleteByTechId(EXAMPLE_PROJECT_ID, "my reason");
+
+        assertEquals(EventType.DELETION, eventRecorder.recordedObject().getEventType());
+        assertEquals(EntityType.PROJECT, eventRecorder.recordedObject().getEntityType());
+        assertEquals("my reason", eventRecorder.recordedObject().getReason());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteProjectWithOnlyUndeletedExperiments()
+    {
+        prepareGetProject();
+        ExperimentPE e1 = new ExperimentPE();
+        e1.setCode("E1");
+        ExperimentPE e2 = new ExperimentPE();
+        e2.setCode("E2");
+        prepareGetUndeletedExperiments(e1, e2);
+        prepareGetTrashedExperiments();
+
+        try
+        {
+            createProjectBO().deleteByTechId(EXAMPLE_PROJECT_ID, "my reason");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Project 'MY_GREAT_PROJECT' can not be deleted because "
+                    + "the following experiments still exist: [E1, E2]", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteProjectWithOnlyTrashedExperiments()
+    {
+        prepareGetProject();
+        prepareGetUndeletedExperiments();
+        DeletedExperimentPE e3 = new DeletedExperimentPE();
+        e3.setCode("E3");
+        e3.setProjectInternal(EXAMPLE_PROJECT);
+        DeletedExperimentPE e4 = new DeletedExperimentPE();
+        e4.setCode("E4");
+        e4.setProjectInternal(new ProjectPE());
+        prepareGetTrashedExperiments(e3, e4);
+
+        try
+        {
+            createProjectBO().deleteByTechId(EXAMPLE_PROJECT_ID, "my reason");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Project 'MY_GREAT_PROJECT' can not be deleted because "
+                    + "the following experiments are in the trash can: [E3]", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteProjectWithUndeletedAndTrashedExperiments()
+    {
+        prepareGetProject();
+        ExperimentPE e1 = new ExperimentPE();
+        e1.setCode("E1");
+        ExperimentPE e2 = new ExperimentPE();
+        e2.setCode("E2");
+        prepareGetUndeletedExperiments(e1, e2);
+        DeletedExperimentPE e3 = new DeletedExperimentPE();
+        e3.setCode("E3");
+        e3.setProjectInternal(EXAMPLE_PROJECT);
+        DeletedExperimentPE e4 = new DeletedExperimentPE();
+        e4.setCode("E4");
+        e4.setProjectInternal(new ProjectPE());
+        prepareGetTrashedExperiments(e3, e4);
+
+        try
+        {
+            createProjectBO().deleteByTechId(EXAMPLE_PROJECT_ID, "my reason");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Project 'MY_GREAT_PROJECT' can not be deleted because "
+                    + "the following experiments still exist: [E1, E2]\n"
+                    + "In addition the following experiments are in the trash can: [E3]",
+                    ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    private void prepareGetProject()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).getByTechId(EXAMPLE_PROJECT_ID);
+                    will(returnValue(EXAMPLE_PROJECT));
+
+                }
+            });
+    }
+
+    private void prepareGetUndeletedExperiments(final ExperimentPE... experiments)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).listExperimentsWithProperties(EXAMPLE_PROJECT, false, false);
+                    will(returnValue(Arrays.asList(experiments)));
+                }
+            });
+    }
+
+    private void prepareGetTrashedExperiments(final DeletedExperimentPE... experiments)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(deletionDAO).listAllEntities();
+                    DeletionPE deletionPE = new DeletionPE();
+                    deletionPE.setId(4711L);
+                    will(returnValue(Arrays.asList(deletionPE)));
+
+                    one(deletionDAO).findTrashedExperimentIds(
+                            Arrays.<TechId> asList(new TechId(deletionPE.getId())));
+                    List<TechId> ids = Arrays.asList(new TechId(42));
+                    will(returnValue(ids));
+
+                    one(deletionDAO).listDeletedEntities(EntityKind.EXPERIMENT, ids);
+                    will(returnValue(Arrays.asList(experiments)));
+                }
+            });
     }
 
     @Test
@@ -90,11 +256,9 @@ public final class ProjectBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    ManagerTestTool.prepareFindGroup(this, ManagerTestTool.EXAMPLE_SESSION
-                            .tryGetHomeGroupCode(), daoFactory, spaceDAO);
-
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
+                    ManagerTestTool.prepareFindGroup(this,
+                            ManagerTestTool.EXAMPLE_SESSION.tryGetHomeGroupCode(), daoFactory,
+                            spaceDAO);
                 }
             });
     }
@@ -122,15 +286,17 @@ public final class ProjectBOTest extends AbstractBOTest
             fail("An UserFailureException must be thrown here.");
         } catch (final UserFailureException ex)
         {
-            assertEquals(String.format(DataAccessExceptionTranslator.UNIQUE_VIOLATION_FORMAT,
-                    String.format("Project '%s'", projIdent.getProjectCode())), ex.getMessage());
+            assertEquals(
+                    String.format(DataAccessExceptionTranslator.UNIQUE_VIOLATION_FORMAT,
+                            String.format("Project '%s'", projIdent.getProjectCode())),
+                    ex.getMessage());
         }
         context.assertIsSatisfied();
     }
 
     private ProjectIdentifier createProjectIdent()
     {
-        final ProjectPE projectDTO = ManagerTestTool.EXAMPLE_PROJECT;
+        final ProjectPE projectDTO = EXAMPLE_PROJECT;
         return new ProjectIdentifier(projectDTO.getSpace().getCode(), projectDTO.getCode());
     }
 }

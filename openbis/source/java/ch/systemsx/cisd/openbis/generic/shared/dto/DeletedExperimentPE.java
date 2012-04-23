@@ -134,7 +134,7 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
     }
 
     @Private
-    void setProjectInternal(final ProjectPE project)
+    public void setProjectInternal(final ProjectPE project)
     {
         this.project = project;
     }
