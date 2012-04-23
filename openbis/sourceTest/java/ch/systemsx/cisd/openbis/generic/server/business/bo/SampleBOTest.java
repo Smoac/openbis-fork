@@ -400,8 +400,6 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProjectDAO();
-                    will(returnValue(projectDAO));
                     one(projectDAO).tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
                             experimentIdentifier.getSpaceCode(),
                             experimentIdentifier.getProjectCode());
