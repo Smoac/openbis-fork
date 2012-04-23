@@ -34,8 +34,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 @SuppressWarnings("unused")
 public class ImageRepresentationFormat implements Serializable
 {
-    public static class ImageRepresentationTransformation
+    public static class ImageRepresentationTransformation implements Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         private long transformationId;
 
         private String transformationCode;
