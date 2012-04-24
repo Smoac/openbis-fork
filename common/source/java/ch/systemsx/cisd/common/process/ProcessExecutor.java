@@ -521,6 +521,7 @@ class ProcessExecutor
                 ProcessExecutionHelper.readTextIfAvailable(bufStderr,
                         processOutput.processErrorOutput,
                         processIOStrategy.isDiscardStandardError());
+                ConcurrencyUtilities.sleep(200);
             }
             ProcessExecutionHelper.readBytesIfAvailable(stdout, processOutput.processBinaryOutput,
                     buf, -1, processIOStrategy.isDiscardStandardOutput());
@@ -547,6 +548,7 @@ class ProcessExecutor
                 ProcessExecutionHelper.readTextIfAvailable(bufStderr,
                         processOutput.processErrorOutput,
                         processIOStrategy.isDiscardStandardError());
+                ConcurrencyUtilities.sleep(200);
             }
             ProcessExecutionHelper.readTextIfAvailable(bufStdout, processOutput.processTextOutput,
                     processIOStrategy.isDiscardStandardOutput());
