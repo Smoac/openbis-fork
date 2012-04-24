@@ -19,7 +19,7 @@ if [ ! -x "$JVM" ]; then
 fi
 
 
-LIB=$BASE/jetty/webapps/$APPLICATION_NAME/WEB-INF/lib
+LIB=$BASE/../webapps/$APPLICATION_NAME/WEB-INF/lib
 
 $JVM \
  -cp $LIB/\* \
