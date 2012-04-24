@@ -43,6 +43,14 @@ public interface IMasterDataRegistrationTransaction
     IExperimentTypeImmutable getExperimentType(String code);
 
     /**
+     * Gets or creates experiment type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IExperimentType getOrCreateNewExperimentType(String code);
+
+    /**
      * Return all experiment types existing in the openBIS AS.
      */
     List<IExperimentTypeImmutable> listExperimentTypes();
@@ -60,6 +68,14 @@ public interface IMasterDataRegistrationTransaction
      * @return A sample type or null
      */
     ISampleTypeImmutable getSampleType(String code);
+
+    /**
+     * Gets or creates sample type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    ISampleType getOrCreateNewSampleType(String code);
 
     /**
      * Return all sample types existing in the openBIS AS.
@@ -81,6 +97,14 @@ public interface IMasterDataRegistrationTransaction
     IDataSetTypeImmutable getDataSetType(String code);
 
     /**
+     * Gets or creates data set type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IDataSetType getOrCreateNewDataSetType(String code);
+
+    /**
      * Return all data set types existing in the openBIS AS.
      */
     List<IDataSetTypeImmutable> listDataSetTypes();
@@ -98,6 +122,14 @@ public interface IMasterDataRegistrationTransaction
      * @return A material type or null
      */
     IMaterialTypeImmutable getMaterialType(String code);
+
+    /**
+     * Gets or creates material type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IMaterialType getOrCreateNewMaterialType(String code);
 
     /**
      * Return all material types existing in the openBIS AS.
@@ -118,6 +150,15 @@ public interface IMasterDataRegistrationTransaction
      * @return A property type or null
      */
     IPropertyTypeImmutable getPropertyType(String code);
+
+    /**
+     * Gets or creates property type from the openBIS AS.
+     * 
+     * @param dataType the data type of the property in case it has to be created.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IPropertyType getOrCreateNewPropertyType(String code, DataType dataType);
 
     /**
      * Return all property types existing in the openBIS AS.
@@ -156,6 +197,14 @@ public interface IMasterDataRegistrationTransaction
     IFileFormatTypeImmutable getFileFormatType(String code);
 
     /**
+     * Gets or creates file format type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IFileFormatType getOrCreateNewFileFormatType(String code);
+
+    /**
      * Return all file format types existing in the openBIS AS.
      */
     List<IFileFormatTypeImmutable> listFileFormatTypes();
@@ -173,6 +222,14 @@ public interface IMasterDataRegistrationTransaction
      * @return A vocabulary or null
      */
     IVocabularyImmutable getVocabulary(String code);
+
+    /**
+     * Gets or creates vocabulary type from the openBIS AS.
+     * 
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IVocabulary getOrCreateNewVocabulary(String code);
 
     /**
      * Return all vocabularies existing in the openBIS AS.

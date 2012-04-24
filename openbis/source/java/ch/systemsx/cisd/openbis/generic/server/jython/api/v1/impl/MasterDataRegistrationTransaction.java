@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,6 +98,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listExperimentTypes(), code);
     }
 
+    public IExperimentType getOrCreateNewExperimentType(String code)
+    {
+        final IExperimentTypeImmutable experimentType = getExperimentType(code);
+        if (experimentType != null)
+        {
+            return createAdapter(IExperimentType.class, experimentType);
+        }
+        return createNewExperimentType(code);
+    }
+
     public List<IExperimentTypeImmutable> listExperimentTypes()
     {
         return commonServer.listExperimentTypes();
@@ -110,6 +123,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public ISampleTypeImmutable getSampleType(String code)
     {
         return findTypeForCode(commonServer.listSampleTypes(), code);
+    }
+
+    public ISampleType getOrCreateNewSampleType(String code)
+    {
+        ISampleTypeImmutable sampleType = getSampleType(code);
+        if (sampleType != null)
+        {
+            return createAdapter(ISampleType.class, sampleType);
+        }
+        return createNewSampleType(code);
     }
 
     public List<ISampleTypeImmutable> listSampleTypes()
@@ -129,6 +152,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listDataSetTypes(), code);
     }
 
+    public IDataSetType getOrCreateNewDataSetType(String code)
+    {
+        IDataSetTypeImmutable dataSetType = getDataSetType(code);
+        if (dataSetType != null)
+        {
+            return createAdapter(IDataSetType.class, dataSetType);
+        }
+        return createNewDataSetType(code);
+    }
+
     public List<IDataSetTypeImmutable> listDataSetTypes()
     {
         return commonServer.listDataSetTypes();
@@ -144,6 +177,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public IMaterialTypeImmutable getMaterialType(String code)
     {
         return findTypeForCode(commonServer.listMaterialTypes(), code);
+    }
+
+    public IMaterialType getOrCreateNewMaterialType(String code)
+    {
+        IMaterialTypeImmutable materialType = getMaterialType(code);
+        if (materialType != null)
+        {
+            return createAdapter(IMaterialType.class, materialType);
+        }
+        return createNewMaterialType(code);
     }
 
     public List<IMaterialTypeImmutable> listMaterialTypes()
@@ -163,6 +206,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listFileFormatTypes(), code);
     }
 
+    public IFileFormatType getOrCreateNewFileFormatType(String code)
+    {
+        IFileFormatTypeImmutable fileFormatType = getFileFormatType(code);
+        if (fileFormatType != null)
+        {
+            return createAdapter(IFileFormatType.class, fileFormatType);
+        }
+        return createNewFileFormatType(code);
+    }
+
     public List<IFileFormatTypeImmutable> listFileFormatTypes()
     {
         return commonServer.listFileFormatTypes();
@@ -178,6 +231,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public IPropertyTypeImmutable getPropertyType(String code)
     {
         return findTypeForCode(commonServer.listPropertyTypes(), code);
+    }
+
+    public IPropertyType getOrCreateNewPropertyType(String code, DataType dataType)
+    {
+        IPropertyTypeImmutable propertyType = getPropertyType(code);
+        if (propertyType != null)
+        {
+            return createAdapter(IPropertyType.class, propertyType);
+        }
+        return createNewPropertyType(code, dataType);
     }
 
     public List<IPropertyTypeImmutable> listPropertyTypes()
@@ -253,6 +316,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public IVocabularyImmutable getVocabulary(String code)
     {
         return findVocabularyForCode(commonServer.listVocabularies(), code);
+    }
+
+    public IVocabulary getOrCreateNewVocabulary(String code)
+    {
+        IVocabularyImmutable vocabulary = getVocabulary(code);
+        if (vocabulary != null)
+        {
+            return createAdapter(IVocabulary.class, vocabulary);
+        }
+        return createNewVocabulary(code);
     }
 
     public List<IVocabularyImmutable> listVocabularies()
@@ -382,5 +455,28 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
                 transactionErrors.addVocabularyRegistrationError(ex, vocabulary);
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T createAdapter(final Class<T> interfaze, final Object object)
+    {
+        return (T) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
+            { interfaze }, new InvocationHandler()
+            {
+
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+                {
+                    try
+                    {
+                        String name = method.getName();
+                        Class<?>[] parameterTypes = method.getParameterTypes();
+                        Method objectMethod = object.getClass().getMethod(name, parameterTypes);
+                        return objectMethod.invoke(object, args);
+                    } catch (NoSuchMethodException ex)
+                    {
+                        return null;
+                    }
+                }
+            });
     }
 }
