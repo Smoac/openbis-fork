@@ -1,13 +1,13 @@
 /*!
- * OpenBIS API
+ * OpenBIS API (dsu)
  *
  * An API for accessing openBIS. Depends on jQuery.
  */
  
 var jsonRequestData = function(params) {
 	// KE: generate unique ids ? Hardcoded "id" seems to work too for now
-	params["id"] = "1"
-	params["jsonrpc"] = "2.0"
+	params["id"] = "1";
+	params["jsonrpc"] = "2.0";
 	return JSON.stringify(params)
 }
  
@@ -17,10 +17,10 @@ var ajaxRequest = function(settings) {
 	settings.dataType = "json";
 	settings.crossDomain = true;
 	settings.data = jsonRequestData(settings.data);
-	$.ajax(settings);
+	$.ajax(settings)
 }
 
-/* 
+/**
  * Functions for working with cookies.
  *
  * These are from http://www.quirksmode.org/js/cookies.html
@@ -51,9 +51,10 @@ function eraseCookie(name) {
 }
 
 function openbis(url, dssUrl) {
-	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json"
-	this.queryServiceUrl = url + "/rmi-query-v1.json"
-	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json"
+	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json";
+	this.queryServiceUrl = url + "/rmi-query-v1.json";
+	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
+	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"
 }
 
 
@@ -140,12 +141,12 @@ openbis.prototype.listExperiments = function(projects, experimentType, action) {
 	 });
 }
  
-openbis.prototype.searchForSamples = function(searchCriteria, action) {
+openbis.prototype.listSamplesForExperiment = function(experimentIdentifier, action) {
 	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
-		data: { "method" : "searchForSamples",
-				"params" : [ this.sessionToken,
-							 searchCriteria ] },
+		data: { "method" : "listSamplesForExperiment",
+				"params" : [ this.sessionToken, experimentIdentifier ] 
+		},
 		success: action
 	 });
 }
