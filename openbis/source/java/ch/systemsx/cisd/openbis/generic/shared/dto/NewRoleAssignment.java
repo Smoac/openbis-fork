@@ -56,6 +56,10 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     @BeanProperty(label = "role")
     public final void setRole(final RoleCode role)
     {
+        if (RoleCode.DISABLED.equals(role))
+        {
+            throw new IllegalArgumentException("Cannot assign DISABLED role to anyone");
+        }
         this.role = role;
     }
 

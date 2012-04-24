@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
@@ -31,10 +34,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
  */
 public class RoleListBox extends ListBox
 {
+
+    private List<RoleWithHierarchy> roles;
+
     public RoleListBox(final SpaceSelectionWidget groupWidget)
     {
-        RoleWithHierarchy[] values = RoleWithHierarchy.values();
-        for (RoleWithHierarchy visibleRoleCode : values)
+        for (RoleWithHierarchy visibleRoleCode : getRoles())
         {
             addItem(visibleRoleCode.toString());
         }
@@ -54,17 +59,33 @@ public class RoleListBox extends ListBox
 
     public final RoleWithHierarchy getValue()
     {
-        return RoleWithHierarchy.values()[getSelectedIndex()];
+        return getRoles().get(getSelectedIndex());
     }
 
     private void updateWidgetsVisibility(final SpaceSelectionWidget group)
     {
         int index = getSelectedIndex();
-        RoleWithHierarchy[] roles = RoleWithHierarchy.values();
-        if (index < 0 || index >= roles.length)
+        if (index < 0 || index >= getRoles().size())
             return;
-        boolean groupLevel = roles[index].isSpaceLevel();
+        boolean groupLevel = getRoles().get(index).isSpaceLevel();
         FieldUtil.setMandatoryFlag(group, groupLevel);
         group.setVisible(groupLevel);
     }
+
+    private List<RoleWithHierarchy> getRoles()
+    {
+        if (roles == null)
+        {
+            roles = new ArrayList<RoleWithHierarchy>();
+            for (RoleWithHierarchy role : RoleWithHierarchy.values())
+            {
+                if (!RoleWithHierarchy.INSTANCE_DISABLED.equals(role))
+                {
+                    roles.add(role);
+                }
+            }
+        }
+        return roles;
+    }
+
 }
