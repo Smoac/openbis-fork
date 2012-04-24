@@ -166,7 +166,8 @@ public interface IMasterDataRegistrationTransaction
     List<IPropertyTypeImmutable> listPropertyTypes();
 
     /**
-     * Assigns a property type to an entity type.
+     * Assigns a property type to an entity type. If the assignment is already established an object
+     * is returned where all setter method invocations are silently be ignored.
      * 
      * @param entityType One of IExperimentTypeImmutable, ISampleTypeImmutable,
      *            IDataSetTypeImmutable, or IMaterialTypeImmutable.

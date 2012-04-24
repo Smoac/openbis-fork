@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -26,10 +27,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
@@ -41,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
@@ -52,11 +56,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuil
  */
 public class MasterDataRegistrationTransactionTest extends AssertJUnit
 {
+    private static final String KNOWN_PROPERTY = "DESCRIPTION";
+
     private static final String SEESION_TOKEN = "seesion-token";
 
     private static final String KNOWN = "KNOWN";
 
-    private static final String UNKOWN = "UNKNOWN";
+    private static final String UNKNOWN = "UNKNOWN";
 
     private Mockery context;
 
@@ -98,10 +104,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListExperimentTypes();
 
-        IExperimentType type = transaction.getOrCreateNewExperimentType(UNKOWN);
+        IExperimentType type = transaction.getOrCreateNewExperimentType(UNKNOWN);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
     }
@@ -137,10 +143,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListSampleTypes();
 
-        ISampleType type = transaction.getOrCreateNewSampleType(UNKOWN);
+        ISampleType type = transaction.getOrCreateNewSampleType(UNKNOWN);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
     }
@@ -175,10 +181,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListDataSetTypes();
 
-        IDataSetType type = transaction.getOrCreateNewDataSetType(UNKOWN);
+        IDataSetType type = transaction.getOrCreateNewDataSetType(UNKNOWN);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
     }
@@ -214,10 +220,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListMaterialTypes();
 
-        IMaterialType type = transaction.getOrCreateNewMaterialType(UNKOWN);
+        IMaterialType type = transaction.getOrCreateNewMaterialType(UNKNOWN);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
     }
@@ -253,10 +259,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListFileFormatTypes();
 
-        IFileFormatType type = transaction.getOrCreateNewFileFormatType(UNKOWN);
+        IFileFormatType type = transaction.getOrCreateNewFileFormatType(UNKNOWN);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
     }
@@ -292,10 +298,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListPropertyTypes();
 
-        IPropertyType type = transaction.getOrCreateNewPropertyType(UNKOWN, DataType.INTEGER);
+        IPropertyType type = transaction.getOrCreateNewPropertyType(UNKNOWN, DataType.INTEGER);
         type.setDescription("description");
 
-        assertEquals(UNKOWN, type.getCode());
+        assertEquals(UNKNOWN, type.getCode());
         assertEquals(DataType.INTEGER, type.getDataType());
         assertEquals("description", type.getDescription());
         context.assertIsSatisfied();
@@ -334,10 +340,10 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     {
         prepareListVocabularys();
 
-        IVocabulary vocabulary = transaction.getOrCreateNewVocabulary(UNKOWN);
+        IVocabulary vocabulary = transaction.getOrCreateNewVocabulary(UNKNOWN);
         vocabulary.setDescription("description");
 
-        assertEquals(UNKOWN, vocabulary.getCode());
+        assertEquals(UNKNOWN, vocabulary.getCode());
         assertEquals("description", vocabulary.getDescription());
         context.assertIsSatisfied();
     }
@@ -351,6 +357,57 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                     vocabulary.setCode(KNOWN);
                     one(server).listVocabularies(SEESION_TOKEN, true, false);
                     will(returnValue(Arrays.asList(vocabulary)));
+                }
+            });
+    }
+
+    @Test
+    public void testAssignPropertyTypeWithExistingAssigment()
+    {
+        prepareListAssigments();
+
+        IPropertyAssignment assigment =
+                transaction.assignPropertyType(new SampleTypeImmutable(KNOWN),
+                        new PropertyTypeImmutable(KNOWN_PROPERTY, DataType.VARCHAR));
+        assigment.setSection("top");
+
+        assertEquals(KNOWN, assigment.getEntityTypeCode());
+        assertEquals(KNOWN_PROPERTY, assigment.getPropertyTypeCode());
+        assertEquals(EntityKind.SAMPLE, assigment.getEntityKind());
+        assertEquals(null, assigment.getSection());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAssignPropertyType()
+    {
+        prepareListAssigments();
+
+        IPropertyAssignment assigment =
+                transaction.assignPropertyType(new SampleTypeImmutable(UNKNOWN),
+                        new PropertyTypeImmutable(KNOWN_PROPERTY, DataType.VARCHAR));
+        assigment.setSection("top");
+
+        assertEquals(UNKNOWN, assigment.getEntityTypeCode());
+        assertEquals(KNOWN_PROPERTY, assigment.getPropertyTypeCode());
+        assertEquals(EntityKind.SAMPLE, assigment.getEntityKind());
+        assertEquals("top", assigment.getSection());
+        context.assertIsSatisfied();
+    }
+
+    private void prepareListAssigments()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<SampleTypePropertyType> assigments =
+                            new SampleTypeBuilder()
+                                    .code(KNOWN)
+                                    .propertyType(KNOWN_PROPERTY, "Description",
+                                            DataTypeCode.VARCHAR).getSampleType()
+                                    .getAssignedPropertyTypes();
+                    one(server).listEntityTypePropertyTypes(SEESION_TOKEN);
+                    will(returnValue(assigments));
                 }
             });
     }

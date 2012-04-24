@@ -230,7 +230,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
 
     public IPropertyTypeImmutable getPropertyType(String code)
     {
-        return findTypeForCode(commonServer.listPropertyTypes(), code);
+        List<IPropertyTypeImmutable> propertyTypes = commonServer.listPropertyTypes();
+        for (IPropertyTypeImmutable propertyType : propertyTypes)
+        {
+            String fullCode = (propertyType.isInternalNamespace() ? "$" : "") + code;
+            if (propertyType.getCode().equalsIgnoreCase(fullCode))
+            {
+                return propertyType;
+            }
+        }
+        return null;
     }
 
     public IPropertyType getOrCreateNewPropertyType(String code, DataType dataType)
@@ -252,6 +261,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             IPropertyTypeImmutable propertyType)
     {
         EntityKind entityKind = EntityKind.valueOf(entityType.getEntityKind().name());
+        IPropertyAssignmentImmutable assigment = findAssignment(entityType, propertyType);
+        if (assigment != null)
+        {
+            return createAdapter(IPropertyAssignment.class, assigment);
+        }
         return createAssignment(entityKind, entityType, propertyType);
     }
 
@@ -267,12 +281,28 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return null;
     }
 
+    private IPropertyAssignmentImmutable findAssignment(IEntityType entityType,
+            IPropertyTypeImmutable propertyType)
+    {
+        for (IPropertyAssignmentImmutable assignment : listPropertyAssignments())
+        {
+            if (assignment.getEntityKind().equals(entityType.getEntityKind())
+                    && assignment.getEntityTypeCode().equalsIgnoreCase(entityType.getCode())
+                    && assignment.getPropertyTypeCode().equalsIgnoreCase(propertyType.getCode()))
+            {
+                return assignment;
+            }
+        }
+        return null;
+    }
+
     private IVocabularyImmutable findVocabularyForCode(List<IVocabularyImmutable> vocabularies,
             String code)
     {
         for (IVocabularyImmutable vocabulary : vocabularies)
         {
-            if (vocabulary.getCode().equalsIgnoreCase(code))
+            String fullCode = (vocabulary.isInternalNamespace() ? "$" : "") + code;
+            if (vocabulary.getCode().equalsIgnoreCase(fullCode))
             {
                 return vocabulary;
             }
