@@ -1,13 +1,13 @@
 /*!
- * OpenBIS API
+ * OpenBIS API (basynthec)
  *
  * An API for accessing openBIS. Depends on jQuery.
  */
  
 var jsonRequestData = function(params) {
 	// KE: generate unique ids ? Hardcoded "id" seems to work too for now
-	params["id"] = "1"
-	params["jsonrpc"] = "2.0"
+	params["id"] = "1";
+	params["jsonrpc"] = "2.0";
 	return JSON.stringify(params)
 }
  
@@ -17,7 +17,7 @@ var ajaxRequest = function(settings) {
 	settings.dataType = "json";
 	settings.crossDomain = true;
 	settings.data = jsonRequestData(settings.data);
-	$.ajax(settings);
+	$.ajax(settings)
 }
 
 /* 
@@ -51,9 +51,10 @@ function eraseCookie(name) {
 }
 
 function openbis(url, dssUrl) {
-	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json"
-	this.queryServiceUrl = url + "/rmi-query-v1.json"
-	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json"
+	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json";
+	this.queryServiceUrl = url + "/rmi-query-v1.json";
+	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
+	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"	
 }
 
 
@@ -110,6 +111,16 @@ openbis.prototype.logout = function(action) {
 	 });
 }
 
+openbis.prototype.listSpacesWithProjectsAndRoleAssignments = function(databaseInstanceCodeOrNull, action) {
+	 ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "listSpacesWithProjectsAndRoleAssignments",
+				"params" : [ this.sessionToken,  databaseInstanceCodeOrNull ] 
+			  },
+		success: action
+	 });
+}
+
 openbis.prototype.listProjects = function(action) {
 	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
@@ -130,12 +141,12 @@ openbis.prototype.listExperiments = function(projects, experimentType, action) {
 	 });
 }
  
-openbis.prototype.searchForSamples = function(searchCriteria, action) {
+openbis.prototype.listSamplesForExperiment = function(experimentIdentifier, action) {
 	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
-		data: { "method" : "searchForSamples",
-				"params" : [ this.sessionToken,
-							 searchCriteria ] },
+		data: { "method" : "listSamplesForExperiment",
+				"params" : [ this.sessionToken, experimentIdentifier ] 
+		},
 		success: action
 	 });
 }
@@ -151,42 +162,52 @@ openbis.prototype.searchForSamples = function(searchCriteria, action) {
 }
 
 openbis.prototype.searchForDataSets = function(searchCriteria, action) {
-	 ajaxRequest({
+	ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "searchForDataSets",
 				"params" : [ this.sessionToken,
 							 searchCriteria ] },
 		success: action
+	});
+}
+
+openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyConnected, action) {
+	 ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "listDataSetsForSample",
+				"params" : [ this.sessionToken, sample, restrictToDirectlyConnected ] 
+		},
+		success: action
 	 });
 }
 
- openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
-     ajaxRequest({
-        url: this.dssUrl,
-        data: { "method" : "listFilesForDataSet",
-                "params" : [ this.sessionToken, dataSetCode, path, recursive ]
-               },
-        success: action
-     });
+openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
+	ajaxRequest({
+		 url: this.dssUrl,
+		 data: { "method" : "listFilesForDataSet",
+						 "params" : [ this.sessionToken, dataSetCode, path, recursive ]
+						},
+		 success: action
+	});
 }
 
 openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
-    ajaxRequest({
-        url: this.dssUrl,
-        data: { "method" : "getDownloadUrlForFileForDataSet",
-                "params" : [ this.sessionToken, dataSetCode, filePath ]
-               },
-        success: action
-    });
+	ajaxRequest({
+			url: this.dssUrl,
+			data: { "method" : "getDownloadUrlForFileForDataSet",
+							"params" : [ this.sessionToken, dataSetCode, filePath ]
+						 },
+			success: action
+	});
 }
 
 openbis.prototype.listQueries = function(action) {
-	 ajaxRequest({
+	ajaxRequest({
 		url: this.queryServiceUrl,
 		data: { "method" : "listQueries",
 				"params" : [ this.sessionToken ] },
 		success: action
-	 });
+	});
 }
 
 openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {

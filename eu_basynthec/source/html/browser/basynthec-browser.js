@@ -894,7 +894,7 @@ var strainVis, strainView;
 // The OD600 strain visualization
 var od600StrainVis, od600StrainView;
 
-var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "UNKNOWN" ];
+var IGNORED_DATASET_TYPES = [ "EXCEL_ORIGINAL", "TSV_EXPORT", "TSV_MULTISTRAIN_EXPORT", "UNKNOWN" ];
 
 //The inspected strains and data sets
 var inspected = [];
