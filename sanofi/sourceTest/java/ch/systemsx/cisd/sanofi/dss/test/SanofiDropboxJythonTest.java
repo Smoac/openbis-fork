@@ -820,7 +820,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(dataSetValidator).assertValidDataSet(
                             thumnailsDataSetType,
                             new File(new File(stagingDirectory, "image-raw-thumnails"),
-                                    "thumbnails.h5"));
+                                    "thumbnails.h5ar"));
 
                     one(dataSetValidator).assertValidDataSet(IMAGE_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE), "original"));
@@ -831,7 +831,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(dataSetValidator).assertValidDataSet(
                             thumnailsDataSetType,
                             new File(new File(stagingDirectory, "overlay-thumnails"),
-                                    "thumbnails.h5"));
+                                    "thumbnails.h5ar"));
 
                     one(dataSetValidator)
                             .assertValidDataSet(
