@@ -35,6 +35,16 @@ public class SampleType extends SampleTypeImmutable implements ISampleType
         getSampleType().setDescription(description);
     }
 
+    public void setShowContainer(boolean showContainer)
+    {
+        getSampleType().setShowContainer(showContainer);
+    }
+
+    public void setShowParents(boolean showParents)
+    {
+        getSampleType().setShowParents(showParents);
+    }
+
     public void setListable(boolean isListable)
     {
         getSampleType().setListable(isListable);

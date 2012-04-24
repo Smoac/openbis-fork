@@ -57,6 +57,16 @@ public class SampleTypeImmutable implements ISampleTypeImmutable
         return getSampleType().isListable();
     }
 
+    public boolean isShowContainer()
+    {
+        return getSampleType().isShowContainer();
+    }
+
+    public boolean isShowParents()
+    {
+        return getSampleType().isShowParents();
+    }
+
     public boolean isSubcodeUnique()
     {
         return getSampleType().isSubcodeUnique();
