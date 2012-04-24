@@ -149,7 +149,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+        { "requires_unix", "flacky" })
     public void testExecutionOKWithTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyOKWithTimeOut.sh", 0);
@@ -504,7 +504,7 @@ public class ProcessExecutionHelperTest
 
     @SuppressWarnings("null")
     @Test(groups =
-        { "requires_unix", "slow" })
+        { "requires_unix", "slow", "flacky" })
     public void testSleepyExecutionWithTermination() throws Exception
     {
         final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);
