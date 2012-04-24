@@ -103,6 +103,7 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                             with(dataSetTypeMatcher));
                     one(commonServer).registerMaterialType(with(equal(SESSION_TOKEN)),
                             with(materialTypeMatcher));
+                    exactly(2).of(commonServer).listEntityTypePropertyTypes(SESSION_TOKEN);
                     exactly(2).of(commonServer).registerPropertyType(with(equal(SESSION_TOKEN)),
                             with(propertyTypeMatcher));
                     exactly(2).of(commonServer).assignPropertyType(with(equal(SESSION_TOKEN)),
@@ -207,6 +208,7 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                     one(commonServer).registerMaterialType(with(any(String.class)),
                             with(any(MaterialType.class)));
                     will(throwException(new RuntimeException("FAILED MATERIAL TYPE")));
+                    exactly(2).of(commonServer).listEntityTypePropertyTypes(SESSION_TOKEN);
                     exactly(2).of(commonServer).registerPropertyType(with(any(String.class)),
                             with(any(PropertyType.class)));
                     will(throwException(new RuntimeException("FAILED PROPERTY TYPE")));
