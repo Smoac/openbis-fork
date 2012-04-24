@@ -55,6 +55,7 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
         setHideOnButtonClick(true);
         setModal(true);
         this.messageField = new LabelField();
+        this.messageField.setStyleName("message");
         this.formPanel = createForm();
         this.keyListener = new KeyListener()
             {

@@ -1371,9 +1371,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
                     one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), reason, false);
+                            Arrays.asList(ds1, ds2), reason, false, false);
                     one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds3), reason, false);
+                            Arrays.asList(ds3), reason, false, false);
                 }
             });
 
@@ -1397,7 +1397,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(deletedDataSetTable));
 
                     one(deletedDataSetTable).loadByDataSetCodes(dataSetCodes);
-                    one(deletedDataSetTable).permanentlyDeleteLoadedDataSets(reason, false);
+                    one(deletedDataSetTable).permanentlyDeleteLoadedDataSets(reason, false, false);
                 }
             });
 

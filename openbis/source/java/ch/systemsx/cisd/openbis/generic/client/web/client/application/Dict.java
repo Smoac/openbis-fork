@@ -507,9 +507,16 @@ public abstract class Dict
 
     public static final String DELETING_PERMANENTLY = "deleting_permanently";
 
+    public static final String DELETING_FORCE_SECTION = "deleting_force_section";
+
     public static final String DELETING_FORCE = "deleting_force";
 
     public static final String DELETING_FORCE_TOOLTIP = "deleting_force_tooltip";
+
+    public static final String DELETING_FORCE_DISALLOWED_TYPES = "deleting_force_disallowed_types";
+
+    public static final String DELETING_FORCE_DISALLOWED_TYPES_TOOLTIP =
+            "deleting_force_disallowed_types_tooltip";
 
     public static final String DELETING = "deleting";
 

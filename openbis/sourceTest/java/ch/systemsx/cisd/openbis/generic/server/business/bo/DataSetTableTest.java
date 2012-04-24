@@ -41,6 +41,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -232,7 +233,7 @@ public final class DataSetTableTest extends AbstractBOTest
             });
     }
 
-    @Test
+    @Test(expectedExceptions = DataSetDeletionUnknownLocationsException.class)
     public void testDeleteLoadedDataSetsButOneDataSetIsUnknown()
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
@@ -252,17 +253,8 @@ public final class DataSetTableTest extends AbstractBOTest
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
-        try
-        {
-            dataSetTable.deleteLoadedDataSets("", false);
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals(
-                    "The following data sets are unknown by Data Store Servers they were registered in. "
-                            + "May be the responsible Data Store Servers are not running.\n[d2]",
-                    e.getMessage());
-        }
+        dataSetTable.deleteLoadedDataSets("", false, false);
+        fail("UserFailureException expected");
     }
 
     @Test
@@ -287,7 +279,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            dataSetTable.deleteLoadedDataSets("", false);
+            dataSetTable.deleteLoadedDataSets("", false, false);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -337,7 +329,7 @@ public final class DataSetTableTest extends AbstractBOTest
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
-        dataSetTable.deleteLoadedDataSets(reason, false);
+        dataSetTable.deleteLoadedDataSets(reason, false, false);
     }
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)

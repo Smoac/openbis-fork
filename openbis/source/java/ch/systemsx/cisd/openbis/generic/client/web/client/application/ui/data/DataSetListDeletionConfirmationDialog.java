@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.Collections;
 
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionForceOptions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
@@ -42,7 +42,7 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     private final TableModelRowWithObject<ExternalData> singleData;
 
-    protected CheckBox force;
+    private DeletionForceOptions forceOptions;
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, AsyncCallback<Void> callback,
@@ -73,17 +73,20 @@ public final class DataSetListDeletionConfirmationDialog extends
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
         final DeletionType deletionType = getDeletionType();
+
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             getViewContext().getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
-                    deletionType, isTrashEnabled() ? false : force.getValue(), deletionCallback);
+                    deletionType, getForceNotExistingLocationsValue(),
+                    getForceDisallowedTypesValue(), deletionCallback);
         } else
         {
             getViewContext().getCommonService().deleteDataSet(
                     singleData.getObjectOrNull().getCode(), reason.getValue(), deletionType,
-                    isTrashEnabled() ? false : force.getValue(), deletionCallback);
+                    getForceNotExistingLocationsValue(), getForceDisallowedTypesValue(),
+                    deletionCallback);
         }
     }
 
@@ -112,11 +115,19 @@ public final class DataSetListDeletionConfirmationDialog extends
 
         if (false == isTrashEnabled())
         {
-            force = new CheckBox();
-            force.setBoxLabel("");
-            force.setFieldLabel(messageProvider.getMessage(Dict.DELETING_FORCE));
-            force.setToolTip(messageProvider.getMessage(Dict.DELETING_FORCE_TOOLTIP));
-            formPanel.add(force);
+            forceOptions = new DeletionForceOptions(viewContext);
+            formPanel.add(forceOptions);
         }
     }
+
+    private boolean getForceNotExistingLocationsValue()
+    {
+        return forceOptions != null ? forceOptions.getForceNotExistingLocationsValue() : false;
+    }
+
+    private boolean getForceDisallowedTypesValue()
+    {
+        return forceOptions != null ? forceOptions.getForceDisallowedTypesValue() : false;
+    }
+
 }

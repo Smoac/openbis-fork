@@ -548,15 +548,17 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /**
      * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String,
-     *      DeletionType, boolean)
+     *      DeletionType, boolean, boolean)
      */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, boolean force, AsyncCallback<Void> asyncCallback);
+            DeletionType deletionType, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType, boolean) */
+    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType, boolean, boolean) */
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            boolean force, AsyncCallback<Void> asyncCallback);
+            boolean forceNotExistingLocations, boolean forceDisallowedTypes,
+            AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(List, String, DeletionType) */
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType,
@@ -999,7 +1001,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deletePermanently(List<TechId> deletionIds, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#emptyTrash(boolean)
+     * @see ICommonClientService#emptyTrash(boolean, boolean)
      */
-    public void emptyTrash(boolean force, AsyncCallback<Void> callback);
+    public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes,
+            AsyncCallback<Void> callback);
 }

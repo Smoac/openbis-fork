@@ -1269,24 +1269,41 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            boolean force)
+            boolean forceNotExistingLocations, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = Collections.singletonList(singleData);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType, force,
-                isTrashEnabled());
+
+        if (forceDisallowedTypes)
+        {
+            commonServer.deleteDataSetsForced(sessionToken, dataSetCodes, reason, deletionType,
+                    forceNotExistingLocations, isTrashEnabled());
+        } else
+        {
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+                    forceNotExistingLocations, isTrashEnabled());
+        }
     }
 
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, boolean force)
+            DeletionType deletionType, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType, force,
-                isTrashEnabled());
+
+        if (forceDisallowedTypes)
+        {
+            commonServer.deleteDataSetsForced(sessionToken, dataSetCodes, reason, deletionType,
+                    forceNotExistingLocations, isTrashEnabled());
+        } else
+        {
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+                    forceNotExistingLocations, isTrashEnabled());
+        }
     }
 
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
@@ -2215,12 +2232,20 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deletePermanently(getSessionToken(), deletionIds, false);
     }
 
-    public void emptyTrash(boolean force)
+    public void emptyTrash(boolean forceNotExitingLocations, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         String sessionToken = getSessionToken();
         List<Deletion> deletions = commonServer.listDeletions(sessionToken, false);
-        commonServer.deletePermanently(sessionToken, TechId.createList(deletions), force);
+        if (forceDisallowedTypes)
+        {
+            commonServer.deletePermanentlyForced(sessionToken, TechId.createList(deletions),
+                    forceNotExitingLocations);
+        } else
+        {
+            commonServer.deletePermanently(sessionToken, TechId.createList(deletions),
+                    forceNotExitingLocations);
+        }
     }
 
 }

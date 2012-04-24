@@ -42,6 +42,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -168,6 +170,28 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
+    private static void assertDatasetsWithDisallowedTypes(List<DataPE> datasets,
+            boolean forceDisallowedTypes)
+    {
+        if (forceDisallowedTypes)
+        {
+            return;
+        }
+
+        List<String> datasetsWithDisallowedTypes = new ArrayList<String>();
+        for (DataPE dataSet : datasets)
+        {
+            if (dataSet.getDataSetType().isDeletionDisallow())
+            {
+                datasetsWithDisallowedTypes.add(dataSet.getCode());
+            }
+        }
+        if (datasetsWithDisallowedTypes.isEmpty() == false)
+        {
+            throw new DataSetDeletionDisallowedTypesException(datasetsWithDisallowedTypes);
+        }
+    }
+
     private final IDataStoreServiceFactory dssFactory;
 
     private List<DataPE> dataSets;
@@ -255,15 +279,17 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
-    public void deleteLoadedDataSets(String reason, boolean force)
+    public void deleteLoadedDataSets(String reason, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes)
     {
         assertDatasetsAreDeletable(dataSets);
+        assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
 
         Map<DataStorePE, List<DataPE>> allToBeDeleted = groupDataSetsByDataStores();
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
-        assertDataSetsAreKnown(availableDatasets, force);
+        assertDataSetsAreKnown(availableDatasets, forceNotExistingLocations);
         for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
@@ -423,10 +449,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         if (unknownDataSets.isEmpty() == false)
         {
-            throw new UserFailureException(
-                    "The following data sets are unknown by Data Store Servers they were registered in. "
-                            + "May be the responsible Data Store Servers are not running.\n"
-                            + unknownDataSets);
+            throw new DataSetDeletionUnknownLocationsException(unknownDataSets);
         }
     }
 

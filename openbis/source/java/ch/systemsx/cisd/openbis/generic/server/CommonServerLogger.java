@@ -596,10 +596,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType deletionType, boolean force, boolean isTrashEnabled)
+            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
     {
-        logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s) FORCE(%s)",
-                deletionType, abbreviate(dataSetCodes), reason, force);
+        logTracking(sessionToken, "delete_data_sets",
+                "TYPE(%s) CODES(%s) REASON(%s) FORCE_NOT_EXISTING_LOCATIONS(%s)", type,
+                abbreviate(dataSetCodes), reason, forceNotExistingLocations);
+    }
+
+    public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
+    {
+        logTracking(sessionToken, "delete_data_sets_forced",
+                "TYPE(%s) CODES(%s) REASON(%s) FORCE_NOT_EXISTING_LOCATIONS(%s)", type,
+                abbreviate(dataSetCodes), reason, forceNotExistingLocations);
     }
 
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
@@ -1160,10 +1169,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "revertDeletions", "ID(%s)", abbreviate(deletionIds));
     }
 
-    public void deletePermanently(String sessionToken, List<TechId> deletionIds, boolean force)
+    public void deletePermanently(String sessionToken, List<TechId> deletionIds,
+            boolean forceNotExistingLocations)
     {
-        logTracking(sessionToken, "deletePermanently", "ID(%s), FORCE(%s)",
-                abbreviate(deletionIds), force);
+        logTracking(sessionToken, "deletePermanently", "ID(%s), FORCE_NOT_EXISTING_LOCATIONS(%s)",
+                abbreviate(deletionIds), forceNotExistingLocations);
+    }
+
+    public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds,
+            boolean forceNotExistingLocations)
+    {
+        logTracking(sessionToken, "deletePermanentlyForced",
+                "ID(%s), FORCE_NOT_EXISTING_LOCATIONS(%s)", abbreviate(deletionIds),
+                forceNotExistingLocations);
     }
 
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken)

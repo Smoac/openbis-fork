@@ -81,7 +81,8 @@ public interface IDataSetTable
     /**
      * Permanently Deletes loaded data sets for specified reason.
      */
-    void deleteLoadedDataSets(String reason, boolean force);
+    void deleteLoadedDataSets(String reason, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes);
 
     /**
      * Uploads loaded data sets to CIFEX server as specified in the upload context.

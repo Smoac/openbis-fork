@@ -30,7 +30,8 @@ public interface IDeletedDataSetTable
     /**
      * Permanently Deletes loaded data sets for specified reason.
      */
-    void permanentlyDeleteLoadedDataSets(String reason, boolean force);
+    void permanentlyDeleteLoadedDataSets(String reason, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes);
 
     void loadByDataSetCodes(List<String> dataSetCodes);
 

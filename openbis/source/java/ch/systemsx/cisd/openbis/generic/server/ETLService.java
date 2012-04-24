@@ -1568,7 +1568,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, true);
+        permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, true, false);
     }
 
     public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates)

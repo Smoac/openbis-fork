@@ -39,23 +39,26 @@ public final class EmptyTrashConfirmationDialog extends
 
     private final AsyncCallback<Void> callback;
 
-    private final boolean force;
+    private final DeletionForceOptions forceOptions;
 
     public EmptyTrashConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            boolean force, AsyncCallback<Void> callback)
+            AsyncCallback<Void> callback)
     {
         super(viewContext, Collections.<Deletion> emptyList(), viewContext
                 .getMessage(Dict.EMPTY_TRASH_CONFIRMATION_TITLE));
+
+        setStyleName("emptyTrashConfirmationDialog");
         this.viewContext = viewContext;
-        this.force = force;
         this.callback = callback;
+        this.forceOptions = new DeletionForceOptions(viewContext);
     }
 
     @Override
     protected void executeConfirmedAction()
     {
         viewContext.getCommonService().emptyTrash(
-                force,
+                forceOptions.getForceNotExistingLocationsValue(),
+                forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback,
                         viewContext.getMessage(Dict.EMPTY_TRASH_PROGRESS)));
     }
@@ -71,6 +74,7 @@ public final class EmptyTrashConfirmationDialog extends
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
+        formPanel.add(forceOptions);
     }
 
 }

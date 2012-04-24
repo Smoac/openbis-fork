@@ -797,7 +797,9 @@ public interface ICommonServer extends IServer
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
     /**
-     * Deletes/Trashes specified data sets.
+     * Deletes/Trashes specified data sets. This method CANNOT delete data sets with
+     * deletion_disallow flag set to true in their type (compare with
+     * {@link #deleteDataSetsForced(String, List, String, DeletionType, boolean, boolean)}).
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
@@ -806,8 +808,23 @@ public interface ICommonServer extends IServer
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type, boolean force,
-            boolean isTrashEnabled);
+            List<String> dataSetCodes, String reason, DeletionType type,
+            boolean forceNotExistingLocations, boolean isTrashEnabled);
+
+    /**
+     * Deletes/Trashes specified data sets. It CAN delete data sets with deletion_disallow flag set
+     * to true in their type (compare with
+     * {@link #deleteDataSets(String, List, String, DeletionType, boolean, boolean)}).
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    @Capability("FORCE_DELETE_DATASET")
+    public void deleteDataSetsForced(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            List<String> dataSetCodes, String reason, DeletionType type,
+            boolean forceNotExistingLocations, boolean isTrashEnabled);
 
     /**
      * Deletes/Trashes specified samples.
@@ -1539,7 +1556,9 @@ public interface ICommonServer extends IServer
             final List<TechId> deletionIds);
 
     /**
-     * Permanently deletes entities moved to trash in specified deletions.
+     * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete
+     * data sets with deletion_disallow flag set to true in their type (compare with
+     * {@link #deletePermanentlyForced(String, List, boolean)})
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
@@ -1548,7 +1567,21 @@ public interface ICommonServer extends IServer
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds, boolean force);
+            final List<TechId> deletionIds, boolean forceNotExistingLocations);
+
+    /**
+     * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets
+     * with deletion_disallow flag set to true in their type (compare with
+     * {@link #deletePermanently(String, List, boolean)}).
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @Capability("FORCE_PURGE")
+    public void deletePermanentlyForced(final String sessionToken,
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
+            final List<TechId> deletionIds, boolean forceNotExistingLocations);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.

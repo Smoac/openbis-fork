@@ -281,3 +281,20 @@ body,div,td,.default-text {
 .movieDelay input {
 	margin: 0px 3px;
 }
+
+/*****************************
+ * Deletion force options
+ *****************************/
+
+.deletionForceOptions label {
+		margin-right: 5px;
+}
+
+/***********************************
+ * Empty trash confirmation dialog
+ ***********************************/
+
+.emptyTrashConfirmationDialog .message {
+	 margin: 10px;
+	 margin-bottom: 0px;
+}
