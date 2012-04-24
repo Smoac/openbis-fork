@@ -1,5 +1,5 @@
 /*!
- * OpenBIS API
+ * OpenBIS API (jsonize)
  *
  * An API for accessing openBIS. Depends on jQuery.
  */
