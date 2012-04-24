@@ -151,7 +151,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
-    private static void assertDatasetsAreDeletable(List<DataPE> datasets)
+    public static void assertDatasetsAreDeletable(List<DataPE> datasets)
     {
         List<String> notDeletableDatasets = new ArrayList<String>();
         for (DataPE dataSet : datasets)
@@ -170,7 +170,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
-    private static void assertDatasetsWithDisallowedTypes(List<DataPE> datasets,
+    public static void assertDatasetsWithDisallowedTypes(List<DataPE> datasets,
             boolean forceDisallowedTypes)
     {
         if (forceDisallowedTypes)

@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry;
@@ -244,6 +245,14 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         Map<DataSetTypePE, List<DataPE>> groupedDataSets =
                 new LinkedHashMap<DataSetTypePE, List<DataPE>>();
+
+        // Check all data sets before deleting group by group. If we delete one group of data sets
+        // and find an incorrect data set in another group then we cannot roll back already made
+        // deletions in data store server. Therefore we'd better make a check now to minimize a
+        // chance of failure.
+        DataSetTable.assertDatasetsAreDeletable(dataSets);
+        DataSetTable.assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
+
         for (DataPE dataSet : dataSets)
         {
             DataSetTypePE dataSetType = dataSet.getDataSetType();
