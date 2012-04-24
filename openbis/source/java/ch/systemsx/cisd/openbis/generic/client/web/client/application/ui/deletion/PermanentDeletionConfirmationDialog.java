@@ -40,13 +40,17 @@ public final class PermanentDeletionConfirmationDialog extends
 
     private final AsyncCallback<Void> callback;
 
+    private final DeletionForceOptions forceOptions;
+
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             List<Deletion> deletions, AsyncCallback<Void> callback)
     {
         super(viewContext, deletions, viewContext
                 .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
+        setStyleName("permanentDeletionConfirmationDialog");
         this.viewContext = viewContext;
         this.callback = callback;
+        this.forceOptions = new DeletionForceOptions(viewContext);
     }
 
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -60,6 +64,8 @@ public final class PermanentDeletionConfirmationDialog extends
     {
         viewContext.getCommonService().deletePermanently(
                 TechId.createList(data),
+                forceOptions.getForceNotExistingLocationsValue(),
+                forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback,
                         viewContext.getMessage(Dict.PREMANENT_DELETIONS_PROGRESS)));
     }
@@ -75,6 +81,7 @@ public final class PermanentDeletionConfirmationDialog extends
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
+        formPanel.add(forceOptions);
     }
 
 }

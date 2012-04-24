@@ -1103,7 +1103,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Permanently deletes entities moved to trash with specified deletions.
      */
-    public void deletePermanently(List<TechId> deletionIds) throws UserFailureException;
+    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes) throws UserFailureException;
 
     /**
      * Permanently deletes all entities moved to trash.

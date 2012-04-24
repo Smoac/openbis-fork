@@ -2226,26 +2226,27 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deletePermanently(List<TechId> deletionIds)
+    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        commonServer.deletePermanently(getSessionToken(), deletionIds, false);
-    }
-
-    public void emptyTrash(boolean forceNotExitingLocations, boolean forceDisallowedTypes)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        String sessionToken = getSessionToken();
-        List<Deletion> deletions = commonServer.listDeletions(sessionToken, false);
         if (forceDisallowedTypes)
         {
-            commonServer.deletePermanentlyForced(sessionToken, TechId.createList(deletions),
-                    forceNotExitingLocations);
+            commonServer.deletePermanentlyForced(getSessionToken(), deletionIds,
+                    forceNotExistingLocations);
         } else
         {
-            commonServer.deletePermanently(sessionToken, TechId.createList(deletions),
-                    forceNotExitingLocations);
+            commonServer.deletePermanently(getSessionToken(), deletionIds,
+                    forceNotExistingLocations);
         }
+    }
+
+    public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        List<Deletion> deletions = commonServer.listDeletions(getSessionToken(), false);
+        deletePermanently(TechId.createList(deletions), forceNotExistingLocations,
+                forceDisallowedTypes);
     }
 
 }

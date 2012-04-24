@@ -996,9 +996,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void revertDeletions(List<TechId> deletionIds, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#deletePermanently(List)
+     * @see ICommonClientService#deletePermanently(List, boolean, boolean)
      */
-    public void deletePermanently(List<TechId> deletionIds, AsyncCallback<Void> callback);
+    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
+            boolean forceDisallowedTypes, AsyncCallback<Void> callback);
 
     /**
      * @see ICommonClientService#emptyTrash(boolean, boolean)

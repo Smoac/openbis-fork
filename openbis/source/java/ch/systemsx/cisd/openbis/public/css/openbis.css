@@ -285,16 +285,15 @@ body,div,td,.default-text {
 /*****************************
  * Deletion force options
  *****************************/
-
 .deletionForceOptions label {
-		margin-right: 5px;
+	margin-right: 5px;
 }
 
-/***********************************
- * Empty trash confirmation dialog
- ***********************************/
-
-.emptyTrashConfirmationDialog .message {
-	 margin: 10px;
-	 margin-bottom: 0px;
+/************************
+ * Confirmtion dialogs
+ ************************/
+.emptyTrashConfirmationDialog .message,.permanentDeletionConfirmationDialog .message
+	{
+	margin: 10px;
+	margin-bottom: 0px;
 }
