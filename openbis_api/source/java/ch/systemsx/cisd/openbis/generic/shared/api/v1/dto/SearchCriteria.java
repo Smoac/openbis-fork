@@ -94,11 +94,20 @@ public class SearchCriteria implements Serializable
         // for sample or experiment
         SPACE,
         // for experiment
-        PROJECT,
+        PROJECT
+    }
+
+    /**
+     * An enum listing the different attributes containing time values that can be compared against.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static enum MatchClauseTimeAttribute
+    {
         REGISTRATION_DATE,
         MODIFICATION_DATE
     }
-    
+
     public static enum CompareMode
     {
         LESS_THAN_OR_EQUAL, EQUALS, MORE_THAN_OR_EQUAL
@@ -112,7 +121,7 @@ public class SearchCriteria implements Serializable
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonTypeName("MatchClause")
     @JsonSubTypes(value =
-        { @JsonSubTypes.Type(AttributeMatchClause.class),
+        { @JsonSubTypes.Type(TimeAttributeMatchClause.class),
                 @JsonSubTypes.Type(PropertyMatchClause.class) })
     public static class MatchClause implements Serializable
     {
@@ -123,22 +132,14 @@ public class SearchCriteria implements Serializable
         private String fieldCode;
 
         private String desiredValue;
-        
-        private String timezone;
-        
+
         private CompareMode compareMode = CompareMode.EQUALS;
 
-        
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode) {
-            this(fieldType, fieldCode, desiredValue, null, compareMode);
-        }
-        
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, String timezone, CompareMode compareMode)
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode)
         {
             this.fieldType = fieldType;
             this.fieldCode = fieldCode;
             this.desiredValue = desiredValue;
-            this.timezone = timezone;
             this.compareMode = compareMode;
         }
 
@@ -165,15 +166,15 @@ public class SearchCriteria implements Serializable
             return new AttributeMatchClause(attribute, desiredValue);
         }
 
-        public static MatchClause createAttributeMatch(MatchClauseAttribute attribute,
+        public static MatchClause createTimeAttributeMatch(MatchClauseTimeAttribute attribute,
                 CompareMode mode, String date, String timezone)
         {
-            return new AttributeMatchClause(attribute, mode, date, timezone);
+            return new TimeAttributeMatchClause(attribute, date, timezone, mode);
         }
 
         /**
-         * Returns a String where those characters that Lucene expects to be escaped are
-         * escaped by a preceding <code>\</code>.
+         * Returns a String where those characters that Lucene expects to be escaped are escaped by
+         * a preceding <code>\</code>.
          * <p>
          * Copy of Lucene's <code>QueryParser.escape()</code> method.
          */
@@ -194,7 +195,7 @@ public class SearchCriteria implements Serializable
             }
             return sb.toString();
         }
-        
+
         /**
          * The field type this MatchClause matches against. Could be either a property or attribute.
          */
@@ -206,7 +207,7 @@ public class SearchCriteria implements Serializable
         /**
          * The code of the field.
          */
-        private String getFieldCode()
+        protected String getFieldCode()
         {
             return fieldCode;
         }
@@ -215,13 +216,11 @@ public class SearchCriteria implements Serializable
         {
             return desiredValue;
         }
-        
-        public String getTimeZone() {
-            return this.timezone;
-        }
-        
-        public CompareMode getCompareMode() {
-            if (this.compareMode == null) {
+
+        public CompareMode getCompareMode()
+        {
+            if (this.compareMode == null)
+            {
                 return CompareMode.EQUALS;
             }
             return this.compareMode;
@@ -245,7 +244,6 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode(), other.getFieldCode());
             builder.append(getDesiredValue(), other.getDesiredValue());
             builder.append(getCompareMode(), other.getCompareMode());
-            builder.append(getTimeZone(), other.getTimeZone());
             return builder.isEquals();
         }
 
@@ -257,7 +255,6 @@ public class SearchCriteria implements Serializable
             builder.append(getFieldCode());
             builder.append(getDesiredValue());
             builder.append(getCompareMode());
-            builder.append(getTimeZone());
             return builder.toHashCode();
         }
 
@@ -291,13 +288,10 @@ public class SearchCriteria implements Serializable
         {
             this.desiredValue = desiredValue;
         }
-        
-        private void setCompareMode(CompareMode mode) {
+
+        private void setCompareMode(CompareMode mode)
+        {
             this.compareMode = mode;
-        }
-        
-        private void setTimeZone(String timezone) {
-            this.timezone = timezone;
         }
     }
 
@@ -373,13 +367,6 @@ public class SearchCriteria implements Serializable
             this.attribute = attribute;
         }
 
-        protected AttributeMatchClause(MatchClauseAttribute attribute, CompareMode mode, String desiredDate, String timezone)
-        {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredDate, timezone, mode);
-            this.attribute = attribute;
-        }
-
-        
         /**
          * Return the code of the attribute to compare against.
          */
@@ -399,6 +386,104 @@ public class SearchCriteria implements Serializable
         private void setAttribute(MatchClauseAttribute attribute)
         {
             this.attribute = attribute;
+        }
+    }
+
+    /**
+     * A MatchClause for comparing a time attribute to a specified value.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    @JsonTypeName("TimeAttributeMatchClause")
+    public static class TimeAttributeMatchClause extends MatchClause
+    {
+        private static final long serialVersionUID = 1L;
+
+        private MatchClauseTimeAttribute attribute;
+
+        private String timezone;
+
+        /**
+         * Constructor.
+         * 
+         * @param attribute The attribute to compare against.
+         * @param desiredDate The desired value of the attribute.
+         * @param timezone The time zone to use in the comparison.
+         * @param mode The kind of comparison to carry out.
+         */
+        protected TimeAttributeMatchClause(MatchClauseTimeAttribute attribute, String desiredDate, String timezone, CompareMode mode)
+        {
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredDate, mode);
+            this.timezone = timezone;
+            this.attribute = attribute;
+        }
+
+        /**
+         * Return the code of the attribute to compare against.
+         */
+        public MatchClauseTimeAttribute getAttribute()
+        {
+            return attribute;
+        }
+
+        /**
+         * Return the time zone to compare against.
+         */
+        public String getTimeZone()
+        {
+            return this.timezone;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof TimeAttributeMatchClause == false)
+            {
+                return false;
+            }
+
+            TimeAttributeMatchClause other = (TimeAttributeMatchClause) obj;
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(getFieldType(), other.getFieldType());
+            builder.append(getFieldCode(), other.getFieldCode());
+            builder.append(getDesiredValue(), other.getDesiredValue());
+            builder.append(getCompareMode(), other.getCompareMode());
+            builder.append(getTimeZone(), other.getTimeZone());
+            return builder.isEquals();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            HashCodeBuilder builder = new HashCodeBuilder();
+            builder.append(getFieldType());
+            builder.append(getFieldCode());
+            builder.append(getDesiredValue());
+            builder.append(getCompareMode());
+            builder.append(getTimeZone());
+            return builder.toHashCode();
+        }
+
+        //
+        // JSON-RPC
+        //
+        private TimeAttributeMatchClause()
+        {
+
+        }
+
+        private void setAttribute(MatchClauseTimeAttribute attribute)
+        {
+            this.attribute = attribute;
+        }
+
+        private void setTimeZone(String timezone)
+        {
+            this.timezone = timezone;
         }
     }
 
