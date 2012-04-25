@@ -110,7 +110,7 @@ public class SearchCriteria implements Serializable
 
     public static enum CompareMode
     {
-        LESS_THAN_OR_EQUAL, EQUALS, MORE_THAN_OR_EQUAL
+        LESS_THAN_OR_EQUAL, EQUALS, GREATER_THAN_OR_EQUAL
     }
 
     /**
@@ -121,8 +121,8 @@ public class SearchCriteria implements Serializable
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonTypeName("MatchClause")
     @JsonSubTypes(value =
-        { @JsonSubTypes.Type(TimeAttributeMatchClause.class),
-                @JsonSubTypes.Type(PropertyMatchClause.class) })
+        { @JsonSubTypes.Type(AttributeMatchClause.class),
+                @JsonSubTypes.Type(PropertyMatchClause.class), @JsonSubTypes.Type(TimeAttributeMatchClause.class), })
     public static class MatchClause implements Serializable
     {
         private static final long serialVersionUID = 1L;
