@@ -228,6 +228,11 @@ public class ImageRepresentationFormat implements Serializable
         return fileType;
     }
 
+    public List<ImageRepresentationTransformation> getTransformations()
+    {
+        return transformations;
+    }
+
     @Override
     public int hashCode()
     {
@@ -322,6 +327,11 @@ public class ImageRepresentationFormat implements Serializable
     private void setFileType(String fileType)
     {
         this.fileType = fileType;
+    }
+
+    private void setTransformations(List<ImageRepresentationTransformation> transformations)
+    {
+        this.transformations = transformations;
     }
 
 }
