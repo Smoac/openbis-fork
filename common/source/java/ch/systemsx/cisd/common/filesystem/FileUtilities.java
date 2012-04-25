@@ -28,7 +28,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -169,6 +172,104 @@ public final class FileUtilities
     }
 
     /**
+     * Loads a file to a byte[].
+     * 
+     * @param file the file that should be loaded. This method asserts that given <code>File</code>
+     *            is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
+     *         returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
+     */
+    public static byte[] loadToByteArray(final File file) throws IOExceptionUnchecked
+    {
+        assert file != null;
+
+        final int size = (int) file.length();
+        if (size != file.length())
+        {
+            throw new IOExceptionUnchecked("File " + file.getPath() + " too large.");
+        }
+        final byte[] buffer = new byte[size];
+        FileInputStream fstream = null;
+        try
+        {
+            fstream = new FileInputStream(file);
+            final int sizeRead = fillBuffer(fstream, buffer);
+            if (sizeRead < size)
+            {
+                final byte[] smallerBuffer = new byte[sizeRead];
+                System.arraycopy(buffer, 0, smallerBuffer, 0, sizeRead);
+                return smallerBuffer;
+            }
+            return buffer;
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fstream);
+        }
+    }
+
+    /**
+     * Loads a file to an {@link Object}.
+     * 
+     * @param file the file that should be loaded. This method asserts that given <code>File</code>
+     *            is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
+     *         returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
+     * @throws CheckedExceptionTunnel for wrapping an {@link ClassNotFoundException}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T loadToObject(final File file, Class<T> clazz) throws IOExceptionUnchecked,
+            CheckedExceptionTunnel
+    {
+        assert file != null;
+
+        final int size = (int) file.length();
+        if (size != file.length())
+        {
+            throw new IOExceptionUnchecked("File " + file.getPath() + " too large.");
+        }
+        FileInputStream fstream = null;
+        ObjectInputStream oistream = null;
+        try
+        {
+            fstream = new FileInputStream(file);
+            oistream = new ObjectInputStream(fstream);
+            return (T) oistream.readObject();
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (final ClassNotFoundException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(oistream);
+            IOUtils.closeQuietly(fstream);
+        }
+    }
+
+    private static int fillBuffer(InputStream input, byte[] buffer) throws IOException
+    {
+        int ofs = 0;
+        int len = buffer.length;
+        int count = 0;
+        int n = 0;
+        while (len > 0 && -1 != (n = input.read(buffer, ofs, len)))
+        {
+            ofs += n;
+            len -= n;
+            count += n;
+        }
+        return count;
+    }
+
+    /**
      * Loads a text file to a {@link String}. Doesn't append new line at the end.
      * 
      * @param file the file that should be loaded. This method asserts that given <code>File</code>
@@ -221,6 +322,58 @@ public final class FileUtilities
     }
 
     /**
+     * Writes the specified string to the specified file.
+     * 
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
+     */
+    public static void writeToFile(final File file, final byte[] data) throws IOExceptionUnchecked
+    {
+        assert file != null : "Unspecified file.";
+        assert data != null : "Unspecified data.";
+
+        FileOutputStream fileStream = null;
+        try
+        {
+            fileStream = new FileOutputStream(file);
+            fileStream.write(data);
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fileStream);
+        }
+    }
+
+    /**
+     * Writes the specified string to the specified file.
+     * 
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
+     */
+    public static void writeToFile(final File file, final Serializable object)
+            throws IOExceptionUnchecked
+    {
+        assert file != null : "Unspecified file.";
+        assert object != null : "Unspecified data.";
+
+        FileOutputStream fileStream = null;
+        ObjectOutputStream oostream = null;
+        try
+        {
+            fileStream = new FileOutputStream(file);
+            oostream = new ObjectOutputStream(fileStream);
+            oostream.writeObject(object);
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(oostream);
+            IOUtils.closeQuietly(fileStream);
+        }
+    }
+
+    /**
      * Append the specified string to the specified file.
      * 
      * @param file The file to append to.
@@ -228,7 +381,8 @@ public final class FileUtilities
      * @param shouldAppendNewline If true, a newline will be appended after the string.
      * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
      */
-    public static void appendToFile(final File file, final String str, final boolean shouldAppendNewline) throws IOExceptionUnchecked
+    public static void appendToFile(final File file, final String str,
+            final boolean shouldAppendNewline) throws IOExceptionUnchecked
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";

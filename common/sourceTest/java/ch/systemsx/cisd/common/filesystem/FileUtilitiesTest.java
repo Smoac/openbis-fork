@@ -21,6 +21,7 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -104,11 +105,28 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testWriteToFile() throws Exception
+    public void testWriteToStringFile() throws Exception
     {
-        File file = new File(workingDirectory, "testWriteToFile.txt");
+        File file = new File(workingDirectory, "testWriteToStringFile.txt");
         FileUtilities.writeToFile(file, "Hello world\nhow are you?");
         assertEquals("Hello world\nhow are you?\n", FileUtilities.loadToString(file));
+    }
+
+    @Test
+    public void testWriteToBinaryFile() throws Exception
+    {
+        File file = new File(workingDirectory, "testWriteToBinaryFile.txt");
+        FileUtilities.writeToFile(file, new byte[] { 1, 2, 3 });
+        assertTrue(Arrays.equals(new byte[] { 1, 2, 3 }, FileUtilities.loadToByteArray(file)));
+    }
+
+    @Test
+    public void testWriteObjectToFile() throws Exception
+    {
+        final Date now = new Date();
+        File file = new File(workingDirectory, "testWriteObjectToFile.txt");
+        FileUtilities.writeToFile(file, now);
+        assertEquals(now, FileUtilities.loadToObject(file, Date.class));
     }
 
     @Test
