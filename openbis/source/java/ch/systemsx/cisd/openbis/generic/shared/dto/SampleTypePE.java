@@ -151,7 +151,7 @@ public final class SampleTypePE extends EntityTypePE
 
     @Column(name = ColumnNames.GENERATED_CODE_PREFIX)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
-    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @NotNull(message = ValidationMessages.GENERATED_CODE_PREFIX_NOT_NULL_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     public String getGeneratedCodePrefix()
     {
