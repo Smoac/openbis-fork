@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -39,7 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Treatment;
 
 /**
  * Provider of {@link ProteinInfo} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ProteinProvider extends AbstractTableModelProvider<ProteinInfo>
@@ -47,16 +49,22 @@ public class ProteinProvider extends AbstractTableModelProvider<ProteinInfo>
     private static final String ABUNDANCE_PROPERTY_KEY = "ABUNDANCE";
 
     private final IPhosphoNetXServer server;
+
     private final String sessionToken;
+
     private final TechId experimentID;
+
     private final double falseDiscoveryRate;
+
     private final AggregateFunction aggregateFunction;
+
     private final String treatmentTypeCode;
+
     private final boolean aggregateOnOriginal;
 
-    public ProteinProvider(IPhosphoNetXServer server, String sessionToken,
-            TechId experimentID, double falseDiscoveryRate, AggregateFunction function,
-            String treatmentTypeCode, boolean aggregateOnOriginal)
+    public ProteinProvider(IPhosphoNetXServer server, String sessionToken, TechId experimentID,
+            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
+            boolean aggregateOnOriginal)
     {
         this.server = server;
         this.sessionToken = sessionToken;
@@ -70,60 +78,76 @@ public class ProteinProvider extends AbstractTableModelProvider<ProteinInfo>
     @Override
     protected TypedTableModel<ProteinInfo> createTableModel()
     {
-        List<AbundanceColumnDefinition> abundanceColumnDefinitions =
-                server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
-                        experimentID, treatmentTypeCode);
-        List<ProteinInfo> proteins =
-                server.listProteinsByExperiment(sessionToken, experimentID, falseDiscoveryRate,
-                        aggregateFunction, treatmentTypeCode, aggregateOnOriginal);
-        TypedTableModelBuilder<ProteinInfo> builder = new TypedTableModelBuilder<ProteinInfo>();
-        builder.addColumn(ACCESSION_NUMBER);
-        builder.addColumn(PROTEIN_DESCRIPTION);
-        builder.addColumn(COVERAGE).withDefaultWidth(100);
-        Map<Long, IColumn> sampleIdToAbundanceColumnMap = new HashMap<Long, IColumn>();
-        for (AbundanceColumnDefinition abundanceColumnDefinition : abundanceColumnDefinitions)
+        try
         {
-            long sampleID = abundanceColumnDefinition.getID();
-            String columnID = "abundance-" + Long.toString(sampleID);
-            builder.addColumn(columnID).withDefaultWidth(100);
-            IColumn column = builder.column(columnID);
-            sampleIdToAbundanceColumnMap.put(sampleID, column);
-            String header = abundanceColumnDefinition.getSampleCode();
-            Map<String, String> properties = new HashMap<String, String>();
-            properties.put(ABUNDANCE_PROPERTY_KEY, header);
-            List<Treatment> treatments = abundanceColumnDefinition.getTreatments();
-            if (treatments.isEmpty() == false)
+
+            List<AbundanceColumnDefinition> abundanceColumnDefinitions =
+                    server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
+                            experimentID, treatmentTypeCode);
+            List<ProteinInfo> proteins =
+                    server.listProteinsByExperiment(sessionToken, experimentID, falseDiscoveryRate,
+                            aggregateFunction, treatmentTypeCode, aggregateOnOriginal);
+            TypedTableModelBuilder<ProteinInfo> builder = new TypedTableModelBuilder<ProteinInfo>();
+            builder.addColumn(ACCESSION_NUMBER);
+            builder.addColumn(PROTEIN_DESCRIPTION);
+            builder.addColumn(COVERAGE).withDefaultWidth(100);
+            Map<Long, IColumn> sampleIdToAbundanceColumnMap = new HashMap<Long, IColumn>();
+            for (AbundanceColumnDefinition abundanceColumnDefinition : abundanceColumnDefinitions)
             {
-                header = "";
-                String delim = "";
-                for (Treatment treatment : treatments)
+                long sampleID = abundanceColumnDefinition.getID();
+                String columnID = "abundance-" + Long.toString(sampleID);
+                builder.addColumn(columnID).withDefaultWidth(100);
+                IColumn column = builder.column(columnID);
+                sampleIdToAbundanceColumnMap.put(sampleID, column);
+                String header = abundanceColumnDefinition.getSampleCode();
+                Map<String, String> properties = new HashMap<String, String>();
+                properties.put(ABUNDANCE_PROPERTY_KEY, header);
+                List<Treatment> treatments = abundanceColumnDefinition.getTreatments();
+                if (treatments.isEmpty() == false)
                 {
-                    header += delim + treatment;
-                    delim = ", ";
-                    column.property(treatment.getTypeCode(), treatment.getValue());
+                    header = "";
+                    String delim = "";
+                    for (Treatment treatment : treatments)
+                    {
+                        header += delim + treatment;
+                        delim = ", ";
+                        column.property(treatment.getTypeCode(), treatment.getValue());
+                    }
+                }
+                column.withTitle(header);
+            }
+            for (ProteinInfo protein : proteins)
+            {
+                builder.addRow(protein);
+                builder.column(ACCESSION_NUMBER).addString(protein.getAccessionNumber());
+                builder.column(PROTEIN_DESCRIPTION).addString(protein.getDescription());
+                builder.column(COVERAGE).addDouble(protein.getCoverage());
+                Map<Long, Double> abundances = protein.getAbundances();
+                Set<Entry<Long, Double>> entrySet = abundances.entrySet();
+                for (Entry<Long, Double> entry : entrySet)
+                {
+                    IColumn column = sampleIdToAbundanceColumnMap.get(entry.getKey());
+                    if (column != null)
+                    {
+                        column.addDouble(entry.getValue());
+                    }
                 }
             }
-            column.withTitle(header);
-        }
-        for (ProteinInfo protein : proteins)
+            return builder.getModel();
+        } catch (Exception e)
         {
-            builder.addRow(protein);
-            builder.column(ACCESSION_NUMBER).addString(protein.getAccessionNumber());
-            builder.column(PROTEIN_DESCRIPTION).addString(protein.getDescription());
-            builder.column(COVERAGE).addDouble(protein.getCoverage());
-            Map<Long, Double> abundances = protein.getAbundances();
-            Set<Entry<Long, Double>> entrySet = abundances.entrySet();
-            for (Entry<Long, Double> entry : entrySet)
+            Throwable t = e;
+            while (t != null)
             {
-                IColumn column = sampleIdToAbundanceColumnMap.get(entry.getKey());
-                if (column != null)
+                if (t instanceof UserFailureException)
                 {
-                    column.addDouble(entry.getValue());
+                    throw (UserFailureException) t;
                 }
+                t = t.getCause();
             }
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
-        return builder.getModel();
+
     }
-    
 
 }
