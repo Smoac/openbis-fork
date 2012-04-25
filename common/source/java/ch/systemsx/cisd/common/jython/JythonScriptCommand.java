@@ -30,32 +30,16 @@ public class JythonScriptCommand extends JythonScriptLines
 
     public boolean isNextCommand(String line)
     {
-        if (isEmptyLine(line) || isIndentedLine(line))
+        try
+        {
+            PyObject object =
+                    Py.compile_command_flags(getLines(), "<input>", CompileMode.single,
+                            new CompilerFlags(), true);
+            return object != Py.None;
+        } catch (PyException e)
         {
             return false;
-        } else
-        {
-            try
-            {
-                PyObject object =
-                        Py.compile_command_flags(getLines(), "<input>", CompileMode.single,
-                                new CompilerFlags(), true);
-                return object != Py.None;
-            } catch (PyException e)
-            {
-                return false;
-            }
         }
-    }
-
-    private static boolean isEmptyLine(String line)
-    {
-        return line.trim().length() == 0;
-    }
-
-    private static boolean isIndentedLine(String line)
-    {
-        return Character.isWhitespace(line.charAt(0));
     }
 
 }
