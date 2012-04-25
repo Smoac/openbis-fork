@@ -30,7 +30,6 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -333,8 +332,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     private List<DataPE> primFindFullDataSetsByCode(String identifierColumn,
-            Collection<?> identifiers, final boolean withPropertyTypes, final boolean lockForUpdate)
+            Collection<?> identifiers, final boolean withPropertyTypes,
+            final boolean lockForUpdate)
     {
+
         if (identifiers.size() == 0)
         {
             return Collections.emptyList();
@@ -359,10 +360,16 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                         FetchMode.JOIN);
                             }
                             criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+
+                            /**
+                             * lockForUpdate parameter is ignored. See LMS-2882 details
+                             */
+                            /*
                             if (lockForUpdate)
                             {
                                 criteria.setLockMode(LockMode.UPGRADE);
                             }
+                            */
                             return criteria;
                         }
                     }, identifierColumn, identifiers);
@@ -395,10 +402,16 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
         }
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+
+        /**
+         * lockForUpdate parameter is ignored. See LMS-2882 details
+         */
+        /*
         if (lockForUpdate)
         {
             criteria.setLockMode(LockMode.UPGRADE);
         }
+        */
         final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final DataPE entity = tryFindEntity(list, "data set");
 
