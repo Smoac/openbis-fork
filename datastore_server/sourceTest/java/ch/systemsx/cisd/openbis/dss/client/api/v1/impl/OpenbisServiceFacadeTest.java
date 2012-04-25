@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.AttributeMatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.TimeAttributeMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseFieldType;
@@ -606,7 +606,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         assertEquals(code, matchClause.getDesiredValue());
         assertEquals(MatchClauseFieldType.ATTRIBUTE, matchClause.getFieldType());
-        assertEquals(MatchClauseAttribute.CODE, ((AttributeMatchClause) matchClause).getAttribute());
+        assertEquals(MatchClauseAttribute.CODE, ((TimeAttributeMatchClause) matchClause).getAttribute());
     }
 
     private void assertMatchClauseForProject(String projectCode, MatchClause matchClause)
@@ -614,7 +614,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         assertEquals(projectCode, matchClause.getDesiredValue());
         assertEquals(MatchClauseFieldType.ATTRIBUTE, matchClause.getFieldType());
         assertEquals(MatchClauseAttribute.PROJECT,
-                ((AttributeMatchClause) matchClause).getAttribute());
+                ((TimeAttributeMatchClause) matchClause).getAttribute());
     }
 
 }
