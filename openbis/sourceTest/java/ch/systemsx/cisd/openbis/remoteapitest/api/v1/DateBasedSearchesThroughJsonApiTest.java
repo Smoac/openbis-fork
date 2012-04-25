@@ -273,7 +273,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
     private SearchParameters moreThanOrEqual(String date, String timezone)
     {
-        return new SearchParameters(SearchCriteria.CompareMode.MORE_THAN_OR_EQUAL, date, timezone);
+        return new SearchParameters(SearchCriteria.CompareMode.GREATER_THAN_OR_EQUAL, date, timezone);
     }
 
     private static class SearchParameters

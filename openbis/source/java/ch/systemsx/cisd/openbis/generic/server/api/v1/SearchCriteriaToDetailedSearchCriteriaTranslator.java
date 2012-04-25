@@ -381,7 +381,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case LESS_THAN_OR_EQUAL:
                     t = CompareType.LESS_THAN_OR_EQUAL;
                     break;
-                case MORE_THAN_OR_EQUAL:
+                case GREATER_THAN_OR_EQUAL:
                     t = CompareType.MORE_THAN_OR_EQUAL;
                     break;
                 default:
