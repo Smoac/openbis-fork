@@ -46,7 +46,7 @@ var common = {
   container_type: "Container",
   container_type_tooltip: "Container data sets do not contain any data in the data store itself. They can be thought as of grouping of other container or non-container data sets.",
   deletion_disallow: "Disallow deletion",
-  deletion_disallow_tooltip: "Data sets with disallow deletion flag can be deleted only by users with special rights (different from normal deletion rights). Deletion of such datasets also requires an additional confirmation.",
+  deletion_disallow_tooltip: "Data sets with disallow deletion flag can only be deleted if openBIS has been configured to allow this. Deletion of such data sets also requires an additional confirmation.",
   main_data_set_path: "Main Data Set Path",
   main_data_set_path_tooltip: "The path (relative to the top directory of a data set) that will be used as a starting point of 'main data set' lookup.\nExample: 'original/images/'",
   main_data_set_path_example: "for example: original/images/",
