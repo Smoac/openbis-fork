@@ -146,6 +146,19 @@ public final class DataDAOTest extends AbstractDAOTest
         dataDAO.createDataSet(data);
 
         DataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode);
+
+        assertDataEqual(data, dataSet);
+    }
+
+    @Test
+    public void testFindFullDataSets()
+    {
+        IDataDAO dataDAO = daoFactory.getDataDAO();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
+        DataPE data = createVirtualDataSet(dataSetCode, null);
+        dataDAO.createDataSet(data);
+
+        DataPE dataSet = dataDAO.tryToFindFullDataSetByCode(dataSetCode, true, true);
         assertDataEqual(data, dataSet);
     }
 
