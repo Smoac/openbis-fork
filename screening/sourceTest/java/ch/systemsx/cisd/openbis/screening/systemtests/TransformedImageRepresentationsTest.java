@@ -123,6 +123,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
             if (jpegResolutions.contains(resolution))
             {
                 assertEquals("jpg", format.getFileType().toLowerCase());
+                assertEquals(3, format.getTransformations().size());
             }
         }
 
