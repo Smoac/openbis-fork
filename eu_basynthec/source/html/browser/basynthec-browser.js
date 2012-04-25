@@ -384,7 +384,8 @@ AppPresenter.prototype.initializeOd600Map = function(ds)
 		var line = ds.od600Rows[i];
 		var strain = line[0].toUpperCase();
 		var data = line.slice(2).map(function(str) { return parseFloat(str)});
-		ds.od600Map[strain] = data;
+		if (null == ds.od600Map[strain]) ds.od600Map[strain] = [];
+		ds.od600Map[strain].push(data);
 	}
 }
 
@@ -819,11 +820,16 @@ function od600DataForStrain(d) {
 	
 	var dataSets = d.dataSets.filter(function(ds) { return isOd600DataSet(ds) });
 	var idx = -1;
-	var data = dataSets.map(function(ds) { 
-		idx = idx + 1;		
+	var data = [];
+	dataSets.map(function(ds) { 
 		if (null == ds.od600Map) return {};
-		return { strain: d, index: idx, values: ds.od600Map[d.name] }
-	});
+		var strainData = ds.od600Map[d.name];
+		if (null == strainData) return {};
+		strainData.map(function(curve) {
+			idx = idx + 1;
+			data.push({ strain: d, index: idx, values: curve });
+		});
+	})
 	return data;
 }
 
