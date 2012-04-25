@@ -372,6 +372,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 && matchClause instanceof TimeAttributeMatchClause)
         {
             CompareType t;
+            TimeAttributeMatchClause timeMatchClause = (TimeAttributeMatchClause) matchClause;
             switch (matchClause.getCompareMode())
             {
                 case EQUALS:
@@ -387,7 +388,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     throw new IllegalArgumentException("" + matchClause.getCompareMode());
             }
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause), t,
-                    matchClause.getDesiredValue(), matchClause.getTimeZone());
+                    timeMatchClause.getDesiredValue(), timeMatchClause.getTimeZone());
         } else
         {
             return new DetailedSearchCriterion(extractDetailedSearchField(matchClause),
