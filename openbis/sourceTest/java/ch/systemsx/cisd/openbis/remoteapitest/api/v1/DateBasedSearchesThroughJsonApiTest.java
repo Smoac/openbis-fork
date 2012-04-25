@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 @Test(groups =
@@ -85,8 +85,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
     @Test
     public void whenUsingEqualCompareModeDataFromTheDayBeforeIsExcluded()
     {
-        createDataSets(
-                aDataSet().called("dataset").withRegistrationDateOn("2011-05-09"));
+        createDataSets(aDataSet().called("dataset").withRegistrationDateOn("2011-05-09"));
 
         SearchCriteria criteria =
                 criteriaWith(registrationDate(equals("2011-05-10", "+1")));
@@ -99,8 +98,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
     @Test
     public void whenUsingEqualCompareModeDataFromTheDayAfterIsExcluded()
     {
-        createDataSets(
-                aDataSet().called("dataset").withRegistrationDateOn("2011-05-09"));
+        createDataSets(aDataSet().called("dataset").withRegistrationDateOn("2011-05-09"));
 
         SearchCriteria criteria =
                 criteriaWith(registrationDate(equals("2011-05-08", "+1")));
@@ -218,8 +216,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
     @Test
     public void aDataSetThatIsJustOutsideTheGivenDateOnGivenTimeZoneIsExcluded()
     {
-        createDataSets(
-                aDataSet().called("dataset").withRegistrationDateOn("2008-11-05 09:21:59.313+01"));
+        createDataSets(aDataSet().called("dataset").withRegistrationDateOn("2008-11-05 09:21:59.313+01"));
 
         SearchCriteria criteria =
                 criteriaWith(registrationDate(moreThanOrEqual("2008-11-05", "-9")));
@@ -232,8 +229,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
     @Test
     public void aDataSetThatIsJustInsideTheGivenDateOnGivenTimeZoneIsIncluded()
     {
-        createDataSets(
-                aDataSet().called("dataset").withRegistrationDateOn("2008-11-05 09:21:59.313+01"));
+        createDataSets(aDataSet().called("dataset").withRegistrationDateOn("2008-11-05 09:21:59.313+01"));
 
         SearchCriteria criteria =
                 criteriaWith(registrationDate(moreThanOrEqual("2008-11-05", "-8")));
@@ -255,13 +251,13 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
     private MatchClause registrationDate(SearchParameters param)
     {
-        return MatchClause.createAttributeMatch(MatchClauseAttribute.REGISTRATION_DATE, param
+        return MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.REGISTRATION_DATE, param
                 .getCompareMode(), param.getDate(), param.getTimeZone());
     }
 
     private MatchClause modificationDate(SearchParameters param)
     {
-        return MatchClause.createAttributeMatch(MatchClauseAttribute.MODIFICATION_DATE, param
+        return MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.MODIFICATION_DATE, param
                 .getCompareMode(), param.getDate(), param.getTimeZone());
     }
 
@@ -315,51 +311,45 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
     {
         private String code;
 
-        private String registrationDate;
-
-        private String modificationDate;
-
         private List<Filter<DataSetInfo>> filters = new ArrayList<Filter<DataSetInfo>>();
 
-        public DataSetParameters called(String code)
+        public DataSetParameters called(String aCode)
         {
-            this.code = code;
+            this.code = aCode;
             return this;
         }
 
-        public DataSetParameters withRegistrationDateOn(final String registrationDate)
+        public DataSetParameters withRegistrationDateOn(final String aDate)
         {
-            this.registrationDate = registrationDate;
             this.filters.add(new Filter<DataSetInfo>()
                 {
                     public boolean accepts(DataSetInfo t)
                     {
-                        return t.getRegistrationDate().startsWith(registrationDate);
+                        return t.getRegistrationDate().startsWith(aDate);
                     }
 
                     @Override
                     public String toString()
                     {
-                        return "registrationDate on " + registrationDate;
+                        return "registrationDate on " + aDate;
                     }
                 });
             return this;
         }
 
-        public DataSetParameters withModificationDateOn(final String modificationDate)
+        public DataSetParameters withModificationDateOn(final String aDateString)
         {
-            this.modificationDate = modificationDate;
             this.filters.add(new Filter<DataSetInfo>()
                 {
                     public boolean accepts(DataSetInfo t)
                     {
-                        return t.getModificationDate().startsWith(modificationDate);
+                        return t.getModificationDate().startsWith(aDateString);
                     }
 
                     @Override
                     public String toString()
                     {
-                        return "modificationDate on " + modificationDate;
+                        return "modificationDate on " + aDateString;
                     }
                 });
             return this;
@@ -368,16 +358,6 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         public String getCode()
         {
             return code;
-        }
-
-        public String getRegistrationDate()
-        {
-            return registrationDate;
-        }
-
-        public String getModificationDate()
-        {
-            return modificationDate;
         }
 
         public List<Filter<DataSetInfo>> getFilters()
@@ -550,21 +530,13 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             return true;
         }
 
-        /* for hamcrest 1.3
-        @Override
-        public void describeMismatchSafely(Collection<T> actualItems,
-                Description mismatchDescription)
-        {
-            mismatchDescription.appendText("These elements were missing: ");
-            for (Identifier<T> identifier : this.identifiers)
-            {
-                if (!identifier.foundIn(actualItems))
-                {
-                    mismatchDescription.appendText(identifier.toString() + " ");
-                }
-            }
-        }
-        */
+        /*
+         * for hamcrest 1.3
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description
+         * mismatchDescription) { mismatchDescription.appendText("These elements were missing: ");
+         * for (Identifier<T> identifier : this.identifiers) { if (!identifier.foundIn(actualItems))
+         * { mismatchDescription.appendText(identifier.toString() + " "); } } }
+         */
     }
 
     public static class CollectionDoesNotContainMatcher<T> extends TypeSafeMatcher<Collection<T>>
@@ -599,21 +571,14 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             return true;
         }
 
-        /* for hamcrest 1.3
-        @Override
-        public void describeMismatchSafely(Collection<T> actualItems,
-                Description mismatchDescription)
-        {
-            mismatchDescription.appendText("These unwanted elements were found: ");
-            for (Identifier<T> identifier : this.identifiers)
-            {
-                if (identifier.foundIn(actualItems))
-                {
-                    mismatchDescription.appendText(identifier.toString() + " ");
-                }
-            }
-        }
-        */
+        /*
+         * for hamcrest 1.3
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description
+         * mismatchDescription) {
+         * mismatchDescription.appendText("These unwanted elements were found: "); for
+         * (Identifier<T> identifier : this.identifiers) { if (identifier.foundIn(actualItems)) {
+         * mismatchDescription.appendText(identifier.toString() + " "); } } }
+         */
     }
 
     // This list contains all the datasets that are found in the database.

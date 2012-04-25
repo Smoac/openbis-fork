@@ -26,7 +26,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.Attribu
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseFieldType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.PropertyMatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.TimeAttributeMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
@@ -84,6 +86,13 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 attribute, entityKind));
     }
 
+    private static void throwInvalidSearchAttributeException(MatchClauseTimeAttribute attribute,
+            SearchableEntityKind entityKind) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(String.format(INVALID_SEARCH_ATTRIBUTE_TEMPLATE,
+                attribute, entityKind));
+    }
+
     private static AssociatedEntityKind convertToAssociatedEntityKind(
             SearchableEntityKind entityKind)
     {
@@ -129,6 +138,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
     {
         IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute);
+
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseTimeAttribute attribute);
     }
 
     public static class SampleAttributeTranslator implements IMatchClauseAttributeTranslator
@@ -148,6 +160,19 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case SPACE:
                     ans = SampleAttributeSearchFieldKind.SPACE;
                     break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
+                    ans = null; // for Eclipse
+            }
+            return ans;
+        }
+
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseTimeAttribute attribute)
+        {
+            final IAttributeSearchFieldKind ans;
+            switch (attribute)
+            {
                 case REGISTRATION_DATE:
                     ans = SampleAttributeSearchFieldKind.REGISTRATION_DATE;
                     break;
@@ -189,6 +214,20 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             return ans;
         }
 
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseTimeAttribute attribute)
+        {
+            IAttributeSearchFieldKind ans = null;
+            switch (attribute)
+            {
+                case REGISTRATION_DATE:
+                case MODIFICATION_DATE:
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.EXPERIMENT);
+            }
+            return ans;
+        }
+
     }
 
     public static class MaterialAttributeTranslator implements IMatchClauseAttributeTranslator
@@ -210,6 +249,14 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             }
             return ans;
         }
+
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseTimeAttribute attribute)
+        {
+            IAttributeSearchFieldKind ans = null;
+            throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
+            return ans;
+        }
     }
 
     public static class DataSetAttributeTranslator implements IMatchClauseAttributeTranslator
@@ -226,6 +273,18 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case TYPE:
                     ans = DataSetAttributeSearchFieldKind.DATA_SET_TYPE;
                     break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.DATA_SET);
+            }
+            return ans;
+        }
+
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseTimeAttribute attribute)
+        {
+            IAttributeSearchFieldKind ans = null;
+            switch (attribute)
+            {
                 case REGISTRATION_DATE:
                     ans = DataSetAttributeSearchFieldKind.REGISTRATION_DATE;
                     break;
@@ -310,9 +369,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
     {
 
         if (matchClause.getFieldType().equals(MatchClauseFieldType.ATTRIBUTE)
-                && (((AttributeMatchClause) matchClause).getAttribute().equals(
-                        MatchClauseAttribute.REGISTRATION_DATE) || ((AttributeMatchClause) matchClause)
-                        .getAttribute().equals(MatchClauseAttribute.MODIFICATION_DATE)))
+                && matchClause instanceof TimeAttributeMatchClause)
         {
             CompareType t;
             switch (matchClause.getCompareMode())
@@ -350,12 +407,23 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                                 .getPropertyCode());
                 break;
             case ATTRIBUTE:
-                MatchClauseAttribute attribute =
-                        ((AttributeMatchClause) matchClause).getAttribute();
-                IAttributeSearchFieldKind searchFieldKind =
-                        attributeTranslator
-                                .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
-                searchField = DetailedSearchField.createAttributeField(searchFieldKind);
+                if (matchClause instanceof TimeAttributeMatchClause)
+                {
+                    MatchClauseTimeAttribute attribute =
+                            ((TimeAttributeMatchClause) matchClause).getAttribute();
+                    IAttributeSearchFieldKind searchFieldKind =
+                            attributeTranslator
+                                    .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
+                    searchField = DetailedSearchField.createAttributeField(searchFieldKind);
+                } else
+                {
+                    MatchClauseAttribute attribute =
+                            ((AttributeMatchClause) matchClause).getAttribute();
+                    IAttributeSearchFieldKind searchFieldKind =
+                            attributeTranslator
+                                    .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
+                    searchField = DetailedSearchField.createAttributeField(searchFieldKind);
+                }
                 break;
             default:
                 // Should never reach here
