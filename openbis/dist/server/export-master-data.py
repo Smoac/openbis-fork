@@ -168,6 +168,7 @@ def exportDataSetType(dataSetType):
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
     isContainerType = dataSetType.isContainerType()
+    deletionDisallowed = dataSetType.isDeletionDisallowed()
     if (dataSetType.getCode() in EXISTING_DATASET_TYPES):
         return ""
     else:
@@ -175,6 +176,7 @@ def exportDataSetType(dataSetType):
 %(var)s = tr.getOrCreateNewDataSetType(%(code)s)
 %(var)s.setDescription(%(description)s)
 %(var)s.setContainerType(%(isContainerType)s)
+%(var)s.setDeletionDisallowed(%(deletionDisallowed)s)
 """ % vars()
 
 def exportMaterialType(materialType):

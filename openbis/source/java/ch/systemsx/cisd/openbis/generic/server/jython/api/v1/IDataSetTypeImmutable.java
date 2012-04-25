@@ -29,4 +29,9 @@ public interface IDataSetTypeImmutable extends IEntityType
      */
     public boolean isContainerType();
 
+    /**
+     * Returns <code>true</code> if deletion of data sets of this type are disallowed.
+     */
+    public boolean isDeletionDisallowed();
+
 }

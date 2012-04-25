@@ -38,4 +38,9 @@ public class DataSetType extends DataSetTypeImmutable implements IDataSetType
         getDataSetType().setContainerType(isContainerType);
     }
 
+    public void setDeletionDisallowed(boolean deletionDisallowed)
+    {
+        getDataSetType().setDeletionDisallow(deletionDisallowed);
+    }
+
 }

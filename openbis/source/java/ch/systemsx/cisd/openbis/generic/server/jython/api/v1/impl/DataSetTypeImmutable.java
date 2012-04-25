@@ -58,6 +58,11 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
         return getDataSetType().isContainerType();
     }
 
+    public boolean isDeletionDisallowed()
+    {
+        return getDataSetType().isDeletionDisallow();
+    }
+
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
