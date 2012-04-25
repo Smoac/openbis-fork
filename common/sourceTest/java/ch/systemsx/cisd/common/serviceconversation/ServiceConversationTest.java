@@ -229,53 +229,11 @@ public class ServiceConversationTest
         messenger.close();
     }
 
-    private static class EchoService implements IService
-    {
-        public void run(IServiceMessenger messenger)
-        {
-            try
-            {
-                System.err.println(Thread.currentThread().getName());
-                while (true)
-                {
-                    messenger.send(messenger.receive(String.class));
-                }
-            } catch (RuntimeException ex)
-            {
-                // Show exception
-                ex.printStackTrace();
-                // This doesn't matter: the exception goes into the void.
-                throw ex;
-            }
-        }
-
-        static IServiceFactory createFactory()
-        {
-            return new IServiceFactory()
-                {
-                    public IService create()
-                    {
-                        return new EchoService();
-                    }
-
-                    public int getClientTimeoutMillis()
-                    {
-                        return 100;
-                    }
-
-                    public String getServiceTypeId()
-                    {
-                        return "echo";
-                    }
-                };
-        }
-    }
-
     @Test
     public void testMultipleEchoServiceTerminateHappyCase() throws Exception
     {
         final ServiceConversationServerAndClientHolder holder =
-                createServerAndClient(EchoService.createFactory());
+                createServerAndClient(EchoService.createFactory(100));
         final IServiceConversation conversation = holder.client.startConversation("echo");
 
         conversation.send("One");
@@ -299,7 +257,7 @@ public class ServiceConversationTest
     public void testTwoMultipleEchoServiceTerminateHappyCase() throws Exception
     {
         final ServiceConversationServerAndClientHolder holder =
-                createServerAndClient(EchoService.createFactory());
+                createServerAndClient(EchoService.createFactory(100));
         final IServiceConversation conversation1 = holder.client.startConversation("echo");
         final IServiceConversation conversation2 = holder.client.startConversation("echo");
 
@@ -341,7 +299,7 @@ public class ServiceConversationTest
     public void testTwoMultipleEchoServiceSecondRejected() throws Exception
     {
         final ServiceConversationServerAndClientHolder holder =
-                createServerAndClientOneConversationOnly(EchoService.createFactory());
+                createServerAndClientOneConversationOnly(EchoService.createFactory(100));
         holder.client.startConversation("echo");
         try
         {
@@ -356,7 +314,7 @@ public class ServiceConversationTest
     public void testTwoMultipleEchoServiceSecondQueued() throws Exception
     {
         final ServiceConversationServerAndClientHolder holder =
-                createServerAndClientOneConcurrentConversation(EchoService.createFactory());
+                createServerAndClientOneConcurrentConversation(EchoService.createFactory(100));
         final IServiceConversation conversation1 = holder.client.startConversation("echo");
         assertEquals(0, conversation1.getServerWorkQueueSizeAtStartup());
         final IServiceConversation conversation2 = holder.client.startConversation("echo");
@@ -404,7 +362,7 @@ public class ServiceConversationTest
     public void testMultipleEchoServiceTerminateLowLevelHappyCase() throws Exception
     {
         final ServiceConversationServer conversations = new ServiceConversationServer(config());
-        conversations.addServiceType(EchoService.createFactory());
+        conversations.addServiceType(EchoService.createFactory(100));
         final BlockingQueue<ServiceMessage> messageQueue =
                 new LinkedBlockingQueue<ServiceMessage>();
         conversations.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
@@ -451,7 +409,7 @@ public class ServiceConversationTest
     public void testEchoServiceTimeout() throws Exception
     {
         final ServiceConversationServerAndClientHolder holder =
-                createServerAndClient(EchoService.createFactory());
+                createServerAndClient(EchoService.createFactory(100));
         final IServiceConversation conversation = holder.client.startConversation("echo");
         assertTrue(holder.server.hasConversation(conversation.getId()));
 
