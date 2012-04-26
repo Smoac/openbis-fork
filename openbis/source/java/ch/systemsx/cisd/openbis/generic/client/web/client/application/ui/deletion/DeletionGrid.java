@@ -119,7 +119,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                 }
                             });
 
-        addButton(deletePermanentlyButton);
+        // addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow revert of multiple deletions
         addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
