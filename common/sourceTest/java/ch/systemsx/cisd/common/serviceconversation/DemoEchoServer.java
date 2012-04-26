@@ -50,8 +50,8 @@ public class DemoEchoServer
         // A 'service type' corresponds to a 'remote procedure' in the conventional RPC model.
         server.addServiceType(EchoService.createFactory(1000));
         
-        // Cleanup any left-overs from the last execution.
-        ServerFileTransport.deleteFiles(ServerFileTransport.getMessageFiles("MSG_"));
+        // Cleanup any left-overs from previous executions.
+        ServerFileTransport.init();
     }
 
     void serve()

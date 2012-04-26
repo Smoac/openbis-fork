@@ -33,6 +33,14 @@ class ServerFileTransport extends FileTransport
     }
 
     /**
+     * Run once before using the transport. Cleans up any left-overs from previous executions.
+     */
+    static void init()
+    {
+        deleteFiles(getMessageFiles("MSG_"));
+    }
+
+    /**
      * Returns the client ids that send connection requests.
      */
     static String[] getConnectionRequests()
