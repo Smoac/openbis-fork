@@ -437,8 +437,11 @@ public class LogicalImageViewer
         if (tileLocation == null)
         {
             LogicalImageReference images = channelReferences.getBasicImage();
+            
+            TableLayout layout = new TableLayout(images.getTileColsNum());
+            layout.setCellSpacing(3);
             LayoutContainer container =
-                    new LayoutContainer(new TableLayout(images.getTileColsNum()));
+                    new LayoutContainer(layout);
 
             for (int row = 1; row <= images.getTileRowsNum(); row++)
             {
