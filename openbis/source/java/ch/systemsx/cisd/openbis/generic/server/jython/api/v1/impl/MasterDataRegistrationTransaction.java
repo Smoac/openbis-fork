@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
@@ -219,6 +220,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public List<IFileFormatTypeImmutable> listFileFormatTypes()
     {
         return commonServer.listFileFormatTypes();
+    }
+
+    public List<IScriptImmutable> listScripts()
+    {
+        return commonServer.listScripts();
     }
 
     public IPropertyType createNewPropertyType(String code, DataType dataType)
