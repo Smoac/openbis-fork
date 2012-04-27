@@ -415,7 +415,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
 
         public File tryGetFile()
         {
-            return lastExistingNode().getFile();
+            return lastExistingNode().tryGetFile();
         }
 
         public long getFileLength() throws UnsupportedOperationException

@@ -47,20 +47,6 @@ public class LogicalImageSeriesControls extends LayoutContainer
         this.imageModel = model;
     }
 
-    @Override
-    protected void onAttach()
-    {
-        super.onAttach();
-        getImageDownloader().setInitialState();
-    }
-
-    @Override
-    protected void onDetach()
-    {
-        super.onDetach();
-        getImageDownloader().stop();
-    }
-
     protected IViewContext<IScreeningClientServiceAsync> getViewContext()
     {
         return viewContext;

@@ -16,107 +16,82 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.logicalimage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LazyImageSeriesFrame;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LazyImageSeriesFrame.ImagesDownloadListener;
 
 /**
  * @author pkupczyk
  */
-/**
- * Takes into account the current position of the sliders to optimize the download of images. Images
- * downloads are grouped together in smaller chunks, which allows us to steer the download process
- * by following the slider movement.
- * <p>
- * In the beginning a small group of images is prefetched to allow smooth slider movement across the
- * first few frames.
- */
 class LogicalImageSeriesDownloader
 {
 
-    public static int NUM_FRAMES_TO_PREFETCH = 15;
-
-    public static int NUM_FRAMES_IN_DOWLOAD_CHUNK = 1;
-
     private List<LazyImageSeriesFrame> frames;
-
-    private boolean fullDownloadStarted;
-
-    private boolean keepDownloading;
 
     private int selectedFrameIndex = 0;
 
     private int shownFrameIndex = 0;
 
-    private ImagesDownloadListener imageDownloadListener;
-
     LogicalImageSeriesDownloader(List<LazyImageSeriesFrame> frames,
             ImagesDownloadListener imagesDownloadListener)
     {
         this.frames = frames;
-        this.imageDownloadListener = imagesDownloadListener;
-        prefetchFirstFrames(NUM_FRAMES_TO_PREFETCH);
-        setInitialState();
+        downloadFirstFrame(imagesDownloadListener);
     }
 
-    /**
-     * downloads the contents of the first <code>prefetchSize</code> frames.
-     */
-    private void prefetchFirstFrames(int prefetchSize)
+    private void downloadFirstFrame(ImagesDownloadListener listener)
     {
-        int numFrames = Math.min(prefetchSize, frames.size());
-
-        if (!frames.isEmpty())
+        if (frames.isEmpty())
         {
-            frames.get(0).addImagesDownloadListener(imageDownloadListener);
-        }
-
-        for (int i = 0; i < numFrames; i++)
+            if (listener != null)
+            {
+                listener.imagesDownloaded(null);
+            }
+        } else
         {
-            frames.get(i).downloadImagesFromServer();
+            downloadFrame(0, listener);
         }
     }
 
-    public void setInitialState()
+    private void downloadFrame(int frameIndex, ImagesDownloadListener listener)
     {
-        fullDownloadStarted = false;
-        keepDownloading = true;
+        LazyImageSeriesFrame frame = frames.get(frameIndex);
+
+        if (frame.areImagesDownloaded())
+        {
+            if (listener != null)
+            {
+                listener.imagesDownloaded(frame);
+            }
+        } else
+        {
+            if (listener != null)
+            {
+                frame.addImagesDownloadListener(listener);
+            }
+            frame.downloadImagesFromServer();
+        }
     }
 
-    public void stop()
+    public void setSelectedFrame(final int newSelectedFrameIndex, final AsyncCallback<Void> callback)
     {
-        keepDownloading = false;
-    }
-
-    public void frameSelectionChanged(int newSelectionIndex, AsyncCallback<Void> callback)
-    {
-        frameSelectionChanged(selectedFrameIndex, newSelectionIndex, callback);
-    }
-
-    public void frameSelectionChanged(final int oldSelectionIndex, final int newSelectionIndex,
-            final AsyncCallback<Void> callback)
-    {
-        final LazyImageSeriesFrame newSelectedFrame = frames.get(newSelectionIndex);
-
-        selectedFrameIndex = newSelectionIndex;
+        selectedFrameIndex = newSelectedFrameIndex;
 
         ImagesDownloadListener listener = new ImagesDownloadListener()
             {
                 public void imagesDownloaded(LazyImageSeriesFrame frame)
                 {
                     // do not display the frame if selection changed during loading
-                    if (newSelectionIndex == selectedFrameIndex)
+                    if (newSelectedFrameIndex == selectedFrameIndex)
                     {
+                        LazyImageSeriesFrame selectedFrame = frames.get(newSelectedFrameIndex);
                         LazyImageSeriesFrame shownFrame = frames.get(shownFrameIndex);
-                        shownFrameIndex = newSelectionIndex;
                         shownFrame.hide();
-                        newSelectedFrame.show();
+                        selectedFrame.show();
+                        shownFrameIndex = newSelectedFrameIndex;
                     }
                     if (callback != null)
                     {
@@ -125,88 +100,7 @@ class LogicalImageSeriesDownloader
                 }
             };
 
-        if (newSelectedFrame.areImagesDownloaded())
-        {
-            listener.imagesDownloaded(newSelectedFrame);
-        } else
-        {
-            newSelectedFrame.addImagesDownloadListener(listener);
-        }
-
-        if (false == fullDownloadStarted)
-        {
-            fullDownloadStarted = true;
-            scheduleDownloadNextChunkOfImages();
-        }
-
-    }
-
-    private void scheduleDownloadNextChunkOfImages()
-    {
-        GWTUtils.executeDelayed(new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    downloadNextChunkOfImages();
-                }
-            });
-    }
-
-    private void downloadNextChunkOfImages()
-    {
-        // prevent race condition by copying the state here
-        int pivot = selectedFrameIndex;
-        final List<LazyImageSeriesFrame> framesToDownload = new ArrayList<LazyImageSeriesFrame>();
-
-        for (int i = 0; i < frames.size(); i++)
-        {
-            int pos = (pivot + i) % frames.size();
-            final LazyImageSeriesFrame frame = frames.get(pos);
-            if (frame.needsImageDownload())
-            {
-                framesToDownload.add(frame);
-            }
-            if (framesToDownload.size() == NUM_FRAMES_IN_DOWLOAD_CHUNK)
-            {
-                break;
-            }
-        }
-
-        ImagesDownloadListener downloadListener = new ImagesDownloadListener()
-            {
-                private final List<LazyImageSeriesFrame> localFramesToDownload =
-                        new ArrayList<LazyImageSeriesFrame>(framesToDownload);
-
-                public void imagesDownloaded(LazyImageSeriesFrame frame)
-                {
-                    if (frame.isVisible())
-                    {
-                        frame.layout(true);
-                    }
-                    localFramesToDownload.remove(frame);
-                    if (localFramesToDownload.isEmpty() && shouldContinueDownloading())
-                    {
-                        scheduleDownloadNextChunkOfImages();
-                    }
-
-                }
-            };
-
-        for (LazyImageSeriesFrame frame : framesToDownload)
-        {
-            frame.addImagesDownloadListener(downloadListener);
-            frame.downloadImagesFromServer();
-        }
-    }
-
-    private boolean shouldContinueDownloading()
-    {
-        return keepDownloading && fullDownloadStarted;
-    }
-
-    public void setImagesDownloadListener(ImagesDownloadListener imageDownloadListener)
-    {
-        this.imageDownloadListener = imageDownloadListener;
+        downloadFrame(newSelectedFrameIndex, listener);
     }
 
 }

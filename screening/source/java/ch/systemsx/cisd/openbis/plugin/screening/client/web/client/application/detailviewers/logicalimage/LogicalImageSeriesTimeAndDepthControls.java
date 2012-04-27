@@ -159,7 +159,7 @@ public class LogicalImageSeriesTimeAndDepthControls extends LogicalImageSeriesCo
         int depthIndex = getDepthSlider().getValue();
 
         int frame = (timeIndex - 1) * getImageModel().getNumberOfDepthLevels() + (depthIndex - 1);
-        getImageDownloader().frameSelectionChanged(frame, callback);
+        getImageDownloader().setSelectedFrame(frame, callback);
 
         layout();
     }

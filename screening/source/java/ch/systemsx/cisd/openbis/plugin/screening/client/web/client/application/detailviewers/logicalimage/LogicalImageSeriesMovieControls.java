@@ -56,7 +56,7 @@ public class LogicalImageSeriesMovieControls extends LogicalImageSeriesControls
                 @Override
                 public void loadValue(int value, AsyncCallback<Void> callback)
                 {
-                    getImageDownloader().frameSelectionChanged(value - 1, callback);
+                    getImageDownloader().setSelectedFrame(value - 1, callback);
                     remove(getItem(0));
                     insert(new LogicalImageSeriesPointLabel(sortedPoints, value), 0);
                     layout();

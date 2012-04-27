@@ -191,6 +191,12 @@ public class MovieButtons extends Composite
         state.handleNext();
     }
 
+    @Override
+    protected void onUnload()
+    {
+        handleStop();
+    }
+
     private class MovieButtonsView extends Composite
     {
 

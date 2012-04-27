@@ -164,7 +164,7 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
 
     public File tryGetFile()
     {
-        return getContent().getFile();
+        return getContent().tryGetFile();
     }
 
     public long getFileLength() throws UnsupportedOperationException
