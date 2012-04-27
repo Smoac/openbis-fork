@@ -68,4 +68,13 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
         return EntityKind.DATA_SET;
     }
 
+    public String getMainDataSetPattern()
+    {
+        return getDataSetType().getMainDataSetPattern();
+    }
+
+    public String getMainDataSetPath()
+    {
+        return getDataSetType().getMainDataSetPath();
+    }
 }

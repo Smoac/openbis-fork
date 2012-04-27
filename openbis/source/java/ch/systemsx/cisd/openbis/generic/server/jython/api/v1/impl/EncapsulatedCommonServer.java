@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmuta
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -142,6 +143,17 @@ public class EncapsulatedCommonServer
                 .listFileFormatTypes(sessionToken))
         {
             result.add(new FileFormatTypeImmutable(type));
+        }
+        return result;
+    }
+
+    public List<IScriptImmutable> listScripts()
+    {
+        List<IScriptImmutable> result = new ArrayList<IScriptImmutable>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script : commonServer
+                .listScripts(sessionToken, null, null))
+        {
+            result.add(new ScriptImmutable(script));
         }
         return result;
     }

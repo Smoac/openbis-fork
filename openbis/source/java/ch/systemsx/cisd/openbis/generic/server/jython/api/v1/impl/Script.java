@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 /**
- * Description of the updates which should be performed on a script.
- * 
- * @author Izabela Adamczyk
+ * @author kohleman
  */
-public interface IScriptUpdates extends IIdHolder
+public class Script extends ScriptImmutable
 {
-    public String getDescription();
-
-    public String getName();
-
-    public String getScript();
-
+    public Script(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script)
+    {
+        super(script);
+    }
 }

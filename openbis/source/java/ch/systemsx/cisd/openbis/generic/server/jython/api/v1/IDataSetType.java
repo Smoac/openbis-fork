@@ -33,6 +33,16 @@ public interface IDataSetType extends IDataSetTypeImmutable
     public void setDescription(String description);
 
     /**
+     * Set the main data set pattern for this data set type.
+     */
+    public void setMainDataSetPattern(String mainDataSetPattern);
+
+    /**
+     * Set the main data set path for this data set type.
+     */
+    public void setMainDataSetPath(String mainDataSetPath);
+
+    /**
      * Sets to <code>true</code> if deletion of data sets of this type should be disallowed.
      */
     public void setDeletionDisallowed(boolean deletionDisallowed);

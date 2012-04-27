@@ -30,8 +30,22 @@ public interface IDataSetTypeImmutable extends IEntityType
     public boolean isContainerType();
 
     /**
+     * Get the description for this data set type.
+     */
+    public String getDescription();
+
+    /**
+     * Get the main data set pattern for this data set type.
+     */
+    public String getMainDataSetPattern();
+
+    /**
+     * Get the main data set path for this data set type.
+     */
+    public String getMainDataSetPath();
+
+    /**
      * Returns <code>true</code> if deletion of data sets of this type are disallowed.
      */
     public boolean isDeletionDisallowed();
-
 }
