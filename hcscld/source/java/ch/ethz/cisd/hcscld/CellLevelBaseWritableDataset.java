@@ -165,7 +165,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         if (shouldDeflate(size))
         {
-            return HDF5GenericStorageFeatures.GENERIC_DEFLATE;
+            return HDF5GenericStorageFeatures.GENERIC_SHUFFLE_DEFLATE;
         } else
         {
             return HDF5GenericStorageFeatures.GENERIC_COMPACT;
