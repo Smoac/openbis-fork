@@ -458,6 +458,16 @@ public final class Unix
         return processDetection != ProcessDetection.NONE;
     }
 
+    /**
+     * Returns the last error that occurred in this class. Use this to find out what went wrong
+     * after {@link #tryGetLinkInfo(String)} or {@link #tryGetFileInfo(String)} returned
+     * <code>null</code>.
+     */
+    public static String getLastError()
+    {
+        return strerror();
+    }
+
     //
     // Process functions
     //
@@ -572,6 +582,15 @@ public final class Unix
         }
     }
 
+    private static Stat tryGetStat(String fileName) throws IOExceptionUnchecked
+    {
+        if (fileName == null)
+        {
+            throw new NullPointerException("fileName");
+        }
+        return stat(fileName);
+    }
+
     private static Stat getStat(String fileName) throws IOExceptionUnchecked
     {
         if (fileName == null)
@@ -584,6 +603,15 @@ public final class Unix
             throwStatException(fileName, strerror());
         }
         return result;
+    }
+
+    private static Stat tryGetLStat(String linkName) throws IOExceptionUnchecked
+    {
+        if (linkName == null)
+        {
+            throw new NullPointerException("linkName");
+        }
+        return lstat(linkName);
     }
 
     private static Stat getLStat(String linkName) throws IOExceptionUnchecked
@@ -648,17 +676,6 @@ public final class Unix
     }
 
     /**
-     * Returns the information about <var>linkName</var>.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
-     *             does not exist.
-     */
-    public static final Stat getLinkInfo(String linkName) throws IOExceptionUnchecked
-    {
-        return getLinkInfo(linkName, true);
-    }
-
-    /**
      * Returns the information about <var>fileName</var>.
      * 
      * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file
@@ -667,6 +684,27 @@ public final class Unix
     public static final Stat getFileInfo(String fileName) throws IOExceptionUnchecked
     {
         return getStat(fileName);
+    }
+
+    /**
+     * Returns the information about <var>fileName</var>, or {@link NullPointerException}, if the
+     * information could not be obtained, e.g. because the file does not exist (call
+     * {@link #getLastError()} to find out what went wrong).
+     */
+    public static final Stat tryGetFileInfo(String fileName) throws IOExceptionUnchecked
+    {
+        return tryGetStat(fileName);
+    }
+
+    /**
+     * Returns the information about <var>linkName</var>.
+     * 
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final Stat getLinkInfo(String linkName) throws IOExceptionUnchecked
+    {
+        return getLinkInfo(linkName, true);
     }
 
     /**
@@ -682,8 +720,39 @@ public final class Unix
     {
         final Stat stat = getLStat(linkName);
         final String symbolicLinkOrNull =
-                (readSymbolicLinkTarget && stat.isSymbolicLink()) ? readlink(linkName, (int) stat
-                        .getSize()) : null;
+                (readSymbolicLinkTarget && stat.isSymbolicLink()) ? readlink(linkName,
+                        (int) stat.getSize()) : null;
+        stat.setSymbolicLinkOrNull(symbolicLinkOrNull);
+        return stat;
+    }
+
+    /**
+     * Returns the information about <var>linkName</var>, or {@link NullPointerException}, if the
+     * information could not be obtained, e.g. because the link does not exist (call
+     * {@link #getLastError()} to find out what went wrong).
+     */
+    public static final Stat tryGetLinkInfo(String linkName) throws IOExceptionUnchecked
+    {
+        return tryGetLinkInfo(linkName, true);
+    }
+
+    /**
+     * Returns the information about <var>linkName</var>, or <code>null</code> if the information
+     * can not be obtained, e.g. because the link does not exist (call {@link #getLastError()} to
+     * find out what went wrong). If <code>readSymbolicLinkTarget == true</code>, then the symbolic
+     * link target is read when <var>linkName</var> is a symbolic link.
+     */
+    public static final Stat tryGetLinkInfo(String linkName, boolean readSymbolicLinkTarget)
+            throws IOExceptionUnchecked
+    {
+        final Stat stat = tryGetLStat(linkName);
+        if (stat == null)
+        {
+            return null;
+        }
+        final String symbolicLinkOrNull =
+                (readSymbolicLinkTarget && stat.isSymbolicLink()) ? readlink(linkName,
+                        (int) stat.getSize()) : null;
         stat.setSymbolicLinkOrNull(symbolicLinkOrNull);
         return stat;
     }
@@ -708,7 +777,8 @@ public final class Unix
      * Sets the owner of <var>filename</var> to the specified <var>uid</var> and <var>gid</var>
      * values.
      */
-    public static final void setOwner(String fileName, int uid, int gid) throws IOExceptionUnchecked
+    public static final void setOwner(String fileName, int uid, int gid)
+            throws IOExceptionUnchecked
     {
         if (fileName == null)
         {

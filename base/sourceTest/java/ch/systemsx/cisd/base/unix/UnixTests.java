@@ -105,6 +105,35 @@ public class UnixTests extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
+        { "requires_unix" })
+    public void testGetLinkInfoSymLinkDanglingLink() throws IOException
+    {
+        final File s = new File(workingDirectory, "someDanglingLink");
+        Unix.createSymbolicLink("link_to_nowhere", s.getAbsolutePath());
+        final Stat info = Unix.tryGetLinkInfo(s.getAbsolutePath());
+        assertNotNull(info);
+        assertEquals(1, info.getNumberOfHardLinks());
+        assertEquals(FileLinkType.SYMLINK, info.getLinkType());
+        assertTrue(info.isSymbolicLink());
+        final Stat info2 = Unix.tryGetFileInfo(s.getAbsolutePath());
+        assertNull(info2);
+        assertEquals("No such file or directory", Unix.getLastError());
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testGetLinkInfoNonExistent() throws IOException
+    {
+        final File s = new File(workingDirectory, "nonExistent");
+        final Stat info = Unix.tryGetLinkInfo(s.getAbsolutePath());
+        assertNull(info);
+        assertEquals("No such file or directory", Unix.getLastError());
+        final Stat info2 = Unix.tryGetFileInfo(s.getAbsolutePath());
+        assertNull(info2);
+        assertEquals("No such file or directory", Unix.getLastError());
+    }
+
+    @Test(groups =
         { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testCreateSymbolicLinkNull() throws IOException
     {
@@ -268,7 +297,7 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertTrue(Unix.canDetectProcesses());
         assertTrue(Unix.isProcessRunningPS(Unix.getPid()));
     }
-    
+
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
