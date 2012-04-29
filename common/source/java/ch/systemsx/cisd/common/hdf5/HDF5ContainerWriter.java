@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.hdf5.h5ar.ArchivingStrategy;
 import ch.systemsx.cisd.hdf5.h5ar.HDF5ArchiverFactory;
 import ch.systemsx.cisd.hdf5.h5ar.IHDF5Archiver;
 import ch.systemsx.cisd.hdf5.h5ar.NewArchiveEntry;
@@ -31,24 +32,30 @@ import ch.systemsx.cisd.hdf5.h5ar.NewArchiveEntry;
  */
 class HDF5ContainerWriter implements IHDF5ContainerWriter
 {
+    private static final ArchivingStrategy COMPRESSED_STRATEGY = new ArchivingStrategy()
+            .compressAll().seal();
+
     private final IHDF5Archiver archiver;
 
     private final boolean compress;
+    
+    private final ArchivingStrategy strategy;
 
     HDF5ContainerWriter(HDF5Container parent, File containerFile, boolean compress)
     {
         this.archiver = HDF5ArchiverFactory.open(containerFile);
         this.compress = compress;
+        this.strategy = compress ? COMPRESSED_STRATEGY : ArchivingStrategy.DEFAULT;
     }
 
     public void archiveToHDF5Container(String rootPath, File path) throws IOExceptionUnchecked
     {
         if (path.isFile())
         {
-            archiver.archiveFromFilesystem(rootPath, path);
+            archiver.archiveFromFilesystem(rootPath, path, strategy);
         } else
         {
-            archiver.archiveFromFilesystemBelowDirectory(rootPath, path);
+            archiver.archiveFromFilesystemBelowDirectory(rootPath, path, strategy);
         }
     }
 
