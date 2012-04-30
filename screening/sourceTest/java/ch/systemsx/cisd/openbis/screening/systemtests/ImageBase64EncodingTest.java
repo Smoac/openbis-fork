@@ -121,8 +121,20 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         byte[] originalImage1 = getBytes(IMAGE1_FILENAME);
         byte[] originalImage2 = getBytes(IMAGE2_FILENAME);
         
-        List<Plate> plates = screeningFacade.listPlates();
+        List<Plate> p = screeningFacade.listPlates();
+        List<Plate> plates = new ArrayList<Plate>();
+        for (Plate plate : p) {
+            if (plate.getAugmentedCode().equals("/TEST/BASE64PLATE")) {
+                plates.add(plate);
+                break;
+            }
+        }
+        
         List<ImageDatasetReference> imageDatasets = screeningFacade.listRawImageDatasets(plates);
+        
+        System.out.println(plates);
+        System.out.println(imageDatasets);
+        
         List<PlateImageReference> plateImages = new ArrayList<PlateImageReference>();
         
         plateImages.add(new PlateImageReference(0, "MERGED CHANNELS", new WellPosition(1,1), imageDatasets.get(0)));

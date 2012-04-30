@@ -252,7 +252,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(dao).createDataSetFiles(
                             with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
-                                    "", "ds1-root", 12345L, new Date(42))))));
+                                    "", "ds1-root", 12345L, false, new Date(42))))));
 
                     one(dao).commit();
                     one(shareIdManager).releaseLocks();

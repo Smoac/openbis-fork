@@ -42,6 +42,6 @@ public interface IPathsInfoDAO extends TransactionQuery
             String fileName, long sizeInBytes, boolean directory, Date lastModifiedDate);
 
     @Update(sql = "insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
-            + "size_in_bytes, is_directory, last_modified) values (?{1.dataSetId}, ?{1.parentId}, ?{1.relativePath}, ?{1.fileName}, ?{1.sizeInBytes}, false, ?{1.lastModifiedDate})", batchUpdate = true)
+            + "size_in_bytes, is_directory, last_modified) values (?{1.dataSetId}, ?{1.parentId}, ?{1.relativePath}, ?{1.fileName}, ?{1.sizeInBytes}, ?{1.directory}, ?{1.lastModifiedDate})", batchUpdate = true)
     public void createDataSetFiles(Collection<PathEntryDTO> filePaths);
 }

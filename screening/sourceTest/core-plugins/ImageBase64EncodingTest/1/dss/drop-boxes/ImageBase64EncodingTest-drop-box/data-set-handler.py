@@ -99,7 +99,7 @@ def create_experiment(tr):
     project = tr.getProject("/TEST/TEST-PROJECT")
     if project == None:
         project = tr.createNewProject("/TEST/TEST-PROJECT")
-    expid = "/TEST/TEST-PROJECT/PENKKI"
+    expid = "/TEST/TEST-PROJECT/BASE64EXPERIMENT"
 
     exp = tr.createNewExperiment(expid, 'SIRNA_HCS')
     exp.setPropertyValue("DESCRIPTION", "Test experiment")
@@ -124,13 +124,13 @@ def create_plate(tr, experiment, plateCode):
 if incoming.isDirectory(): 
   tr = service.transaction()
   experiment = create_experiment(tr)
-  plate = create_plate(tr, experiment, 'PLEITTI')
+  plate = create_plate(tr, experiment, 'BASE64PLATE')
   tr.commit()
   
   
   imageDataset = ImageDataSetFlexible()
   imageDataset.setRawImageDatasetType()
-  imageDataset.setPlate("TEST", 'PLEITTI')
+  imageDataset.setPlate("TEST", 'BASE64PLATE')
   transforms = getAvailableChannelTransformations()
   # We want thumbnails generarted for the following resolutions, and they should be JPEG and have the
   # Radial Blur transform applied

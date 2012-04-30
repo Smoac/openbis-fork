@@ -82,7 +82,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         } else
         {
             addFilePathToBatch(new PathEntryDTO(dataSetId, parentId, relativePath, fileName,
-                    pathInfo.getSizeInBytes(), pathInfo.getLastModifiedDate()));
+                    pathInfo.getSizeInBytes(), false, pathInfo.getLastModifiedDate()));
         }
     }
 

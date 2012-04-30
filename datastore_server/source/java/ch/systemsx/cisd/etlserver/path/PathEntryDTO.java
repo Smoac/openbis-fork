@@ -18,36 +18,46 @@ package ch.systemsx.cisd.etlserver.path;
 
 import java.util.Date;
 
+import net.lemnik.eodsql.ResultColumn;
+
 /**
  * A DTO for path entries which are files.
  * 
  * @author Bernd Rinn
  */
-class PathEntryDTO
+public class PathEntryDTO
 {
-    public final long dataSetId;
+    @ResultColumn("dase_id")
+    private  Long dataSetId;
+    @ResultColumn("parent_id")
+    private  Long parentId;
+    @ResultColumn("relative_path")
+    private  String relativePath;
+    @ResultColumn("file_name")
+    private  String fileName;
+    @ResultColumn("size_in_bytes")
+    private  Long sizeInBytes;
+    
+    @ResultColumn("is_directory")
+    private Boolean directory;
+    @ResultColumn("last_modified")
+    private  Date lastModifiedDate;
 
-    public final Long parentId;
-
-    public final String relativePath;
-
-    public final String fileName;
-
-    public final long sizeInBytes;
-
-    public final Date lastModifiedDate;
-
-    PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
-            long sizeInBytes, Date lastModifiedDate)
+    public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
+            long sizeInBytes, boolean isDirectory, Date lastModifiedDate)
     {
         this.dataSetId = dataSetId;
         this.parentId = parentId;
         this.relativePath = relativePath;
         this.fileName = fileName;
         this.sizeInBytes = sizeInBytes;
+        this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }
     
+    private PathEntryDTO() {
+        
+    }
     //
     // For unit tests.
     //
@@ -115,5 +125,75 @@ class PathEntryDTO
                 + ", relativePath=" + relativePath + ", fileName=" + fileName
                 + ", sizeInBytes=" + sizeInBytes + ", lastModifiedDate=" + lastModifiedDate
                 + "]";
+    }
+
+    public long getDataSetId()
+    {
+        return dataSetId;
+    }
+
+    public void setDataSetId(long dataSetId)
+    {
+        this.dataSetId = dataSetId;
+    }
+
+    public Long getParentId()
+    {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId)
+    {
+        this.parentId = parentId;
+    }
+
+    public String getRelativePath()
+    {
+        return relativePath;
+    }
+
+    public void setRelativePath(String relativePath)
+    {
+        this.relativePath = relativePath;
+    }
+
+    public String getFileName()
+    {
+        return fileName;
+    }
+
+    public void setFileName(String fileName)
+    {
+        this.fileName = fileName;
+    }
+
+    public long getSizeInBytes()
+    {
+        return sizeInBytes;
+    }
+
+    public void setSizeInBytes(long sizeInBytes)
+    {
+        this.sizeInBytes = sizeInBytes;
+    }
+
+    public Date getLastModifiedDate()
+    {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate)
+    {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean isDirectory()
+    {
+        return directory;
+    }
+
+    public void setDirectory(boolean isDirectory)
+    {
+        this.directory = isDirectory;
     }
 }
