@@ -61,8 +61,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
     { "slow", "systemtest" })
 public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
 {
-    private static String IMAGE1_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPlate_wA1_s1_cRGB.png";
-    private static String IMAGE2_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPlate_wA2_s1_cRGB.png";
+    private static String IMAGE1_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPLATE_wA1_s1_cRGB.png";
+    private static String IMAGE2_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPLATE_wA2_s1_cRGB.png";
     
     private MockHttpServletRequest request;
 
@@ -140,7 +140,6 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     
     private static byte[] getBytes(String filename) throws FileNotFoundException, IOException {
         File file = new File(filename);
-        System.out.println(file.getCanonicalPath());
         FileInputStream fis = new FileInputStream(file);
         byte[] bytes = new byte[(int)file.length()];
         fis.read(bytes);
