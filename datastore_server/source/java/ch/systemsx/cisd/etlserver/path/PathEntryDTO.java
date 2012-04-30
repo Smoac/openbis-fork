@@ -113,7 +113,18 @@ public class PathEntryDTO
                 return false;
         } else if (!relativePath.equals(other.relativePath))
             return false;
-        if (sizeInBytes != other.sizeInBytes)
+
+        if (sizeInBytes == null && other.sizeInBytes != null) {
+            return false;
+        }
+        if (sizeInBytes != null && other.sizeInBytes == null) {
+            return false;
+        }
+        if (sizeInBytes == null && other.sizeInBytes == null) {
+            return true;
+        }
+        
+        if (sizeInBytes.longValue() != other.sizeInBytes.longValue())
             return false;
         return true;
     }
@@ -124,6 +135,7 @@ public class PathEntryDTO
         return "PathEntryDTO [dataSetId=" + dataSetId + ", parentId=" + parentId
                 + ", relativePath=" + relativePath + ", fileName=" + fileName
                 + ", sizeInBytes=" + sizeInBytes + ", lastModifiedDate=" + lastModifiedDate
+                + ", isDirectory="+directory
                 + "]";
     }
 
