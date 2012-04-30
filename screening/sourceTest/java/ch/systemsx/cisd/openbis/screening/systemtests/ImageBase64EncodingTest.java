@@ -118,6 +118,8 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     @Test
     public void base64EncodedImagesContainTheOriginalData() throws Exception
     {
+        System.out.println(IMAGE1_FILENAME);
+        
         byte[] originalImage1 = getBytes(IMAGE1_FILENAME);
         byte[] originalImage2 = getBytes(IMAGE2_FILENAME);
         
