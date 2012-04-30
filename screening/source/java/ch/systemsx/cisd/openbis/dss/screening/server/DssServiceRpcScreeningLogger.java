@@ -113,6 +113,11 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> references, boolean convertToPng) {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONVERT(%s)", references);
+        return null;
+    }
+    
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)
     {

@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,8 @@ import java.util.Set;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
+import com.googlecode.jsonrpc4j.Base64;
+
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
@@ -39,6 +43,7 @@ import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
+import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.HierarchicalContentNodeBasedHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -570,6 +575,35 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         return loadImages(sessionToken, imageReferences, null, null, convertToPng);
     }
+    
+    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
+
+        InputStream stream = loadImages(sessionToken, imageReferences, convertToPng);
+
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+
+        List<String> result = new ArrayList<String>();
+        try
+        {
+            for (byte[] bytes = extractNextImage(imagesWriter); bytes.length > 0; bytes = extractNextImage(imagesWriter)) {
+               result.add(Base64.encodeBytes(bytes));
+            }
+        } catch (IOException ex)
+        {
+            operationLog.error("Error reading image.", ex);
+        }
+        return result;
+    }
+
+    
+    private byte[] extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter) throws IOException
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        imagesWriter.writeNextBlock(outputStream);
+        return outputStream.toByteArray();
+    }
+    
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)

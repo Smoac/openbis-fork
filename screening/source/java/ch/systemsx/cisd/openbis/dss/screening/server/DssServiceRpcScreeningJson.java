@@ -109,6 +109,11 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     {
         return handleNotSupportedMethod();
     }
+    
+    
+    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
+        return service.loadImagesBase64(sessionToken, imageReferences, convertToPng);       
+    }
 
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
@@ -306,5 +311,4 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
             super(c);
         }
     }
-
 }

@@ -168,6 +168,17 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<PlateImageReference> imageReferences, boolean convertToPng);
 
     /**
+     * Provide images for a given list of image references (specified by data set code, well
+     * position, channel and tile). The result is list of base64 encoded strings that contain
+     * the image data. The number of strings is equal to the number of specified
+     * references and the order of string corresponds to the order of image references. If
+     * <code>convertToPng==true</code>, the images will be converted to PNG format before being
+     * shipped, otherwise they will be shipped in the format that they are stored on the server.
+     */
+    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng);
+
+    
+    /**
      * Provide thumbnail images for a given list of image references (specified by data set code,
      * well position, channel and tile). The result is encoded into one stream, which consist of
      * multiple blocks in a format: (<block-size><block-of-bytes>), where block-size is the block
