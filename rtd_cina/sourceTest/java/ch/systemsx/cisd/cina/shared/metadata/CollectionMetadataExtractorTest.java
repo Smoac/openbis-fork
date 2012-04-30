@@ -33,7 +33,7 @@ public class CollectionMetadataExtractorTest extends AssertJUnit
     {
         File folder =
                 new File(
-                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/Annotations");
+                        "sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Collections/ReplicTest/Annotations");
         CollectionMetadataExtractor metadata = new CollectionMetadataExtractor(folder);
         metadata.prepare();
 

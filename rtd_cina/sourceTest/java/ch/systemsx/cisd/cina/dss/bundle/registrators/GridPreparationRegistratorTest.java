@@ -38,7 +38,7 @@ public class GridPreparationRegistratorTest extends CinaBundleRegistrationTest
         setupSessionContextExpectations();
 
         File dataSetFile =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
         createRegistrator(dataSetFile);
 
         context.checking(new Expectations()
@@ -68,14 +68,14 @@ public class GridPreparationRegistratorTest extends CinaBundleRegistrationTest
         setupCallerDataSetInfoExpectations();
 
         File dataSetFile =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
 
         setupNewEntititesExpectations();
 
         setupExistingGridPrepExpectations();
-        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/RawData");
-        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/Annotations");
-        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Annotations/CollectionMetadata.xml");
+        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Collections/ReplicTest/RawData");
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Collections/ReplicTest/Annotations");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/CollectionMetadata.xml");
 
         createRegistrator(dataSetFile);
         registrator.register();
@@ -94,12 +94,12 @@ public class GridPreparationRegistratorTest extends CinaBundleRegistrationTest
         setupCallerDataSetInfoExpectations();
 
         File dataSetFile =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/");
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
 
         setupExistingGridPrepExpectations();
         setupExistingCollectionSampleExpectations();
-        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Collections/ReplicTest/Annotations");
-        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test-New.bundle/Annotations/CollectionMetadata.xml");
+        setupHandleCollectionMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Collections/ReplicTest/Annotations");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/CollectionMetadata.xml");
 
         createRegistrator(dataSetFile);
         registrator.register();
