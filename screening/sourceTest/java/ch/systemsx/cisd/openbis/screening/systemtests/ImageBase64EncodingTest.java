@@ -21,9 +21,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,8 +118,6 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     @Test
     public void base64EncodedImagesContainTheOriginalData() throws Exception
     {
-        System.out.println(IMAGE1_FILENAME);
-        
         byte[] originalImage1 = getBytes(IMAGE1_FILENAME);
         byte[] originalImage2 = getBytes(IMAGE2_FILENAME);
         
@@ -141,9 +139,12 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     }
     
     private static byte[] getBytes(String filename) throws FileNotFoundException, IOException {
-        RandomAccessFile f = new RandomAccessFile(filename, "r");
-        byte[] bytes = new byte[(int)f.length()];
-        f.read(bytes);
+        File file = new File(filename);
+        System.out.println(file.getCanonicalPath());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] bytes = new byte[(int)file.length()];
+        fis.read(bytes);
+        fis.close();
         return bytes;
     }
     
