@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Sample related business rules.
@@ -59,7 +60,8 @@ public class SampleGenericBusinessRules
     static private void assertValidChildrenRelation(final List<SamplePE> children,
             final SamplePE parent, final String childRelationName) throws UserFailureException
     {
-        if (children == null || children.size() == 0 || parent == null)
+        if (false == HibernateUtils.isInitialized(children) || children == null
+                || children.size() == 0 || parent == null)
             return;
 
         // new identifier of a parent is needed for comparison
