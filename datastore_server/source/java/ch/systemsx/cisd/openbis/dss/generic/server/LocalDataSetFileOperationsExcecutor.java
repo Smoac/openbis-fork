@@ -149,21 +149,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
 
     public void copyDataSetToDestination(File dataSet, File destination)
     {
-        try
-        {
-            if (dataSet.isFile())
-            {
-                fileOperations.copyFileToDirectory(dataSet, destination);
-            } else
-            {
-                fileOperations.copyDirectoryToDirectory(dataSet, destination);
-            }
-            new File(destination, dataSet.getName()).setLastModified(dataSet.lastModified());
-        } catch (Exception ex)
-        {
-            operationLog.error("Couldn't copy '" + dataSet + "' to '" + destination + "'", ex);
-            throw new ExceptionWithStatus(Status.createError("copy failed"), ex);
-        }
+        syncDataSetWithDestination(dataSet, destination);
     }
 
     public void syncDataSetWithDestination(File dataSet, File destination)
