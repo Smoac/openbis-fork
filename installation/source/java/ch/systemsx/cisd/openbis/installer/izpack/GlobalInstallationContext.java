@@ -47,7 +47,10 @@ public class GlobalInstallationContext
     
     public static final String TECHNOLOGY_SCREENING = "SCREENING";
     
-    public static final String[] TECHNOLOGIES = {TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING};
+    public static final String TECHNOLOGY_ILLUMINA_NGS = "ILLUMINA-NGS";
+    
+    public static final String[] TECHNOLOGIES =
+        { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS };
     
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.

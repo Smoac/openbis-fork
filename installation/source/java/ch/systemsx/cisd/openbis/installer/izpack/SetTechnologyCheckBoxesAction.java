@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
-import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_PROTEOMICS;
-import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_SCREENING;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,12 +49,9 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
 
         private final String technologyName;
 
-        private final String dssPropertiesSignature;
-
-        SimpleTechnologyChecker(String technologyName, String dssPropertiesSignature)
+        SimpleTechnologyChecker(String technologyName)
         {
             this.technologyName = technologyName;
-            this.dssPropertiesSignature = dssPropertiesSignature;
         }
 
         public String getTechnologyName()
@@ -73,7 +67,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             {
                 return technologies.contains(technologyName.toLowerCase()) == false;
             }
-            return Utils.dssPropertiesContains(installDir, dssPropertiesSignature);
+            return Utils.dssPropertiesContains(installDir, technologyName.toLowerCase());
         }
     }
     
@@ -82,8 +76,10 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
     
     public SetTechnologyCheckBoxesAction()
     {
-        registerTechnologyChecker(new SimpleTechnologyChecker(TECHNOLOGY_PROTEOMICS, "proteomics"));
-        registerTechnologyChecker(new SimpleTechnologyChecker(TECHNOLOGY_SCREENING, "screen"));
+        for (String technology : GlobalInstallationContext.TECHNOLOGIES)
+        {
+            registerTechnologyChecker(new SimpleTechnologyChecker(technology));
+        }
     }
     
     private void registerTechnologyChecker(ITechnologyChecker checker)
