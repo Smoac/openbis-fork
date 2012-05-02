@@ -70,9 +70,13 @@
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <antcall target="make-dss-plugin-jar"/>
+  </target>
+  
+  <target name="make-dss-plugin-jar">
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
-			<fileset dir="${classes}">
+			<fileset dir="../deep_sequencing_unit/${classes}">
 				<include name="ch/ethz/bsse/cisd/dsu/**/*.class" />
 				<include name="ch/systemsx/cisd.openbis/dss/BuildAndEnvironmentInfo.class" />
 				<include name="${build.info.filename}" />
