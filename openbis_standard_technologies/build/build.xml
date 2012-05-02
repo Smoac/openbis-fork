@@ -1,6 +1,7 @@
 <project name="openbis_standard_technologies" default="dist" basedir="..">
   <import file="../../screening/build/build.xml" />
   <import file="../../rtd_phosphonetx/build/build.xml" />
+  <import file="../../deep_sequencing_unit/build/build.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
   <property name="gwt.extended.sources" value="${gwt.sources}:../rtd_phosphonetx/${sources}:../screening/${sources}" />
@@ -14,6 +15,10 @@
 	  </antcall>
 	  <antcall target="copy-core-plugins">
 	    <param name="project-path" value="../screening/"/>
+	    <param name="plugin-kind" value="as"/>
+	  </antcall>
+	  <antcall target="copy-core-plugins">
+	    <param name="project-path" value="../deep_sequencing_unit/"/>
 	    <param name="plugin-kind" value="as"/>
 	  </antcall>
   </target>
@@ -31,6 +36,14 @@
 		<antcall target="datastore_server.add-dss-dist-libs"/>
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<antcall target="make-dss-jar"/>
+		
+		<!-- illumina ngs -->
+		<antcall target="deep_sequencing_unit.make-dss-plugin-jar"/>
+		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-illumina-ngs.jar" />
+		<antcall target="openbis.copy-core-plugins">
+      <param name="project-path" value="../deep_sequencing_unit/" />
+      <param name="plugin-kind" value="dss" />
+		</antcall>
 		
 		<!-- proteomics -->
 		<antcall target="rtd_phosphonetx.make-dss-plugin-jar"/>
