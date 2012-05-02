@@ -18,9 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -34,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventParser;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -108,29 +107,10 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
-            Map<String, String> map = createIdentifierToLocationMap(event.getDescription());
-            List<String> identifiers = event.getIdentifiers();
-            for (String dataSetCode : identifiers)
-            {
-                String dataSetLocation = map.get(dataSetCode);
-                DeletedDataSet deletedDataSet =
-                        new DeletedDataSet(dataSetCode, dataSetLocation, event.getId());
-                result.add(deletedDataSet);
-            }
+            DeleteDataSetEventParser parser = new DeleteDataSetEventParser(event);
+            result.addAll(parser.getDeletedDatasets());
         }
         return result;
     }
 
-    private Map<String, String> createIdentifierToLocationMap(String locations)
-    {
-        Map<String, String> result = new HashMap<String, String>();
-        for (String location : locations.split(EventPE.IDENTIFIER_SEPARATOR))
-        {
-            int lastIndexOfSlash = location.lastIndexOf('/');
-            String identifier =
-                    lastIndexOfSlash < 0 ? location : location.substring(lastIndexOfSlash + 1);
-            result.put(identifier, location);
-        }
-        return result;
-    }
 }

@@ -132,10 +132,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         assertDataSetsAreKnown(availableDatasets, forceNotExistingLocations);
         for (Map.Entry<DataStorePE, List<DeletedDataPE>> entry : allToBeDeleted.entrySet())
         {
-            DataStorePE dataStore = entry.getKey();
             List<DeletedDataPE> allDataSets = entry.getValue();
             deleteLocallyFromDB(reason, allDataSets);
-            deleteRemotelyFromDataStore(availableDatasets, dataStore);
         }
     }
 
@@ -156,13 +154,6 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         {
             throwException(ex, "Data Set", EntityKind.DATA_SET);
         }
-    }
-
-    private void deleteRemotelyFromDataStore(
-            Map<DataStorePE, List<DeletedExternalDataPE>> availableDatasets, DataStorePE dataStore)
-    {
-        List<DeletedExternalDataPE> availableDatasetsInStore = availableDatasets.get(dataStore);
-        deleteDataSets(dataStore, extractDatasetLocations(availableDatasetsInStore));
     }
 
     private Map<DataStorePE, List<DeletedExternalDataPE>> filterAvailableDatasets(
@@ -233,29 +224,6 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             list.add(dataSet);
         }
         return map;
-    }
-
-    private void deleteDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets)
-    {
-        IDataStoreService service = tryGetDataStoreService(dataStore);
-        if (service == null)
-        {
-            // Nothing to delete on dummy data store
-            return;
-        }
-        String sessionToken = dataStore.getSessionToken();
-        service.deleteDataSets(sessionToken, dataSets);
-    }
-
-    // null if DSS URL has not been specified
-    private IDataStoreService tryGetDataStoreService(DataStorePE dataStore)
-    {
-        String remoteURL = dataStore.getRemoteUrl();
-        if (StringUtils.isBlank(remoteURL))
-        {
-            return null;
-        }
-        return dssFactory.create(remoteURL);
     }
 
     private Set<String> getKnownDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets,

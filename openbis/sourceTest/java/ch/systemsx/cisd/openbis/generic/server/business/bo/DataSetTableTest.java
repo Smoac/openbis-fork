@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -334,7 +335,9 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)
     {
-        return DataSetTable.createDeletionEvent(dataset, person, reason);
+        DeleteDataSetEventBuilder builder = new DeleteDataSetEventBuilder(dataset, person);
+        builder.setReason(reason);
+        return builder.getEvent();
     }
 
     @SuppressWarnings("unchecked")

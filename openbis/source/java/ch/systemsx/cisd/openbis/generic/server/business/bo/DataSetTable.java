@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDele
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -62,12 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -292,16 +289,13 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         assertDataSetsAreKnown(availableDatasets, forceNotExistingLocations);
         for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
-            DataStorePE dataStore = entry.getKey();
             List<DataPE> allDataSets = entry.getValue();
+
             // delete locally from DB
             for (DataPE dataSet : allDataSets)
             {
                 deleteDataSetLocally(dataSet, reason);
             }
-            // delete remotely from Data Store (only executed for available datasets)
-            List<ExternalDataPE> available = availableDatasets.get(dataStore);
-            deleteDataSets(dataStore, DataSetTranslator.translateToDescriptions(available));
         }
     }
 
@@ -332,7 +326,13 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         try
         {
             getDataDAO().delete(dataSet);
-            getEventDAO().persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
+
+            DeleteDataSetEventBuilder builder =
+                    new DeleteDataSetEventBuilder(dataSet, session.tryGetPerson());
+            builder.setReason(reason);
+
+            getEventDAO().persist(builder.getEvent());
+
         } catch (final DataIntegrityViolationException ex)
         {
             // needed because we throw an exception in DAO instead of relying on DB FK integrity
@@ -342,31 +342,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             throwException(ex, String.format("Data Set '%s'", dataSet.getCode()),
                     EntityKind.DATA_SET);
-        }
-    }
-
-    public static EventPE createDeletionEvent(DataPE dataSet, PersonPE registrator, String reason)
-    {
-        EventPE event = new EventPE();
-        event.setEventType(EventType.DELETION);
-        event.setEntityType(EntityType.DATASET);
-        event.setIdentifiers(Collections.singletonList(dataSet.getCode()));
-        event.setDescription(getDeletionDescription(dataSet));
-        event.setReason(reason);
-        event.setRegistrator(registrator);
-
-        return event;
-    }
-
-    private static String getDeletionDescription(DataPE dataSet)
-    {
-        if (dataSet.isExternalData())
-        {
-            return dataSet.tryAsExternalData().getLocation();
-
-        } else
-        {
-            return StringUtils.EMPTY;
         }
     }
 
@@ -531,18 +506,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         List<ExternalData> cleanDataSets = DataSetTranslator.translate(list, "?", "?");
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
-    }
-
-    private void deleteDataSets(DataStorePE dataStore, List<DatasetDescription> list)
-    {
-        IDataStoreService service = tryGetDataStoreService(dataStore);
-        if (service == null)
-        {
-            // Nothing to delete on dummy data store
-            return;
-        }
-        String sessionToken = dataStore.getSessionToken();
-        service.deleteDataSets(sessionToken, list);
     }
 
     // null if DSS URL has not been specified

@@ -52,6 +52,11 @@ public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProv
         return new File(new File(getStoreRoot(), shareID), dataSet.getDataSetLocation());
     }
 
+    public File getDataSetDirectory(String shareId, String location)
+    {
+        return new File(new File(getStoreRoot(), shareID), location);
+    }
+
     public IShareIdManager getShareIdManager()
     {
         return shareIdManager;

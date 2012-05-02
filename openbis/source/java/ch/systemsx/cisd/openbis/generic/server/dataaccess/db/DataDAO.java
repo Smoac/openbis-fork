@@ -37,6 +37,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.ResultTransformer;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -57,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -707,6 +709,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // We load them ordered by ID because locations need to be loaded in the same order.
         final String sqlSelectPermIds = createSelectCodesOrderByIdSQL(dataTable);
         final String sqlSelectLocations = createSelectLocationsOrderByIdSQL(dataTable);
+
         final String sqlDeleteProperties =
                 SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE,
                         ColumnNames.DATA_SET_COLUMN);
@@ -749,9 +752,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     private static String createSelectLocationsOrderByIdSQL(final String dataSetsTable)
     {
-        return "SELECT ed.location FROM " + dataSetsTable + " d "
-                + "LEFT OUTER JOIN external_data ed ON (d.id = ed.data_id) WHERE id "
-                + SQLBuilder.inEntityIds() + " ORDER BY id";
+        return "SELECT ed.location, ed.share_id, ds.code FROM " + dataSetsTable + " d "
+                + "JOIN data_stores ds ON (d.dast_id = ds.id) "
+                + "LEFT OUTER JOIN external_data ed ON (d.id = ed.data_id) WHERE d.id "
+                + SQLBuilder.inEntityIds() + " ORDER BY d.id";
     }
 
     private static String createDeleteExternalDataSQL()
@@ -874,8 +878,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 {
                     return null;
                 }
-                final List<String> locations =
+                final List<DeletedDataSetLocation> locations =
                         selectLocations(sqlQuerySelectLocations, entityIdsToDelete);
+
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
                 executeAdditionalQueries(additionalSqlQueries, entityIdsToDelete);
                 deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
@@ -891,10 +896,28 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 return permIdsOrNull == null ? Collections.<String> emptyList() : permIdsOrNull;
             }
 
-            private List<String> selectLocations(final SQLQuery sqlQuerySelectLocations,
-                    final List<Long> entityIds)
+            private List<DeletedDataSetLocation> selectLocations(
+                    final SQLQuery sqlQuerySelectLocations, final List<Long> entityIds)
             {
                 sqlQuerySelectLocations.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                sqlQuerySelectLocations.setResultTransformer(new ResultTransformer()
+                    {
+                        private static final long serialVersionUID = 1L;
+
+                        public Object transformTuple(Object[] values, String[] aliases)
+                        {
+                            DeletedDataSetLocation location = new DeletedDataSetLocation();
+                            location.setLocation((String) values[0]);
+                            location.setShareId((String) values[1]);
+                            location.setDatastoreCode((String) values[2]);
+                            return location;
+                        }
+
+                        public List transformList(List list)
+                        {
+                            return list;
+                        }
+                    });
                 return cast(sqlQuerySelectLocations.list());
             }
 
@@ -923,7 +946,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             }
 
             private void insertEvent(final SQLQuery sqlQueryInsertEvent,
-                    final List<String> permIds, final List<String> locations)
+                    final List<String> permIds, final List<DeletedDataSetLocation> locations)
             {
                 sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
                 sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
@@ -940,14 +963,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                             return value == null ? "" : delegatee.toString(value);
                         }
                     };
+
                 final String allPermIdsAsString =
                         CollectionUtils.abbreviate(permIds, -1, toStringConverter,
                                 CollectionStyle.NO_BOUNDARY);
                 sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
-                final String description =
-                        CollectionUtils.abbreviate(locations, -1, toStringConverter,
-                                CollectionStyle.NO_BOUNDARY);
-                sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM, description);
+
+                sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM,
+                        DeletedDataSetLocation.format(locations));
 
                 sqlQueryInsertEvent.executeUpdate();
             }

@@ -45,10 +45,16 @@ public class DataSetDirectoryProvider implements IDataSetDirectoryProvider
 
     public File getDataSetDirectory(IDatasetLocation dataSet)
     {
+        String shareId = shareIdManager.getShareId(dataSet.getDataSetCode());
         String location = dataSet.getDataSetLocation();
-        location = location.replace("\\", File.separator);
-        File share = new File(storeRoot, shareIdManager.getShareId(dataSet.getDataSetCode()));
-        return new File(share, location);
+        return getDataSetDirectory(shareId, location);
+    }
+
+    public File getDataSetDirectory(String shareId, String location)
+    {
+        String loc = location.replace("\\", File.separator);
+        File share = new File(storeRoot, shareId);
+        return new File(share, loc);
     }
 
     public IShareIdManager getShareIdManager()

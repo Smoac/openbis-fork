@@ -133,6 +133,11 @@ public class UploadingCommandTest extends AssertJUnit
             return new File(new File(getStoreRoot(), SHARE_ID), dataSet.getDataSetLocation());
         }
 
+        public File getDataSetDirectory(String shareId, String location)
+        {
+            return new File(new File(getStoreRoot(), SHARE_ID), location);
+        }
+
         public IShareIdManager getShareIdManager()
         {
             return null;

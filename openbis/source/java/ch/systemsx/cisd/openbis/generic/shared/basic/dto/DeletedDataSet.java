@@ -30,28 +30,22 @@ public class DeletedDataSet implements Serializable, ICodeHolder
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final String identifier;
-
     private final long eventId;
 
-    private final String locationOrNull; // the location where the data set existed before deletion
-                                         // or null if it was a container data set
+    private final String identifier;
 
-    public DeletedDataSet(String identifier, String locationOrNull, long eventId)
+    private DeletedDataSetLocation locationObjectOrNull; // the location where the data set existed
+                                                         // before deletion
+
+    public DeletedDataSet(long eventId, String identifier)
     {
         this.eventId = eventId;
         this.identifier = identifier;
-        this.locationOrNull = locationOrNull;
     }
 
-    public String getLocationOrNull()
+    public long getEventId()
     {
-        return locationOrNull;
-    }
-
-    public String getCode()
-    {
-        return getIdentifier();
+        return eventId;
     }
 
     public String getIdentifier()
@@ -59,9 +53,34 @@ public class DeletedDataSet implements Serializable, ICodeHolder
         return identifier;
     }
 
-    public long getEventId()
+    public String getCode()
     {
-        return eventId;
+        return getIdentifier();
+    }
+
+    public String getDatastoreCodeOrNull()
+    {
+        return locationObjectOrNull != null ? locationObjectOrNull.getDatastoreCode() : null;
+    }
+
+    public String getShareIdOrNull()
+    {
+        return locationObjectOrNull != null ? locationObjectOrNull.getShareId() : null;
+    }
+
+    public String getLocationOrNull()
+    {
+        return locationObjectOrNull != null ? locationObjectOrNull.getLocation() : null;
+    }
+
+    public DeletedDataSetLocation getLocationObjectOrNull()
+    {
+        return locationObjectOrNull;
+    }
+
+    public void setLocationObjectOrNull(DeletedDataSetLocation locationOrNull)
+    {
+        this.locationObjectOrNull = locationOrNull;
     }
 
     @Override

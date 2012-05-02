@@ -303,6 +303,16 @@ public class SegmentedStoreUtils
     {
         logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
         shareIdManager.await(dataSetCode);
+        deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
+    }
+
+    /**
+     * Deletes specified data set at specified location. This methods doesn't wait for any locks and
+     * removes the data set instantly.
+     */
+    public static void deleteDataSetInstantly(final String dataSetCode,
+            final File dataSetDirInStore, final ISimpleLogger logger)
+    {
         logger.log(LogLevel.INFO, "Start deleting data set " + dataSetCode + " at "
                 + dataSetDirInStore);
         boolean successful = FileUtilities.deleteRecursively(dataSetDirInStore);
