@@ -236,9 +236,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyToDestination()
     {
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
+        prepareLocalCreateAndCheckCopier();
 
         // check that data set is not yet in archive
         assertDs1NotInArchive();
@@ -253,6 +255,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         // check that data set is still in store
         assertDs1InStore();
 
+        setDummyRsync(properties);
+        dataSetCopier =
+                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
         /*
          * archive 2nd time (could happen on crash of DSS, but shouldn't hurt)
          */
@@ -282,8 +287,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyToNonExistentDestination()
     {
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
 
         destination.delete(); // if destination folder doesn't exist it will be created
@@ -308,8 +314,9 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalCopyTwoDataSetsToDestination()
     {
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
 
         // check that both data sets are not yet in archive
@@ -348,9 +355,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
+
 
         // check that data set is not yet in archive
         assertDs1NotInArchive();
@@ -398,9 +407,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalSynchronizedWithDestination()
     {
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
+
 
         // check that data set is not yet in archive
         assertDs1NotInArchive();
@@ -470,9 +481,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     public void testLocalPresentInDestination()
     {
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
+
 
         // check that data set is not yet in archive
         assertDs1NotInArchive();
@@ -531,9 +544,11 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
          * copy to archive
          */
         Properties properties = createLocalDestinationProperties();
+        properties.remove(DataSetFileOperationsManager.RSYNC_EXEC + "-executable");
         IDataSetFileOperationsManager dataSetCopier =
-                new DataSetFileOperationsManager(properties, copierFactory, sshFactory);
+                new DataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), sshFactory);
         prepareForCheckingLastModifiedDate();
+
 
         // check that data set is not yet in archive
         assertDs1NotInArchive();
@@ -559,10 +574,14 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
     {
         final Properties properties = new Properties();
         properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, destination.getPath());
+        setDummyRsync(properties);
+        return properties;
+    }
+
+    public void setDummyRsync(final Properties properties)
+    {
         properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
                 rsyncExec.getPath());
-        prepareLocalCreateAndCheckCopier();
-        return properties;
     }
 
     /*
@@ -1079,8 +1098,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         final Properties properties = new Properties();
         properties.setProperty(DataSetFileOperationsManager.DESTINATION_KEY, HOST + ":"
                 + destination.getPath());
-        properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
-                rsyncExec.getPath());
+        setDummyRsync(properties);
         properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
                 sshExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
@@ -1098,8 +1116,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                 + RSYNC_MODULE + ":" + destination.getPath());
         properties
                 .setProperty(DataSetFileOperationsManager.RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        properties.setProperty(DataSetFileOperationsManager.RSYNC_EXEC + "-executable",
-                rsyncExec.getPath());
+        setDummyRsync(properties);
         properties.setProperty(DataSetFileOperationsManager.SSH_EXEC + "-executable",
                 sshExec.getPath());
         properties.setProperty(DataSetFileOperationsManager.GFIND_EXEC + "-executable",
