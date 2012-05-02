@@ -2359,19 +2359,19 @@ prop_type_CONCENTRATION_FLOWLANE.setInternalNamespace(False)
 
 
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA = tr.getOrCreateNewPropertyType('CONCENTRATION_ORIGINAL_ILLUMINA', DataType.REAL)
-prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setLabel(u'Concentration (original) [ng/Î¼l]')
+prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setLabel(u'Concentration (original) [ng/\u03bcl]')
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setManagedInternally(False)
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setInternalNamespace(False)
 
 
 prop_type_CONCENTRATION_PREPARED_ILLUMINA = tr.getOrCreateNewPropertyType('CONCENTRATION_PREPARED_ILLUMINA', DataType.REAL)
-prop_type_CONCENTRATION_PREPARED_ILLUMINA.setLabel(u'Concentration (prepared) [ng/Î¼l]')
+prop_type_CONCENTRATION_PREPARED_ILLUMINA.setLabel(u'Concentration (prepared) [ng/\u03bcl]')
 prop_type_CONCENTRATION_PREPARED_ILLUMINA.setManagedInternally(False)
 prop_type_CONCENTRATION_PREPARED_ILLUMINA.setInternalNamespace(False)
 
 
 prop_type_CONCENTRATION_TOTAL = tr.getOrCreateNewPropertyType('CONCENTRATION_TOTAL', DataType.INTEGER)
-prop_type_CONCENTRATION_TOTAL.setLabel(u'DNA concentration of library (ng/Âµl)')
+prop_type_CONCENTRATION_TOTAL.setLabel(u'DNA concentration of library (ng/\u03bcl)')
 prop_type_CONCENTRATION_TOTAL.setManagedInternally(False)
 prop_type_CONCENTRATION_TOTAL.setInternalNamespace(False)
 
