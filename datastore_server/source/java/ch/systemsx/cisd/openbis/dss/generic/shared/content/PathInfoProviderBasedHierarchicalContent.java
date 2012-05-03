@@ -237,6 +237,13 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             return pathInfo.getSizeInBytes();
         }
 
+        @Override
+        protected long doGetChecksumCRC32()
+        {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
         public File getFile() throws UnsupportedOperationException
         {
             File result = doGetFile();

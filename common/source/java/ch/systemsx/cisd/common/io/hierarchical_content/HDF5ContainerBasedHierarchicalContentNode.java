@@ -27,6 +27,7 @@ import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
@@ -259,6 +260,8 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         private HDF5DataSetBasedContent contentOrNull;
 
         private final HDF5ContainerBasedHierarchicalContentNode containerNode;
+        
+        private Long checksum;
 
         public HDF5FileNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
                 ArchiveEntry entry)
@@ -308,6 +311,23 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         protected long doGetFileLength()
         {
             return entry.getSize();
+        }
+
+        @Override
+        protected long doGetChecksumCRC32()
+        {
+            if (checksum == null)
+            {
+                int entryChecksum = entry.getCrc32();
+                if (entryChecksum != 0)
+                {
+                    checksum = (long) entryChecksum;
+                } else
+                {
+                    checksum = IOUtilities.getChecksumCRC32(doGetInputStream());
+                }
+            }
+            return checksum;
         }
 
         @Override

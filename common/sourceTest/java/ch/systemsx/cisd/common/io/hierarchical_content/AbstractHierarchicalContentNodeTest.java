@@ -172,6 +172,12 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 }
 
                 @Override
+                protected long doGetChecksumCRC32()
+                {
+                    return 0;
+                }
+
+                @Override
                 protected IRandomAccessFile doGetFileContent()
                 {
                     return null;
@@ -234,6 +240,12 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
 
                 @Override
                 protected long doGetFileLength()
+                {
+                    return 0;
+                }
+
+                @Override
+                protected long doGetChecksumCRC32()
                 {
                     return 0;
                 }

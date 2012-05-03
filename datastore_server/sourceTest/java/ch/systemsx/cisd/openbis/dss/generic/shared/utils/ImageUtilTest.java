@@ -94,6 +94,11 @@ public class ImageUtilTest extends AssertJUnit
             throw new UnsupportedOperationException();
         }
 
+        public long getChecksumCRC32() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {

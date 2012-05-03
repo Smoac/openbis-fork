@@ -72,6 +72,11 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
                 return 0;
             }
 
+            public long getChecksumCRC32() throws UnsupportedOperationException
+            {
+                return 0;
+            }
+
             public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                     IOExceptionUnchecked
             {
@@ -170,6 +175,11 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
     public long getFileLength() throws UnsupportedOperationException
     {
         return getContent().getFileLength();
+    }
+
+    public long getChecksumCRC32() throws UnsupportedOperationException
+    {
+        return getContent().getChecksumCRC32();
     }
 
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,

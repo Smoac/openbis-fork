@@ -19,9 +19,12 @@ package ch.systemsx.cisd.common.io.hierarchical_content;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -117,6 +120,18 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     public long doGetFileLength()
     {
         return file.length();
+    }
+
+    @Override
+    protected long doGetChecksumCRC32()
+    {
+        try
+        {
+            return FileUtils.checksumCRC32(file);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     @Override

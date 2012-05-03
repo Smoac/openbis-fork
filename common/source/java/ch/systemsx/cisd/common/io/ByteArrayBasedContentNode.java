@@ -40,6 +40,8 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     private final String nameOrNull;
 
     private long lastModified;
+    
+    private Long checksum;
 
     /**
      * Creates an instance for the specified byte array.
@@ -112,6 +114,15 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     public long getFileLength() throws UnsupportedOperationException
     {
         return byteArray.length;
+    }
+
+    public long getChecksumCRC32() throws UnsupportedOperationException
+    {
+        if (checksum == null)
+        {
+            checksum = IOUtilities.getChecksumCRC32(new ByteArrayInputStream(byteArray));
+        }
+        return checksum;
     }
 
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,

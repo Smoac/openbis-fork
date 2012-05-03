@@ -659,6 +659,11 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }
 
+                public long getChecksumCRC32() throws UnsupportedOperationException
+                {
+                    throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
+                }
+
                 public InputStream getInputStream() throws UnsupportedOperationException,
                         IOExceptionUnchecked
                 {

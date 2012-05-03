@@ -35,6 +35,12 @@ public abstract class AbstractHierarchicalDirectoryContentNode extends
     }
 
     @Override
+    protected long doGetChecksumCRC32()
+    {
+        throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY);
+    }
+
+    @Override
     protected final IRandomAccessFile doGetFileContent()
     {
         throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY);

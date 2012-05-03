@@ -437,6 +437,11 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             }
         }
 
+        public long getChecksumCRC32() throws UnsupportedOperationException
+        {
+            return lastExistingNode().getChecksumCRC32();
+        }
+
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {

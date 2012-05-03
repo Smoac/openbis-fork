@@ -20,8 +20,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -119,6 +122,17 @@ public class FileBasedContentNode implements IHierarchicalContentNode
     public long getFileLength() throws UnsupportedOperationException
     {
         return file.length();
+    }
+
+    public long getChecksumCRC32() throws UnsupportedOperationException
+    {
+        try
+        {
+            return FileUtils.checksumCRC32(file);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
