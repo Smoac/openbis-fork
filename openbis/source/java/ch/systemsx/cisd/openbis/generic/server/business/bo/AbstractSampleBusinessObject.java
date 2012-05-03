@@ -109,8 +109,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<String, ExperimentPE> experimentCacheOrNull, PersonPE registratorOrNull)
             throws UserFailureException
     {
-        final SampleIdentifier sampleIdentifier =
-                SampleIdentifierFactory.parse(newSample);
+        final SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
         SampleOwner sampleOwner = getSampleOwner(sampleOwnerCacheOrNull, sampleIdentifier);
         SampleTypePE sampleTypePE =
                 (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
@@ -353,12 +352,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     protected void checkAllBusinessRules(SamplePE sample, IDataDAO dataDAO,
-            Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull, boolean spaceUpdated)
     {
         checkPropertiesBusinessRules(sample, cacheOrNull);
         checkExperimentBusinessRules(dataDAO, sample);
-        checkParentBusinessRules(sample);
-        checkContainerBusinessRules(sample);
+        if (spaceUpdated)
+        {
+            checkParentBusinessRules(sample);
+            checkContainerBusinessRules(sample);
+        }
     }
 
     protected void checkPropertiesBusinessRules(SamplePE sample,
@@ -419,7 +421,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return (onlyNewSamples == false) && SampleUtils.hasDatasets(dataDAO, sample);
     }
 
-    protected void updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
+    protected boolean updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull)
     {
         if (sampleOwnerIdentifier != null)
@@ -427,9 +429,17 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final SampleOwner sampleOwner =
                     getSampleOwner(sampleOwnerCacheOrNull, sampleOwnerIdentifier);
             SpacePE space = sampleOwner.tryGetSpace();
+            if (space == sample.getSpace() || (space != null && space.equals(sample.getSpace())))
+            {
+                // not a real update
+                return false;
+            }
             sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
             sample.setSpace(space);
+            return true;
         }
+
+        return false;
     }
 
     protected void updateExperiment(SamplePE sample, ExperimentIdentifier expIdentifierOrNull,
