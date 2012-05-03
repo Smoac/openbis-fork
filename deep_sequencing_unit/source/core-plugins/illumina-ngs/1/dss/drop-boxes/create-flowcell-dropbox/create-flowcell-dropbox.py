@@ -28,7 +28,7 @@ RUNPARAMETERS_XML = {'FLOWCELL':'Flowcell', 'RTAVERSION':'RTAVersion',
   'CYCLES_REQUESTED_BY_CUSTOMER':'Read1', 'PE':'Pe'}
 RUNINFO_XML = {'LANECOUNT':'LaneCount', 'SURFACECOUNT':'SurfaceCount',
    'SWATHCOUNT':'SwathCount', 'TILECOUNT':'TileCount'}
-INSTRUMENT = {'SN792':'RUA', 'BS-DSU-ELLAC':'ELLAC'}
+INSTRUMENT = {'SN792':'HISEQ2500'}
 
 class parseXmlFile: 
     
