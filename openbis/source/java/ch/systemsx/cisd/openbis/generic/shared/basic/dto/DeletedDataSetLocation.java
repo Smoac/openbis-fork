@@ -19,8 +19,14 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
@@ -34,13 +40,17 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
 
     private static final String SEPARATOR_BETWEEN_LOCATIONS = ", ";
 
-    private static final String SEPARATOR_BETWEEN_PARTS = "//";
+    private static final String SEPARATOR_BETWEEN_PARTS = "/";
 
     private String datastoreCode;
 
     private String shareId;
 
     private String location;
+
+    public DeletedDataSetLocation()
+    {
+    }
 
     public String getDatastoreCode()
     {
@@ -121,8 +131,12 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
 
     public static List<DeletedDataSetLocation> parse(String str)
     {
+        if (str == null)
+        {
+            return Collections.emptyList();
+        }
         List<DeletedDataSetLocation> locationObjects = new ArrayList<DeletedDataSetLocation>();
-        String[] locationStrings = str.split(SEPARATOR_BETWEEN_LOCATIONS);
+        String[] locationStrings = str.split(SEPARATOR_BETWEEN_LOCATIONS, -1);
 
         for (String locationString : locationStrings)
         {
@@ -137,19 +151,30 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
 
                 if (locationPartsIter.hasNext())
                 {
-                    locationObject.setDatastoreCode(locationPartsIter.next());
+                    locationObject.setDatastoreCode(StringUtils.nullIfBlank(locationPartsIter
+                            .next()));
                 }
                 if (locationPartsIter.hasNext())
                 {
-                    locationObject.setShareId(locationPartsIter.next());
+                    locationObject.setShareId(StringUtils.nullIfBlank(locationPartsIter.next()));
                 }
                 if (locationPartsIter.hasNext())
                 {
-                    locationObject.setLocation(locationPartsIter.next());
+                    StringBuilder location = new StringBuilder();
+                    while (locationPartsIter.hasNext())
+                    {
+                        location.append(locationPartsIter.next());
+                        if (locationPartsIter.hasNext())
+                        {
+                            location.append(SEPARATOR_BETWEEN_PARTS);
+                        }
+                    }
+                    locationObject.setLocation(StringUtils.nullIfBlank(location.toString()));
                 }
-            } else if (locationString.trim().length() > 0)
+
+            } else
             {
-                locationObject.setLocation(locationString);
+                locationObject.setLocation(StringUtils.nullIfBlank(locationString));
             }
 
             locationObjects.add(locationObject);
@@ -158,4 +183,43 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
         return locationObjects;
     }
 
+    @Override
+    public int hashCode()
+    {
+        HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getDatastoreCode());
+        builder.append(getShareId());
+        builder.append(getLocation());
+        return builder.toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+
+        DeletedDataSetLocation other = (DeletedDataSetLocation) obj;
+
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getDatastoreCode(), other.getDatastoreCode());
+        builder.append(getShareId(), other.getShareId());
+        builder.append(getLocation(), other.getLocation());
+
+        return builder.isEquals();
+    }
+
+    @Override
+    public String toString()
+    {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        builder.append("datastoreCode", getDatastoreCode());
+        builder.append("shareId", getShareId());
+        builder.append("location", getLocation());
+        return builder.toString();
+    }
 }
