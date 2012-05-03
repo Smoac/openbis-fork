@@ -47,7 +47,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
     private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
 
     private static final String LAST_SEEN_DATA_SET_FILE_DEFAULT =
-            "delete-datasets-already-deleted-from-application-server.txt";
+            "deleteDatasetsAlreadyDeletedFromApplicationServerTaskLastSeen";
 
     private File lastSeenDataSetFile;
 
@@ -57,10 +57,16 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
         super.setUp(pluginName, properties);
 
         String lastSeenDataSetFileProperty =
-                properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY,
-                        LAST_SEEN_DATA_SET_FILE_DEFAULT);
+                properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY);
 
-        lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
+        if (lastSeenDataSetFileProperty == null)
+        {
+            lastSeenDataSetFile =
+                    new File(getConfigProvider().getStoreRoot(), LAST_SEEN_DATA_SET_FILE_DEFAULT);
+        } else
+        {
+            lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
+        }
     }
 
     @Override
@@ -133,12 +139,16 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
         {
             if (isUnknownDatasets(dataset))
             {
-                operationLog.info("Is going to delete an unknown data set: " + dataset.getCode());
-
                 File datasetDir =
                         getDirectoryProvider().getDataSetDirectory(dataset.getShareIdOrNull(),
                                 dataset.getLocationOrNull());
-                SegmentedStoreUtils.deleteDataSetInstantly(dataset.getCode(), datasetDir, logger);
+                if (datasetDir.exists())
+                {
+                    operationLog.info("Is going to delete an unknown data set: "
+                            + dataset.getCode());
+                    SegmentedStoreUtils.deleteDataSetInstantly(dataset.getCode(), datasetDir,
+                            logger);
+                }
             }
         }
     }

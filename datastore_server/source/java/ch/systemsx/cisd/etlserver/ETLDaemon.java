@@ -68,6 +68,7 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -241,8 +242,8 @@ public final class ETLDaemon
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             ITopLevelDataSetRegistrator topLevelRegistrator =
                     createProcessingThread(parameters, threadParameters, openBISService,
-                            highwaterMarkWatcher, mailClient, dataSetValidator, dataSourceQueryService,
-                            notifySuccessfulRegistration);
+                            highwaterMarkWatcher, mailClient, dataSetValidator,
+                            dataSourceQueryService, notifySuccessfulRegistration);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share "
                     + topLevelRegistrator.getGlobalState().getShareId() + ".");
@@ -309,8 +310,7 @@ public final class ETLDaemon
     }
 
     private final static ITopLevelDataSetRegistrator createProcessingThread(
-            final Parameters parameters,
-            final ThreadParameters threadParameters,
+            final Parameters parameters, final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator,
@@ -358,8 +358,9 @@ public final class ETLDaemon
 
         private final String shareId;
 
-        public TopLevelDataSetRegistratorInititializationData(
-                final Properties properties, final ThreadParameters threadParameters, final IEncapsulatedOpenBISService openBISService)
+        public TopLevelDataSetRegistratorInititializationData(final Properties properties,
+                final ThreadParameters threadParameters,
+                final IEncapsulatedOpenBISService openBISService)
         {
             storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
             migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
@@ -378,13 +379,18 @@ public final class ETLDaemon
             IDataSourceQueryService dataSourceQueryService,
             final boolean notifySuccessfulRegistration)
     {
-        TopLevelDataSetRegistratorInititializationData initializationData = new TopLevelDataSetRegistratorInititializationData(properties, threadParameters, openBISService);
+        TopLevelDataSetRegistratorInititializationData initializationData =
+                new TopLevelDataSetRegistratorInititializationData(properties, threadParameters,
+                        openBISService);
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
-                        initializationData.dssInternalTempDir, initializationData.dssRegistrationLogDir, openBISService, mailClient, dataSetValidator,
-                        dataSourceQueryService, new DynamicTransactionQueryFactory(),
-                        notifySuccessfulRegistration, threadParameters);
+                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode,
+                        initializationData.shareId, initializationData.storeRootDir,
+                        initializationData.dssInternalTempDir,
+                        initializationData.dssRegistrationLogDir, openBISService, mailClient,
+                        dataSetValidator, dataSourceQueryService,
+                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
+                        threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
@@ -407,15 +413,20 @@ public final class ETLDaemon
             String postRegistrationScriptOrNull, String[] validationScriptsOrNull,
             Class<?> defaultTopLevelDataSetRegistratorClass)
     {
-        TopLevelDataSetRegistratorInititializationData initializationData = new TopLevelDataSetRegistratorInititializationData(properties, threadParameters, openBISService);
+        TopLevelDataSetRegistratorInititializationData initializationData =
+                new TopLevelDataSetRegistratorInititializationData(properties, threadParameters,
+                        openBISService);
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode, initializationData.shareId, initializationData.storeRootDir,
-                        initializationData.dssInternalTempDir, initializationData.dssRegistrationLogDir, openBISService, mailClient, dataSetValidator,
-                        dataSourceQueryService, new DynamicTransactionQueryFactory(),
-                        notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
-                        deleteUnidentified, preRegistrationScriptOrNull,
-                        postRegistrationScriptOrNull, validationScriptsOrNull);
+                new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode,
+                        initializationData.shareId, initializationData.storeRootDir,
+                        initializationData.dssInternalTempDir,
+                        initializationData.dssRegistrationLogDir, openBISService, mailClient,
+                        dataSetValidator, dataSourceQueryService,
+                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
+                        threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
+                        preRegistrationScriptOrNull, postRegistrationScriptOrNull,
+                        validationScriptsOrNull);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils
@@ -617,7 +628,9 @@ public final class ETLDaemon
         MaintenanceTaskParameters[] maintenancePlugins = parameters.getMaintenancePlugins();
         assertNotMoreThanOnePostRegistrationMaintenanceTask(maintenancePlugins);
         MaintenanceTaskUtils.startupMaintenancePlugins(maintenancePlugins);
+
         injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
+        injectDeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskIfNecessary(maintenancePlugins);
 
         operationLog.info("Data Store Server ready and waiting for data.");
     }
@@ -652,18 +665,10 @@ public final class ETLDaemon
      * In order for the post registration queue table in the database to be cleared, there must be a
      * post registration maintenance task.
      */
-    private static void injectPostRegistrationMaintenanceTaskIfNecessary(MaintenanceTaskParameters[] maintenancePlugins)
+    private static void injectPostRegistrationMaintenanceTaskIfNecessary(
+            MaintenanceTaskParameters[] maintenancePlugins)
     {
-        boolean hasPostRegistrationMaintenanceTask = false;
-        for (MaintenanceTaskParameters task : maintenancePlugins)
-        {
-            if (PostRegistrationMaintenanceTask.class.getName().equals(task.getClassName()))
-            {
-                hasPostRegistrationMaintenanceTask = true;
-            }
-        }
-
-        if (hasPostRegistrationMaintenanceTask)
+        if (hasMaintenanceTaskOfClass(maintenancePlugins, PostRegistrationMaintenanceTask.class))
         {
             // Nothing additional to do.
             return;
@@ -673,12 +678,50 @@ public final class ETLDaemon
         Properties props = new Properties();
         props.setProperty(MaintenanceTaskParameters.CLASS_KEY, task.getClass().getName());
         // Have the task run every second
-        props.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, Integer.toString(INJECTED_POST_REGISTRATION_TASK_INTERVAL));
-        MaintenanceTaskParameters parameters = new MaintenanceTaskParameters(props, "injected-post-registration-task");
+        props.setProperty(MaintenanceTaskParameters.INTERVAL_KEY,
+                Integer.toString(INJECTED_POST_REGISTRATION_TASK_INTERVAL));
+        MaintenanceTaskParameters parameters =
+                new MaintenanceTaskParameters(props, "injected-post-registration-task");
         task.setUpEmpty();
 
         MaintenancePlugin plugin = new MaintenancePlugin(task, parameters);
         MaintenanceTaskUtils.injectMaintenancePlugin(plugin);
+    }
+
+    private static void injectDeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskIfNecessary(
+            MaintenanceTaskParameters[] maintenancePlugins)
+    {
+        if (hasMaintenanceTaskOfClass(maintenancePlugins,
+                DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.class))
+        {
+            // Nothing additional to do.
+            return;
+        }
+
+        Properties props = new Properties();
+        props.setProperty(MaintenanceTaskParameters.CLASS_KEY,
+                DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.class.getName());
+        props.setProperty(MaintenanceTaskParameters.INTERVAL_KEY, Integer.toString(300));
+        MaintenanceTaskParameters parameters =
+                new MaintenanceTaskParameters(props,
+                        "injected-delete-datasets-already-deleted-from-application-server-task");
+
+        MaintenancePlugin plugin = new MaintenancePlugin(parameters);
+        MaintenanceTaskUtils.injectMaintenancePlugin(plugin);
+    }
+
+    private static boolean hasMaintenanceTaskOfClass(MaintenanceTaskParameters[] tasks,
+            Class<?> taskClass)
+    {
+        for (MaintenanceTaskParameters task : tasks)
+        {
+            if (taskClass.getName().equals(task.getClassName()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
