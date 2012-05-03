@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient;
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -544,6 +546,8 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         // file info access
         assertEquals("File: " + expectedFile, expectedFile.getName(), fileNode.getName());
         assertEquals("File: " + expectedFile, expectedFile.length(), fileNode.getFileLength());
+        long expectedChecksum = IOUtilities.getChecksumCRC32(new FileInputStream(expectedFile));
+        assertEquals("File: " + expectedFile, expectedChecksum, fileNode.getChecksumCRC32());
         assertTrue("File: " + expectedFile,
                 fileNode.getLastModified() >= expectedFile.lastModified());
         assertTrue("File: " + expectedFile,

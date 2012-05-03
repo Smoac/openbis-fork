@@ -42,6 +42,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
 
         // check only that no exception is thrown
         fileNode.getFileLength();
+        fileNode.getChecksumCRC32();
         fileNode.getFileContent();
         fileNode.getInputStream();
     }
@@ -79,6 +80,13 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 public void execute()
                 {
                     dirNode.getFileLength();
+                }
+            });
+        assertUnsupportedFileOperationOnAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    dirNode.getChecksumCRC32();
                 }
             });
         assertUnsupportedFileOperationOnAction(new IDelegatedAction()

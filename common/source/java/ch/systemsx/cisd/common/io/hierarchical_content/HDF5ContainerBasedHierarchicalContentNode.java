@@ -321,7 +321,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
                 int entryChecksum = entry.getCrc32();
                 if (entryChecksum != 0)
                 {
-                    checksum = (long) entryChecksum;
+                    checksum = entryChecksum & 0xffffffffL;
                 } else
                 {
                     checksum = IOUtilities.getChecksumCRC32(doGetInputStream());
