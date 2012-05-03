@@ -174,6 +174,16 @@ public class DeletedDataSetLocationTest extends AssertJUnit
     }
 
     @Test
+    public void testParseLegacyLocation()
+    {
+        DeletedDataSetLocation location = new DeletedDataSetLocation();
+        location.setLocation("TEST-LOCATION-DIR-1/TEST-LOCATION-DIR-2");
+
+        assertEquals(Collections.singletonList(location),
+                DeletedDataSetLocation.parse("TEST-LOCATION-DIR-1/TEST-LOCATION-DIR-2"));
+    }
+
+    @Test
     public void testParseManyLocations()
     {
         DeletedDataSetLocation location1 = new DeletedDataSetLocation();
