@@ -221,7 +221,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (SamplePE s : samples)
         {
-            checkAllBusinessRules(s, getDataDAO(), cache);
+            checkAllBusinessRules(s, getDataDAO(), cache, true);
         }
     }
 

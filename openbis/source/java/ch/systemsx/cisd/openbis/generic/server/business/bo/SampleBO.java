@@ -59,6 +59,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private boolean dataChanged;
 
+    private boolean spaceUpdated;
+
     public SampleBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
@@ -118,7 +120,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throw new UserFailureException(String.format("Sample with ID '%s' does not exist.",
                     sampleId));
         }
-        dataChanged = false;
+        dataChanged = spaceUpdated = false;
     }
 
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)
@@ -147,7 +149,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         assert newSample != null : "Unspecified new sample.";
 
         sample = createSample(newSample, null, null, null, null);
-        dataChanged = true;
+        dataChanged = spaceUpdated = true;
         onlyNewSamples = true;
     }
 
@@ -167,7 +169,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             {
                 throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
             }
-            dataChanged = false;
+            try
+            {
+                checkAllBusinessRules(sample, getDataDAO(), null, spaceUpdated);
+            } finally
+            {
+                onlyNewSamples = dataChanged = spaceUpdated = false;
+            }
         }
         if (attachments.isEmpty() == false)
         {
@@ -188,8 +196,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
             attachments.clear();
         }
-        checkAllBusinessRules(sample, getDataDAO(), null);
-        onlyNewSamples = false;
     }
 
     public void setExperiment(ExperimentPE experiment)
@@ -209,7 +215,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwException(ex,
                     String.format("Couldn't update sample '%s'", sample.getSampleIdentifier()));
         }
-        dataChanged = false;
+        dataChanged = spaceUpdated = false;
     }
 
     static private void checkAvailable(SamplePE sample)
@@ -256,7 +262,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwModifiedEntityException("Sample");
         }
         updateProperties(updates.getProperties());
-        updateSpace(sample, updates.getSampleIdentifier(), null);
+        spaceUpdated = updateSpace(sample, updates.getSampleIdentifier(), null);
         if (updates.isUpdateExperimentLink())
         {
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
