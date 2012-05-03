@@ -16,8 +16,8 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 IS_HISEQ_RUN=False
 RUNPARAMETERS = 'runParameters.xml'
 RUNINFO = 'RunInfo.xml'
-FLOWCELL_SPACE='/BSSE_FLOWCELLS/'
-FLOWCELL_PROJECT='FLOWCELLS/'
+FLOWCELL_SPACE='/TEST/'
+FLOWCELL_PROJECT='TEST-PROJECT/'
 EXPERIMENT_TYPE_CODE='HT_SEQUENCING'
 
 # Mapping between XML file naming and used in here
