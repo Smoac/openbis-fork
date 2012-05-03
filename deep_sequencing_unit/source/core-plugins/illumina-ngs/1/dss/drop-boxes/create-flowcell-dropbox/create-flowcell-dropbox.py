@@ -16,9 +16,11 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 IS_HISEQ_RUN=False
 RUNPARAMETERS = 'runParameters.xml'
 RUNINFO = 'RunInfo.xml'
-FLOWCELL_SPACE='/TEST/'
-FLOWCELL_PROJECT='TEST-PROJECT/'
+FLOWCELL_SPACE='TEST'
+FLOWCELL_PROJECT='TEST-PROJECT'
 EXPERIMENT_TYPE_CODE='HT_SEQUENCING'
+
+FLOWCELL_PROJECT_ID = "/%(FLOWCELL_SPACE)s/%(FLOWCELL_PROJECT)s" % vars()
 
 # Mapping between XML file naming and used in here
 RUNPARAMETERS_XML = {'FLOWCELL':'Flowcell', 'RTAVERSION':'RTAVersion',
@@ -42,9 +44,9 @@ class parseXmlFile:
     for e in self.root.getchildren():
       element = e.find(elementName)
       if element is None:
-	return 'None'
+        return 'None'
       else:
-	return element.text
+        return element.text
 
   def getAllchildren (self, elementName):
     '''
@@ -96,11 +98,19 @@ runInfo = parseXmlFile(incomingPath + '/' + RUNINFO)
 print(runInfo)
 
 # Create a new Flow Cell and set the experiment
-newFlowCell = transaction.createNewSample(FLOWCELL_SPACE + name, "ILLUMINA_FLOW_CELL")
-exp = transaction.getExperiment(FLOWCELL_SPACE + FLOWCELL_PROJECT + datetime.now().strftime("%Y.%m"))
+project = transaction.getProject(FLOWCELL_PROJECT_ID)
+if project == None:
+  space = transaction.getSpace(FLOWCELL_SPACE)
+  if space == None:
+    space = transaction.createNewSpace(FLOWCELL_SPACE, None)
+    space.setDescription("A test space")
+  project = transaction.createNewProject(FLOWCELL_PROJECT_ID)
+  project.setDescription("A demo project")
+expID = FLOWCELL_PROJECT_ID + '/' + datetime.now().strftime("%Y.%m")
+exp = transaction.getExperiment(expID)
 if exp == None:
-  exp = transaction.createNewExperiment(FLOWCELL_SPACE + FLOWCELL_PROJECT + datetime.now().strftime("%Y.%m"),
-             EXPERIMENT_TYPE_CODE)
+  exp = transaction.createNewExperiment(expID, EXPERIMENT_TYPE_CODE)
+newFlowCell = transaction.createNewSample('/' + FLOWCELL_SPACE + '/' + name, "ILLUMINA_FLOW_CELL")
 newFlowCell.setExperiment(exp)
  
 if IS_HISEQ_RUN:
@@ -157,7 +167,7 @@ def registerFlowLane(a_lane):
   '''
   Registers a new Flow lane 
   '''
-  newFlowLane = transaction.createNewSample(FLOWCELL_SPACE + name + ':' + str(a_lane), "ILLUMINA_FLOW_LANE")
+  newFlowLane = transaction.createNewSample('/' + FLOWCELL_SPACE + '/' + name + ':' + str(a_lane), "ILLUMINA_FLOW_LANE")
   newFlowLane.setContainer(newFlowCell)
   
 [registerFlowLane(lane) for lane in range(1,int(maxLanes)+1)]
