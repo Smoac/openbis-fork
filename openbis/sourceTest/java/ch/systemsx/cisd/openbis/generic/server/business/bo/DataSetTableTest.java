@@ -322,9 +322,6 @@ public final class DataSetTableTest extends AbstractBOTest
                     one(dataDAO).delete(d1);
                     one(eventDAO).persist(createDeletionEvent(d2, person, reason));
                     one(dataDAO).delete(d2);
-
-                    one(dataStoreService2).deleteDataSets(with(dss2.getSessionToken()),
-                            with(dataSets));
                 }
             });
 
