@@ -347,9 +347,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         {
             if ((imageDataSetStructure.getChannelColorComponents() != null && imageDataSetStructure
                     .getChannelColorComponents().size() > 0)
-                    || transformationsForChannels.get(imageFileInfo.getChannelCode()).containsKey(
-                            thumbnailsStorageFormat.getTransformationCode(imageFileInfo
-                                    .getChannelCode())))
+                    || isTransformationAvailable(imageFileInfo.getChannelCode()))
             {
                 List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
                 for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
@@ -377,6 +375,16 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                         height, imageFileInfo.getChannelCode()));
             }
         }
+    }
+
+    private boolean isTransformationAvailable(String channelCode)
+    {
+        Map<String, ImageTransformation> transformationsForChannel =
+                transformationsForChannels.get(channelCode);
+
+        return transformationsForChannel != null
+                && transformationsForChannel.containsKey(thumbnailsStorageFormat
+                        .getTransformationCode(channelCode));
     }
 
     private List<ThumbnailData> generateThumbnailInternally(ImageFileInfo imageFileInfo,
@@ -467,9 +475,12 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 thumbnailsStorageFormat.getTransformationCode(channelCode);
         if (transformationCodeOrNull != null)
         {
+            Map<String, ImageTransformation> transformationsForChannel =
+                    transformationsForChannels.get(channelCode);
+
             ImageTransformation it =
-                    transformationsForChannels.get(channelCode).get(
-                            transformationCodeOrNull.toUpperCase());
+                    transformationsForChannel == null ? null : transformationsForChannel
+                            .get(transformationCodeOrNull.toUpperCase());
             if (it != null)
             {
                 return it.getImageTransformerFactory().createTransformer();
