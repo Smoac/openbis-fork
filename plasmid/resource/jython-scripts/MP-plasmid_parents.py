@@ -27,6 +27,9 @@ INPUT_PATTERN = """
                  # no '$': allow whitespace at the end
 """
 
+""" due to some weird jython threading issue, we need to compile the pattern outside the function body """
+inputPattern = re.compile(INPUT_PATTERN, re.VERBOSE)
+
 """relationship types shortcuts"""
 
 DEL_REL_TYPE = 'DEL'
@@ -187,7 +190,6 @@ def updateFromBatchInput(bindings):
     elements = []
     input = bindings.get('')
     if input is not None:
-        inputPattern = re.compile(INPUT_PATTERN, re.VERBOSE)
         plasmids = input.split(',')
         for p in plasmids:
             (code, g, relationship, annotation) = _group(inputPattern, p.strip())
@@ -198,8 +200,10 @@ def updateFromBatchInput(bindings):
     if parentsInput is not None:
         parents = parentsInput.split(',')
         for parent in parents:
-            permId = entityInformationProvider().getSamplePermId(SPACE, parent)
+            permId = entityInformationProvider().getSamplePermId(SPACE, parent.strip())
             parentPlasmids = entityInformationProvider().getSamplePropertyValue(permId, 'PLASMIDS')
+            if parentPlasmids is None:
+                continue
             parentElements = list(propertyConverter().convertStringToElements(parentPlasmids))
             for parentLink in parentElements:
                 elements.append(parentLink)     
