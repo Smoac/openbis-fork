@@ -76,6 +76,7 @@ if incoming.isDirectory():
     imageDataset = MyImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
     imageDataset.setGenerateThumbnails(True)
+    imageDataset.setUseImageMagicToGenerateThumbnails(False)
     imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
     registrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)  
     transaction = service.transaction(incoming, factory)
