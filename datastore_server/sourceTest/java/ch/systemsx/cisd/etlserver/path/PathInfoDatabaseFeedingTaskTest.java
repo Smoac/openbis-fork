@@ -244,6 +244,9 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(node).getFileLength();
                     will(returnValue(12345L));
 
+                    one(node).getChecksumCRC32();
+                    will(returnValue(789L));
+                    
                     one(node).isDirectory();
                     will(returnValue(false));
 
@@ -252,7 +255,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(dao).createDataSetFiles(
                             with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
-                                    "", "ds1-root", 12345L, false, new Date(42))))));
+                                    "", "ds1-root", 12345L, 789L, false, new Date(42))))));
 
                     one(dao).commit();
                     one(shareIdManager).releaseLocks();

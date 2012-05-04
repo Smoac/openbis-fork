@@ -57,6 +57,7 @@ final class PathInfo
         } else
         {
             pathInfo.sizeInBytes = node.getFileLength();
+            pathInfo.checksumCRC32 = node.getChecksumCRC32();
         }
         return pathInfo;
     }
@@ -87,6 +88,8 @@ final class PathInfo
     
     private long sizeInBytes;
     
+    private long checksumCRC32;
+    
     private PathInfo parent;
     
     private boolean directory;
@@ -103,6 +106,11 @@ final class PathInfo
     public long getSizeInBytes()
     {
         return sizeInBytes;
+    }
+
+    public long getChecksumCRC32()
+    {
+        return checksumCRC32;
     }
 
     public PathInfo getParent()

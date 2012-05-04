@@ -37,6 +37,8 @@ public class PathEntryDTO
     private  String fileName;
     @ResultColumn("size_in_bytes")
     private  Long sizeInBytes;
+    @ResultColumn("checksum_crc32")
+    private  Long checksumCRC32;
     
     @ResultColumn("is_directory")
     private Boolean directory;
@@ -44,13 +46,14 @@ public class PathEntryDTO
     private  Date lastModifiedDate;
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
-            long sizeInBytes, boolean isDirectory, Date lastModifiedDate)
+            long sizeInBytes, Long checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
     {
         this.dataSetId = dataSetId;
         this.parentId = parentId;
         this.relativePath = relativePath;
         this.fileName = fileName;
         this.sizeInBytes = sizeInBytes;
+        this.checksumCRC32 = checksumCRC32OrNull;
         this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }
@@ -74,6 +77,7 @@ public class PathEntryDTO
         result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
         result = prime * result + ((relativePath == null) ? 0 : relativePath.hashCode());
         result = prime * result + (int) (sizeInBytes ^ (sizeInBytes >>> 32));
+        result = prime * result + (int) (checksumCRC32 == null ? 0 : checksumCRC32); 
         return result;
     }
 
@@ -114,19 +118,19 @@ public class PathEntryDTO
         } else if (!relativePath.equals(other.relativePath))
             return false;
 
-        if (sizeInBytes == null && other.sizeInBytes != null) {
+        if (equals(sizeInBytes, other.sizeInBytes) == false) {
             return false;
         }
-        if (sizeInBytes != null && other.sizeInBytes == null) {
+        if (equals(checksumCRC32, other.checksumCRC32) == false) {
             return false;
-        }
-        if (sizeInBytes == null && other.sizeInBytes == null) {
-            return true;
         }
         
-        if (sizeInBytes.longValue() != other.sizeInBytes.longValue())
-            return false;
         return true;
+    }
+    
+    private boolean equals(Long n1OrNull, Long n2OrNull)
+    {
+        return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
     }
 
     @Override
@@ -187,6 +191,17 @@ public class PathEntryDTO
     public void setSizeInBytes(long sizeInBytes)
     {
         this.sizeInBytes = sizeInBytes;
+    }
+    
+
+    public Long getChecksumCRC32()
+    {
+        return checksumCRC32;
+    }
+
+    public void setChecksumCRC32(Long checksumCRC32)
+    {
+        this.checksumCRC32 = checksumCRC32;
     }
 
     public Date getLastModifiedDate()
