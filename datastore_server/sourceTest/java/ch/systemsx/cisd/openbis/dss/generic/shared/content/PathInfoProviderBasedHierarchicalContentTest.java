@@ -185,7 +185,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         IHierarchicalContentNode rootNode = rootContent.getRootNode();
         IHierarchicalContentNode nullNode = rootContent.getNode(null);
         IHierarchicalContentNode emptyNode = rootContent.getNode("");
-        checkNodeMatchesFile(rootNode, rootDir);
+        checkNodeMatchesFile(rootNode, rootDir, 0);
         assertSame(rootNode, nullNode);
         assertSame(rootNode, emptyNode);
 
@@ -203,21 +203,23 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         context.checking(new Expectations()
             {
                 {
+                    long counter = 0;
                     for (File existingFile : existingFiles)
                     {
                         final String relativePath =
                                 FileUtilities.getRelativeFilePath(rootDir, existingFile);
                         one(pathInfoProvider).tryGetPathInfoByRelativePath(relativePath);
-                        will(returnValue(createDummyFileBasedPath(rootDir, existingFile)));
+                        will(returnValue(createDummyFileBasedPath(rootDir, existingFile, ++counter)));
                     }
                 }
             });
+        long counter = 0;
         for (File existingFile : existingFiles)
         {
             String relativePath = FileUtilities.getRelativeFilePath(rootDir, existingFile);
             IHierarchicalContentNode fileNode = rootContent.getNode(relativePath);
             assertEquals(relativePath, fileNode.getRelativePath());
-            checkNodeMatchesFile(fileNode, existingFile);
+            checkNodeMatchesFile(fileNode, existingFile, ++counter);
         }
 
         context.assertIsSatisfied();
@@ -280,9 +282,9 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
             {
                 {
                     one(pathInfoProvider).listMatchingPathInfos(matchingPattern);
-                    will(returnValue(Arrays.asList(createDummyFileBasedPath(rootDir, file1),
-                            createDummyFileBasedPath(rootDir, subFile1),
-                            createDummyFileBasedPath(rootDir, subSubFile))));
+                    will(returnValue(Arrays.asList(createDummyFileBasedPath(rootDir, file1, 1L),
+                            createDummyFileBasedPath(rootDir, subFile1, 2L),
+                            createDummyFileBasedPath(rootDir, subSubFile, 3L))));
                 }
             });
         List<IHierarchicalContentNode> matchingNodes =
@@ -307,20 +309,20 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
             {
                 {
                     one(pathInfoProvider).listMatchingPathInfos(startingPath, pattern);
-                    will(returnValue(Arrays.asList(createDummyFileBasedPath(rootDir, subFile1),
-                            createDummyFileBasedPath(rootDir, subFile2),
-                            createDummyFileBasedPath(rootDir, subFile3),
-                            createDummyFileBasedPath(rootDir, subSubFile))));
+                    will(returnValue(Arrays.asList(createDummyFileBasedPath(rootDir, subFile1, 1L),
+                            createDummyFileBasedPath(rootDir, subFile2, null),
+                            createDummyFileBasedPath(rootDir, subFile3, 3L),
+                            createDummyFileBasedPath(rootDir, subSubFile, 4L))));
                 }
             });
         List<IHierarchicalContentNode> matchingNodes =
                 rootContent.listMatchingNodes(startingPath, pattern);
         assertEquals(4, matchingNodes.size());
         sortNodes(matchingNodes);
-        checkNodeMatchesFile(matchingNodes.get(0), subFile1);
-        checkNodeMatchesFile(matchingNodes.get(1), subFile2);
-        checkNodeMatchesFile(matchingNodes.get(2), subFile3);
-        checkNodeMatchesFile(matchingNodes.get(3), subSubFile);
+        checkNodeMatchesFile(matchingNodes.get(0), subFile1, 1);
+        checkNodeMatchesFile(matchingNodes.get(1), subFile2, 0);
+        checkNodeMatchesFile(matchingNodes.get(2), subFile3, 3);
+        checkNodeMatchesFile(matchingNodes.get(3), subSubFile, 4);
 
         context.assertIsSatisfied();
     }
@@ -336,9 +338,14 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
             });
     }
 
-    private static void checkNodeMatchesFile(IHierarchicalContentNode node, File expectedFile)
+    private static void checkNodeMatchesFile(IHierarchicalContentNode node, File expectedFile,
+            long expectedChecksum)
     {
         assertEquals(expectedFile, node.getFile());
+        if (node.isDirectory() == false)
+        {
+            assertEquals(expectedChecksum, node.getChecksumCRC32());
+        }
     }
 
     private static void sortNodes(List<IHierarchicalContentNode> nodes)
@@ -348,16 +355,21 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
 
     private static DataSetPathInfo createDummyFileBasedRootPath(final File root)
     {
-        return createDummyFileBasedPath(root, root);
+        return createDummyFileBasedPath(root, root, null);
     }
 
-    private static DataSetPathInfo createDummyFileBasedPath(final File root, final File file)
+    private static DataSetPathInfo createDummyFileBasedPath(final File root, final File file,
+            Long checksumOrNull)
     {
         DataSetPathInfo result = new DataSetPathInfo();
         result.setFileName(file.getName());
         result.setDirectory(file.isDirectory());
         result.setRelativePath(FileUtilities.getRelativeFilePath(root, file));
         result.setSizeInBytes(file.length());
+        if (file.isFile())
+        {
+            result.setChecksumCRC32(checksumOrNull);
+        }
         return result;
     }
 
