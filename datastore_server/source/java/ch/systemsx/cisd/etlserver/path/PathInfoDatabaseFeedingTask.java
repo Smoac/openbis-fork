@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFacto
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
@@ -52,6 +53,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
+    
+    static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
 
     private static IPathsInfoDAO createDAO()
     {
@@ -75,6 +78,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private IPathsInfoDAO dao;
 
     private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
+    
+    private boolean computeChecksum;
 
     public PathInfoDatabaseFeedingTask()
     {
@@ -107,6 +112,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         directoryProvider = getDirectoryProvider();
         dao = createDAO();
         hierarchicalContentFactory = createContentFactory();
+        computeChecksum = PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
     }
 
     public void execute()
@@ -161,7 +167,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                 return;
             }
             DatabaseBasedDataSetPathsInfoFeeder feeder =
-                    new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory);
+                    new DatabaseBasedDataSetPathsInfoFeeder(dao, hierarchicalContentFactory,
+                            computeChecksum);
             Long id = dao.tryGetDataSetId(dataSetCode);
             if (id == null)
             {

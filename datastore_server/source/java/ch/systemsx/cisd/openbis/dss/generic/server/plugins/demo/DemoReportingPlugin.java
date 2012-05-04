@@ -63,6 +63,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         builder.addHeader("Relative Path");
         builder.addHeader("Last Modified");
         builder.addHeader("Size");
+        builder.addHeader("Checksum");
         for (DatasetDescription dataset : datasets)
         {
             describe(builder, dataset);
@@ -103,7 +104,8 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
                                 fileNode.getName()),
                         new StringTableCell(fileNode.getRelativePath()), new DateTableCell(
                                 new Date(fileNode.getLastModified())),
-                        new DoubleTableCell(fileNode.getFileLength()));
+                        new DoubleTableCell(fileNode.getFileLength()),
+                        new StringTableCell(Long.toString(fileNode.getChecksumCRC32())));
         builder.addRow(row);
     }
 

@@ -36,6 +36,8 @@ public class DataSetPathInfo
     private Date lastModified;
 
     private long sizeInBytes;
+    
+    private Long checksumCRC32;
 
     private DataSetPathInfo parent;
 
@@ -79,6 +81,16 @@ public class DataSetPathInfo
     public void setSizeInBytes(long sizeInBytes)
     {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public Long getChecksumCRC32()
+    {
+        return checksumCRC32;
+    }
+
+    public void setChecksumCRC32(Long checksumCRC32)
+    {
+        this.checksumCRC32 = checksumCRC32;
     }
 
     public Date getLastModified()

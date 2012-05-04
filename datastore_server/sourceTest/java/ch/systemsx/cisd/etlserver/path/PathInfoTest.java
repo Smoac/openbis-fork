@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 public class PathInfoTest extends AbstractFileSystemTestCase
 {
     @Test
-    public void test()
+    public void testWithChecksum()
     {
         File d1 = new File(workingDirectory, "d1");
         d1.mkdirs();
@@ -49,29 +49,47 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         new File(d3, "d4").mkdirs();
         FileUtilities.writeToFile(new File(d3, "read.me"), "nothing to read");
         
-        PathInfo root = PathInfo.createPathInfo(create(workingDirectory));
+        PathInfo root = PathInfo.createPathInfo(create(workingDirectory), true);
         
         assertEquals(null, root.getParent());
         List<PathInfo> children = root.getChildren();
         PathInfo c0 = children.get(0);
         PathInfo c00 = c0.getChildren().get(0);
         PathInfo c1 = children.get(1);
-        check(getClass().getName(), true, 42, 2, root);
-        check("d1", true, 27, 1, c0);
-        check("d2", true, 27, 2, c00);
-        check("hello.txt", false, 11, 0, c00.getChildren().get(0));
-        check("table.tsv", false, 16, 0, c00.getChildren().get(1));
-        check("d3", true, 15, 2, c1);
-        check("d4", true, 0, 0, c1.getChildren().get(0));
-        check("read.me", false, 15, 0, c1.getChildren().get(1));
+        check(getClass().getName(), true, 42, null, 2, root);
+        check("d1", true, 27, null, 1, c0);
+        check("d2", true, 27, null, 2, c00);
+        check("hello.txt", false, 11, 222957957L, 0, c00.getChildren().get(0));
+        check("table.tsv", false, 16, 2698160619L, 0, c00.getChildren().get(1));
+        check("d3", true, 15, null, 2, c1);
+        check("d4", true, 0, null, 0, c1.getChildren().get(0));
+        check("read.me", false, 15, 1246790599L, 0, c1.getChildren().get(1));
+    }
+    
+    @Test
+    public void testWithoutChecksum()
+    {
+        File d1 = new File(workingDirectory, "d1");
+        d1.mkdirs();
+        FileUtilities.writeToFile(new File(d1, "hello.txt"), "hello world");
+        
+        PathInfo root = PathInfo.createPathInfo(create(workingDirectory), false);
+        
+        assertEquals(null, root.getParent());
+        List<PathInfo> children = root.getChildren();
+        PathInfo c0 = children.get(0);
+        check(getClass().getName(), true, 11, null, 1, root);
+        check("d1", true, 11, null, 1, c0);
+        check("hello.txt", false, 11, null, 0, c0.getChildren().get(0));
     }
     
     private void check(String expectedName, boolean expectedIsDirectory, long expectedSize,
-            int expectedNumberOfChildren, PathInfo pathInfo)
+            Long expectedChecksum, int expectedNumberOfChildren, PathInfo pathInfo)
     {
         assertEquals(expectedName, pathInfo.getFileName());
         assertEquals(expectedIsDirectory, pathInfo.isDirectory());
         assertEquals(expectedSize, pathInfo.getSizeInBytes());
+        assertEquals(expectedChecksum, pathInfo.getChecksumCRC32());
         List<PathInfo> children = pathInfo.getChildren();
         for (PathInfo child : children)
         {

@@ -40,11 +40,14 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
 
     private final List<PathEntryDTO> filePaths = new ArrayList<PathEntryDTO>(BATCH_SIZE);
 
+    private final boolean computeChecksum;
+
     public DatabaseBasedDataSetPathsInfoFeeder(IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory)
+            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum)
     {
         this.dao = dao;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.computeChecksum = computeChecksum;
     }
 
     public long addPaths(String dataSetCode, String location, File dataSetRoot)
@@ -55,7 +58,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
                         IDelegatedAction.DO_NOTHING);
         PathInfo root =
                 PathInfo.createPathInfo(hierarchicalContentFactory.asHierarchicalContentNode(
-                        content, dataSetRoot));
+                        content, dataSetRoot), computeChecksum);
         addPaths(dataSetId, null, "", root);
         return root.getSizeInBytes();
     }

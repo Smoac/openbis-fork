@@ -44,16 +44,11 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
 
     private IPathsInfoDAO dao;
 
-    private IDataSetPathsInfoFeeder feeder;
-
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         dao = context.mock(IPathsInfoDAO.class);
-        feeder =
-                new DatabaseBasedDataSetPathsInfoFeeder(dao,
-                        new DefaultFileBasedHierarchicalContentFactory());
     }
 
     @AfterMethod
@@ -70,7 +65,7 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
     }
 
     @Test
-    public void test()
+    public void testWithChecksum()
     {
         final File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
@@ -101,17 +96,69 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
 
                     one(dao).createDataSetFiles(
                             with(equal(Arrays.asList(
-                                    new PathEntryDTO(42L, 101L, "dir/hello.txt",
-                                            "hello.txt", 11L, null, false, new Date(file1.lastModified())),
-                                    new PathEntryDTO(42L, 101L,  "dir/read.me",
-                                            "read.me", 15L, null, false,  new Date(file2.lastModified())),
-                                    new PathEntryDTO(42L, 100L, "read.me", "read.me",
-                                            12L, null, false, new Date(file2.lastModified()))))));
-                    
+                                    new PathEntryDTO(42L, 101L, "dir/hello.txt", "hello.txt", 11L,
+                                            222957957L, false, new Date(file1.lastModified())),
+                                    new PathEntryDTO(42L, 101L, "dir/read.me", "read.me", 15L,
+                                            1246790599L, false, new Date(file2.lastModified())),
+                                    new PathEntryDTO(42L, 100L, "read.me", "read.me", 12L,
+                                            3188708281L, false, new Date(file2.lastModified()))))));
+
                     one(dao).commit();
                 }
             });
 
+        IDataSetPathsInfoFeeder feeder =
+                new DatabaseBasedDataSetPathsInfoFeeder(dao,
+                        new DefaultFileBasedHierarchicalContentFactory(), true);
+        feeder.addPaths("ds-1", "a/b/c/", workingDirectory);
+        feeder.commit();
+    }
+
+    @Test
+    public void testWithOutChecksum()
+    {
+        final File dir = new File(workingDirectory, "dir");
+        dir.mkdirs();
+        final File file1 = new File(dir, "hello.txt");
+        FileUtilities.writeToFile(file1, "hello world");
+        final File file2 = new File(dir, "read.me");
+        FileUtilities.writeToFile(file2, "nothing to read");
+        new File(dir, "dir").mkdirs();
+        final File file3 = new File(workingDirectory, "read.me");
+        FileUtilities.writeToFile(file3, "hello reader");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createDataSet("ds-1", "a/b/c/");
+                    will(returnValue(42L));
+
+                    one(dao).createDataSetFile(with(42L), with(new IsNull<Long>()), with(""),
+                            with(ROOT_PATH), with(38L), with(true), with(any(Date.class)));
+                    will(returnValue(100L));
+
+                    one(dao).createDataSetFile(with(42L), with(100L), with("dir"), with("dir"),
+                            with(26L), with(true), with(any(Date.class)));
+                    will(returnValue(101L));
+
+                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/dir"), with("dir"),
+                            with(0L), with(true), with(any(Date.class)));
+                    will(returnValue(104L));
+
+                    one(dao).createDataSetFiles(
+                            with(equal(Arrays.asList(new PathEntryDTO(42L, 101L, "dir/hello.txt",
+                                    "hello.txt", 11L, null, false, new Date(file1.lastModified())),
+                                    new PathEntryDTO(42L, 101L, "dir/read.me", "read.me", 15L,
+                                            null, false, new Date(file2.lastModified())),
+                                    new PathEntryDTO(42L, 100L, "read.me", "read.me", 12L, null,
+                                            false, new Date(file2.lastModified()))))));
+
+                    one(dao).commit();
+                }
+            });
+
+        IDataSetPathsInfoFeeder feeder =
+                new DatabaseBasedDataSetPathsInfoFeeder(dao,
+                        new DefaultFileBasedHierarchicalContentFactory(), false);
         feeder.addPaths("ds-1", "a/b/c/", workingDirectory);
         feeder.commit();
     }

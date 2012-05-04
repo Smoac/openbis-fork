@@ -240,8 +240,8 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         @Override
         protected long doGetChecksumCRC32()
         {
-            // TODO Auto-generated method stub
-            return 0;
+            Long checksumCRC32 = pathInfo.getChecksumCRC32();
+            return checksumCRC32 == null ? 0 : checksumCRC32;
         }
 
         public File getFile() throws UnsupportedOperationException

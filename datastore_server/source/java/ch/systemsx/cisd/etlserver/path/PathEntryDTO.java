@@ -137,10 +137,9 @@ public class PathEntryDTO
     public String toString()
     {
         return "PathEntryDTO [dataSetId=" + dataSetId + ", parentId=" + parentId
-                + ", relativePath=" + relativePath + ", fileName=" + fileName
-                + ", sizeInBytes=" + sizeInBytes + ", lastModifiedDate=" + lastModifiedDate
-                + ", isDirectory="+directory
-                + "]";
+                + ", relativePath=" + relativePath + ", fileName=" + fileName + ", sizeInBytes="
+                + sizeInBytes + ", checksum=" + checksumCRC32 + ", lastModifiedDate="
+                + lastModifiedDate + ", isDirectory=" + directory + "]";
     }
 
     public long getDataSetId()

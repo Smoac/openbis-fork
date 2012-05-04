@@ -34,7 +34,7 @@ final class PathInfo
 {
     private static final List<PathInfo> NO_CHILDREN = Collections.emptyList();
     
-    static PathInfo createPathInfo(IHierarchicalContentNode node)
+    static PathInfo createPathInfo(IHierarchicalContentNode node, boolean computeChecksum)
     {
         if (node.exists() == false)
         {
@@ -46,7 +46,7 @@ final class PathInfo
         pathInfo.directory = node.isDirectory();
         if (pathInfo.directory)
         {
-            pathInfo.children = createPathInfos(node);
+            pathInfo.children = createPathInfos(node, computeChecksum);
             long sum = 0;
             for (PathInfo childInfo : pathInfo.children)
             {
@@ -57,12 +57,12 @@ final class PathInfo
         } else
         {
             pathInfo.sizeInBytes = node.getFileLength();
-            pathInfo.checksumCRC32 = node.getChecksumCRC32();
+            pathInfo.checksumCRC32 = computeChecksum ? node.getChecksumCRC32() : null;
         }
         return pathInfo;
     }
     
-    private static List<PathInfo> createPathInfos(IHierarchicalContentNode node)
+    private static List<PathInfo> createPathInfos(IHierarchicalContentNode node, boolean computeChecksum)
     {
         if (node.isDirectory() == false)
         {
@@ -72,7 +72,7 @@ final class PathInfo
         List<IHierarchicalContentNode> childNodes = node.getChildNodes();
         for (IHierarchicalContentNode child : childNodes)
         {
-            childInfos.add(createPathInfo(child));
+            childInfos.add(createPathInfo(child, computeChecksum));
         }
         Collections.sort(childInfos, new Comparator<PathInfo>()
             {
@@ -88,7 +88,7 @@ final class PathInfo
     
     private long sizeInBytes;
     
-    private long checksumCRC32;
+    private Long checksumCRC32;
     
     private PathInfo parent;
     
@@ -108,7 +108,7 @@ final class PathInfo
         return sizeInBytes;
     }
 
-    public long getChecksumCRC32()
+    public Long getChecksumCRC32()
     {
         return checksumCRC32;
     }
