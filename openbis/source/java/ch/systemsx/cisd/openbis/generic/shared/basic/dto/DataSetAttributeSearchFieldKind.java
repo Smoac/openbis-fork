@@ -31,17 +31,21 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     FILE_TYPE("File Type"),
 
-    REGISTRATION_DATE("Registration date equals"),
+    REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION),
 
-    MODIFICATION_DATE("Modification date equals"),
+    MODIFICATION_DATE(CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_DESCRIPTION),
 
-    REGISTRATION_DATE_FROM("Registration date from"),
+    REGISTRATION_DATE_FROM(
+            CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_FROM_DESCRIPTION),
 
-    MODIFICATION_DATE_FROM("Modification date from"),
+    MODIFICATION_DATE_FROM(
+            CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_FROM_DESCRIPTION),
 
-    REGISTRATION_DATE_UNTIL("Registration date until"),
+    REGISTRATION_DATE_UNTIL(
+            CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_UNTIL_DESCRIPTION),
 
-    MODIFICATION_DATE_UNTIL("Modification date until");
+    MODIFICATION_DATE_UNTIL(
+            CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_UNTIL_DESCRIPTION);
 
     private final String description;
 

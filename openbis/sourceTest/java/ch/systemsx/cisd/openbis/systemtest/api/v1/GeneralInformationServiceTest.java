@@ -54,8 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -919,6 +921,27 @@ public class GeneralInformationServiceTest extends SystemTestCase
                             return t.getMaterialCode();
                         }
                     });
+    }
+
+    @Test
+    public void testSearchMaterialsByMadificationDate()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createTimeAttributeMatch(
+                MatchClauseTimeAttribute.MODIFICATION_DATE, CompareMode.LESS_THAN_OR_EQUAL,
+                "2009-03-19", "+1"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertEquals(3732, materials.size());
+
+        searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createTimeAttributeMatch(
+                MatchClauseTimeAttribute.MODIFICATION_DATE, CompareMode.GREATER_THAN_OR_EQUAL,
+                "2009-03-19", "+1"));
+
+        materials = generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+        assertEquals(2, materials.size());
     }
 
 }

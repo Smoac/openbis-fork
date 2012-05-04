@@ -27,7 +27,23 @@ public enum MaterialAttributeSearchFieldKind implements Serializable, IAttribute
 {
     CODE("Code"),
 
-    MATERIAL_TYPE("Material Type");
+    MATERIAL_TYPE("Material Type"),
+
+    REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION),
+
+    MODIFICATION_DATE(CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_DESCRIPTION),
+
+    REGISTRATION_DATE_FROM(
+            CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_FROM_DESCRIPTION),
+
+    MODIFICATION_DATE_FROM(
+            CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_FROM_DESCRIPTION),
+
+    REGISTRATION_DATE_UNTIL(
+            CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_UNTIL_DESCRIPTION),
+
+    MODIFICATION_DATE_UNTIL(
+            CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_UNTIL_DESCRIPTION);
 
     private final String description;
 

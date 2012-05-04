@@ -221,7 +221,11 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             switch (attribute)
             {
                 case REGISTRATION_DATE:
+                    ans = ExperimentAttributeSearchFieldKind.REGISTRATION_DATE;
+                    break;
                 case MODIFICATION_DATE:
+                    ans = ExperimentAttributeSearchFieldKind.MODIFICATION_DATE;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.EXPERIMENT);
             }
@@ -254,7 +258,17 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 MatchClauseTimeAttribute attribute)
         {
             IAttributeSearchFieldKind ans = null;
-            throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
+            switch (attribute)
+            {
+                case REGISTRATION_DATE:
+                    ans = MaterialAttributeSearchFieldKind.REGISTRATION_DATE;
+                    break;
+                case MODIFICATION_DATE:
+                    ans = MaterialAttributeSearchFieldKind.MODIFICATION_DATE;
+                    break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
+            }
             return ans;
         }
     }

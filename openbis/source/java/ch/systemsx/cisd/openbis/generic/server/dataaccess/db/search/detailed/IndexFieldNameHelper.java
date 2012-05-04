@@ -156,6 +156,14 @@ class IndexFieldNameHelper
             case PROJECT_SPACE:
                 return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
                         + CODE;
+            case REGISTRATION_DATE:
+            case REGISTRATION_DATE_FROM:
+            case REGISTRATION_DATE_UNTIL:
+                return SearchFieldConstants.REGISTRATION_DATE;
+            case MODIFICATION_DATE:
+            case MODIFICATION_DATE_FROM:
+            case MODIFICATION_DATE_UNTIL:
+                return SearchFieldConstants.MODIFICATION_DATE;
         }
         return null; // cannot happen
     }
@@ -169,6 +177,14 @@ class IndexFieldNameHelper
                 return CODE;
             case MATERIAL_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case REGISTRATION_DATE:
+            case REGISTRATION_DATE_FROM:
+            case REGISTRATION_DATE_UNTIL:
+                return SearchFieldConstants.REGISTRATION_DATE;
+            case MODIFICATION_DATE:
+            case MODIFICATION_DATE_FROM:
+            case MODIFICATION_DATE_UNTIL:
+                return SearchFieldConstants.MODIFICATION_DATE;
         }
         return null; // cannot happen
     }

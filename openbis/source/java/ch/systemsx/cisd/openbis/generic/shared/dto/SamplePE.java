@@ -527,7 +527,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
-    @DateBridge(resolution = Resolution.HOUR)
+    @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
         return HibernateAbstractRegistrationHolder.getDate(registrationDate);
@@ -658,7 +658,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
-    @DateBridge(resolution = Resolution.HOUR)
+    @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
         return modificationDate;
