@@ -28,11 +28,13 @@ import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -98,6 +100,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private OpenBISSessionHolder session;
 
     private IShareIdManager shareIdManager;
+    
+    private IDataStoreService dataStoreService;
 
     public static IETLLIMSService createOpenBisService(String openBISURL, String timeout)
     {
@@ -131,19 +135,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE;
     }
     
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder)
+    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder, IDataStoreService dataStoreService)
     {
-        this(service, sessionHolder, null);
+        this(service, sessionHolder, dataStoreService, null);
     }
 
     public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder,
-            IShareIdManager shareIdManager)
+            IDataStoreService dataStoreService, IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
+        this.dataStoreService = dataStoreService;
     }
 
     private IShareIdManager getShareIdManager()
@@ -546,12 +551,15 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         setShareId(externalData);
         return sample;
     }
-
+         
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails)
     {
+                
+        IETLLIMSService conversationalService = dataStoreService.getConversationClient(session.getToken(), service, IETLLIMSService.class);
+        
         AtomicEntityOperationResult operations =
-                service.performEntityOperations(session.getToken(), operationDetails);
+                conversationalService.performEntityOperations(session.getToken(), operationDetails);
         List<? extends NewExternalData> dataSets = operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSets)
         {

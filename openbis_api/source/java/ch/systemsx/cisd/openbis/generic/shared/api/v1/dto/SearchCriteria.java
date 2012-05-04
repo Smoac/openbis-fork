@@ -166,6 +166,14 @@ public class SearchCriteria implements Serializable
             return new AttributeMatchClause(attribute, desiredValue);
         }
 
+        /**
+         * Factory method to create a MatchClause matching against registration or modification date.
+         * 
+         * @param attribute The attribute to compare against
+         * @param mode The kind of comparison (<=, ==, >=)
+         * @param date The date to compare against, format YYYY-MM-DD
+         * @timezone The time zone of the date ("+1", "-5", "0", etc.)
+         */
         public static MatchClause createTimeAttributeMatch(MatchClauseTimeAttribute attribute,
                 CompareMode mode, String date, String timezone)
         {

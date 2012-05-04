@@ -34,6 +34,13 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.serviceconversation.ConversationalServer;
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
+import ch.systemsx.cisd.common.serviceconversation.RpcProxy;
+import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
+import ch.systemsx.cisd.common.serviceconversation.client.IRemoteServiceConversationServer;
+import ch.systemsx.cisd.common.serviceconversation.client.ServiceConversationClient;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
@@ -93,6 +100,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private File commandQueueDirOrNull;
 
     private IDataSetCommandExecutor commandExecutor;
+    
+    private String ownUrl;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
             MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
@@ -117,6 +126,47 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
+    public static class RpcServerStub implements IRemoteServiceConversationServer, IServiceMessageTransport {
+        
+        private ConversationalServer server;
+        private String callbackUrl;
+        private String sessionToken;
+        
+        public RpcServerStub(String sessionToken, ConversationalServer server, String callbackUrl) {
+            this.sessionToken = sessionToken;
+            this.server = server;
+            this.callbackUrl = callbackUrl;
+        }
+        
+        public ServiceConversationDTO startConversation(String typeId)
+        {
+            return this.server.startConversation(sessionToken, callbackUrl, typeId);
+        }
+        
+        public void send(ServiceMessage message)
+        {
+            this.server.send(message);
+        }
+    }
+    
+    
+    private ServiceConversationClient client;
+
+    public synchronized <T extends ConversationalServer, U extends T> T getConversationClient(String sessionToken, U service, Class<T> reference) {
+
+        RpcServerStub server = new RpcServerStub(sessionToken, service, this.ownUrl);
+        if (this.client == null) {
+            client = new ServiceConversationClient(server, server);
+        }
+        return RpcProxy.newInstance(reference, client);
+    }
+    
+    public void send(ServiceMessage message)
+    {
+        client.getIncomingResponseMessageTransport().send(message);
+    }
+
+    
     void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
@@ -466,4 +516,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
         return hierarchicalContentProvider;
     }
+
+    public void setOwnUrl(String ownUrl) {
+        this.ownUrl = ownUrl;
+    }
+    
 }

@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -271,10 +272,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
 
+        IDataStoreService dataStoreService = context.mock(IDataStoreService.class);
+        
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder, shareIdManager);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, dataStoreService, shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();

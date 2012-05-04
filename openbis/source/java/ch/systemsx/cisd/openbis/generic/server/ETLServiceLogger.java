@@ -25,6 +25,8 @@ import org.apache.log4j.Level;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -84,6 +86,18 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
             IInvocationLoggerContext context)
     {
         super(sessionManager, context);
+    }
+
+    public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
+            String typeId)
+    {
+        logTracking(typeId, "startConversation", "");
+        return null;
+    }
+
+    public void send(ServiceMessage message)
+    {
+        logTracking(message.toString(), "send", "");
     }
 
     public String createDataSetCode(String sessionToken) throws UserFailureException
@@ -562,7 +576,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {
-        logAccess(Level.DEBUG, sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)", dataStoreCode);
+        logAccess(Level.DEBUG, sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)",
+                dataStoreCode);
         return null;
     }
+
 }

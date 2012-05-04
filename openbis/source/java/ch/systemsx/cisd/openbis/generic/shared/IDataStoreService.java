@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.serviceconversation.ConversationalClient;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IDataStoreService
+public interface IDataStoreService extends ConversationalClient
 {
 
     /**

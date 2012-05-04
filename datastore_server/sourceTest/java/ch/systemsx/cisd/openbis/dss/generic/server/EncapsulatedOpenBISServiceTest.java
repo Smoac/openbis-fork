@@ -27,9 +27,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.serviceconversation.ConversationalServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -63,6 +65,8 @@ public class EncapsulatedOpenBISServiceTest
     private OpenBISSessionHolder session;
 
     private IShareIdManager shareIdManager;
+    
+    private IDataStoreService dataStoreService;
 
     @BeforeMethod
     public void setUp()
@@ -70,9 +74,10 @@ public class EncapsulatedOpenBISServiceTest
         context = new Mockery();
         limsService = context.mock(IETLLIMSService.class);
         shareIdManager = context.mock(IShareIdManager.class);
+        dataStoreService = context.mock(IDataStoreService.class);
         session = new OpenBISSessionHolder();
         session.setToken(SESSION_TOKEN);
-        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session, shareIdManager);
+        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session, dataStoreService, shareIdManager);
     }
 
     @AfterMethod
@@ -171,6 +176,9 @@ public class EncapsulatedOpenBISServiceTest
             {
                 one(limsService).performEntityOperations(SESSION_TOKEN, operationDetails);
                 one(shareIdManager).setShareId("ds1", "42");
+                
+                allowing(dataStoreService).getConversationClient(with(any(String.class)),with(any(ConversationalServer.class)),with(any(Class.class)));
+                will(returnValue(limsService));
             }
         });
         encapsulatedLimsService.performEntityOperations(operationDetails);

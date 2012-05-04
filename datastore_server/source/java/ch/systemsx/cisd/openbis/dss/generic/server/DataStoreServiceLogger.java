@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.serviceconversation.ConversationalServer;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -83,6 +85,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     {
         log("getVersion", "SESSION(%s)", sessionToken);
         return 0;
+    }
+    
+    public void send(ServiceMessage message)
+    {
+        log("send", "", message);
     }
 
     public List<String> getKnownDataSets(String sessionToken,
@@ -158,4 +165,10 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    public <T extends ConversationalServer, U extends T> T getConversationClient(
+            String sessionToken, U service, Class<T> reference)
+    {
+        log("getConversationClient", "REFERENCE(%s)", reference);
+        return null;
+    }
 }

@@ -35,5 +35,10 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

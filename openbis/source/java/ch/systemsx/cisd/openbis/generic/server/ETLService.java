@@ -34,6 +34,11 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.serviceconversation.RpcMessageTransport;
+import ch.systemsx.cisd.common.serviceconversation.RpcServiceFactory;
+import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
+import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
@@ -176,6 +181,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final TrustedCrossOriginDomainsProvider trustedOriginDomainProvider;
 
+    private final ServiceConversationServer server;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
@@ -195,6 +202,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.trustedOriginDomainProvider = trustedOriginDomainProvider;
+
+        org.hibernate.SessionFactory sessionFactory =
+                daoFactory.getPersistencyResources().getSessionFactoryOrNull();
+
+        server = new ServiceConversationServer();
+        server.addServiceType(new RpcServiceFactory<IETLLIMSService>(this, IETLLIMSService.class,
+                3600000, sessionFactory));
     }
 
     public IETLLIMSService createLogger(IInvocationLoggerContext context)
@@ -206,6 +220,22 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public int getVersion()
     {
         return IServer.VERSION;
+    }
+
+    public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
+            String typeId)
+    {
+        getSession(sessionToken);
+
+        final IDataStoreService service = dssFactory.create(clientUrl);
+        String clientId = sessionToken;
+        server.addClientResponseTransport(clientId, new RpcMessageTransport(service));
+        return server.startConversation(typeId, clientId);
+    }
+
+    public void send(ServiceMessage message)
+    {
+        server.getIncomingMessageTransport().send(message);
     }
 
     public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
@@ -1215,6 +1245,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
+
         final Session session = getSession(sessionToken);
 
         List<Space> spacesCreated = createSpaces(session, operationDetails);
@@ -1643,4 +1674,5 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
         return result;
     }
+
 }
