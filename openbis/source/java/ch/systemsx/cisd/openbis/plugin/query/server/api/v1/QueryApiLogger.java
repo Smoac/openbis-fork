@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -80,6 +81,19 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
     public int getMinorVersion()
     {
         return 0;
+    }
+
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
+    {
+        logAccess(sessionToken, "list_aggregation_services");
+        return null;
+    }
+
+    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String moduleKey, String serviceKey, Map<String, Object> parameters)
+    {
+        logAccess(sessionToken, "create_report_from_aggregation_service",
+                "DATA_STORE(%s) MODULE(%S) SERVICE(%s) PARAMETERS(%s)", dataStoreCode, moduleKey, serviceKey, parameters);
+        return null;
     }
 
 }

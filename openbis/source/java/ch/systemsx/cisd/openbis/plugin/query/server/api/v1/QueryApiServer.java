@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
@@ -183,6 +184,25 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
                 dataSetCodes));
     }
 
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        // TODO Dummy implementation
+        return new ArrayList<AggregationServiceDescription>();
+    }
+
+    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String moduleKey, String serviceKey, Map<String, Object> parameters)
+    {
+        checkSession(sessionToken);
+
+        // TODO Dummy implementation
+        ArrayList<QueryTableColumn> translatedHeaders = new ArrayList<QueryTableColumn>();
+        translatedHeaders.add(new QueryTableColumn("Empty", QueryTableColumnDataType.STRING));
+        QueryTableModel tableModel = new QueryTableModel(translatedHeaders);
+        return tableModel;
+    }
+
     public int getMajorVersion()
     {
         return 1;
@@ -190,7 +210,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 
     public int getMinorVersion()
     {
-        return 2;
+        return 3;
     }
 
     private QueryTableModel translate(TableModel result)

@@ -22,6 +22,7 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -92,5 +93,29 @@ public interface IQueryApiServer extends IRpcService
     @Transactional(readOnly = true)
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes);
+
+    /**
+     * Returns metadata for all aggregation services.
+     * 
+     * @since 1.3
+     */
+    @Transactional(readOnly = true)
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
+
+    /**
+     * Creates a report using the specified aggregation service. Available aggregation services can
+     * be obtained by {@link #listAggregationServices(String)}. The service resolved to by the
+     * moduleKey/serviceKey must be a service of type REPORT.
+     * 
+     * @param sessionToken A valid session token.
+     * @param dataStoreCode Code of the data store.
+     * @param moduleKey Key for the module that implements the service.
+     * @param serviceKey Key of the service.
+     * @param parameters Parameters to the service.
+     * @since 1.3
+     */
+    @Transactional(readOnly = true)
+    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode,
+            String moduleKey, String serviceKey, Map<String, Object> parameters);
 
 }
