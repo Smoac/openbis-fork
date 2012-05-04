@@ -39,7 +39,7 @@ public interface IDataStoreService extends ConversationalClient
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 6; // for release 102
+    public static final int VERSION = 7; // for release 131
 
     /**
      * Returns the version of this service.
