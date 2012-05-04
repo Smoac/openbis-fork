@@ -27,6 +27,8 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class PathEntryDTO
 {
+    @ResultColumn("id")
+    private long id;
     @ResultColumn("dase_id")
     private  Long dataSetId;
     @ResultColumn("parent_id")
@@ -44,6 +46,10 @@ public class PathEntryDTO
     private Boolean directory;
     @ResultColumn("last_modified")
     private  Date lastModifiedDate;
+    @ResultColumn("data_set_code")
+    private String dataSetCode;
+    @ResultColumn("location")
+    private String location;
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
             long sizeInBytes, Long checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
@@ -142,6 +148,16 @@ public class PathEntryDTO
                 + lastModifiedDate + ", isDirectory=" + directory + "]";
     }
 
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
     public long getDataSetId()
     {
         return dataSetId;
@@ -192,7 +208,6 @@ public class PathEntryDTO
         this.sizeInBytes = sizeInBytes;
     }
     
-
     public Long getChecksumCRC32()
     {
         return checksumCRC32;
@@ -221,5 +236,25 @@ public class PathEntryDTO
     public void setDirectory(boolean isDirectory)
     {
         this.directory = isDirectory;
+    }
+
+    public String getDataSetCode()
+    {
+        return dataSetCode;
+    }
+
+    public void setDataSetCode(String dataSetCode)
+    {
+        this.dataSetCode = dataSetCode;
+    }
+
+    public String getLocation()
+    {
+        return location;
+    }
+
+    public void setLocation(String location)
+    {
+        this.location = location;
     }
 }
