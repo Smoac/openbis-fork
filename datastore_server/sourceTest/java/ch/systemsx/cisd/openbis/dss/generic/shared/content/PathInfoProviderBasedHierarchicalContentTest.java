@@ -320,7 +320,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         assertEquals(4, matchingNodes.size());
         sortNodes(matchingNodes);
         checkNodeMatchesFile(matchingNodes.get(0), subFile1, 1);
-        checkNodeMatchesFile(matchingNodes.get(1), subFile2, 0);
+        checkNodeMatchesFile(matchingNodes.get(1), subFile2, 2238823590L);
         checkNodeMatchesFile(matchingNodes.get(2), subFile3, 3);
         checkNodeMatchesFile(matchingNodes.get(3), subSubFile, 4);
 
