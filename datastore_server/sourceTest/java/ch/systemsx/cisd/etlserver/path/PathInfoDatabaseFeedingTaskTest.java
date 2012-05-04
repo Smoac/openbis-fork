@@ -89,7 +89,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         contentFactory = context.mock(IHierarchicalContentFactory.class);
         content = context.mock(IHierarchicalContent.class);
         node = context.mock(IHierarchicalContentNode.class);
-        task = new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory);
+        task = new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory, true);
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }

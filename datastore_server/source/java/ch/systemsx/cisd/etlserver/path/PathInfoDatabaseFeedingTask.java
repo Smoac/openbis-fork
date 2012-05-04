@@ -87,18 +87,20 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
-        this(service, getDirectoryProvider(), createDAO(), createContentFactory());
+        this(service, getDirectoryProvider(), createDAO(), createContentFactory(),
+                getComputeChecksumFlag(properties));
     }
 
     @Private
     PathInfoDatabaseFeedingTask(IEncapsulatedOpenBISService service,
             IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory)
+            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum)
     {
         this.service = service;
         this.directoryProvider = directoryProvider;
         this.dao = dao;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.computeChecksum = computeChecksum;
     }
 
     public boolean requiresDataStoreLock()
@@ -112,7 +114,12 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         directoryProvider = getDirectoryProvider();
         dao = createDAO();
         hierarchicalContentFactory = createContentFactory();
-        computeChecksum = PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
+        computeChecksum = getComputeChecksumFlag(properties);
+    }
+
+    private static boolean getComputeChecksumFlag(Properties properties)
+    {
+        return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
     }
 
     public void execute()
