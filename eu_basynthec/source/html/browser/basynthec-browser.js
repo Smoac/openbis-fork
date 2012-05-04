@@ -837,8 +837,9 @@ function curveData(d, i)
 {
 	if (!d.values) return [];
 	var color = curveColors(d.index);	
-	var maxValue = (0 == d.values.length) ? 0 : d3.max(d.values);
-	return [{length : d.values.length, max : maxValue, values: d.values, color : color}]
+	// Don't normalize -- use 2 as the global max value
+	// var maxValue = (0 == d.values.length) ? 0 : d3.max(d.values);
+	return [{length : d.values.length, max : 2, values: d.values, color : color}]
 }
 
 function lineData(d)
