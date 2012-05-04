@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 /**
  * Bean with information about aggregation services that provide data.
  * 
@@ -95,11 +92,6 @@ public class AggregationServiceDescription implements Serializable
     @Override
     public String toString()
     {
-        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        builder.append(dataStoreCode);
-        builder.append(moduleKey);
-        builder.append(serviceKey);
-        return builder.toString();
+        return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", moduleKey=" + moduleKey + ", serviceKey=" + serviceKey + ", type=" + type + "]";
     }
-
 }
