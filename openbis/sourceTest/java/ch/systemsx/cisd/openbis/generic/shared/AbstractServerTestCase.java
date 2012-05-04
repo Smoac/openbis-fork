@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -312,6 +313,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(SESSION));
+                    allowing(daoFactory).getPersistencyResources();
+                    will(returnValue(new PersistencyResources(null, null, null, null)));
+
                 }
             });
     }
