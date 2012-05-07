@@ -118,7 +118,7 @@ class ClientMessenger implements IServiceConversation
     {
         try
         {
-            return handleMessage(getMessage(), messageClass, true);
+            return handleMessage(getMessage(serviceMessageTimeoutMillis), messageClass, true);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -129,17 +129,17 @@ class ClientMessenger implements IServiceConversation
     {
         try
         {
-            return handleMessage(getMessage(), messageClass, false);
+            return handleMessage(getMessage(timeoutMillis), messageClass, false);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private ServiceMessage getMessage() throws InterruptedException {
-        ServiceMessage message = responseMessageQueue.poll(serviceMessageTimeoutMillis);
+    private ServiceMessage getMessage(int timeout) throws InterruptedException {
+        ServiceMessage message = responseMessageQueue.poll(timeout);
         while (message != null && message.getProgress() != null) {
-            message = responseMessageQueue.poll(serviceMessageTimeoutMillis);
+            message = responseMessageQueue.poll(timeout);
         }
         return message;
     }
