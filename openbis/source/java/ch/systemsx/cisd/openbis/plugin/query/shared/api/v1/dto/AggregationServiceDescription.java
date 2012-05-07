@@ -29,8 +29,6 @@ public class AggregationServiceDescription implements Serializable
 
     private String dataStoreCode;
 
-    private String moduleKey;
-
     private String serviceKey;
 
     private AggregationServiceType type;
@@ -44,15 +42,7 @@ public class AggregationServiceDescription implements Serializable
     }
 
     /**
-     * The module that implements this service. Non-null.
-     */
-    public String getModuleKey()
-    {
-        return moduleKey;
-    }
-
-    /**
-     * The key that identifies this particular service within a module. Non-null.
+     * The key that identifies this particular service. Non-null.
      */
     public String getServiceKey()
     {
@@ -74,11 +64,6 @@ public class AggregationServiceDescription implements Serializable
         this.dataStoreCode = dataStoreCode;
     }
 
-    public void setModuleKey(String module)
-    {
-        this.moduleKey = module;
-    }
-
     public void setServiceKey(String key)
     {
         this.serviceKey = key;
@@ -92,6 +77,6 @@ public class AggregationServiceDescription implements Serializable
     @Override
     public String toString()
     {
-        return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", moduleKey=" + moduleKey + ", serviceKey=" + serviceKey + ", type=" + type + "]";
+        return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", serviceKey=" + serviceKey + ", type=" + type + "]";
     }
 }

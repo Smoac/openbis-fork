@@ -89,10 +89,10 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
         return null;
     }
 
-    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String moduleKey, String serviceKey, Map<String, Object> parameters)
+    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         logAccess(sessionToken, "create_report_from_aggregation_service",
-                "DATA_STORE(%s) MODULE(%S) SERVICE(%s) PARAMETERS(%s)", dataStoreCode, moduleKey, serviceKey, parameters);
+                "DATA_STORE(%s) SERVICE(%s) PARAMETERS(%s)", dataStoreCode, serviceKey, parameters);
         return null;
     }
 

@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
@@ -260,6 +261,42 @@ public class QueryApiServerTest extends AbstractServerTestCase
         assertEquals(Math.PI, rows.get(0)[1]);
         assertEquals("hello", rows.get(0)[2]);
         assertEquals(1, rows.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListAggregationServices()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(new Session("u", SESSION_TOKEN, new Principal(), "", 1)));
+
+                    one(dataStoreDAO).listDataStores();
+                    DataStorePE dataStore = new DataStorePE();
+                    dataStore.setCode("DS");
+                    DataStoreServicePE s1 = new DataStoreServicePE();
+                    s1.setDatasetTypes(new LinkedHashSet<DataSetTypePE>());
+                    s1.setKind(DataStoreServiceKind.QUERIES);
+                    s1.setReportingPluginTypeOrNull(ReportingPluginType.AGGREGATION_TABLE_MODEL);
+                    s1.setKey("S1");
+                    s1.setLabel("my service");
+                    DataStoreServicePE s2 = new DataStoreServicePE();
+                    s2.setKind(DataStoreServiceKind.QUERIES);
+                    DataStoreServicePE s3 = new DataStoreServicePE();
+                    s3.setReportingPluginTypeOrNull(ReportingPluginType.TABLE_MODEL);
+                    dataStore.setServices(new HashSet<DataStoreServicePE>(Arrays.asList(s1, s2, s3)));
+                    will(returnValue(Arrays.asList(dataStore)));
+                }
+            });
+
+        List<AggregationServiceDescription> reportDescriptions =
+                queryApiServer.listAggregationServices(SESSION_TOKEN);
+
+        assertEquals("DS", reportDescriptions.get(0).getDataStoreCode());
+        assertEquals("S1", reportDescriptions.get(0).getServiceKey());
+        assertEquals(1, reportDescriptions.size());
         context.assertIsSatisfied();
     }
 

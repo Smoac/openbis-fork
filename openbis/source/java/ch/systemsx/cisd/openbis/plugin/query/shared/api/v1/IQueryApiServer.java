@@ -105,17 +105,16 @@ public interface IQueryApiServer extends IRpcService
     /**
      * Creates a report using the specified aggregation service. Available aggregation services can
      * be obtained by {@link #listAggregationServices(String)}. The service resolved to by the
-     * moduleKey/serviceKey must be a service of type REPORT.
+     * serviceKey must be a service of type REPORT.
      * 
      * @param sessionToken A valid session token.
      * @param dataStoreCode Code of the data store.
-     * @param moduleKey Key for the module that implements the service.
      * @param serviceKey Key of the service.
      * @param parameters Parameters to the service.
      * @since 1.3
      */
     @Transactional(readOnly = true)
     public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode,
-            String moduleKey, String serviceKey, Map<String, Object> parameters);
+            String serviceKey, Map<String, Object> parameters);
 
 }

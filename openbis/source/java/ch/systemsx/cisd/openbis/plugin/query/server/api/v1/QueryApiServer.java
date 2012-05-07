@@ -188,11 +188,30 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     {
         checkSession(sessionToken);
 
-        // TODO Dummy implementation
-        return new ArrayList<AggregationServiceDescription>();
+        List<AggregationServiceDescription> services = new ArrayList<AggregationServiceDescription>();
+        List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : dataStores)
+        {
+            for (DataStoreServicePE service : dataStore.getServices())
+            {
+                boolean reportingService = service.getKind() == DataStoreServiceKind.QUERIES;
+                ReportingPluginType reportingPluginType = service.getReportingPluginTypeOrNull();
+                boolean aggregationTableReport =
+                        reportingPluginType != null
+                                && reportingPluginType == ReportingPluginType.AGGREGATION_TABLE_MODEL;
+                if (reportingService && aggregationTableReport)
+                {
+                    AggregationServiceDescription info = new AggregationServiceDescription();
+                    info.setServiceKey(service.getKey());
+                    info.setDataStoreCode(dataStore.getCode());
+                    services.add(info);
+                }
+            }
+        }
+        return services;
     }
 
-    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String moduleKey, String serviceKey, Map<String, Object> parameters)
+    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         checkSession(sessionToken);
 

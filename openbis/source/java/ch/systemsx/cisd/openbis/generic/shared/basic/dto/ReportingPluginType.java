@@ -30,7 +30,9 @@ public enum ReportingPluginType implements Serializable
     TABLE_MODEL(ImplementedPluginMethods.CREATE_REPORT),
 
     DSS_LINK(new ImplementedPluginMethods[]
-        { ImplementedPluginMethods.CREATE_REPORT, ImplementedPluginMethods.CREATE_LINK });
+        { ImplementedPluginMethods.CREATE_REPORT, ImplementedPluginMethods.CREATE_LINK }),
+
+    AGGREGATION_TABLE_MODEL(ImplementedPluginMethods.CREATE_AGGREGATION_REPORT);
 
     /**
      * An enum representing the methods implemented by the
@@ -40,7 +42,7 @@ public enum ReportingPluginType implements Serializable
      */
     public enum ImplementedPluginMethods
     {
-        CREATE_REPORT, CREATE_LINK
+        CREATE_REPORT, CREATE_LINK, CREATE_AGGREGATION_REPORT
     }
 
     private final ImplementedPluginMethods[] implementedMethods;
