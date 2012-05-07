@@ -49,7 +49,11 @@ public class RpcProxy implements InvocationHandler
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable
     {
         IServiceConversation conversation = this.client.startConversation(this.typeId);
-        conversation.send(new MethodCall(m.getName(), args));
-        return conversation.receive(Serializable.class);
+        try {
+            conversation.send(new MethodCall(m.getName(), args));
+            return conversation.receive(Serializable.class);
+        } finally {
+            conversation.close();
+        }
     }
 }

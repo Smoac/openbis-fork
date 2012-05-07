@@ -28,16 +28,19 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import ch.systemsx.cisd.common.serviceconversation.server.IService;
 import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
+import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 public final class RpcServiceFactory<T extends ConversationalServer> implements IServiceFactory 
 {
 
+    private ServiceConversationServer server;
     private T service;
     private SessionFactory factory;
     private Class<?> providedInterface;
     private int timeout;
     
-    public RpcServiceFactory(T service, Class<?> providedInterface, int clientTimeoutInMillis, SessionFactory factory) {
+    public RpcServiceFactory(ServiceConversationServer server, T service, Class<?> providedInterface, int clientTimeoutInMillis, SessionFactory factory) {
+        this.server = server;
         this.service = service;
         this.providedInterface = providedInterface;
         this.timeout = clientTimeoutInMillis;
@@ -55,7 +58,6 @@ public final class RpcServiceFactory<T extends ConversationalServer> implements 
 
             public void run(IServiceMessenger messenger)
             {
-
                 MethodCall call =
                         (MethodCall) messenger.receive(Serializable.class);
 
@@ -63,11 +65,13 @@ public final class RpcServiceFactory<T extends ConversationalServer> implements 
                 TransactionSynchronizationManager.bindResource(factory, new SessionHolder(s));
                 Transaction tx = s.beginTransaction();
                 
-                Serializable result;
+                Serializable result = null;
                 try {
-                    result = call.executeOn(service);
+                    result = call.executeOn(service, server, messenger.getId());
                 } finally {
-                    tx.commit();
+                    if (result != null) {
+                        tx.commit();
+                    }
                     s.close();
                     TransactionSynchronizationManager.unbindResource(factory);
                 }

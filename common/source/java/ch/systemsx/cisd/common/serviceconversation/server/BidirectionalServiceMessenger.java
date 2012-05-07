@@ -143,6 +143,10 @@ class BidirectionalServiceMessenger
         }
         incoming.add(message);
     }
+    
+    public void sendToClient(ServiceMessage message) {
+        responseMessenger.send(message);
+    }
 
     public void markAsInterrupted()
     {

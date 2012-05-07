@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.serviceconversation.server.IProgressListener;
+import ch.systemsx.cisd.common.serviceconversation.server.ProgressListener;
+import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
+
 public class MethodCall implements Serializable
 {
     private static final long serialVersionUID = 8679256131459236150L;
@@ -35,19 +39,27 @@ public class MethodCall implements Serializable
         this.arguments = arguments;
     }
 
-    public Serializable executeOn(Object o) {
+    public Serializable executeOn(Object o, ServiceConversationServer server, String conversationId) {
 
         List<Class<?>> argClasses = new ArrayList<Class<?>>();
         for (Object s : this.arguments) {
             argClasses.add(s.getClass());
         }
+        argClasses.add(IProgressListener.class);
+
+        
+        List<Object> newArgs = new ArrayList<Object>();
+        newArgs.addAll(Arrays.asList(this.arguments));
+        newArgs.add(new ProgressListener(server, conversationId));
+
         Exception ex;
+
         try
         {
             Method m = o.getClass().getMethod(this.methodName, argClasses.toArray(new Class<?>[0]));
             try
             {
-                return (Serializable)m.invoke(o, this.arguments);
+                return (Serializable)m.invoke(o, newArgs.toArray(new Object[0]));
             } catch (IllegalArgumentException e)
             {
                 ex = e;

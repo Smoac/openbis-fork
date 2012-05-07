@@ -18,6 +18,8 @@ package ch.systemsx.cisd.common.serviceconversation;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.serviceconversation.server.ProgressInfo;
+
 /**
  * A service message which is part of a service conversation.
  * 
@@ -32,6 +34,8 @@ public class ServiceMessage implements Serializable
     private final int messageIdx;
 
     private final Serializable payload;
+    
+    private final ProgressInfo progress;
 
     private final String exceptionDescription;
 
@@ -44,6 +48,7 @@ public class ServiceMessage implements Serializable
             Serializable payload)
     {
         this.conversationId = conversationId;
+        this.progress = null;
         this.messageIdx = messageId;
         if (exception)
         {
@@ -54,6 +59,14 @@ public class ServiceMessage implements Serializable
             this.payload = payload;
             this.exceptionDescription = null;
         }
+    }
+    
+    public ServiceMessage(String conversationId, int messageId, ProgressInfo progress) {
+        this.conversationId = conversationId;
+        this.progress = progress;
+        this.messageIdx = messageId;
+        this.payload = null;
+        this.exceptionDescription = null;
     }
 
     public String getConversationId()
@@ -90,6 +103,10 @@ public class ServiceMessage implements Serializable
     {
         return exceptionDescription;
     }
+    
+    public ProgressInfo getProgress() {
+        return this.progress;
+    }
 
     @Override
     public String toString()
@@ -104,7 +121,7 @@ public class ServiceMessage implements Serializable
         } else
         {
             return "ServiceMessage [conversationId=" + conversationId + ", messageIdx="
-                    + messageIdx + ", payload=" + payload + "]";
+                    + messageIdx + ", payload=" + payload + ", progress=" + progress +"]";
         }
     }
 }

@@ -118,8 +118,7 @@ class ClientMessenger implements IServiceConversation
     {
         try
         {
-            return handleMessage(responseMessageQueue.poll(serviceMessageTimeoutMillis),
-                    messageClass, true);
+            return handleMessage(getMessage(), messageClass, true);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -130,11 +129,19 @@ class ClientMessenger implements IServiceConversation
     {
         try
         {
-            return handleMessage(responseMessageQueue.poll(timeoutMillis), messageClass, false);
+            return handleMessage(getMessage(), messageClass, false);
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+    }
+
+    private ServiceMessage getMessage() throws InterruptedException {
+        ServiceMessage message = responseMessageQueue.poll(serviceMessageTimeoutMillis);
+        while (message != null && message.getProgress() != null) {
+            message = responseMessageQueue.poll(serviceMessageTimeoutMillis);
+        }
+        return message;
     }
 
     @SuppressWarnings("unchecked")
@@ -163,6 +170,7 @@ class ClientMessenger implements IServiceConversation
             throw new ServiceExecutionException(message.getConversationId(),
                     message.tryGetExceptionDescription());
         }
+                
         final Object payload = message.getPayload();
         if (messageClass != null && messageClass.isAssignableFrom(payload.getClass()) == false)
         {

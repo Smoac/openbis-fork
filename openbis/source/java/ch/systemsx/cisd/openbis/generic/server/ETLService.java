@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.serviceconversation.RpcMessageTransport;
 import ch.systemsx.cisd.common.serviceconversation.RpcServiceFactory;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
+import ch.systemsx.cisd.common.serviceconversation.server.IProgressListener;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
@@ -175,6 +176,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
 {
+    private static final int PROGRESS_TIMEOUT = 10000;
+
     private final IDAOFactory daoFactory;
 
     private final IDataStoreServiceFactory dssFactory;
@@ -207,8 +210,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 daoFactory.getPersistencyResources().getSessionFactoryOrNull();
 
         server = new ServiceConversationServer();
-        server.addServiceType(new RpcServiceFactory<IETLLIMSService>(this, IETLLIMSService.class,
-                3600000, sessionFactory));
+        server.addServiceType(new RpcServiceFactory<IETLLIMSService>(server, this,
+                IETLLIMSService.class, PROGRESS_TIMEOUT, sessionFactory));
     }
 
     public IETLLIMSService createLogger(IInvocationLoggerContext context)
@@ -1245,56 +1248,80 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
+        return this.performEntityOperations(sessionToken, operationDetails,
+                new IProgressListener()
+                    {
+
+                        public void update(String label, int totalItemsToProcess,
+                                int numItemsProcessed)
+                        {
+                        }
+                    });
+    }
+
+    public AtomicEntityOperationResult performEntityOperations(
+            String sessionToken,
+            AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
+    {
 
         final Session session = getSession(sessionToken);
 
-        List<Space> spacesCreated = createSpaces(session, operationDetails);
+        List<Space> spacesCreated = createSpaces(session, operationDetails, progressListener);
 
-        List<Material> materialsCreated = createMaterials(session, operationDetails);
+        List<Material> materialsCreated =
+                createMaterials(session, operationDetails, progressListener);
 
-        List<Project> projectsCreated = createProjects(session, operationDetails);
+        List<Project> projectsCreated = createProjects(session, operationDetails, progressListener);
 
-        List<Experiment> experimentsCreated = createExperiments(session, operationDetails);
+        List<Experiment> experimentsCreated =
+                createExperiments(session, operationDetails, progressListener);
 
-        List<Sample> samplesCreated = createSamples(session, operationDetails);
+        List<Sample> samplesCreated = createSamples(session, operationDetails, progressListener);
 
-        List<Sample> samplesUpdated = updateSamples(session, operationDetails);
+        List<Sample> samplesUpdated = updateSamples(session, operationDetails, progressListener);
 
-        List<ExternalData> dataSetsCreated = createDataSets(session, operationDetails);
+        List<ExternalData> dataSetsCreated =
+                createDataSets(session, operationDetails, progressListener);
 
-        List<ExternalData> dataSetsUpdated = updateDataSets(session, operationDetails);
+        List<ExternalData> dataSetsUpdated =
+                updateDataSets(session, operationDetails, progressListener);
 
         return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
                 samplesUpdated, samplesCreated, materialsCreated, dataSetsCreated, dataSetsUpdated);
     }
 
-    private List<Space> createSpaces(Session session, AtomicEntityOperationDetails operationDetails)
+    private List<Space> createSpaces(Session session,
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
+        int index = 0;
         for (NewSpace newSpace : newSpaces)
         {
             SpacePE spacePE =
                     registerSpaceInternal(session, newSpace, operationDetails.tryUserIdOrNull());
             spacePEsCreated.add(spacePE);
+            progress.update("createSpaces", newSpaces.size(), ++index);
         }
         return SpaceTranslator.translate(spacePEsCreated);
     }
 
     private List<Material> createMaterials(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
                         getPropertiesBatchManager());
         Map<String, List<NewMaterial>> materialRegs = operationDetails.getMaterialRegistrations();
         List<Material> registeredMaterials = new ArrayList<Material>();
+        int index = 0;
         for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
         {
             String materialType = newMaterialsEntry.getKey();
             List<NewMaterial> newMaterials = newMaterialsEntry.getValue();
             List<Material> materials = materialHelper.registerMaterials(materialType, newMaterials);
             registeredMaterials.addAll(materials);
+            progress.update("createMaterials", materialRegs.size(), ++index);
         }
         return registeredMaterials;
     }
@@ -1332,15 +1359,17 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Project> createProjects(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
         List<NewProject> newProjects = operationDetails.getProjectRegistrations();
+        int index = 0;
         for (NewProject newProject : newProjects)
         {
             ProjectPE projectPE =
                     registerProjectInternal(session, newProject, operationDetails.tryUserIdOrNull());
             projectPEsCreated.add(projectPE);
+            progress.update("createProjects", newProjects.size(), ++index);
         }
         return ProjectTranslator.translate(projectPEsCreated);
     }
@@ -1363,11 +1392,12 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Sample> createSamples(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         List<NewSample> containerSamples = new ArrayList<NewSample>();
         List<NewSample> containedSamples = new ArrayList<NewSample>();
+        int index = 0;
         for (NewSample newSample : newSamples)
         {
             if (StringUtils.isEmpty(newSample.getContainerIdentifierForNewSample()))
@@ -1377,6 +1407,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             {
                 containedSamples.add(newSample);
             }
+            progress.update("createSamples", newSamples.size(), ++index);
         }
 
         String userIdOrNull = operationDetails.tryUserIdOrNull();
@@ -1391,14 +1422,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Sample> updateSamples(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         ArrayList<SamplePE> samplePEsUpdated = new ArrayList<SamplePE>();
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
+        int index = 0;
         for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
         {
             SamplePE samplePE = updateSampleInternal(sampleUpdate, session).getSample();
             samplePEsUpdated.add(samplePE);
+            progress.update("updateSamples", sampleUpdates.size(), ++index);
         }
         return SampleTranslator.translate(samplePEsUpdated, session.getBaseIndexURL());
     }
@@ -1408,7 +1441,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
      * order
      */
     private List<ExternalData> createDataSets(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         List<? extends NewExternalData> dataSetRegistrations =
@@ -1417,21 +1450,25 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
         List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
 
+        int index = 0;
         for (NewExternalData dataSet : orderedRegistrations)
         {
             registerDatasetInternal(session, dataSetsCreated, dataSet);
+            progress.update("createDataSets", orderedRegistrations.size(), ++index);
         }
         return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
     }
 
     private List<ExternalData> updateDataSets(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         List<DataPE> dataSetsUpdated = new ArrayList<DataPE>();
+        int index = 0;
         for (DataSetUpdatesDTO dataSet : operationDetails.getDataSetUpdates())
         {
             DataPE updatedDataSet = updateDataSetInternal(session, dataSet);
             dataSetsUpdated.add(updatedDataSet);
+            progress.update("updateDataSets", operationDetails.getDataSetUpdates().size(), ++index);
         }
         return DataSetTranslator.translate(dataSetsUpdated, "", session.getBaseIndexURL());
     }
@@ -1460,10 +1497,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private ArrayList<Experiment> createExperiments(Session session,
-            AtomicEntityOperationDetails operationDetails)
+            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
         List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();
+        int index = 0;
         for (NewExperiment experiment : experimentRegistrations)
         {
             registerExperiment(session.getSessionToken(), experiment);
@@ -1471,6 +1509,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
             experimentsCreated.add(tryToGetExperiment(session.getSessionToken(),
                     experimentIdentifier));
+            progress.update("createExperiments", experimentRegistrations.size(), ++index);
         }
         return experimentsCreated;
     }

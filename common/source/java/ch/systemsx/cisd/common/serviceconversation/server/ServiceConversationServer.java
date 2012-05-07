@@ -305,5 +305,19 @@ public class ServiceConversationServer
     {
         return conversations.containsKey(conversationId);
     }
+    
+    public void reportProgress(String conversationId, ProgressInfo progress) {
+        if (conversationId == null) {
+            return;
+        }
+        if (!hasConversation(conversationId)) {
+            operationLog.warn("Progress reporting failed. Conversation with id "+conversationId+" does not exist");
+            return;
+        }
+        
+        
+        BidirectionalServiceMessenger messenger = this.conversations.get(conversationId).getMessenger();
+        messenger.sendToClient(new ServiceMessage(conversationId, messenger.nextOutgoingMessageIndex(), progress));
+    }
 
 }
