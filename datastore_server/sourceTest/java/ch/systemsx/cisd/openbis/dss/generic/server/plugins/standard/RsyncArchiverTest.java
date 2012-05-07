@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.SHARE_FINDER_KEY;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -35,10 +39,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
@@ -48,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
@@ -141,6 +150,8 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
     private IDataSetDeleter deleter;
 
+    private IHierarchicalContentProvider contentProvider;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -149,6 +160,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         context = new Mockery();
         fileOperationsManager = context.mock(IDataSetFileOperationsManager.class);
         dataSetDirectoryProvider = context.mock(IDataSetDirectoryProvider.class);
+        contentProvider = context.mock(IHierarchicalContentProvider.class);
         unarchivingPreparation = context.mock(IUnarchivingPreparation.class);
         statusUpdater = context.mock(IDataSetStatusUpdater.class);
         configProvider = context.mock(IConfigProvider.class);
@@ -186,6 +198,9 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     {
                         // ignored
                     }
+                    
+                    allowing(dataSetDirectoryProvider).getStoreRoot();
+                    will(returnValue(store));
                 }
             });
 
@@ -202,7 +217,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         properties = new Properties();
         archiver = new RsyncArchiver(properties, store, fileOperationsManager);
         archiver.statusUpdater = statusUpdater;
-        archiverTaskContext = new ArchiverTaskContext(dataSetDirectoryProvider);
+        archiverTaskContext = new ArchiverTaskContext(dataSetDirectoryProvider, contentProvider);
     }
 
     @AfterMethod
@@ -268,6 +283,8 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         final DatasetDescription ds1 =
                 new DatasetDescriptionBuilder("ds1").location(LOCATION).size(42L)
                         .getDatasetDescription();
+        final File retrievedDataSet = new File(store, RsyncArchiver.STAGING_FOLDER + "/ds1");
+        retrievedDataSet.mkdirs();
         context.checking(new Expectations()
             {
                 {
@@ -286,6 +303,14 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);
+                    
+                    one(contentProvider).asContent("ds1");
+                    will(returnValue(new MockContent(":0:0", "f.txt:9:8DA988AF")));
+                    
+                    FileUtilities.writeToFile(new File(retrievedDataSet, "f.txt"), "abcdefghi");
+                    one(fileOperationsManager).retrieveFromDestination(
+                            retrievedDataSet, ds1);
+                    will(returnValue(Status.OK));
                 }
             });
 
@@ -295,6 +320,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
+        assertEquals(false, retrievedDataSet.exists());
     }
 
     @Test
@@ -476,4 +502,227 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         archiver.deleteFromArchive(Arrays.asList(datasetLocation));
     }
 
+    @Test
+    public void testCheckHierarchySizeAndChecksumsHappyCase()
+    {
+        IHierarchicalContentNode root1 =
+                new MockContent(":0:0", "a/:0:0", "a/f1.txt:5:-3", "a/f2.txt:15:13",
+                        "r.txt:7:17").getRootNode();
+        IHierarchicalContentNode root2 =
+                new MockContent(":0:0", "a/:0:0", "a/f2.txt:15:13", "a/f1.txt:5:-3",
+                        "r.txt:7:17").getRootNode();
+        assertEquals("OK", RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+    
+    @Test
+    public void testCheckHierarchySizeAndChecksumsWrongPaths()
+    {
+        IHierarchicalContentNode root1 =
+                new MockContent(":0:0", "a/:0:0", "a/f1.txt:5:-3").getRootNode();
+        IHierarchicalContentNode root2 =
+                new MockContent(":0:0", "a/:0:0", "a/f3.txt:15:13").getRootNode();
+        assertEquals("ERROR: \"Different paths: Path in the store is 'a/f1.txt' "
+                + "and in the archive 'a/f3.txt'.\"",
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+    
+    @Test
+    public void testCheckHierarchySizeAndChecksumsFileInsteadOfDirectory()
+    {
+        IHierarchicalContentNode root1 = new MockContent(":0:0", "a/:0:0").getRootNode();
+        IHierarchicalContentNode root2 = new MockContent(":0:0", "a:1:2").getRootNode();
+        assertEquals("ERROR: \"The path 'a' should be in store and archive either "
+                + "both directories or files but not mixed: In the store it is a directory "
+                + "but in the archive it is a file.\"", RsyncArchiver
+                .checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+
+    @Test
+    public void testCheckHierarchySizeAndChecksumsWrongNumberOfChildren()
+    {
+        IHierarchicalContentNode root1 =
+                new MockContent(":0:0", "a/:0:0", "a/f1.txt:5:-3", "a/f2.txt:15:13").getRootNode();
+        IHierarchicalContentNode root2 =
+                new MockContent(":0:0", "a/:0:0", "a/f2.txt:15:13").getRootNode();
+        assertEquals("ERROR: \"The directory 'a' has in the store 2 files but 1 in the archive.\"",
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+    
+    @Test
+    public void testCheckHierarchySizeAndChecksumsWrongSize()
+    {
+        IHierarchicalContentNode root1 = new MockContent(":0:0", "r.txt:7:17").getRootNode();
+        IHierarchicalContentNode root2 = new MockContent(":0:0", "r.txt:9:17").getRootNode();
+        assertEquals("ERROR: \"The file 'r.txt' has in the store 7 bytes but 9 in the archive.\"",
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+
+    @Test
+    public void testCheckHierarchySizeAndChecksumsWrongChecksum()
+    {
+        IHierarchicalContentNode root1 = new MockContent(":0:0", "r.txt:7:17").getRootNode();
+        IHierarchicalContentNode root2 = new MockContent(":0:0", "r.txt:7:18").getRootNode();
+        assertEquals("ERROR: \"The file 'r.txt' has in the store the checksum 00000017 "
+                + "but 00000018 in the archive.\"",
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2).toString());
+    }
+    
+    private static final class MockNode implements IHierarchicalContentNode
+    {
+        private final List<IHierarchicalContentNode> children = new ArrayList<IHierarchicalContentNode>();
+        
+        private String name;
+        private String relativePath;
+        private IHierarchicalContentNode parent;
+        private boolean directory;
+        private long size;
+        private long checksum;
+        
+        void addNode(MockNode node)
+        {
+            node.parent = this;
+            children.add(node);
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public String getRelativePath()
+        {
+            return relativePath;
+        }
+
+        public String getParentRelativePath()
+        {
+            return parent == null ? null : parent.getRelativePath();
+        }
+
+        public boolean exists()
+        {
+            return true;
+        }
+
+        public boolean isDirectory()
+        {
+            return directory;
+        }
+
+        public long getLastModified()
+        {
+            return 0;
+        }
+
+        public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
+        {
+            return children;
+        }
+
+        public File getFile() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public File tryGetFile()
+        {
+            return null;
+        }
+
+        public long getFileLength() throws UnsupportedOperationException
+        {
+            return size;
+        }
+
+        public long getChecksumCRC32() throws UnsupportedOperationException
+        {
+            return checksum;
+        }
+
+        public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
+                IOExceptionUnchecked
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public InputStream getInputStream() throws UnsupportedOperationException,
+                IOExceptionUnchecked
+        {
+            throw new UnsupportedOperationException();
+        }
+        
+    }
+    
+    private static final class MockContent implements IHierarchicalContent
+    {
+        private MockNode root;
+        private final Map<String, MockNode> nodes = new HashMap<String, MockNode>();
+        
+        MockContent(String... contentDescriptions)
+        {
+            for (String contentDescription : contentDescriptions)
+            {
+                String[] splittedDescription = contentDescription.split(":");
+                MockNode node = new MockNode();
+                String path = splittedDescription[0];
+                if (path.length() == 0)
+                {
+                    root = node;
+                    node.directory = true;
+                    node.name = "";
+                    node.relativePath = "";
+                } else
+                {
+                    if (path.endsWith("/"))
+                    {
+                        path = path.substring(0, path.length() - 1);
+                        node.directory = true;
+                    } else
+                    {
+                        node.directory = false;
+                    }
+                    node.relativePath = path;
+                    int lastIndexOfDelim = path.lastIndexOf('/');
+                    MockNode parent = root;
+                    if (lastIndexOfDelim >= 0)
+                    {
+                        String parentPath = path.substring(0, lastIndexOfDelim);
+                        parent = nodes.get(parentPath);
+                    }
+                    parent.addNode(node);
+                    nodes.put(path, node);
+                    node.name = path.substring(lastIndexOfDelim + 1);
+                }
+                node.size = Long.parseLong(splittedDescription[1]);
+                node.checksum = Long.parseLong(splittedDescription[2], 16);
+            }
+        }
+
+        public IHierarchicalContentNode getRootNode()
+        {
+            return root;
+        }
+
+        public IHierarchicalContentNode getNode(String relativePath)
+                throws IllegalArgumentException
+        {
+            return nodes.get(relativePath);
+        }
+
+        public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
+                String fileNamePattern)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public void close()
+        {
+        }
+        
+    }
 }

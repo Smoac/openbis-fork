@@ -91,7 +91,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
 
         DatasetDescriptionBuilder builder = new DatasetDescriptionBuilder("ds1");
         List<DatasetDescription> datasets = Arrays.asList(builder.getDatasetDescription());
-        ArchiverTaskContext archiverContext = new ArchiverTaskContext(null);
+        ArchiverTaskContext archiverContext = new ArchiverTaskContext(null, null);
 
         context.checking(new Expectations()
             {

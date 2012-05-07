@@ -33,15 +33,23 @@ public class ArchiverTaskContext
             {
             }
         };
+    private final IHierarchicalContentProvider hierarchicalContentProvider;
 
-    public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider)
+    public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
+            IHierarchicalContentProvider hierarchicalContentProvider)
     {
         this.directoryProvider = directoryProvider;
+        this.hierarchicalContentProvider = hierarchicalContentProvider;
     }
 
     public IDataSetDirectoryProvider getDirectoryProvider()
     {
         return directoryProvider;
+    }
+
+    public IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        return hierarchicalContentProvider;
     }
 
     public void setUnarchivingPreparation(IUnarchivingPreparation unarchivingPreparation)

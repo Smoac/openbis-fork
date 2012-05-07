@@ -448,10 +448,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         public ProcessingStatus process(List<DatasetDescription> datasets,
                 DataSetProcessingContext context)
         {
-            ArchiverTaskContext archiverContext =
-                    new ArchiverTaskContext(context.getDirectoryProvider());
+            ArchiverTaskContext archiverContext = createContext(context);
             return archiverTask.archive(datasets, archiverContext, removeFromDataStore);
         }
+
     }
 
     private static class UnarchiveProcessingPluginTask implements IProcessingPluginTask
@@ -469,10 +469,15 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         public ProcessingStatus process(List<DatasetDescription> datasets,
                 DataSetProcessingContext context)
         {
-            ArchiverTaskContext archiverContext =
-                    new ArchiverTaskContext(context.getDirectoryProvider());
+            ArchiverTaskContext archiverContext = createContext(context);
             return archiverTask.unarchive(datasets, archiverContext);
         }
+    }
+    
+    private static ArchiverTaskContext createContext(DataSetProcessingContext context)
+    {
+        return new ArchiverTaskContext(context.getDirectoryProvider(),
+                context.getHierarchicalContentProvider());
     }
 
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,

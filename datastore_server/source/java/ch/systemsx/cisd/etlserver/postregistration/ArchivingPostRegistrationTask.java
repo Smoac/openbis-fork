@@ -179,10 +179,10 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         return (data != null) ? DataSetTranslator.translateToDescription(data) : null;
     }
 
-
     private static ArchiverTaskContext createArchiverContext()
     {
-        return new ArchiverTaskContext(ServiceProvider.getDataStoreService().getDataSetDirectoryProvider());
+        return new ArchiverTaskContext(ServiceProvider.getDataStoreService()
+                .getDataSetDirectoryProvider(), ServiceProvider.getHierarchicalContentProvider());
     }
 
     private static class ArchivingCleanupTask implements ICleanupTask
