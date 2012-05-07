@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
 
 /**
@@ -201,37 +200,6 @@ public class DataStoreServiceTest extends AssertJUnit
 
         assertEquals(1, knownDataSets.size());
         assertSame(location, knownDataSets.get(0));
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testDeleteDataSetsForInvalidSessionToken()
-    {
-        try
-        {
-            createService().deleteDataSets("invalid", null);
-            fail("InvalidAuthenticationException expected");
-        } catch (InvalidAuthenticationException e)
-        {
-            assertEquals(INVALID_SESSION_TOKEN_MSG, e.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testDeleteDataSets()
-    {
-        DatasetDescription d1 = new DatasetDescription();
-        final List<DatasetDescription> dataSets = Arrays.asList(d1);
-        context.checking(new Expectations()
-            {
-                {
-                    one(commandExecutor).scheduleDeletionOfDataSets(dataSets);
-                }
-            });
-        
-        createService().deleteDataSets(sessionToken, dataSets);
         context.assertIsSatisfied();
     }
 

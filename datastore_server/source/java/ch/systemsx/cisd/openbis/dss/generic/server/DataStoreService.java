@@ -318,14 +318,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return knownLocations;
     }
 
-    public void deleteDataSets(String sessionToken, final List<? extends IDatasetLocation> dataSets)
-            throws InvalidAuthenticationException
-    {
-        sessionTokenManager.assertValidSessionToken(sessionToken);
-
-        commandExecutor.scheduleDeletionOfDataSets(dataSets);
-    }
-
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {

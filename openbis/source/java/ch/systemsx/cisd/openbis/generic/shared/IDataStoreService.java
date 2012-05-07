@@ -74,15 +74,6 @@ public interface IDataStoreService extends ConversationalClient
             throws InvalidAuthenticationException;
 
     /**
-     * Deletes the specified data sets.
-     * 
-     * @param sessionToken Valid token to identify authorised access.
-     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
-     */
-    public void deleteDataSets(String sessionToken, List<? extends IDatasetLocation> dataSets)
-            throws InvalidAuthenticationException;
-
-    /**
      * Uploads the specified data sets to CIFEX.
      * 
      * @param sessionToken Valid token to identify authorised access.
