@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
@@ -68,5 +69,11 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
             rowBuilder.setCell(DATA_SET_HEADER, new DssLinkTableCell(text, linkModel));
         }
         return builder.getTableModel();
+    }
+
+    public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
+    {
+        throw new IllegalArgumentException(
+                "The method createAggregationReport is not supported by DSS_LINK tasks");
     }
 }

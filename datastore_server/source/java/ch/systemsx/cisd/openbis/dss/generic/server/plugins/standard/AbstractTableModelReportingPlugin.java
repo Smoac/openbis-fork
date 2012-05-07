@@ -20,11 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import com.csvreader.CsvWriter;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
@@ -64,6 +66,12 @@ public abstract class AbstractTableModelReportingPlugin extends AbstractDatastor
     {
         throw new IllegalArgumentException(
                 "The method createLink is not supported by TABLE_MODEL tasks");
+    }
+
+    public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
+    {
+        throw new IllegalArgumentException(
+                "The method createAggregationReport is not supported by TABLE_MODEL tasks");
     }
 
     public static String convertTableToCsvString(TableModel table) throws IOException

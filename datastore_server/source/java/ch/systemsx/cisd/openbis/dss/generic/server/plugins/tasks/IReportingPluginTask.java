@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
@@ -56,4 +57,12 @@ public interface IReportingPluginTask
      * Currently only implemented by the DSS_LINK type.
      */
     LinkModel createLink(DatasetDescription dataset);
+
+    /**
+     * Creates a report for the specified datasets. This method should be safe for use in multiple
+     * threads.
+     * <p>
+     * Implemented by all ReportingPluginTypes.
+     */
+    TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context);
 }
