@@ -48,8 +48,6 @@ public class PathEntryDTO
     private  Date lastModifiedDate;
     @ResultColumn("data_set_code")
     private String dataSetCode;
-    @ResultColumn("location")
-    private String location;
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
             long sizeInBytes, Long checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
@@ -246,15 +244,5 @@ public class PathEntryDTO
     public void setDataSetCode(String dataSetCode)
     {
         this.dataSetCode = dataSetCode;
-    }
-
-    public String getLocation()
-    {
-        return location;
-    }
-
-    public void setLocation(String location)
-    {
-        this.location = location;
     }
 }

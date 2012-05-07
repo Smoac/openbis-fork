@@ -33,6 +33,8 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
@@ -52,21 +54,25 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
+    private ITimeProvider timeProvider;
+
     public PathInfoDatabaseChecksumCalculationTask()
     {
     }
 
     PathInfoDatabaseChecksumCalculationTask(IPathsInfoDAO dao,
-            IHierarchicalContentProvider hierarchicalContentProvider)
+            IHierarchicalContentProvider hierarchicalContentProvider, ITimeProvider timeProvider)
     {
         this.dao = dao;
         this.hierarchicalContentProvider = hierarchicalContentProvider;
+        this.timeProvider = timeProvider;
     }
 
     public void setUp(String pluginName, Properties properties)
     {
         dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
         hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
 
     public void execute()
@@ -93,7 +99,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
         int fileCounter = 0;
         for (Entry<String, List<PathEntryDTO>> entry : entrySet)
         {
-            long t0 = System.currentTimeMillis();
+            long t0 = timeProvider.getTimeInMilliseconds();
             String dataSetCode = entry.getKey();
             try
             {
@@ -110,7 +116,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
                         fileCounter++;
                     }
                     dao.commit();
-                    operationLog.info((System.currentTimeMillis() - t0 + 500) / 1000
+                    operationLog.info((timeProvider.getTimeInMilliseconds() - t0 + 500) / 1000
                             + " seconds needed to update checksums of " + pathEntries.size()
                             + " files of data set " + dataSetCode + ".");
                     dataSetCounter++;

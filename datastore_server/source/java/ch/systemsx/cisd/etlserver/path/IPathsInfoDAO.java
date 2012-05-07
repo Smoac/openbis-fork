@@ -49,9 +49,9 @@ public interface IPathsInfoDAO extends TransactionQuery
             + "?{1.checksumCRC32}, ?{1.directory}, ?{1.lastModifiedDate})", batchUpdate = true)
     public void createDataSetFiles(Collection<PathEntryDTO> filePaths);
     
-    @Select("select f.id, d.code as data_set_code, location, relative_path " +
+    @Select("select f.id, d.code as data_set_code, relative_path " +
     		"from data_set_files as f join data_sets as d on f.dase_id = d.id " +
-    		"where checksum_crc32 is null and is_directory = 'F' order by data_set_code")
+    		"where checksum_crc32 is null and is_directory = 'F'")
     public List<PathEntryDTO> listDataSetFilesWithUnkownChecksum();
     
     @Update("update data_set_files set checksum_crc32 = ?{2} where id = ?{1}")
