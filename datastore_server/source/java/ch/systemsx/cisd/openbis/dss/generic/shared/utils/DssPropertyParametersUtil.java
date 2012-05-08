@@ -151,7 +151,7 @@ public class DssPropertyParametersUtil
 
     public static File getDssRecoveryStateDir(final Properties properties)
     {
-        return getDssRegistrationLogDir(FileOperations.getInstance(), properties);
+        return getDssRecoveryStateDir(FileOperations.getInstance(), properties);
     }
 
     @Private

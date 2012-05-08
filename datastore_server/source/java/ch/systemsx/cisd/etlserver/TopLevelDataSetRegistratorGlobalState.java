@@ -150,6 +150,7 @@ public class TopLevelDataSetRegistratorGlobalState
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
+        dropboxRecoveryStateDir.mkdirs();
     }
 
     public String getDssCode()

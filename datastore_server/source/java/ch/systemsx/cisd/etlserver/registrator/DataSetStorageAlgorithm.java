@@ -172,7 +172,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     {
         this.incomingDataSetFile = precommitRecoveryAlgorithm.getIncomingDataSetFile();
         this.registrationDetails = null;
-        this.dataSetInformation = null;
+        this.dataSetInformation = precommitRecoveryAlgorithm.getDataSetInformation();
+        
         this.dataStoreStrategy = dataStoreStrategy;
         this.storageProcessor = storageProcessor;
         this.dataStoreCode = precommitRecoveryAlgorithm.getDataStoreCode();
@@ -196,7 +197,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
         PrecommittedState<T> precommittedState = (PrecommittedState<T>) state;
         DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm =
-                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataSetInformation.getDataSetCode(), dataStoreStrategy.getKey(),
+                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategy.getKey(),
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
                         precommittedState.storagePaths, precommittedState.markerFile,
                         precommittedState.transaction);

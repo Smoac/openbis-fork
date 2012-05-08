@@ -102,6 +102,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IDataSetStorageRecoveryManager storageRecoveryManager;
 
+    private final DataSetFile incomingDataSetFile;
+    
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
@@ -118,12 +120,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.postPreRegistrationHooks = postPreRegistrationHooks;
         this.autoRecoverySettings = transaction.getAutoRecoverySettings();
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
+        this.incomingDataSetFile = transaction.getIncomingDataSetFile();
     }
 
     /**
      * Constructor used by the autorecovery infrastructure.
      */
-    public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
+    public DataSetStorageAlgorithmRunner(DataSetFile incomingDataSetFile, List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
             IPrePostRegistrationHook<T> postPreRegistrationHooks,
@@ -140,6 +143,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.postPreRegistrationHooks = postPreRegistrationHooks;
         this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
         this.storageRecoveryManager = storageRecoveryManager;
+        this.incomingDataSetFile = incomingDataSetFile;
     }
 
     /**
@@ -318,8 +322,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        // move files to the store
-
         confirmStorageInApplicationServer();
 
         if (shouldUseAutoRecovery())
@@ -405,6 +407,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         } catch (final Throwable throwable)
         {
             // Something has gone really wrong
+            operationLog.error("Error while storing committed datasets", throwable);
             return false;
         }
         return true;
@@ -427,6 +430,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         } catch (final Throwable throwable)
         {
             // Something has gone really wrong
+            operationLog.error("Error while committing storage processors", throwable);
             rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
             return false;
         }
@@ -555,6 +559,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     public DataSetFile getIncomingDataSetFile()
     {
-        return transaction.getIncomingDataSetFile();
+        return incomingDataSetFile;
     }
 }

@@ -47,23 +47,22 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
 
     private final String dataStoreCode;
 
-    //could be replaced with full T dataSetInformation, if necessary
-    private final String dataSetCode;
-    
-    // we also need to store the precommitted state precommitted state
+    private final T dataSetInformation;
+
     private final IStorageProcessorTransaction transaction;
 
     private final File markerFile;
 
     private final DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths;
 
-    public DataSetStoragePrecommitRecoveryAlgorithm(String dataSetCode, DataStoreStrategyKey dataStoreStrategyKey,
-            File incomingDataSetFile, File stagingDirectory, File preCommitDirectory,
-            String dataStoreCode, DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths,
-            File markerFile, IStorageProcessorTransaction transaction)
+    public DataSetStoragePrecommitRecoveryAlgorithm(T dataSetInformation,
+            DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
+            File stagingDirectory, File preCommitDirectory, String dataStoreCode,
+            DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths, File markerFile,
+            IStorageProcessorTransaction transaction)
     {
-        this.dataSetCode = dataSetCode;
-        
+        this.dataSetInformation = dataSetInformation;
+
         this.dssKey = dataStoreStrategyKey;
         this.incomingDataSetFile = incomingDataSetFile;
         this.stagingDirectory = stagingDirectory;
@@ -92,10 +91,16 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
 
     }
 
-    public String getDataSetCode(){
-        return dataSetCode;
+    public String getDataSetCode()
+    {
+        return dataSetInformation.getDataSetCode();
     }
-    
+
+    public T getDataSetInformation()
+    {
+        return dataSetInformation;
+    }
+
     public DataStoreStrategyKey getDataStoreStrategyKey()
     {
         return dssKey;

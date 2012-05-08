@@ -21,7 +21,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -33,7 +35,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
 {
     private static final long serialVersionUID = 1L;
 
-    private final List<DataSetStoragePrecommitRecoveryAlgorithm<T>> dataSetStorageAlgorithms;
+    private final List<DataSetStoragePrecommitRecoveryAlgorithm<T>> dataSetRecoveryStorageAlgorithms;
 
     private final File dssRegistrationLogFile;
 
@@ -45,11 +47,11 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DssRegistrationLogger logger, IRollbackStack rollbackStack, DataSetFile incomingDataSetFile)
     {
-        this.dataSetStorageAlgorithms =
+        this.dataSetRecoveryStorageAlgorithms =
                 new ArrayList<DataSetStoragePrecommitRecoveryAlgorithm<T>>();
         for (DataSetStorageAlgorithm<T> algorithm : dataSetStorageAlgorithms)
         {
-            this.dataSetStorageAlgorithms.add(algorithm.getPrecommitRecoveryAlgorithm());
+            this.dataSetRecoveryStorageAlgorithms.add(algorithm.getPrecommitRecoveryAlgorithm());
         }
         dssRegistrationLogFile = logger.getFile();
         this.rollbackStackBackingFiles = ((RollbackStack) rollbackStack).getBackingFiles();
@@ -57,23 +59,47 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         this.incomingDataSetFile = incomingDataSetFile;
     }
 
-    public List<DataSetStoragePrecommitRecoveryAlgorithm<T>> getDataSetStorageAlgorithms()
-    {
-        return dataSetStorageAlgorithms;
-    }
-
-    public File getDssRegistrationLogFile()
-    {
-        return dssRegistrationLogFile;
-    }
-
-    public File[] getRollbackStackBackingFiles()
-    {
-        return rollbackStackBackingFiles;
-    }
-
     public DataSetFile getIncomingDataSetFile()
     {
         return incomingDataSetFile;
+    }
+    
+    public List<String> getDataSetCodes()
+    {
+        List<String> dataSetCodes = new ArrayList<String>();
+        for (DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm : this.dataSetRecoveryStorageAlgorithms)
+        {
+            dataSetCodes.add(recoveryAlgorithm.getDataSetCode());
+        } 
+        return dataSetCodes;
+    }
+    
+    public ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(OmniscientTopLevelDataSetRegistratorState state)
+    {
+        ArrayList<DataSetStorageAlgorithm<T>> algorithms =
+                new ArrayList<DataSetStorageAlgorithm<T>>();
+
+        for (DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm : this.dataSetRecoveryStorageAlgorithms)
+        {
+            algorithms.add(recoveryAlgorithm.recoverDataSetStorageAlgorithm(state));
+        }
+        return algorithms;
+    }
+    
+    public DssRegistrationLogger getRegistrationLogger(OmniscientTopLevelDataSetRegistratorState state)
+    {
+        DssRegistrationLogDirectoryHelper helper =
+                new DssRegistrationLogDirectoryHelper(state.getGlobalState()
+                        .getDssRegistrationLogDir());
+
+        DssRegistrationLogger logger =
+                new DssRegistrationLogger(dssRegistrationLogFile, helper,
+                        state.getFileOperations());
+        return logger;
+    }
+    
+    public IRollbackStack getRollbackStack()
+    {
+        return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
     }
 }

@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * Wrapper that bundles two copies of incoming dataset file. One is original file from the dropbox
@@ -9,8 +10,10 @@ import java.io.File;
  * 
  * @author jakubs
  */
-public class DataSetFile
+public class DataSetFile implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final File realIncomingFile;
 
     private final File logicalIncomingFile;
