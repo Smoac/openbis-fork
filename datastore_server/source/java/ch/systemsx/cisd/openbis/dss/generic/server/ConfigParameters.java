@@ -101,6 +101,8 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     private final File dssRegistrationLogDir;
 
+    private final File dssRecoveryStateDir;
+
     private final int port;
 
     private final String serverURL;
@@ -144,6 +146,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         storePath = new File(storeRootDir);
         dssInternalTempDir = getInternalTempDirectory(properties);
         dssRegistrationLogDir = DssPropertyParametersUtil.getDssRegistrationLogDir(properties);
+        dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
@@ -316,13 +319,17 @@ public final class ConfigParameters implements IServletPropertiesManager
         {
             operationLog.info(String.format("Store root directory: '%s'.", storePath));
             operationLog.info(String.format("Temp file directory: '%s'.", dssInternalTempDir));
-            operationLog.info(String.format("DSS registration log directory: '%s'.", dssRegistrationLogDir));
+            operationLog.info(String.format("DSS registration log directory: '%s'.",
+                    dssRegistrationLogDir));
+            operationLog.info(String.format("DSS recovery state directory: '%s'.",
+                    dssRecoveryStateDir));
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
             operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
             operationLog.info(String.format("Use SSL: %s.", useSSL));
             operationLog.info(String.format("Use NIO sockets: %s", useNIO));
-            operationLog.info(String.format("Authorization cache expiration time (minutes): %s", authCacheExpirationTimeMins));
+            operationLog.info(String.format("Authorization cache expiration time (minutes): %s",
+                    authCacheExpirationTimeMins));
             operationLog.info(String.format(
                     "Authorization cache cleanup timer period (minutes): %s",
                     authCacheCleanupTimerPeriodMins));

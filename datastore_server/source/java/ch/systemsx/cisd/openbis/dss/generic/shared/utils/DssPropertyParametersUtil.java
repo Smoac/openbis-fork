@@ -54,12 +54,18 @@ public class DssPropertyParametersUtil
      */
     static final String DSS_TEMP_DIR_PATH = "dss-temp-dir";
 
-    @Private static final File EMPTY_TEST_FILE = new File("an-empty-test-file");
-    
+    @Private
+    static final File EMPTY_TEST_FILE = new File("an-empty-test-file");
+
     /**
      * Directory for registration log files.
      */
     public static final String DSS_REGISTRATION_LOG_DIR_PATH = "dss-registration-log-dir";
+
+    /**
+     * Directory for recovery state files.
+     */
+    public static final String DSS_RECOVERY_STATE_DIR_PATH = "dss-recovery-state-dir";
 
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
@@ -118,7 +124,7 @@ public class DssPropertyParametersUtil
     {
         return PropertyUtils.getMandatoryProperty(serviceProperties, DOWNLOAD_URL_KEY);
     }
-    
+
     public static File getDssInternalTempDir(final Properties properties)
     {
         return getDssInternalTempDir(FileOperations.getInstance(), properties);
@@ -143,18 +149,28 @@ public class DssPropertyParametersUtil
                 "a directory for storing registration logs", DSS_REGISTRATION_LOG_DIR_PATH);
     }
 
+    public static File getDssRecoveryStateDir(final Properties properties)
+    {
+        return getDssRegistrationLogDir(FileOperations.getInstance(), properties);
+    }
+
+    @Private
+    static File getDssRecoveryStateDir(IFileOperations fileOperations, final Properties properties)
+    {
+        return getDir(fileOperations, properties, "recovery-state",
+                "a directory for storing recovery state for the dss", DSS_RECOVERY_STATE_DIR_PATH);
+    }
+
     private static File getDir(IFileOperations fileOperations, final Properties properties,
             String defaultDirName, String dirDescription, String pathKey)
     {
         String defaultRegistrationLogDirPath =
                 new File(System.getProperty("user.dir"), defaultDirName).getAbsolutePath();
         String registrationLogDirPath =
-                PropertyUtils.getProperty(properties, pathKey,
-                        defaultRegistrationLogDirPath);
+                PropertyUtils.getProperty(properties, pathKey, defaultRegistrationLogDirPath);
         File registrationLogDir = new File(registrationLogDirPath);
         fileOperations.mkdirs(registrationLogDir);
-        assertDirExistsAndIsLocal(fileOperations, registrationLogDir,
-                dirDescription, pathKey);
+        assertDirExistsAndIsLocal(fileOperations, registrationLogDir, dirDescription, pathKey);
         return registrationLogDir;
     }
 
@@ -168,8 +184,8 @@ public class DssPropertyParametersUtil
             fileOperations.createNewFile(EMPTY_TEST_FILE);
             if (fileOperations.rename(EMPTY_TEST_FILE, emptyTestFileInDir) == false)
             {
-                throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir, dirDescription,
-                        pathKey);
+                throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir,
+                        dirDescription, pathKey);
             }
         } finally
         {
@@ -178,8 +194,8 @@ public class DssPropertyParametersUtil
         }
     }
 
-    private static void assertDirExists(IFileOperations fileOperations, File dir, String dirDescription,
-            String pathKey)
+    private static void assertDirExists(IFileOperations fileOperations, File dir,
+            String dirDescription, String pathKey)
     {
         if (fileOperations.exists(dir) == false)
         {
