@@ -55,6 +55,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File dssRegistrationLogDir;
 
+    private final File dropboxRecoveryStateDir;
+
     private final File preStagingDir;
 
     private final File stagingDir;
@@ -91,7 +93,7 @@ public class TopLevelDataSetRegistratorGlobalState
      * Constructor that takes some values from the thread parameters.
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, File dssRegistrationLogDir,
+            File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -99,16 +101,17 @@ public class TopLevelDataSetRegistratorGlobalState
             IDataSetStorageRecoveryManager storageRecoveryManager)
     {
         this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir,
-                openBisService, mailClient, dataSetValidator, dataSourceQueryService,
-                dynamicTransactionQueryFactory, notifySuccessfulRegistration, threadParameters,
-                threadParameters.useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
+                dssRecoveryStateDir, openBisService, mailClient, dataSetValidator,
+                dataSourceQueryService, dynamicTransactionQueryFactory,
+                notifySuccessfulRegistration, threadParameters, threadParameters
+                        .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
                         .tryGetPostRegistrationScript(),
                 threadParameters.tryGetValidationScripts(), storageRecoveryManager);
     }
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, File dssRegistrationLogDir,
+            File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -122,6 +125,8 @@ public class TopLevelDataSetRegistratorGlobalState
         this.storeRootDir = storeRootDir;
         this.dssInternalTempDir = dssInternalTempDir;
         this.dssRegistrationLogDir = dssRegistrationLogDir;
+        this.dropboxRecoveryStateDir =
+                new File(dssRecoveryStateDir, threadParameters.getThreadName());
         this.preStagingDir =
                 getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.stagingDir =
@@ -141,6 +146,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
         this.storageRecoveryManager = storageRecoveryManager;
+        this.storageRecoveryManager.setDropboxRecoveryStateDir(this.dropboxRecoveryStateDir);
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -175,6 +181,14 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getDssRegistrationLogDir()
     {
         return dssRegistrationLogDir;
+    }
+
+    /**
+     * Get the directory that holds the recovery state for this dropbox.
+     */
+    public File getDropboxRecoveryStateDir()
+    {
+        return dropboxRecoveryStateDir;
     }
 
     /**

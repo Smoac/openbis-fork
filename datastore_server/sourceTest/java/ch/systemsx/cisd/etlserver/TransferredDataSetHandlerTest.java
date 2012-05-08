@@ -274,11 +274,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         typeExtractor, storageProcessor);
 
         IDataStoreService dataStoreService = context.mock(IDataStoreService.class);
-        
+
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder, dataStoreService, shareIdManager);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, dataStoreService,
+                        shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -292,7 +293,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory,
+                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
                         authorizedLimsService, mailClient, dataSetValidator, null,
                         new DynamicTransactionQueryFactory(), true, threadParameters,
                         new DataSetStorageRecoveryManager());
@@ -818,7 +819,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory,
+                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
                         authorizedLimsService, mailClient, dataSetValidator, null,
                         new DynamicTransactionQueryFactory(), true, threadParameters,
                         new DataSetStorageRecoveryManager());

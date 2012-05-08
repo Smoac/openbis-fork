@@ -122,7 +122,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         mailClient = context.mock(IMailClient.class);
         dataSourceQueryService = context.mock(IDataSourceQueryService.class);
         dynamicTransactionQuery = context.mock(DynamicTransactionQuery.class);
-        storageRecoveryManager = context.mock(IDataSetStorageRecoveryManager.class);
+        storageRecoveryManager = new DataSetStorageRecoveryManager();
 
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
@@ -159,9 +159,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                             shouldReThrowException);
         }
     }
-
+    
     protected TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
-    {
+    {   
         ThreadParameters threadParameters =
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
@@ -177,10 +177,23 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, openBisService,
-                        mailClient, dataSetValidator, dataSourceQueryService, myFactory, true,
-                        threadParameters, storageRecoveryManager);
+                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
+                        openBisService, mailClient, dataSetValidator, dataSourceQueryService,
+                        myFactory, true, threadParameters, storageRecoveryManager);
         return globalState;
+    }
+
+    protected void initializeStorageRecoveryManagerMock()
+    {
+        storageRecoveryManager = context.mock(IDataSetStorageRecoveryManager.class);
+        
+        context.checking(new Expectations()
+            {
+                {
+                    one(storageRecoveryManager).setDropboxRecoveryStateDir(
+                            new File(workingDirectory, "jython-handler-test"));
+                }
+            });
     }
 
     protected void setUpHomeDataBaseExpectations()
@@ -188,7 +201,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         context.checking(new Expectations()
             {
                 {
-
                     DatabaseInstance databaseInstance = new DatabaseInstance();
                     databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
                     one(openBisService).getHomeDatabaseInstance();

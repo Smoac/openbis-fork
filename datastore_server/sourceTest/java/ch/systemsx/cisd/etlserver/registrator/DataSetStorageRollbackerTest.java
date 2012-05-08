@@ -111,9 +111,10 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, openBisService, mailClient,
-                        dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
-                        threadParameters, new DataSetStorageRecoveryManager());
+                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
+                        openBisService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters,
+                        new DataSetStorageRecoveryManager());
         return globalState;
     }
 

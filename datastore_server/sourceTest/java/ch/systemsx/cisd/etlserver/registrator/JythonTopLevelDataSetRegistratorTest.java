@@ -435,6 +435,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     @Test(dataProvider = "simpleTransactionTestCaseProvider")
     public void testSimpleTransaction(final TestCaseParameters testCase)
     {
+        initializeStorageRecoveryManagerMock();
         setUpHomeDataBaseExpectations();
 
         Properties properties =

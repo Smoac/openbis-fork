@@ -355,6 +355,8 @@ public final class ETLDaemon
 
         private final File dssRegistrationLogDir;
 
+        private final File dssRecoveryStateDir;
+
         private final String dssCode;
 
         private final String shareId;
@@ -368,6 +370,7 @@ public final class ETLDaemon
 
             dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
             dssRegistrationLogDir = DssPropertyParametersUtil.getDssRegistrationLogDir(properties);
+            dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
             dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
             shareId = getShareId(threadParameters, storeRootDir);
         }
@@ -388,7 +391,8 @@ public final class ETLDaemon
                 new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode,
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
-                        initializationData.dssRegistrationLogDir, openBISService, mailClient,
+                        initializationData.dssRegistrationLogDir,
+                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, new DataSetStorageRecoveryManager());
@@ -422,7 +426,8 @@ public final class ETLDaemon
                 new TopLevelDataSetRegistratorGlobalState(initializationData.dssCode,
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
-                        initializationData.dssRegistrationLogDir, openBISService, mailClient,
+                        initializationData.dssRegistrationLogDir,
+                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, useIsFinishedMarkerFile, deleteUnidentified,

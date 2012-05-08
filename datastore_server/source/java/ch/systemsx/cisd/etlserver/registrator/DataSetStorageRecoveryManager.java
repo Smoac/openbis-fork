@@ -29,11 +29,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryManager
 {
 
+    private File dropboxRecoveryStateDir;
+
     public <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner)
     {
 
-        File serializedFile = new File("serialized");
+        File serializedFile = new File(dropboxRecoveryStateDir, "serialized");
 
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
@@ -63,5 +65,10 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     {
         // TODO: dummy implementation
         return file.getName().equals("recovery_state");
+    }
+
+    public void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir)
+    {
+        this.dropboxRecoveryStateDir = dropboxRecoveryStateDir;
     }
 }

@@ -307,7 +307,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", this.storeDir,
-                tmpIncomingDir, workingDirectory, this.service, null, null, null, null, true,
-                params, new DataSetStorageRecoveryManager());
+                tmpIncomingDir, workingDirectory, workingDirectory, this.service, null, null, null,
+                null, true, params, new DataSetStorageRecoveryManager());
     }
 }

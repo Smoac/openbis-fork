@@ -448,9 +448,10 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, openBisService, mailClient,
-                        dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
-                        threadParameters, new DataSetStorageRecoveryManager());
+                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
+                        openBisService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters,
+                        new DataSetStorageRecoveryManager());
         return globalState;
     }
 
@@ -513,7 +514,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         exactly(1).of(openBisService).performEntityOperations(
                                 with(any(AtomicEntityOperationDetails.class)));
                         will(returnValue(new AtomicEntityOperationResult()));
-                        
+
                         one(openBisService).setStorageConfirmed(with(any(String.class)));
                     }
                 }
@@ -674,7 +675,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         }
 
-        public DataSetRegistrationService<DataSetInformation> createNewService(DataSetFile dataSetFile)
+        public DataSetRegistrationService<DataSetInformation> createNewService(
+                DataSetFile dataSetFile)
         {
             return createDataSetRegistrationService(dataSetFile, null,
                     new DoNothingDelegatedAction(), new NoOpDelegate());
@@ -726,7 +728,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createHandler();
         tr =
                 new DataSetRegistrationTransaction<DataSetInformation>(workingDirectory,
-                        workingDirectory, stagingDirectory, service, handler, AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
+                        workingDirectory, stagingDirectory, service, handler,
+                        AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
     }
 
 }

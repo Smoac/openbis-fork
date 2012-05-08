@@ -38,4 +38,6 @@ public interface IDataSetStorageRecoveryManager
             File recoveryFile);
 
     boolean isRecoveryFile(File file);
+
+    void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);
 }
