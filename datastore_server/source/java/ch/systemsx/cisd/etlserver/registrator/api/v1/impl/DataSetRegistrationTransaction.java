@@ -433,6 +433,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                                 .getStorageRecoveryManager().canRecoverFromError(ex);
         if (useAutoRecovery)
         {
+            registrationService.registerNonFatalError(ex);
             state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
         } else
         {

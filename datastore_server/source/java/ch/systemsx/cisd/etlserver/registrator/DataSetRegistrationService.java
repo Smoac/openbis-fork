@@ -370,6 +370,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return encounteredErrors;
     }
 
+    public void registerNonFatalError(Throwable t)
+    {
+        encounteredErrors.add(t);
+    }
+    
     public IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
     {
         return dataSetRegistrationDetailsFactory;
