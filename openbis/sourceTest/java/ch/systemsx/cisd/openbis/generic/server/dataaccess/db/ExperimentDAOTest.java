@@ -237,7 +237,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(1, experiment.getDataSets().size());
     }
 
-    private final ExperimentPE findExperiment(String identifier)
+    private final ExperimentPE findExperimentByIdentifier(String identifier)
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
         List<ExperimentPE> experiments = experimentDAO.listExperiments();
@@ -251,7 +251,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     public final void testDeleteWithProperties()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-Y");
+        final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-Y");
 
         // Deleted experiment should have all collections which prevent it from deletion empty.
         assertTrue(deletedExperiment.getDataSets().isEmpty());
@@ -277,7 +277,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     public final void testDeleteWithAttachments()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-Y");
+        final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-Y");
 
         // Deleted experiment should have attachments which prevent it from deletion.
         // Other connections which also prevent experiment deletion should be empty in this test.
@@ -324,7 +324,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 createExperiment("CISD", "CISD", "DEFAULT", "EXP-13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
 
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-13");
+        final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-13");
         final ExternalDataPE dataSet = findExternalData("20110805092359990-17");
         dataSet.setExperiment(deletedExperiment);
         daoFactory.getDataDAO().validateAndSaveUpdatedEntity(dataSet);
@@ -341,7 +341,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     public final void testDeleteFailWithSamples()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/NEMO/EXP10");
+        final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/NEMO/EXP10");
 
         // Deleted experiment should have samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.

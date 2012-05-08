@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -38,7 +39,8 @@ public class DataSetBatchUpdateDetails implements Serializable
 
     private boolean fileFormatUpdateRequested;
 
-    private Set<String> propertiesToUpdate; // codes of properties to update
+    private Set<String> propertiesToUpdate = Collections.emptySet(); // codes of properties to
+                                                                     // update
 
     public DataSetBatchUpdateDetails()
     {

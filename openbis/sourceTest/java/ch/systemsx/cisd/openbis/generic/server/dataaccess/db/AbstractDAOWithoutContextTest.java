@@ -40,6 +40,8 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -60,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
@@ -278,6 +281,26 @@ public abstract class AbstractDAOWithoutContextTest extends
         assertNotNull(externalData);
 
         return externalData;
+    }
+
+    protected SamplePE findSample(String permId)
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        SamplePE sample = sampleDAO.tryToFindByPermID(permId);
+
+        assertNotNull(sample);
+
+        return sample;
+    }
+
+    protected ExperimentPE findExperiment(String permId)
+    {
+        final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
+        ExperimentPE experiment = experimentDAO.tryGetByPermID(permId);
+
+        assertNotNull(experiment);
+
+        return experiment;
     }
 
     protected ProjectPE findProject(String db, String group, String project)
