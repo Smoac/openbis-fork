@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_
 import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -45,6 +46,8 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
@@ -52,13 +55,17 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataActi
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
@@ -301,9 +308,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             return;
         }
 
-        // Check if file is recovery marker file
-        // If so,
-
+        File recoveryMarkerFile = tryFindRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile);
+        if (recoveryMarkerFile != null) {
+            handleRecovery(recoveryMarkerFile);
+        }
+        
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
         final File incomingDataSetFile;
         final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
@@ -441,6 +450,118 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             cause = cause.getCause();
         }
         return new RuntimeException(cause.toString());
+    }
+
+    /**
+     * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
+     * is the marker file, then if there is a marker file corresponding to this incoming file
+     */
+    private File tryFindRecoveryMarkerFile(File incoming)
+    {
+        if (state.getGlobalState().getStorageRecoveryManager().isRecoveryFile(incoming))
+        {
+            return incoming;
+        }
+
+        File possibleRecoveryMarkerPath =
+                new File(incoming.getAbsolutePath()
+                        + IDataSetStorageRecoveryManager.PROCESSING_MARKER);
+        if (possibleRecoveryMarkerPath.exists())
+        {
+            return possibleRecoveryMarkerPath;
+        }
+
+        return null;
+    }
+
+    private void handleRecovery(File recoveryMarkerFile)
+    {
+        DataSetStoragePrecommitRecoveryState<T> recoveryState =
+                state.getGlobalState().getStorageRecoveryManager()
+                        .extractPrecommittedCheckpoint(recoveryMarkerFile);
+
+        // TODO: real cleanup action
+        PostRegistrationCleanUpAction cleanup = null;
+
+        handleRecoveryState(recoveryState, cleanup);
+    }
+
+    private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+    {
+        System.err.println("Handle recovery");
+
+        DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
+
+        // rollback delegate
+        final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
+
+        IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
+            {
+                public void didRollbackStorageAlgorithmRunner(
+                        DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex,
+                        ErrorType errorType)
+                {
+                    encounteredErrors.add(ex);
+                }
+            };
+
+        // hookAdaptor
+        final AbstractOmniscientTopLevelDataSetRegistrator<T> myself = this;
+        IPrePostRegistrationHook<T> hookAdaptor = new IPrePostRegistrationHook<T>()
+            {
+                public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
+                {
+                    // myself.didPreRegistration(null, transaction);
+                }
+
+                public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
+                {
+                    // myself.didPostRegistration(null, transaction);
+                }
+            };
+
+        DataSetStorageAlgorithmRunner<T> runner =
+                new DataSetStorageAlgorithmRunner<T>(recoveryState.getIncomingDataSetFile(), // incoming
+                        recoveryState.getDataSetStorageAlgorithms(state), // algorithms
+                        rollbackDelegate, // rollback delegate,
+                        recoveryState.getRollbackStack(), // rollbackstack
+                        logger, // registrationLogger
+                        state.getGlobalState().getOpenBisService(), // openBisService
+                        hookAdaptor, // the hooks
+                        state.getGlobalState().getStorageRecoveryManager());
+        boolean registrationSuccessful = false;
+
+        System.err.println("Successfully created runner");
+
+        try
+        {
+            List<String> dataSetCodes = recoveryState.getDataSetCodes();
+            List<ExternalData> registeredDataSets =
+                    state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
+            if (registeredDataSets.isEmpty())
+            {
+                System.err.println("There are no registered datasets!");
+                // rollback during metadata registration
+            } else
+            {
+                System.err.println("There are  registered datasets!");
+                runner.storeAfterRegistration();
+                logger.registerSuccess();
+                registrationSuccessful = true;
+            }
+        } catch (Throwable error)
+        {
+            System.err.println("Caught an error! " + error);
+            error.printStackTrace();
+            // in this case we should ignore, and run the recovery again after some time
+            encounteredErrors.add(error);
+        }
+
+        logger.logDssRegistrationResult(encounteredErrors);
+
+        // TODO: recreate this clean afterwards function
+        // cleanAfterwardsAction.execute(registrationSuccessful);
     }
 
     /**
