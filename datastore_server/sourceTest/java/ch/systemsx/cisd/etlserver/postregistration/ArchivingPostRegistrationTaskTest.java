@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
@@ -66,6 +67,8 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
 
     private Mockery context;
 
+    private IHierarchicalContentProvider contentProvider;
+
     @BeforeMethod
     public void setUp()
     {
@@ -74,6 +77,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         dataStoreService = context.mock(IDataStoreServiceInternal.class);
         archiver = context.mock(IArchiverPlugin.class);
         directoryProvider = context.mock(IDataSetDirectoryProvider.class);
+        contentProvider = context.mock(IHierarchicalContentProvider.class);
         applicationContext = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(applicationContext);
     }
@@ -110,7 +114,10 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                 {
                     allowing(applicationContext).getBean("data-store-service");
                     will(returnValue(dataStoreService));
-
+                    
+                    allowing(applicationContext).getBean("hierarchical-content-provider");
+                    will(returnValue(contentProvider));
+                    
                     allowing(dataStoreService).getArchiverPlugin();
                     will(returnValue(archiver));
 
