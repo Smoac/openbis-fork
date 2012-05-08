@@ -50,7 +50,9 @@
                 </value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyHistoryPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyHistoryPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE</value>
@@ -67,11 +69,13 @@
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyHistoryPE</value>
 
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyHistoryPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE</value>
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE</value>

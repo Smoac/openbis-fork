@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -270,6 +272,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
+     * @see ICommonClientService#listEntityPropertyHistory(ListEntityPropertyHistoryCriteria)
+     */
+    public void listEntityPropertyHistory(ListEntityPropertyHistoryCriteria criteria,
+            AsyncCallback<TypedTableResultSet<EntityPropertyHistory>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#prepareExportEntityPropertyHistory(TableExportCriteria)
+     */
+    public void prepareExportEntityPropertyHistory(
+            TableExportCriteria<TableModelRowWithObject<EntityPropertyHistory>> criteria,
+            AsyncCallback<String> asyncCallback);
+
+    /**
      * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, boolean,
      *      IResultSetConfig)
      */
@@ -402,7 +417,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig)
+     * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig, boolean)
      */
     public void listExperimentDataSets(TechId experimentId,
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,

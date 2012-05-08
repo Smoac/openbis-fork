@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.properties;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
@@ -27,16 +29,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -50,19 +55,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 public enum EntityKind
 {
     MATERIAL(TableNames.MATERIALS_TABLE, null, "material", MaterialPE.class, null,
-            MaterialTypePE.class, MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
+            MaterialTypePE.class, MaterialTypePropertyTypePE.class,
+            MaterialPropertyHistoryPE.class, MaterialPropertyPE.class),
 
     EXPERIMENT(TableNames.EXPERIMENTS_VIEW, TableNames.EXPERIMENTS_ALL_TABLE, "experiment",
             ExperimentPE.class, DeletedExperimentPE.class, ExperimentTypePE.class,
-            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
+            ExperimentTypePropertyTypePE.class, ExperimentPropertyHistoryPE.class,
+            ExperimentPropertyPE.class),
 
     SAMPLE(TableNames.SAMPLES_VIEW, TableNames.SAMPLES_ALL_TABLE, "sample", SamplePE.class,
             DeletedSamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
-            SamplePropertyPE.class),
+            SamplePropertyHistoryPE.class, SamplePropertyPE.class),
 
     DATA_SET(TableNames.DATA_VIEW, TableNames.DATA_ALL_TABLE, "dataSet", DataPE.class,
             DeletedDataPE.class, DataSetTypePE.class, DataSetTypePropertyTypePE.class,
-            DataSetPropertyPE.class);
+            DataSetPropertyHistoryPE.class, DataSetPropertyPE.class);
 
     private final String entityTableName;
 
@@ -80,11 +87,15 @@ public enum EntityKind
 
     private transient final Class<?> propertyClass;
 
+    private transient final Class<? extends AbstractEntityPropertyHistoryPE> entityPropertyHistoryClass;
+
     private EntityKind(final String entityTableName, final String allEntitiesTableName,
             final String entityLabel,
             final Class<? extends IEntityInformationWithPropertiesHolder> entityClass,
             final Class<? extends IDeletablePE> deletedEntityClass, final Class<?> typeClass,
-            final Class<?> assignmentClass, Class<?> propertyClass)
+            final Class<?> assignmentClass,
+            final Class<? extends AbstractEntityPropertyHistoryPE> entityPropertyHistoryClass,
+            Class<?> propertyClass)
     {
         this.entityTableName = entityTableName;
         this.allEntitiesTableName = allEntitiesTableName;
@@ -93,6 +104,7 @@ public enum EntityKind
         this.deletedEntityClass = deletedEntityClass;
         this.typeClass = typeClass;
         this.assignmentClass = assignmentClass;
+        this.entityPropertyHistoryClass = entityPropertyHistoryClass;
         this.propertyClass = propertyClass;
     }
 
@@ -120,6 +132,11 @@ public enum EntityKind
     public final <T extends EntityTypePE> Class<T> getTypeClass()
     {
         return cast(typeClass);
+    }
+
+    public Class<? extends AbstractEntityPropertyHistoryPE> getEntityPropertyHistoryClass()
+    {
+        return entityPropertyHistoryClass;
     }
 
     public final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass()

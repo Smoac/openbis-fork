@@ -176,6 +176,8 @@ public final class ColumnNames
 
     public static final String MATERIAL_COLUMN = "mate_id";
 
+    public static final String MATERIAL_IDENTIFIER_COLUMN = "material";
+
     public static final String PARENT_SAMPLE_COLUMN = "sample_id_parent";
 
     public static final String CHILD_SAMPLE_COLUMN = "sample_id_child";
@@ -236,9 +238,13 @@ public final class ColumnNames
 
     public static final String VOCABULARY_TERM_COLUMN = "cvte_id";
 
+    public static final String VOCABULARY_TERM_IDENTIFIER_COLUMN = "vocabulary_term";
+
     public static final String SCRIPT_ID_COLUMN = "script_id";
 
     public static final String MODIFICATION_TIMESTAMP_COLUMN = "modification_timestamp";
+
+    public static final String VALID_FROM_TIMESTAMP_COLUMN = "valid_until_timestamp";
 
     public static final String VALID_UNTIL_TIMESTAMP_COLUMN = "valid_until_timestamp";
 

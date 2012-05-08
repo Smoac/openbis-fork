@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
@@ -107,6 +108,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IPostRegistrationDAO postRegistrationDAO;
 
+    private EntityPropertyHistoryDAO entityPropertyHistoryDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -134,8 +137,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
         scriptDAO = new ScriptDAO(sessionFactory, databaseInstance);
         corePluginDAO = new CorePluginDAO(sessionFactory, databaseInstance);
-        postRegistrationDAO =
-                new PostRegistrationDAO(sessionFactory, databaseInstance);
+        postRegistrationDAO = new PostRegistrationDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -145,6 +147,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
                     getPersistencyResources(), databaseInstance));
         }
+        entityPropertyHistoryDAO =
+                new EntityPropertyHistoryDAO(getPersistencyResources(), databaseInstance);
     }
 
     //
@@ -164,6 +168,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(final EntityKind entityKind)
     {
         return entityPropertyTypeDAOs.get(entityKind);
+    }
+
+    public IEntityPropertyHistoryDAO getEntityPropertyHistoryDAO()
+    {
+        return entityPropertyHistoryDAO;
     }
 
     public IEntityTypeDAO getEntityTypeDAO(final EntityKind entityKind)
