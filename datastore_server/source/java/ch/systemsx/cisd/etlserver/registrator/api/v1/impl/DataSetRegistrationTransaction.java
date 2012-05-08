@@ -39,6 +39,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
@@ -172,7 +173,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, AutoRecoverySettings autoRecoverySettings)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
+            AutoRecoverySettings autoRecoverySettings)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
                 registrationService, registrationDetailsFactory, autoRecoverySettings);
@@ -180,7 +182,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, AutoRecoverySettings autoRecoverySettings)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
+            AutoRecoverySettings autoRecoverySettings)
     {
         state =
                 new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
@@ -508,14 +511,20 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                     "Failed to invoke secondary transaction error hook:" + t.getMessage(), t);
         }
     }
-    
+
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
     {
         return registrationService.getRegistratorContext();
     }
-    
-    AutoRecoverySettings getAutoRecoverySettings()
+
+    public AutoRecoverySettings getAutoRecoverySettings()
     {
         return autoRecoverySettings;
+    }
+
+    public IDataSetStorageRecoveryManager getStorageRecoveryManager()
+    {
+        return registrationService.getRegistratorContext().getGlobalState()
+                .getStorageRecoveryManager();
     }
 }

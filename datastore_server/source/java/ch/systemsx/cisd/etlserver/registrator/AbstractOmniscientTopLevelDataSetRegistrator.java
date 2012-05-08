@@ -220,7 +220,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.
-                operationSuccessful = FileUtilities.deleteRecursively(incoming.getLogicalIncomingFile());
+                operationSuccessful =
+                        FileUtilities.deleteRecursively(incoming.getLogicalIncomingFile());
             }
             boolean wrappedActionResult = wrappedAction.execute(didOperationSucceed);
 
@@ -300,6 +301,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             return;
         }
 
+        // Check if file is recovery marker file
+        // If so,
+
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
         final File incomingDataSetFile;
         final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
@@ -310,7 +314,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             incomingDataSetFile =
                     state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
-            
+
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
                     public Boolean execute(boolean didOperationSucceed)
@@ -327,12 +331,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
-        //read from configuration prestaging parameter.
+        // read from configuration prestaging parameter.
         DataSetRegistrationPreStagingBehavior preStagingUsage =
                 state.getGlobalState().getThreadParameters()
                         .getDataSetRegistrationPreStagingBehavior();
 
-        
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
             DataSetFile incoming = new DataSetFile(incomingDataSetFile);
@@ -575,20 +578,21 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
-    public void didPreRegistration(DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+    public void didPreRegistration(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
     {
     }
-    
+
     /**
      * A method called just after the successful registration of datasets in application server.
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
-    public void didPostRegistration(DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+    public void didPostRegistration(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
     {
     }
-    
-    
+
     /**
      * A method called when there is an error in one of the secondary transactions.
      * <p>

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.etlserver.api.v1.TestDataSetTypeToTopLevelRegistratorMapper;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransactionTest.MockStorageProcessor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
@@ -179,8 +180,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
                         mailClient, "TEST", validator);
         rpcService =
-                new DssServiceRpcGeneric(openBisService, streamRepository, shareIdManager, contentProvider,
-                        putService);
+                new DssServiceRpcGeneric(openBisService, streamRepository, shareIdManager,
+                        contentProvider, putService);
         rpcService.setStoreDirectory(storeDir);
     }
 
@@ -615,8 +616,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         File parent = new File(filePath);
         if (false == parent.isDirectory())
         {
-            return Collections
-                    .<IHierarchicalContentNode> singletonList(new FileBasedContentNode(parent));
+            return Collections.<IHierarchicalContentNode> singletonList(new FileBasedContentNode(
+                    parent));
         }
 
         for (FileInfoDssDTO fileInfo : fileInfos)
@@ -751,7 +752,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", storeDir,
-                rpcIncomingDir, workingDirectory, openBisService, null, null, null, null, true, params);
+                rpcIncomingDir, workingDirectory, openBisService, null, null, null, null, true, params, new DataSetStorageRecoveryManager());
     }
-
 }

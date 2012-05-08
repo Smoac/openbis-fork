@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.registrator.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
@@ -84,52 +85,49 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String[] validationScriptsOrNull;
 
+    private final IDataSetStorageRecoveryManager storageRecoveryManager;
+
     /**
      * Constructor that takes some values from the thread parameters.
-     * 
-     * @param dssCode
-     * @param shareId
-     * @param storeRootDir
-     * @param openBisService
-     * @param mailClient
-     * @param dataSetValidator
-     * @param notifySuccessfulRegistration
-     * @param threadParameters
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, File dssRegistrationLogDir, IEncapsulatedOpenBISService openBisService,
-            IMailClient mailClient, IDataSetValidator dataSetValidator,
-            IDataSourceQueryService dataSourceQueryService,
+            File dssInternalTempDir, File dssRegistrationLogDir,
+            IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
+            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
-            boolean notifySuccessfulRegistration, ThreadParameters threadParameters)
+            boolean notifySuccessfulRegistration, ThreadParameters threadParameters,
+            IDataSetStorageRecoveryManager storageRecoveryManager)
     {
-        this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir, openBisService, mailClient,
-                dataSetValidator, dataSourceQueryService, dynamicTransactionQueryFactory,
-                notifySuccessfulRegistration, threadParameters, threadParameters
-                        .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
+        this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir,
+                openBisService, mailClient, dataSetValidator, dataSourceQueryService,
+                dynamicTransactionQueryFactory, notifySuccessfulRegistration, threadParameters,
+                threadParameters.useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
-                        .tryGetPostRegistrationScript(), threadParameters.tryGetValidationScripts());
+                        .tryGetPostRegistrationScript(),
+                threadParameters.tryGetValidationScripts(), storageRecoveryManager);
     }
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            File dssInternalTempDir, File dssRegistrationLogDir, IEncapsulatedOpenBISService openBisService,
-            IMailClient mailClient, IDataSetValidator dataSetValidator,
-            IDataSourceQueryService dataSourceQueryService,
+            File dssInternalTempDir, File dssRegistrationLogDir,
+            IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
+            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
             boolean notifySuccessfulRegistration, ThreadParameters threadParameters,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
-
             String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
-            String[] validationScriptsOrNull)
+            String[] validationScriptsOrNull, IDataSetStorageRecoveryManager storageRecoveryManager)
     {
         this.dssCode = dssCode;
         this.shareId = shareId;
         this.storeRootDir = storeRootDir;
         this.dssInternalTempDir = dssInternalTempDir;
         this.dssRegistrationLogDir = dssRegistrationLogDir;
-        this.preStagingDir = getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
-        this.stagingDir = getStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
-        this.preCommitDir = getPreCommitDir(storeRootDir, shareId, threadParameters.getThreadProperties());
+        this.preStagingDir =
+                getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
+        this.stagingDir =
+                getStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
+        this.preCommitDir =
+                getPreCommitDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
@@ -142,6 +140,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
+        this.storageRecoveryManager = storageRecoveryManager;
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -281,12 +280,17 @@ public class TopLevelDataSetRegistratorGlobalState
         return emails;
     }
 
+    public IDataSetStorageRecoveryManager getStorageRecoveryManager()
+    {
+        return storageRecoveryManager;
+    }
+
     public static final String STAGING_DIR = "staging-dir";
 
     public static final String PRE_STAGING_DIR = "pre-staging-dir";
 
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
-    
+
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -294,9 +298,10 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private static File getPreStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
-        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_STAGING_DIR, "pre-staging");
+        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_STAGING_DIR,
+                "pre-staging");
     }
-    
+
     private static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, "pre-commit");
@@ -314,9 +319,11 @@ public class TopLevelDataSetRegistratorGlobalState
      *            specified
      * @return The directory to use
      */
-    private static File getShareLocalDir(File storeRoot, String shareId, Properties threadProperties, String overridePropertyName, String defaultDirName)
+    private static File getShareLocalDir(File storeRoot, String shareId,
+            Properties threadProperties, String overridePropertyName, String defaultDirName)
     {
-        String shareLocalDirPath = PropertyUtils.getProperty(threadProperties, overridePropertyName);
+        String shareLocalDirPath =
+                PropertyUtils.getProperty(threadProperties, overridePropertyName);
         if (null == shareLocalDirPath)
         {
             return getDefaultShareLocalDir(storeRoot, shareId, defaultDirName);
@@ -337,8 +344,7 @@ public class TopLevelDataSetRegistratorGlobalState
         if (false == StringUtils.isBlank(shareId))
         {
             shareRoot = new File(storeRoot, shareId);
-        }
-        else
+        } else
         {
             shareRoot = storeRoot;
         }

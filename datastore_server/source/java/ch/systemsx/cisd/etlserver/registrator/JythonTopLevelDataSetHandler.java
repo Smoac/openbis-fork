@@ -120,7 +120,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * The name of the local variable under which the transaction is made available to the script.
      */
     protected static final String TRANSACTION_VARIABLE_NAME = "transaction";
-    
+
     // The key for the script in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
 
@@ -157,6 +157,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         JythonDataSetRegistrationService<T> service =
                 (JythonDataSetRegistrationService<T>) genericService;
 
+        executeJythonScript(dataSetFile, scriptString, service);
+    }
+
+    private void executeJythonScript(File dataSetFile, String scriptString,
+            JythonDataSetRegistrationService<T> service)
+    {
         // Configure the evaluator
         PythonInterpreter interpreter = service.interpreter;
         configureEvaluator(dataSetFile, service, interpreter);
@@ -164,6 +170,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         // Invoke the evaluator
         interpreter.exec(scriptString);
 
+        verifyEvaluatorHookFunctions(interpreter);
+    }
+
+    private void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
+    {
         for (JythonHookFunction function : JythonHookFunction.values())
         {
             PyFunction py = tryJythonFunction(interpreter, function);
@@ -189,8 +200,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    protected void configureEvaluator(File dataSetFile, JythonDataSetRegistrationService<T> service,
-            PythonInterpreter interpreter)
+    protected void configureEvaluator(File dataSetFile,
+            JythonDataSetRegistrationService<T> service, PythonInterpreter interpreter)
     {
         interpreter.set(SERVICE_VARIABLE_NAME, service);
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);

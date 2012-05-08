@@ -100,10 +100,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     // this is unused because it is only here as the prerequisite for the auto-recovery
     private final AutoRecoverySettings shouldUseAutomaticRecovery;
 
+    private final IDataSetStorageRecoveryManager storageRecoveryManager;
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
-            IPrePostRegistrationHook<T> postPreRegistrationHooks, AutoRecoverySettings shouldUseAutomaticRecovery)
+            IPrePostRegistrationHook<T> postPreRegistrationHooks)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
@@ -114,7 +116,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
-        this.shouldUseAutomaticRecovery = shouldUseAutomaticRecovery;
+        this.shouldUseAutomaticRecovery = transaction.getAutoRecoverySettings();
+        this.storageRecoveryManager = transaction.getStorageRecoveryManager();
     }
 
     /**
@@ -181,94 +184,15 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     }
 
-    /**
-     * Register the data sets.
-     * 
-     * @return true if some data sets were registered
-     */
-    public boolean runStorageAlgorithms()
+    private void confirmStorageInApplicationServer()
     {
-        // all algorithms are now in
-        // PREPARED STATE
-
         try
         {
-            // move data to precommited directory
-
-            // Runs or throws a throwable
-            preCommitStorageAlgorithms();
-
-        } catch (final Throwable throwable)
-        {
-            rollbackDuringStorageProcessorRun(throwable);
-            return false;
-        }
-
-        logPreCommitMessage();
-
-        // PRECOMMITED STATE
-
-        try
-        {
-            postPreRegistrationHooks.executePreRegistration(transaction);
-
-            // registers data set with yet non-existing store path.
-            // Runs or throw a throwable
-            registerDataSetsInApplicationServer();
-
-        } catch (final Throwable throwable)
-        {
-            rollbackDuringMetadataRegistration(throwable);
-            return false;
-        }
-
-        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
-
-        try
-        {
-            postPreRegistrationHooks.executePostRegistration(transaction);
-        } catch (final Throwable throwable)
-        {
-            dssRegistrationLog.log("Post-registration action failed:");
-            dssRegistrationLog.log(throwable.toString());
-
-            operationLog.warn("Post-registration action failed", throwable);
-        }
-
-        try
-        {
-            // Should always succeed
-            commitStorageProcessors();
-
-            dssRegistrationLog.log("Storage processors have committed.");
-
-        } catch (final Throwable throwable)
-        {
-            // Something has gone really wrong
-            rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
-            return false;
-        }
-
-        // COMMITED
-
-        try
-        {
-            storeCommitedDatasets();
-
-            logSuccessfulRegistration();
-            dssRegistrationLog.log("Data has been moved to the final store.");
-        } catch (final Throwable throwable)
-        {
-            // Something has gone really wrong
-            return false;
-        }
-
-        // move files to the store
-
-        try
-        {
-            confirmStorageInApplicationServer();
-
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                String dataSetCode = storageAlgorithm.getDataSetInformation().getDataSetCode();
+                openBISService.setStorageConfirmed(dataSetCode);
+            }
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
@@ -277,22 +201,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // There is nothing we can do about this at the moment,
             // Graceful recovery should (and will) take care of this case
 
-        }
-
-        return !dataSetStorageAlgorithms.isEmpty();
-
-        // confirm storage in AS
-
-        // STORAGECONFIRMED
-
-    }
-
-    private void confirmStorageInApplicationServer()
-    {
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
-        {
-            String dataSetCode = storageAlgorithm.getDataSetInformation().getDataSetCode();
-            openBISService.setStorageConfirmed(dataSetCode);
         }
     }
 
@@ -314,10 +222,48 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * @returns true if some datasets have been registered
      */
-    public boolean prepareAndRunStorageAlgorithms()
+    public <T extends DataSetInformation> boolean prepareAndRunStorageAlgorithms()
     {
         prepare();
-        return runStorageAlgorithms();
+        // all algorithms are now in
+        // PREPARED STATE
+
+        if (preCommitStorageAlgorithms() == false)
+        {
+            return false;
+        }
+        // PRECOMMITED STATE
+        storageRecoveryManager.checkpointPrecomittedState();
+        if (registerDataSetsInApplicationServer() == false)
+        {
+            return false;
+        }
+
+        executePostRegistrationHooks();
+
+        if (commitStorageProcessors() == false)
+        {
+            return false;
+        }
+
+        // COMMITED
+
+        if (storeCommitedDatasets() == false)
+        {
+            return false;
+        }
+
+        // move files to the store
+
+        confirmStorageInApplicationServer();
+
+        storageRecoveryManager.registrationCompleted();
+
+        return !dataSetStorageAlgorithms.isEmpty();
+
+        // confirm storage in AS
+
+        // STORAGECONFIRMED
     }
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
@@ -347,46 +293,112 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * Committed => Stored
      */
-    private void storeCommitedDatasets() throws Throwable
+    private boolean storeCommitedDatasets()
     {
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+
+        try
         {
-            storageAlgorithm.moveToTheStore();
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                storageAlgorithm.moveToTheStore();
+            }
+            logSuccessfulRegistration();
+            dssRegistrationLog.log("Data has been moved to the final store.");
+        } catch (final Throwable throwable)
+        {
+            // Something has gone really wrong
+            return false;
         }
+        return true;
     }
 
     /**
      * Precommitted => Committed
      */
-    private void commitStorageProcessors()
+    private boolean commitStorageProcessors()
     {
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        try
         {
-            storageAlgorithm.commitStorageProcessor();
+            // Should always succeed
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                storageAlgorithm.commitStorageProcessor();
+            }
+            dssRegistrationLog.log("Storage processors have committed.");
+
+        } catch (final Throwable throwable)
+        {
+            // Something has gone really wrong
+            rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
+            return false;
         }
+        return true;
     }
 
-    private void registerDataSetsInApplicationServer() throws Throwable
+    private boolean registerDataSetsInApplicationServer()
     {
-        ArrayList<DataSetRegistrationInformation<T>> registrationData =
-                new ArrayList<DataSetRegistrationInformation<T>>();
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        try
         {
-            registrationData.add(new DataSetRegistrationInformation<T>(storageAlgorithm
-                    .getDataSetInformation(), storageAlgorithm.createExternalData()));
+            postPreRegistrationHooks.executePreRegistration(transaction);
 
+            // registers data set with yet non-existing store path.
+            // Runs or throw a throwable
+            ArrayList<DataSetRegistrationInformation<T>> registrationData =
+                    new ArrayList<DataSetRegistrationInformation<T>>();
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                registrationData.add(new DataSetRegistrationInformation<T>(storageAlgorithm
+                        .getDataSetInformation(), storageAlgorithm.createExternalData()));
+
+            }
+            applicationServerRegistrator.registerDataSetsInApplicationServer(registrationData);
+
+        } catch (final Throwable throwable)
+        {
+            rollbackDuringMetadataRegistration(throwable);
+            return false;
         }
-        applicationServerRegistrator.registerDataSetsInApplicationServer(registrationData);
+
+        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
+        return true;
     }
 
     /**
      * Prepared => Precommit
      */
-    private void preCommitStorageAlgorithms() throws Throwable
+    private boolean preCommitStorageAlgorithms()
     {
-        for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+        try
         {
-            storageAlgorithm.preCommit();
+            // move data to precommited directory
+
+            // Runs or throws a throwable
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                storageAlgorithm.preCommit();
+            }
+        } catch (final Throwable throwable)
+        {
+            rollbackDuringStorageProcessorRun(throwable);
+            return false;
+        }
+
+        logPreCommitMessage();
+
+        return true;
+    }
+
+    private void executePostRegistrationHooks()
+    {
+        try
+        {
+            postPreRegistrationHooks.executePostRegistration(transaction);
+        } catch (final Throwable throwable)
+        {
+            dssRegistrationLog.log("Post-registration action failed:");
+            dssRegistrationLog.log(throwable.toString());
+
+            operationLog.warn("Post-registration action failed", throwable);
         }
     }
 

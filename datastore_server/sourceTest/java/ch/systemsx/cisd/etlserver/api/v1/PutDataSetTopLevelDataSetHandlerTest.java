@@ -50,6 +50,7 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransactionTest.MockStorageProcessor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -306,6 +307,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", this.storeDir,
-                tmpIncomingDir, workingDirectory, this.service, null, null, null, null, true, params);
+                tmpIncomingDir, workingDirectory, this.service, null, null, null, null, true,
+                params, new DataSetStorageRecoveryManager());
     }
 }

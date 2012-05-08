@@ -49,6 +49,7 @@ import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -449,7 +450,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, openBisService, mailClient,
                         dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
-                        threadParameters);
+                        threadParameters, new DataSetStorageRecoveryManager());
         return globalState;
     }
 

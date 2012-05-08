@@ -53,6 +53,7 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
@@ -291,9 +292,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, authorizedLimsService, mailClient,
-                        dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
-                        threadParameters);
+                        workingDirectory, workingDirectory, workingDirectory,
+                        authorizedLimsService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters,
+                        new DataSetStorageRecoveryManager());
 
         context.checking(new Expectations()
             {
@@ -561,8 +563,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(transaction).commit();
 
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
-                    
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)), with(equal(DATA_SET_CODE)));
+
+                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                            with(equal(DATA_SET_CODE)));
                 }
             });
         final LogMonitoringAppender appender =
@@ -611,8 +614,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(transaction).commit();
 
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
-                    
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)), with(equal(DATA_SET_CODE)));
+
+                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                            with(equal(DATA_SET_CODE)));
                 }
             });
         final LogMonitoringAppender appender =
@@ -814,9 +818,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, authorizedLimsService, mailClient,
-                        dataSetValidator, null, new DynamicTransactionQueryFactory(), true,
-                        threadParameters);
+                        workingDirectory, workingDirectory, workingDirectory,
+                        authorizedLimsService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters,
+                        new DataSetStorageRecoveryManager());
         context.checking(new Expectations()
             {
                 {
@@ -855,7 +860,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)), with(equal(DATA_SET_CODE)));
+                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                            with(equal(DATA_SET_CODE)));
                 }
             });
         final LogMonitoringAppender appender =

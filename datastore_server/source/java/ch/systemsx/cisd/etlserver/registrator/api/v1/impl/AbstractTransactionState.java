@@ -267,7 +267,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 dataSet.setSample(new SampleImmutable(sample));
             }
-            
+
             ExperimentIdentifier experimentId =
                     registrationDetails.getDataSetInformation().getExperimentIdentifier();
             if (null != experimentId)
@@ -630,8 +630,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, rollbackStack,
                             registrationService.getDssRegistrationLog(), openBisService,
-                            registrationService, parent.getAutoRecoverySettings());
-           
+                            registrationService);
+
             boolean someDataSetsRegistered = runner.prepareAndRunStorageAlgorithms();
 
             // The queries are optional parts of the commit; catch any errors and inform the
@@ -712,7 +712,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     // set.
                     dsInfo.setSample(null);
                     dsInfo.setSampleCode(null);
-                    dataSetRegistrationInformation.getExternalData().setSampleIdentifierOrNull(null);
+                    dataSetRegistrationInformation.getExternalData()
+                            .setSampleIdentifierOrNull(null);
                 }
             }
 

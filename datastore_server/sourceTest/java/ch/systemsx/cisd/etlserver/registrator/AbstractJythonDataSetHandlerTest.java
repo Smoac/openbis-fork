@@ -176,7 +176,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, openBisService,
                         mailClient, dataSetValidator, dataSourceQueryService, myFactory, true,
-                        threadParameters);
+                        threadParameters, new DataSetStorageRecoveryManager());
         return globalState;
     }
 

@@ -70,6 +70,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
@@ -390,7 +391,7 @@ public final class ETLDaemon
                         initializationData.dssRegistrationLogDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
-                        threadParameters);
+                        threadParameters, new DataSetStorageRecoveryManager());
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
@@ -426,7 +427,7 @@ public final class ETLDaemon
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
                         preRegistrationScriptOrNull, postRegistrationScriptOrNull,
-                        validationScriptsOrNull);
+                        validationScriptsOrNull, new DataSetStorageRecoveryManager());
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils
