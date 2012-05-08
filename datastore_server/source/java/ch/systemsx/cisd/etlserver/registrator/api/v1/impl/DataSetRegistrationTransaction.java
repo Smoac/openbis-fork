@@ -370,7 +370,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             return false;
         }
         LiveTransactionState<T> liveState = getStateAsLiveState();
-        boolean datasetsCommited = liveState.commit();
+        boolean commitSucceeded = liveState.commit();
 
         // The attempt to commit the live state could have changed the state to rolledback
         if (state instanceof RolledbackTransactionState)
@@ -378,10 +378,14 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             return false;
         }
 
-        // Advance to the committed state.
-        state = new CommitedTransactionState<T>(liveState);
-        invokeDidCommitTransaction();
-        return datasetsCommited;
+        if (commitSucceeded)
+        {
+            // Advance to the committed state.
+            state = new CommitedTransactionState<T>(liveState);
+            invokeDidCommitTransaction();
+        }
+        
+        return commitSucceeded;
     }
 
     private void invokeDidCommitTransaction()

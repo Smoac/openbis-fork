@@ -632,7 +632,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                             registrationService.getDssRegistrationLog(), openBisService,
                             registrationService);
 
-            boolean someDataSetsRegistered = runner.prepareAndRunStorageAlgorithms();
+            boolean storageAlgorithmsSucceeded = runner.prepareAndRunStorageAlgorithms();
 
             // The queries are optional parts of the commit; catch any errors and inform the
             // invoker
@@ -642,7 +642,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 try
                 {
-                    if (someDataSetsRegistered)
+                    if (storageAlgorithmsSucceeded)
                     {
                         query.commit();
                     } else
@@ -661,7 +661,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 parent.invokeDidEncounterSecondaryTransactionErrors(encounteredErrors);
             }
 
-            return someDataSetsRegistered;
+            return storageAlgorithmsSucceeded;
         }
 
         /**

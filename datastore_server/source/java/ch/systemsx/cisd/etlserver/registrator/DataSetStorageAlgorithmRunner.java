@@ -285,7 +285,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             storageRecoveryManager.registrationCompleted();
         }
 
-        return !dataSetStorageAlgorithms.isEmpty();
+        return true;
 
         // confirm storage in AS
 
