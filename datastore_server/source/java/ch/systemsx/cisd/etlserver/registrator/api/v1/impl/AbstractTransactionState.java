@@ -614,29 +614,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
          */
         public boolean commit()
         {
-            ArrayList<DataSetStorageAlgorithm<T>> algorithms =
-                    new ArrayList<DataSetStorageAlgorithm<T>>(registeredDataSets.size());
-            for (DataSet<? extends T> dataSet : registeredDataSets)
-            {
-                File contents = dataSet.tryDataSetContents();
-                DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
-
-                // Decide how to create the storage algorithm depending on whether the
-                // experiment/sample exist or not
-                IExperimentImmutable experiment = dataSet.getExperiment();
-                ISampleImmutable sample = dataSet.getSample();
-                if (experimentsToBeRegistered.contains(experiment)
-                        || samplesToBeRegistered.contains(sample))
-                {
-                    // Sample/Experiment exists
-                    algorithms.add(registrationService
-                            .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
-                } else
-                {
-                    // The experiment/sample does not yet exist
-                    algorithms.add(registrationService.createStorageAlgorithm(contents, details));
-                }
-            }
+            ArrayList<DataSetStorageAlgorithm<T>> algorithms = createStorageAlgorithmsForDataSets();
 
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, rollbackStack,
@@ -645,6 +623,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             boolean storageAlgorithmsSucceeded = runner.prepareAndRunStorageAlgorithms();
 
+            reactToSecondaryTransactionErrors(storageAlgorithmsSucceeded);
+
+            return storageAlgorithmsSucceeded;
+        }
+
+        private void reactToSecondaryTransactionErrors(boolean storageAlgorithmsSucceeded)
+        {
             // The queries are optional parts of the commit; catch any errors and inform the
             // invoker
             ArrayList<SecondaryTransactionFailure> encounteredErrors =
@@ -671,8 +656,34 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 parent.invokeDidEncounterSecondaryTransactionErrors(encounteredErrors);
             }
+        }
 
-            return storageAlgorithmsSucceeded;
+        private ArrayList<DataSetStorageAlgorithm<T>> createStorageAlgorithmsForDataSets()
+        {
+            ArrayList<DataSetStorageAlgorithm<T>> algorithms =
+                    new ArrayList<DataSetStorageAlgorithm<T>>(registeredDataSets.size());
+            for (DataSet<? extends T> dataSet : registeredDataSets)
+            {
+                File contents = dataSet.tryDataSetContents();
+                DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
+
+                // Decide how to create the storage algorithm depending on whether the
+                // experiment/sample exist or not
+                IExperimentImmutable experiment = dataSet.getExperiment();
+                ISampleImmutable sample = dataSet.getSample();
+                if (experimentsToBeRegistered.contains(experiment)
+                        || samplesToBeRegistered.contains(sample))
+                {
+                    // Sample/Experiment exists
+                    algorithms.add(registrationService
+                            .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
+                } else
+                {
+                    // The experiment/sample does not yet exist
+                    algorithms.add(registrationService.createStorageAlgorithm(contents, details));
+                }
+            }
+            return algorithms;
         }
 
         /**
