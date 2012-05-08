@@ -30,8 +30,6 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
@@ -52,8 +50,8 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
 
     /** Creates the transaction object. Can be overriden in subclasses. */
     @Override
-    protected DataSetRegistrationTransaction<T> createTransaction(
-            File rollBackStackParentFolder, File workingDir, File stagingDir,
+    protected DataSetRegistrationTransaction<T> createTransaction(File rollBackStackParentFolder,
+            File workingDir, File stagingDir,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         if (transactions.isEmpty())
@@ -67,18 +65,18 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
         }
     }
 
-    
     /**
-     * The method creates a new dataset registration transaction.
-     * The JythonDataSetRegistrationServiceV2 guarantees that this transatcion will be created only once.
-     * To be extended in subclasses.
+     * The method creates a new dataset registration transaction. The
+     * JythonDataSetRegistrationServiceV2 guarantees that this transatcion will be created only
+     * once. To be extended in subclasses.
      */
     protected DataSetRegistrationTransaction<T> createV2DatasetRegistrationTransaction(
             File rollBackStackParentFolder, File workingDir, File stagingDir,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.USE_AUTO_RECOVERY);
+                stagingDir, this, registrationDetailsFactory,
+                AutoRecoverySettings.USE_AUTO_RECOVERY);
     }
 
     public DataSetRegistrationTransaction<T> getTransaction()
@@ -112,5 +110,26 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
         // registered data sets
         executeGlobalCleanAfterwardsAction(false == (didErrorsArise() || transaction.isRolledback()));
     }
-}
 
+    @Override
+    protected void logDssRegistrationResult()
+    {
+        DataSetRegistrationTransaction<T> transaction = getTransaction();
+        // If the transaction is not in recovery pending state, do the normal logging
+        if (false == transaction.isRecoveryPending())
+        {
+            super.logDssRegistrationResult();
+            return;
+        }
+
+        // Log that we are in recovery pending state
+        StringBuilder logMessage = new StringBuilder();
+        logMessage.append("Encountered errors, trying to recover.\n");
+        for (Throwable error : getEncounteredErrors())
+        {
+            logMessage.append("\t");
+            logMessage.append(error.toString());
+        }
+        dssRegistrationLog.log(logMessage.toString());
+    }
+}

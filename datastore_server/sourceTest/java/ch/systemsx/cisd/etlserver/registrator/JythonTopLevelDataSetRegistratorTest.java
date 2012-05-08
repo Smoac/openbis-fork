@@ -621,6 +621,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             handler.handle(markerFile);
         }
+        
+//if there is a recovery file then call the recovery service        
 
         checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 

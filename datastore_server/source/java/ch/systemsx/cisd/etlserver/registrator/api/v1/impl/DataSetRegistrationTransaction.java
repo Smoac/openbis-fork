@@ -52,6 +52,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RecoveryPendingTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
@@ -365,7 +366,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public boolean commit()
     {
         // No need to commit again
-        if (state instanceof CommitedTransactionState)
+        if (state.isCommitted())
         {
             return false;
         }
@@ -373,18 +374,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         boolean commitSucceeded = liveState.commit();
 
         // The attempt to commit the live state could have changed the state to rolledback
-        if (state instanceof RolledbackTransactionState)
+        if (state.isRolledback() || state.isRecoveryPending())
         {
             return false;
         }
 
-        if (commitSucceeded)
-        {
-            // Advance to the committed state.
-            state = new CommitedTransactionState<T>(liveState);
-            invokeDidCommitTransaction();
-        }
-        
+        // Advance to the committed state.
+        state = new CommitedTransactionState<T>(liveState);
+        invokeDidCommitTransaction();
+
         return commitSucceeded;
     }
 
@@ -409,7 +407,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void rollback()
     {
         // No need to rollback again
-        if (state instanceof RolledbackTransactionState)
+        if (state.isRolledback() || state.isRecoveryPending())
         {
             return;
         }
@@ -426,8 +424,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
             Throwable ex, ErrorType errorType)
     {
-        rollback();
-        registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
+        boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
+        if (errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE && useAutoRecovery)
+        {
+            state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
+        } else
+        {
+            rollback();
+            registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
+        }
     }
 
     /**
@@ -459,6 +464,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public boolean isRolledback()
     {
         return state.isRolledback();
+    }
+
+    public boolean isRecoveryPending()
+    {
+        return state.isRecoveryPending();
     }
 
     /**

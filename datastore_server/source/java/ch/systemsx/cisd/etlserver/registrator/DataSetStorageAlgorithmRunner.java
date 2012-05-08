@@ -226,7 +226,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             postPreRegistrationHooks.executePreRegistration(transaction);
         } catch (Throwable throwable)
         {
-            rollbackDuringMetadataRegistration(throwable);
+            rollbackDuringPreRegistration(throwable);
             return false;
         }
         return true;
@@ -245,12 +245,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             return false;
         }
-        
+
         if (executePreRegistrationHooks() == false)
         {
             return false;
         }
-        
+
         // PRECOMMITED STATE
         if (shouldUseAutoRecovery())
         {
@@ -303,6 +303,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         rollbackStorageProcessors(ex);
         rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
                 ErrorType.STORAGE_PROCESSOR_ERROR);
+    }
+
+    private void rollbackDuringPreRegistration(Throwable ex)
+    {
+        operationLog.error("Failed to pre-register", ex);
+        rollbackStorageProcessors(ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
+                ErrorType.PRE_REGISTRATION_ERROR);
     }
 
     private void rollbackDuringMetadataRegistration(Throwable ex)

@@ -79,9 +79,20 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         this.parent = parent;
     }
 
-    public abstract boolean isCommitted();
+    public boolean isCommitted()
+    {
+        return false;
+    }
 
-    public abstract boolean isRolledback();
+    public boolean isRolledback()
+    {
+        return false;
+    }
+
+    public boolean isRecoveryPending()
+    {
+        return false;
+    }
 
     /**
      * The state where the transaction is still modifyiable.
@@ -904,12 +915,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             return true;
         }
-
-        @Override
-        public boolean isRolledback()
-        {
-            return false;
-        }
     }
 
     static class RolledbackTransactionState<T extends DataSetInformation> extends
@@ -921,13 +926,22 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         @Override
-        public boolean isCommitted()
+        public boolean isRolledback()
         {
-            return false;
+            return true;
+        }
+    }
+
+    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends
+            TerminalTransactionState<T>
+    {
+        public RecoveryPendingTransactionState(LiveTransactionState<T> liveState)
+        {
+            super(liveState);
         }
 
         @Override
-        public boolean isRolledback()
+        public boolean isRecoveryPending()
         {
             return true;
         }
