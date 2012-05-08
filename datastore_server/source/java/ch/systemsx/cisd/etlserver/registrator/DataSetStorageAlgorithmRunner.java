@@ -121,6 +121,28 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     }
 
     /**
+     * Constructor used by the autorecovery infrastructure.
+     */
+    public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
+            IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack,
+            DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
+            IPrePostRegistrationHook<T> postPreRegistrationHooks,
+            IDataSetStorageRecoveryManager storageRecoveryManager)
+    {
+        this.dataSetStorageAlgorithms =
+                new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
+        this.rollbackDelegate = rollbackDelegate;
+        this.applicationServerRegistrator = null;
+        this.transaction = null;
+        this.rollbackStack = rollbackStack;
+        this.dssRegistrationLog = dssRegistrationLog;
+        this.openBISService = openBISService;
+        this.postPreRegistrationHooks = postPreRegistrationHooks;
+        this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
+        this.storageRecoveryManager = storageRecoveryManager;
+    }
+
+    /**
      * Prepare registration of a data set.
      */
     public final void prepare()
@@ -262,7 +284,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // PRECOMMITED STATE
         if (shouldUseAutoRecovery())
         {
-            storageRecoveryManager.checkpointPrecomittedState(this);
+            storageRecoveryManager.checkpointPrecommittedState(this);
         }
 
         if (registerDataSetsInApplicationServer(registrationData) == false)
@@ -270,6 +292,18 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
+        return storeAfterRegistration();
+
+        // confirm storage in AS
+
+        // STORAGECONFIRMED
+    }
+
+    /**
+     * Execute the post-registration part of the storage process
+     */
+    public boolean storeAfterRegistration()
+    {
         executePostRegistrationHooks();
 
         if (commitStorageProcessors() == false)
@@ -294,10 +328,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
 
         return true;
-
-        // confirm storage in AS
-
-        // STORAGECONFIRMED
     }
 
     private ArrayList<DataSetRegistrationInformation<T>> tryPrepareRegistrationData()
@@ -502,10 +532,20 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
         return buffer.toString();
     }
-    
+
     public List<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms()
     {
         return dataSetStorageAlgorithms;
+    }
+
+    public IRollbackStack getRollbackStack()
+    {
+        return rollbackStack;
+    }
+    
+    public DssRegistrationLogger getDssRegistrationLogger()
+    {
+        return dssRegistrationLog;
     }
 
     private Logger getOperationLog()

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Queue;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class RollbackStack implements IRollbackStack
+public class RollbackStack implements IRollbackStack
 {
     /**
      * Delegate methods for the rollback stack, giving clients of the stack control over its
@@ -263,6 +264,16 @@ class RollbackStack implements IRollbackStack
         // Delete the files
         queue1File.delete();
         queue2File.delete();
+    }
+
+    /**
+     * Internal getter for clients that need to serialize the rollback stack. Use this method with
+     * caution since it exposes implementation details.
+     */
+    public File[] getBackingFiles()
+    {
+        return new File[]
+            { queue1File, queue2File };
     }
 
     /**

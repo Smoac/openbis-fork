@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
+import java.io.File;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+
 /**
  * Class responsible for recovering after an environmental error.
  * 
@@ -24,8 +29,24 @@ package ch.systemsx.cisd.etlserver.registrator;
 public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryManager
 {
 
-    public void checkpointPrecomittedState()
+    public <T extends DataSetInformation> void checkpointPrecommittedState(
+            DataSetStorageAlgorithmRunner<T> runner)
     {
+
+        File serializedFile = new File("serialized");
+
+        DataSetStoragePrecommitRecoveryState<T> recoveryState =
+                new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
+                        runner.getDssRegistrationLogger(), runner.getRollbackStack());
+
+        FileUtilities.writeToFile(serializedFile, recoveryState);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
+            File recoveryFile)
+    {
+        return FileUtilities.loadToObject(recoveryFile, DataSetStoragePrecommitRecoveryState.class);
     }
 
     public void registrationCompleted()
@@ -36,5 +57,11 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     public boolean canRecoverFromError(Throwable ex)
     {
         return true;
+    }
+
+    public boolean isRecoveryFile(File file)
+    {
+        // TODO: dummy implementation
+        return file.getName().equals("recovery_state");
     }
 }

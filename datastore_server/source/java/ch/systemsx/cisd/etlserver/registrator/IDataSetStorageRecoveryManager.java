@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
+import java.io.File;
+
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+
 /**
  * Interface for recovery managers.
  * 
@@ -23,9 +27,15 @@ package ch.systemsx.cisd.etlserver.registrator;
  */
 public interface IDataSetStorageRecoveryManager
 {
-    void checkpointPrecomittedState();
+    <T extends DataSetInformation> void checkpointPrecommittedState(
+            DataSetStorageAlgorithmRunner<T> runner);
 
     void registrationCompleted();
 
     boolean canRecoverFromError(Throwable ex);
+
+    <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
+            File recoveryFile);
+
+    boolean isRecoveryFile(File file);
 }

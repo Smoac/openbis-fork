@@ -464,6 +464,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void setupExpectations()
                 {
+                    checkIfRecoveryFile();
+
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AT_THE_BEGINNING)
                     {
                         return;
@@ -496,7 +498,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
 
                     checkpointPrecomittedState();
-                    
+
                     registerDataSets();
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
@@ -509,6 +511,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     registrationCompleted();
 
                     will(checkPrecommitDirIsEmpty());
+                }
+
+                protected void checkIfRecoveryFile()
+                {
+                    // unless this is a recovery testcase
+                    one(storageRecoveryManager).isRecoveryFile(markerFile);
+                    will(returnValue(false));
                 }
 
                 protected void setStorageConfirmed()
@@ -527,7 +536,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
                     {
-                        will(throwException(new AssertionError("Fail")));
+                        Error e = new AssertionError("Fail");
+                        will(throwException(e));
+
+                        if (testCase.shouldUseAutoRecovery)
+                        {
+                            one(storageRecoveryManager).canRecoverFromError(e);
+                            will(returnValue(false));
+                        }
                     } else
                     {
                         // return value from performEntityOperations
@@ -584,11 +600,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
                 }
 
+                @SuppressWarnings("unchecked")
                 protected void checkpointPrecomittedState()
                 {
                     if (testCase.shouldUseAutoRecovery)
                     {
-                        one(storageRecoveryManager).checkpointPrecomittedState();
+                        one(storageRecoveryManager).checkpointPrecommittedState(
+                                with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
 
@@ -621,8 +639,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             handler.handle(markerFile);
         }
-        
-//if there is a recovery file then call the recovery service        
+
+        // if there is a recovery file then call the recovery service
 
         checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
 

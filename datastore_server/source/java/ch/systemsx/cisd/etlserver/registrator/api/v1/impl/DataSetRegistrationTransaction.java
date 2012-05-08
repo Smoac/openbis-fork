@@ -427,9 +427,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
         useAutoRecovery =
                 useAutoRecovery
+                        && errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE
                         && registrationService.getRegistratorContext().getGlobalState()
                                 .getStorageRecoveryManager().canRecoverFromError(ex);
-        if (errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE && useAutoRecovery)
+        if (useAutoRecovery)
         {
             state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
         } else
