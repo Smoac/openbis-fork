@@ -39,9 +39,11 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
 
     private final File[] rollbackStackBackingFiles;
 
+    private final DataSetFile incomingDataSetFile;
+    
     public DataSetStoragePrecommitRecoveryState(
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            DssRegistrationLogger logger, IRollbackStack rollbackStack)
+            DssRegistrationLogger logger, IRollbackStack rollbackStack, DataSetFile incomingDataSetFile)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStoragePrecommitRecoveryAlgorithm<T>>();
@@ -51,6 +53,8 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         }
         dssRegistrationLogFile = logger.getFile();
         this.rollbackStackBackingFiles = ((RollbackStack) rollbackStack).getBackingFiles();
+        
+        this.incomingDataSetFile = incomingDataSetFile;
     }
 
     public List<DataSetStoragePrecommitRecoveryAlgorithm<T>> getDataSetStorageAlgorithms()
@@ -68,4 +72,8 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         return rollbackStackBackingFiles;
     }
 
+    public DataSetFile getIncomingDataSetFile()
+    {
+        return incomingDataSetFile;
+    }
 }

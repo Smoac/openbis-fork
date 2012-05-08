@@ -28,32 +28,61 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryManager
 {
+    private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
 
     private File dropboxRecoveryStateDir;
 
     public <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner)
     {
+        DataSetFile incoming = runner.getIncomingDataSetFile();
 
-        File serializedFile = new File(dropboxRecoveryStateDir, "serialized");
+        File serializedFile = getSerializedFile(runner);
 
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
-                        runner.getDssRegistrationLogger(), runner.getRollbackStack());
+                        runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming);
 
         FileUtilities.writeToFile(serializedFile, recoveryState);
+
+        File processingMarkerFile = getProcessingMarkerFile(runner);
+        FileUtilities.writeToFile(processingMarkerFile, serializedFile.getAbsolutePath());
+
+    }
+
+    private <T extends DataSetInformation> File getProcessingMarkerFile(
+            DataSetStorageAlgorithmRunner<T> runner)
+    {
+        return new File(runner.getIncomingDataSetFile().getRealIncomingFile().getParentFile(),
+                runner.getIncomingDataSetFile().getRealIncomingFile().getName() + PROCESSING_MARKER);
+    }
+
+    private <T extends DataSetInformation> File getSerializedFile(
+            DataSetStorageAlgorithmRunner<T> runner)
+    {
+        DataSetFile incoming = runner.getIncomingDataSetFile();
+        String incomingFileName = incoming.getRealIncomingFile().getName();
+
+        return new File(dropboxRecoveryStateDir, incomingFileName + ".PRECOMMIT_SERIALIZED");
     }
 
     @SuppressWarnings("unchecked")
     public <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
-            File recoveryFile)
+            File markerFile)
     {
-        return FileUtilities.loadToObject(recoveryFile, DataSetStoragePrecommitRecoveryState.class);
+        String recoveryFilePath = FileUtilities.loadToString(markerFile);
+        return FileUtilities.loadToObject(new File(recoveryFilePath),
+                DataSetStoragePrecommitRecoveryState.class);
     }
 
-    public void registrationCompleted()
+    public <T extends DataSetInformation> void registrationCompleted(
+            DataSetStorageAlgorithmRunner<T> runner)
     {
-
+        // Cleanup the state we have accumulated
+        File markerFile = getProcessingMarkerFile(runner);
+        FileUtilities.delete(markerFile);
+        File recoveryState = getSerializedFile(runner);
+        FileUtilities.delete(recoveryState);
     }
 
     public boolean canRecoverFromError(Throwable ex)
@@ -63,8 +92,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
     public boolean isRecoveryFile(File file)
     {
-        // TODO: dummy implementation
-        return file.getName().equals("recovery_state");
+        return file.getName().endsWith(PROCESSING_MARKER);
     }
 
     public void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir)

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -545,5 +546,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return registrationService.getRegistratorContext().getGlobalState()
                 .getStorageRecoveryManager();
+    }
+
+    public DataSetFile getIncomingDataSetFile()
+    {
+        return registrationService.getIncomingDataSetFile();
     }
 }

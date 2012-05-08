@@ -324,7 +324,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         if (shouldUseAutoRecovery())
         {
-            storageRecoveryManager.registrationCompleted();
+            storageRecoveryManager.registrationCompleted(this);
         }
 
         return true;
@@ -542,7 +542,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         return rollbackStack;
     }
-    
+
     public DssRegistrationLogger getDssRegistrationLogger()
     {
         return dssRegistrationLog;
@@ -551,5 +551,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private Logger getOperationLog()
     {
         return operationLog;
+    }
+
+    public DataSetFile getIncomingDataSetFile()
+    {
+        return transaction.getIncomingDataSetFile();
     }
 }

@@ -611,11 +611,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
                 }
 
+                @SuppressWarnings("unchecked")
                 protected void registrationCompleted()
                 {
                     if (testCase.shouldUseAutoRecovery)
                     {
-                        one(storageRecoveryManager).registrationCompleted();
+                        one(storageRecoveryManager).registrationCompleted(
+                                with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
             });

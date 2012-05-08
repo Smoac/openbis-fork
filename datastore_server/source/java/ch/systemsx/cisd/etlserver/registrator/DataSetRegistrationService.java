@@ -112,8 +112,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                 new DssRegistrationLogDirectoryHelper(registratorContext.getGlobalState()
                         .getDssRegistrationLogDir());
         this.dssRegistrationLog =
-                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile.getLogicalIncomingFile().getName(),
-                        threadParameters.getThreadName(),
+                dssRegistrationLogHelper.createNewLogFile(incomingDataSetFile
+                        .getLogicalIncomingFile().getName(), threadParameters.getThreadName(),
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
         this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
@@ -130,7 +130,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      */
     public IDataSetRegistrationTransaction transaction()
     {
-        return transaction(incomingDataSetFile.getLogicalIncomingFile(), getDataSetRegistrationDetailsFactory());
+        return transaction(incomingDataSetFile.getLogicalIncomingFile(),
+                getDataSetRegistrationDetailsFactory());
     }
 
     /**
@@ -164,7 +165,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory, AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
+                stagingDir, this, registrationDetailsFactory,
+                AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
     }
 
     /**
@@ -193,7 +195,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
-     * Write to the dssRegistrationLog either success or the failure with error details. 
+     * Write to the dssRegistrationLog either success or the failure with error details.
      */
     protected void logDssRegistrationResult()
     {
@@ -219,7 +221,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         executeGlobalCleanAfterwardsAction(false);
     }
-    
+
     protected void executeGlobalCleanAfterwardsAction(boolean success)
     {
         if (false == cleanActionExecuted)
@@ -271,8 +273,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         registrator.didPostRegistration(this, transaction);
     }
-    
-    
+
     public void didEncounterSecondaryTransactionErrors(
             DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
@@ -373,7 +374,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         return dataSetRegistrationDetailsFactory;
     }
-    
+
     /**
      * If a transaction is hanging around, commit it
      */
@@ -412,6 +413,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DssRegistrationLogger getDssRegistrationLog()
     {
         return dssRegistrationLog;
+    }
+
+    public DataSetFile getIncomingDataSetFile()
+    {
+        return incomingDataSetFile;
     }
 
 }

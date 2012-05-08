@@ -27,15 +27,27 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public interface IDataSetStorageRecoveryManager
 {
+    // Recovery Mechanics
+    /**
+     * Create a checkpoint at the precommitted state.
+     */
     <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner);
 
-    void registrationCompleted();
+    /**
+     * Note that registration has completed.
+     */
+    <T extends DataSetInformation> void registrationCompleted(
+            DataSetStorageAlgorithmRunner<T> runner);
 
-    boolean canRecoverFromError(Throwable ex);
-
+    /**
+     * Use the marker file to recreate the state necessary to complete registration.
+     */
     <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
-            File recoveryFile);
+            File markerFile);
+
+    // Simple helper methods
+    boolean canRecoverFromError(Throwable ex);
 
     boolean isRecoveryFile(File file);
 
