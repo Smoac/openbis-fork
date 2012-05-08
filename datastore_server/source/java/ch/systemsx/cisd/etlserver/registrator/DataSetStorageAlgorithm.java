@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.io.Serializable;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -161,6 +162,46 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         dataSetValidator.assertValidDataSet(dataSetType, incomingDataSetFile);
 
         state = new InitializedState<T>(this);
+    }
+    
+    public DataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy, 
+            IStorageProcessorTransactional storageProcessor,
+            IFileOperations fileOperations,
+            IMailClient mailClient,
+            DataSetStoragePrecommitRecoveryAlgorithm<T> precommitRecoveryAlgorithm)
+    {
+        this.incomingDataSetFile = precommitRecoveryAlgorithm.getIncomingDataSetFile();
+        this.registrationDetails = null;
+        this.dataSetInformation = null;
+        this.dataStoreStrategy = dataStoreStrategy;
+        this.storageProcessor = storageProcessor;
+        this.dataStoreCode = precommitRecoveryAlgorithm.getDataStoreCode();
+        this.fileOperations = fileOperations;
+        this.mailClient = mailClient;
+        this.stagingDirectory = precommitRecoveryAlgorithm.getStagingDirectory();
+        this.preCommitDirectory = precommitRecoveryAlgorithm.getPreCommitDirectory();
+
+        this.storeRoot = storageProcessor.getStoreRootDirectory();
+        this.dataSetType = null;
+        
+        state = new PrecommittedState<T>(this, precommitRecoveryAlgorithm);
+    }
+    
+    public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
+    {
+        if (false == (state instanceof PrecommittedState<?>))
+        {
+            throw new IllegalStateException(
+                    "Precommit recovery algorithm available only at precommited state");
+        }
+        PrecommittedState<T> precommittedState = (PrecommittedState<T>) state;
+        DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm =
+                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataStoreStrategy.getKey(),
+                        incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
+                        precommittedState.storagePaths, precommittedState.markerFile,
+                        precommittedState.transaction);
+
+        return recoveryAlgorithm;
     }
 
     /**
@@ -547,6 +588,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             this.storagePaths = oldState.storagePaths;
         }
 
+        public PrecommittedState(DataSetStorageAlgorithm<T> algorithm, DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm)
+        {
+            super(algorithm);
+            this.transaction = recoveryAlgorithm.getTransaction();
+            this.markerFile = recoveryAlgorithm.getMarkerFile();
+            this.storagePaths = recoveryAlgorithm.getDataSetStoragePaths();
+        }
+        
         /**
          * Ask the storage processor to commit. Used by clients of the algorithm.
          * <p>
@@ -619,7 +668,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
                         stagedFile.getName(), storagePaths.storeBaseDirectory.getAbsolutePath(),
                         stagedFile.getName()).execute();
             }
-            
+
             storagePaths.precommitBaseDirectory.delete();
         }
     }
@@ -659,8 +708,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
     }
 
-    private static class DataSetStoragePaths
+    public static class DataSetStoragePaths implements Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         protected final File stagingBaseDirectory;
 
         protected final File storeBaseDirectory;
@@ -675,7 +726,21 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             this.storeBaseDirectory = storeBaseDirectory;
             this.precommitBaseDirectory = precommitBaseDirectory;
         }
+
+        public File getStagingBaseDirectory()
+        {
+            return stagingBaseDirectory;
+        }
+
+        public File getStoreBaseDirectory()
+        {
+            return storeBaseDirectory;
+        }
+
+        public File getPrecommitBaseDirectory()
+        {
+            return precommitBaseDirectory;
+        }
     }
-    
-    
+
 }
