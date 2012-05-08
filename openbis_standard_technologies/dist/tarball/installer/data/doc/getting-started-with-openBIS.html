@@ -1,12 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <HTML>
 <HEAD>
+<LINK type="text/css" rel="stylesheet" href="css/getting-started-with-openBIS.css" />
 </HEAD>
 <BODY>
-
-<H3>Start servers</H3>
+<DIV>
+<IMG id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; top: 10px; right: 20px; height: 80px;"/>
+</DIV>
+<H3>A. Start servers</H3>
 	The installation has completed successfully. To start openBIS launch the following script:
-	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+	<DIV class="sourcecode">
  ${INSTALL_BIN_PATH}/allup.sh
 	</DIV>
 
@@ -15,15 +18,15 @@
 
 
 <BR>
-<H3>Importing test data</H3>
+<H3>B. Importing test data</H3>
 
 <P>
   By now you have a fully functional openBIS instance, but it makes little sense 
   if it has no data in it. 
 </P>
 
-<h4>Proteomics</h4>
-<p>  
+<h4 class="proteomics">Proteomics</h4>
+<P>  
   Here are the steps to get an example prot.XML into openBIS.
   <OL>
     <LI>Login into <A href="https://localhost:8443/openbis">openBIS</A> as 'admin'.
@@ -32,40 +35,41 @@
     <LI>Create a project named PROT inside space TEST by using menu item <it>New -&gt; Project</it>.
     <LI>At the console execute the command: 
   
-	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+	<DIV class="sourcecode">
  cp -R ${DSS_ROOT_DIR}/examples/test+prot ${DSS_ROOT_DIR}/incoming-ms-search
 	</DIV>
 	</OL>
-	
+	<DIV class="text">
 	It will create an experiment in project /TEST/PROT which shows a list of proteins. 
 	We challenge you to go find it in the running application !
+	</DIV>
 </P>
 
-<h4>Screening</h4>
+<h4 class="screening">Screening</h4>
 You could import a minimalistic example by executing the command: 
   
-	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+	<DIV class="sourcecode">
  cp -R ${DSS_ROOT_DIR}/examples/PLATE1 ${DSS_ROOT_DIR}/incoming-hcs
 	</DIV>
-	
+	<DIV class="text">
 	It will create a plate <i>PLATE1</i> with images data for one of its wells. 
-	We challenge you to go find it in the running application !<p>  
-	
-<h4>Illumina NGS</h4>
+	We challenge you to go find it in the running application !  
+	</DIV>
+<h4 class="illumina-ngs">Illumina NGS</h4>
 A flow cell with flow lanes is created by executing the command:
 
-	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
+	<DIV class="sourcecode">
  cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX ${DSS_ROOT_DIR}/incoming-create-flowcell
 	</DIV>
 
    	
 <BR>
 <H3>Customizing openBIS</H3>
-
+<DIV class="text">
  In the scientific world there is no one-size-fits-them-all solutions. 
  Your research data is certainly different from our example data. Luckily, openBIS provides 
  an easy way to script the import process - the Jython Dropboxes. You can learn how to 
  create your custom-tailored Jython Dropbox <A HREF="https://wiki-bsse.ethz.ch/display/CISDDoc/Jython+Dropboxes">here</A>.
-
+</DIV>
 </BODY>
 </HTML>
