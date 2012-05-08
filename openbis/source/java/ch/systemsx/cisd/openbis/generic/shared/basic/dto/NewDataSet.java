@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.Set;
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
  * Basic information about data set.
@@ -27,30 +27,97 @@ public class NewDataSet extends Code<NewDataSet> implements Comparable<NewDataSe
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    public static final String SAMPLE = "sample";
+
+    public static final String EXPERIMENT = "experiment";
+
+    public static final String PARENTS = "parents";
+
+    public static final String CONTAINER = "container";
+
+    public static final String FILE_FORMAT = "file_format";
+
+    private String sampleIdentifierOrNull;
+
+    private String experimentIdentifier;
+
+    private String[] parentsIdentifiersOrNull;
+
+    private String containerIdentifierOrNull;
+
+    private String fileFormatOrNull;
+
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
-
-    private Set<String> propertiesToUpdate;
-
-    public Set<String> getPropertiesToUpdate()
-    {
-        return propertiesToUpdate;
-    }
 
     public NewDataSet()
     {
     }
 
-    public void setPropertiesToUpdate(Set<String> propertiesToUpdate)
+    public String getSampleIdentifierOrNull()
     {
-        this.propertiesToUpdate = propertiesToUpdate;
+        return sampleIdentifierOrNull;
     }
 
-    public NewDataSet(final String code, IEntityProperty[] properties,
-            Set<String> propertiesToUpdate)
+    @BeanProperty(label = SAMPLE, optional = true)
+    public void setSampleIdentifierOrNull(String sampleIdentifierOrNull)
     {
-        setCode(code);
-        this.properties = properties;
-        this.propertiesToUpdate = propertiesToUpdate;
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    @BeanProperty(label = EXPERIMENT, optional = true)
+    public void setExperimentIdentifier(String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
+    public String[] getParentsIdentifiersOrNull()
+    {
+        return parentsIdentifiersOrNull;
+    }
+
+    public void setParentsIdentifiersOrNull(String[] parentsIdentifiersOrNull)
+    {
+        this.parentsIdentifiersOrNull = parentsIdentifiersOrNull;
+    }
+
+    @BeanProperty(label = PARENTS, optional = true)
+    public void setParentsIdentifiersOrNull(String parentsIdentifiersOrNull)
+    {
+        if (parentsIdentifiersOrNull != null)
+        {
+            String[] split = parentsIdentifiersOrNull.split(",");
+            setParentsIdentifiersOrNull(split);
+        } else
+        {
+            setParentsIdentifiersOrNull(new String[0]);
+        }
+    }
+
+    public String getContainerIdentifierOrNull()
+    {
+        return containerIdentifierOrNull;
+    }
+
+    @BeanProperty(label = CONTAINER, optional = true)
+    public void setContainerIdentifierOrNull(String containerIdentifierOrNull)
+    {
+        this.containerIdentifierOrNull = containerIdentifierOrNull;
+    }
+
+    public String getFileFormatOrNull()
+    {
+        return fileFormatOrNull;
+    }
+
+    @BeanProperty(label = FILE_FORMAT, optional = true)
+    public void setFileFormatOrNull(String fileFormatOrNull)
+    {
+        this.fileFormatOrNull = fileFormatOrNull;
     }
 
     public final IEntityProperty[] getProperties()

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -48,6 +48,6 @@ public interface IDataSetTypeSlaveServerPlugin
     /**
      * Updates properties of given data sets.
      */
-    public void updateDataSets(Session session, List<NewDataSet> newDataSets);
+    public void updateDataSets(Session session, List<DataSetBatchUpdatesDTO> dataSets);
 
 }

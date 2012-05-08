@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -72,8 +73,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
@@ -391,7 +394,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         getPropertiesBatchManager().manageProperties(dataSetType, newDataSets,
                 session.tryGetPerson());
-        getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session, newDataSets);
+        getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session,
+                convertDataSets(newDataSets));
     }
 
     private void updateSamples(final Session session,
@@ -443,6 +447,31 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return samples;
     }
 
+    private List<DataSetBatchUpdatesDTO> convertDataSets(final List<NewDataSet> updatedDataSets)
+    {
+        List<DataSetBatchUpdatesDTO> dataSets = new ArrayList<DataSetBatchUpdatesDTO>();
+
+        for (NewDataSet updatedDataSet : updatedDataSets)
+        {
+            DataSetBatchUpdatesDTO dataSet = new DataSetBatchUpdatesDTO();
+            DataSetIdentifiersExtractor extractor = new DataSetIdentifiersExtractor(updatedDataSet);
+
+            dataSet.setDatasetCode(updatedDataSet.getCode());
+            dataSet.setExperimentIdentifierOrNull(extractor.getExperimentIdentifierOrNull());
+            dataSet.setSampleIdentifierOrNull(extractor.getSampleIdentifierOrNull());
+            dataSet.setProperties(Arrays.asList(updatedDataSet.getProperties()));
+            dataSet.setModifiedContainerDatasetCodeOrNull(updatedDataSet
+                    .getContainerIdentifierOrNull());
+            dataSet.setModifiedParentDatasetCodesOrNull(updatedDataSet
+                    .getParentsIdentifiersOrNull());
+            dataSet.setFileFormatTypeCode(updatedDataSet.getFileFormatOrNull());
+            dataSet.setDetails(createBatchUpdateDetails(updatedDataSet));
+
+            dataSets.add(dataSet);
+        }
+        return dataSets;
+    }
+
     SampleBatchUpdateDetails createBatchUpdateDetails(NewSample sample)
     {
         if (sample instanceof UpdatedSample)
@@ -458,6 +487,25 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             }
             SampleBatchUpdateDetails result =
                     new SampleBatchUpdateDetails(false, false, false, propertyCodes);
+            return result;
+        }
+    }
+
+    DataSetBatchUpdateDetails createBatchUpdateDetails(NewDataSet dataSet)
+    {
+        if (dataSet instanceof UpdatedDataSet)
+        {
+            return ((UpdatedDataSet) dataSet).getBatchUpdateDetails();
+        } else
+        {
+            IEntityProperty[] properties = dataSet.getProperties();
+            Set<String> propertyCodes = new HashSet<String>();
+            for (IEntityProperty p : properties)
+            {
+                propertyCodes.add(p.getPropertyType().getCode());
+            }
+            DataSetBatchUpdateDetails result = new DataSetBatchUpdateDetails();
+            result.setPropertiesToUpdate(propertyCodes);
             return result;
         }
     }

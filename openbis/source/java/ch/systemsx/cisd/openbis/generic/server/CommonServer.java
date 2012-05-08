@@ -169,6 +169,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -1777,6 +1778,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 break;
             case DATA_SET:
                 columns.add(NewDataSet.CODE);
+                columns.add(NewDataSet.CONTAINER);
+                columns.add(NewDataSet.PARENTS);
+                columns.add(NewDataSet.EXPERIMENT);
+                columns.add(NewDataSet.SAMPLE);
+                columns.add(NewDataSet.FILE_FORMAT);
                 addPropertiesToTemplateColumns(columns,
                         ((DataSetTypePE) entityType).getDataSetTypePropertyTypes());
                 break;
@@ -1826,6 +1832,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     if (entityKind.equals(EntityKind.SAMPLE))
                     {
                         sb.insert(0, UpdatedSample.SAMPLE_UPDATE_TEMPLATE_COMMENT);
+                    } else if (entityKind.equals(EntityKind.DATA_SET))
+                    {
+                        sb.insert(0, UpdatedDataSet.DATASET_UPDATE_TEMPLATE_COMMENT);
                     } else
                     {
                         sb.insert(0, UPDATE_TEMPLATE_COMMENT);

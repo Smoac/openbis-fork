@@ -19,32 +19,32 @@ package ch.systemsx.cisd.openbis.generic.server.batch;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 
 /**
  * {@link IBatchOperation} updating data sets.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetBatchUpdate implements IBatchOperation<NewDataSet>
+public class DataSetBatchUpdate implements IBatchOperation<DataSetBatchUpdatesDTO>
 {
     private final IDataSetTable businessTable;
 
-    private final List<NewDataSet> entities;
+    private final List<DataSetBatchUpdatesDTO> entities;
 
-    public DataSetBatchUpdate(IDataSetTable businessTable, List<NewDataSet> entities)
+    public DataSetBatchUpdate(IDataSetTable businessTable, List<DataSetBatchUpdatesDTO> entities)
     {
         this.businessTable = businessTable;
         this.entities = entities;
     }
 
-    public void execute(List<NewDataSet> updates)
+    public void execute(List<DataSetBatchUpdatesDTO> updates)
     {
         businessTable.update(updates);
         businessTable.save();
     }
 
-    public List<NewDataSet> getAllEntities()
+    public List<DataSetBatchUpdatesDTO> getAllEntities()
     {
         return entities;
     }

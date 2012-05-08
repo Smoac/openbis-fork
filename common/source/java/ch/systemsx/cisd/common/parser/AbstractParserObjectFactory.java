@@ -174,14 +174,34 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
     }
 
+    protected static boolean isEmpty(String value)
+    {
+        return !isNotEmpty(value);
+    }
+
+    protected static boolean isEmpty(String[] values)
+    {
+        return !isNotEmpty(values);
+    }
+
     protected static boolean isNotEmpty(String value)
     {
         return StringUtils.isBlank(value) == false;
     }
 
+    protected static boolean isNotEmpty(String[] values)
+    {
+        return values != null && values.length > 0 && isNotEmpty(values[0]);
+    }
+
     protected static boolean isDeletionMark(String value)
     {
         return DELETE[0].equals(value) || DELETE[1].equals(value);
+    }
+
+    protected static boolean isDeletionMark(String[] values)
+    {
+        return values != null && values.length > 0 && isDeletionMark(values[0]);
     }
 
     private void checkMandatory(String value, String code)

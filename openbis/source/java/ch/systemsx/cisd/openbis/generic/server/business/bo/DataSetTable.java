@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator.translateToDescription;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,11 +52,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -863,15 +863,11 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
     }
 
-    public void update(List<NewDataSet> updates)
+    public void update(List<DataSetBatchUpdatesDTO> updates)
     {
-        // NOTE: Only data set properties are currently updatable in batch. If we add possiblity to
-        // batch update assignment to sample/experiment same business rule checks will need to be
-        // performed here as those that are performed when a data set is registered/updated
-        // (see DataBO).
         assert updates != null : "Unspecified updates.";
-        setBatchUpdateMode(true);
 
+        setBatchUpdateMode(true);
         loadByDataSetCodes(Code.extractCodes(updates), true, true);
 
         final Map<String, DataPE> dataSetsByCode = new HashMap<String, DataPE>();
@@ -879,7 +875,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             dataSetsByCode.put(dataSet.getIdentifier(), dataSet);
         }
-        for (NewDataSet dataSetUpdates : updates)
+        for (DataSetBatchUpdatesDTO dataSetUpdates : updates)
         {
             final DataPE dataSet = dataSetsByCode.get(dataSetUpdates.getCode());
             prepareBatchUpdate(dataSet, dataSetUpdates);
@@ -887,17 +883,64 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         setBatchUpdateMode(false);
         dataChanged = true;
         operationLog.info("External data updated");
+
     }
 
-    private DataPE prepareBatchUpdate(DataPE dataSet, NewDataSet dataSetUpdates)
+    private DataPE prepareBatchUpdate(DataPE dataSet, DataSetBatchUpdatesDTO dataSetUpdates)
     {
         if (dataSet == null)
         {
             throw new UserFailureException(String.format("Data set with code '%s' does not exist.",
                     dataSetUpdates.getCode()));
         }
-        updateBatchProperties(dataSet, Arrays.asList(dataSetUpdates.getProperties()),
-                dataSetUpdates.getPropertiesToUpdate());
+
+        DataSetBatchUpdateDetails details = dataSetUpdates.getDetails();
+
+        updateBatchProperties(dataSet, dataSetUpdates.getProperties(),
+                details.getPropertiesToUpdate());
+        checkPropertiesBusinessRules(dataSet);
+
+        boolean isExperimentFromSample = false;
+
+        if (details.isSampleUpdateRequested())
+        {
+            if (dataSetUpdates.getSampleIdentifierOrNull() != null)
+            {
+                // update sample and indirectly experiment
+                updateSample(dataSet, dataSetUpdates.getSampleIdentifierOrNull());
+                isExperimentFromSample = true;
+            } else
+            {
+                // remove connection with sample
+                dataSet.setSample(null);
+            }
+        }
+
+        if (details.isExperimentUpdateRequested() && !isExperimentFromSample)
+        {
+            updateExperiment(dataSet, dataSetUpdates.getExperimentIdentifierOrNull());
+            dataSet.setSample(null);
+        }
+        if (details.isContainerUpdateRequested())
+        {
+            updateContainer(dataSet, dataSetUpdates.getModifiedContainerDatasetCodeOrNull());
+        }
+        if (details.isParentsUpdateRequested())
+        {
+            updateParents(dataSet, dataSetUpdates.getModifiedParentDatasetCodesOrNull());
+        }
+        if (details.isFileFormatUpdateRequested())
+        {
+            updateFileFormatType(dataSet, dataSetUpdates.getFileFormatTypeCode());
+        }
+        if (dataSet.getContainer() != null)
+        {
+            // space could be changed by change of experiment
+            checkSameSpace(dataSet.getContainer(), dataSet);
+        }
+        checkSameSpace(dataSet, dataSet.getContainedDataSets()); // even if components were not
+                                                                 // changed
+
         return dataSet;
     }
 

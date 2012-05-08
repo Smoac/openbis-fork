@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.parser.NamedInputStream;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewDataSetParserObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.UpdatedDataSetParserObjectFactory;
 
 /**
  * Loads data sets from the files.
@@ -55,7 +55,7 @@ public class DataSetLoader
                         public final IParserObjectFactory<NewDataSet> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {
-                            return new NewDataSetParserObjectFactory(propertyMapper);
+                            return new UpdatedDataSetParserObjectFactory(propertyMapper);
                         }
                     }, false);
         newObjects = new ArrayList<NewDataSet>();

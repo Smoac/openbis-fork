@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -54,13 +54,13 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
         dataSetTable.deleteLoadedDataSets(reason, forceNotExistingLocations, forceDisallowedTypes);
     }
 
-    public void updateDataSets(Session session, List<NewDataSet> newDataSets)
+    public void updateDataSets(Session session, List<DataSetBatchUpdatesDTO> dataSets)
     {
         assert session != null : "Unspecified session.";
-        assert newDataSets != null && newDataSets.size() > 0 : "Unspecified data set or empty data sets.";
+        assert dataSets != null && dataSets.size() > 0 : "Unspecified data set or empty data sets.";
 
         BatchOperationExecutor.executeInBatches(new DataSetBatchUpdate(businessObjectFactory
-                .createDataSetTable(session), newDataSets));
+                .createDataSetTable(session), dataSets));
     }
 
 }

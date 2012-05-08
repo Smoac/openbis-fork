@@ -110,11 +110,6 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
                 propertiesToUpdate);
     }
 
-    private boolean isNotEmpty(String[] parents)
-    {
-        return parents != null && parents.length > 0 && isNotEmpty(parents[0]);
-    }
-
     /** Cleans properties and connections of the specified sample that are marked for deletion. */
     private void cleanUp(NewSample newSample)
     {
@@ -122,8 +117,7 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         {
             newSample.setExperimentIdentifier(null);
         }
-        if (newSample.getParentsOrNull() != null && newSample.getParentsOrNull().length > 0
-                && isDeletionMark(newSample.getParentsOrNull()[0]))
+        if (isDeletionMark(newSample.getParentsOrNull()))
         {
             newSample.setParentsOrNull(new String[0]);
         }

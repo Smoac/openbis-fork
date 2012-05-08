@@ -21,14 +21,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
@@ -56,14 +54,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -406,7 +402,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // cycles will not be created because only connections to parents are added
             // and we assume that there were no cycles before. On the other hand placeholders
             // have at least one child so cycles need to be checked when they are updated.
-            validateRelationshipGraph(data.getParents());
+            validateParentsRelationshipGraph(data, data.getParents());
 
             if (data.isContainer())
             {
@@ -488,10 +484,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         if (sampleIdentifierOrNull != null)
         {
             // update sample and indirectly experiment
-            updateSample(updates.getSampleIdentifierOrNull());
+            updateSample(data, updates.getSampleIdentifierOrNull());
         } else
         {
-            updateExperiment(updates.getExperimentIdentifierOrNull());
+            updateExperiment(data, updates.getExperimentIdentifierOrNull());
             // remove connection with sample
             data.setSample(null);
         }
@@ -500,34 +496,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // space could be changed by change of experiment
             checkSameSpace(data.getContainer(), data);
         }
-        updateParents(updates.getModifiedParentDatasetCodesOrNull());
+        updateParents(data, updates.getModifiedParentDatasetCodesOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
-        updateFileFormatType(updates.getFileFormatTypeCode());
+        updateFileFormatType(data, updates.getFileFormatTypeCode());
         updateProperties(data, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
         validateAndSave();
-    }
-
-    private void checkSameSpace(DataPE container, DataPE component)
-    {
-        // see LMS-2282
-        if (container.getSpace().equals(component.getSpace()))
-        {
-            return;
-        }
-        throw UserFailureException.fromTemplate(
-                "Data set '%s' must be in the same space ('%s') as its container.",
-                component.getCode(), container.getSpace().getCode());
-    }
-
-    private void checkSameSpace(DataPE container, List<DataPE> components)
-    {
-        for (DataPE component : components)
-        {
-            checkSameSpace(container, component);
-        }
     }
 
     private void validateAndSave()
@@ -538,35 +514,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Data Set '%s'", data.getCode()));
-        }
-    }
-
-    private void updateParents(String[] modifiedParentDatasetCodesOrNull)
-    {
-        if (modifiedParentDatasetCodesOrNull == null)
-        {
-            return; // parents were not changed
-        } else
-        {
-            final Set<DataPE> currentParents = data.getParents();
-            final Set<String> currentParentCodes = extractCodes(currentParents);
-            final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
-            newCodes.removeAll(currentParentCodes);
-
-            // quick check for direct cycle
-            if (newCodes.contains(data.getCode()))
-            {
-                throw new UserFailureException("Data set '" + data.getCode()
-                        + "' can not be its own parent.");
-            }
-
-            final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
-            validateRelationshipGraph(parentsToAdd);
-            addParents(parentsToAdd);
-
-            final Set<String> removedCodes = currentParentCodes;
-            removedCodes.removeAll(asSet(modifiedParentDatasetCodesOrNull));
-            removeParents(filterDataSets(currentParents, removedCodes));
         }
     }
 
@@ -619,90 +566,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     }
 
-    /**
-     * Throws {@link UserFailureException} if adding specified parents to this data set will create
-     * a cycle in data set relationships.
-     */
-    private void validateRelationshipGraph(Collection<DataPE> parentsToAdd)
-    {
-        // DFS from new parents that are to be added to this business object going in direction
-        // of parent relationship until:
-        // - all related ancestors are visited == graph has no cycles
-        // - we get to this business object == cycle is found
-        // NOTE: The assumption is that there were no cycles in the graph of relationship before.
-        // This algorithm will not find cycles that don't include this business object,
-        // although such cycles shouldn't cause it to loop forever.
-
-        // Algorithm operates only on data set ids to make it perform better
-        // - there is no need to join DB tables.
-        // To be able to inform user about the exact data set that cannot be connected as a parent
-        // we need start seeking cycles starting from each parent to be added separately. Otherwise
-        // we would need to get invoke more queries to DB (not going layer by layer of graph depth
-        // per query) or use BFS instead (which would also be slower in a general case).
-        for (DataPE parentToAdd : parentsToAdd)
-        {
-            validateRelationshipGraph(parentToAdd);
-        }
-    }
-
-    private void validateRelationshipGraph(DataPE parentToAdd)
-    {
-        final TechId updatedDataSetId = TechId.create(data);
-        final Set<TechId> visited = new HashSet<TechId>();
-        Set<TechId> toVisit = new HashSet<TechId>();
-        toVisit.add(TechId.create(parentToAdd));
-        while (toVisit.isEmpty() == false)
-        {
-            if (toVisit.contains(updatedDataSetId))
-            {
-                throw UserFailureException.fromTemplate(
-                        "Data Set '%s' is an ancestor of Data Set '%s' "
-                                + "and cannot be at the same time set as its child.",
-                        data.getCode(), parentToAdd.getCode());
-            } else
-            {
-                final Set<TechId> nextToVisit = findParentIds(toVisit);
-                visited.addAll(toVisit);
-                nextToVisit.removeAll(visited);
-                toVisit = nextToVisit;
-            }
-        }
-    }
-
-    private Set<TechId> findParentIds(Set<TechId> dataSetIds)
-    {
-        return getDataDAO().findParentIds(dataSetIds);
-    }
-
-    private List<DataPE> filterDataSets(Collection<DataPE> dataSets, Collection<String> seekenCodes)
-    {
-        List<DataPE> result = new ArrayList<DataPE>();
-        for (DataPE dataSet : dataSets)
-        {
-            if (seekenCodes.contains(dataSet.getCode()))
-            {
-                result.add(dataSet);
-            }
-        }
-        return result;
-    }
-
-    private void addParents(Collection<DataPE> parentsToAdd)
-    {
-        for (DataPE parent : parentsToAdd)
-        {
-            data.addParent(parent);
-        }
-    }
-
-    private void removeParents(Collection<DataPE> parentsToRemove)
-    {
-        for (DataPE parent : parentsToRemove)
-        {
-            data.removeParent(parent);
-        }
-    }
-
     private void addComponents(Collection<DataPE> componentsToAdd)
     {
         for (DataPE component : componentsToAdd)
@@ -717,132 +580,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             data.removeComponent(component);
         }
-    }
-
-    private List<DataPE> findDataSetsByCodes(Collection<String> codes)
-    {
-        final IDataDAO dao = getDataDAO();
-        final List<DataPE> dataSets = new ArrayList<DataPE>();
-        final List<String> missingDataSetCodes = new ArrayList<String>();
-        for (String code : codes)
-        {
-            DataPE dataSetOrNull = dao.tryToFindDataSetByCode(code);
-            if (dataSetOrNull == null)
-            {
-                missingDataSetCodes.add(code);
-            } else
-            {
-                dataSets.add(dataSetOrNull);
-            }
-        }
-        if (missingDataSetCodes.size() > 0)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Data Sets with following codes do not exist: '%s'.",
-                    CollectionUtils.abbreviate(missingDataSetCodes, 10));
-        } else
-        {
-            return dataSets;
-        }
-    }
-
-    private static Set<String> asSet(String[] objects)
-    {
-        return new LinkedHashSet<String>(Arrays.asList(objects)); // keep the ordering
-    }
-
-    private static Set<String> extractCodes(Collection<DataPE> parents)
-    {
-        Set<String> codes = new HashSet<String>(parents.size());
-        for (DataPE parent : parents)
-        {
-            codes.add(parent.getCode());
-        }
-        return codes;
-    }
-
-    //
-
-    private void updateSample(SampleIdentifier sampleIdentifierOrNull)
-    {
-        assert sampleIdentifierOrNull != null;
-        SamplePE newSample = getSampleByIdentifier(sampleIdentifierOrNull);
-        SamplePE previousSampleOrNull = data.tryGetSample();
-        if (newSample.equals(previousSampleOrNull))
-        {
-            return; // nothing to change
-        }
-        if (newSample.getSpace() == null)
-        {
-            throw createWrongSampleException(newSample, "the new sample is shared");
-        }
-        ExperimentPE experiment = newSample.getExperiment();
-        if (experiment == null)
-        {
-            throw createWrongSampleException(newSample,
-                    "the new sample is not connected to any experiment");
-        }
-
-        // move dataset to the experiment if needed
-        updateExperiment(experiment);
-
-        data.setSample(newSample);
-    }
-
-    private void updateExperiment(ExperimentIdentifier experimentIdentifier)
-    {
-        assert experimentIdentifier != null;
-        ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
-        updateExperiment(experiment);
-    }
-
-    private void updateExperiment(ExperimentPE experiment)
-    {
-        if (experiment.equals(data.getExperiment()) == false)
-        {
-            data.setExperiment(experiment);
-        }
-    }
-
-    private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
-    {
-        assert identifier != null : "Experiment identifier unspecified.";
-        final ProjectPE project =
-                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
-                        identifier.getSpaceCode(), identifier.getProjectCode());
-        if (project == null)
-        {
-            throw new UserFailureException("Unkown experiment because of unkown project: "
-                    + identifier);
-        }
-        final ExperimentPE exp =
-                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
-        return exp;
-    }
-
-    private void updateFileFormatType(String fileFormatTypeCode)
-    {
-        if (data.isExternalData())
-        {
-            ExternalDataPE externalData = data.tryAsExternalData();
-            FileFormatTypePE fileFormatTypeOrNull =
-                    getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
-            if (fileFormatTypeOrNull == null)
-            {
-                throw new UserFailureException(String.format("File type '%s' does not exist.",
-                        fileFormatTypeCode));
-            } else
-            {
-                externalData.setFileFormatType(fileFormatTypeOrNull);
-            }
-        }
-    }
-
-    private UserFailureException createWrongSampleException(SamplePE sample, String reason)
-    {
-        return UserFailureException.fromTemplate(
-                "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
-                data.getCode(), sample.getIdentifier(), reason);
     }
 
     private final void defineDataSetProperties(final DataPE dataSet,

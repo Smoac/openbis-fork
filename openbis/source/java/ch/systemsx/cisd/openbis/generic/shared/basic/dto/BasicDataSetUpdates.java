@@ -46,6 +46,8 @@ public class BasicDataSetUpdates implements Serializable
 
     private String fileFormatTypeCode;
 
+    private String modifiedContainerDatasetCodeOrNull;
+
     // 2. container (virtual)
     private String[] modifiedContainedDatasetCodesOrNull;
 
@@ -119,4 +121,15 @@ public class BasicDataSetUpdates implements Serializable
     {
         this.modifiedContainedDatasetCodesOrNull = modifiedContainedDatasetCodesOrNull;
     }
+
+    public String getModifiedContainerDatasetCodeOrNull()
+    {
+        return modifiedContainerDatasetCodeOrNull;
+    }
+
+    public void setModifiedContainerDatasetCodeOrNull(String modifiedContainerDatasetCodeOrNull)
+    {
+        this.modifiedContainerDatasetCodeOrNull = modifiedContainerDatasetCodeOrNull;
+    }
+
 }
