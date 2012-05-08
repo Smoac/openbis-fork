@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
@@ -40,7 +41,7 @@ public class DssRegistrationLogger
     /**
      * gets the handle to the file where this logger is logging
      */
-    File getFile()
+    public File getFile()
     {
         return file;
     }
@@ -101,5 +102,29 @@ public class DssRegistrationLogger
 
         fileOperations.move(file, dir);
         file = new File(dir, file.getName());
+    }
+
+    /**
+     * Log either success or the failure with error details.
+     * Registers success only if <code>encounteredErrors</code> is empty.
+     */
+    public void logDssRegistrationResult(List<Throwable> encounteredErrors)
+    {
+        if (0 == encounteredErrors.size())
+        {
+            registerSuccess();
+        } else
+        {
+            // Construct a message to add to the registration log
+            StringBuilder logMessage = new StringBuilder();
+            logMessage.append("Registration failed with the following errors\n");
+            for (Throwable error : encounteredErrors)
+            {
+                logMessage.append("\t");
+                logMessage.append(error.toString());
+            }
+            log(logMessage.toString());
+            registerFailure();
+        }
     }
 }

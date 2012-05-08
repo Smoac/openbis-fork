@@ -68,7 +68,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final DataSetFile incomingDataSetFile;
 
-    protected final DssRegistrationLogger dssRegistrationLog;
+    public final DssRegistrationLogger dssRegistrationLog;
 
     private final DssRegistrationLogDirectoryHelper dssRegistrationLogHelper;
 
@@ -80,7 +80,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Keep track of errors we encounter while processing. Clients may want this information.
      */
-    private final ArrayList<Throwable> encounteredErrors = new ArrayList<Throwable>();
+    public final ArrayList<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
     /**
      * All transactions ever created on this service.
@@ -197,22 +197,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      */
     protected void logDssRegistrationResult()
     {
-        if (0 == encounteredErrors.size())
-        {
-            dssRegistrationLog.registerSuccess();
-        } else
-        {
-            // Construct a message to add to the registration log
-            StringBuilder logMessage = new StringBuilder();
-            logMessage.append("Registration failed with the following errors\n");
-            for (Throwable error : encounteredErrors)
-            {
-                logMessage.append("\t");
-                logMessage.append(error.toString());
-            }
-            dssRegistrationLog.log(logMessage.toString());
-            dssRegistrationLog.registerFailure();
-        }
+        dssRegistrationLog.logDssRegistrationResult(encounteredErrors);
     }
 
     /**
