@@ -68,6 +68,8 @@ function openbis(url, dssUrl) {
 	this.queryServiceUrl = url + "/rmi-query-v1.json";
 	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
 	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"
+    this.screeningUrl = url + "/rmi-screening-api-v1.json"
+	this.dssScreeningUrl = dssUrl + "/rmi-datastore-server-screening-api-v1.json"
 }
 
 
@@ -341,3 +343,43 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 	}
 }
 
+/**
+ * See ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening.loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng)
+ * 
+ * @method
+ */
+openbis.prototype.loadImagesBase64 = function(imageReferences, convertToPng, action) {
+	ajaxRequest({
+		url: this.dssScreeningUrl,
+		data: { "method" : "loadImagesBase64",
+				"params" : [ this.sessionToken, imageReferences, convertToPng ] },
+		success: action
+	});
+}
+
+openbis.prototype.listPlates = function(action) {
+    ajaxRequest({
+            url: this.screeningUrl,
+            data: { "method" : "listPlates",
+                    "params" : [ this.sessionToken ] },
+            success: action
+    });
+}
+
+openbis.prototype.listRawImageDatasets = function(plates, action) {
+    ajaxRequest({
+            url: this.screeningUrl,
+            data: { "method" : "listRawImageDatasets",
+                    "params" : [ this.sessionToken, plates ] },
+            success: action
+    });
+}
+
+openbis.prototype.listPlateImageReferences = function(dataSetIdentifier, wellPositions, channel, action) {
+    ajaxRequest({
+            url: this.dssScreeningUrl,
+            data: { "method" : "listPlateImageReferences",
+                    "params" : [ this.sessionToken, dataSetIdentifier, wellPositions, channel ] },
+            success: action
+    });
+}
