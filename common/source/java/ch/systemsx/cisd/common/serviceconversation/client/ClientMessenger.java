@@ -19,8 +19,12 @@ package ch.systemsx.cisd.common.serviceconversation.client;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
@@ -48,6 +52,10 @@ class ClientMessenger implements IServiceConversation
     private int outgoingMessageIdx;
 
     private final AtomicBoolean serviceExceptionSignaled = new AtomicBoolean();
+    
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ClientMessenger.class);
+
 
     ClientMessenger(ServiceConversationDTO serviceConversationDTO,
             IServiceMessageTransport transportToService,
@@ -139,6 +147,7 @@ class ClientMessenger implements IServiceConversation
     private ServiceMessage getMessage(int timeout) throws InterruptedException {
         ServiceMessage message = responseMessageQueue.poll(timeout);
         while (message != null && message.getProgress() != null) {
+            operationLog.info(message.getProgress());
             message = responseMessageQueue.poll(timeout);
         }
         return message;

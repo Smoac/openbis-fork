@@ -39,7 +39,7 @@ public class MethodCall implements Serializable
         this.arguments = arguments;
     }
 
-    public Serializable executeOn(Object o, ServiceConversationServer server, String conversationId) {
+    public Serializable executeOn(Object o, ServiceConversationServer server, String conversationId, int clientTimeOut) {
 
         List<Class<?>> argClasses = new ArrayList<Class<?>>();
         for (Object s : this.arguments) {
@@ -50,7 +50,8 @@ public class MethodCall implements Serializable
         
         List<Object> newArgs = new ArrayList<Object>();
         newArgs.addAll(Arrays.asList(this.arguments));
-        newArgs.add(new ProgressListener(server, conversationId));
+        ProgressListener progressListener = new ProgressListener(server, conversationId, clientTimeOut / 10);
+        newArgs.add(progressListener);
 
         Exception ex;
 
@@ -76,6 +77,8 @@ public class MethodCall implements Serializable
         } catch (NoSuchMethodException e)
         {
             ex = e;
+        } finally {
+            progressListener.close();
         }
         throw new RuntimeException("Method call failed", ex);
     }

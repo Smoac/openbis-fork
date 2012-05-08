@@ -16,20 +16,72 @@
 
 package ch.systemsx.cisd.common.serviceconversation.server;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 public class ProgressListener implements IProgressListener
 {
-
+    
     private ServiceConversationServer server;
     private String conversationId;
+    private ScheduledThreadPoolExecutor executor;
+    private Update lastUpdate;
+    private int interval;
     
-    public ProgressListener(ServiceConversationServer server, String conversationId) {
+    public ProgressListener(ServiceConversationServer server, String conversationId, int reportingInterval) {
         this.server = server;
         this.conversationId = conversationId;
+        this.interval = reportingInterval;
+        this.executor = new ScheduledThreadPoolExecutor(1);
     }
     
-    public void update(String label, int totalItemsToProcess, int numItemsProcessed)
+    public synchronized void update(final String label, final int totalItemsToProcess, final int numItemsProcessed)
     {
-        server.reportProgress(conversationId, new ProgressInfo(label, totalItemsToProcess, numItemsProcessed));
-    }
+        this.executor.remove(this.lastUpdate);
 
+        long lastExecution = 0;
+        if (this.lastUpdate != null) {
+            lastExecution = this.lastUpdate.getLastExecution();
+        }
+
+        Update update = new Update(this.server, this.conversationId, new ProgressInfo(label, totalItemsToProcess, numItemsProcessed), lastExecution);
+
+        if (System.currentTimeMillis() - lastExecution > this.interval) {
+            this.executor.execute(update);
+        } else {
+            this.executor.schedule(update, lastExecution + this.interval, TimeUnit.MILLISECONDS);
+        }
+        
+        this.lastUpdate = update;
+    }
+    
+    public synchronized void close() {
+        this.executor.remove(this.lastUpdate);
+        this.executor.shutdown();
+    }
+    
+    private static class Update implements Runnable {
+
+        private ServiceConversationServer server;
+        private String conversationId;
+        private ProgressInfo progress;
+        private long lastExecution;
+
+        public Update(ServiceConversationServer server, String conversationId, ProgressInfo progress, long lastExecution) {
+            this.server = server;
+            this.conversationId = conversationId;
+            this.progress = progress;
+            this.lastExecution = lastExecution;
+        }
+
+        public void run()
+        {
+            this.lastExecution = System.currentTimeMillis();
+            server.reportProgress(conversationId, progress);                
+        }
+        
+        public long getLastExecution() {
+            return this.lastExecution;
+        }
+    }
 }

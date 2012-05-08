@@ -67,7 +67,7 @@ public final class RpcServiceFactory<T extends ConversationalServer> implements 
                 
                 Serializable result = null;
                 try {
-                    result = call.executeOn(service, server, messenger.getId());
+                    result = call.executeOn(service, server, messenger.getId(), timeout);
                 } finally {
                     if (result != null) {
                         tx.commit();

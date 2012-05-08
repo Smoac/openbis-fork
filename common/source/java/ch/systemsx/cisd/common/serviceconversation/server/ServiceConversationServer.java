@@ -311,7 +311,7 @@ public class ServiceConversationServer
             return;
         }
         if (!hasConversation(conversationId)) {
-            operationLog.warn("Progress reporting failed. Conversation with id "+conversationId+" does not exist");
+            operationLog.warn("Progress reporting failed ("+progress+"). Conversation with id "+conversationId+" does not exist");
             return;
         }
         

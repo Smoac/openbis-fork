@@ -176,7 +176,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
 {
-    private static final int PROGRESS_TIMEOUT = 10000;
+    private static final int PROGRESS_TIMEOUT = 60000;
 
     private final IDAOFactory daoFactory;
 
