@@ -80,6 +80,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected DynamicTransactionQuery dynamicTransactionQuery;
 
+    protected IDataSetStorageRecoveryManager storageRecoveryManager;
+
     protected File stagingDirectory;
 
     protected File prestagingDirectory;
@@ -120,6 +122,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         mailClient = context.mock(IMailClient.class);
         dataSourceQueryService = context.mock(IDataSourceQueryService.class);
         dynamicTransactionQuery = context.mock(DynamicTransactionQuery.class);
+        storageRecoveryManager = context.mock(IDataSetStorageRecoveryManager.class);
 
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
@@ -176,7 +179,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, openBisService,
                         mailClient, dataSetValidator, dataSourceQueryService, myFactory, true,
-                        threadParameters, new DataSetStorageRecoveryManager());
+                        threadParameters, storageRecoveryManager);
         return globalState;
     }
 

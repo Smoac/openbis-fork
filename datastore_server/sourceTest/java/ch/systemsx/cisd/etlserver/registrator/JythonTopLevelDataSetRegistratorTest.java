@@ -116,6 +116,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         params.overrideProperties.put("TEST_V2_API", "");
         params.dontCallOldApiJythonHooks = true;
         params.title += " - V2";
+        params.shouldUseAutoRecovery = true;
         return params;
     }
 
@@ -393,6 +394,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
          */
         protected boolean shouldRegisterTwoDataSets = false;
 
+        /**
+         * True if the dropbox should use autorecovery
+         */
+        protected boolean shouldUseAutoRecovery = false;
+
         private TestCaseParameters(String title)
         {
             this.title = title;
@@ -489,6 +495,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         return;
                     }
 
+                    checkpointPrecomittedState();
+                    
                     registerDataSets();
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
@@ -497,6 +505,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
 
                     setStorageConfirmed();
+
+                    registrationCompleted();
 
                     will(checkPrecommitDirIsEmpty());
                 }
@@ -571,6 +581,22 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     {
                         one(openBisService).createDataSetCode();
                         will(returnValue(DATA_SET_CODE_1));
+                    }
+                }
+
+                protected void checkpointPrecomittedState()
+                {
+                    if (testCase.shouldUseAutoRecovery)
+                    {
+                        one(storageRecoveryManager).checkpointPrecomittedState();
+                    }
+                }
+
+                protected void registrationCompleted()
+                {
+                    if (testCase.shouldUseAutoRecovery)
+                    {
+                        one(storageRecoveryManager).registrationCompleted();
                     }
                 }
             });

@@ -98,7 +98,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IEncapsulatedOpenBISService openBISService;
 
     // this is unused because it is only here as the prerequisite for the auto-recovery
-    private final AutoRecoverySettings shouldUseAutomaticRecovery;
+    private final AutoRecoverySettings autoRecoverySettings;
 
     private final IDataSetStorageRecoveryManager storageRecoveryManager;
 
@@ -116,7 +116,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
-        this.shouldUseAutomaticRecovery = transaction.getAutoRecoverySettings();
+        this.autoRecoverySettings = transaction.getAutoRecoverySettings();
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
     }
 
@@ -219,6 +219,19 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
     }
 
+    private boolean executePreRegistrationHooks()
+    {
+        try
+        {
+            postPreRegistrationHooks.executePreRegistration(transaction);
+        } catch (Throwable throwable)
+        {
+            rollbackDuringMetadataRegistration(throwable);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * @returns true if some datasets have been registered
      */
@@ -232,8 +245,18 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             return false;
         }
+        
+        if (executePreRegistrationHooks() == false)
+        {
+            return false;
+        }
+        
         // PRECOMMITED STATE
-        storageRecoveryManager.checkpointPrecomittedState();
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointPrecomittedState();
+        }
+
         if (registerDataSetsInApplicationServer() == false)
         {
             return false;
@@ -257,13 +280,21 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         confirmStorageInApplicationServer();
 
-        storageRecoveryManager.registrationCompleted();
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.registrationCompleted();
+        }
 
         return !dataSetStorageAlgorithms.isEmpty();
 
         // confirm storage in AS
 
         // STORAGECONFIRMED
+    }
+
+    private boolean shouldUseAutoRecovery()
+    {
+        return autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
     }
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
@@ -339,8 +370,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         try
         {
-            postPreRegistrationHooks.executePreRegistration(transaction);
-
             // registers data set with yet non-existing store path.
             // Runs or throw a throwable
             ArrayList<DataSetRegistrationInformation<T>> registrationData =
