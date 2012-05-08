@@ -461,6 +461,12 @@ public abstract class Dict
             "edit_property_type_assignment_title";
 
     //
+    // Entity Property History Browser
+    //
+
+    public static final String PROPERTIES_HISTORY_TAB = "properties_history_tab";
+
+    //
     // Attachments Browser
     //
 

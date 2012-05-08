@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.AUTHOR;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.MATERIAL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.PROPERTY_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.PROPERTY_TYPE_LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.VALID_FROM_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.VALID_UNTIL_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.VALUE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyHistoryGridColumnIDs.VOCABULARY_TERM;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
@@ -54,13 +54,20 @@ public class EntityPropertyHistoryProvider extends
         List<EntityPropertyHistory> history =
                 commonServer.listEntityPropertyHistory(sessionToken, criteria.getEntityKind(),
                         criteria.getEntityID());
+        Collections.sort(history, new Comparator<EntityPropertyHistory>()
+            {
+                public int compare(EntityPropertyHistory e1, EntityPropertyHistory e2)
+                {
+                    long d1 = e1.getValidUntilDate().getTime();
+                    long d2 = e2.getValidUntilDate().getTime();
+                    return d1 < d2 ? 1 : (d1 > d2 ? -1 : 0);
+                }
+            });
         TypedTableModelBuilder<EntityPropertyHistory> builder =
                 new TypedTableModelBuilder<EntityPropertyHistory>();
         builder.addColumn(PROPERTY_TYPE_CODE).hideByDefault();
         builder.addColumn(PROPERTY_TYPE_LABEL);
         builder.addColumn(VALUE);
-        builder.addColumn(VOCABULARY_TERM);
-        builder.addColumn(MATERIAL);
         builder.addColumn(AUTHOR);
         builder.addColumn(VALID_FROM_DATE);
         builder.addColumn(VALID_UNTIL_DATE);
@@ -69,9 +76,16 @@ public class EntityPropertyHistoryProvider extends
             builder.addRow(entry);
             builder.column(PROPERTY_TYPE_CODE).addString(entry.getPropertyType().getCode());
             builder.column(PROPERTY_TYPE_LABEL).addString(entry.getPropertyType().getLabel());
-            builder.column(VALUE).addString(entry.getValue());
-            builder.column(VOCABULARY_TERM).addString(entry.getVocabularyTerm());
-            builder.column(MATERIAL).addString(entry.getMaterial());
+            String value = entry.getValue();
+            if (value == null)
+            {
+                value = entry.getMaterial();
+                if (value == null)
+                {
+                    value = entry.getVocabularyTerm();
+                }
+            }
+            builder.column(VALUE).addString(value);
             builder.column(AUTHOR).addPerson(entry.getAuthor());
             builder.column(VALID_FROM_DATE).addDate(entry.getValidFromDate());
             builder.column(VALID_UNTIL_DATE).addDate(entry.getValidUntilDate());

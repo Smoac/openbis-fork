@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityPropertyHistoryGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -263,6 +265,10 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         // children
         final TabContent childrenSection = new DataSetChildrenSection(context, dataset);
         container.addSection(childrenSection);
+
+        // properties history
+        container.addSection(EntityPropertyHistoryGrid.createPropertiesHistorySection(viewContext,
+                EntityKind.DATA_SET, new TechId(dataset.getId())));
 
         // managed properties
         attachManagedPropertiesSections(container, dataset);

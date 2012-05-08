@@ -40,11 +40,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityPropertyHistoryGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -116,6 +118,10 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + material.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
+
+        container.addSection(EntityPropertyHistoryGrid.createPropertiesHistorySection(viewContext,
+                EntityKind.MATERIAL, new TechId(material.getId())));
+
         List<TabContent> additionalPanels = createAdditionalSectionPanels(material);
         for (TabContent panel : additionalPanels)
         {

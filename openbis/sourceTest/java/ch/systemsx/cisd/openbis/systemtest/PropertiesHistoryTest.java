@@ -100,12 +100,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, , , BACTERIUM-X [BACTERIUM], Doe, John]",
-                sortedHistory.get(0).getValues().subList(0, 6).toString());
-        assertEquals("[DESCRIPTION, Description, A simple experiment, , , System User]",
-                sortedHistory.get(1).getValues().subList(0, 6).toString());
-        assertEquals("[GENDER, Gender, , MALE [GENDER], , System User]", sortedHistory.get(2)
-                .getValues().subList(0, 6).toString());
+        assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], Doe, John]", sortedHistory
+                .get(0).getValues().subList(0, 4).toString());
+        assertEquals("[DESCRIPTION, Description, A simple experiment, System User]", sortedHistory
+                .get(1).getValues().subList(0, 4).toString());
+        assertEquals("[GENDER, Gender, MALE [GENDER], System User]", sortedHistory.get(2)
+                .getValues().subList(0, 4).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -188,12 +188,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, , , BACTERIUM-X [BACTERIUM], System User]",
-                sortedHistory.get(0).getValues().subList(0, 6).toString());
-        assertEquals("[COMMENT, Comment, very advanced stuff, , , System User]",
-                sortedHistory.get(1).getValues().subList(0, 6).toString());
-        assertEquals("[GENDER, Gender, , MALE [GENDER], , Doe, John]", sortedHistory.get(2)
-                .getValues().subList(0, 6).toString());
+        assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], System User]", sortedHistory
+                .get(0).getValues().subList(0, 4).toString());
+        assertEquals("[COMMENT, Comment, very advanced stuff, System User]", sortedHistory.get(1)
+                .getValues().subList(0, 4).toString());
+        assertEquals("[GENDER, Gender, MALE [GENDER], Doe, John]", sortedHistory.get(2).getValues()
+                .subList(0, 4).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -269,12 +269,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, , , BACTERIUM1 [BACTERIUM], System User]",
-                sortedHistory.get(0).getValues().subList(0, 6).toString());
-        assertEquals("[COMMENT, Comment, no comment, , , System User]", sortedHistory.get(1)
-                .getValues().subList(0, 6).toString());
-        assertEquals("[GENDER, Gender, , FEMALE [GENDER], , System User]", sortedHistory.get(2)
-                .getValues().subList(0, 6).toString());
+        assertEquals("[BACTERIUM, bacterium, BACTERIUM1 [BACTERIUM], System User]", sortedHistory
+                .get(0).getValues().subList(0, 4).toString());
+        assertEquals("[COMMENT, Comment, no comment, System User]", sortedHistory.get(1)
+                .getValues().subList(0, 4).toString());
+        assertEquals("[GENDER, Gender, FEMALE [GENDER], System User]", sortedHistory.get(2)
+                .getValues().subList(0, 4).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -327,10 +327,10 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[DESCRIPTION, Description, test bacterium 1, , , System User]", sortedHistory
-                .get(0).getValues().subList(0, 6).toString());
-        assertEquals("[ORGANISM, Organism, , FLY [ORGANISM], , System User]", sortedHistory.get(1)
-                .getValues().subList(0, 6).toString());
+        assertEquals("[DESCRIPTION, Description, test bacterium 1, System User]", sortedHistory
+                .get(0).getValues().subList(0, 4).toString());
+        assertEquals("[ORGANISM, Organism, FLY [ORGANISM], System User]", sortedHistory.get(1)
+                .getValues().subList(0, 4).toString());
         assertEquals(2, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
