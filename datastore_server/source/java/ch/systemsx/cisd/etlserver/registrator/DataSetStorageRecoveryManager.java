@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryManager
 {
-    private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
-
     private File dropboxRecoveryStateDir;
 
     public <T extends DataSetInformation> void checkpointPrecommittedState(
@@ -63,7 +61,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         DataSetFile incoming = runner.getIncomingDataSetFile();
         String incomingFileName = incoming.getRealIncomingFile().getName();
 
-        return new File(dropboxRecoveryStateDir, incomingFileName + ".PRECOMMIT_SERIALIZED");
+        return new File(dropboxRecoveryStateDir, incomingFileName + PRECOMMIT_SERIALIZED);
     }
 
     @SuppressWarnings("unchecked")

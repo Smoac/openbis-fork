@@ -27,6 +27,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public interface IDataSetStorageRecoveryManager
 {
+    public static final String PRECOMMIT_SERIALIZED = ".PRECOMMIT_SERIALIZED";
+
+    public static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
+    
     // Recovery Mechanics
     /**
      * Create a checkpoint at the precommitted state.
