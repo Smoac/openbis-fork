@@ -235,7 +235,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * @returns true if some datasets have been registered
      */
-    public <T extends DataSetInformation> boolean prepareAndRunStorageAlgorithms()
+    public boolean prepareAndRunStorageAlgorithms()
     {
         prepare();
         // all algorithms are now in
@@ -251,13 +251,21 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
+        ArrayList<DataSetRegistrationInformation<T>> registrationData =
+                tryPrepareRegistrationData();
+
+        if (registrationData == null)
+        {
+            return false;
+        }
+
         // PRECOMMITED STATE
         if (shouldUseAutoRecovery())
         {
-            storageRecoveryManager.checkpointPrecomittedState();
+            storageRecoveryManager.checkpointPrecomittedState(this);
         }
 
-        if (registerDataSetsInApplicationServer() == false)
+        if (registerDataSetsInApplicationServer(registrationData) == false)
         {
             return false;
         }
@@ -290,6 +298,27 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // confirm storage in AS
 
         // STORAGECONFIRMED
+    }
+
+    private ArrayList<DataSetRegistrationInformation<T>> tryPrepareRegistrationData()
+    {
+        try
+        {
+            // registers data set with yet non-existing store path.
+            // Runs or throw a throwable
+            ArrayList<DataSetRegistrationInformation<T>> registrationData =
+                    new ArrayList<DataSetRegistrationInformation<T>>();
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                registrationData.add(new DataSetRegistrationInformation<T>(storageAlgorithm
+                        .getDataSetInformation(), storageAlgorithm.createExternalData()));
+            }
+            return registrationData;
+        } catch (Throwable t)
+        {
+            rollbackDuringMetadataRegistration(t);
+            return null;
+        }
     }
 
     private boolean shouldUseAutoRecovery()
@@ -374,20 +403,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return true;
     }
 
-    private boolean registerDataSetsInApplicationServer()
+    private boolean registerDataSetsInApplicationServer(
+            List<DataSetRegistrationInformation<T>> registrationData)
     {
         try
         {
-            // registers data set with yet non-existing store path.
-            // Runs or throw a throwable
-            ArrayList<DataSetRegistrationInformation<T>> registrationData =
-                    new ArrayList<DataSetRegistrationInformation<T>>();
-            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
-            {
-                registrationData.add(new DataSetRegistrationInformation<T>(storageAlgorithm
-                        .getDataSetInformation(), storageAlgorithm.createExternalData()));
-
-            }
             applicationServerRegistrator.registerDataSetsInApplicationServer(registrationData);
 
         } catch (final Throwable throwable)
@@ -481,6 +501,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             buffer.append(']');
         }
         return buffer.toString();
+    }
+    
+    public List<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms()
+    {
+        return dataSetStorageAlgorithms;
     }
 
     private Logger getOperationLog()
