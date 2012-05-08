@@ -196,7 +196,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
         PrecommittedState<T> precommittedState = (PrecommittedState<T>) state;
         DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm =
-                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataStoreStrategy.getKey(),
+                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataSetInformation.getDataSetCode(), dataStoreStrategy.getKey(),
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
                         precommittedState.storagePaths, precommittedState.markerFile,
                         precommittedState.transaction);
