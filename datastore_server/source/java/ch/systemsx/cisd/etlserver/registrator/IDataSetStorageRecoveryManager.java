@@ -26,4 +26,6 @@ public interface IDataSetStorageRecoveryManager
     void checkpointPrecomittedState();
 
     void registrationCompleted();
+
+    boolean canRecoverFromError(Throwable ex);
 }

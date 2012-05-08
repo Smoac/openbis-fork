@@ -32,4 +32,9 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     {
 
     }
+
+    public boolean canRecoverFromError(Throwable ex)
+    {
+        return true;
+    }
 }
