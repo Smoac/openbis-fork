@@ -105,6 +105,11 @@ public final class DataStrategyStore implements IDataStrategyStore
     // IDataStrategyStore
     //
 
+    public IDataStoreStrategy getDataStoreStrategy(DataStoreStrategyKey key)
+    {
+        return dataStoreStrategies.get(key); 
+    }
+    
     public IDataStoreStrategy getDataStoreStrategy(final DataSetInformation dataSetInfo,
             final File incomingDataSetPath)
     {
