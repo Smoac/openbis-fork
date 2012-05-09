@@ -311,6 +311,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         File recoveryMarkerFile = tryFindRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile);
         if (recoveryMarkerFile != null) {
             handleRecovery(recoveryMarkerFile);
+            return;
         }
         
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
