@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -223,7 +224,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         if (removeFromDataStore)
         {
             // only remove the when we are sure we have got a backup in the archive
-            removeFromDataStore(groupedDatasets.getUpToDateInArchive(), context);
+            Set<String> failedDataSets = new HashSet<String>(statuses.getFailedDatasetCodes());
+            List<DatasetDescription> upToDateInArchive = groupedDatasets.getUpToDateInArchive();
+            List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>();
+            for (DatasetDescription datasetDescription : upToDateInArchive)
+            {
+                if (failedDataSets.contains(datasetDescription.getDataSetCode()) == false)
+                {
+                    filteredDataSets.add(datasetDescription);
+                }
+            }
+            removeFromDataStore(filteredDataSets, context);
         }
 
         // merge the archiver statuses with the paranoid check results
