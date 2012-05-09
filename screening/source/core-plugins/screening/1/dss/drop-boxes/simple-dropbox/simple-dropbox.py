@@ -5,8 +5,7 @@ expid = "/TEST/TEST-PROJECT/DEMO-EXP-SIMPLE"
 exp = transaction.getExperiment(expid)
  
 if None == exp:
-    exp = transaction.createNewExperiment(expid, "NGS-Experiment")
-    exp.setPropertyValue("DESCRIPTION", "Description of the demo experiment")
+    exp = transaction.createNewExperiment(expid, "TEST-EXPERIMENT")
  
 dataSet = transaction.createNewDataSet()
         
