@@ -62,7 +62,7 @@ public class ServiceConversationServer
             new ConcurrentHashMap<String, IServiceMessageTransport>();
 
     private final ConversationMap conversations = new ConversationMap();
-    
+
     private final Random rng = new Random();
 
     private final IServiceMessageTransport incomingTransport = new IServiceMessageTransport()
@@ -85,7 +85,7 @@ public class ServiceConversationServer
                     record.getMessenger().sendToService(message);
                 } else
                 {
-                    if (record.getMessenger().isMarkedAsInterrupted() == false)
+                    if (serviceShouldBeInterrupted(record, message))
                     {
                         if (message.isException())
                         {
@@ -94,14 +94,27 @@ public class ServiceConversationServer
                                     message.tryGetExceptionDescription()));
                         } else
                         {
-                            operationLog.error(String.format(
-                                    "[id: %s] Client requests termination of service conversation.",
-                                    conversationId));
+                            operationLog
+                                    .error(String
+                                            .format(
+                                                    "[id: %s] Client requests termination of service conversation.",
+                                                    conversationId));
                         }
                         record.getMessenger().markAsInterrupted();
                         record.getController().cancel(true);
                     }
                 }
+            }
+
+            private boolean serviceShouldBeInterrupted(final ServiceConversationRecord record,
+                    ServiceMessage message)
+            {
+                if (record.getMessenger().isMarkedAsInterrupted())
+                {
+                    return false;
+                }
+                return message.isTerminate() || record
+                        .isInterruptServerOnClientException();
             }
         };
 
@@ -200,7 +213,9 @@ public class ServiceConversationServer
         final BidirectionalServiceMessenger messenger =
                 new BidirectionalServiceMessenger(serviceConversationId,
                         messageReceivingTimeoutMillis, responseMessenger);
-        final ServiceConversationRecord record = new ServiceConversationRecord(messenger);
+        final ServiceConversationRecord record =
+                new ServiceConversationRecord(messenger, serviceFactory
+                        .interruptServiceOnClientException());
         conversations.put(serviceConversationId, record);
         try
         {
@@ -228,10 +243,11 @@ public class ServiceConversationServer
                                                     errorMessage));
                                         } catch (Exception ex2)
                                         {
-                                            operationLog.error(
-                                                    String.format(
-                                                            "[id: %s] Cannot send message about exception to client.",
-                                                            serviceConversationId), ex2);
+                                            operationLog
+                                                    .error(
+                                                            String.format(
+                                                                    "[id: %s] Cannot send message about exception to client.",
+                                                                    serviceConversationId), ex2);
                                         }
                                     }
                                 } finally
@@ -240,12 +256,12 @@ public class ServiceConversationServer
                                 }
                                 return null;
                             }
-    
+
                             public String getCallableName()
                             {
                                 return serviceConversationId + " (" + typeId + ")";
                             }
-    
+
                         });
             record.setController(controller);
             return new ServiceConversationDTO(serviceConversationId,
@@ -299,25 +315,30 @@ public class ServiceConversationServer
     }
 
     /**
-     * Returns <code>true</code> if this server has the given <var>conversationId</var>. 
+     * Returns <code>true</code> if this server has the given <var>conversationId</var>.
      */
     public boolean hasConversation(String conversationId)
     {
         return conversations.containsKey(conversationId);
     }
-    
-    public void reportProgress(String conversationId, ProgressInfo progress) {
-        if (conversationId == null) {
+
+    public void reportProgress(String conversationId, ProgressInfo progress)
+    {
+        if (conversationId == null)
+        {
             return;
         }
-        if (!hasConversation(conversationId)) {
-            operationLog.warn("Progress reporting failed ("+progress+"). Conversation with id "+conversationId+" does not exist");
+        if (!hasConversation(conversationId))
+        {
+            operationLog.warn("Progress reporting failed (" + progress + "). Conversation with id "
+                    + conversationId + " does not exist");
             return;
         }
-        
-        
-        BidirectionalServiceMessenger messenger = this.conversations.get(conversationId).getMessenger();
-        messenger.sendToClient(new ServiceMessage(conversationId, messenger.nextOutgoingMessageIndex(), progress));
+
+        BidirectionalServiceMessenger messenger =
+                this.conversations.get(conversationId).getMessenger();
+        messenger.sendToClient(new ServiceMessage(conversationId, messenger
+                .nextOutgoingMessageIndex(), progress));
     }
 
 }

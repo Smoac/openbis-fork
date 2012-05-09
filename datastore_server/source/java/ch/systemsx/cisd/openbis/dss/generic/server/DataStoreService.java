@@ -35,11 +35,9 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.serviceconversation.ConversationalServer;
-import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 import ch.systemsx.cisd.common.serviceconversation.RpcProxy;
-import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+import ch.systemsx.cisd.common.serviceconversation.RpcServerStub;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-import ch.systemsx.cisd.common.serviceconversation.client.IRemoteServiceConversationServer;
 import ch.systemsx.cisd.common.serviceconversation.client.ServiceConversationClient;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -126,34 +124,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
-    public static class RpcServerStub implements IRemoteServiceConversationServer, IServiceMessageTransport {
-        
-        private ConversationalServer server;
-        private String callbackUrl;
-        private String sessionToken;
-        
-        public RpcServerStub(String sessionToken, ConversationalServer server, String callbackUrl) {
-            this.sessionToken = sessionToken;
-            this.server = server;
-            this.callbackUrl = callbackUrl;
-        }
-        
-        public ServiceConversationDTO startConversation(String typeId)
-        {
-            return this.server.startConversation(sessionToken, callbackUrl, typeId);
-        }
-        
-        public void send(ServiceMessage message)
-        {
-            this.server.send(message);
-        }
-    }
-    
     
     private ServiceConversationClient client;
-
     public synchronized <T extends ConversationalServer, U extends T> T getConversationClient(String sessionToken, U service, Class<T> reference) {
-
         RpcServerStub server = new RpcServerStub(sessionToken, service, this.ownUrl);
         if (this.client == null) {
             client = new ServiceConversationClient(server, server);

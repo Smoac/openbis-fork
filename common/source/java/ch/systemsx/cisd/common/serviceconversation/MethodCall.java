@@ -69,7 +69,7 @@ public class MethodCall implements Serializable
                 ex = e;
             } catch (InvocationTargetException e)
             {
-                ex = e;
+                throw (RuntimeException)e.getCause();
             }
         } catch (SecurityException e)
         {

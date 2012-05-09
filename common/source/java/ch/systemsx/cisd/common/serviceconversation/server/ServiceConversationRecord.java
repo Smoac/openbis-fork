@@ -20,19 +20,22 @@ import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
 
 /**
  * The record holding information about a service conversation.
- *
+ * 
  * @author Bernd Rinn
  */
 class ServiceConversationRecord
 {
     private final BidirectionalServiceMessenger messenger;
-    
-    private ITerminableFuture<Void> controller;
 
-    ServiceConversationRecord(BidirectionalServiceMessenger messenger)
+    private final boolean interruptServerOnClientException;
+
+    private ITerminableFuture<Void> controller;
+    
+    ServiceConversationRecord(BidirectionalServiceMessenger messenger,
+            boolean interruptServerOnClientException)
     {
-        super();
         this.messenger = messenger;
+        this.interruptServerOnClientException = interruptServerOnClientException;
     }
 
     BidirectionalServiceMessenger getMessenger()
@@ -48,5 +51,10 @@ class ServiceConversationRecord
     void setController(ITerminableFuture<Void> controller)
     {
         this.controller = controller;
+    }
+
+    boolean isInterruptServerOnClientException()
+    {
+        return interruptServerOnClientException;
     }
 }

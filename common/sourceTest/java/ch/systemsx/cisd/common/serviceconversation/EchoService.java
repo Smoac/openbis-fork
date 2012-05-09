@@ -61,6 +61,11 @@ class EchoService implements IService
                 {
                     return "echo";
                 }
+
+                public boolean interruptServiceOnClientException()
+                {
+                    return true;
+                }
             };
     }
 }

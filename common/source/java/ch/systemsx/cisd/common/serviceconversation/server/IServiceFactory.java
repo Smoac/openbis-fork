@@ -27,7 +27,7 @@ public interface IServiceFactory
      * Returns id for this service type.
      */
     public String getServiceTypeId();
-    
+
     /**
      * Create a new service.
      */
@@ -38,4 +38,11 @@ public interface IServiceFactory
      * from this service.
      */
     public int getClientTimeoutMillis();
+
+    /**
+     * Returns <code>true</code> if the service method is supposed to be cancelled when the client
+     * has an exception during service conversation. An exception can e.g. happen when the client
+     * has a timeout waiting for the next server message.
+     */
+    public boolean interruptServiceOnClientException();
 }

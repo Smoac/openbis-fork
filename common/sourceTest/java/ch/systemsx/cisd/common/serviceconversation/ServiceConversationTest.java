@@ -191,6 +191,12 @@ public class ServiceConversationTest
                     {
                         return "singleEcho";
                     }
+
+                    public boolean interruptServiceOnClientException()
+                    {
+                        return true;
+                    }
+
                 };
         }
     }
@@ -470,6 +476,11 @@ public class ServiceConversationTest
                 {
                     return "echo";
                 }
+
+                public boolean interruptServiceOnClientException()
+                {
+                    return true;
+                }
             });
         conversations.startConversation("echo", "dummyClient");
     }
@@ -499,6 +510,12 @@ public class ServiceConversationTest
                     {
                         return "throwException";
                     }
+                    
+                    public boolean interruptServiceOnClientException()
+                    {
+                        return true;
+                    }
+
                 };
         }
     }
@@ -570,6 +587,12 @@ public class ServiceConversationTest
                     {
                         return "throwException";
                     }
+
+                    public boolean interruptServiceOnClientException()
+                    {
+                        return true;
+                    }
+
                 };
         }
     }
@@ -625,6 +648,11 @@ public class ServiceConversationTest
                     public String getServiceTypeId()
                     {
                         return "delayed";
+                    }
+                    
+                    public boolean interruptServiceOnClientException()
+                    {
+                        return true;
                     }
                 };
         }

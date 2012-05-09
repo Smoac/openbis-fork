@@ -66,18 +66,21 @@ public final class RpcServiceFactory<T extends ConversationalServer> implements 
                 Transaction tx = s.beginTransaction();
                 
                 Serializable result = null;
+                boolean success = false;
                 try {
                     result = call.executeOn(service, server, messenger.getId(), timeout);
+                    success = true;
                 } finally {
-                    if (result != null) {
+                    if (success) {
                         tx.commit();
+                    } else {
+                        tx.rollback();
                     }
                     s.close();
                     TransactionSynchronizationManager.unbindResource(factory);
                 }
                 messenger.send(result);
             }
-
         };
     }
 
@@ -85,4 +88,10 @@ public final class RpcServiceFactory<T extends ConversationalServer> implements 
     {
         return this.timeout;
     }
+    
+    public boolean interruptServiceOnClientException()
+    {
+        return false;
+    }
+
 }
