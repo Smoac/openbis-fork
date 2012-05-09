@@ -46,7 +46,6 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
-import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
@@ -60,7 +59,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRol
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -296,6 +294,21 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
+     * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
+     * is the marker file, then if there is a marker file corresponding to this incoming file
+     */
+    private boolean isRecoveryMarkerFile(File incoming)
+    {
+        return state.getGlobalState().getStorageRecoveryManager().isRecoveryFile(incoming);
+    }
+
+    private boolean hasRecoveryMarkerFile(File incoming)
+    {
+        return new File(incoming.getAbsolutePath()
+                + IDataSetStorageRecoveryManager.PROCESSING_MARKER).exists();
+    }
+
+    /**
      * A file has arrived in the drop box. Handle it.
      * <p>
      * Setup necessary for data set handling is done, then the handleDataSet method (a subclass
@@ -308,12 +321,24 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             return;
         }
 
-        File recoveryMarkerFile = tryFindRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile);
-        if (recoveryMarkerFile != null) {
-            handleRecovery(recoveryMarkerFile);
+        if (isRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile))
+        {
+            handleRecovery(incomingDataSetFileOrIsFinishedFile);
+            return;
+        } else if (hasRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile))
+        {
+            operationLog.info("Ignore file, as the recovery marker exists for it: "
+                    + incomingDataSetFileOrIsFinishedFile.getAbsolutePath());
+            // will handle only the recovery file - don't do anything
+            return;
+        } else if (false == incomingDataSetFileOrIsFinishedFile.exists())
+        {
+            operationLog.info("The file doesn't exist: "
+                    + incomingDataSetFileOrIsFinishedFile.getAbsolutePath());
+            // it can mean that the recovery has already cleaned this file
             return;
         }
-        
+
         final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
         final File incomingDataSetFile;
         final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
@@ -453,43 +478,38 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return new RuntimeException(cause.toString());
     }
 
-    /**
-     * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
-     * is the marker file, then if there is a marker file corresponding to this incoming file
-     */
-    private File tryFindRecoveryMarkerFile(File incoming)
-    {
-        if (state.getGlobalState().getStorageRecoveryManager().isRecoveryFile(incoming))
-        {
-            return incoming;
-        }
-
-        File possibleRecoveryMarkerPath =
-                new File(incoming.getAbsolutePath()
-                        + IDataSetStorageRecoveryManager.PROCESSING_MARKER);
-        if (possibleRecoveryMarkerPath.exists())
-        {
-            return possibleRecoveryMarkerPath;
-        }
-
-        return null;
-    }
-
-    private void handleRecovery(File recoveryMarkerFile)
+    private void handleRecovery(final File recoveryMarkerFile)
     {
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
         // TODO: real cleanup action
-        PostRegistrationCleanUpAction cleanup = null;
 
-        handleRecoveryState(recoveryState, cleanup);
+        IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
+                new IDelegatedActionWithResult<Boolean>()
+                    {
+                        public Boolean execute(boolean didOperationSucceed)
+                        {
+                            recoveryMarkerFile.delete();
+                            return true;
+                        }
+                    };
+
+        PostRegistrationCleanUpAction cleanupAction =
+                new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
+                        recoveryMarkerFileCleanupAction);
+
+        handleRecoveryState(recoveryState, cleanupAction);
     }
 
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
+        // TODO: Jobs left to do:
+        // rollback
+        // cleanup
+        // jython
         System.err.println("Handle recovery");
 
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
@@ -542,8 +562,21 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
             if (registeredDataSets.isEmpty())
             {
-                System.err.println("There are no registered datasets!");
-                // rollback during metadata registration
+                // System.err.println("There are no registered datasets!");
+                // recoveryState.getRollbackStack().rollbackAll(Live transaction state);./fe
+                // encounteredErrors.add(ex);
+                //
+                // UnstoreDataAction action =
+                // registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
+                // DataSetStorageRollbacker rollbacker =
+                // new DataSetStorageRollbacker(registratorContext, operationLog, action,
+                // incomingDataSetFile.getRealIncomingFile(), null, ex, errorType);
+                // operationLog.info(rollbacker.getErrorMessageForLog());
+                // rollbacker.doRollback(dssRegistrationLog);
+                //
+                // invokeRollbackTransactionFunction
+                //
+                // // rollback during metadata registration
             } else
             {
                 System.err.println("There are  registered datasets!");
@@ -562,7 +595,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         logger.logDssRegistrationResult(encounteredErrors);
 
         // TODO: recreate this clean afterwards function
-        // cleanAfterwardsAction.execute(registrationSuccessful);
+        cleanAfterwardsAction.execute(registrationSuccessful);
     }
 
     /**

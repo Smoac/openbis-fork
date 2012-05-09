@@ -98,7 +98,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         return logger;
     }
     
-    public IRollbackStack getRollbackStack()
+    public RollbackStack getRollbackStack()
     {
         return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
     }
