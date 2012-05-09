@@ -261,7 +261,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         if (status == null)
         {
             status = defaultStatus;
-        } else if (status.isError() != defaultStatus.isError())
+        } else if (status.isError())
+        {
+            return status;
+        } 
+        if (status.isError() != defaultStatus.isError())
         {
             // the status returned from the archiver is actually incorrect !
             // our paranoic check showed that the dataset was in fact *not* present in archive
