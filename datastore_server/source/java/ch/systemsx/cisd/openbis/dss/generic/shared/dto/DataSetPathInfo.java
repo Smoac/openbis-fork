@@ -90,7 +90,7 @@ public class DataSetPathInfo
 
     public void setChecksumCRC32(Long checksumCRC32)
     {
-        this.checksumCRC32 = checksumCRC32;
+        this.checksumCRC32 = checksumCRC32 & 0xffffffffL;
     }
 
     public Date getLastModified()

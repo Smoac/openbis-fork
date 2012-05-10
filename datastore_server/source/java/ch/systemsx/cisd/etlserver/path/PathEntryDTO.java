@@ -40,7 +40,7 @@ public class PathEntryDTO
     @ResultColumn("size_in_bytes")
     private  Long sizeInBytes;
     @ResultColumn("checksum_crc32")
-    private  Long checksumCRC32;
+    private  Integer checksumCRC32;
     
     @ResultColumn("is_directory")
     private Boolean directory;
@@ -57,7 +57,7 @@ public class PathEntryDTO
         this.relativePath = relativePath;
         this.fileName = fileName;
         this.sizeInBytes = sizeInBytes;
-        this.checksumCRC32 = checksumCRC32OrNull;
+        this.checksumCRC32 = checksumCRC32OrNull == null ? null : checksumCRC32OrNull.intValue();
         this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }
@@ -81,7 +81,7 @@ public class PathEntryDTO
         result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
         result = prime * result + ((relativePath == null) ? 0 : relativePath.hashCode());
         result = prime * result + (int) (sizeInBytes ^ (sizeInBytes >>> 32));
-        result = prime * result + (int) (checksumCRC32 == null ? 0 : checksumCRC32); 
+        result = prime * result + (checksumCRC32 == null ? 0 : checksumCRC32); 
         return result;
     }
 
@@ -137,6 +137,11 @@ public class PathEntryDTO
         return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
     }
 
+    private boolean equals(Integer n1OrNull, Integer n2OrNull)
+    {
+        return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
+    }
+    
     @Override
     public String toString()
     {
@@ -206,12 +211,12 @@ public class PathEntryDTO
         this.sizeInBytes = sizeInBytes;
     }
     
-    public Long getChecksumCRC32()
+    public Integer getChecksumCRC32()
     {
         return checksumCRC32;
     }
 
-    public void setChecksumCRC32(Long checksumCRC32)
+    public void setChecksumCRC32(Integer checksumCRC32)
     {
         this.checksumCRC32 = checksumCRC32;
     }
