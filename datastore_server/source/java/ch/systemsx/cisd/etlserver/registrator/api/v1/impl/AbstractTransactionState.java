@@ -968,12 +968,11 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
     }
 
-    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends
-            TerminalTransactionState<T>
+    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends AbstractTransactionState<T>
     {
         public RecoveryPendingTransactionState(LiveTransactionState<T> liveState)
         {
-            super(liveState);
+            super(liveState.parent);
         }
 
         @Override
