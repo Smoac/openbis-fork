@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -36,12 +37,20 @@ class QueryApiFacade implements IQueryApiFacade
 
     private final String sessionToken;
 
+    private final int serviceMajorVersion;
+
+    private final int serviceMinorVersion;
+
     QueryApiFacade(IQueryApiServer service, IGeneralInformationService generalInformationService,
             String sessionToken)
     {
         this.service = service;
         this.generalInformationService = generalInformationService;
         this.sessionToken = sessionToken;
+
+        this.serviceMajorVersion = this.service.getMajorVersion();
+        this.serviceMinorVersion = this.service.getMinorVersion();
+
     }
 
     public String getSessionToken()
@@ -79,5 +88,36 @@ class QueryApiFacade implements IQueryApiFacade
     {
         return service.createReportFromDataSets(sessionToken, reportDescription.getDataStoreCode(),
                 reportDescription.getKey(), dataSetCodes);
+    }
+
+    public List<AggregationServiceDescription> listAggregationServices()
+    {
+        checkMinimalServerVersion(1, 3);
+        return service.listAggregationServices(sessionToken);
+    }
+
+    public QueryTableModel createReportFromAggregationService(AggregationServiceDescription serviceDescription, Map<String, Object> parameters)
+    {
+        checkMinimalServerVersion(1, 3);
+        return service.createReportFromAggregationService(sessionToken, serviceDescription.getDataStoreCode(), serviceDescription.getServiceKey(), parameters);
+    }
+
+    /**
+     * Utility method to check that the server has at least the minimal required version.
+     */
+    private void checkMinimalServerVersion(int majorVersion, int minorVersion)
+    {
+        if ((serviceMajorVersion <= majorVersion) && (serviceMinorVersion < minorVersion))
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("The service \"listAggregationServices\" is not available on this server.");
+            sb.append(" Server version must be greater than 1.3");
+            sb.append(" (server version is ");
+            sb.append(serviceMajorVersion);
+            sb.append(".");
+            sb.append(serviceMinorVersion);
+
+            throw new UnsupportedOperationException(sb.toString());
+        }
     }
 }

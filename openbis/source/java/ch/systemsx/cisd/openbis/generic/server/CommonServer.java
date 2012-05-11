@@ -2001,6 +2001,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), datasetCodes);
     }
 
+    public TableModel createReportFromAggregationService(String sessionToken,
+            DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
+    {
+        Session session = getSession(sessionToken);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.createReportFromAggregationService(serviceDescription.getKey(),
+                serviceDescription.getDatastoreCode(), parameters);
+    }
+
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {

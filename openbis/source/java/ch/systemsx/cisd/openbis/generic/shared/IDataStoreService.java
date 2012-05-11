@@ -135,4 +135,17 @@ public interface IDataStoreService extends ConversationalClient
      */
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet);
+
+    /**
+     * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     * 
+     * @param sessionToken The sessionToken.
+     * @param userSessionToken The session token of the user that initiated the processing.
+     * @param serviceKey The service that produce the report.
+     * @param parameters The parameters to the service.
+     * @return A TableModel produced by the service.
+     * @since 7
+     */
+    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken,
+            String serviceKey, Map<String, Object> parameters);
 }

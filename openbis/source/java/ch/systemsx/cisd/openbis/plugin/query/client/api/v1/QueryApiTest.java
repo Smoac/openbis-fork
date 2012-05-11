@@ -18,11 +18,12 @@ package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
 /**
  * Example of usage of Query API.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class QueryApiTest
@@ -38,13 +39,19 @@ public class QueryApiTest
         String serverURL = args[0];
         String userID = args[1];
         String password = args[2];
-        
+
         IQueryApiFacade facade = FacadeFactory.create(serverURL, userID, password);
-        
+
         List<QueryDescription> queries = facade.listQueries();
         for (QueryDescription queryDescription : queries)
         {
-            System.out.println(queryDescription.getName() +  ": "+ queryDescription.getParameters());
+            System.out.println(queryDescription.getName() + ": " + queryDescription.getParameters());
+        }
+
+        List<AggregationServiceDescription> aggregationServices = facade.listAggregationServices();
+        for (AggregationServiceDescription service : aggregationServices)
+        {
+            System.out.println(service.getServiceKey() + " : " + service.getType());
         }
 
     }

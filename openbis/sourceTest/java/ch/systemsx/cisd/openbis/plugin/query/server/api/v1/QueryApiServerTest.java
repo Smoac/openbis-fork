@@ -300,4 +300,52 @@ public class QueryApiServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testCreateReportFromAggregationService()
+    {
+        final RecordingMatcher<DatastoreServiceDescription> descriptionMatcher =
+                new RecordingMatcher<DatastoreServiceDescription>();
+        final HashMap<String, Object> serviceParams = new HashMap<String, Object>();
+        serviceParams.put("param1", "foo");
+        serviceParams.put("param2", Arrays.asList("1", "2"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(new Session("u", SESSION_TOKEN, new Principal(), "", 1)));
+
+                    one(commonServer).createReportFromAggregationService(with(SESSION_TOKEN), with(descriptionMatcher), with(serviceParams));
+                    SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
+                    builder.addFullHeader("Integer", "Double", "String");
+                    builder.addRow(Arrays.asList(new IntegerTableCell(42), new DoubleTableCell(
+                            Math.PI), new StringTableCell("hello")));
+                    will(returnValue(builder.getTableModel()));
+                }
+            });
+
+        QueryTableModel tableModel =
+                queryApiServer.createReportFromAggregationService(SESSION_TOKEN, "DS", "S1", serviceParams);
+
+        DatastoreServiceDescription description = descriptionMatcher.recordedObject();
+        assertEquals("S1", description.getKey());
+        assertEquals("", description.getLabel());
+        assertEquals("DS", description.getDatastoreCode());
+        assertEquals("[]", Arrays.asList(description.getDatasetTypeCodes()).toString());
+        assertEquals(DataStoreServiceKind.QUERIES, description.getServiceKind());
+        assertEquals(ReportingPluginType.AGGREGATION_TABLE_MODEL, description.tryReportingPluginType());
+        List<QueryTableColumn> columns = tableModel.getColumns();
+        assertEquals("Integer", columns.get(0).getTitle());
+        assertEquals(QueryTableColumnDataType.LONG, columns.get(0).getDataType());
+        assertEquals("Double", columns.get(1).getTitle());
+        assertEquals(QueryTableColumnDataType.DOUBLE, columns.get(1).getDataType());
+        assertEquals("String", columns.get(2).getTitle());
+        assertEquals(QueryTableColumnDataType.STRING, columns.get(2).getDataType());
+        assertEquals(3, columns.size());
+        List<Serializable[]> rows = tableModel.getRows();
+        assertEquals(42L, rows.get(0)[0]);
+        assertEquals(Math.PI, rows.get(0)[1]);
+        assertEquals("hello", rows.get(0)[2]);
+        assertEquals(1, rows.size());
+        context.assertIsSatisfied();
+    }
 }

@@ -964,4 +964,19 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         return service.retrieveLinkFromDataSet(sessionToken, key, dataSet);
     }
+
+    public TableModel createReportFromAggregationService(String datastoreServiceKey, String datastoreCode,
+            Map<String, Object> parameters)
+    {
+        DataStorePE dataStore = findDataStore(datastoreCode);
+        IDataStoreService service = tryGetDataStoreService(dataStore);
+        if (service == null)
+        {
+            throw createUnknownDataStoreServerException();
+        }
+        String sessionToken = dataStore.getSessionToken();
+        String userSessionToken = session.getSessionToken();
+        return service.createReportFromAggregationService(sessionToken, userSessionToken,
+                datastoreServiceKey, parameters);
+    }
 }

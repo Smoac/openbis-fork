@@ -149,4 +149,10 @@ public interface IDataSetTable
      */
     LinkModel retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode);
 
+    /**
+     * Execute the aggregation service from a service that supports
+     * IReportingPluginTask#createAggregationReport method.
+     */
+    TableModel createReportFromAggregationService(String key, String datastoreCode, Map<String, Object> parameters);
+
 }

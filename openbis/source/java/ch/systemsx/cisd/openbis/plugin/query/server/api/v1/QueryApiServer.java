@@ -215,11 +215,9 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     {
         checkSession(sessionToken);
 
-        // TODO Dummy implementation
-        ArrayList<QueryTableColumn> translatedHeaders = new ArrayList<QueryTableColumn>();
-        translatedHeaders.add(new QueryTableColumn("Empty", QueryTableColumnDataType.STRING));
-        QueryTableModel tableModel = new QueryTableModel(translatedHeaders);
-        return tableModel;
+        DatastoreServiceDescription description =
+                DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode, ReportingPluginType.AGGREGATION_TABLE_MODEL);
+        return translate(commonServer.createReportFromAggregationService(sessionToken, description, parameters));
     }
 
     public int getMajorVersion()

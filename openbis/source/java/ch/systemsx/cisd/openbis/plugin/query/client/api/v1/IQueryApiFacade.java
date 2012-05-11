@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -69,6 +70,19 @@ public interface IQueryApiFacade
      */
     @Retry
     public IGeneralInformationService getGeneralInformationService();
+
+    /**
+     * List the available aggregation services
+     */
+    @Retry
+    public List<AggregationServiceDescription> listAggregationServices();
+
+    /**
+     * Creates for the specified data sets and specified report description a report. Available
+     * report descriptions can be obtained by {@link #listAggregationServices()}.
+     */
+    @Retry
+    public QueryTableModel createReportFromAggregationService(AggregationServiceDescription service, Map<String, Object> parameters);
 
     /**
      * Logs current user out.

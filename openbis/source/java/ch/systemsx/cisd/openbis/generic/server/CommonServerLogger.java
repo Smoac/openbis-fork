@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Level;
@@ -1215,6 +1216,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_materials", "criteria(%s)", criteria);
+        return null;
+    }
+
+    public TableModel createReportFromAggregationService(String sessionToken, DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
+    {
+        logAccess(sessionToken, "createReportFromAggregationService", "SERVICE(%s), PARAMETERS(%s)",
+                serviceDescription, parameters);
         return null;
     }
 

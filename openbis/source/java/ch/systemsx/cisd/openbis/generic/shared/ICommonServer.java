@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -266,8 +267,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void registerSpaceRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier identifier, Grantee grantee);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier identifier, Grantee grantee);
 
     /**
      * Registers a new instance role.
@@ -284,8 +284,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.ROLE_ASSIGNMENT)
     public void deleteSpaceRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier identifier, Grantee grantee);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier identifier, Grantee grantee);
 
     /**
      * Deletes role described by given role code and user id.
@@ -313,8 +312,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
-            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria);
+            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria);
 
     /**
      * Lists experiments by project.
@@ -325,8 +323,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * Lists experiments having data sets by project.
@@ -337,8 +334,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * Lists experiments having samples by project.
@@ -349,8 +345,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * Lists experiments by space.
@@ -361,8 +356,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier space);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier space);
 
     /**
      * Lists experiments by project.
@@ -372,8 +366,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            List<ExperimentIdentifier> experimentIdentifiers);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ExperimentIdentifier> experimentIdentifiers);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -383,8 +376,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listSampleExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId, final boolean showOnlyDirectlyConnected);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId, final boolean showOnlyDirectlyConnected);
 
     /**
      * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -394,8 +386,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listExperimentExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            final TechId experimentId, boolean showOnlyDirectlyConnected);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
      * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding
@@ -406,8 +397,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ExternalData> listDataSetRelationships(final String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            final TechId datasetId, final DataSetRelationshipRole role);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) final TechId datasetId, final DataSetRelationshipRole role);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -578,8 +568,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     @Capability("DELETE_PROJECT")
     public void deleteProjects(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            List<TechId> projectIds, String reason);
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) List<TechId> projectIds, String reason);
 
     /**
      * Deletes specified spaces.
@@ -588,8 +577,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void deleteSpaces(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class)
-            List<TechId> spaceIds, String reason);
+            @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class) List<TechId> spaceIds, String reason);
 
     /**
      * Deletes specified scripts.
@@ -656,8 +644,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     @Capability("REGISTER_PROJECT")
     public void registerProject(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier, String description, String leaderId,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier, String description, String leaderId,
             Collection<NewAttachment> attachments);
 
     /**
@@ -674,8 +661,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId datasetId);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
     /**
      * Saves changed data set.
@@ -685,8 +671,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("WRITE_DATASET")
     public DataSetUpdateResult updateDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
-            DataSetUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -816,8 +801,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes, String reason, DeletionType type,
             boolean forceNotExistingLocations, boolean isTrashEnabled);
 
     /**
@@ -831,8 +815,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @Capability("FORCE_DELETE_DATASET")
     public void deleteDataSetsForced(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes, String reason, DeletionType type,
             boolean forceNotExistingLocations, boolean isTrashEnabled);
 
     /**
@@ -844,8 +827,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.SAMPLE, ObjectKind.DELETION })
     @Capability("DELETE_SAMPLE")
     public void deleteSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class)
-            List<TechId> sampleIds, String reason, DeletionType type);
+            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds, String reason, DeletionType type);
 
     /**
      * Deletes/Trashes specified experiments.
@@ -856,8 +838,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     @Capability("DELETE_EXPERIMENT")
     public void deleteExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            List<TechId> experimentIds, String reason, DeletionType deletionType);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds, String reason, DeletionType deletionType);
 
     /**
      * Deletes specified attachments (all versions with given file names) of specified experiment.
@@ -867,8 +848,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     @Capability("DELETE_EXPERIMENT_ATTACHMENT")
     public void deleteExperimentAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, List<String> fileNames, String reason);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, List<String> fileNames, String reason);
 
     /**
      * Deletes specified attachments (all versions with given file names) of specified sample.
@@ -878,8 +858,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @Capability("DELETE_SAMPLE_ATTACHMENT")
     public void deleteSampleAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId, List<String> fileNames, String reason);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, List<String> fileNames, String reason);
 
     /**
      * Deletes specified attachments (all versions with given file names) of specified project.
@@ -889,8 +868,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     @Capability("DELETE_PROJECT_ATTACHMENT")
     public void deleteProjectAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId, List<String> fileNames, String reason);
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId, List<String> fileNames, String reason);
 
     /**
      * Returns all attachments (all versions) of specified experiment.
@@ -898,8 +876,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listExperimentAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
      * Returns all attachments (all versions) of specified sample.
@@ -907,8 +884,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listSampleAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId);
 
     /**
      * Returns all attachments (all versions) of specified project.
@@ -916,8 +892,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listProjectAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId);
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
      * Uploads specified data sets to CIFEX server of specified URL with specified password.
@@ -970,8 +945,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId) throws UserFailureException;
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId) throws UserFailureException;
 
     /**
      * Saves changed sample.
@@ -981,8 +955,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_SAMPLE")
     public SampleUpdateResult updateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
-            SampleUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding {@link Experiment}.
@@ -990,8 +963,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier identifier);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Experiment}.
@@ -999,8 +971,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
      * Saves changed experiment.
@@ -1011,8 +982,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public ExperimentUpdateResult updateExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
-            ExperimentUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Project}.
@@ -1020,8 +990,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId);
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
      * For given {@link ProjectIdentifier} returns the corresponding {@link Project} (without
@@ -1030,8 +999,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
 
     /**
      * Returns unique code.
@@ -1048,8 +1016,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     @Capability("WRITE_PROJECT")
     public Date updateProject(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
-            ProjectUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO updates);
 
     /**
      * Deletes specified data set types.
@@ -1231,15 +1198,18 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public TableModel createReportFromAggregationService(String sessionToken,
+            DatastoreServiceDescription serviceDescription, Map<String, Object> parameters);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Schedules archiving of specified data sets.
@@ -1253,8 +1223,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("ARCHIVE_DATASET")
     public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes, boolean removeFromDataStore);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes, boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of specified data sets.
@@ -1266,8 +1235,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("UNARCHIVE_DATASET")
     public int unarchiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Locks data sets.
@@ -1278,8 +1246,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int lockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Unlocks data sets.
@@ -1290,8 +1257,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int unlockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes);
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
      * Returns all authorization groups.
@@ -1357,8 +1323,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     @Capability("DELETE_FILTER")
     public void deleteFilters(String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class)
-            List<TechId> filterIds);
+            @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class) List<TechId> filterIds);
 
     /**
      * Updates a filter.
@@ -1368,8 +1333,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     @Capability("WRITE_FILTER")
     public void updateFilter(String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class)
-            IExpressionUpdates updates);
+            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IExpressionUpdates updates);
 
     // columns
 
@@ -1398,8 +1362,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     @Capability("DELETE_CUSTOM_COLUMN")
     public void deleteGridCustomColumns(String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class)
-            List<TechId> columnIds);
+            @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class) List<TechId> columnIds);
 
     /**
      * Updates a column.
@@ -1409,8 +1372,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
     @Capability("WRITE_CUSTOM_COLUMN")
     public void updateGridCustomColumn(String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class)
-            IExpressionUpdates updates);
+            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IExpressionUpdates updates);
 
     /**
      * Updates vocabulary terms.
@@ -1438,8 +1400,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Script}.
@@ -1506,8 +1467,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("WRITE_DATASET_PROPERTIES")
     public void updateDataSetProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties);
 
     /**
      * Updates properties of an experiment with given id.
@@ -1517,8 +1477,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     @Capability("WRITE_EXPERIMENT_PROPERTIES")
     public void updateExperimentProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties);
 
     /**
      * Updates properties of a sample with given id.
@@ -1528,8 +1487,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_SAMPLE_PROPERTIES")
     public void updateSampleProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties);
 
     /**
      * Updates properties of a material with given id.
@@ -1561,8 +1519,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @Capability("RESTORE")
     public void revertDeletions(final String sessionToken,
-            @AuthorizationGuard(guardClass = RevertDeletionPredicate.class)
-            final List<TechId> deletionIds);
+            @AuthorizationGuard(guardClass = RevertDeletionPredicate.class) final List<TechId> deletionIds);
 
     /**
      * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete
@@ -1575,8 +1532,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds, boolean forceNotExistingLocations);
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds, boolean forceNotExistingLocations);
 
     /**
      * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets
@@ -1589,8 +1545,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds, boolean forceNotExistingLocations);
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds, boolean forceNotExistingLocations);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
