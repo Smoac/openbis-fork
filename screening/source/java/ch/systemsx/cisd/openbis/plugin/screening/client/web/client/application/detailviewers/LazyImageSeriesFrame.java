@@ -72,7 +72,10 @@ public class LazyImageSeriesFrame extends LayoutContainer
             int imageHeight)
     {
         LogicalImageReference images = channelReferences.getBasicImage();
-        setLayout(new TableLayout(images.getTileColsNum()));
+
+        TableLayout tableLayout = new TableLayout(images.getTileColsNum());
+        tableLayout.setCellSpacing(LogicalImageViewer.TILE_SPACING);
+        setLayout(tableLayout);
 
         tilesMap = createTilesMap(seriesPointStacks, images);
         this.channelReferences = channelReferences;

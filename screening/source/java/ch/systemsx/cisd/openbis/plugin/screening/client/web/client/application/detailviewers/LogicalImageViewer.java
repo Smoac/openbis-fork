@@ -67,6 +67,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class LogicalImageViewer
 {
+    static final int TILE_SPACING = 3;
+
     private static final String NO_IMAGES_AVAILABLE_MSG = "No images available";
 
     private static final int ONE_IMAGE_SIZE_PX = 120;
@@ -439,7 +441,7 @@ public class LogicalImageViewer
             LogicalImageReference images = channelReferences.getBasicImage();
             
             TableLayout layout = new TableLayout(images.getTileColsNum());
-            layout.setCellSpacing(3);
+            layout.setCellSpacing(TILE_SPACING);
             LayoutContainer container =
                     new LayoutContainer(layout);
 
