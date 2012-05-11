@@ -86,7 +86,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         log("getVersion", "SESSION(%s)", sessionToken);
         return 0;
     }
-    
+
     public void send(ServiceMessage message)
     {
         log("send", "", message);
@@ -169,6 +169,13 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
             String sessionToken, U service, Class<T> reference)
     {
         log("getConversationClient", "REFERENCE(%s)", reference);
+        return null;
+    }
+
+    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken, String serviceKey, Map<String, Object> parameters)
+    {
+        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s)", userSessionToken,
+                serviceKey, parameters);
         return null;
     }
 }

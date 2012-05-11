@@ -390,6 +390,25 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new DataSetDirectoryProvider(storeRoot, getShareIdManager());
     }
 
+    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken, String serviceKey, Map<String, Object> parameters)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
+                pluginTaskParameters.getReportingPluginsProvider();
+        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
+        IShareIdManager manager = getShareIdManager();
+        try
+        {
+            return task.createAggregationReport(parameters, new DataSetProcessingContext(
+                    getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
+                            manager), new HashMap<String, String>(), null, null, userSessionToken));
+
+        } finally
+        {
+            manager.releaseLocks();
+        }
+    }
+
     private void scheduleTask(String sessionToken, String description,
             IProcessingPluginTask processingTask, List<DatasetDescription> datasets,
             String userEmailOrNull)
