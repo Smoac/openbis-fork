@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Queue;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -61,6 +61,8 @@ public class RollbackStack implements IRollbackStack
 
     private final File queue2File;
 
+    private final File lockedMarkerFile;
+
     // These are not final because they get swapped around.
     private PersistentExtendedBlockingQueueDecorator<StackElement> liveLifo;
 
@@ -77,6 +79,9 @@ public class RollbackStack implements IRollbackStack
     {
         this.queue1File = queue1File;
         this.queue2File = queue2File;
+
+        this.lockedMarkerFile =
+                new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
 
         PersistentExtendedBlockingQueueDecorator<StackElement> queue1 =
                 ExtendedBlockingQueueFactory.createSmartQueue(queue1File, false);
@@ -152,7 +157,7 @@ public class RollbackStack implements IRollbackStack
     /**
      * Rollback the top of the stack and pop it from the stack
      */
-    public ITransactionalCommand rollbackAndPop()
+    ITransactionalCommand rollbackAndPop()
     {
         StackElement elt = peek();
         try
@@ -240,6 +245,11 @@ public class RollbackStack implements IRollbackStack
      */
     public void rollbackAll(IRollbackStackDelegate delegate)
     {
+        if (isLockedState())
+        {
+            throw new IllegalStateException("Rollback stack is in the locked state. Triggering rollback forbidden.");
+        }
+        
         getOperationLog().info("Rolling back stack " + this);
         // Pop and rollback all
         while (size() > 0)
@@ -254,6 +264,10 @@ public class RollbackStack implements IRollbackStack
      */
     public void discard()
     {
+        if (isLockedState()) 
+        {
+            throw new IllegalStateException("Discarding of locked rollback stack is illegal. Set locked to false first.");
+        }
         // Close the persistent queues
         liveLifo.close();
         tempLifo.close();
@@ -264,6 +278,7 @@ public class RollbackStack implements IRollbackStack
         // Delete the files
         queue1File.delete();
         queue2File.delete();
+
     }
 
     /**
@@ -274,6 +289,40 @@ public class RollbackStack implements IRollbackStack
     {
         return new File[]
             { queue1File, queue2File };
+    }
+
+    public void setLockedState(boolean lockedState)
+    {
+        if (!lockedState && isLockedState())
+        {
+            deleteLockedMarkerFile();
+        } else if (lockedState && false == isLockedState())
+        {
+            createLockedMarkerFile();
+        }
+    }
+
+    public boolean isLockedState()
+    {
+        return lockedMarkerFile.exists();
+    }
+
+    private void deleteLockedMarkerFile()
+    {
+       lockedMarkerFile.delete();
+    }
+
+    private void createLockedMarkerFile()
+    {
+        try
+        {
+            lockedMarkerFile.createNewFile();
+        } catch (IOException ex)
+        {
+            getOperationLog().fatal(
+                    "Failed to create rollback stack lock marker file "
+                            + lockedMarkerFile.getAbsolutePath());
+        }
     }
 
     /**

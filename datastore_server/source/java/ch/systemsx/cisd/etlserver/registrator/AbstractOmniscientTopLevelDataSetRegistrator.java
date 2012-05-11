@@ -58,7 +58,9 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPre
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -278,8 +280,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread(),
                         onErrorDecision);
 
+        state.fileOperations.mkdirs(getRollBackStackParentFolder());
+        
         DataSetRegistrationTransaction
-                .rollbackDeadTransactions(globalState.getDssInternalTempDir());
+                .rollbackDeadTransactions(getRollBackStackParentFolder());
 
     }
 
@@ -293,6 +297,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return state.registrationLock;
     }
 
+    public File getRollBackStackParentFolder()
+    {
+        return getGlobalState().getDssInternalTempDir();
+    }
+    
     /**
      * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
      * is the marker file, then if there is a marker file corresponding to this incoming file
@@ -527,6 +536,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
 
+        logger.log("The registration has been disturbed. Will try to recover...");
+        
         // rollback delegate
         final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
@@ -578,7 +589,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             if (registeredDataSets.isEmpty())
             {
                 operationLog.info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
-                // recoveryState.getRollbackStack().rollbackAll(Live transaction state);./fe
+                
+                IRollbackStackDelegate rollbackStackDelegate = new AbstractTransactionState.LiveTransactionRollbackDelegate(state.getGlobalState().getStagingDir());
+                
+                recoveryState.getRollbackStack().rollbackAll(rollbackStackDelegate);
                 // encounteredErrors.add(ex);
                 //
                 // UnstoreDataAction action =

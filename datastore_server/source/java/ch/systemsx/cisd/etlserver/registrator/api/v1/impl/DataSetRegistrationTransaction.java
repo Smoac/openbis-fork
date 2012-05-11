@@ -98,11 +98,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationTransaction.class);
 
-    /**
-     * Check if there are any uncompleted transactions and roll them back. To be called during
-     * startup of a thread.
-     */
-    public static synchronized void rollbackDeadTransactions(File rollBackStackParentFolder)
+    public static synchronized RollbackStack[] findRollbackStacks(File rollBackStackParentFolder)
     {
         File[] rollbackQueue1Files = rollBackStackParentFolder.listFiles(new FilenameFilter()
             {
@@ -110,25 +106,50 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 {
                     return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
                 }
-
             });
 
-        for (File rollbackStackQueue1 : rollbackQueue1Files)
-        {
-            RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
-            operationLog.info("Found dead rollback stack: " + rollbackStackQueue1
-                    + ". Rolling back.");
+        RollbackStack[] rollbackStacks = new RollbackStack[rollbackQueue1Files.length];
 
-            try
+        for (int i = 0; i < rollbackQueue1Files.length; i++)
+        {
+            File rollbackStackQueue1 = rollbackQueue1Files[i];
+            RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
+            rollbackStacks[i] = stack;
+        }
+        return rollbackStacks;
+    }
+
+    /**
+     * Check if there are any uncompleted transactions and roll them back. To be called during
+     * startup of a thread.
+     */
+    public static synchronized void rollbackDeadTransactions(File rollBackStackParentFolder)
+    {
+
+        RollbackStack[] stacks = findRollbackStacks(rollBackStackParentFolder);
+        for (RollbackStack stack : stacks)
+        {
+            if (stack.isLockedState())
             {
-                stack.rollbackAll();
-            } catch (Throwable ex)
+                operationLog.info("Found rollback stack in locked state: "
+                        + stack.getBackingFiles()[0] + ". Not Rolling back.");
+            } else
             {
-                // This should ever happen since rollbackAll should handle execptions, but is here
-                // as a safeguard.
-                operationLog.error("Encountered error rolling back transaction:", ex);
+                operationLog.info("Found dead rollback stack: " + stack.getBackingFiles()[0]
+                        + ". Rolling back.");
+
+                try
+                {
+                    stack.rollbackAll();
+                } catch (Throwable ex)
+                {
+                    // This should ever happen since rollbackAll should handle execptions, but is
+                    // here
+                    // as a safeguard.
+                    operationLog.error("Encountered error rolling back transaction:", ex);
+                }
+                stack.discard();
             }
-            stack.discard();
         }
     }
 

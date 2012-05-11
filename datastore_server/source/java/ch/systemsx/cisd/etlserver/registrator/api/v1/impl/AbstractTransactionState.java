@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -70,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractTransactionState<T extends DataSetInformation>
+public abstract class AbstractTransactionState<T extends DataSetInformation>
 {
     protected final DataSetRegistrationTransaction<T> parent;
 
@@ -100,8 +101,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
      * @author Chandrasekhar Ramakrishnan
      */
     static class LiveTransactionState<T extends DataSetInformation> extends
-            AbstractTransactionState<T> implements RollbackStack.IRollbackStackDelegate
+            AbstractTransactionState<T>
     {
+
         // Default to polling every 10 seconds and waiting for up to 5 minutes
         private static int fileSystemAvailablityWaitCount = 6 * 5;
 
@@ -692,7 +694,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
          */
         public void rollback()
         {
-            rollbackStack.rollbackAll(this);
+            rollbackStack.rollbackAll(new LiveTransactionRollbackDelegate(stagingDirectory));
             registeredDataSets.clear();
             for (DynamicTransactionQuery query : queriesToCommit.values())
             {
@@ -846,6 +848,29 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         public boolean isRolledback()
         {
             return false;
+        }
+    }
+
+    /**
+     * Rollback stack delegate that checks whether the given filesystem is accessible before letting
+     * the rollback continue.
+     */
+    public static class LiveTransactionRollbackDelegate implements IRollbackStackDelegate
+    {
+        private final File stagingDirectory;
+
+        private final int fileSystemAvailablityWaitCount;
+
+        private final int fileSystemAvailablityPollingWaitTimeMs;
+
+        /**
+         * @param stagingDirectory Expects a staging directory
+         */
+        public LiveTransactionRollbackDelegate(File stagingDirectory)
+        {
+            this.stagingDirectory = stagingDirectory;
+            this.fileSystemAvailablityWaitCount = LiveTransactionState.fileSystemAvailablityWaitCount;
+            this.fileSystemAvailablityPollingWaitTimeMs = LiveTransactionState.fileSystemAvailablityPollingWaitTimeMs;
         }
 
         public void willContinueRollbackAll(RollbackStack stack)

@@ -41,6 +41,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
                 new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
                         runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming);
 
+        runner.getRollbackStack().setLockedState(true);
+        
         FileUtilities.writeToFile(serializedFile, recoveryState);
 
         File processingMarkerFile = getProcessingMarkerFile(runner);
@@ -83,6 +85,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     public <T extends DataSetInformation> void registrationCompleted(
             DataSetStorageAlgorithmRunner<T> runner)
     {
+        runner.getRollbackStack().setLockedState(false);
         // Cleanup the state we have accumulated
         File markerFile = getProcessingMarkerFile(runner);
         FileUtilities.delete(markerFile);
