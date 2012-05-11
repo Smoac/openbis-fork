@@ -281,9 +281,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         onErrorDecision);
 
         state.fileOperations.mkdirs(getRollBackStackParentFolder());
-        
-        DataSetRegistrationTransaction
-                .rollbackDeadTransactions(getRollBackStackParentFolder());
+
+        DataSetRegistrationTransaction.rollbackDeadTransactions(getRollBackStackParentFolder());
 
     }
 
@@ -301,7 +300,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         return getGlobalState().getDssInternalTempDir();
     }
-    
+
     /**
      * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
      * is the marker file, then if there is a marker file corresponding to this incoming file
@@ -501,7 +500,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         if (false == recoveryFile.exists())
         {
-            //TODO: is it safe to throw from here?
+            // TODO: is it safe to throw from here?
             operationLog.error("recovery file does not exist. " + recoveryFile);
             throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
         }
@@ -537,7 +536,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
 
         logger.log("The registration has been disturbed. Will try to recover...");
-        
+
         // rollback delegate
         final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
@@ -581,34 +580,41 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         try
         {
             List<String> dataSetCodes = recoveryState.getDataSetCodes();
-            //TODO: we need to check for something more than just a registered datasets, for the registrations that doesn't register anything.
-            //OTOH: do we need to recover in this case? (as there is nothing to store)
-            //maybe then we should only checkpoint for recovery if there ARE datasets  registered?
+            // TODO: we need to check for something more than just a registered datasets, for the
+            // registrations that doesn't register anything.
+            // OTOH: do we need to recover in this case? (as there is nothing to store)
+            // maybe then we should only checkpoint for recovery if there ARE datasets registered?
             List<ExternalData> registeredDataSets =
                     state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
             if (registeredDataSets.isEmpty())
             {
-                operationLog.info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
-                
-                IRollbackStackDelegate rollbackStackDelegate = new AbstractTransactionState.LiveTransactionRollbackDelegate(state.getGlobalState().getStagingDir());
+                operationLog
+                        .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
+
+                IRollbackStackDelegate rollbackStackDelegate =
+                        new AbstractTransactionState.LiveTransactionRollbackDelegate(state
+                                .getGlobalState().getStagingDir());
+
+                recoveryState.getRollbackStack().setLockedState(false);
                 
                 recoveryState.getRollbackStack().rollbackAll(rollbackStackDelegate);
-                // encounteredErrors.add(ex);
-                //
-                // UnstoreDataAction action =
-                // registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
-                // DataSetStorageRollbacker rollbacker =
-                // new DataSetStorageRollbacker(registratorContext, operationLog, action,
-                // incomingDataSetFile.getRealIncomingFile(), null, ex, errorType);
-                // operationLog.info(rollbacker.getErrorMessageForLog());
-                // rollbacker.doRollback(dssRegistrationLog);
+                UnstoreDataAction action =
+                        state.getOnErrorActionDecision().computeUndoAction(
+                                ErrorType.OPENBIS_REGISTRATION_FAILURE, null);
+                DataSetStorageRollbacker rollbacker =
+                        new DataSetStorageRollbacker(state, operationLog, action, recoveryState
+                                .getIncomingDataSetFile().getRealIncomingFile(), null, null,
+                                ErrorType.OPENBIS_REGISTRATION_FAILURE);
+                operationLog.info(rollbacker.getErrorMessageForLog());
+                rollbacker.doRollback(logger);
                 //
                 // invokeRollbackTransactionFunction
                 //
                 // // rollback during metadata registration
             } else
             {
-                operationLog.info("Recovery has found datasets in the AS. The registration of metadata was succesfull.");
+                operationLog
+                        .info("Recovery has found datasets in the AS. The registration of metadata was succesfull.");
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
