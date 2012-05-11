@@ -484,10 +484,22 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
-        // TODO: real cleanup action
+        // TODO: cleanup also with the incoming marker file
 
-        final File recoveryFile = state.getGlobalState().getStorageRecoveryManager().getRecoveryFileFromMarker(recoveryMarkerFile);
-        
+        final File recoveryFile =
+                state.getGlobalState().getStorageRecoveryManager()
+                        .getRecoveryFileFromMarker(recoveryMarkerFile);
+
+        if (false == recoveryFile.exists())
+        {
+            //TODO: is it safe to throw from here?
+            operationLog.error("recovery file does not exist. " + recoveryFile);
+            throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
+        }
+
+        operationLog.info("will recover from broken registration. Found marker file "
+                + recoveryMarkerFile + " and " + recoveryFile);
+
         IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
                 new IDelegatedActionWithResult<Boolean>()
                     {
@@ -509,11 +521,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
-        // TODO: Jobs left to do:
+        // TODO: Jobs left to do here:
         // rollback
-        // cleanup
-        // jython
-        System.err.println("Handle recovery");
+        // jython hooks
 
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
 
@@ -556,16 +566,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         state.getGlobalState().getStorageRecoveryManager());
         boolean registrationSuccessful = false;
 
-        System.err.println("Successfully created runner");
-
+        operationLog.info("Recovery succesfully deserialized the state of the registration");
         try
         {
             List<String> dataSetCodes = recoveryState.getDataSetCodes();
+            //TODO: we need to check for something more than just a registered datasets, for the registrations that doesn't register anything.
+            //OTOH: do we need to recover in this case? (as there is nothing to store)
+            //maybe then we should only checkpoint for recovery if there ARE datasets  registered?
             List<ExternalData> registeredDataSets =
                     state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
             if (registeredDataSets.isEmpty())
             {
-                // System.err.println("There are no registered datasets!");
+                operationLog.info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
                 // recoveryState.getRollbackStack().rollbackAll(Live transaction state);./fe
                 // encounteredErrors.add(ex);
                 //
@@ -582,7 +594,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 // // rollback during metadata registration
             } else
             {
-                System.err.println("There are  registered datasets!");
+                operationLog.info("Recovery has found datasets in the AS. The registration of metadata was succesfull.");
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
