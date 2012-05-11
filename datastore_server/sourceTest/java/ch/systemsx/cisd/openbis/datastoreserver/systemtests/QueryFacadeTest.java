@@ -45,7 +45,7 @@ public class QueryFacadeTest extends SystemTestCase
     public void testAggregationServiceReport() throws Exception
     {
         List<AggregationServiceDescription> services = queryFacade.listAggregationServices();
-        assertEquals(0, services.size());
+        assertEquals(1, services.size());
     }
 
     private IQueryApiFacade createServiceFacade(String userName)
