@@ -50,9 +50,17 @@ public interface IDataSetStorageRecoveryManager
     <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
             File markerFile);
 
+    /**
+     * Extracts the recovery file from the marker file
+     */
+    File getRecoveryFileFromMarker(File markerFile);
+    
     // Simple helper methods
     boolean canRecoverFromError(Throwable ex);
 
+    /**
+     * checks whether the file is a proper recovery marker file
+     */
     boolean isRecoveryFile(File file);
 
     void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);

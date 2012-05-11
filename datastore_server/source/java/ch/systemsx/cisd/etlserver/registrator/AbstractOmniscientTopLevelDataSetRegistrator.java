@@ -486,12 +486,15 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         // TODO: real cleanup action
 
+        final File recoveryFile = state.getGlobalState().getStorageRecoveryManager().getRecoveryFileFromMarker(recoveryMarkerFile);
+        
         IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
                 new IDelegatedActionWithResult<Boolean>()
                     {
                         public Boolean execute(boolean didOperationSucceed)
                         {
                             recoveryMarkerFile.delete();
+                            recoveryFile.delete();
                             return true;
                         }
                     };

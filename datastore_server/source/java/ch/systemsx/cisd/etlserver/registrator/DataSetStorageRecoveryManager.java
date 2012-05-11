@@ -64,13 +64,19 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return new File(dropboxRecoveryStateDir, incomingFileName + PRECOMMIT_SERIALIZED);
     }
 
+    public File getRecoveryFileFromMarker(File markerFile)
+    {
+        // trim is necessary as it reads the \n at the end of the file
+        String recoveryFilePath = FileUtilities.loadToString(markerFile).trim();
+        return new File(recoveryFilePath);
+    }
+    
     @SuppressWarnings("unchecked")
     public <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
             File markerFile)
     {
-        // trim is necessary as it reads the \n at the end of the file
-        String recoveryFilePath = FileUtilities.loadToString(markerFile).trim();
-        return FileUtilities.loadToObject(new File(recoveryFilePath),
+        File recoveryFile = getRecoveryFileFromMarker(markerFile);
+        return FileUtilities.loadToObject(recoveryFile,
                 DataSetStoragePrecommitRecoveryState.class);
     }
 
