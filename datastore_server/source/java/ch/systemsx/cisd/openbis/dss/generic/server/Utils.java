@@ -44,6 +44,8 @@ public class Utils
     {
         MIMETYPES.addMimeTypes("application/pdf pdf");
         MIMETYPES.addMimeTypes("image/svg+xml svg");
+        MIMETYPES.addMimeTypes("video/webm webm");
+        MIMETYPES.addMimeTypes("video/mp4 mp4");
     }
     
     static String createUrlParameterForSessionId(String prefix, String sessionIdOrNull)
