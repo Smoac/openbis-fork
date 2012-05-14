@@ -20,21 +20,24 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
+import ch.systemsx.cisd.common.conversation.RmiConversationController;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -84,14 +87,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Bernd Rinn
  */
-public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean
+public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean, ConversationalRmiClient
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EncapsulatedOpenBISService.class);
 
     private final IETLLIMSService service;
-
+    
+    private final RmiConversationController conversationController;
+    
     private Integer version;
 
     private DatabaseInstance homeDatabaseInstance;
@@ -101,8 +106,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private IShareIdManager shareIdManager;
     
-    private IDataStoreService dataStoreService;
-
+        
     public static IETLLIMSService createOpenBisService(String openBISURL, String timeout)
     {
         OpenBisServiceFactory factory =
@@ -135,20 +139,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE;
     }
     
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder, IDataStoreService dataStoreService)
+    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder, String downloadUrl)
     {
-        this(service, sessionHolder, dataStoreService, null);
+        this(service, sessionHolder, downloadUrl, null);
     }
 
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder,
-            IDataStoreService dataStoreService, IShareIdManager shareIdManager)
+    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder, String downloadUrl, IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
-        this.dataStoreService = dataStoreService;
+        this.conversationController = new RmiConversationController(downloadUrl + 
+                "/datastore_server/encapsulated_openbis_service_conversational_client");
     }
 
     private IShareIdManager getShareIdManager()
@@ -552,11 +556,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return sample;
     }
          
+    
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails)
     {
-                
-        IETLLIMSService conversationalService = dataStoreService.getConversationClient(session.getToken(), service, IETLLIMSService.class);
+        IETLLIMSService conversationalService =  
+                conversationController.getConversationalReference(session.getToken(), service, IETLLIMSService.class);
         
         AtomicEntityOperationResult operations =
                 conversationalService.performEntityOperations(session.getToken(), operationDetails);
@@ -568,6 +573,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return operations;
     }
 
+    public void send(ServiceMessage message)
+    {
+        this.conversationController.process(message);
+    }
+
+    
     private void setShareId(NewExternalData data)
     {
         getShareIdManager().setShareId(data.getCode(), data.getShareId());
@@ -632,5 +643,5 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.listDataSetsForPostRegistration(session.getToken(), session.getDataStoreCode());
     }
-
+    
 }

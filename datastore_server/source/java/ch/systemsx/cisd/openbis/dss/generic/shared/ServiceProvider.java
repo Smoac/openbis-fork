@@ -121,6 +121,12 @@ public class ServiceProvider
         return ((IDataSetPathInfoProvider) getApplicationContext().getBean(
                 "data-set-path-infos-provider"));
     }
+    
+    public static  HttpInvokerServiceExporter getConversationalClient()
+    {
+        return ( HttpInvokerServiceExporter) getApplicationContext().getBean(
+                "data-store-rpc-conversational-client");
+    }
 
     public static IShareIdManager getShareIdManager()
     {

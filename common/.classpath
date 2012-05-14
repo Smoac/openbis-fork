@@ -35,19 +35,5 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

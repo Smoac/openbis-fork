@@ -79,5 +79,7 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

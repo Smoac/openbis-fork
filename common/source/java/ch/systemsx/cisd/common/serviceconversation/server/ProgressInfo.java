@@ -18,6 +18,11 @@ package ch.systemsx.cisd.common.serviceconversation.server;
 
 import java.io.Serializable;
 
+/**
+ * A value object holding progress info about remote method execution.
+ *
+ * @author anttil
+ */
 public class ProgressInfo implements Serializable
 {
     

@@ -263,6 +263,10 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
+        String clientSuffix = "/encapsulated_openbis_service_conversational_client";
+        String clientPath=  DataStoreApiUrlUtilities.getUrlForRpcService(clientSuffix);
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(ServiceProvider.getConversationalClient(), clientPath)), clientPath);
+        
         //
         // export the API via JSON
         //

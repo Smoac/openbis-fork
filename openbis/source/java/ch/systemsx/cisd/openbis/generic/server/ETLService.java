@@ -32,14 +32,15 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
+import ch.systemsx.cisd.common.conversation.ProgressListener;
+import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.serviceconversation.RpcMessageTransport;
-import ch.systemsx.cisd.common.serviceconversation.RpcServiceFactory;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-import ch.systemsx.cisd.common.serviceconversation.server.IProgressListener;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
@@ -210,7 +211,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 daoFactory.getPersistencyResources().getSessionFactoryOrNull();
 
         server = new ServiceConversationServer();
-        server.addServiceType(new RpcServiceFactory<IETLLIMSService>(server, this,
+        server.addServiceType(new RmiServiceFactory<IETLLIMSService>(server, this,
                 IETLLIMSService.class, PROGRESS_TIMEOUT, sessionFactory));
     }
 
@@ -230,9 +231,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         getSession(sessionToken);
 
-        final IDataStoreService service = dssFactory.create(clientUrl);
+        ConversationalRmiClient client =
+                HttpInvokerUtils.createServiceStub(ConversationalRmiClient.class, clientUrl, 5000);
         String clientId = sessionToken;
-        server.addClientResponseTransport(clientId, new RpcMessageTransport(service));
+        server.addClientResponseTransport(clientId, client);
         return server.startConversation(typeId, clientId);
     }
 
@@ -1249,7 +1251,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             AtomicEntityOperationDetails operationDetails)
     {
         return this.performEntityOperations(sessionToken, operationDetails,
-                new IProgressListener()
+                new ProgressListener()
                     {
 
                         public void update(String label, int totalItemsToProcess,
@@ -1261,7 +1263,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     public AtomicEntityOperationResult performEntityOperations(
             String sessionToken,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progressListener)
     {
 
         final Session session = getSession(sessionToken);
@@ -1291,7 +1293,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Space> createSpaces(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
@@ -1307,7 +1309,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Material> createMaterials(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
@@ -1359,7 +1361,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Project> createProjects(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
         List<NewProject> newProjects = operationDetails.getProjectRegistrations();
@@ -1392,7 +1394,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Sample> createSamples(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         List<NewSample> containerSamples = new ArrayList<NewSample>();
@@ -1422,7 +1424,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<Sample> updateSamples(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         ArrayList<SamplePE> samplePEsUpdated = new ArrayList<SamplePE>();
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
@@ -1441,7 +1443,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
      * order
      */
     private List<ExternalData> createDataSets(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         List<? extends NewExternalData> dataSetRegistrations =
@@ -1460,7 +1462,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private List<ExternalData> updateDataSets(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         List<DataPE> dataSetsUpdated = new ArrayList<DataPE>();
         int index = 0;
@@ -1497,7 +1499,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private ArrayList<Experiment> createExperiments(Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails, ProgressListener progress)
     {
         ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
         List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();

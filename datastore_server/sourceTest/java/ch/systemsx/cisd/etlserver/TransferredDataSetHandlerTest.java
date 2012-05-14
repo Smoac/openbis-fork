@@ -273,13 +273,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
 
-        IDataStoreService dataStoreService = context.mock(IDataStoreService.class);
-
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder, dataStoreService,
-                        shareIdManager);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, "", shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();

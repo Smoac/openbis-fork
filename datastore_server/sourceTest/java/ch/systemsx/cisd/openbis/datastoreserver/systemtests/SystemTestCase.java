@@ -28,6 +28,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
@@ -42,6 +44,8 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceBean;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceExporter;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
@@ -143,6 +147,20 @@ public abstract class SystemTestCase extends AssertJUnit
                     applicationContext = new GenericWebApplicationContext(f);
                     applicationContext.setParent(new ClassPathXmlApplicationContext(
                             getApplicationContextLocation()));
+                    
+                    /* Needed for RmiConversationTest */
+                    GenericBeanDefinition definition = new GenericBeanDefinition();
+                    definition.setBeanClass(EchoServiceBean.class);
+                    MutablePropertyValues values = new MutablePropertyValues();
+                    values.addPropertyValue("sessionFactory", applicationContext.getBean("hibernate-session-factory"));
+                    definition.setPropertyValues(values);
+                    applicationContext.registerBeanDefinition("echoService", definition);
+
+                    /* Needed for RmiConversationTest */
+                    GenericBeanDefinition exporter = new GenericBeanDefinition();
+                    exporter.setBeanClass(EchoServiceExporter.class);
+                    applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
+                    
                     applicationContext.refresh();
                     return applicationContext;
                 }

@@ -54,9 +54,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
-/**
- * @author Antti Luomi
- */
 @Test(groups =
     { "slow", "systemtest" })
 public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
