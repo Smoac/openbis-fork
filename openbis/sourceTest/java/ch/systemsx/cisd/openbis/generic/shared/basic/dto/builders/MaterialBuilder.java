@@ -16,18 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
  * Builder of a {@link Material} instance.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class MaterialBuilder
 {
     private final Material material = new Material();
-    
+
+    public MaterialBuilder()
+    {
+        material.setProperties(new ArrayList<IEntityProperty>());
+    }
+
+    public final Material getMaterial()
+    {
+        return material;
+    }
+
     public MaterialBuilder code(String code)
     {
         material.setCode(code);
@@ -41,10 +55,18 @@ public class MaterialBuilder
         material.setMaterialType(materialType);
         return this;
     }
-    
-    public final Material getMaterial()
+
+    public PropertyBuilder property(String key)
     {
-        return material;
+        List<IEntityProperty> properties = material.getProperties();
+        PropertyBuilder propertyBuilder = new PropertyBuilder(key);
+        properties.add(propertyBuilder.getProperty());
+        return propertyBuilder;
     }
-    
+
+    public MaterialBuilder property(String key, String value)
+    {
+        property(key).value(value);
+        return this;
+    }
 }
