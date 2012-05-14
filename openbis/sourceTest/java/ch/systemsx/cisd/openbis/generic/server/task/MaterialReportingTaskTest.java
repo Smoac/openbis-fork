@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -28,7 +27,6 @@ import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testng.annotations.AfterMethod;
@@ -37,6 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
@@ -50,14 +49,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = MaterialReportingTask.class)
+@Friend(toClasses =
+    { MaterialReportingTask.class, MappingInfo.class })
 public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session-token";
 
     private Mockery context;
-
-    private PreparedStatement preparedStatement;
 
     private ICommonServerForInternalUse server;
 
@@ -67,11 +65,12 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private String databaseName;
 
+    private File mappingFile;
+
     @BeforeMethod
     public void setUpMocks() throws Exception
     {
         context = new Mockery();
-        preparedStatement = context.mock(PreparedStatement.class);
         server = context.mock(ICommonServerForInternalUse.class);
         materialReportingTask = new MaterialReportingTask(server);
 
@@ -86,6 +85,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         createTables("create table report1 (code varchar(20), description varchar(200))",
                 "create table report2 (code varchar(20), prop1 varchar(200), prop2 varchar(200))");
         dbConfigContext.closeConnections();
+        mappingFile = new File(workingDirectory, "mapping-file.txt");
     }
 
     @AfterMethod
@@ -97,37 +97,106 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testReadMappingFile() throws SQLException
+    public void testReadValidMappingFile() throws SQLException
     {
-        File mappingFile = new File(workingDirectory, "mapping-file.txt");
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:TABLE1,CODE]\n\n"
                 + "[T2: TABLE2, code]\nP2: prop2\nP1:prop1");
-        Material m1 = new MaterialBuilder().code("M1").property("P1", "42").getMaterial();
-        context.checking(new Expectations()
-            {
-                {
-                    one(preparedStatement).setObject(1, "M1");
-                }
-            });
 
         Map<String, MappingInfo> mapping =
                 MaterialReportingTask.readMappingFile(mappingFile.getPath());
 
         MappingInfo mappingInfo1 = mapping.get("T1");
         assertEquals("insert into TABLE1 (CODE) values(?)", mappingInfo1.createInsertStatement());
-        BatchPreparedStatementSetter setter1 = mappingInfo1.createSetter(Arrays.asList(m1));
-        setter1.setValues(preparedStatement, 0);
         MappingInfo mappingInfo2 = mapping.get("T2");
         assertEquals("insert into TABLE2 (code, prop1, prop2) values(?, ?, ?)",
                 mappingInfo2.createInsertStatement());
         assertEquals(2, mapping.size());
-        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testReadMappingFileWithMissingInitialTableDefinition()
+    {
+        FileUtilities.writeToFile(mappingFile, "P2: prop2\nP1:prop1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 'P2: prop2': "
+                    + "Missing first material type table definition of form "
+                    + "'[<material type tode>: <table name>, <code column name>]'", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionMissingFinishingBracket()
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1: TABLE, CODE\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T1: TABLE, CODE': Missing ']'", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionMissingColon()
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1]\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T1]': 2 items separated by ':' expected.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionMissingCodeColumnName()
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1: table]\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T1: table]': 2 items separated by ',' expected.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionEmptyMaterialTypeCode()
+    {
+        FileUtilities.writeToFile(mappingFile, "[ : table, code]\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T1: table]': 2 items separated by ',' expected.", ex.getMessage());
+        }
     }
 
     @Test
     public void test() throws Exception
     {
-        File mappingFile = new File(workingDirectory, "mapping-file.txt");
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
                 + "[T2: REPORT2, code]\nP2: prop2\nP1:prop1");
         Properties properties = new Properties();
@@ -173,7 +242,6 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private void createTables(String... creationStatements) throws Exception
     {
-
         Connection connection = null;
         Statement statement = null;
         try
