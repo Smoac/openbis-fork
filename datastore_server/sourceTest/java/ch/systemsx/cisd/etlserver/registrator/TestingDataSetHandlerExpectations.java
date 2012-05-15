@@ -36,9 +36,10 @@ public class TestingDataSetHandlerExpectations
 
     protected boolean didServiceRollbackHappen = false;
 
+    protected boolean didPreRegistrationRollbackHappen = false;
+    
     protected String registrationContextError;
 
-    
     
     public boolean isShouldRegistrationFail()
     {
@@ -88,6 +89,9 @@ public class TestingDataSetHandlerExpectations
                 readBoolean(interpreter, "didPostStorageFunctionRunHappen");
         didSecondaryTransactionErrorNotificationHappen =
                 readBoolean(interpreter, "didSecondaryTransactionErrorNotificationHappen");
+        didPreRegistrationRollbackHappen =
+                readBoolean(interpreter, "didPreRegistrationRollbackHappen");
+        
 
         registrationContextError = interpreter.get("contextTestFailed", String.class);
     }

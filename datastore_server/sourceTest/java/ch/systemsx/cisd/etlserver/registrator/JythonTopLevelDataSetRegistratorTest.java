@@ -643,9 +643,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 Throwable t = isErrorCausedByUnexpectedInvocation(exception);
                 if (t != null)
                 {
-                    throw new RuntimeException("Extracted unexpected invocation error "+t.getMessage(), t);
+                    throw new RuntimeException("Extracted unexpected invocation error "
+                            + t.getMessage(), t);
                 }
-                
+
                 if (testCase.exceptionAcceptor != null)
                 {
                     assertTrue("Exception " + exception + "was not accepted by validator",
@@ -797,6 +798,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         } else if (testCase.failurePoint
                 .compareTo(TestCaseParameters.FailurePoint.DURING_VALIDATION) <= 0)
         {
+            assertFalse(handler.getExpectations().didPreRegistrationRollbackHappen);
             assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
             assertFalse(handler.getExpectations().didTransactionRollbackHappen);
             assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
@@ -809,8 +811,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         } else
         {
             assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
+            assertTrue(handler.getExpectations().didPreRegistrationRollbackHappen);
+            assertFalse(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
             assertTrue(handler.getExpectations().didTransactionRollbackHappen);
-            assertTrue(handler.getExpectations().didRollbackTransactionFunctionRunHappen);
 
             assertTrue(handler.getExpectations().didPreRegistrationFunctionRunHappen);
             assertFalse(handler.getExpectations().didPostRegistrationFunctionRunHappen);

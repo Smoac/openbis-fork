@@ -80,6 +80,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 1),
 
         /**
+         * The name of the function to define to hook into the transaction rollback mechanism.
+         */
+        ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME("rollback_pre_registration", 2),
+
+        /**
          * The name of the function called when secondary transactions, DynamicTransactionQuery
          * objects, fail.
          */
@@ -313,22 +318,35 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
+
         PyFunction function =
                 tryJythonFunction(interpreter,
-                        JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
+                        JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
+
         if (null != function)
         {
-            invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner, ex);
+            invokeTransactionFunctionWithContext(function, service, transaction, ex);
         } else if (shouldUseOldJythonHookFunctions())
         {
-            // No Rollback transaction function was called, see if the rollback service function was
-            // defined, and call it.
             function =
                     tryJythonFunction(interpreter,
-                            JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
+                            JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
             if (null != function)
             {
-                invokeRollbackServiceFunction(function, service, ex);
+                invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner,
+                        ex);
+            } else
+            {
+                // No Rollback transaction function was called, see if the rollback service function
+                // was
+                // defined, and call it.
+                function =
+                        tryJythonFunction(interpreter,
+                                JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
+                if (null != function)
+                {
+                    invokeRollbackServiceFunction(function, service, ex);
+                }
             }
         }
     }
@@ -432,9 +450,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
+            Object... additionalArgs)
     {
-        invokeFuncion(service, function, transaction.getTransactionPersistentMap());
+        if (additionalArgs.length > 0)
+        {
+            invokeFuncion(service, function, transaction.getTransactionPersistentMap(),
+                    additionalArgs);
+        } else
+        {
+            invokeFuncion(service, function, transaction.getTransactionPersistentMap());
+        }
     }
 
     private void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,
