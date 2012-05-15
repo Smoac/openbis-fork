@@ -147,7 +147,7 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                 {
                     ValidationScriptRunner scriptRunner =
                             ValidationScriptRunner.createValidatorFromScriptPaths(arguments
-                                    .getScriptPathsOrNull());
+                                    .getScriptPathsOrNull(), false);
 
                     errors = scriptRunner.validate(arguments.getFile());
                 }

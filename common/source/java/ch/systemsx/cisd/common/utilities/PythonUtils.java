@@ -29,11 +29,22 @@ public class PythonUtils
 
     /**
      * Creates a new Jython interpreter with a fully isolated system state (i.e. interpreters in
-     * different threads don't influence each other.
+     * different threads don't influence each other).
      */
     public static PythonInterpreter createIsolatedPythonInterpreter()
     {
         return new PythonInterpreter(null, new PySystemState());
+    }
+
+    /**
+     * Creates a new Jython interpreter with a non-isolated system state (i.e. interpreters in
+     * different threads influence each other and see each others variables).
+     * <p>
+     * Use this if you don't need thread isolation as the isolated interpreter has some gotchas. 
+     */
+    public static PythonInterpreter createNonIsolatedPythonInterpreter()
+    {
+        return new PythonInterpreter();
     }
 
 }

@@ -47,8 +47,24 @@ public class ValidationScriptRunner
 
     /**
      * Factory method for creating a ValidationScriptRunner given a path to a script.
+     * <p>
+     * Use this on the server-side.
      */
     public static ValidationScriptRunner createValidatorFromScriptPaths(String[] scriptPaths)
+    {
+        return createValidatorFromScriptPaths(scriptPaths, true);
+    }
+
+    /**
+     * Factory method for creating a ValidationScriptRunner given a path to a script.
+     * 
+     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an
+     *            isolated system state. Use this on the server side where multiple Jython
+     *            interpreters may run in different threads. Note, however, that the re module has
+     *            some restrictions in this mode.
+     */
+    public static ValidationScriptRunner createValidatorFromScriptPaths(String[] scriptPaths,
+            boolean isolateJythonSystemState)
     {
         String scriptStringOrNull = ValidationScriptReader.tryReadValidationScript(scriptPaths);
         if (StringUtils.isBlank(scriptStringOrNull))
@@ -56,28 +72,45 @@ public class ValidationScriptRunner
             return new NullValidationScriptRunner();
         }
 
-        return new ValidationScriptRunner(scriptStringOrNull);
+        return new ValidationScriptRunner(scriptStringOrNull, isolateJythonSystemState);
     }
 
     /**
      * Factory method for creating a ValidationScriptRunner given the script as a string.
+     * <p>
+     * Use this on the server-side.
      */
     public static ValidationScriptRunner createValidatorFromScriptString(String scriptString)
+    {
+        return createValidatorFromScriptString(scriptString, true);
+    }
+
+    /**
+     * Factory method for creating a ValidationScriptRunner given the script as a string.
+     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an
+     *            isolated system state. Use this on the server side where multiple Jython
+     *            interpreters may run in different threads. Note, however, that the re module has
+     *            some restrictions in this mode.
+     */
+    public static ValidationScriptRunner createValidatorFromScriptString(String scriptString,
+            boolean isolateJythonSystemState)
     {
         if (scriptString == null)
         {
             return new NullValidationScriptRunner();
         }
-        return new ValidationScriptRunner(scriptString);
+        return new ValidationScriptRunner(scriptString, isolateJythonSystemState);
     }
 
     private final PythonInterpreter interpreter;
 
     private final String scriptString;
 
-    private ValidationScriptRunner(String scriptString)
+    private ValidationScriptRunner(String scriptString, boolean isolateJythonSystemState)
     {
-        this.interpreter = PythonUtils.createIsolatedPythonInterpreter();
+        this.interpreter =
+                isolateJythonSystemState ? PythonUtils.createIsolatedPythonInterpreter()
+                        : PythonUtils.createNonIsolatedPythonInterpreter();
         // Load the script
         this.scriptString = scriptString;
 
@@ -94,7 +127,6 @@ public class ValidationScriptRunner
         this.interpreter = null;
         // Load the script
         this.scriptString = null;
-
     }
 
     @SuppressWarnings("unchecked")
@@ -177,4 +209,3 @@ public class ValidationScriptRunner
     }
 
 }
-

@@ -730,7 +730,9 @@ class AuthenticatedState extends AbstractDssComponentState
                     dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
             try
             {
-                runner = ValidationScriptRunner.createValidatorFromScriptString(validationScript);
+                runner =
+                        ValidationScriptRunner.createValidatorFromScriptString(validationScript,
+                                false);
                 validationScriptRunnerCache.put(dataSetTypeOrNull, runner);
             } catch (Throwable ex)
             {

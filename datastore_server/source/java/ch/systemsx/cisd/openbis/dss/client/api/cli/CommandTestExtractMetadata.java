@@ -82,7 +82,7 @@ public class CommandTestExtractMetadata extends CommandTestValid
                 {
                     ValidationScriptRunner scriptRunner =
                             ValidationScriptRunner.createValidatorFromScriptPaths(arguments
-                                    .getScriptPathsOrNull());
+                                    .getScriptPathsOrNull(), false);
 
                     properties = scriptRunner.extractMetadata(arguments.getFile());
                 }
