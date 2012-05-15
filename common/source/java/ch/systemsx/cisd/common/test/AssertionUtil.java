@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jmock.api.ExpectationError;
+
 /**
  * Utilities for making assertions in unit tests.
  * 
@@ -108,5 +110,21 @@ public class AssertionUtil
             stringValues.add(enumInst.name());
         }
         return stringValues;
+    }
+    
+    /**
+     * returns true if error was caused by unexpected invocation.
+     */
+    public static Throwable tryAsErrorCausedByUnexpectedInvocation(Throwable t)
+    {
+        if (t == null)
+        {
+            return null;
+        }
+        if (t instanceof ExpectationError)
+        {
+            return t;
+        }
+        return tryAsErrorCausedByUnexpectedInvocation(t.getCause());
     }
 }
