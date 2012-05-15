@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.common.utilities.IPredicate;
@@ -376,7 +377,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected FailurePoint failurePoint = null;
 
         /**
-         * True if the registration should throw exception to the top level. This this setting the
+         * True if the registration should throw exception to the top level. With this setting the
          * handler is said to throw all exception to the top level, so that we can catch them. To
          * check recovery from errors (like rollback mechanism) this should be set to false.
          */
@@ -467,7 +468,75 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
-        context.checking(new Expectations()
+        context.checking(getSimpleTransactionExpectations(testCase, experiment, atomicatOperationDetails));
+
+        if (testCase.shouldThrowExceptionDuringRegistration)
+        {
+            try
+            {
+                handler.handle(markerFile);
+                fail("Expected an exception.");
+            } catch (Exception exception)
+            {
+                Throwable t = AssertionUtil.tryAsErrorCausedByUnexpectedInvocation(exception);
+                if (t != null)
+                {
+                    throw new RuntimeException("Extracted unexpected invocation error "
+                            + t.getMessage(), t);
+                }
+
+                if (testCase.exceptionAcceptor != null)
+                {
+                    assertTrue("Exception " + exception + "was not accepted by validator",
+                            testCase.exceptionAcceptor.execute(exception));
+                }
+            }
+            context.assertIsSatisfied();
+            return;
+        } else
+        {
+            handler.handle(markerFile);
+        }
+
+        // if there is a recovery file then call the recovery service
+
+        checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
+
+        AssertIncomingDirectory(testCase);
+
+        assertCommitCount(testCase);
+
+        assertJythonHooksExecuted(testCase);
+
+        if (testCase.failurePoint == null)
+        {
+            if (testCase.shouldRegisterTwoDataSets)
+            {
+                List<AtomicEntityOperationDetails> recordedObjects =
+                        atomicatOperationDetails.getRecordedObjects();
+
+                assertEquals("There should be two items in recordedObjects", 2,
+                        recordedObjects.size());
+                assertStorageProcess(recordedObjects.get(0), DATA_SET_CODE, "sub_data_set_1", 0);
+                assertStorageProcess(recordedObjects.get(1), DATA_SET_CODE_1, "sub_data_set_2", 1);
+            } else
+            {
+                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                        "sub_data_set_1", 0);
+            }
+        } else
+        {
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+        }
+        context.assertIsSatisfied();
+    }
+
+    public Expectations getSimpleTransactionExpectations(
+            final TestCaseParameters testCase,
+            final Experiment experiment,
+            final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails)
+    {
+        return new Expectations()
             {
                 {
                     setupExpectations();
@@ -630,67 +699,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                 with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
-            });
-
-        if (testCase.shouldThrowExceptionDuringRegistration)
-        {
-            try
-            {
-                handler.handle(markerFile);
-                fail("Expected an exception.");
-            } catch (Exception exception)
-            {
-                Throwable t = isErrorCausedByUnexpectedInvocation(exception);
-                if (t != null)
-                {
-                    throw new RuntimeException("Extracted unexpected invocation error "
-                            + t.getMessage(), t);
-                }
-
-                if (testCase.exceptionAcceptor != null)
-                {
-                    assertTrue("Exception " + exception + "was not accepted by validator",
-                            testCase.exceptionAcceptor.execute(exception));
-                }
-            }
-            context.assertIsSatisfied();
-            return;
-        } else
-        {
-            handler.handle(markerFile);
-        }
-
-        // if there is a recovery file then call the recovery service
-
-        checkInitialDirAfterRegistration(testCase.incomingDataSetAfterRegistration);
-
-        AssertIncomingDirectory(testCase);
-
-        assertCommitCount(testCase);
-
-        assertJythonHooksExecuted(testCase);
-
-        if (testCase.failurePoint == null)
-        {
-            if (testCase.shouldRegisterTwoDataSets)
-            {
-                List<AtomicEntityOperationDetails> recordedObjects =
-                        atomicatOperationDetails.getRecordedObjects();
-
-                assertEquals("There should be two items in recordedObjects", 2,
-                        recordedObjects.size());
-                assertStorageProcess(recordedObjects.get(0), DATA_SET_CODE, "sub_data_set_1", 0);
-                assertStorageProcess(recordedObjects.get(1), DATA_SET_CODE_1, "sub_data_set_2", 1);
-            } else
-            {
-                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                        "sub_data_set_1", 0);
-            }
-        } else
-        {
-            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
-        }
-        context.assertIsSatisfied();
+            };
     }
 
     protected void AssertIncomingDirectory(final TestCaseParameters testCase)
@@ -824,21 +833,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
     }
 
-    /**
-     * returns true if error was caused by unexpected invocation.
-     */
-    private Throwable isErrorCausedByUnexpectedInvocation(Throwable t)
-    {
-        if (t == null)
-        {
-            return null;
-        }
-        if (t instanceof ExpectationError)
-        {
-            return t;
-        }
-        return isErrorCausedByUnexpectedInvocation(t.getCause());
-    }
 
     @Test
     public void testTwoSimpleDataSets()

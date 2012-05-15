@@ -3,6 +3,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -98,7 +99,7 @@ public class TestingDataSetHandlerExpectations
 
     public void handleRollbackException(Throwable throwable)
     {
-        if (shouldReThrowRollbackException)
+        if (shouldReThrowRollbackException || AssertionUtil.tryAsErrorCausedByUnexpectedInvocation(throwable) != null)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
         } else
