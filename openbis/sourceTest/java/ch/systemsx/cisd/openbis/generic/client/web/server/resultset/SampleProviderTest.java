@@ -105,7 +105,7 @@ public class SampleProviderTest extends AbstractProviderTest
                         + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals(
-                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , 234-56, , , , 2.5, 1970-01-01 01:00:00 +0100, , , ]",
+                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , 234-56, , , , 2.5, Thu Jan 01 01:00:00 CET 1970, , , ]",
                 rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
