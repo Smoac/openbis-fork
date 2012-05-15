@@ -18,16 +18,22 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.Serializable;
 import java.sql.Types;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
 
 /**
  * Utility functions around data types.
@@ -81,9 +87,32 @@ public class DataTypeUtils
                 }
             }
         },
+        TIMESTAMP(DataTypeCode.TIMESTAMP)
+        {
+            @Override
+            public ISerializableComparable doConversion(String value)
+            {
+                return new DateTableCell(doSimpleConversion(value));
+            }
+
+            @Override
+            public Date doSimpleConversion(String value)
+            {
+                try
+                {
+                    String pattern = SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern();
+                    return DateUtils.parseDate(value, new String[]
+                        { pattern });
+                } catch (ParseException ex)
+                {
+                    throw new IllegalArgumentException("Is not a date in canonical format: "
+                            + value);
+                }
+            }
+        },
         STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN,
                 DataTypeCode.XML, DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.MATERIAL,
-                DataTypeCode.HYPERLINK, DataTypeCode.TIMESTAMP)
+                DataTypeCode.HYPERLINK)
         {
             @Override
             public ISerializableComparable doConversion(String value)

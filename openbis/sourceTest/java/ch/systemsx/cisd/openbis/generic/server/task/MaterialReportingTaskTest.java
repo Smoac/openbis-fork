@@ -21,12 +21,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testng.annotations.AfterMethod;
@@ -42,9 +45,11 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.MappingInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.VocabularyTermBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -87,7 +92,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         createTestDatabase();
         createTables(
                 "create table report1 (id bigint, code varchar(20), description varchar(200))",
-                "create table report2 (code varchar(20), prop1 varchar(200), prop2 varchar(200))");
+                "create table report2 (code varchar(20), rank integer, greetings varchar(200), "
+                        + "size double precision, organism varchar(100), material varchar(30), timestamp timestamp)");
         dbConfigContext.closeConnections();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
         properties = new Properties();
@@ -117,7 +123,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         MappingInfo mappingInfo1 = mapping.get("T1");
         assertEquals("insert into table1 (code) values(?)", mappingInfo1.createInsertStatement());
         MappingInfo mappingInfo2 = mapping.get("T2");
-        assertEquals("insert into table2 (code, prop1, prop2) values(?, ?, ?)",
+        assertEquals("insert into table2 (code, prop2, prop1) values(?, ?, ?)",
                 mappingInfo2.createInsertStatement());
         assertEquals(2, mapping.size());
     }
@@ -326,17 +332,24 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void test() throws Exception
+    public void testInsert() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
-                + "[T2: REPORT2, code]\nP2: prop2\nP1:prop1");
+                + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nP2: GREETINGS\nP1:RANK\nORG:ORGANISM\n"
+                + "T:timestamp");
         materialReportingTask.setUp("", properties);
         final Material m1 =
                 new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
-        final Material m2 =
-                new MaterialBuilder().code("M2").type("T2").property("P1", "42").getMaterial();
+        MaterialBuilder mb2 = new MaterialBuilder().code("M2").type("T2");
+        mb2.property("P1").type(DataTypeCode.INTEGER).value(42);
+        mb2.property("S").type(DataTypeCode.REAL).value(1e7 + 0.5);
+        mb2.property("ORG").type(DataTypeCode.CONTROLLEDVOCABULARY)
+                .value(new VocabularyTermBuilder("FLY").getTerm());
+        mb2.property("M").type(DataTypeCode.MATERIAL).value(m1);
+        mb2.property("T").type(DataTypeCode.TIMESTAMP).value(new Date(24 * 3600L * 1000L * 33));
+        final Material m2 = mb2.getMaterial();
         final Material m3 =
-                new MaterialBuilder().code("M3").type("T2").property("P2", "137").getMaterial();
+                new MaterialBuilder().code("M3").type("T2").property("P2", "hello").getMaterial();
         final RecordingMatcher<DetailedSearchCriteria> criteriaRecorder =
                 new RecordingMatcher<DetailedSearchCriteria>();
         context.checking(new Expectations()
@@ -354,16 +367,91 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         materialReportingTask.execute();
 
-        List<?> result =
-                new JdbcTemplate(dbConfigContext.getDataSource()).query("select * from report1",
-                        new ColumnMapRowMapper());
-        assertEquals("[{id=null, code=M1, description=null}]", result.toString());
-        result =
-                new JdbcTemplate(dbConfigContext.getDataSource()).query(
-                        "select * from report2 order by code", new ColumnMapRowMapper());
-        assertEquals("[{code=M2, prop1=null, prop2=42}, {code=M3, prop1=137, prop2=null}]",
-                result.toString());
+        List<?> result = loadTable("report1");
+        assertEquals("[{code=M1, description=null, id=null}]", result.toString());
+        result = loadTable("report2");
+        assertEquals("[{code=M2, greetings=null, material=M1, organism=FLY, rank=42, "
+                + "size=1.00000005E7, timestamp=1970-02-03 01:00:00.0}, "
+                + "{code=M3, greetings=hello, material=null, organism=null, rank=null, "
+                + "size=null, timestamp=null}]", result.toString());
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testInsertUpdate() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,CODE]\n"
+                + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nP1:RANK\nORG:ORGANISM\n"
+                + "P2: GREETINGS\nT:timestamp");
+        materialReportingTask.setUp("", properties);
+        final Material m1 =
+                new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
+        MaterialBuilder mb2 = new MaterialBuilder().code("M2").type("T2");
+        mb2.property("P1").type(DataTypeCode.INTEGER).value(42);
+        final Material m2 = mb2.getMaterial();
+        final Material m3 =
+                new MaterialBuilder().code("M3").type("T2").property("P2", "hello").getMaterial();
+        MaterialBuilder mb2v2 = new MaterialBuilder().code("M2").type("T2");
+        mb2v2.property("P1").type(DataTypeCode.INTEGER).value(137);
+        mb2v2.property("ORG").type(DataTypeCode.CONTROLLEDVOCABULARY)
+                .value(new VocabularyTermBuilder("TIGER").label("Tiger").getTerm());
+        final Material m2v2 = mb2v2.property("P2", "blabla").getMaterial();
+        final Material m4 =
+                new MaterialBuilder().code("M4").type("T2").property("P2", "hi").getMaterial();
+        final RecordingMatcher<DetailedSearchCriteria> criteriaRecorder =
+                new RecordingMatcher<DetailedSearchCriteria>();
+        final Sequence sequence = context.sequence("materials");
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(2).of(server).tryToAuthenticateAsSystem();
+                    SessionContextDTO session = new SessionContextDTO();
+                    session.setSessionToken(SESSION_TOKEN);
+                    will(returnValue(session));
+
+                    one(server).searchForMaterials(with(SESSION_TOKEN), with(criteriaRecorder));
+                    will(returnValue(Arrays.asList(m1, m2, m3)));
+                    inSequence(sequence);
+
+                    one(server).searchForMaterials(with(SESSION_TOKEN), with(criteriaRecorder));
+                    will(returnValue(Arrays.asList(m1, m2v2, m4)));
+                    inSequence(sequence);
+                }
+            });
+
+        materialReportingTask.execute();
+        materialReportingTask.execute();
+
+        List<?> result = loadTable("report1");
+        assertEquals("[{code=M1, description=null, id=null}]", result.toString());
+        result = loadTable("report2");
+        assertEquals("[{code=M2, greetings=blabla, material=null, organism=Tiger, "
+                + "rank=137, size=null, timestamp=null}, "
+                + "{code=M3, greetings=hello, material=null, organism=null, "
+                + "rank=null, size=null, timestamp=null}, "
+                + "{code=M4, greetings=hi, material=null, organism=null, "
+                + "rank=null, size=null, timestamp=null}]", result.toString());
+        context.assertIsSatisfied();
+    }
+
+    private List<?> loadTable(String tableName)
+    {
+        return new JdbcTemplate(dbConfigContext.getDataSource()).query("select * from " + tableName
+                + " order by code", new ColumnMapRowMapper()
+            {
+                @SuppressWarnings("rawtypes")
+                @Override
+                protected Map createColumnMap(int columnCount)
+                {
+                    return new TreeMap();
+                }
+
+                @Override
+                protected String getColumnKey(String columnName)
+                {
+                    return columnName.toLowerCase();
+                }
+            });
     }
 
     private void createTables(String... creationStatements) throws Exception

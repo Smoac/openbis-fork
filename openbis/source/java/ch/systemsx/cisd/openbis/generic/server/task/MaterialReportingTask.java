@@ -17,15 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
+import java.io.Serializable;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
@@ -74,31 +79,56 @@ public class MaterialReportingTask implements IMaintenanceTask
     @Private
     static final String MAPPING_FILE_KEY = "mapping-file";
 
+    private static final class Column
+    {
+        private final String name;
+
+        private final int index;
+
+        private DataTypeCode dataTypeCode;
+
+        Column(String name, int index)
+        {
+            this.name = name;
+            this.index = index;
+        }
+    }
+
+    private enum IndexingSchema
+    {
+        INSERT(0, 2), UPDATE(-1, 1);
+
+        private final int codeIndex;
+
+        private final int offset;
+
+        private IndexingSchema(int codeIndex, int offset)
+        {
+            this.codeIndex = codeIndex;
+            this.offset = offset;
+        }
+
+        public int getCodeIndex(int size)
+        {
+            return 1 + (size + 1 + codeIndex) % (size + 1);
+        }
+
+        public int getPropertyIndexOffset()
+        {
+            return offset;
+        }
+    }
+
     @Private
     static final class MappingInfo
     {
-        private static final class Column
-        {
-            private final String name;
-
-            private final int index;
-
-            private DataTypeCode dataTypeCode;
-
-            Column(String name, int index)
-            {
-                this.name = name;
-                this.index = index;
-            }
-        }
-
         private final String materialTypeCode;
 
         private final String tableName;
 
         private final String codeColumnName;
 
-        private final Map<String, Column> propertyMapping = new TreeMap<String, Column>();
+        private final Map<String, Column> propertyMapping = new LinkedHashMap<String, Column>();
 
         MappingInfo(String materialTypeCode, String tableName, String codeColumnName)
         {
@@ -115,6 +145,11 @@ public class MaterialReportingTask implements IMaintenanceTask
         String getCodeColumnName()
         {
             return codeColumnName;
+        }
+
+        boolean hasProperties()
+        {
+            return propertyMapping.isEmpty() == false;
         }
 
         void addPropertyMapping(String propertyTypeCode, String propertyColumnName)
@@ -147,16 +182,42 @@ public class MaterialReportingTask implements IMaintenanceTask
                 }
                 column.dataTypeCode = dataTypeCode;
             }
+        }
 
+        Map<String, Map<String, Object>> groupByMaterials(List<Map<String, Object>> rows)
+        {
+            HashMap<String, Map<String, Object>> result =
+                    new HashMap<String, Map<String, Object>>();
+            for (Map<String, Object> map : rows)
+            {
+                String materialCode = map.remove(codeColumnName).toString();
+                result.put(materialCode, map);
+            }
+            return result;
+        }
+
+        String createSelectStatement(List<Material> materials)
+        {
+            StringBuilder builder = new StringBuilder("select * from ");
+            builder.append(tableName).append(" where ");
+            builder.append(codeColumnName).append(" in ");
+            String delim = "(";
+            for (Material material : materials)
+            {
+                builder.append(delim).append('\'').append(material.getCode()).append('\'');
+                delim = ", ";
+            }
+            builder.append(")");
+            return builder.toString();
         }
 
         String createInsertStatement()
         {
             StringBuilder builder = new StringBuilder("insert into ").append(tableName);
             builder.append(" (").append(codeColumnName);
-            for (Column nameAndIndex : propertyMapping.values())
+            for (Column column : propertyMapping.values())
             {
-                builder.append(", ").append(nameAndIndex.name);
+                builder.append(", ").append(column.name);
             }
             builder.append(") values(?");
             for (int i = 0; i < propertyMapping.size(); i++)
@@ -167,7 +228,21 @@ public class MaterialReportingTask implements IMaintenanceTask
             return builder.toString();
         }
 
-        BatchPreparedStatementSetter createSetter(final List<Material> materials)
+        String createUpdateStatement()
+        {
+            StringBuilder builder = new StringBuilder("update ").append(tableName);
+            String delim = " set ";
+            for (Column column : propertyMapping.values())
+            {
+                builder.append(delim).append(column.name).append("=?");
+                delim = ", ";
+            }
+            builder.append(" where ").append(codeColumnName).append("=?");
+            return builder.toString();
+        }
+
+        BatchPreparedStatementSetter createSetter(final List<Material> materials,
+                final IndexingSchema indexing)
         {
             return new BatchPreparedStatementSetter()
                 {
@@ -175,18 +250,31 @@ public class MaterialReportingTask implements IMaintenanceTask
                     {
                         Material material = materials.get(index);
                         List<IEntityProperty> properties = material.getProperties();
-                        ps.setObject(1, material.getCode());
+                        ps.setObject(indexing.getCodeIndex(propertyMapping.size()),
+                                material.getCode());
+                        int propertyIndexOffset = indexing.getPropertyIndexOffset();
                         for (int i = 0; i < propertyMapping.size(); i++)
                         {
-                            ps.setObject(i + 2, null);
+                            ps.setObject(i + propertyIndexOffset, null);
                         }
                         for (IEntityProperty property : properties)
                         {
-                            String code = property.getPropertyType().getCode();
-                            Column nameAndIndex = propertyMapping.get(code);
-                            if (nameAndIndex != null)
+                            PropertyType propertyType = property.getPropertyType();
+                            String code = propertyType.getCode();
+                            Column column = propertyMapping.get(code);
+                            if (column != null)
                             {
-                                ps.setObject(nameAndIndex.index + 2, property.tryGetAsString());
+                                String value = getValue(property);
+                                Serializable typedValue =
+                                        DataTypeUtils.convertValueTo(column.dataTypeCode, value);
+                                if (typedValue instanceof Date)
+                                {
+                                    ps.setObject(column.index + propertyIndexOffset, typedValue,
+                                            Types.TIMESTAMP);
+                                } else
+                                {
+                                    ps.setObject(column.index + propertyIndexOffset, typedValue);
+                                }
                             }
                         }
                     }
@@ -197,6 +285,24 @@ public class MaterialReportingTask implements IMaintenanceTask
                     }
                 };
         }
+
+        private String getValue(IEntityProperty property)
+        {
+            String value;
+            switch (property.getPropertyType().getDataType().getCode())
+            {
+                case CONTROLLEDVOCABULARY:
+                    value = property.getVocabularyTerm().getCodeOrLabel();
+                    break;
+                case MATERIAL:
+                    value = property.getMaterial().getCode();
+                    break;
+                default:
+                    value = property.getValue();
+            }
+            return value;
+        }
+
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -293,15 +399,6 @@ public class MaterialReportingTask implements IMaintenanceTask
         }
     }
 
-    @Private
-    void closeDatabaseConnections()
-    {
-        if (dbConfigurationContext != null)
-        {
-            dbConfigurationContext.closeConnections();
-        }
-    }
-
     public void execute()
     {
         SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
@@ -317,23 +414,60 @@ public class MaterialReportingTask implements IMaintenanceTask
         {
             String materialTypeCode = entry.getKey();
             final List<Material> materials = entry.getValue();
-            addAndUpdate(materialTypeCode, materials);
+            MappingInfo mappingInfo = mapping.get(materialTypeCode);
+            if (mappingInfo != null)
+            {
+                addOrUpdate(mappingInfo, materials);
+                operationLog.info(materials.size() + " materials of type " + materialTypeCode
+                        + " reported.");
+            }
         }
     }
 
-    private void addAndUpdate(String materialTypeCode, final List<Material> materials)
+    private void addOrUpdate(MappingInfo mappingInfo, final List<Material> materials)
     {
-        MappingInfo mappingInfo = mapping.get(materialTypeCode);
-        if (mappingInfo != null)
+        String sql = mappingInfo.createSelectStatement(materials);
+        List<Map<String, Object>> rows = retrieveRowsToBeUpdated(sql);
+        Map<String, Map<String, Object>> reportedMaterials = mappingInfo.groupByMaterials(rows);
+        List<Material> newMaterials = new ArrayList<Material>();
+        List<Material> updateMaterials = new ArrayList<Material>();
+        for (Material material : materials)
         {
-            List<?> rows =
-                    jdbcTemplate.query("select * from " + mappingInfo.getTableName(),
-                            new ColumnMapRowMapper());
-            String insertStatement = mappingInfo.createInsertStatement();
-            jdbcTemplate.batchUpdate(insertStatement, mappingInfo.createSetter(materials));
-            operationLog.info(materials.size() + " materials of type " + materialTypeCode
-                    + " reported.");
+            Map<String, Object> reportedMaterial = reportedMaterials.get(material.getCode());
+            if (reportedMaterial != null)
+            {
+                updateMaterials.add(material);
+            } else
+            {
+                newMaterials.add(material);
+            }
         }
+        if (updateMaterials.isEmpty() == false && mappingInfo.hasProperties())
+        {
+            String updateStatement = mappingInfo.createUpdateStatement();
+            jdbcTemplate.batchUpdate(updateStatement,
+                    mappingInfo.createSetter(updateMaterials, IndexingSchema.UPDATE));
+        }
+        if (newMaterials.isEmpty() == false)
+        {
+            String insertStatement = mappingInfo.createInsertStatement();
+            jdbcTemplate.batchUpdate(insertStatement,
+                    mappingInfo.createSetter(newMaterials, IndexingSchema.INSERT));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> retrieveRowsToBeUpdated(String sql)
+    {
+        List<Map<String, Object>> rows = jdbcTemplate.query(sql, new ColumnMapRowMapper()
+            {
+                @Override
+                protected String getColumnKey(String columnName)
+                {
+                    return columnName.toLowerCase();
+                }
+            });
+        return rows;
     }
 
     private Map<String, List<Material>> getRecentlyAddedOrChangedMaterials(String sessionToken)
@@ -392,10 +526,10 @@ public class MaterialReportingTask implements IMaintenanceTask
                         splitAndCheck(line.substring(0, line.length() - 1).substring(1), ":", 2,
                                 factory);
                 String materialTypeCode =
-                        trimeAndCheck(splittedLine[0], factory, "material type code");
+                        trimAndCheck(splittedLine[0], factory, "material type code");
                 splittedLine = splitAndCheck(splittedLine[1], ",", 2, factory);
-                String tableName = trimeAndCheck(splittedLine[0], factory, "table name");
-                String codeColumnName = trimeAndCheck(splittedLine[1], factory, "code column name");
+                String tableName = trimAndCheck(splittedLine[0], factory, "table name");
+                String codeColumnName = trimAndCheck(splittedLine[1], factory, "code column name");
                 currentMappingInfo =
                         new MappingInfo(materialTypeCode, tableName.toLowerCase(),
                                 codeColumnName.toLowerCase());
@@ -404,7 +538,7 @@ public class MaterialReportingTask implements IMaintenanceTask
             {
                 String[] splittedLine = splitAndCheck(line, ":", 2, factory);
                 String propertyTypeCode =
-                        trimeAndCheck(splittedLine[0], factory, "property type code");
+                        trimAndCheck(splittedLine[0], factory, "property type code");
                 currentMappingInfo.addPropertyMapping(propertyTypeCode, splittedLine[1].trim()
                         .toLowerCase());
             } else
@@ -428,7 +562,7 @@ public class MaterialReportingTask implements IMaintenanceTask
         return splittedString;
     }
 
-    private static String trimeAndCheck(String string, ExecptionFactory factory, String name)
+    private static String trimAndCheck(String string, ExecptionFactory factory, String name)
     {
         String trimmedString = string.trim();
         if (trimmedString.length() == 0)
@@ -457,6 +591,15 @@ public class MaterialReportingTask implements IMaintenanceTask
         {
             return new ConfigurationFailureException("Error in mapping file '" + mappingFileName
                     + "' at line " + (lineIndex + 1) + " '" + line + "': " + message);
+        }
+    }
+
+    @Private
+    void closeDatabaseConnections()
+    {
+        if (dbConfigurationContext != null)
+        {
+            dbConfigurationContext.closeConnections();
         }
     }
 

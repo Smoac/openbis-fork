@@ -20,21 +20,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Builder for {@link VocabularyTerm} instance.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class VocabularyTermBuilder
 {
     private final VocabularyTerm term = new VocabularyTerm();
-    
+
     public VocabularyTermBuilder(String code)
     {
         term.setCode(code);
+    }
+
+    public VocabularyTermBuilder label(String label)
+    {
+        term.setLabel(label);
+        return this;
     }
 
     public VocabularyTerm getTerm()
     {
         return term;
     }
-    
+
 }
