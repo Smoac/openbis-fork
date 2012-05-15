@@ -99,8 +99,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testReadValidMappingFile() throws SQLException
     {
-        FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:TABLE1,CODE]\n\n"
-                + "[T2: TABLE2, code]\nP2: prop2\nP1:prop1");
+        FileUtilities.writeToFile(mappingFile, "# my mapping\n[ T1 :  TABLE1 , CODE ]\n\n"
+                + "[T2: TABLE2, code]\n  P2 : prop2   \n P1 :  prop1  ");
 
         Map<String, MappingInfo> mapping =
                 MaterialReportingTask.readMappingFile(mappingFile.getPath());
@@ -190,7 +190,71 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
-                    + "'[T1: table]': 2 items separated by ',' expected.", ex.getMessage());
+                    + "'[ : table, code]': Missing material type code.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionEmptyTableName()
+    {
+        FileUtilities.writeToFile(mappingFile, "[T : , code]\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T : , code]': Missing table name.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidTableDefinitionCodeColumnName()
+    {
+        FileUtilities.writeToFile(mappingFile, "[T : t, ]\nP1: p1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 1 "
+                    + "'[T : t, ]': Missing code column name.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidPropertyMappingMissingColon()
+    {
+        FileUtilities.writeToFile(mappingFile, "[ T : t , c]\nP1");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 2 "
+                    + "'P1': 2 items separated by ':' expected.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadMappingFileWithInvalidPropertyMappingMissungPropertyTypeCode()
+    {
+        FileUtilities.writeToFile(mappingFile, "[ T : t , c]\n : p");
+
+        try
+        {
+            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error in mapping file '" + mappingFile + "' at line 2 "
+                    + "' : p': Missing property type code.", ex.getMessage());
         }
     }
 

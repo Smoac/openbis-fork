@@ -254,7 +254,7 @@ public class MaterialReportingTask implements IMaintenanceTask
         MappingInfo currentMappingInfo = null;
         for (int i = 0; i < lines.size(); i++)
         {
-            String line = lines.get(i).trim();
+            String line = lines.get(i);
             ExecptionFactory factory = new ExecptionFactory(mappingFileName, line, i);
             if (line.startsWith("#") || line.trim().length() == 0)
             {
@@ -269,16 +269,18 @@ public class MaterialReportingTask implements IMaintenanceTask
                 String[] splittedLine =
                         splitAndCheck(line.substring(0, line.length() - 1).substring(1), ":", 2,
                                 factory);
-                String materialTypeCode = check(splittedLine[0], factory, "material type code");
+                String materialTypeCode =
+                        trimeAndCheck(splittedLine[0], factory, "material type code");
                 splittedLine = splitAndCheck(splittedLine[1], ",", 2, factory);
-                String tableName = check(splittedLine[0].trim(), factory, "table name");
-                String codeColumnName = check(splittedLine[1].trim(), factory, "code column name");
+                String tableName = trimeAndCheck(splittedLine[0], factory, "table name");
+                String codeColumnName = trimeAndCheck(splittedLine[1], factory, "code column name");
                 currentMappingInfo = new MappingInfo(materialTypeCode, tableName, codeColumnName);
                 map.put(materialTypeCode, currentMappingInfo);
             } else if (currentMappingInfo != null)
             {
                 String[] splittedLine = splitAndCheck(line, ":", 2, factory);
-                String propertyTypeCode = check(splittedLine[0], factory, "property type code");
+                String propertyTypeCode =
+                        trimeAndCheck(splittedLine[0], factory, "property type code");
                 currentMappingInfo.addPropertyMapping(propertyTypeCode, splittedLine[1].trim());
             } else
             {
@@ -301,13 +303,14 @@ public class MaterialReportingTask implements IMaintenanceTask
         return splittedString;
     }
 
-    private static String check(String string, ExecptionFactory factory, String name)
+    private static String trimeAndCheck(String string, ExecptionFactory factory, String name)
     {
-        if (string.length() == 0)
+        String trimmedString = string.trim();
+        if (trimmedString.length() == 0)
         {
-            throw factory.exception("Missing " + name);
+            throw factory.exception("Missing " + name + ".");
         }
-        return string;
+        return trimmedString;
     }
 
     private static final class ExecptionFactory
@@ -328,7 +331,7 @@ public class MaterialReportingTask implements IMaintenanceTask
         ConfigurationFailureException exception(String message)
         {
             return new ConfigurationFailureException("Error in mapping file '" + mappingFileName
-                    + "' at line " + (lineIndex + 1) + " '" + line + "']: " + message);
+                    + "' at line " + (lineIndex + 1) + " '" + line + "': " + message);
         }
     }
 
