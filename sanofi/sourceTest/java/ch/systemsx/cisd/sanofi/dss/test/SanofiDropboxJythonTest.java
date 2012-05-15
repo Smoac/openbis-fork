@@ -138,7 +138,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final DataSetType ANALYSIS_DATA_SET_TYPE = new DataSetType(
             "HCS_ANALYSIS_WELL_FEATURES");
 
-    private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
+    private static final String SANOFI_EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
 
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
 
@@ -921,7 +921,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private Sample createPlate(String libraryTemplate, String plateGeometry)
     {
         ExperimentBuilder experimentBuilder = new ExperimentBuilder();
-        experimentBuilder.identifier(EXPERIMENT_IDENTIFIER);
+        experimentBuilder.identifier(SANOFI_EXPERIMENT_IDENTIFIER);
         experimentBuilder.property(LIBRARY_TEMPLATE_PROPNAME, libraryTemplate);
         String recipients = StringUtils.join(Arrays.asList(USER_EMAILS), ",");
         experimentBuilder.property(EXPERIMENT_RECIPIENTS_PROPNAME, recipients);
