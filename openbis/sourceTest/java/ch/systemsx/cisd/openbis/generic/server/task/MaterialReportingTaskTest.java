@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
@@ -67,6 +68,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private File mappingFile;
 
+    private Properties properties;
+
     @BeforeMethod
     public void setUpMocks() throws Exception
     {
@@ -82,10 +85,16 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         databaseName = dbConfigContext.getDatabaseName();
         dropTestDatabase();
         createTestDatabase();
-        createTables("create table report1 (code varchar(20), description varchar(200))",
+        createTables(
+                "create table report1 (id bigint, code varchar(20), description varchar(200))",
                 "create table report2 (code varchar(20), prop1 varchar(200), prop2 varchar(200))");
         dbConfigContext.closeConnections();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
+        properties = new Properties();
+        properties.setProperty("database-driver", "org.postgresql.Driver");
+        properties.setProperty("database-url", "jdbc:postgresql://localhost/" + databaseName);
+        properties.setProperty("database-username", "postgres");
+        properties.setProperty(MaterialReportingTask.MAPPING_FILE_KEY, mappingFile.getPath());
     }
 
     @AfterMethod
@@ -100,15 +109,15 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     public void testReadValidMappingFile() throws SQLException
     {
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[ T1 :  TABLE1 , CODE ]\n\n"
-                + "[T2: TABLE2, code]\n  P2 : prop2   \n P1 :  prop1  ");
+                + "[T2: TABLE2, code]\n  P2 : Prop2   \n P1 :  PROP1  ");
 
         Map<String, MappingInfo> mapping =
                 MaterialReportingTask.readMappingFile(mappingFile.getPath());
 
         MappingInfo mappingInfo1 = mapping.get("T1");
-        assertEquals("insert into TABLE1 (CODE) values(?)", mappingInfo1.createInsertStatement());
+        assertEquals("insert into table1 (code) values(?)", mappingInfo1.createInsertStatement());
         MappingInfo mappingInfo2 = mapping.get("T2");
-        assertEquals("insert into TABLE2 (code, prop1, prop2) values(?, ?, ?)",
+        assertEquals("insert into table2 (code, prop1, prop2) values(?, ?, ?)",
                 mappingInfo2.createInsertStatement());
         assertEquals(2, mapping.size());
     }
@@ -259,15 +268,68 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testDatabaseMetaDataMissingCodeColumn() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,C]");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Missing column 'c' in table 'report1' of report database.",
+                    ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testDatabaseMetaDataMissingTable() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT3,C]");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Missing table 'report3' in report database.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testDatabaseMetaDataCodeColumnOfWrongType() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,ID]");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'id' of table 'report1' is not of type VARCHAR.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testDatabaseMetaDataMissingPropertyColumn() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:my_prop");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Missing column 'my_prop' in table 'report2' of report database.",
+                    ex.getMessage());
+        }
+    }
+
+    @Test
     public void test() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
                 + "[T2: REPORT2, code]\nP2: prop2\nP1:prop1");
-        Properties properties = new Properties();
-        properties.setProperty("database-driver", "org.postgresql.Driver");
-        properties.setProperty("database-url", "jdbc:postgresql://localhost/" + databaseName);
-        properties.setProperty("database-username", "postgres");
-        properties.setProperty(MaterialReportingTask.MAPPING_FILE_KEY, mappingFile.getPath());
         materialReportingTask.setUp("", properties);
         final Material m1 =
                 new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
@@ -295,7 +357,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         List<?> result =
                 new JdbcTemplate(dbConfigContext.getDataSource()).query("select * from report1",
                         new ColumnMapRowMapper());
-        assertEquals("[{code=M1, description=null}]", result.toString());
+        assertEquals("[{id=null, code=M1, description=null}]", result.toString());
         result =
                 new JdbcTemplate(dbConfigContext.getDataSource()).query(
                         "select * from report2 order by code", new ColumnMapRowMapper());

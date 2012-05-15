@@ -17,23 +17,33 @@
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.DatabaseMetaDataCallback;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -43,6 +53,7 @@ import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -51,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Task which feeds a reporting database with recently added/changed Materials.
@@ -65,13 +77,15 @@ public class MaterialReportingTask implements IMaintenanceTask
     @Private
     static final class MappingInfo
     {
-        private static final class NameAndIndex
+        private static final class Column
         {
             private final String name;
 
             private final int index;
 
-            NameAndIndex(String name, int index)
+            private DataTypeCode dataTypeCode;
+
+            Column(String name, int index)
             {
                 this.name = name;
                 this.index = index;
@@ -84,8 +98,7 @@ public class MaterialReportingTask implements IMaintenanceTask
 
         private final String codeColumnName;
 
-        private final Map<String, NameAndIndex> propertyMapping =
-                new TreeMap<String, NameAndIndex>();
+        private final Map<String, Column> propertyMapping = new TreeMap<String, Column>();
 
         MappingInfo(String materialTypeCode, String tableName, String codeColumnName)
         {
@@ -94,17 +107,54 @@ public class MaterialReportingTask implements IMaintenanceTask
             this.codeColumnName = codeColumnName;
         }
 
+        String getTableName()
+        {
+            return tableName;
+        }
+
+        String getCodeColumnName()
+        {
+            return codeColumnName;
+        }
+
         void addPropertyMapping(String propertyTypeCode, String propertyColumnName)
         {
-            propertyMapping.put(propertyTypeCode, new NameAndIndex(propertyColumnName,
-                    propertyMapping.size()));
+            Column column = new Column(propertyColumnName, propertyMapping.size());
+            propertyMapping.put(propertyTypeCode, column);
+        }
+
+        void injectDataTypeCodes(Map<String, DataTypeCode> columns)
+        {
+            DataTypeCode codeColumnType = columns.remove(codeColumnName);
+            if (codeColumnType == null)
+            {
+                throw new EnvironmentFailureException("Missing column '" + codeColumnName
+                        + "' in table '" + tableName + "' of report database.");
+            }
+            if (codeColumnType.equals(DataTypeCode.VARCHAR) == false)
+            {
+                throw new EnvironmentFailureException("Column '" + codeColumnName + "' of table '"
+                        + tableName + "' is not of type VARCHAR.");
+            }
+            Collection<Column> values = propertyMapping.values();
+            for (Column column : values)
+            {
+                DataTypeCode dataTypeCode = columns.get(column.name);
+                if (dataTypeCode == null)
+                {
+                    throw new EnvironmentFailureException("Missing column '" + column.name
+                            + "' in table '" + tableName + "' of report database.");
+                }
+                column.dataTypeCode = dataTypeCode;
+            }
+
         }
 
         String createInsertStatement()
         {
             StringBuilder builder = new StringBuilder("insert into ").append(tableName);
             builder.append(" (").append(codeColumnName);
-            for (NameAndIndex nameAndIndex : propertyMapping.values())
+            for (Column nameAndIndex : propertyMapping.values())
             {
                 builder.append(", ").append(nameAndIndex.name);
             }
@@ -133,7 +183,7 @@ public class MaterialReportingTask implements IMaintenanceTask
                         for (IEntityProperty property : properties)
                         {
                             String code = property.getPropertyType().getCode();
-                            NameAndIndex nameAndIndex = propertyMapping.get(code);
+                            Column nameAndIndex = propertyMapping.get(code);
                             if (nameAndIndex != null)
                             {
                                 ps.setObject(nameAndIndex.index + 2, property.tryGetAsString());
@@ -158,6 +208,8 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private SimpleDatabaseConfigurationContext dbConfigurationContext;
 
+    private JdbcTemplate jdbcTemplate;
+
     public MaterialReportingTask()
     {
         this(CommonServiceProvider.getCommonServer());
@@ -177,6 +229,68 @@ public class MaterialReportingTask implements IMaintenanceTask
         // "write-timestamp-sql");
         String mappingFileName = PropertyUtils.getMandatoryProperty(properties, MAPPING_FILE_KEY);
         mapping = readMappingFile(mappingFileName);
+        Map<String, Map<String, DataTypeCode>> metaData = retrieveDatabaseMetaData();
+        for (MappingInfo mappingInfo : mapping.values())
+        {
+            String tableName = mappingInfo.getTableName();
+            Map<String, DataTypeCode> columns = metaData.get(tableName);
+            if (columns == null)
+            {
+                throw new EnvironmentFailureException("Missing table '" + tableName
+                        + "' in report database.");
+            }
+            mappingInfo.injectDataTypeCodes(columns);
+        }
+        jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
+    }
+
+    private Map<String, Map<String, DataTypeCode>> retrieveDatabaseMetaData()
+    {
+        Collection<MappingInfo> values = mapping.values();
+        final Set<String> tableNames = new HashSet<String>();
+        for (MappingInfo mappingInfo : values)
+        {
+            tableNames.add(mappingInfo.getTableName());
+        }
+        try
+        {
+            final Map<String, Map<String, DataTypeCode>> map =
+                    new HashMap<String, Map<String, DataTypeCode>>();
+            JdbcUtils.extractDatabaseMetaData(dbConfigurationContext.getDataSource(),
+                    new DatabaseMetaDataCallback()
+                        {
+
+                            public Object processMetaData(DatabaseMetaData metaData)
+                                    throws SQLException, MetaDataAccessException
+                            {
+                                ResultSet rs = metaData.getColumns(null, null, null, null);
+                                while (rs.next())
+                                {
+                                    String tableName = rs.getString("TABLE_NAME").toLowerCase();
+                                    if (tableNames.contains(tableName))
+                                    {
+                                        Map<String, DataTypeCode> columns = map.get(tableName);
+                                        if (columns == null)
+                                        {
+                                            columns = new TreeMap<String, DataTypeCode>();
+                                            map.put(tableName, columns);
+                                        }
+                                        String columnName =
+                                                rs.getString("COLUMN_NAME").toLowerCase();
+                                        DataTypeCode dataTypeCode =
+                                                DataTypeUtils.getDataTypeCode(rs
+                                                        .getInt("DATA_TYPE"));
+                                        columns.put(columnName, dataTypeCode);
+                                    }
+                                }
+                                return null;
+                            }
+                        });
+            return map;
+        } catch (MetaDataAccessException ex)
+        {
+            throw new ConfigurationFailureException("Couldn't retrieve meta data of database.", ex);
+        }
     }
 
     @Private
@@ -197,21 +311,29 @@ public class MaterialReportingTask implements IMaintenanceTask
         }
         String sessionToken = contextOrNull.getSessionToken();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
         Map<String, List<Material>> materialsByType =
                 getRecentlyAddedOrChangedMaterials(sessionToken);
         for (Entry<String, List<Material>> entry : materialsByType.entrySet())
         {
             String materialTypeCode = entry.getKey();
             final List<Material> materials = entry.getValue();
-            MappingInfo mappingInfo = mapping.get(materialTypeCode);
-            if (mappingInfo != null)
-            {
-                String insertStatement = mappingInfo.createInsertStatement();
-                jdbcTemplate.batchUpdate(insertStatement, mappingInfo.createSetter(materials));
-            }
+            addAndUpdate(materialTypeCode, materials);
         }
-        operationLog.info(materialsByType.size() + " materials reported.");
+    }
+
+    private void addAndUpdate(String materialTypeCode, final List<Material> materials)
+    {
+        MappingInfo mappingInfo = mapping.get(materialTypeCode);
+        if (mappingInfo != null)
+        {
+            List<?> rows =
+                    jdbcTemplate.query("select * from " + mappingInfo.getTableName(),
+                            new ColumnMapRowMapper());
+            String insertStatement = mappingInfo.createInsertStatement();
+            jdbcTemplate.batchUpdate(insertStatement, mappingInfo.createSetter(materials));
+            operationLog.info(materials.size() + " materials of type " + materialTypeCode
+                    + " reported.");
+        }
     }
 
     private Map<String, List<Material>> getRecentlyAddedOrChangedMaterials(String sessionToken)
@@ -220,7 +342,7 @@ public class MaterialReportingTask implements IMaintenanceTask
         DetailedSearchCriterion criterion =
                 new DetailedSearchCriterion(
                         DetailedSearchField
-                                .createAttributeField(MaterialAttributeSearchFieldKind.MODIFICATION_DATE_UNTIL),
+                                .createAttributeField(MaterialAttributeSearchFieldKind.MODIFICATION_DATE),
                         CompareType.MORE_THAN_OR_EQUAL, readTimestamp(), "0");
         criteria.setCriteria(Arrays.asList(criterion));
         criteria.setConnection(SearchCriteriaConnection.MATCH_ALL);
@@ -242,7 +364,7 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private String readTimestamp()
     {
-        return "2012-02-22";
+        return "2012-02-22 10:33:44.6667";
     }
 
     @Private
@@ -274,14 +396,17 @@ public class MaterialReportingTask implements IMaintenanceTask
                 splittedLine = splitAndCheck(splittedLine[1], ",", 2, factory);
                 String tableName = trimeAndCheck(splittedLine[0], factory, "table name");
                 String codeColumnName = trimeAndCheck(splittedLine[1], factory, "code column name");
-                currentMappingInfo = new MappingInfo(materialTypeCode, tableName, codeColumnName);
+                currentMappingInfo =
+                        new MappingInfo(materialTypeCode, tableName.toLowerCase(),
+                                codeColumnName.toLowerCase());
                 map.put(materialTypeCode, currentMappingInfo);
             } else if (currentMappingInfo != null)
             {
                 String[] splittedLine = splitAndCheck(line, ":", 2, factory);
                 String propertyTypeCode =
                         trimeAndCheck(splittedLine[0], factory, "property type code");
-                currentMappingInfo.addPropertyMapping(propertyTypeCode, splittedLine[1].trim());
+                currentMappingInfo.addPropertyMapping(propertyTypeCode, splittedLine[1].trim()
+                        .toLowerCase());
             } else
             {
                 throw factory.exception("Missing first material type table definition of form "

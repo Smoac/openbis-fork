@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import org.springframework.jdbc.support.JdbcUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -49,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
@@ -81,35 +80,6 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
     private static EntityKind tryGetEntityKind(String columnName)
     {
         return entityKindByColumnName.get(columnName.toUpperCase());
-    }
-
-    private static DataTypeCode getDataTypeCode(int sqlType)
-    {
-        if (isInteger(sqlType))
-        {
-            return DataTypeCode.INTEGER;
-        }
-        if (isReal(sqlType))
-        {
-            return DataTypeCode.REAL;
-        }
-        if (Types.DATE == sqlType || Types.TIMESTAMP == sqlType)
-        {
-            return DataTypeCode.TIMESTAMP;
-        }
-        return DataTypeCode.VARCHAR;
-    }
-
-    private static boolean isInteger(int sqlType)
-    {
-        return Types.BIGINT == sqlType || Types.INTEGER == sqlType || Types.SMALLINT == sqlType
-                || Types.TINYINT == sqlType;
-    }
-
-    private static boolean isReal(int sqlType)
-    {
-        return Types.DECIMAL == sqlType || Types.DOUBLE == sqlType || Types.FLOAT == sqlType
-                || Types.NUMERIC == sqlType || Types.REAL == sqlType;
     }
 
     public DAO(DataSource dataSource)
@@ -162,7 +132,8 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                             }
                             TableModelColumnHeader header =
                                     new TableModelColumnHeader(columnName, id, i - 1);
-                            header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
+                            header.setDataType(DataTypeUtils.getDataTypeCode(metaData
+                                    .getColumnType(i)));
                             header.setEntityKind(entityKindOrNull);
                             headers.add(header);
                         }

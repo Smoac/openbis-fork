@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.Serializable;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -191,6 +192,38 @@ public class DataTypeUtils
             return DataTypeCode.TIMESTAMP;
         }
         return DataTypeCode.VARCHAR;
+    }
+
+    /**
+     * Translates {@link java.sql.Types} codes into {@link DataTypeCode}.
+     */
+    public static DataTypeCode getDataTypeCode(int sqlType)
+    {
+        if (isInteger(sqlType))
+        {
+            return DataTypeCode.INTEGER;
+        }
+        if (isReal(sqlType))
+        {
+            return DataTypeCode.REAL;
+        }
+        if (Types.DATE == sqlType || Types.TIMESTAMP == sqlType)
+        {
+            return DataTypeCode.TIMESTAMP;
+        }
+        return DataTypeCode.VARCHAR;
+    }
+
+    private static boolean isInteger(int sqlType)
+    {
+        return Types.BIGINT == sqlType || Types.INTEGER == sqlType || Types.SMALLINT == sqlType
+                || Types.TINYINT == sqlType;
+    }
+
+    private static boolean isReal(int sqlType)
+    {
+        return Types.DECIMAL == sqlType || Types.DOUBLE == sqlType || Types.FLOAT == sqlType
+                || Types.NUMERIC == sqlType || Types.REAL == sqlType;
     }
 
     private DataTypeUtils()
