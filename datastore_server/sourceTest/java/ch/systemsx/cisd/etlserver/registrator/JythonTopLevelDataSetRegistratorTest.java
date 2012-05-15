@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.jmock.Expectations;
-import org.jmock.api.ExpectationError;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
@@ -56,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -81,20 +79,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 {
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
-
-    private static final String DATA_SET_CODE = "data-set-code";
-
-    private static final String DATA_SET_CODE_1 = "data-set-code-1";
-
-    private static final String CONTAINER_DATA_SET_CODE = "container-data-set-code";
-
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
-
-    private static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
-
-    private static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
-
-    private static final String SAMPLE_PERM_ID = "sample-perm-id";
 
     @BeforeMethod
     @Override
@@ -212,7 +196,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
-        // TODO: In this case should it be "invalid dataset error" or what?
         testCase = new TestCaseParameters("The validation error with DELETE on error.");
         for (String error : allErrors)
         {
@@ -336,6 +319,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return resultsList;
     }
 
+    //INFO: testCase parameters
+    
     /**
      * Parameters for the single run of the testSimpleTransaction
      * 
@@ -443,6 +428,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
     }
 
+    //INFO: test simple transaction
     @Test(dataProvider = "simpleTransactionTestCaseProvider")
     public void testSimpleTransaction(final TestCaseParameters testCase)
     {
@@ -463,12 +449,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             createDataWithOneSubDataSet();
         }
 
-        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
-        final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
-        context.checking(getSimpleTransactionExpectations(testCase, experiment, atomicatOperationDetails));
+        context.checking(getSimpleTransactionExpectations(testCase, atomicatOperationDetails));
 
         if (testCase.shouldThrowExceptionDuringRegistration)
         {
@@ -533,9 +517,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     public Expectations getSimpleTransactionExpectations(
             final TestCaseParameters testCase,
-            final Experiment experiment,
-            final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails)
+            final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
     {
+        final Experiment experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).getExperiment();
         return new Expectations()
             {
                 {

@@ -48,6 +48,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
@@ -96,6 +97,21 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected File subDataSet2;
 
+    protected static final String DATA_SET_CODE = "data-set-code";
+
+    protected static final String DATA_SET_CODE_1 = "data-set-code-1";
+
+    protected static final String CONTAINER_DATA_SET_CODE = "container-data-set-code";
+
+    protected static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
+
+    protected static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
+
+    protected static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
+
+    protected static final String SAMPLE_PERM_ID = "sample-perm-id";
+
+    
     @BeforeTest
     public void init()
     {

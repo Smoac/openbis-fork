@@ -48,12 +48,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
 
-    private static final String DATA_SET_CODE = "data-set-code";
-
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
-
-    private static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
-
     @BeforeMethod
     @Override
     public void setUp() throws IOException

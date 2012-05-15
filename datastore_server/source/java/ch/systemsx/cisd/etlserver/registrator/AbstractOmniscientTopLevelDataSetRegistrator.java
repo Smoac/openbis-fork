@@ -322,55 +322,54 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Setup necessary for data set handling is done, then the handleDataSet method (a subclass
      * responsibility) is invoked.
      */
-    public final void handle(File incomingDataSetFileOrIsFinishedFile)
+    public final void handle(final File incomingDataSetFileOrIsFinishedFile)
     {
         if (stopped)
         {
             return;
         }
 
-        if (isRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile))
+        // get the original incoming dataset file
+        final File incomingDataSetFile =
+                getGlobalState().isUseIsFinishedMarkerFile() ? state.getMarkerFileUtility()
+                        .getIncomingDataSetPathFromMarker(incomingDataSetFileOrIsFinishedFile)
+                        : incomingDataSetFileOrIsFinishedFile;
+
+        if (isRecoveryMarkerFile(incomingDataSetFile))
         {
-            handleRecovery(incomingDataSetFileOrIsFinishedFile);
+            handleRecovery(incomingDataSetFile);
             return;
-        } else if (hasRecoveryMarkerFile(incomingDataSetFileOrIsFinishedFile))
+        } else if (hasRecoveryMarkerFile(incomingDataSetFile))
         {
             operationLog.info("Ignore file, as the recovery marker exists for it: "
-                    + incomingDataSetFileOrIsFinishedFile.getAbsolutePath());
+                    + incomingDataSetFile.getAbsolutePath());
             // will handle only the recovery file - don't do anything
             return;
-        } else if (false == incomingDataSetFileOrIsFinishedFile.exists())
+        } else if (false == incomingDataSetFile.exists())
         {
-            operationLog.info("The file doesn't exist: "
-                    + incomingDataSetFileOrIsFinishedFile.getAbsolutePath());
+            operationLog.info("The file doesn't exist: " + incomingDataSetFile.getAbsolutePath());
             // it can mean that the recovery has already cleaned this file
             return;
         }
 
-        final File isFinishedFile = incomingDataSetFileOrIsFinishedFile;
-        final File incomingDataSetFile;
         final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
 
         // Figure out what the real incoming data is -- if we use a marker file, it will tell us the
         // name
         if (getGlobalState().isUseIsFinishedMarkerFile())
         {
-            incomingDataSetFile =
-                    state.getMarkerFileUtility().getIncomingDataSetPathFromMarker(isFinishedFile);
-
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
                     public Boolean execute(boolean didOperationSucceed)
                     {
                         boolean markerDeleteSucceeded =
                                 state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
-                                        isFinishedFile);
+                                        incomingDataSetFileOrIsFinishedFile);
                         return markerDeleteSucceeded;
                     }
                 };
         } else
         {
-            incomingDataSetFile = incomingDataSetFileOrIsFinishedFile;
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
@@ -492,8 +491,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
-        // TODO: cleanup also with the incoming marker file
-
+        // TODO: cleanup also with the incoming marker file, or are we guaranteed that the marker
+        // file is gone at this step.
+        // then we should ensure that the recovery will actually take place itself!
         final File recoveryFile =
                 state.getGlobalState().getStorageRecoveryManager()
                         .getRecoveryFileFromMarker(recoveryMarkerFile);
@@ -596,7 +596,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                                 .getGlobalState().getStagingDir());
 
                 recoveryState.getRollbackStack().setLockedState(false);
-                
+
                 recoveryState.getRollbackStack().rollbackAll(rollbackStackDelegate);
                 UnstoreDataAction action =
                         state.getOnErrorActionDecision().computeUndoAction(
@@ -619,6 +619,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 logger.registerSuccess();
                 registrationSuccessful = true;
             }
+        } catch (org.jmock.api.ExpectationError r)
+        {
+            // this exception can by only thrown by tests.
+            // propagation of the exception is essential to test some functionalities
+            throw r;
         } catch (Throwable error)
         {
             System.err.println("Caught an error! " + error);
