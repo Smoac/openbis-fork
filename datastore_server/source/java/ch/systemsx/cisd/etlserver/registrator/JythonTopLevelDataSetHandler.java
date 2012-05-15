@@ -304,6 +304,33 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeDidEncounterSecondaryTransactionErrorsFunction(service, transaction, secondaryErrors);
     }
 
+    
+    //getters for v2 hook functions required for auto-recovery
+    public PyFunction tryGetPostRegistrationFunction(DataSetRegistrationService<T> service)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function =
+                tryJythonFunction(interpreter, JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
+        return function;
+    }
+    
+    public PyFunction tryGetPostStorageFunction(DataSetRegistrationService<T> service)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function =
+                tryJythonFunction(interpreter, JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
+        return function;
+    }
+
+    public PyFunction getRollbackPreRegistrationFunction(DataSetRegistrationService<T> service)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function =
+                tryJythonFunction(interpreter,
+                        JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
+        return function;
+    }
+    
     /**
      * If true than the old methods of jython hook functions will also be used (as a fallbacks in
      * case of the new methods or missing, or normally)
@@ -317,17 +344,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-
-        PyFunction function =
-                tryJythonFunction(interpreter,
-                        JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
+        PyFunction function = getRollbackPreRegistrationFunction(service);
 
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction, ex);
         } else if (shouldUseOldJythonHookFunctions())
         {
+            PythonInterpreter interpreter = getInterpreterFromService(service);
+
             function =
                     tryJythonFunction(interpreter,
                             JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
@@ -355,9 +380,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationTransaction<T> transaction)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
-
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
+        
+        PyFunction function = tryGetPostStorageFunction(service);
+        
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
@@ -389,14 +414,13 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction)
     {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
+        PyFunction function = tryGetPostRegistrationFunction(service);
         if (null != function)
         {
             invokeTransactionFunctionWithContext(function, service, transaction);
         }
     }
+
 
     private void invokeDidEncounterSecondaryTransactionErrorsFunction(
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
