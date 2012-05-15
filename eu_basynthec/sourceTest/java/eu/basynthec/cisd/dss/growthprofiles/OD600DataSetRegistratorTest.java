@@ -37,7 +37,7 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
  */
 public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("OD600");
+    private static final DataSetType OD600 = new DataSetType("OD600");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -48,7 +48,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
         createData("OD600-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE,
+                setUpDataSetRegistrationExpectations(OD600,
                         TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
 
         handler.handle(markerFile);
@@ -66,7 +66,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(OD600, dataSet.getDataSetType());
 
         HashMap<String, NewProperty> propertyMap =
                 getDataSetPropertiesMap(dataSet.getDataSetProperties());

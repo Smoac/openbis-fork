@@ -34,7 +34,7 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
  */
 public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType(
+    private static final DataSetType METABOLITE_INTENSITIES_GROUPED = new DataSetType(
             "METABOLITE_INTENSITIES_GROUPED");
 
     @Test
@@ -46,7 +46,7 @@ public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSe
         createData("Metabolomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE, TSV_DATA_SET_TYPE);
+                setUpDataSetRegistrationExpectations(METABOLITE_INTENSITIES_GROUPED, TSV_DATA_SET_TYPE);
 
         handler.handle(markerFile);
 
@@ -61,7 +61,7 @@ public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSe
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(METABOLITE_INTENSITIES_GROUPED, dataSet.getDataSetType());
 
         HashMap<String, NewProperty> propertyMap =
                 getDataSetPropertiesMap(dataSet.getDataSetProperties());

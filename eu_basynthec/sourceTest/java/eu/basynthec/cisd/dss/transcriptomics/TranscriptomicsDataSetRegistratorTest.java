@@ -37,7 +37,7 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
  */
 public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("TRANSCRIPTOMICS");
+    private static final DataSetType TRANSCRIPTOMICS = new DataSetType("TRANSCRIPTOMICS");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -48,7 +48,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         createData("Transcriptomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE,
+                setUpDataSetRegistrationExpectations(TRANSCRIPTOMICS,
                         TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
 
         handler.handle(markerFile);
@@ -66,7 +66,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(TRANSCRIPTOMICS, dataSet.getDataSetType());
 
         HashMap<String, NewProperty> propertyMap =
                 getDataSetPropertiesMap(dataSet.getDataSetProperties());

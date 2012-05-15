@@ -35,7 +35,7 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
 public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
 
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("PROTEIN_QUANTIFICATIONS");
+    private static final DataSetType PROTEIN_QUANTIFICATIONS = new DataSetType("PROTEIN_QUANTIFICATIONS");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -46,7 +46,7 @@ public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRe
         createData("Proteomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE, TSV_DATA_SET_TYPE);
+                setUpDataSetRegistrationExpectations(PROTEIN_QUANTIFICATIONS, TSV_DATA_SET_TYPE);
 
         handler.handle(markerFile);
 
@@ -61,7 +61,7 @@ public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRe
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(PROTEIN_QUANTIFICATIONS, dataSet.getDataSetType());
 
         HashMap<String, NewProperty> propertyMap =
                 getDataSetPropertiesMap(dataSet.getDataSetProperties());
