@@ -1,6 +1,6 @@
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/all-hooks.py")
 
-def post_metadata_registration(transaction, context, unnecessary_argument):
+def post_metadata_registration(context, unnecessary_argument):
     global didPostRegistrationFunctionRunHappen
     didPostRegistrationFunctionRunHappen = True
 

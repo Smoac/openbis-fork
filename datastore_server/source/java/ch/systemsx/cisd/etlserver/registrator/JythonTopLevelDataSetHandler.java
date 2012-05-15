@@ -65,19 +65,19 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         /**
          * The name of the function called after successful transaction commit.
          */
-        POST_STORAGE_FUNCTION_NAME("post_storage", 2),
+        POST_STORAGE_FUNCTION_NAME("post_storage", 1),
 
         /**
          * The name of the function called just before registration of datasets in application
          * server.
          */
-        PRE_REGISTRATION_FUNCTION_NAME("pre_metadata_registration", 2),
+        PRE_REGISTRATION_FUNCTION_NAME("pre_metadata_registration", 1),
 
         /**
          * The name of the function called just after successful registration of datasets in
          * application server.
          */
-        POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 2),
+        POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 1),
 
         /**
          * The name of the function called when secondary transactions, DynamicTransactionQuery
@@ -410,7 +410,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         {
             return null;
         }
-
     }
 
     private void invokeRollbackServiceFunction(PyFunction function,
@@ -435,7 +434,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private void invokeTransactionFunctionWithContext(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
-        invokeFuncion(service, function, transaction, transaction.getTransactionPersistentMap());
+        invokeFuncion(service, function, transaction.getTransactionPersistentMap());
     }
 
     private void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,

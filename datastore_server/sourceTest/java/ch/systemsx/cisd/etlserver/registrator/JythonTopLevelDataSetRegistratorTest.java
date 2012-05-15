@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.jmock.Expectations;
+import org.jmock.api.ExpectationError;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
@@ -307,6 +308,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase = new TestCaseParameters("Two transactions fail in V2.");
         testCase.dropboxScriptPath = "testcase-double-transaction.py";
         testCase = versionV2(testCase);
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
+        testCases.add(testCase);
+
+        testCase =
+                new TestCaseParameters(
+                        "Script dying because of non-serialized argument put to the map");
+        testCase = versionV2(testCase);
+        testCase.dropboxScriptPath = "testcase-registration-context-invalid-data.py";
         testCase.shouldThrowExceptionDuringRegistration = true;
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCases.add(testCase);
@@ -630,6 +640,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 fail("Expected an exception.");
             } catch (Exception exception)
             {
+                Throwable t = isErrorCausedByUnexpectedInvocation(exception);
+                if (t != null)
+                {
+                    throw new RuntimeException("Extracted unexpected invocation error "+t.getMessage(), t);
+                }
+                
                 if (testCase.exceptionAcceptor != null)
                 {
                     assertTrue("Exception " + exception + "was not accepted by validator",
@@ -803,6 +819,22 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             assertFalse(handler.getExpectations().didPostStorageFunctionRunHappen);
 
         }
+    }
+
+    /**
+     * returns true if error was caused by unexpected invocation.
+     */
+    private Throwable isErrorCausedByUnexpectedInvocation(Throwable t)
+    {
+        if (t == null)
+        {
+            return null;
+        }
+        if (t instanceof ExpectationError)
+        {
+            return t;
+        }
+        return isErrorCausedByUnexpectedInvocation(t.getCause());
     }
 
     @Test

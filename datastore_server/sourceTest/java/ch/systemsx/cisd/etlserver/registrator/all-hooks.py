@@ -6,14 +6,14 @@ def commit_transaction(service, transaction):
     global didTransactionCommitHappen
     didTransactionCommitHappen = True
 
-def post_storage(transaction, context):
+def post_storage(context):
     global didPostStorageFunctionRunHappen
     didPostStorageFunctionRunHappen = True
 
-def pre_metadata_registration(transaction, context):
+def pre_metadata_registration(context):
     global didPreRegistrationFunctionRunHappen
     didPreRegistrationFunctionRunHappen = True
 
-def post_metadata_registration(transaction, context):
+def post_metadata_registration(context):
     global didPostRegistrationFunctionRunHappen
     didPostRegistrationFunctionRunHappen = True

@@ -9,7 +9,7 @@ def rollback_transaction(service, transaction, algorithmRunner, throwable):
     global didTransactionRollbackHappen
     didTransactionRollbackHappen = True
 
-def pre_metadata_registration(transaction, context):
+def pre_metadata_registration(context):
     
     assert_context_content(context, "pre_metadata_registration", "body", "1");
     assert_context_content(context, "pre_metadata_registration", "pre_metadata_registration", None);
@@ -19,7 +19,7 @@ def pre_metadata_registration(transaction, context):
     global didPreRegistrationFunctionRunHappen
     didPreRegistrationFunctionRunHappen = True
 
-def post_metadata_registration(transaction, context):
+def post_metadata_registration(context):
 
     assert_context_content(context, "post_metadata_registration", "body", "1");
     assert_context_content(context, "post_metadata_registration", "pre_metadata_registration", "2");
@@ -29,7 +29,7 @@ def post_metadata_registration(transaction, context):
     global didPostRegistrationFunctionRunHappen
     didPostRegistrationFunctionRunHappen = True
 
-def post_storage(transaction, context):
+def post_storage(context):
 
     assert_context_content(context, "post_storage", "body", "1");
     assert_context_content(context, "post_storage", "pre_metadata_registration", "2");
