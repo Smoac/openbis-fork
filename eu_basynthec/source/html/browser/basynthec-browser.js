@@ -172,6 +172,7 @@ AppPresenter.prototype.refreshDataSetTypeTables = function() {
 	metabolomicsView.updateView();
 	transcriptomicsView.updateView();
 	proteomicsView.updateView();
+	sequencesView.updateView();
 }
 
 AppPresenter.prototype.refreshOd600StrainTables = function() {
@@ -202,6 +203,7 @@ AppPresenter.prototype.createVis = function()
 	metabolomicsView = new DataSummaryView(dataSetTypeVis, "Metabolomics", "metabolomics", "METABOLITE_INTENSITIES");
 	transcriptomicsView = new DataSummaryView(dataSetTypeVis, "Transcriptomics", "transcriptomics", "TRANSCRIPTOMICS");
 	proteomicsView = new DataSummaryView(dataSetTypeVis, "Proteomics", "proteomics", "PROTEIN_QUANTIFICATIONS");
+	sequencesView = new DataSummaryView(dataSetTypeVis, "Sequences", "sequences", "SEQUENCE_CM5");
 	
 	// Initially hide the strain view -- it is activated by the radio button
 	strainVis = tableRoot.append("div").style("display", "none");
@@ -893,7 +895,7 @@ var model = new AppModel();
 var presenter = new AppPresenter();
 
 // The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView;
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView, sequencesView;
 
 // The strain visualization
 var strainVis, strainView;
