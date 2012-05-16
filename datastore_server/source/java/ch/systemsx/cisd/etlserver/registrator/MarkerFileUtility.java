@@ -56,6 +56,11 @@ public class MarkerFileUtility
         this.storeRootDirectory = storeRootDirectory;
     }
 
+    public static File getMarkerFileFromIncoming(final File incoming)
+    {
+        return new File(incoming.getParentFile(), IS_FINISHED_PREFIX + incoming.getName());
+    }
+    
     /**
      * From given <var>isFinishedPath</var> gets the incoming data set path and checks it.
      * 
@@ -64,8 +69,7 @@ public class MarkerFileUtility
      */
     public final File getIncomingDataSetPathFromMarker(final File isFinishedPath)
     {
-        final File incomingDataSetPath =
-                FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
+        final File incomingDataSetPath = getIncomingFromMarkerFile(isFinishedPath);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -81,6 +85,13 @@ public class MarkerFileUtility
                     "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath.getName(),
                     incomingDataSetPath.getParent(), storeRootDirectory, errorMsg));
         }
+        return incomingDataSetPath;
+    }
+
+    static File getIncomingFromMarkerFile(final File isFinishedPath)
+    {
+        final File incomingDataSetPath =
+                FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
         return incomingDataSetPath;
     }
 
