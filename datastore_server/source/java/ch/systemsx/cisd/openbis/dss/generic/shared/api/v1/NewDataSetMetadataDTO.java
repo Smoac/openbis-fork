@@ -100,7 +100,6 @@ public class NewDataSetMetadataDTO implements Serializable
 
     public void setProperties(Map<String, String> props)
     {
-        properties.clear();
         if (props != null)
         {
             properties.putAll(props);
