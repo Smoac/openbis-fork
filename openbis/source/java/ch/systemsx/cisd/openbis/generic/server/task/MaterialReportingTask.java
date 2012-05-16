@@ -425,6 +425,7 @@ public class MaterialReportingTask implements IMaintenanceTask
         {
             return;
         }
+        Date newTimestamp = new Date(timeProvider.getTimeInMilliseconds());
         operationLog.info("Start reporting added or changed materials to the report database.");
         Map<String, List<Material>> materialsByType =
                 getRecentlyAddedOrChangedMaterials(contextOrNull.getSessionToken());
@@ -438,7 +439,7 @@ public class MaterialReportingTask implements IMaintenanceTask
                 addOrUpdate(mappingInfo, materials);
             }
         }
-        writeTimestamp(new Date(timeProvider.getTimeInMilliseconds()));
+        writeTimestamp(newTimestamp);
         operationLog.info("Reporting finished.");
     }
 
