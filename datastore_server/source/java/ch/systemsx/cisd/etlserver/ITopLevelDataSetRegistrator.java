@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.concurrent.locks.Lock;
 
 import ch.systemsx.cisd.common.filesystem.IPathHandler;
+import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFaultyPathDirectoryScanningHandlerDelegate;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -28,7 +29,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
+public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable,
+        IFaultyPathDirectoryScanningHandlerDelegate
 {
     /**
      * A lock used to synchronize shutting down the processing thread of the top-level data set

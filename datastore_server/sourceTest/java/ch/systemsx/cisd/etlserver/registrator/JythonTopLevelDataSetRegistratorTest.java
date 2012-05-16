@@ -319,8 +319,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return resultsList;
     }
 
-    //INFO: testCase parameters
-    
+    // INFO: testCase parameters
+
     /**
      * Parameters for the single run of the testSimpleTransaction
      * 
@@ -428,7 +428,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
     }
 
-    //INFO: test simple transaction
+    // INFO: test simple transaction
     @Test(dataProvider = "simpleTransactionTestCaseProvider")
     public void testSimpleTransaction(final TestCaseParameters testCase)
     {
@@ -515,11 +515,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
-    public Expectations getSimpleTransactionExpectations(
-            final TestCaseParameters testCase,
+    public Expectations getSimpleTransactionExpectations(final TestCaseParameters testCase,
             final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
     {
-        final Experiment experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).getExperiment();
+        final Experiment experiment =
+                new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).getExperiment();
         return new Expectations()
             {
                 {
@@ -529,6 +529,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 protected void setupExpectations()
                 {
                     checkIfRecoveryFile();
+
+                    if (testCase.failurePoint != null
+                            && testCase.failurePoint
+                                    .compareTo(TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION) < 0)
+                    {
+                        cleanRecoveryCheckpoint(false);
+                    }
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.AT_THE_BEGINNING)
                     {
@@ -567,6 +574,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
                     {
+                        cleanRecoveryCheckpoint(true);
                         return;
                     }
 
@@ -582,6 +590,23 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     // unless this is a recovery testcase
                     one(storageRecoveryManager).isRecoveryFile(with(any(File.class)));
                     will(returnValue(false));
+                }
+
+                @SuppressWarnings("unchecked")
+                private void cleanRecoveryCheckpoint(boolean required)
+                {
+                    if (testCase.shouldUseAutoRecovery)
+                    {
+                        if (required)
+                        {
+                            one(storageRecoveryManager).removeCheckpoint(
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+                        } else
+                        {
+                            allowing(storageRecoveryManager).removeCheckpoint(
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+                        }
+                    }
                 }
 
                 protected void setStorageConfirmed()
@@ -816,7 +841,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         }
     }
-
 
     @Test
     public void testTwoSimpleDataSets()

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFaultyPathDirectoryScanningHandlerDelegate;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
@@ -325,7 +326,8 @@ public final class ETLDaemon
                         dataSourceQueryService, notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, threadParameters.reprocessFaultyDatasets());
+                        incomingDataDirectory, threadParameters.reprocessFaultyDatasets(),
+                        pathHandler);
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
                         parameters);
@@ -551,25 +553,28 @@ public final class ETLDaemon
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
             final IStopSignaler stopSignaler, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final File incomingDataDirectory, boolean reprocessFaultyDatasets)
+            final File incomingDataDirectory, boolean reprocessFaultyDatasets,
+            IFaultyPathDirectoryScanningHandlerDelegate faultyPathHandlerDelegate)
     {
         final IDirectoryScanningHandler faultyPathHandler =
                 createFaultyPathHandler(stopSignaler, incomingDataDirectory,
-                        reprocessFaultyDatasets);
+                        reprocessFaultyDatasets, faultyPathHandlerDelegate);
         return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
                 incomingDataDirectory);
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(
             final IStopSignaler stopSignaler, final File incomingDataDirectory,
-            boolean reprocessFaultyDatasets)
+            boolean reprocessFaultyDatasets,
+            IFaultyPathDirectoryScanningHandlerDelegate faultyPathHandlerDelegate)
     {
         if (reprocessFaultyDatasets)
         {
             return createDummyFaultyPathHandler();
         } else
         {
-            return new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler);
+            return new FaultyPathDirectoryScanningHandler(incomingDataDirectory, stopSignaler,
+                    faultyPathHandlerDelegate);
         }
     }
 
@@ -623,7 +628,9 @@ public final class ETLDaemon
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
-            QueueingPathRemoverService.start(DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()), shredderQueueFile);
+            QueueingPathRemoverService.start(
+                    DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()),
+                    shredderQueueFile);
         }
         if (QueueingDataSetStatusUpdaterService.isRunning() == false)
         {

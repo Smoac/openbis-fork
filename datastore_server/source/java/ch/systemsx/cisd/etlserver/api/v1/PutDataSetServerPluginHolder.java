@@ -86,4 +86,9 @@ public class PutDataSetServerPluginHolder extends AbstractTopLevelDataSetRegistr
         throw new NotImplementedException();
     }
 
+    public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
+    {
+        throw new NotImplementedException();
+    }
+
 }

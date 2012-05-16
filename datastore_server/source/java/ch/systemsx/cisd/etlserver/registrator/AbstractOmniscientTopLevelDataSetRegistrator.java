@@ -310,7 +310,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return state.getGlobalState().getStorageRecoveryManager().isRecoveryFile(incoming);
     }
 
-    private boolean hasRecoveryMarkerFile(File incoming)
+    protected boolean hasRecoveryMarkerFile(File incoming)
     {
         return new File(incoming.getAbsolutePath()
                 + IDataSetStorageRecoveryManager.PROCESSING_MARKER).exists();
@@ -362,10 +362,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 {
                     public Boolean execute(boolean didOperationSucceed)
                     {
-                        boolean markerDeleteSucceeded =
-                                state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
-                                        incomingDataSetFileOrIsFinishedFile);
-                        return markerDeleteSucceeded;
+                        if (hasRecoveryMarkerFile(incomingDataSetFile))
+                        {
+                            return true;
+                        }
+                        return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
+                                incomingDataSetFileOrIsFinishedFile);
                     }
                 };
         } else
@@ -487,7 +489,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     private void handleRecovery(final File recoveryMarkerFile)
     {
-        DataSetStoragePrecommitRecoveryState<T> recoveryState =
+        final DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
@@ -513,8 +515,19 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     {
                         public Boolean execute(boolean didOperationSucceed)
                         {
-                            recoveryMarkerFile.delete();
-                            recoveryFile.delete();
+                            if (didOperationSucceed)
+                            {
+                                File incomingMarkerFile =
+                                        MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
+                                                .getIncomingDataSetFile().getRealIncomingFile());
+                                if (incomingMarkerFile.exists())
+                                {
+                                    incomingMarkerFile.delete();
+                                }
+
+                                recoveryMarkerFile.delete();
+                                recoveryFile.delete();
+                            }
                             return true;
                         }
                     };

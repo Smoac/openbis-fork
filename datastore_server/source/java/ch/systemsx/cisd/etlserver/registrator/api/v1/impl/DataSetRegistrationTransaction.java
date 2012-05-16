@@ -446,18 +446,25 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
             Throwable ex, ErrorType errorType)
     {
+
         boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
-        useAutoRecovery =
-                useAutoRecovery
-                        && errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE
-                        && registrationService.getRegistratorContext().getGlobalState()
-                                .getStorageRecoveryManager().canRecoverFromError(ex);
-        if (useAutoRecovery)
+
+        IDataSetStorageRecoveryManager storageRecoveryManager =
+                registrationService.getRegistratorContext().getGlobalState()
+                        .getStorageRecoveryManager();
+        boolean canRecover =
+                useAutoRecovery && errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE
+                        && storageRecoveryManager.canRecoverFromError(ex);
+        if (useAutoRecovery && canRecover)
         {
             registrationService.registerNonFatalError(ex);
             state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
         } else
         {
+            if (useAutoRecovery)
+            {
+                storageRecoveryManager.removeCheckpoint(algorithm);
+            }
             rollback();
             registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
         }

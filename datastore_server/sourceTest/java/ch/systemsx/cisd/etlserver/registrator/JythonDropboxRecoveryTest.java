@@ -29,6 +29,8 @@ import org.jmock.Expectations;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -57,7 +59,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         LinkedList<RecoveryTestCase> testCases = new LinkedList<RecoveryTestCase>();
         RecoveryTestCase testCase;
 
-        testCase = new RecoveryTestCase("Basic recovery testcase");
+        testCase = new RecoveryTestCase("basic recovery succeeded");
+        testCases.add(testCase);
+
+        testCase = new RecoveryTestCase("basic unrecoverable");
+        testCase.canRecoverFromError = false;
         testCases.add(testCase);
 
         // result value
@@ -100,15 +106,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
          * If true than this registration has been succesfull. Which means that the recovery should
          * continue registration rather rollback.
          */
-        protected boolean registrationSuccesfull = true;
-
-        /**
-         * True if the registration should throw exception to the top level. With this setting the
-         * handler is said to throw all exception to the top level, so that we can catch them. To
-         * check how the system reacts to error's itself (like rollback mechanism) this should be
-         * set to false.
-         */
-        protected boolean shouldThrowExceptionDuringRegistration = true;
+        protected boolean registrationSuccessful = true;
 
         private RecoveryTestCase(String title)
         {
@@ -147,13 +145,32 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         // run the actual code
         handler.handle(markerFile);
+
         if (testCase.canRecoverFromError)
         {
-            File recoveryMarkerFile = getCreatedRecoveryMarkerFile();
+            File recoveryMarkerFile = assertRecoveryMarkerFile();
+            assertOriginalMarkerFileExists();
 
             handler.handle(recoveryMarkerFile);
+
+            //if failure happened here then don't expect recovery / marker files to be deleted
+            
+            if (testCase.registrationSuccessful )
+            {
+                //assert the item is in store and everything
+            }
+            else 
+            {
+                //nothing is is store, all is cleared
+            }
+            
+            assertNoOriginalMarkerFileExists();
+            assertNoRecoveryMarkerFile();
         } else
         {
+            assertNoOriginalMarkerFileExists();
+            assertNoRecoveryMarkerFile();
+            // assert there is no recovery file
             // rolllback requirementes
         }
 
@@ -166,6 +183,33 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     }
 
+    private void assertOriginalMarkerFileExists()
+    {
+        assertTrue(
+                "The original registration marker file should not be deleted when entering recovery mode",
+                markerFile.exists());
+    }
+
+    private void assertNoOriginalMarkerFileExists()
+    {
+        assertFalse(
+                "The original registration marker file should be deleted",
+                markerFile.exists());
+    }
+
+    private File assertRecoveryMarkerFile()
+    {
+        File file = getCreatedRecoveryMarkerFile();
+        assertTrue("The recovery marker file does not exist! " + file, file.exists());
+        return file;
+    }
+
+    private void assertNoRecoveryMarkerFile()
+    {
+        File file = getCreatedRecoveryMarkerFile();
+        assertTrue("The recovery marker file should not exist! " + file, false == file.exists());
+    }
+
     private File getCreatedRecoveryMarkerFile()
     {
         File originalIncoming =
@@ -173,8 +217,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         File recoveryMarkerFile =
                 new File(originalIncoming.getAbsolutePath()
                         + IDataSetStorageRecoveryManager.PROCESSING_MARKER);
-        assertTrue("The recovery marker file does not exist! " + recoveryMarkerFile,
-                recoveryMarkerFile.exists());
         return recoveryMarkerFile;
     }
 
@@ -210,7 +252,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 checkRegistrationSucceeded();
 
-                if (testCase.registrationSuccesfull)
+                if (testCase.registrationSuccessful)
                 {
                     setStorageConfirmed();
                 }
@@ -241,15 +283,24 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-            Exception e = new IllegalArgumentException("Failure in atomicOperationDetails");
+            Exception e;
+            if (testCase.canRecoverFromError)
+            {
+                e = new EnvironmentFailureException("Potentially recoverable failure in registration");
+            } else
+            {
+                e = new UserFailureException("Unrecoverable failure in registration");
+            }
+
             will(throwException(e));
 
         }
 
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         protected void checkRegistrationSucceeded()
         {
             one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
-            if (testCase.registrationSuccesfull)
+            if (testCase.registrationSuccessful)
             {
                 // with the current implemntation returning the non-empty list should be enough
                 List<ExternalData> externalDatas = (List) Arrays.asList(new Object());

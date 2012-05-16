@@ -710,6 +710,14 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         {
             return new DataSet<DataSetInformation>(registrationDetails, stagingFile, openBisService);
         }
+
+        /**
+         * V1 test -- any file can go into faulty paths.
+         */
+        public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
+        {
+            return false;
+        }
     }
 
     private void checkContentsOfFile(File dst)

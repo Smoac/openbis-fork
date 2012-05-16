@@ -32,7 +32,7 @@ public interface IRollbackStack
     
     /**
      * Sets the locked state of this rollback stack. Changing this state to true results in creating
-     * or deleting the marker file.
+     * or deleting the marker file. If already in a desired state - does nothing.
      */
     public void setLockedState(boolean lockedState);
     

@@ -347,7 +347,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             File incomingDataSetFile, final DataSetInformation dsInfo,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
-        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction = new AbstractDelegatedActionWithResult<Boolean>(true);
+        IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
+                new AbstractDelegatedActionWithResult<Boolean>(true);
         if (registrator != null)
         {
             return new OverridingRegistrationHelper(this, incomingDataSetFile, getGlobalState()
@@ -545,5 +546,13 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     public File getStoreRootDir()
     {
         return getGlobalState().getStoreRootDir();
+    }
+
+    /**
+     * Any path can be added to faulty paths as far as we are concerned.
+     */
+    public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
+    {
+        return false;
     }
 }

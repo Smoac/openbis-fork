@@ -39,6 +39,13 @@ public interface IDataSetStorageRecoveryManager
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
+     * Remove recovery checkpoint.
+     */
+    <T extends DataSetInformation> void removeCheckpoint(
+            DataSetStorageAlgorithmRunner<T> runner);
+
+    
+    /**
      * Note that registration has completed.
      */
     <T extends DataSetInformation> void registrationCompleted(

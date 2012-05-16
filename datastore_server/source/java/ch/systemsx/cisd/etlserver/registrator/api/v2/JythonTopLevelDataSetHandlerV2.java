@@ -96,4 +96,15 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         return false;
     }
+
+    /**
+     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty
+     * paths.
+     */
+    @Override
+    public boolean shouldNotAddToFaultyPathsOrNull(File file)
+    {
+        // If there is a recovery marker file, do not add the file to faulty paths.
+        return hasRecoveryMarkerFile(file);
+    }
 }
