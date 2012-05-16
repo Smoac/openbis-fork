@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -39,6 +42,11 @@ public interface IClientService extends RemoteService
      * Returns static information of the application needed by the client.
      */
     public ApplicationInfo getApplicationInfo();
+
+    /**
+     * Returns list of available custom imports
+     */
+    public List<CustomImport> getCustomImports();
 
     /**
      * Tries to return the current session context. If failed <code>null</code> is returned.

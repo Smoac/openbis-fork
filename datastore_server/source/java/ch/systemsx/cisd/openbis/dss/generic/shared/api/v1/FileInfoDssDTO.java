@@ -50,7 +50,7 @@ public class FileInfoDssDTO implements Serializable
     }
 
     /**
-     * The the path of this file in the data set (i.e., the root of the data set has a path of "").
+     * The path of this file in the data set (i.e., the root of the data set has a path of "").
      */
     public String getPathInDataSet()
     {
@@ -58,7 +58,7 @@ public class FileInfoDssDTO implements Serializable
     }
 
     /**
-     * The the path of this file relative to the path of the request that produced this FileInfoDss
+     * The path of this file relative to the path of the request that produced this FileInfoDss
      */
     public String getPathInListing()
     {

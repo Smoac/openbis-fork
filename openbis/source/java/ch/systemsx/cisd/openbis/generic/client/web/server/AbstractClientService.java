@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -34,6 +37,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
@@ -68,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -434,9 +440,36 @@ public abstract class AbstractClientService implements IClientService,
         }
         applicationInfo.setDisabledTechnologies(ServerUtils.extractSet(getServiceProperties()
                 .getProperty("disabled-technologies")));
+        applicationInfo.setCustomImports(extractCustomImportProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
+    }
+
+    private List<CustomImport> extractCustomImportProperties()
+    {
+        List<CustomImport> results = new ArrayList<CustomImport>();
+
+        SectionProperties[] sectionProperties =
+                PropertyParametersUtil.extractSectionProperties(getServiceProperties(),
+                        CustomImport.PropertyNames.CUSTOM_IMPORTS.getName(), false);
+
+        for (SectionProperties props : sectionProperties)
+        {
+            Map<String, String> properties = new HashMap<String, String>();
+            for (Map.Entry<Object, Object> entry : props.getProperties().entrySet())
+            {
+                properties.put((String) entry.getKey(), (String) entry.getValue());
+            }
+            results.add(new CustomImport(props.getKey(), properties));
+        }
+
+        return results;
+    }
+
+    public final List<CustomImport> getCustomImports()
+    {
+        return extractCustomImportProperties();
     }
 
     protected WebClientConfiguration getWebClientConfiguration()

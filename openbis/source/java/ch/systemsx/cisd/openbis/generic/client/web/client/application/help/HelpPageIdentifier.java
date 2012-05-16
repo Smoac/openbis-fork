@@ -65,6 +65,8 @@ public class HelpPageIdentifier
 
         GENERAL_IMPORT(ADMINISTRATION),
 
+        CUSTOM_IMPORT(ADMINISTRATION),
+
         // authorization subdomains
         USERS(AUTHORIZATION), ROLES(AUTHORIZATION), AUTHORIZATION_GROUPS(AUTHORIZATION),
 

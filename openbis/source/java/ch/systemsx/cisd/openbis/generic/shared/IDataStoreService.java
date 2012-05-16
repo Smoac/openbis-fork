@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
@@ -145,6 +146,9 @@ public interface IDataStoreService
      * @return A TableModel produced by the service.
      * @since 7
      */
-    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken,
-            String serviceKey, Map<String, Object> parameters);
+    public TableModel createReportFromAggregationService(String sessionToken,
+            String userSessionToken, String serviceKey, Map<String, Object> parameters);
+
+    public String putDataSet(String sessionToken, String dropboxName,
+            CustomImportFile customImportFile);
 }

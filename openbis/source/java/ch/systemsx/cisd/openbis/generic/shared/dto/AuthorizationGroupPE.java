@@ -66,7 +66,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private transient Long id;
+    private Long id;
 
     private DatabaseInstancePE databaseInstance;
 

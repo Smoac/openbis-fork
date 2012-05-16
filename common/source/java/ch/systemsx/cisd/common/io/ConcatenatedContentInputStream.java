@@ -73,7 +73,7 @@ public class ConcatenatedContentInputStream extends InputStream
      *            exception is thrown for a non-existing content.
      * @param contents InputStreams provided by these contents will be concatenated into one stream.
      */
-    ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
+    public ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
             IHierarchicalContentNode... contents)
     {
         this.ignoreNonExistingContents = ignoreNonExistingContents;

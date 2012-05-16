@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -31,6 +34,9 @@ public interface IClientServiceAsync
 
     /** @see IClientService#getApplicationInfo() */
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
+
+    /** @see IClientService#getCustomImports */
+    public void getCustomImports(AsyncCallback<List<CustomImport>> callback);
 
     /** @see IClientService#tryToGetCurrentSessionContext(boolean anonymous) */
     public void tryToGetCurrentSessionContext(boolean anonymous,

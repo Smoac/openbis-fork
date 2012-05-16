@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top;
 
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -28,13 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 
 /**
  * The Import menu of the top menu bar.
@@ -68,6 +68,14 @@ public class ImportMenu extends TopMenuItem
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_MASS_UPDATE,
                 messageProvider, componentProvider.getDataSetBatchUpdate()));
 
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
+        if (applicationInfo.getCustomImports() != null
+                && applicationInfo.getCustomImports().size() > 0)
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.CUSTOM_IMPORT_MENU, messageProvider,
+                    componentProvider.getCustomImport()));
+        }
+
         SelectionListener<? extends MenuEvent> listener = new SelectionListener<MenuEvent>()
             {
                 @Override
@@ -87,7 +95,6 @@ public class ImportMenu extends TopMenuItem
         submenu.add(new MenuItem(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD_CLIENT
                 .getMenuText(messageProvider), listener));
 
-        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
         boolean cifexConfigured =
                 StringUtils.isNotBlank(applicationInfo.getCifexRecipient())
                         && StringUtils.isNotBlank(applicationInfo.getCifexURL());

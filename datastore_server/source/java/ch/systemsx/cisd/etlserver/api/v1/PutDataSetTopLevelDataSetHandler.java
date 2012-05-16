@@ -141,7 +141,10 @@ class PutDataSetTopLevelDataSetHandler
         // Check that the session owner has at least user access to the space the new data
         // set should belongs to
         SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
-        getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        if (spaceId != null)
+        {
+            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        }
 
         writeDataSetToTempDirectory();
 
@@ -175,41 +178,43 @@ class PutDataSetTopLevelDataSetHandler
         dataSetInfo.setUploadingUserEmail(sessionContext.getUserEmail());
         dataSetInfo.setUploadingUserId(sessionContext.getUserName());
         DataSetOwner owner = getDataSetOwner();
-        switch (owner.getType())
+        if (owner != null)
         {
-            case EXPERIMENT:
-                dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
-                break;
-            case SAMPLE:
-                SampleIdentifier sampleId = trySampleIdentifier();
+            switch (owner.getType())
+            {
+                case EXPERIMENT:
+                    dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
+                    break;
+                case SAMPLE:
+                    SampleIdentifier sampleId = trySampleIdentifier();
 
-                dataSetInfo.setSampleCode(sampleId.getSampleCode());
-                dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-                dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
-                break;
-            case DATA_SET:
-                String dataSetCode = tryGetDataSetCode();
+                    dataSetInfo.setSampleCode(sampleId.getSampleCode());
+                    dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                    dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
+                    break;
+                case DATA_SET:
+                    String dataSetCode = tryGetDataSetCode();
 
-                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
-                if (parentDataSet != null)
-                {
-                    if (parentDataSet.getExperiment() != null)
+                    ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                    if (parentDataSet != null)
                     {
-                        dataSetInfo.setExperiment(parentDataSet.getExperiment());
-                    }
-                    if (parentDataSet.getSample() != null)
-                    {
-                        dataSetInfo.setSample(parentDataSet.getSample());
-                    }
+                        if (parentDataSet.getExperiment() != null)
+                        {
+                            dataSetInfo.setExperiment(parentDataSet.getExperiment());
+                        }
+                        if (parentDataSet.getSample() != null)
+                        {
+                            dataSetInfo.setSample(parentDataSet.getSample());
+                        }
 
-                    ArrayList<String> parentDataSetCodes = new ArrayList<String>();
-                    // Add this parent as the first parent
-                    parentDataSetCodes.add(parentDataSet.getCode());
-                    parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
-                    dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
-                }
-                break;
-
+                        ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+                        // Add this parent as the first parent
+                        parentDataSetCodes.add(parentDataSet.getCode());
+                        parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+                        dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
+                    }
+                    break;
+            }
         }
         String typeCode = newDataSet.tryDataSetType();
         if (null != typeCode)
@@ -296,42 +301,45 @@ class PutDataSetTopLevelDataSetHandler
     {
         SpaceIdentifier spaceId = null;
         DataSetOwner owner = getDataSetOwner();
-        switch (owner.getType())
+        if (owner != null)
         {
-            case EXPERIMENT:
-                ExperimentIdentifier experimentId = tryExperimentIdentifier();
-                spaceId =
-                        new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
-                                experimentId.getSpaceCode());
-                break;
-            case SAMPLE:
-                SampleIdentifier sampleId = trySampleIdentifier();
-                spaceId = sampleId.getSpaceLevel();
-                break;
-            case DATA_SET:
-                String dataSetCode = tryGetDataSetCode();
+            switch (owner.getType())
+            {
+                case EXPERIMENT:
+                    ExperimentIdentifier experimentId = tryExperimentIdentifier();
+                    spaceId =
+                            new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
+                                    experimentId.getSpaceCode());
+                    break;
+                case SAMPLE:
+                    SampleIdentifier sampleId = trySampleIdentifier();
+                    spaceId = sampleId.getSpaceLevel();
+                    break;
+                case DATA_SET:
+                    String dataSetCode = tryGetDataSetCode();
 
-                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
-                if (parentDataSet != null)
-                {
-                    if (parentDataSet.getExperiment() != null)
+                    ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                    if (parentDataSet != null)
                     {
-                        experimentId =
-                                ExperimentIdentifierFactory.parse(parentDataSet.getExperiment()
-                                        .getIdentifier());
-                        spaceId =
-                                new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
-                                        experimentId.getSpaceCode());
+                        if (parentDataSet.getExperiment() != null)
+                        {
+                            experimentId =
+                                    ExperimentIdentifierFactory.parse(parentDataSet.getExperiment()
+                                            .getIdentifier());
+                            spaceId =
+                                    new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
+                                            experimentId.getSpaceCode());
+                        }
+                        if (parentDataSet.getSample() != null)
+                        {
+                            sampleId =
+                                    SampleIdentifierFactory.parse(parentDataSet.getSample()
+                                            .getIdentifier());
+                            spaceId = sampleId.getSpaceLevel();
+                        }
                     }
-                    if (parentDataSet.getSample() != null)
-                    {
-                        sampleId =
-                                SampleIdentifierFactory.parse(parentDataSet.getSample()
-                                        .getIdentifier());
-                        spaceId = sampleId.getSpaceLevel();
-                    }
-                }
-                break;
+                    break;
+            }
         }
         return spaceId;
     }

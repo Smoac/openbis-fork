@@ -711,6 +711,8 @@ public abstract class Dict
 
     public static final String MENU_GENERAL_IMPORT = "menu_general_import";
 
+    public static final String MENU_CUSTOM_IMPORT = "menu_custom_import";
+
     //
     // Tab Titles
     //
@@ -1223,6 +1225,8 @@ public abstract class Dict
 
     public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE =
             "add_unofficial_vocabulary_term_dialog_title";
+
+    public static final String CUSTOM_IMPORT = "custom_import";
 
     // Material Viewer
 

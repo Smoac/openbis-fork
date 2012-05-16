@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CustomImportComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GeneralImportComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
@@ -649,7 +650,6 @@ public final class ComponentProvider
                 {
                     return null;
                 }
-
             };
     }
 
@@ -1567,6 +1567,45 @@ public final class ComponentProvider
             };
     }
 
+    public AbstractTabItemFactory getCustomImport()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    CustomImportComponent customImportTab = new CustomImportComponent(viewContext);
+                    return createRegistrationTab(getTabTitle(),
+                            DatabaseModificationAwareComponent.wrapUnaware(customImportTab));
+                }
+
+                @Override
+                public String getId()
+                {
+                    return CustomImportComponent.ID;
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.CUSTOM_IMPORT,
+                            HelpPageAction.IMPORT);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.CUSTOM_IMPORT);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+    }
+
     public IMainPanel tryGetMainTabPanel()
     {
         return mainTabPanelOrNull;
@@ -1615,5 +1654,4 @@ public final class ComponentProvider
 
             };
     }
-
 }

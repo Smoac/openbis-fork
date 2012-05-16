@@ -50,10 +50,6 @@ public class SampleUpdates extends BasicSampleUpdates
         this.sampleIdentifier = sampleIdentifier;
     }
 
-    public SampleUpdates()
-    {
-    }
-
     public SampleUpdates(String sessionKey, TechId sampleId, List<IEntityProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
             Date version, String sampleIdentifier, String containerIdentifierOrNull,
@@ -64,6 +60,10 @@ public class SampleUpdates extends BasicSampleUpdates
         this.attachments = attachments;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
         this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public SampleUpdates()
+    {
     }
 
     public String getSessionKey()

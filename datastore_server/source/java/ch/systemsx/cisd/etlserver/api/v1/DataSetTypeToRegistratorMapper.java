@@ -44,6 +44,8 @@ class DataSetTypeToRegistratorMapper
 
     private final HashMap<String, ITopLevelDataSetRegistrator> handlerMap;
 
+    private final HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap;
+
     private static final String DSS_RPC_SECTION_KEY = "dss-rpc";
 
     private static final String DEFAULT_THREAD_KEY = "put-default";
@@ -59,18 +61,30 @@ class DataSetTypeToRegistratorMapper
     {
         defaultHandler = plugin;
         handlerMap = new HashMap<String, ITopLevelDataSetRegistrator>();
+        dropboxToHandlerMap = new HashMap<String, ITopLevelDataSetRegistrator>();
     }
 
     DataSetTypeToRegistratorMapper(Parameters params, IEncapsulatedOpenBISService openBISService,
-            IMailClient mailClient,
-            IDataSetValidator dataSetValidator)
+            IMailClient mailClient, IDataSetValidator dataSetValidator)
     {
         DataSetTypeToTopLevelHandlerMapperInitializer initializer =
                 new DataSetTypeToTopLevelHandlerMapperInitializer(params, openBISService,
                         mailClient, dataSetValidator);
         initializer.initialize();
         defaultHandler = initializer.getDefaultHandler();
-        handlerMap = initializer.getHandlerMap();
+        dropboxToHandlerMap = initializer.getDropboxToHandlerMap();
+        handlerMap = initializer.getHandlerMap(dropboxToHandlerMap);
+    }
+
+    public ITopLevelDataSetRegistrator getRegistratorForDropbox(String dropboxName)
+    {
+        if (null == dropboxName)
+        {
+            return defaultHandler;
+        }
+
+        ITopLevelDataSetRegistrator plugin = dropboxToHandlerMap.get(dropboxName);
+        return plugin == null ? defaultHandler : plugin;
     }
 
     public ITopLevelDataSetRegistrator getRegistratorForType(String dataSetTypeOrNull)
@@ -151,21 +165,20 @@ class DataSetTypeToRegistratorMapper
             if (null == defaultThread)
             {
                 return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                        firstThread, openBISService, mailClient, dataSetValidator, null,
-                        false,
+                        firstThread, openBISService, mailClient, dataSetValidator, null, false,
                         false, false, firstThread.tryGetPreRegistrationScript(),
                         firstThread.tryGetPostRegistrationScript(),
                         firstThread.tryGetValidationScripts(), PutDataSetServerPluginHolder.class);
             }
 
             return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                    defaultThread, openBISService, mailClient, dataSetValidator, null,
-                    false, false, false, defaultThread.tryGetPreRegistrationScript(),
+                    defaultThread, openBISService, mailClient, dataSetValidator, null, false,
+                    false, false, defaultThread.tryGetPreRegistrationScript(),
                     defaultThread.tryGetPostRegistrationScript(),
                     defaultThread.tryGetValidationScripts(), PutDataSetServerPluginHolder.class);
         }
 
-        public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap()
+        public HashMap<String, ITopLevelDataSetRegistrator> getDropboxToHandlerMap()
         {
             HashMap<String, ITopLevelDataSetRegistrator> map =
                     new HashMap<String, ITopLevelDataSetRegistrator>();
@@ -179,9 +192,33 @@ class DataSetTypeToRegistratorMapper
                 ThreadParameters threadParams = threadParamMap.get(threadName);
                 if (null != threadParams)
                 {
-                    map.put(key.toUpperCase(), ETLDaemon.createTopLevelDataSetRegistrator(
-                            params.getProperties(), threadParams, openBISService,
-                            mailClient, dataSetValidator, null, false));
+                    ITopLevelDataSetRegistrator registrator =
+                            ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
+                                    threadParams, openBISService, mailClient, dataSetValidator,
+                                    null, false);
+                    map.put(threadName, registrator);
+                }
+            }
+            return map;
+        }
+
+        public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap(
+                @SuppressWarnings("hiding") HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap)
+        {
+            HashMap<String, ITopLevelDataSetRegistrator> map =
+                    new HashMap<String, ITopLevelDataSetRegistrator>();
+
+            Properties putSection = section.getSubset(PUT_SECTION_KEY + ".", true);
+
+            for (Object keyObject : putSection.keySet())
+            {
+                String key = (String) keyObject;
+                String threadName = putSection.getProperty(key);
+                ThreadParameters threadParams = threadParamMap.get(threadName);
+                if (null != threadParams)
+                {
+                    ITopLevelDataSetRegistrator registrator = dropboxToHandlerMap.get(threadName);
+                    map.put(key.toUpperCase(), registrator);
                 }
             }
             return map;
@@ -204,4 +241,5 @@ class DataSetTypeToRegistratorMapper
         }
 
     }
+
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.api.v1;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -30,6 +31,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
+import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
@@ -40,11 +43,13 @@ import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptReader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
@@ -123,6 +128,70 @@ public class PutDataSetService
         dataSetValidator = validator;
 
         isInitialized = true;
+    }
+
+    public String putDataSet(String sessionToken, String dropboxName,
+            CustomImportFile customImportFile)
+    {
+        if (false == isInitialized)
+        {
+            doInitialization();
+        }
+
+        try
+        {
+            ITopLevelDataSetRegistrator registrator =
+                    registratorMap.getRegistratorForDropbox(dropboxName);
+
+            final List<DataSetInformation> infos;
+            // Branch -- use the old logic for the ETLServerPlugins
+            if (registrator instanceof PutDataSetServerPluginHolder)
+            {
+                infos =
+                        new PutDataSetExecutor(this,
+                                ((PutDataSetServerPluginHolder) registrator).getPlugin(),
+                                sessionToken, createNewDataSetDTO(customImportFile),
+                                getAsInputStream(customImportFile)).execute();
+            } else
+            {
+                infos =
+                        new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken,
+                                createNewDataSetDTO(customImportFile),
+                                getAsInputStream(customImportFile)).execute();
+            }
+            StringBuilder sb = new StringBuilder();
+            for (DataSetInformation info : infos)
+            {
+                sb.append(info.getDataSetCode());
+                sb.append(",");
+            }
+
+            // Remove the trailing comma
+            if (sb.length() > 0)
+            {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            return sb.toString();
+        } catch (UserFailureException e)
+        {
+            throw new IllegalArgumentException(e);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    private InputStream getAsInputStream(CustomImportFile customImportFile)
+    {
+        return new ConcatenatedContentInputStream(false, new ByteArrayBasedContentNode(
+                customImportFile.getBytes(), customImportFile.getFileName()));
+    }
+
+    private NewDataSetDTO createNewDataSetDTO(CustomImportFile customImportFile)
+    {
+        return new NewDataSetDTO(null, null, Collections.singletonList(new FileInfoDssDTO(
+                customImportFile.getFileName(), customImportFile.getFileName(), false,
+                customImportFile.getBytes().length)));
     }
 
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)

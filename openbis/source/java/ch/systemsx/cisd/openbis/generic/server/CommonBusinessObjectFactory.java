@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataStoreBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DeletedDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataStoreBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
@@ -242,4 +244,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new CorePluginTable(getDaoFactory(), session, masterDataScriptRunner);
     }
 
+    public IDataStoreBO createDataStoreBO(Session session)
+    {
+        return new DataStoreBO(getDaoFactory(), session, getDSSFactory());
+    }
 }

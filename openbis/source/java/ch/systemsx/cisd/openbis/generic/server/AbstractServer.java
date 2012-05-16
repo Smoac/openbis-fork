@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
@@ -141,6 +142,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
     protected MailClientParameters mailClientParameters;
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    protected ExposablePropertyPlaceholderConfigurer configurer;
 
     private IPropertiesBatchManager propertiesBatchManager;
 

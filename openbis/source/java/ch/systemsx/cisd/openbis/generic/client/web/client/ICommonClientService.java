@@ -1120,4 +1120,9 @@ public interface ICommonClientService extends IClientService
     public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes)
             throws UserFailureException;
 
+    /**
+     * Performs custom import operation
+     */
+    public String performCustomImport(String sessionKey, String customImportCode)
+            throws UserFailureException;
 }

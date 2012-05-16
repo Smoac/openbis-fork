@@ -143,7 +143,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         // Check that the session owner has at least user access to the space the new data
         // set should belongs to
         SpaceIdentifier spaceId = getSpaceIdentifierForNewDataSet();
-        getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        if (spaceId != null)
+        {
+            getOpenBisService().checkSpaceAccess(sessionToken, spaceId);
+        }
 
         writeDataSetToTempDirectory();
         overrideOrNull = null;
@@ -198,7 +201,9 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     public String tryGetDataSetTypeCode(final DataSetInformation newOverride)
     {
-        String dataSetTypeCodeOrNull = (newOverride != null && newOverride.getDataSetType() != null) ? newOverride.getDataSetType().getCode() : null;
+        String dataSetTypeCodeOrNull =
+                (newOverride != null && newOverride.getDataSetType() != null) ? newOverride
+                        .getDataSetType().getCode() : null;
         return dataSetTypeCodeOrNull;
     }
 
@@ -387,6 +392,11 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     {
         SpaceIdentifier spaceId = null;
         DataSetOwner owner = getDataSetOwner();
+        if (owner == null)
+        {
+            return null;
+        }
+
         switch (owner.getType())
         {
             case EXPERIMENT:
@@ -568,8 +578,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
          * @param incomingDataSetFile The data set to register
          */
         public RegistrationHelper(PutDataSetService service, String shareId,
-                IETLServerPlugin plugin,
-                File incomingDataSetFile)
+                IETLServerPlugin plugin, File incomingDataSetFile)
         {
             super(incomingDataSetFile, shareId, new CleanAfterwardsAction(),
                     new PreRegistrationAction(), new PostRegistrationAction());
@@ -704,38 +713,42 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                     plugin.getDataSetInfoExtractor().getDataSetInformation(incomingDataSetPath,
                             openbisService);
             DataSetOwner owner = getDataSetOwner();
-            switch (owner.getType())
+            if (owner != null)
             {
-                case EXPERIMENT:
-                    dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
-                    break;
-                case SAMPLE:
-                    SampleIdentifier sampleId = trySampleIdentifier();
-
-                    dataSetInfo.setSampleCode(sampleId.getSampleCode());
-                    dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-                    dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
-                    break;
-                case DATA_SET:
-                    String dataSetCode = tryGetDataSetCode();
-
-                    ExternalData parentDataSet = openbisService.tryGetDataSet(dataSetCode);
-                    if (parentDataSet != null)
-                    {
-                        if (parentDataSet.getExperiment() != null)
-                        {
-                            dataSetInfo.setExperiment(parentDataSet.getExperiment());
-                        }
-                        if (parentDataSet.getSample() != null)
-                        {
-                            dataSetInfo.setSample(parentDataSet.getSample());
-                        }
-                        ArrayList<String> parentDataSetCodes = new ArrayList<String>();
-                        parentDataSetCodes.add(parentDataSet.getCode());
-                        parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
-                        dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
+                switch (owner.getType())
+                {
+                    case EXPERIMENT:
+                        dataSetInfo.setExperimentIdentifier(tryExperimentIdentifier());
                         break;
-                    }
+                    case SAMPLE:
+                        SampleIdentifier sampleId = trySampleIdentifier();
+
+                        dataSetInfo.setSampleCode(sampleId.getSampleCode());
+                        dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
+                        dataSetInfo.setInstanceCode(sampleId.getSpaceLevel()
+                                .getDatabaseInstanceCode());
+                        break;
+                    case DATA_SET:
+                        String dataSetCode = tryGetDataSetCode();
+
+                        ExternalData parentDataSet = openbisService.tryGetDataSet(dataSetCode);
+                        if (parentDataSet != null)
+                        {
+                            if (parentDataSet.getExperiment() != null)
+                            {
+                                dataSetInfo.setExperiment(parentDataSet.getExperiment());
+                            }
+                            if (parentDataSet.getSample() != null)
+                            {
+                                dataSetInfo.setSample(parentDataSet.getSample());
+                            }
+                            ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+                            parentDataSetCodes.add(parentDataSet.getCode());
+                            parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+                            dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
+                            break;
+                        }
+                }
             }
             String typeCode = newDataSet.tryDataSetType();
             if (null != typeCode)

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
@@ -85,7 +86,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         log("getVersion", "SESSION(%s)", sessionToken);
         return 0;
     }
-    
+
     public void send(ServiceMessage message)
     {
         log("send", "", message);
@@ -164,10 +165,18 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
-    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken, String serviceKey, Map<String, Object> parameters)
+    public TableModel createReportFromAggregationService(String sessionToken,
+            String userSessionToken, String serviceKey, Map<String, Object> parameters)
     {
-        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s)", userSessionToken,
-                serviceKey, parameters);
+        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s)",
+                userSessionToken, serviceKey, parameters);
+        return null;
+    }
+
+    public String putDataSet(String sessionToken, String dropboxName,
+            CustomImportFile customImportFile)
+    {
+        log("putDataSet", "DROPBOX_NAME(%s), CUSTOM_IMPORT_FILE(%s)", dropboxName, customImportFile);
         return null;
     }
 }

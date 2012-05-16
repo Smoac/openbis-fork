@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
@@ -44,6 +47,8 @@ public final class ApplicationInfo implements IsSerializable
     private Set<String> disabledTechnologies;
 
     private int maxResults = 100000;
+
+    private List<CustomImport> customImports;
 
     public int getMaxResults()
     {
@@ -118,4 +123,19 @@ public final class ApplicationInfo implements IsSerializable
         this.disabledTechnologies = disabledTechnologies;
     }
 
+    public void setCustomImports(List<CustomImport> customImports)
+    {
+        if (customImports == null)
+        {
+            this.customImports = new ArrayList<CustomImport>();
+        } else
+        {
+            this.customImports = customImports;
+        }
+    }
+
+    public List<CustomImport> getCustomImports()
+    {
+        return customImports;
+    }
 }

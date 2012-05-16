@@ -29,7 +29,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
@@ -118,6 +121,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -2266,4 +2270,71 @@ public final class CommonClientService extends AbstractClientService implements
                 forceDisallowedTypes);
     }
 
+    public String performCustomImport(String sessionKey, String customImportCode)
+    {
+        HttpSession httpSession = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
+            abortIfMaxSizeExceeded(uploadedFiles);
+            return commonServer.performCustomImport(getSessionToken(), customImportCode,
+                    getCustomImportFile(uploadedFiles));
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            if (uploadedFiles != null)
+            {
+                uploadedFiles.deleteTransferredFiles();
+            }
+            if (httpSession != null)
+            {
+                httpSession.removeAttribute(sessionKey);
+            }
+        }
+    }
+
+    private static void abortIfMaxSizeExceeded(UploadedFilesBean uploadedFiles)
+    {
+        if (uploadedFiles != null)
+        {
+            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                long fileSize = multipartFile.getSize();
+                if (fileSize > FileUtils.ONE_GB)
+                {
+                    String maxSizeString = FileUtilities.byteCountToDisplaySize(FileUtils.ONE_GB);
+                    String fileSizeString = FileUtilities.byteCountToDisplaySize(fileSize);
+                    String errorMessage =
+                            String.format("The file %s(%s) is larger than the maximum (%s).",
+                                    multipartFile.getOriginalFilename(), fileSizeString,
+                                    maxSizeString);
+                    throw new UserFailureException(errorMessage);
+                }
+            }
+        }
+    }
+
+    private static CustomImportFile getCustomImportFile(UploadedFilesBean uploadedFiles)
+    {
+        if (uploadedFiles != null)
+        {
+            if (uploadedFiles.size() != 1)
+            {
+                throw new UserFailureException(String.format(
+                        "Expecting exactly one file, but %s found.", uploadedFiles.size()));
+            }
+            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                final String fileName = multipartFile.getOriginalFilename();
+                // NOTE: this will load the entire attachments in memory
+                final byte[] content = multipartFile.getBytes();
+                return new CustomImportFile(fileName, content);
+            }
+        }
+
+        return null;
+    }
 }

@@ -476,6 +476,8 @@ var common = {
   
   GENERAL_IMPORT_MENU: "General Batch Import",
   
+  CUSTOM_IMPORT_MENU: "Custom Import",
+  
   menu_modules: "Utilities",
     
   //
@@ -503,7 +505,7 @@ var common = {
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
   general_import: "General Import",
-  
+  custom_import: "Custom Import",
   //
   // Help Page Titles
   //

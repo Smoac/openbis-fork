@@ -38,6 +38,8 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
@@ -47,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataStoreBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
@@ -103,6 +106,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -2639,5 +2644,35 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
         return searchHelper.searchForMaterials(criteria);
+    }
+
+    public String performCustomImport(String sessionToken, String customImportCode,
+            CustomImportFile customImportFile)
+    {
+        Session session = getSession(sessionToken);
+
+        SectionProperties[] sectionProperties =
+                PropertyParametersUtil.extractSectionProperties(configurer.getResolvedProps(),
+                        CustomImport.PropertyNames.CUSTOM_IMPORTS.getName(), false);
+
+        for (SectionProperties props : sectionProperties)
+        {
+            if (props.getKey().equals(customImportCode))
+            {
+                String dssCode =
+                        props.getProperties().getProperty(
+                                CustomImport.PropertyNames.DATASTORE_CODE.getName());
+                String dropboxName =
+                        props.getProperties().getProperty(
+                                CustomImport.PropertyNames.DROPBOX_NAME.getName());
+                IDataStoreBO dataStore = businessObjectFactory.createDataStoreBO(session);
+                dataStore.loadByCode(dssCode);
+                dataStore.uploadFile(dropboxName, customImportFile);
+                return customImportFile.getFileName();
+            }
+        }
+
+        throw new UserFailureException(String.format("Cannot upload file '%s' to the dss.",
+                customImportFile.getFileName()));
     }
 }

@@ -1021,4 +1021,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes,
             AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#performCustomImport(String, String)
+     */
+    public void performCustomImport(String sessionKey, String customImportCode,
+            AsyncCallback<String> callback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 }

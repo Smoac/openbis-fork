@@ -80,6 +80,8 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
     public ICorePluginTable createCorePluginTable(Session session,
             IMasterDataScriptRegistrationRunner masterDataScriptRunner);
 
+    public IDataStoreBO createDataStoreBO(Session session);
+
     // Fast listing operations
     public ISampleLister createSampleLister(Session session);
 

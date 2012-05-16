@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -93,7 +95,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private File commandQueueDirOrNull;
 
     private IDataSetCommandExecutor commandExecutor;
-    
+
+    private PutDataSetService putService;
+
     public DataStoreService(SessionTokenManager sessionTokenManager,
             MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
@@ -367,7 +371,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new DataSetDirectoryProvider(storeRoot, getShareIdManager());
     }
 
-    public TableModel createReportFromAggregationService(String sessionToken, String userSessionToken, String serviceKey, Map<String, Object> parameters)
+    public TableModel createReportFromAggregationService(String sessionToken,
+            String userSessionToken, String serviceKey, Map<String, Object> parameters)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
@@ -442,7 +447,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             return archiverTask.unarchive(datasets, archiverContext);
         }
     }
-    
+
     private static ArchiverTaskContext createContext(DataSetProcessingContext context)
     {
         return new ArchiverTaskContext(context.getDirectoryProvider(),
@@ -463,6 +468,24 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public IDataSetDeleter getDataSetDeleter()
     {
         return commandExecutor;
+    }
+
+    public String putDataSet(String sessionToken, String dropboxName,
+            CustomImportFile customImportFile)
+    {
+        PutDataSetService service = getPutDataSetService();
+        return service.putDataSet(sessionToken, dropboxName, customImportFile);
+    }
+
+    private PutDataSetService getPutDataSetService()
+    {
+        if (putService == null)
+        {
+            this.putService =
+                    new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);
+            putService.setStoreDirectory(storeRoot);
+        }
+        return putService;
     }
 
     private IShareIdManager getShareIdManager()
