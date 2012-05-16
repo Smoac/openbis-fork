@@ -623,7 +623,7 @@ public final class ETLDaemon
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
-            QueueingPathRemoverService.start(shredderQueueFile);
+            QueueingPathRemoverService.start(DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()), shredderQueueFile);
         }
         if (QueueingDataSetStatusUpdaterService.isRunning() == false)
         {

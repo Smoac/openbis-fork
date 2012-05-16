@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * marks {@link File}s for deletion and queues them up, using a separate thread to actually delete
  * them.
  * <p>
- * Note that the service needs to be started via {@link #start(File, TimingParameters)}.
+ * Note that the service needs to be started via {@link #start(File, File, TimingParameters)}.
  * <p>
  * A file can be specified that keeps track of all the items that are to be deleted in order to
  * persist program restart.
@@ -66,6 +66,8 @@ public class QueueingPathRemoverService
     private static Thread thread = null;
 
     private static IFileRemover deepRemover = null;
+    
+    private static File shredderDir;
 
     /**
      * Initializes the shredder thread. Will not persist over program restart. <i>Needs to be called
@@ -73,7 +75,7 @@ public class QueueingPathRemoverService
      */
     public static final void start()
     {
-        start(null);
+        start(null, null);
     }
 
     /**
@@ -83,9 +85,9 @@ public class QueueingPathRemoverService
      * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items
      *            to be deleted over program restart.
      */
-    public static final void start(File queueFileOrNull)
+    public static final void start(File storeRootOrNull, File queueFileOrNull)
     {
-        start(queueFileOrNull, TimingParameters.getDefaultParameters());
+        start(storeRootOrNull, queueFileOrNull, TimingParameters.getDefaultParameters());
     }
 
     /**
@@ -95,7 +97,7 @@ public class QueueingPathRemoverService
      * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items
      *            to be deleted over program restart.
      */
-    public static synchronized final void start(final File queueFileOrNull,
+    public static synchronized final void start(final File storeRootOrNull, final File queueFileOrNull,
             TimingParameters parameters)
     {
         final ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
@@ -111,6 +113,14 @@ public class QueueingPathRemoverService
         {
             queue = new ExtendedLinkedBlockingQueue<File>();
         }
+        
+        if (storeRootOrNull != null) {
+            shredderDir = new File(storeRootOrNull, ".SHREDDER");
+            if (!shredderDir.exists()) {
+                shredderDir.mkdir();
+            }
+        }
+        
         thread = new Thread(new Runnable()
             {
                 public void run()
@@ -160,7 +170,13 @@ public class QueueingPathRemoverService
             final String name =
                     SHREDDER_PREFIX + System.currentTimeMillis() + "-" + counter.incrementAndGet()
                             + "-" + fileToRemove.getName();
-            final File shredderFile = new File(fileToRemove.getParentFile(), name);
+            final File shredderFile;
+            if (shredderDir != null) {
+                shredderFile = new File(shredderDir, name);
+            } else {
+                shredderFile = new File(fileToRemove.getParentFile(), name);
+            }
+            
             final boolean ok = fileToRemove.renameTo(shredderFile);
             if (ok)
             {

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic;
 
+import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import org.apache.log4j.Logger;
@@ -25,10 +26,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer},
@@ -96,8 +99,12 @@ public class DataStoreServer
             CommandQueueLister.listQueuedCommand();
             System.exit(0);
         }
+        
+        ExtendedProperties props = DssPropertyParametersUtil.loadProperties(DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE);
+        File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(props);
+        
         // Initialize the shredder and updater _before_ the DataSetCommandExecutor which uses them.
-        QueueingPathRemoverService.start(ETLDaemon.shredderQueueFile);
+        QueueingPathRemoverService.start(storeRootDir, ETLDaemon.shredderQueueFile);
         QueueingDataSetStatusUpdaterService.start(ETLDaemon.updaterQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
         ETLDaemon.main(args);
