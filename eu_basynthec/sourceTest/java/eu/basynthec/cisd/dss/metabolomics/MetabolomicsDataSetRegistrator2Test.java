@@ -68,8 +68,12 @@ public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSe
         NewProperty strainProperty = propertyMap.get(STRAIN_NAMES_PROP);
 
         assertNotNull(strainProperty);
-        assert null != strainProperty;
         assertEquals("CHASSIS 1,JJS-MGP192", strainProperty.getValue());
+
+        NewProperty valueUnitProperty = propertyMap.get(VALUE_UNIT_PROP);
+        assertNotNull(valueUnitProperty);
+        assertEquals("MM", valueUnitProperty.getValue());
+
         context.assertIsSatisfied();
     }
 

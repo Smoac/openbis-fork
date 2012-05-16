@@ -38,8 +38,8 @@ def assign_properties(dataset, metadata):
     "STRAIN_NAMES":"STRAIN_NAMES", 
     "TIMEPOINT TYPE": "TIMEPOINT_TYPE", 
     "CELL LOCATION": "CELL_LOCATION", 
-    "VALUE_TYPES": "VALUE_TYPES", 
-    "VALUE_UNITS": "VALUE_UNITS",
+    "VALUE_TYPES": "VALUE_TYPES",
+    "VALUE UNIT": "VALUE_UNIT",
     "SCALE": "SCALE"
     }
     

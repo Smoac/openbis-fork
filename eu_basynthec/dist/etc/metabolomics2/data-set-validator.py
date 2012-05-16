@@ -1,4 +1,4 @@
-# validate the header -- row 1 contains a strainid, row 2 a value type, row 3, a value unit
+# validate the header -- row 1 contains a strainid, row 2 a value type
 def validate_header_line(row, first_data_col, line, errors):
   # validate the strain
   if row is 0:
@@ -6,22 +6,13 @@ def validate_header_line(row, first_data_col, line, errors):
       strain = line[i]
       if not isStrainIdValid(strain):
         errors.append(createFileValidationError("Strain in col " + str(i + 1) + " " + strainValidationErrorMessageFragment(strain)))
-  
   # validate the value type
-  elif row is 1:
+  else:
     for i in range(first_data_col, len(line)):
       isControlledVocabularyPropertyValid(line[i],
         "value type", ['VALUE', 'MEAN', 'MEDIAN', 'STD', 'VAR', 'ERROR', 'IQR'], 
         "'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'",
         errors)
-
-  # validate the value unit
-  else:
-    for i in range(first_data_col, len(line)):
-      isControlledVocabularyPropertyValid(line[i], 
-        "value unit", ['MM', 'UM', 'RATIOT1', 'RATIOCS'], "'mM', 'uM', 'RatioT1', 'RatioCs'",
-        errors)
-      
 
 def validate_data(time_series_data, first_data_row, first_data_col, errors):
   chebiRegex = re.compile("^CHEBI:[0-9]+")
@@ -68,6 +59,10 @@ def validate_metadata(time_series_data, errors):
   # validate the scale
   validationHelper.validateControlledVocabularyProperty("SCALE", "scale",
     ['LIN', 'LOG2', 'LOG10', 'LN'], "'lin', 'log2', 'log10', 'ln'")
+    
+  # validate the scale
+  validationHelper.validateControlledVocabularyProperty("VALUE UNIT", "value unit",
+    ['MM', 'UM', 'RATIOT1', 'RATIOCS'], "'mM', 'uM', 'RatioT1', 'RatioCs'",)
     
   # validate the data position specification
   validationHelper.validateStartDataRowCol()
