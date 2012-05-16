@@ -46,6 +46,8 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
         AbstractJythonDataSetHandlerTest
 {
 
+    private static final String TEST_EXPERIMENT_IDENTIFIER = "/TEST/TEST/TEST";
+    
     protected static final String STRAIN_NAMES_PROP = "STRAIN_NAMES";
 
     protected static final DataSetType TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE = new DataSetType(
@@ -65,7 +67,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
     protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
             final DataSetType dataSetType, final DataSetType tsvDataSetType)
     {
-        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(TEST_EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
         final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<AtomicEntityOperationDetails>();
