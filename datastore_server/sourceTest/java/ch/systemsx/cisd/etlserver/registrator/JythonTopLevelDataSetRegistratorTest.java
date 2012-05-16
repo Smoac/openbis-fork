@@ -580,7 +580,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 protected void checkIfRecoveryFile()
                 {
                     // unless this is a recovery testcase
-                    one(storageRecoveryManager).isRecoveryFile(markerFile);
+                    one(storageRecoveryManager).isRecoveryFile(with(any(File.class)));
                     will(returnValue(false));
                 }
 
