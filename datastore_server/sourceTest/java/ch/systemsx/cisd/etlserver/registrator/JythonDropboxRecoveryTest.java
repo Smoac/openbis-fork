@@ -149,13 +149,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         handler.handle(markerFile);
         if (testCase.canRecoverFromError)
         {
-            File dir =
-                    new File(
-                            "/Users/jakubs/Documents/git/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.registrator.JythonDropboxRecoveryTest/");
-            for (Object f : dir.list())
-            {
-                System.out.println("XX:" + f);
-            }
             File recoveryMarkerFile = getCreatedRecoveryMarkerFile();
 
             handler.handle(recoveryMarkerFile);
