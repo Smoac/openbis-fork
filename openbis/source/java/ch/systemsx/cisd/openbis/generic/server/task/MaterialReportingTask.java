@@ -64,6 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -137,6 +139,11 @@ public class MaterialReportingTask implements IMaintenanceTask
             this.codeColumnName = codeColumnName;
         }
 
+        String getMaterialTypeCode()
+        {
+            return materialTypeCode;
+        }
+
         String getTableName()
         {
             return tableName;
@@ -158,7 +165,8 @@ public class MaterialReportingTask implements IMaintenanceTask
             propertyMapping.put(propertyTypeCode, column);
         }
 
-        void injectDataTypeCodes(Map<String, DataTypeCode> columns)
+        void injectDataTypeCodes(Map<String, DataTypeCode> columns,
+                Map<String, PropertyType> propertyTypes)
         {
             DataTypeCode codeColumnType = columns.remove(codeColumnName);
             if (codeColumnType == null)
@@ -171,16 +179,45 @@ public class MaterialReportingTask implements IMaintenanceTask
                 throw new EnvironmentFailureException("Column '" + codeColumnName + "' of table '"
                         + tableName + "' is not of type VARCHAR.");
             }
-            Collection<Column> values = propertyMapping.values();
-            for (Column column : values)
+            for (Entry<String, Column> entry : propertyMapping.entrySet())
             {
+                String propertyTypeCode = entry.getKey();
+                PropertyType propertyType = propertyTypes.get(propertyTypeCode);
+                if (propertyType == null)
+                {
+                    throw new ConfigurationFailureException(
+                            "Mapping file refers to an unknown property type: " + propertyTypeCode);
+                }
+                Column column = entry.getValue();
                 DataTypeCode dataTypeCode = columns.get(column.name);
                 if (dataTypeCode == null)
                 {
                     throw new EnvironmentFailureException("Missing column '" + column.name
                             + "' in table '" + tableName + "' of report database.");
                 }
+                DataTypeCode correspondingType =
+                        getCorrespondingType(propertyType.getDataType().getCode());
+                if (dataTypeCode.equals(correspondingType) == false)
+                {
+                    throw new EnvironmentFailureException("Column '" + column.name + "' in table '"
+                            + tableName
+                            + "' of report database should be of a type which corresponds to "
+                            + correspondingType + ".");
+                }
                 column.dataTypeCode = dataTypeCode;
+            }
+        }
+
+        private DataTypeCode getCorrespondingType(DataTypeCode code)
+        {
+            switch (code)
+            {
+                case INTEGER:
+                case REAL:
+                case TIMESTAMP:
+                    return code;
+                default:
+                    return DataTypeCode.VARCHAR;
             }
         }
 
@@ -335,9 +372,17 @@ public class MaterialReportingTask implements IMaintenanceTask
         // "write-timestamp-sql");
         String mappingFileName = PropertyUtils.getMandatoryProperty(properties, MAPPING_FILE_KEY);
         mapping = readMappingFile(mappingFileName);
+        Map<String, Map<String, PropertyType>> materialTypes = getMaterialTypes();
         Map<String, Map<String, DataTypeCode>> metaData = retrieveDatabaseMetaData();
         for (MappingInfo mappingInfo : mapping.values())
         {
+            String materialTypeCode = mappingInfo.getMaterialTypeCode();
+            Map<String, PropertyType> propertyTypes = materialTypes.get(materialTypeCode);
+            if (propertyTypes == null)
+            {
+                throw new ConfigurationFailureException(
+                        "Mapping file refers to an unknown material type: " + materialTypeCode);
+            }
             String tableName = mappingInfo.getTableName();
             Map<String, DataTypeCode> columns = metaData.get(tableName);
             if (columns == null)
@@ -345,9 +390,58 @@ public class MaterialReportingTask implements IMaintenanceTask
                 throw new EnvironmentFailureException("Missing table '" + tableName
                         + "' in report database.");
             }
-            mappingInfo.injectDataTypeCodes(columns);
+            mappingInfo.injectDataTypeCodes(columns, propertyTypes);
         }
         jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
+    }
+
+    public void execute()
+    {
+        SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
+        if (contextOrNull == null)
+        {
+            return;
+        }
+        operationLog.info("Start reporting added or changed materials to the report database.");
+        Map<String, List<Material>> materialsByType =
+                getRecentlyAddedOrChangedMaterials(contextOrNull.getSessionToken());
+        for (Entry<String, List<Material>> entry : materialsByType.entrySet())
+        {
+            String materialTypeCode = entry.getKey();
+            final List<Material> materials = entry.getValue();
+            MappingInfo mappingInfo = mapping.get(materialTypeCode);
+            if (mappingInfo != null)
+            {
+                addOrUpdate(mappingInfo, materials);
+            }
+        }
+        operationLog.info("Reporting finished.");
+    }
+
+    private Map<String, Map<String, PropertyType>> getMaterialTypes()
+    {
+        SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
+        if (contextOrNull == null)
+        {
+            throw new EnvironmentFailureException("Can not authenticate as system.");
+        }
+        List<MaterialType> materialTypes =
+                server.listMaterialTypes(contextOrNull.getSessionToken());
+        Map<String, Map<String, PropertyType>> result =
+                new HashMap<String, Map<String, PropertyType>>();
+        for (MaterialType materialType : materialTypes)
+        {
+            List<MaterialTypePropertyType> assignedPropertyTypes =
+                    materialType.getAssignedPropertyTypes();
+            Map<String, PropertyType> propertyTypes = new HashMap<String, PropertyType>();
+            for (MaterialTypePropertyType materialTypePropertyType : assignedPropertyTypes)
+            {
+                PropertyType propertyType = materialTypePropertyType.getPropertyType();
+                propertyTypes.put(propertyType.getCode(), propertyType);
+            }
+            result.put(materialType.getCode(), propertyTypes);
+        }
+        return result;
     }
 
     private Map<String, Map<String, DataTypeCode>> retrieveDatabaseMetaData()
@@ -365,7 +459,6 @@ public class MaterialReportingTask implements IMaintenanceTask
             JdbcUtils.extractDatabaseMetaData(dbConfigurationContext.getDataSource(),
                     new DatabaseMetaDataCallback()
                         {
-
                             public Object processMetaData(DatabaseMetaData metaData)
                                     throws SQLException, MetaDataAccessException
                             {
@@ -383,12 +476,13 @@ public class MaterialReportingTask implements IMaintenanceTask
                                         }
                                         String columnName =
                                                 rs.getString("COLUMN_NAME").toLowerCase();
+                                        int sqlTypeCode = rs.getInt("DATA_TYPE");
                                         DataTypeCode dataTypeCode =
-                                                DataTypeUtils.getDataTypeCode(rs
-                                                        .getInt("DATA_TYPE"));
+                                                DataTypeUtils.getDataTypeCode(sqlTypeCode);
                                         columns.put(columnName, dataTypeCode);
                                     }
                                 }
+                                rs.close();
                                 return null;
                             }
                         });
@@ -396,31 +490,6 @@ public class MaterialReportingTask implements IMaintenanceTask
         } catch (MetaDataAccessException ex)
         {
             throw new ConfigurationFailureException("Couldn't retrieve meta data of database.", ex);
-        }
-    }
-
-    public void execute()
-    {
-        SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
-        if (contextOrNull == null)
-        {
-            return;
-        }
-        String sessionToken = contextOrNull.getSessionToken();
-
-        Map<String, List<Material>> materialsByType =
-                getRecentlyAddedOrChangedMaterials(sessionToken);
-        for (Entry<String, List<Material>> entry : materialsByType.entrySet())
-        {
-            String materialTypeCode = entry.getKey();
-            final List<Material> materials = entry.getValue();
-            MappingInfo mappingInfo = mapping.get(materialTypeCode);
-            if (mappingInfo != null)
-            {
-                addOrUpdate(mappingInfo, materials);
-                operationLog.info(materials.size() + " materials of type " + materialTypeCode
-                        + " reported.");
-            }
         }
     }
 
@@ -447,12 +516,17 @@ public class MaterialReportingTask implements IMaintenanceTask
             String updateStatement = mappingInfo.createUpdateStatement();
             jdbcTemplate.batchUpdate(updateStatement,
                     mappingInfo.createSetter(updateMaterials, IndexingSchema.UPDATE));
+            operationLog.info(updateMaterials.size() + " materials of type "
+                    + mappingInfo.getMaterialTypeCode() + " have been updated in report database.");
         }
         if (newMaterials.isEmpty() == false)
         {
             String insertStatement = mappingInfo.createInsertStatement();
             jdbcTemplate.batchUpdate(insertStatement,
                     mappingInfo.createSetter(newMaterials, IndexingSchema.INSERT));
+            operationLog.info(newMaterials.size() + " materials of type "
+                    + mappingInfo.getMaterialTypeCode()
+                    + " have been inserted into report database.");
         }
     }
 
@@ -498,7 +572,7 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private String readTimestamp()
     {
-        return "2012-02-22 10:33:44.6667";
+        return "2012-02-20 10:33:44.6667";
     }
 
     @Private

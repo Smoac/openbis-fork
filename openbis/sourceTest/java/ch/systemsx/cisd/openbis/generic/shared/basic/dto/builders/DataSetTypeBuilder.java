@@ -17,16 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * Builder class of {@link DataSetType} instances.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetTypeBuilder extends AbstractEntityTypeBuilder
+public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
 {
     private DataSetType dataSetType = new DataSetType();
 
@@ -43,6 +45,15 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder
     public DataSetTypeBuilder code(String code)
     {
         dataSetType.setCode(code);
+        return this;
+    }
+
+    public DataSetTypeBuilder propertyType(String code, String label, DataTypeCode dataType)
+    {
+        DataSetTypePropertyType entityTypePropertyType = new DataSetTypePropertyType();
+        List<DataSetTypePropertyType> types = dataSetType.getAssignedPropertyTypes();
+        fillEntityTypePropertyType(dataSetType, entityTypePropertyType, code, label, dataType);
+        types.add(entityTypePropertyType);
         return this;
     }
 }

@@ -16,13 +16,30 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Abstract super class of builder of subclasses of {@link EntityType}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractEntityTypeBuilder
+abstract class AbstractEntityTypeBuilder<E extends EntityType>
 {
+    protected void fillEntityTypePropertyType(E entityType,
+            EntityTypePropertyType<E> entityTypePropertyType, String code, String label,
+            DataTypeCode type)
+    {
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        propertyType.setSimpleCode(code);
+        propertyType.setLabel(label);
+        propertyType.setDataType(new DataType(type));
+        entityTypePropertyType.setPropertyType(propertyType);
+        entityTypePropertyType.setEntityType(entityType);
+    }
+
 }

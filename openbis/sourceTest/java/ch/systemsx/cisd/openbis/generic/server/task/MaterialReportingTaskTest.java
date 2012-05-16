@@ -20,6 +20,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -48,7 +49,9 @@ import ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.Mappin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.VocabularyTermBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -277,6 +280,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     public void testDatabaseMetaDataMissingCodeColumn() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,C]");
+        prepareListMaterialTypes("T1:A=REAL");
         try
         {
             materialReportingTask.setUp("", properties);
@@ -286,12 +290,14 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
             assertEquals("Missing column 'c' in table 'report1' of report database.",
                     ex.getMessage());
         }
+        context.assertIsSatisfied();
     }
 
     @Test
     public void testDatabaseMetaDataMissingTable() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "[T1:REPORT3,C]");
+        prepareListMaterialTypes("T1:A=REAL");
         try
         {
             materialReportingTask.setUp("", properties);
@@ -300,12 +306,14 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         {
             assertEquals("Missing table 'report3' in report database.", ex.getMessage());
         }
+        context.assertIsSatisfied();
     }
 
     @Test
     public void testDatabaseMetaDataCodeColumnOfWrongType() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,ID]");
+        prepareListMaterialTypes("T1:A=REAL");
         try
         {
             materialReportingTask.setUp("", properties);
@@ -314,12 +322,14 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         {
             assertEquals("Column 'id' of table 'report1' is not of type VARCHAR.", ex.getMessage());
         }
+        context.assertIsSatisfied();
     }
 
     @Test
     public void testDatabaseMetaDataMissingPropertyColumn() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:my_prop");
+        prepareListMaterialTypes("T1:P1=REAL");
         try
         {
             materialReportingTask.setUp("", properties);
@@ -329,6 +339,141 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
             assertEquals("Missing column 'my_prop' in table 'report2' of report database.",
                     ex.getMessage());
         }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithUnknownMaterialType() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:my_prop");
+        prepareListMaterialTypes("T2:P1=REAL");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Mapping file refers to an unknown material type: T1", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithUnknownPropertyType() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:my_prop");
+        prepareListMaterialTypes("T1:P2=REAL");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Mapping file refers to an unknown property type: P1", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeREAL() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:rank");
+        prepareListMaterialTypes("T1:P1=REAL");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'rank' in table 'report2' of report database should be of "
+                    + "a type which corresponds to REAL.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeINTEGER() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:greetings");
+        prepareListMaterialTypes("T1:P1=INTEGER");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'greetings' in table 'report2' of report database should be of "
+                    + "a type which corresponds to INTEGER.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeTIMESTAMP() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:greetings");
+        prepareListMaterialTypes("T1:P1=TIMESTAMP");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'greetings' in table 'report2' of report database should be of "
+                    + "a type which corresponds to TIMESTAMP.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeMATERIAL() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:RANK");
+        prepareListMaterialTypes("T1:P1=MATERIAL");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'rank' in table 'report2' of report database should be of "
+                    + "a type which corresponds to VARCHAR.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeCONTROLLEDVOCABULARY() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:RANK");
+        prepareListMaterialTypes("T1:P1=CONTROLLEDVOCABULARY");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'rank' in table 'report2' of report database should be of "
+                    + "a type which corresponds to VARCHAR.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingFileWithNonmatchingDataTypeVARCHAR() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "[T1:REPORT2,CODE]\nP1:RANK");
+        prepareListMaterialTypes("T1:P1=VARCHAR");
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Column 'rank' in table 'report2' of report database should be of "
+                    + "a type which corresponds to VARCHAR.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -337,6 +482,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
                 + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nP2: GREETINGS\nP1:RANK\nORG:ORGANISM\n"
                 + "T:timestamp");
+        prepareListMaterialTypes("T1:D=VARCHAR",
+                "T2:M=MATERIAL,S=REAL,P2=VARCHAR,P1=INTEGER,ORG=CONTROLLEDVOCABULARY,T=TIMESTAMP");
         materialReportingTask.setUp("", properties);
         final Material m1 =
                 new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
@@ -383,6 +530,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(mappingFile, "[T1:REPORT1,CODE]\n"
                 + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nP1:RANK\nORG:ORGANISM\n"
                 + "P2: GREETINGS\nT:timestamp");
+        prepareListMaterialTypes("T1:D=VARCHAR",
+                "T2:M=MATERIAL,S=REAL,P2=VARCHAR,P1=INTEGER,ORG=CONTROLLEDVOCABULARY,T=TIMESTAMP");
         materialReportingTask.setUp("", properties);
         final Material m1 =
                 new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
@@ -432,6 +581,36 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 + "{code=M4, greetings=hi, material=null, organism=null, "
                 + "rank=null, size=null, timestamp=null}]", result.toString());
         context.assertIsSatisfied();
+    }
+
+    private void prepareListMaterialTypes(final String... materialTypeDescriptions)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).tryToAuthenticateAsSystem();
+                    SessionContextDTO session = new SessionContextDTO();
+                    session.setSessionToken(SESSION_TOKEN);
+                    will(returnValue(session));
+
+                    List<MaterialType> materialTypes = new ArrayList<MaterialType>();
+                    for (String description : materialTypeDescriptions)
+                    {
+                        String[] split1 = description.split(":");
+                        MaterialTypeBuilder builder = new MaterialTypeBuilder().code(split1[0]);
+                        String[] split2 = split1[1].split(",");
+                        for (String propertyDescription : split2)
+                        {
+                            String[] split3 = propertyDescription.split("=");
+                            builder.propertyType(split3[0], split3[0],
+                                    DataTypeCode.valueOf(split3[1]));
+                        }
+                        materialTypes.add(builder.getMaterialType());
+                    }
+                    one(server).listMaterialTypes(SESSION_TOKEN);
+                    will(returnValue(materialTypes));
+                }
+            });
     }
 
     private List<?> loadTable(String tableName)

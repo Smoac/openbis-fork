@@ -539,7 +539,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public MaterialType getMaterialType(String sessionToken, String code)
     {
-        logAccess(sessionToken, "list_material_types");
+        logAccess(sessionToken, "get_material_type", "CODE(%s)", code);
         return null;
     }
 
@@ -1219,10 +1219,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public TableModel createReportFromAggregationService(String sessionToken, DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
+    public TableModel createReportFromAggregationService(String sessionToken,
+            DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
     {
-        logAccess(sessionToken, "createReportFromAggregationService", "SERVICE(%s), PARAMETERS(%s)",
-                serviceDescription, parameters);
+        logAccess(sessionToken, "createReportFromAggregationService",
+                "SERVICE(%s), PARAMETERS(%s)", serviceDescription, parameters);
         return null;
     }
 

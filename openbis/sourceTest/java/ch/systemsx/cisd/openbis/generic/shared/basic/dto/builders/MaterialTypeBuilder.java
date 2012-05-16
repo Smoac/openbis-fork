@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 
@@ -26,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyTyp
  * 
  * @author Franz-Josef Elmer
  */
-public class MaterialTypeBuilder extends AbstractEntityTypeBuilder
+public class MaterialTypeBuilder extends AbstractEntityTypeBuilder<MaterialType>
 {
     private MaterialType materialType = new MaterialType();
 
@@ -43,6 +45,15 @@ public class MaterialTypeBuilder extends AbstractEntityTypeBuilder
     public MaterialTypeBuilder code(String code)
     {
         materialType.setCode(code);
+        return this;
+    }
+
+    public MaterialTypeBuilder propertyType(String code, String label, DataTypeCode dataType)
+    {
+        MaterialTypePropertyType entityTypePropertyType = new MaterialTypePropertyType();
+        List<MaterialTypePropertyType> types = materialType.getAssignedPropertyTypes();
+        fillEntityTypePropertyType(materialType, entityTypePropertyType, code, label, dataType);
+        types.add(entityTypePropertyType);
         return this;
     }
 }

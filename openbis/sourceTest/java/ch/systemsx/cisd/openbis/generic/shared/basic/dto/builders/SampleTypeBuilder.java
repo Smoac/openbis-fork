@@ -19,60 +19,45 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class SampleTypeBuilder extends AbstractEntityTypeBuilder
+public class SampleTypeBuilder extends AbstractEntityTypeBuilder<SampleType>
 {
     private SampleType sampleType = new SampleType();
-    
+
     public SampleTypeBuilder()
     {
         sampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
     }
-    
+
     public SampleTypeBuilder id(long id)
     {
         sampleType.setId(id);
         return this;
     }
-    
+
     public SampleTypeBuilder code(String code)
     {
         sampleType.setCode(code);
         return this;
     }
-    
+
     public SampleType getSampleType()
     {
         return sampleType;
     }
-    
+
     public SampleTypeBuilder propertyType(String code, String label, DataTypeCode dataType)
     {
-        addPropertyType(sampleType, new SampleTypePropertyType(), code, label, dataType);
-        return this;
-    }
-    
-    protected void addPropertyType(SampleType entityType, SampleTypePropertyType entityTypePropertyType, String code, String label,
-            DataTypeCode type)
-    {
-        List<SampleTypePropertyType> types = entityType.getAssignedPropertyTypes();
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode(code);
-        propertyType.setSimpleCode(code);
-        propertyType.setLabel(label);
-        propertyType.setDataType(new DataType(type));
-        entityTypePropertyType.setPropertyType(propertyType);
-        entityTypePropertyType.setEntityType(entityType);
+        SampleTypePropertyType entityTypePropertyType = new SampleTypePropertyType();
+        List<SampleTypePropertyType> types = sampleType.getAssignedPropertyTypes();
+        fillEntityTypePropertyType(sampleType, entityTypePropertyType, code, label, dataType);
         types.add(entityTypePropertyType);
+        return this;
     }
 }
