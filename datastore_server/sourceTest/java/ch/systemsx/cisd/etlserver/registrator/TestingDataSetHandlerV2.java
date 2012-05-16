@@ -57,11 +57,11 @@ public class TestingDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<Data
     }
 
     @Override
-    protected void invokeFuncion(
+    protected void invokeFunction(
             ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService<DataSetInformation> service,
             PyFunction function, Object... args)
     {
-        super.invokeFuncion(service, function, args);
+        super.invokeFunction(service, function, args);
         expectations.checkPythonInterpreterVariables(service);
     }
 

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
 
+import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -89,6 +91,20 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         interpreter.set(TRANSACTION_VARIABLE_NAME, service.transaction());
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
         interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+    }
+
+    @Override
+    protected void executeJythonProcessFunction(PythonInterpreter interpreter)
+    {
+        String PROCESS_FUNCTION_NAME = "process";
+        try
+        {
+            PyFunction function = interpreter.get(PROCESS_FUNCTION_NAME, PyFunction.class);
+            function.__call__();
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
     }
 
     @Override

@@ -163,6 +163,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                 (JythonDataSetRegistrationService<T>) genericService;
 
         executeJythonScript(dataSetFile, scriptString, service);
+        executeJythonProcessFunction(service.interpreter);
     }
 
     private void executeJythonScript(File dataSetFile, String scriptString,
@@ -176,6 +177,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         interpreter.exec(scriptString);
 
         verifyEvaluatorHookFunctions(interpreter);
+    }
+
+    /**
+     * Execute the function that processes the data set. Subclasses may override.
+     */
+    protected void executeJythonProcessFunction(PythonInterpreter interpreter)
+    {
+
     }
 
     private void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
@@ -455,20 +464,20 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private void invokeRollbackServiceFunction(PyFunction function,
             DataSetRegistrationService<T> service, Throwable throwable)
     {
-        invokeFuncion(service, function, service, throwable);
+        invokeFunction(service, function, service, throwable);
     }
 
     private void invokeRollbackTransactionFunction(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable throwable)
     {
-        invokeFuncion(service, function, service, transaction, algorithmRunner, throwable);
+        invokeFunction(service, function, service, transaction, algorithmRunner, throwable);
     }
 
     private void invokeServiceTransactionFunction(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
-        invokeFuncion(service, function, service, transaction);
+        invokeFunction(service, function, service, transaction);
     }
 
     private void invokeTransactionFunctionWithContext(PyFunction function,
@@ -477,11 +486,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         if (additionalArgs.length > 0)
         {
-            invokeFuncion(service, function, transaction.getTransactionPersistentMap(),
+            invokeFunction(service, function, transaction.getTransactionPersistentMap(),
                     additionalArgs);
         } else
         {
-            invokeFuncion(service, function, transaction.getTransactionPersistentMap());
+            invokeFunction(service, function, transaction.getTransactionPersistentMap());
         }
     }
 
@@ -489,14 +498,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
     {
-        invokeFuncion(service, function, service, transaction, secondaryErrors);
+        invokeFunction(service, function, service, transaction, secondaryErrors);
     }
 
     /**
      * Turns all arguments into a python objects, and calls the specified function. Service is here
      * only for the tests, so that the tests can hook it
      */
-    protected void invokeFuncion(DataSetRegistrationService<T> service, PyFunction function,
+    protected void invokeFunction(DataSetRegistrationService<T> service, PyFunction function,
             Object... args)
     {
         PyObject[] pyArgs = new PyObject[args.length];
