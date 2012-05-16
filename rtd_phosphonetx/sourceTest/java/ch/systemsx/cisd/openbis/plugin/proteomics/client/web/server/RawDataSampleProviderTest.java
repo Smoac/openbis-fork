@@ -127,8 +127,8 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         
         assertEquals(3, data.size());
         assertEquals("[null, null, null, null, 2, one, alpha, beta, gamma]", tableModel.getHeader().toString());
-        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, , , 3.0, 6, 4, ", data.get(0));
-        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, , , 3.0, , 5, 5", data.get(1));
+        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, , , 3, 6, 4, ", data.get(0));
+        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, , , 3, , 5, 5", data.get(1));
         assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, /G/P/E1, 1, , 5, , 6", data.get(2));
         context.assertIsSatisfied();
     }
@@ -163,9 +163,8 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
 
     private void assertPropertyHeader(String expectedLabel, String expectedCode, int index, List<TableModelColumnHeader> headers)
     {
-        DataTypeCode type = DataTypeCode.values()[expectedLabel.length()];
         TableModelColumnHeader header = headers.get(index);
-        assertHeader(expectedLabel, expectedCode, index, type, header);
+        assertHeader(expectedLabel, expectedCode, index, DataTypeCode.INTEGER, header);
     }
     
     private void assertHeader(String expectedTitle, String expectedCode, int expectedIndex,
@@ -206,7 +205,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
             propertyType.setCode(propertyType.getLabel().toUpperCase());
             propertyType.setSimpleCode(propertyType.getCode());
             DataType dataType = new DataType();
-            dataType.setCode(DataTypeCode.values()[label.length()]);
+            dataType.setCode(DataTypeCode.INTEGER);
             propertyType.setDataType(dataType);
             property.setPropertyType(propertyType);
             property.setValue(Integer.toString(label.length() + properties.size()));
