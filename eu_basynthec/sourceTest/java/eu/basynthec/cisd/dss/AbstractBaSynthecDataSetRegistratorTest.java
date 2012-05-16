@@ -47,12 +47,10 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 {
 
     private static final String TEST_EXPERIMENT_IDENTIFIER = "/TEST/TEST/TEST";
-    
+
     protected static final String STRAIN_NAMES_PROP = "STRAIN_NAMES";
 
     protected static final String VALUE_UNIT_PROP = "VALUE_UNIT";
-
-    protected static final String DATA_SET_CODE = "data-set-code";
 
     protected static final DataSetType TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE = new DataSetType(
             "TSV_MULTISTRAIN_EXPORT");
@@ -70,6 +68,13 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
     protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
             final DataSetType dataSetType, final DataSetType tsvDataSetType)
+    {
+        return setUpDataSetRegistrationExpectations(dataSetType, tsvDataSetType, true);
+    }
+
+    protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
+            final DataSetType dataSetType, final DataSetType tsvDataSetType,
+            final boolean requireSingleStrainTsvExport)
     {
         ExperimentBuilder builder = new ExperimentBuilder().identifier(TEST_EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
@@ -95,8 +100,11 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     }
 
                     String tsvDataSetCode = DATA_SET_CODE + "-TSV";
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(tsvDataSetCode));
+                    if (requireSingleStrainTsvExport)
+                    {
+                        one(openBisService).createDataSetCode();
+                        will(returnValue(tsvDataSetCode));
+                    }
 
                     atLeast(1).of(openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
@@ -119,15 +127,18 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                                         + "-TSV-MULTISTRAIN"), "tsv-multi"));
                     }
 
-                    one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
+                    if (requireSingleStrainTsvExport)
+                    {
+                        one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
+                                new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
+                    }
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
                     will(returnValue(new AtomicEntityOperationResult()));
 
                     allowing(openBisService).setStorageConfirmed(with(any(String.class)));
-                    
+
                 }
             });
         return atomicatOperationDetails;

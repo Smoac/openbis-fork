@@ -169,7 +169,7 @@ store_original_data(tr, original_dataset, "xls")
 
 tsv_dataset = tr.createNewDataSet("TSV_MULTISTRAIN_EXPORT")
 set_data_type(tsv_dataset)
-convert_data_to_tsv(tr, tsv_dataset, "tsv")
+convert_data_to_tsv(tr, tsv_dataset, "tsv-multi")
 
 # Make the original contain these
 contained_codes = [original_dataset.getDataSetCode(), tsv_dataset.getDataSetCode()]

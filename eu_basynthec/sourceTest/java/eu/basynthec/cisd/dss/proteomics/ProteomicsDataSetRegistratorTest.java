@@ -35,7 +35,8 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
 public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
 
-    private static final DataSetType PROTEIN_QUANTIFICATIONS = new DataSetType("PROTEIN_QUANTIFICATIONS");
+    private static final DataSetType PROTEIN_QUANTIFICATIONS = new DataSetType(
+            "PROTEIN_QUANTIFICATIONS");
 
     @Test
     public void testSimpleTransaction() throws IOException
