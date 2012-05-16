@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.INSERT_TIMESTAMP_SQL_KEY;
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.READ_TIMESTAMP_SQL_KEY;
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.UPDATE_TIMESTAMP_SQL_KEY;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -108,12 +112,9 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         dbConfigContext.closeConnections();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
         properties = new Properties();
-        properties.setProperty(MaterialReportingTask.READ_TIMESTAMP_SQL_KEY,
-                "select timestamp from timestamp");
-        properties.setProperty(MaterialReportingTask.INSERT_TIMESTAMP_SQL_KEY,
-                "insert into timestamp values(?)");
-        properties.setProperty(MaterialReportingTask.UPDATE_TIMESTAMP_SQL_KEY,
-                "update timestamp set timestamp = ?");
+        properties.setProperty(READ_TIMESTAMP_SQL_KEY, "select timestamp from timestamp");
+        properties.setProperty(UPDATE_TIMESTAMP_SQL_KEY, "update timestamp set timestamp = ?");
+        properties.setProperty(INSERT_TIMESTAMP_SQL_KEY, "insert into timestamp values(?)");
         properties.setProperty("database-driver", "org.postgresql.Driver");
         properties.setProperty("database-url", "jdbc:postgresql://localhost/" + databaseName);
         properties.setProperty("database-username", "postgres");
@@ -491,6 +492,132 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testTimestampReadingWriting() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "");
+        prepareListMaterialTypes();
+        properties.setProperty(INSERT_TIMESTAMP_SQL_KEY, "insert into b values(?)");
+
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Couldn't save timestamp to report database. Property '"
+                    + INSERT_TIMESTAMP_SQL_KEY + "' or '" + UPDATE_TIMESTAMP_SQL_KEY
+                    + "' could be invalid.", ex.getMessage());
+            assertEquals("PreparedStatementCallback; bad SQL grammar [insert into b values(?)]; "
+                    + "nested exception is org.postgresql.util.PSQLException: "
+                    + "ERROR: relation \"b\" does not exist\n" + "  Position: 13", ex.getCause()
+                    .getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTimestampReadingWritingForInvalidUpdateSqlStatement() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "");
+        prepareListMaterialTypes();
+        properties.setProperty(UPDATE_TIMESTAMP_SQL_KEY, "insert into b values(?)");
+
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Couldn't save timestamp to report database. Property '"
+                    + UPDATE_TIMESTAMP_SQL_KEY + "' could be invalid.", ex.getMessage());
+            assertEquals("PreparedStatementCallback; bad SQL grammar [insert into b values(?)]; "
+                    + "nested exception is org.postgresql.util.PSQLException: "
+                    + "ERROR: relation \"b\" does not exist\n" + "  Position: 13", ex.getCause()
+                    .getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTimestampReadingWritingForInvalidReadSqlStatement() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "");
+        prepareListMaterialTypes();
+        properties.setProperty(READ_TIMESTAMP_SQL_KEY, "select blabla from timestamp");
+        properties.setProperty(UPDATE_TIMESTAMP_SQL_KEY, "insert into timestamp values(?)");
+        properties.remove(INSERT_TIMESTAMP_SQL_KEY);
+
+        try
+        {
+            materialReportingTask.setUp("", properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Couldn't get timestamp from report database. Property '"
+                    + READ_TIMESTAMP_SQL_KEY + "' could be invalid.", ex.getMessage());
+            assertEquals("StatementCallback; bad SQL grammar [select blabla from timestamp]; "
+                    + "nested exception is org.postgresql.util.PSQLException: "
+                    + "ERROR: column \"blabla\" does not exist\n" + "  Position: 8", ex.getCause()
+                    .getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTimestampReadingWritingWithDifferentSchema() throws Exception
+    {
+        FileUtilities.writeToFile(mappingFile, "");
+        prepareListMaterialTypes();
+        prepareListMaterialTypes();
+        properties.setProperty(READ_TIMESTAMP_SQL_KEY, "select max(timestamp) from timestamp");
+        properties.setProperty(UPDATE_TIMESTAMP_SQL_KEY, "insert into timestamp values(?)");
+        properties.remove(INSERT_TIMESTAMP_SQL_KEY);
+        final RecordingMatcher<DetailedSearchCriteria> criteriaRecorder =
+                new RecordingMatcher<DetailedSearchCriteria>();
+        final Sequence timeSequence = context.sequence("time");
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(2).of(server).tryToAuthenticateAsSystem();
+                    SessionContextDTO session = new SessionContextDTO();
+                    session.setSessionToken(SESSION_TOKEN);
+                    will(returnValue(session));
+
+                    exactly(2).of(server).searchForMaterials(with(SESSION_TOKEN),
+                            with(criteriaRecorder));
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(24L * 3600L * 1000L * 60L));
+                    inSequence(timeSequence);
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(24L * 3600L * 1000L * 62L));
+                    inSequence(timeSequence);
+                }
+            });
+
+        materialReportingTask.setUp("", properties);
+        materialReportingTask.execute();
+        materialReportingTask.setUp("", properties);
+        materialReportingTask.execute();
+
+        assertEquals("[{timestamp=1970-01-01 01:00:00.0}, {timestamp=1970-01-01 01:00:00.0}, "
+                + "{timestamp=1970-03-02 01:00:00.0}, {timestamp=1970-03-02 01:00:00.0}, "
+                + "{timestamp=1970-03-02 01:00:00.0}, {timestamp=1970-03-04 01:00:00.0}]",
+                loadTable("timestamp", false).toString());
+        List<DetailedSearchCriteria> recordedObjects = criteriaRecorder.getRecordedObjects();
+        assertEquals("1970-01-01 01:00:00 +0100", recordedObjects.get(0).getCriteria().get(0)
+                .getValue());
+        assertEquals("1970-03-02 01:00:00 +0100", recordedObjects.get(1).getCriteria().get(0)
+                .getValue());
+        assertEquals(2, recordedObjects.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testInsert() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
@@ -617,10 +744,12 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 + "rank=null, size=null, timestamp=null}]", result.toString());
         assertEquals("[{timestamp=1970-03-04 01:00:00.0}]", loadTable("timestamp", false)
                 .toString());
-        assertEquals("1970-01-01 01:00:00 +0100", criteriaRecorder.getRecordedObjects().get(0)
-                .getCriteria().get(0).getValue());
-        assertEquals("1970-03-02 01:00:00 +0100", criteriaRecorder.getRecordedObjects().get(1)
-                .getCriteria().get(0).getValue());
+        List<DetailedSearchCriteria> recordedObjects = criteriaRecorder.getRecordedObjects();
+        assertEquals("1970-01-01 01:00:00 +0100", recordedObjects.get(0).getCriteria().get(0)
+                .getValue());
+        assertEquals("1970-03-02 01:00:00 +0100", recordedObjects.get(1).getCriteria().get(0)
+                .getValue());
+        assertEquals(2, recordedObjects.size());
         context.assertIsSatisfied();
     }
 

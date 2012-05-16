@@ -39,7 +39,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -617,6 +616,15 @@ public class MaterialReportingTask implements IMaintenanceTask
                             + INSERT_TIMESTAMP_SQL_KEY + "' or '" + UPDATE_TIMESTAMP_SQL_KEY
                             + "' could be invalid.", ex);
         }
+        try
+        {
+            writeTimestamp(timestamp == null ? new Date(0) : timestamp);
+        } catch (Exception ex)
+        {
+            throw new ConfigurationFailureException(
+                    "Couldn't save timestamp to report database. Property '"
+                            + UPDATE_TIMESTAMP_SQL_KEY + "' could be invalid.", ex);
+        }
     }
 
     private String readTimestamp()
@@ -628,18 +636,9 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private Date tryToReadTimestamp()
     {
-        try
-        {
-            return (Date) jdbcTemplate.queryForObject(readTimestampSql, Date.class);
-        } catch (IncorrectResultSizeDataAccessException ex)
-        {
-            int actualSize = ex.getActualSize();
-            if (actualSize == 0)
-            {
-                return null;
-            }
-            throw ex;
-        }
+        @SuppressWarnings("unchecked")
+        List<Date> list = jdbcTemplate.queryForList(readTimestampSql, Date.class);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     private void writeTimestamp(Date newTimestamp)
