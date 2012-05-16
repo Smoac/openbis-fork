@@ -163,7 +163,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                 (JythonDataSetRegistrationService<T>) genericService;
 
         executeJythonScript(dataSetFile, scriptString, service);
-        executeJythonProcessFunction(service.interpreter);
     }
 
     private void executeJythonScript(File dataSetFile, String scriptString,
@@ -176,6 +175,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         // Invoke the evaluator
         interpreter.exec(scriptString);
 
+        executeJythonProcessFunction(service.interpreter);
+        
         verifyEvaluatorHookFunctions(interpreter);
     }
 

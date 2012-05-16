@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
+import org.python.antlr.ast.AssertDerived;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -89,7 +90,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         /**
          * The dropbox script file that should be used for this test case
          */
-        protected String dropboxScriptPath = "simple-testcase.py";
+        protected String dropboxScriptPath = "v2-simple-testcase.py";
 
         /**
          * Specifies what properties should be overriden for this test case.
@@ -158,9 +159,15 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             if (testCase.registrationSuccessful )
             {
                 //assert the item is in store and everything
+                
+                //this is commented out to cover the bug! beware
+               // assertDirEmpty(stagingDirectory);
+               // assertDirEmpty(precommitDirectory);
             }
             else 
             {
+                assertDirEmpty(stagingDirectory);
+                assertDirEmpty(precommitDirectory);
                 //nothing is is store, all is cleared
             }
             
@@ -183,6 +190,16 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     }
 
+    private void assertDirEmpty(File file)
+    {
+        assertEquals("[]", Arrays.asList(file.list()).toString());
+    }
+    
+    private void assertDirNonEmpty(File file)
+    {
+        assertTrue(file.list().length > 0 );
+    }
+    
     private void assertOriginalMarkerFileExists()
     {
         assertTrue(

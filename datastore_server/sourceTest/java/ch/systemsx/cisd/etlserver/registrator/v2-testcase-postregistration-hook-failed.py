@@ -7,6 +7,6 @@ def post_metadata_registration(context):
     didPostRegistrationFunctionRunHappen = True
     raise IllegalArgumentException("Fail at post_metadata_registration to cancel registration")
 
-process():
+def process():
   execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
 

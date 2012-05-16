@@ -12,5 +12,5 @@ def process():
   registrationDetails = factory.createRegistrationDetails()
   dataSetInformation = registrationDetails.getDataSetInformation()
   dataSetInformation.setExperimentIdentifier(identifier)
-      registrationDetails.setDataSetType(dto.DataSetType("O1"));
+  registrationDetails.setDataSetType(dto.DataSetType("O1"));
   None.non_existant_function()
