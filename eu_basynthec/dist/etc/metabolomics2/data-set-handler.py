@@ -157,7 +157,7 @@ timeSeriesData = TimeSeriesDataExcel.createTimeSeriesDataExcel(incoming.getAbsol
 dataStart = getInitialDataRowAndCol(timeSeriesData.getMetadataMap())
 
 # create the data set and assign the metadata from the file
-dataset = tr.createNewDataSet("METABOLITE_INTENSITIES_GROUPED")
+dataset = tr.createNewDataSet("METABOLITE_INTENSITIES")
 metadata = timeSeriesData.getMetadataMap()
 metadata["STRAIN_NAMES"] = extract_strains(dataStart[0], dataStart[1])
 assign_properties(dataset, metadata)
@@ -167,7 +167,7 @@ original_dataset = tr.createNewDataSet("EXCEL_ORIGINAL")
 set_data_type(original_dataset)
 store_original_data(tr, original_dataset, "xls")
 
-tsv_dataset = tr.createNewDataSet("TSV_EXPORT")
+tsv_dataset = tr.createNewDataSet("TSV_MULTISTRAIN_EXPORT")
 set_data_type(tsv_dataset)
 convert_data_to_tsv(tr, tsv_dataset, "tsv")
 
