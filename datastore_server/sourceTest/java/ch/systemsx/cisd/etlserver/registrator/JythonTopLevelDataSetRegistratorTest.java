@@ -103,7 +103,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         params.dontCallOldApiJythonHooks = true;
         params.title += " - V2";
         params.shouldUseAutoRecovery = true;
+        params.dropboxScriptPath = scriptPathV2(other.dropboxScriptPath);
         return params;
+    }
+
+    private static String scriptPathV2(String scriptPath)
+    {
+        File script = new File(scriptPath);
+        return new File(script.getParentFile(), "v2-" + script.getName()).getPath();
     }
 
     @DataProvider(name = "simpleTransactionTestCaseProvider")
