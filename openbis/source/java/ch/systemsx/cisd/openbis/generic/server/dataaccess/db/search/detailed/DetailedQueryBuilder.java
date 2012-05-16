@@ -57,6 +57,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 public class DetailedQueryBuilder
 {
+    private static final String[] DATE_FORMATS =
+        { "y-M-d HH:mm:ss", "y-M-d HH:mm", "y-M-d" };
+
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DetailedQueryBuilder.class);
 
@@ -106,35 +109,8 @@ public class DetailedQueryBuilder
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                String tzs = criterion.getTimeZone();
-                if (tzs.startsWith("+"))
-                {
-                    tzs = tzs.substring(1);
-                } else if (tzs.equals("Z"))
-                {
-                    tzs = "0";
-                }
-
-                int offset;
-                try
-                {
-                    offset = (-Integer.parseInt(tzs) * 3600000);
-                } catch (NumberFormatException e)
-                {
-                    offset = 0;
-                }
-
-                SimpleDateFormat sdf = new SimpleDateFormat("y-M-d");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                Date lower;
-                try
-                {
-                    lower = sdf.parse(criterion.getDate());
-                } catch (ParseException ex)
-                {
-                    throw new IllegalArgumentException(criterion.getDate(), ex);
-                }
+                Date lower = parseDate(criterion.getValue());
+                int offset = getTimeZoneOffset(criterion, lower);
 
                 lower.setTime(lower.getTime() + offset);
                 Date upper = new Date(lower.getTime() + 24 * 3600 * 1000);
@@ -152,7 +128,7 @@ public class DetailedQueryBuilder
                 }
 
                 String fieldName = fieldNames.get(0);
-                DateBridge bridge = new DateBridge(Resolution.HOUR);
+                DateBridge bridge = new DateBridge(Resolution.SECOND);
                 TermRangeQuery q =
                         new TermRangeQuery(fieldName, bridge.objectToString(lower),
                                 bridge.objectToString(upper), true, true);
@@ -167,6 +143,52 @@ public class DetailedQueryBuilder
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
+    }
+
+    private int getTimeZoneOffset(DetailedSearchCriterion criterion, Date lower)
+    {
+        String tzs = criterion.getTimeZone();
+        if (tzs.equals(DetailedSearchCriterion.SERVER_TIMEZONE))
+        {
+            return -TimeZone.getDefault().getOffset(lower.getTime());
+        }
+
+        if (tzs.startsWith("+"))
+        {
+            tzs = tzs.substring(1);
+        } else if (tzs.equals("Z"))
+        {
+            tzs = "0";
+        }
+
+        int offset;
+        try
+        {
+            offset = (int) (-Double.parseDouble(tzs) * 3600000);
+        } catch (NumberFormatException e)
+        {
+            offset = 0;
+        }
+        return offset;
+    }
+
+    private Date parseDate(String dateAsString)
+    {
+        for (String format : DATE_FORMATS)
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            try
+            {
+                return sdf.parse(dateAsString);
+            } catch (ParseException ex)
+            {
+                // ignore, try next format
+            }
+        }
+        throw new UserFailureException("Couldn't parse date '" + dateAsString
+                + "'. It has to match one of the following formats: " + Arrays.asList(DATE_FORMATS));
     }
 
     private List<String> extractAssociationPatterns(DetailedSearchAssociationCriteria association)

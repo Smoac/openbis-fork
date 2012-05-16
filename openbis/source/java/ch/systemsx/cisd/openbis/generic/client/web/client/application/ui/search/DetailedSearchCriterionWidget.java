@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
-import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
@@ -212,33 +210,23 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         {
             String aCode = selectedFieldName.getAttributeCode();
 
-            @SuppressWarnings("unused")
-            Date date;
-            try
-            {
-                date = DateRenderer.SHORT_DATE_TIME_FORMAT.parse(selectedValue);
-            } catch (IllegalArgumentException ex)
-            {
-                return new DetailedSearchCriterion(selectedFieldName, selectedValue);
-            }
-
             CompareType compareType;
-            if ("REGISTRATION_DATE_FROM".equals(aCode))
+            if ("REGISTRATION_DATE_UNTIL".equals(aCode))
             {
                 compareType = CompareType.LESS_THAN_OR_EQUAL;
             } else if ("REGISTRATION_DATE".equals(aCode))
             {
                 compareType = CompareType.EQUALS;
-            } else if ("REGISTRATION_DATE_UNTIL".equals(aCode))
+            } else if ("REGISTRATION_DATE_FROM".equals(aCode))
             {
                 compareType = CompareType.MORE_THAN_OR_EQUAL;
-            } else if ("MODIFICATION_DATE_FROM".equals(aCode))
+            } else if ("MODIFICATION_DATE_UNTIL".equals(aCode))
             {
                 compareType = CompareType.LESS_THAN_OR_EQUAL;
             } else if ("MODIFICATION_DATE".equals(aCode))
             {
                 compareType = CompareType.EQUALS;
-            } else if ("MODIFICATION_DATE_UNTIL".equals(aCode))
+            } else if ("MODIFICATION_DATE_FROM".equals(aCode))
             {
                 compareType = CompareType.MORE_THAN_OR_EQUAL;
             } else
@@ -246,7 +234,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
                 return new DetailedSearchCriterion(selectedFieldName, selectedValue);
             }
 
-            return new DetailedSearchCriterion(selectedFieldName, compareType, selectedValue, "+1");
+            return new DetailedSearchCriterion(selectedFieldName, compareType, selectedValue);
 
         }
         return null;
@@ -262,13 +250,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
             return null;
         }
 
-        if (criterion.getValue() == null && criterion.getDate() != null)
-        {
-            return name + " = " + criterion.getDate();
-        } else
-        {
-            return name + " = " + criterion.getValue();
-        }
+        return name + " = " + criterion.getValue();
     }
 
     public List<PropertyType> getAvailablePropertyTypes()

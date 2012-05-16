@@ -26,13 +26,13 @@ public class DetailedSearchCriterion implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    public static final String SERVER_TIMEZONE = "server";
+
     private DetailedSearchField field;
 
     private CompareType type;
 
     private String value;
-
-    private String date;
 
     private String timezone;
 
@@ -48,11 +48,16 @@ public class DetailedSearchCriterion implements Serializable
         this.type = CompareType.EQUALS;
     }
 
+    public DetailedSearchCriterion(DetailedSearchField field, CompareType type, String date)
+    {
+        this(field, type, date, SERVER_TIMEZONE);
+    }
+
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, String date,
             String timezone)
     {
         this.field = field;
-        this.date = date;
+        this.value = date;
         this.type = type;
         this.timezone = timezone;
     }
@@ -80,11 +85,6 @@ public class DetailedSearchCriterion implements Serializable
     public CompareType getType()
     {
         return this.type;
-    }
-
-    public String getDate()
-    {
-        return this.date;
     }
 
     public String getTimeZone()
