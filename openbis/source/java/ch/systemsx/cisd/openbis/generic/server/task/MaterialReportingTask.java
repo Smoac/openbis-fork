@@ -37,7 +37,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,7 +54,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
@@ -70,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
 
 /**
  * Task which feeds a reporting database with recently added/changed Materials.
@@ -78,6 +83,15 @@ import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
  */
 public class MaterialReportingTask implements IMaintenanceTask
 {
+    @Private
+    static final String READ_TIMESTAMP_SQL_KEY = "read-timestamp-sql";
+
+    @Private
+    static final String UPDATE_TIMESTAMP_SQL_KEY = "update-timestamp-sql";
+
+    @Private
+    static final String INSERT_TIMESTAMP_SQL_KEY = "insert-timestamp-sql";
+
     @Private
     static final String MAPPING_FILE_KEY = "mapping-file";
 
@@ -347,29 +361,38 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private final ICommonServerForInternalUse server;
 
+    private final ITimeProvider timeProvider;
+
     private Map<String, MappingInfo> mapping;
 
     private SimpleDatabaseConfigurationContext dbConfigurationContext;
 
     private JdbcTemplate jdbcTemplate;
 
+    private String readTimestampSql;
+
+    private String insertTimestampSql;
+
+    private String updateTimestampSql;
+
     public MaterialReportingTask()
     {
-        this(CommonServiceProvider.getCommonServer());
+        this(CommonServiceProvider.getCommonServer(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    public MaterialReportingTask(ICommonServerForInternalUse server)
+    public MaterialReportingTask(ICommonServerForInternalUse server, ITimeProvider timeProvider)
     {
         this.server = server;
+        this.timeProvider = timeProvider;
     }
 
     public void setUp(String pluginName, Properties properties)
     {
         dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
-        // String readTimestampSql = PropertyUtils.getMandatoryProperty(properties,
-        // "read-timestamp-sql");
-        // String writeTimestampSql = PropertyUtils.getMandatoryProperty(properties,
-        // "write-timestamp-sql");
+        readTimestampSql = PropertyUtils.getMandatoryProperty(properties, READ_TIMESTAMP_SQL_KEY);
+        updateTimestampSql =
+                PropertyUtils.getMandatoryProperty(properties, UPDATE_TIMESTAMP_SQL_KEY);
+        insertTimestampSql = properties.getProperty(INSERT_TIMESTAMP_SQL_KEY, updateTimestampSql);
         String mappingFileName = PropertyUtils.getMandatoryProperty(properties, MAPPING_FILE_KEY);
         mapping = readMappingFile(mappingFileName);
         Map<String, Map<String, PropertyType>> materialTypes = getMaterialTypes();
@@ -393,6 +416,7 @@ public class MaterialReportingTask implements IMaintenanceTask
             mappingInfo.injectDataTypeCodes(columns, propertyTypes);
         }
         jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
+        checkTimestampReadingWriting();
     }
 
     public void execute()
@@ -415,6 +439,7 @@ public class MaterialReportingTask implements IMaintenanceTask
                 addOrUpdate(mappingInfo, materials);
             }
         }
+        writeTimestamp(new Date(timeProvider.getTimeInMilliseconds()));
         operationLog.info("Reporting finished.");
     }
 
@@ -551,7 +576,7 @@ public class MaterialReportingTask implements IMaintenanceTask
                 new DetailedSearchCriterion(
                         DetailedSearchField
                                 .createAttributeField(MaterialAttributeSearchFieldKind.MODIFICATION_DATE),
-                        CompareType.MORE_THAN_OR_EQUAL, readTimestamp(), "0");
+                        CompareType.MORE_THAN_OR_EQUAL, readTimestamp());
         criteria.setCriteria(Arrays.asList(criterion));
         criteria.setConnection(SearchCriteriaConnection.MATCH_ALL);
         List<Material> materials = server.searchForMaterials(sessionToken, criteria);
@@ -570,9 +595,59 @@ public class MaterialReportingTask implements IMaintenanceTask
         return result;
     }
 
+    private void checkTimestampReadingWriting()
+    {
+        Date timestamp;
+        try
+        {
+            timestamp = tryToReadTimestamp();
+        } catch (Exception ex)
+        {
+            throw new ConfigurationFailureException(
+                    "Couldn't get timestamp from report database. Property '"
+                            + READ_TIMESTAMP_SQL_KEY + "' could be invalid.", ex);
+        }
+        try
+        {
+            writeTimestamp(timestamp == null ? new Date(0) : timestamp);
+        } catch (Exception ex)
+        {
+            throw new ConfigurationFailureException(
+                    "Couldn't save timestamp to report database. Property '"
+                            + INSERT_TIMESTAMP_SQL_KEY + "' or '" + UPDATE_TIMESTAMP_SQL_KEY
+                            + "' could be invalid.", ex);
+        }
+    }
+
     private String readTimestamp()
     {
-        return "2012-02-20 10:33:44.6667";
+        Date timestamp = tryToReadTimestamp();
+        return timestamp == null ? "1970-01-01" : DateFormatUtils.format(timestamp,
+                SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern());
+    }
+
+    private Date tryToReadTimestamp()
+    {
+        try
+        {
+            return (Date) jdbcTemplate.queryForObject(readTimestampSql, Date.class);
+        } catch (IncorrectResultSizeDataAccessException ex)
+        {
+            int actualSize = ex.getActualSize();
+            if (actualSize == 0)
+            {
+                return null;
+            }
+            throw ex;
+        }
+    }
+
+    private void writeTimestamp(Date newTimestamp)
+    {
+        String sql = tryToReadTimestamp() == null ? insertTimestampSql : updateTimestampSql;
+        jdbcTemplate.update(sql, new Object[]
+            { newTimestamp }, new int[]
+            { Types.TIMESTAMP });
     }
 
     @Private

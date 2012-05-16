@@ -43,11 +43,15 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.MappingInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
@@ -78,12 +82,15 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private Properties properties;
 
+    private ITimeProvider timeProvider;
+
     @BeforeMethod
     public void setUpMocks() throws Exception
     {
         context = new Mockery();
         server = context.mock(ICommonServerForInternalUse.class);
-        materialReportingTask = new MaterialReportingTask(server);
+        timeProvider = context.mock(ITimeProvider.class);
+        materialReportingTask = new MaterialReportingTask(server, timeProvider);
 
         dbConfigContext = new DatabaseConfigurationContext();
         dbConfigContext.setDatabaseEngineCode("postgresql");
@@ -94,12 +101,19 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         dropTestDatabase();
         createTestDatabase();
         createTables(
+                "create table timestamp (timestamp timestamp)",
                 "create table report1 (id bigint, code varchar(20), description varchar(200))",
                 "create table report2 (code varchar(20), rank integer, greetings varchar(200), "
                         + "size double precision, organism varchar(100), material varchar(30), timestamp timestamp)");
         dbConfigContext.closeConnections();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
         properties = new Properties();
+        properties.setProperty(MaterialReportingTask.READ_TIMESTAMP_SQL_KEY,
+                "select timestamp from timestamp");
+        properties.setProperty(MaterialReportingTask.INSERT_TIMESTAMP_SQL_KEY,
+                "insert into timestamp values(?)");
+        properties.setProperty(MaterialReportingTask.UPDATE_TIMESTAMP_SQL_KEY,
+                "update timestamp set timestamp = ?");
         properties.setProperty("database-driver", "org.postgresql.Driver");
         properties.setProperty("database-url", "jdbc:postgresql://localhost/" + databaseName);
         properties.setProperty("database-username", "postgres");
@@ -509,6 +523,9 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
                     one(server).searchForMaterials(with(SESSION_TOKEN), with(criteriaRecorder));
                     will(returnValue(Arrays.asList(m1, m2, m3)));
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(24L * 3600L * 1000L * 60L));
                 }
             });
 
@@ -521,6 +538,15 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 + "size=1.00000005E7, timestamp=1970-02-03 01:00:00.0}, "
                 + "{code=M3, greetings=hello, material=null, organism=null, rank=null, "
                 + "size=null, timestamp=null}]", result.toString());
+        assertEquals("[{timestamp=1970-03-02 01:00:00.0}]", loadTable("timestamp", false)
+                .toString());
+        DetailedSearchCriterion detailedSearchCriterion =
+                criteriaRecorder.recordedObject().getCriteria().get(0);
+        assertEquals(CompareType.MORE_THAN_OR_EQUAL, detailedSearchCriterion.getType());
+        assertEquals("MODIFICATION_DATE", detailedSearchCriterion.getField().getAttributeCode());
+        assertEquals(DetailedSearchFieldKind.ATTRIBUTE, detailedSearchCriterion.getField()
+                .getKind());
+        assertEquals("1970-01-01 01:00:00 +0100", detailedSearchCriterion.getValue());
         context.assertIsSatisfied();
     }
 
@@ -549,7 +575,8 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 new MaterialBuilder().code("M4").type("T2").property("P2", "hi").getMaterial();
         final RecordingMatcher<DetailedSearchCriteria> criteriaRecorder =
                 new RecordingMatcher<DetailedSearchCriteria>();
-        final Sequence sequence = context.sequence("materials");
+        final Sequence searchMaterialSequence = context.sequence("materials");
+        final Sequence timeSequence = context.sequence("time");
         context.checking(new Expectations()
             {
                 {
@@ -560,11 +587,19 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
                     one(server).searchForMaterials(with(SESSION_TOKEN), with(criteriaRecorder));
                     will(returnValue(Arrays.asList(m1, m2, m3)));
-                    inSequence(sequence);
+                    inSequence(searchMaterialSequence);
 
                     one(server).searchForMaterials(with(SESSION_TOKEN), with(criteriaRecorder));
                     will(returnValue(Arrays.asList(m1, m2v2, m4)));
-                    inSequence(sequence);
+                    inSequence(searchMaterialSequence);
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(24L * 3600L * 1000L * 60L));
+                    inSequence(timeSequence);
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(24L * 3600L * 1000L * 62L));
+                    inSequence(timeSequence);
                 }
             });
 
@@ -580,6 +615,12 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 + "rank=null, size=null, timestamp=null}, "
                 + "{code=M4, greetings=hi, material=null, organism=null, "
                 + "rank=null, size=null, timestamp=null}]", result.toString());
+        assertEquals("[{timestamp=1970-03-04 01:00:00.0}]", loadTable("timestamp", false)
+                .toString());
+        assertEquals("1970-01-01 01:00:00 +0100", criteriaRecorder.getRecordedObjects().get(0)
+                .getCriteria().get(0).getValue());
+        assertEquals("1970-03-02 01:00:00 +0100", criteriaRecorder.getRecordedObjects().get(1)
+                .getCriteria().get(0).getValue());
         context.assertIsSatisfied();
     }
 
@@ -615,8 +656,13 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private List<?> loadTable(String tableName)
     {
+        return loadTable(tableName, true);
+    }
+
+    private List<?> loadTable(String tableName, boolean orderByCode)
+    {
         return new JdbcTemplate(dbConfigContext.getDataSource()).query("select * from " + tableName
-                + " order by code", new ColumnMapRowMapper()
+                + (orderByCode ? " order by code" : ""), new ColumnMapRowMapper()
             {
                 @SuppressWarnings("rawtypes")
                 @Override
