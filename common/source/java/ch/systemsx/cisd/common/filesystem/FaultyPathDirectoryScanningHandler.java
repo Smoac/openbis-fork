@@ -55,12 +55,24 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
 
     private IStopSignaler stopSignaler;
 
+    public static interface IFaultyPathDirectoryScanningHandlerDelegate
+    {
+        /**
+         * return true if the given path should NOT end in faulty paths
+         */
+        boolean shouldNotAddToFaultyPathsOrNull(File file);
+    }
+
+    private final IFaultyPathDirectoryScanningHandlerDelegate delegate;
+
     public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory,
-            final IStopSignaler stopSignaler)
+            final IStopSignaler stopSignaler, IFaultyPathDirectoryScanningHandlerDelegate delegate)
     {
         this.faultyPaths = new HashSet<StoreItem>();
         this.faultyPathsFile = new File(faultyPathDirectory, Constants.FAULTY_PATH_FILENAME);
         this.stopSignaler = stopSignaler;
+
+        this.delegate = delegate;
     }
 
     private Set<String> faultyPathsAsStrings(IScannedStore scannedStore)
@@ -195,6 +207,13 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
 
     public final Status finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
+        // if the external provided predicate says we should not add it to faulty paths, we won't
+        if (delegate != null
+                && delegate.shouldNotAddToFaultyPathsOrNull(scannedStore.asFile(storeItem)))
+        {
+            return Status.OK;
+        }
+
         // If the item still exists, we assume that it has not been handled. So it
         // should be added to the faulty paths.
         if (scannedStore.existsOrError(storeItem) && stopSignaler.isStopped() == false)

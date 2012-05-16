@@ -49,10 +49,16 @@ public final class DirectoryScannedStore implements IScannedStore
     //
     // IScannedStore
     //
-
+    
+    
     public final String getLocationDescription(final StoreItem item)
     {
-        return StoreItem.asFile(directory, item).getPath();
+        return asFile(item).getPath();
+    }
+
+    public final File asFile(final StoreItem item)
+    {
+        return StoreItem.asFile(directory, item);
     }
 
     public StoreItem asStoreItem(String locationDescription)
@@ -62,7 +68,7 @@ public final class DirectoryScannedStore implements IScannedStore
 
     public final boolean existsOrError(final StoreItem item)
     {
-        return StoreItem.asFile(directory, item).exists();
+        return asFile(item).exists();
     }
 
     public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)

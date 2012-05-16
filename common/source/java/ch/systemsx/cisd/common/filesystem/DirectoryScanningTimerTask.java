@@ -171,7 +171,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             final IPathHandler pathHandler, final int ignoredErrorCount)
     {
         this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
-                sourceDirectory, pathHandler), PathHandlerAdapter.asScanningHandler(
+                sourceDirectory, pathHandler, null), PathHandlerAdapter.asScanningHandler(
                 sourceDirectory, pathHandler), ignoredErrorCount);
     }
 
@@ -448,6 +448,14 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
          * assumed that the result is the path which could be used in java.io.File constructor.
          */
         String getLocationDescription(StoreItem item);
+
+        /**
+         * Convert the store item to a file.
+         * 
+         * @throws UnsupportedOperationException Thrown if the store item cannot be represented as a
+         *             file object.
+         */
+        File asFile(StoreItem item) throws UnsupportedOperationException;
 
         /**
          * Constructs a {@link StoreItem} from a location description as created by
