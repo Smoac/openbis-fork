@@ -66,6 +66,12 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     private final IFaultyPathDirectoryScanningHandlerDelegate delegate;
 
     public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory,
+            final IStopSignaler stopSignaler)
+    {
+        this(faultyPathDirectory, stopSignaler, null);
+    }
+    
+    public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory,
             final IStopSignaler stopSignaler, IFaultyPathDirectoryScanningHandlerDelegate delegate)
     {
         this.faultyPaths = new HashSet<StoreItem>();
