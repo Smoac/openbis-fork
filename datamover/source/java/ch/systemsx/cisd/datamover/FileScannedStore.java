@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.datamover;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,5 +129,10 @@ final class FileScannedStore implements IScannedStore
     public final String toString()
     {
         return fileStore.toString();
+    }
+
+    public File asFile(StoreItem item) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException("This operation is unsupported in this implementation");
     }
 }
