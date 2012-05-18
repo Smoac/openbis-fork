@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CustomImportTypeSelectionWidget.CustomImportModelData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.CustomImportForm;
 
 /**
  * @author Pawel Glyzewski
