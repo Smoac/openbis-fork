@@ -58,7 +58,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
-                        runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming);
+                        runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming,
+                        runner.getPersistentMap());
 
         runner.getRollbackStack().setLockedState(true);
 

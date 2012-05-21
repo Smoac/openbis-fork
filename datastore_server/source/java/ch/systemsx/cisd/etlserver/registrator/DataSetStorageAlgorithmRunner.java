@@ -561,4 +561,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         return incomingDataSetFile;
     }
+    
+    public DataSetRegistrationContext getPersistentMap()
+    {
+        return transaction.getTransactionPersistentMap();
+    }
 }

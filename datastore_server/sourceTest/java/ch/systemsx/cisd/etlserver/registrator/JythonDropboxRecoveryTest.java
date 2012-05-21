@@ -82,7 +82,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase.recoveryRertyCount = 3;
         testCases.add(testCase);
 
-        testCase = new RecoveryTestCase("check retry count incremented");
+        testCase = new RecoveryTestCase("check can't retry immediatelly after last failure");
         testCase.recoveryLastTry = new Date();
         testCase.nextTryInTheFuture = true;
         testCases.add(testCase);
