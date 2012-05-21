@@ -601,6 +601,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         materialReportingTask.setUp("", properties);
         materialReportingTask.execute();
+        materialReportingTask.closeDatabaseConnections();
         materialReportingTask.setUp("", properties);
         materialReportingTask.execute();
 
