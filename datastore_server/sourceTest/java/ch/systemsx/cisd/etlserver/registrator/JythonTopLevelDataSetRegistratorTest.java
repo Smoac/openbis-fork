@@ -741,39 +741,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(dataSetsStoredInIncomingDir, MockStorageProcessor.instance.incomingDirs.size());
     }
 
-    protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
-            String dataSetCode, String dataSetDirectory, int testId)
-    {
-        assertEquals(1, recordedObject.getDataSetRegistrations().size());
-
-        NewExternalData dataSet = recordedObject.getDataSetRegistrations().get(0);
-
-        assertEquals(dataSetCode, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
-
-        File datasetLocation =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, dataSetCode,
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        DATABASE_INSTANCE_UUID);
-
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation), dataSet.getLocation());
-
-        assertEquals(new File(stagingDirectory, dataSetCode + "-storage"),
-                MockStorageProcessor.instance.rootDirs.get(testId));
-
-        File incomingDir = MockStorageProcessor.instance.incomingDirs.get(testId);
-
-        assertEquals(new File(new File(stagingDirectory, dataSetCode), dataSetDirectory),
-                incomingDir);
-
-        assertEquals("hello world" + (testId + 1),
-                FileUtilities
-                        .loadToString(new File(datasetLocation, "read" + (testId + 1) + ".me"))
-                        .trim());
-    }
-
     protected void assertCommitCount(final TestCaseParameters testCase)
     {
         int expectedCommitCount;

@@ -37,6 +37,7 @@ import org.testng.annotations.BeforeTest;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -48,8 +49,11 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -398,5 +402,37 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 };
         }
     }
+    
+    protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
+            String dataSetCode, String dataSetDirectory, int testId)
+    {
+        assertEquals(1, recordedObject.getDataSetRegistrations().size());
 
+        NewExternalData dataSet = recordedObject.getDataSetRegistrations().get(0);
+
+        assertEquals(dataSetCode, dataSet.getCode());
+        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
+        File datasetLocation =
+                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, dataSetCode,
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
+
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
+                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                datasetLocation), dataSet.getLocation());
+
+        assertEquals(new File(stagingDirectory, dataSetCode + "-storage"),
+                MockStorageProcessor.instance.rootDirs.get(testId));
+
+        File incomingDir = MockStorageProcessor.instance.incomingDirs.get(testId);
+
+        assertEquals(new File(new File(stagingDirectory, dataSetCode), dataSetDirectory),
+                incomingDir);
+
+        assertEquals("hello world" + (testId + 1),
+                FileUtilities
+                        .loadToString(new File(datasetLocation, "read" + (testId + 1) + ".me"))
+                        .trim());
+    }
 }

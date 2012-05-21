@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
-import org.python.antlr.ast.AssertDerived;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -154,23 +153,23 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             handler.handle(recoveryMarkerFile);
 
-            //if failure happened here then don't expect recovery / marker files to be deleted
-            
-            if (testCase.registrationSuccessful )
+            // if failure happened here then don't expect recovery / marker files to be deleted
+
+            if (testCase.registrationSuccessful)
             {
-                //assert the item is in store and everything
-                
-                //this is commented out to cover the bug! beware
-               // assertDirEmpty(stagingDirectory);
-               // assertDirEmpty(precommitDirectory);
-            }
-            else 
+                //item in store
+                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                        "sub_data_set_1", 0);
+                //FIXME: this is commented out to cover the bug! beware
+                // assertDirEmpty(stagingDirectory);
+                assertDirEmpty(precommitDirectory);
+            } else
             {
                 assertDirEmpty(stagingDirectory);
                 assertDirEmpty(precommitDirectory);
-                //nothing is is store, all is cleared
+                // nothing is is store, all is cleared
             }
-            
+
             assertNoOriginalMarkerFileExists();
             assertNoRecoveryMarkerFile();
         } else
@@ -189,17 +188,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // we continue with the recovery
 
     }
-
+    
     private void assertDirEmpty(File file)
     {
-        assertEquals("[]", Arrays.asList(file.list()).toString());
+     String   contents = file.getAbsolutePath();
+        assertEquals(contents, "[]", Arrays.asList(file.list()).toString());
     }
-    
-    private void assertDirNonEmpty(File file)
-    {
-        assertTrue(file.list().length > 0 );
-    }
-    
+
     private void assertOriginalMarkerFileExists()
     {
         assertTrue(
@@ -209,9 +204,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     private void assertNoOriginalMarkerFileExists()
     {
-        assertFalse(
-                "The original registration marker file should be deleted",
-                markerFile.exists());
+        assertFalse("The original registration marker file should be deleted", markerFile.exists());
     }
 
     private File assertRecoveryMarkerFile()
@@ -303,7 +296,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             Exception e;
             if (testCase.canRecoverFromError)
             {
-                e = new EnvironmentFailureException("Potentially recoverable failure in registration");
+                e =
+                        new EnvironmentFailureException(
+                                "Potentially recoverable failure in registration");
             } else
             {
                 e = new UserFailureException("Unrecoverable failure in registration");
@@ -313,7 +308,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         }
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings(
+            { "rawtypes", "unchecked" })
         protected void checkRegistrationSucceeded()
         {
             one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
