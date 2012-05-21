@@ -53,6 +53,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         return SCRIPTS_FOLDER;
     }
 
+    private static enum RegistrationCheckResult
+    {
+        REGISTRATION_SUCCEEDED, REGISTRATION_FAILED, CHECK_FAILED
+    }
+
     @DataProvider(name = "recoveryTestCaseProvider")
     public Object[][] recoveryTestCases()
     {
@@ -63,7 +68,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCases.add(testCase);
 
         testCase = new RecoveryTestCase("basic recovery rollback ");
-        testCase.registrationSuccessful = false;
+        testCase.registrationCheckResult = RegistrationCheckResult.REGISTRATION_FAILED;
+        testCases.add(testCase);
+
+        testCase = new RecoveryTestCase("cant verify if registration succeeded");
+        testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED;
         testCases.add(testCase);
 
         testCase = new RecoveryTestCase("basic unrecoverable");
@@ -107,10 +116,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected boolean canRecoverFromError = true;
 
         /**
-         * If true than this registration has been succesfull. Which means that the recovery should
-         * continue registration rather rollback.
+         * Desrcibed the result of the check whether the registration was successful. If
+         * REGISTRATION_SUCCEEDED - we can continue recovery IF REGISTRATION_FAILED - we can
+         * rollback IF CHECK_FAILED - we don't know and we have to try again.
          */
-        protected boolean registrationSuccessful = true;
+        protected RegistrationCheckResult registrationCheckResult =
+                RegistrationCheckResult.REGISTRATION_SUCCEEDED;
 
         private RecoveryTestCase(String title)
         {
@@ -142,12 +153,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
+        // create expectations
         context.checking(new RecoveryTestExpectations(testCase, atomicatOperationDetails));
 
-        // create expectations:
-        // the expectations are up to the point when the registration in openbis fails
-
-        // run the actual code
         handler.handle(markerFile);
 
         if (testCase.canRecoverFromError)
@@ -159,42 +167,53 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             // if failure happened here then don't expect recovery / marker files to be deleted
 
-            if (testCase.registrationSuccessful)
+            switch (testCase.registrationCheckResult)
             {
-                // item in store
-                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                        "sub_data_set_1", 0);
-                // FIXME: this is commented out to cover the bug! beware
-                // assertDirEmpty(stagingDirectory);
-                assertDirEmpty(precommitDirectory);
-            } else
-            {
-                assertDataSetNotStoredProcess(DATA_SET_CODE);
-                assertDirEmpty(stagingDirectory);
+                case REGISTRATION_SUCCEEDED:
+                    // item in store
+                    assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                            "sub_data_set_1", 0);
+                    // FIXME: this is commented out to cover the bug! beware
+                    // assertDirEmpty(stagingDirectory);
+                    assertDirEmpty(precommitDirectory);
 
-                // FIXME: this is commented out to cover the bug! beware
-                // assertDirEmpty(precommitDirectory);
+                    assertNoOriginalMarkerFileExists();
+                    assertNoRecoveryMarkerFile();
+                    break;
+                case REGISTRATION_FAILED:
+                    assertDataSetNotStoredProcess(DATA_SET_CODE);
+                    assertDirEmpty(stagingDirectory);
+
+                    // FIXME: this is commented out to cover the bug! beware
+                    // assertDirEmpty(precommitDirectory);
+
+                    assertNoOriginalMarkerFileExists();
+                    assertNoRecoveryMarkerFile();
+                    break;
+                case CHECK_FAILED:
+                    assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
+                    assertRecoveryMarkerFile();
+                    assertOriginalMarkerFileExists();
+                    // marker file is still there
+                    // recovery state file is still there
+                    break;
             }
 
-            assertNoOriginalMarkerFileExists();
-            assertNoRecoveryMarkerFile();
         } else
         {
             assertDataSetNotStoredProcess(DATA_SET_CODE);
-            
+
             assertNoOriginalMarkerFileExists();
             assertNoRecoveryMarkerFile();
             // assert there is no recovery file
             // rolllback requirementes
         }
 
-        // now! we know that the error has happened
+    }
 
-        // then we assert there exists a recovery file
-        // assert there is a recovery marker file
-
-        // we continue with the recovery
-
+    private void assertDirNotEmpty(File file, String message)
+    {
+        assertFalse(message, 0 == file.list().length);
     }
 
     private void assertDirEmpty(File file)
@@ -212,13 +231,19 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     private void assertNoOriginalMarkerFileExists()
     {
-        assertFalse("The original registration marker " +markerFile+ " file should be deleted", markerFile.exists());
+        assertFalse("The original registration marker " + markerFile + " file should be deleted",
+                markerFile.exists());
     }
 
     private File assertRecoveryMarkerFile()
     {
         File file = getCreatedRecoveryMarkerFile();
         assertTrue("The recovery marker file does not exist! " + file, file.exists());
+        File recoveryFile =
+                handler.getGlobalState().getStorageRecoveryManager()
+                        .getRecoveryFileFromMarker(file).getRecoveryStateFile();
+        assertTrue("The recovery serialized file does not exist! " + recoveryFile,
+                recoveryFile.exists());
         return file;
     }
 
@@ -270,7 +295,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 checkRegistrationSucceeded();
 
-                if (testCase.registrationSuccessful)
+                if (testCase.registrationCheckResult == RegistrationCheckResult.REGISTRATION_SUCCEEDED)
                 {
                     setStorageConfirmed();
                 }
@@ -321,14 +346,19 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected void checkRegistrationSucceeded()
         {
             one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
-            if (testCase.registrationSuccessful)
+            switch (testCase.registrationCheckResult)
             {
-                // with the current implemntation returning the non-empty list should be enough
-                List<ExternalData> externalDatas = (List) Arrays.asList(new Object());
-                will(returnValue(externalDatas));
-            } else
-            {
-                will(returnValue(new LinkedList<ExternalData>()));
+                case REGISTRATION_SUCCEEDED:
+                    // with the current implemntation returning the non-empty list should be enough
+                    List<ExternalData> externalDatas = (List) Arrays.asList(new Object());
+                    will(returnValue(externalDatas));
+                    break;
+                case REGISTRATION_FAILED:
+                    will(returnValue(new LinkedList<ExternalData>()));
+                    break;
+                case CHECK_FAILED:
+                    will(throwException(new EnvironmentFailureException(
+                            "Cannot check whether the registration was successful")));
             }
         }
 
