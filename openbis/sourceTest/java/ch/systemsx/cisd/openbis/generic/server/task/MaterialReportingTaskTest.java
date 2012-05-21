@@ -124,9 +124,9 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
     @AfterMethod
     public void tearDown() throws Exception
     {
-        context.assertIsSatisfied();
         materialReportingTask.closeDatabaseConnections();
         dbConfigContext.closeConnections();
+        context.assertIsSatisfied();
     }
 
     @Test
