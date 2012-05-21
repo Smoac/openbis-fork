@@ -535,8 +535,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void setupExpectations()
                 {
-                    checkIfRecoveryFile();
-
+                    generalAllowing();
+                    
                     if (testCase.failurePoint != null
                             && testCase.failurePoint
                                     .compareTo(TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION) < 0)
@@ -592,13 +592,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(checkPrecommitDirIsEmpty());
                 }
 
-                protected void checkIfRecoveryFile()
+                private void generalAllowing()
                 {
-                    // unless this is a recovery testcase
-                    one(storageRecoveryManager).isRecoveryFile(with(any(File.class)));
-                    will(returnValue(false));
+                    allowing(storageRecoveryManager).getProcessingMarkerFile(with(any(File.class)));
+                    will(returnValue(new File(incomingDataSetFile.getAbsolutePath()+".NON_EXISTING")));
                 }
-
+                
                 @SuppressWarnings("unchecked")
                 private void cleanRecoveryCheckpoint(boolean required)
                 {

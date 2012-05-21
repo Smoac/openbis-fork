@@ -27,9 +27,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public interface IDataSetStorageRecoveryManager
 {
-    public static final String PRECOMMIT_SERIALIZED = ".PRECOMMIT_SERIALIZED";
-
-    public static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
     
     // Recovery Mechanics
     /**
@@ -62,13 +59,13 @@ public interface IDataSetStorageRecoveryManager
      */
     File getRecoveryFileFromMarker(File markerFile);
     
+    /**
+     * @return the path of the recovery marker file for the given incoming
+     */
+    File getProcessingMarkerFile(File incoming);
+    
     // Simple helper methods
     boolean canRecoverFromError(Throwable ex);
-
-    /**
-     * checks whether the file is a proper recovery marker file
-     */
-    boolean isRecoveryFile(File file);
 
     void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);
 }

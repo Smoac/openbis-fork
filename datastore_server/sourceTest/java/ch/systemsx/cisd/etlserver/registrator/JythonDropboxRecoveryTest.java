@@ -148,19 +148,19 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         if (testCase.canRecoverFromError)
         {
-            File recoveryMarkerFile = assertRecoveryMarkerFile();
+            assertRecoveryMarkerFile();
             assertOriginalMarkerFileExists();
 
-            handler.handle(recoveryMarkerFile);
+            handler.handle(markerFile);
 
             // if failure happened here then don't expect recovery / marker files to be deleted
 
             if (testCase.registrationSuccessful)
             {
-                //item in store
+                // item in store
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
-                //FIXME: this is commented out to cover the bug! beware
+                // FIXME: this is commented out to cover the bug! beware
                 // assertDirEmpty(stagingDirectory);
                 assertDirEmpty(precommitDirectory);
             } else
@@ -188,10 +188,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // we continue with the recovery
 
     }
-    
+
     private void assertDirEmpty(File file)
     {
-     String   contents = file.getAbsolutePath();
+        String contents = file.getAbsolutePath();
         assertEquals(contents, "[]", Arrays.asList(file.list()).toString());
     }
 
@@ -225,8 +225,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         File originalIncoming =
                 FileUtilities.removePrefixFromFileName(markerFile, IS_FINISHED_PREFIX);
         File recoveryMarkerFile =
-                new File(originalIncoming.getAbsolutePath()
-                        + IDataSetStorageRecoveryManager.PROCESSING_MARKER);
+                handler.getGlobalState().getStorageRecoveryManager()
+                        .getProcessingMarkerFile(originalIncoming);
         return recoveryMarkerFile;
     }
 

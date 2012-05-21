@@ -33,6 +33,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryManager
 {
+    private static final String PRECOMMIT_SERIALIZED = ".PRECOMMIT_SERIALIZED";
+
+    private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
+    
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetStorageRecoveryManager.class);
 
@@ -69,10 +73,17 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     private <T extends DataSetInformation> File getProcessingMarkerFile(
             DataSetStorageAlgorithmRunner<T> runner)
     {
-        return new File(runner.getIncomingDataSetFile().getRealIncomingFile().getParentFile(),
-                runner.getIncomingDataSetFile().getRealIncomingFile().getName() + PROCESSING_MARKER);
+        return getProcessingMarkerFile(runner.getIncomingDataSetFile().getRealIncomingFile());
     }
 
+    /**
+     * @return processing marker file for a given incoming file.
+     */
+    public File getProcessingMarkerFile(File incoming)
+    {
+        return new File(incoming.getParentFile(), incoming.getName() +  PROCESSING_MARKER);
+    }
+    
     private <T extends DataSetInformation> File getSerializedFile(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -125,7 +136,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return true;
     }
 
-    public boolean isRecoveryFile(File file)
+    public static boolean isRecoveryFile(File file)
     {
         return file.getName().endsWith(PROCESSING_MARKER);
     }

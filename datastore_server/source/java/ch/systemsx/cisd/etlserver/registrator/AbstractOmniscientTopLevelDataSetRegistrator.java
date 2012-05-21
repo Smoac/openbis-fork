@@ -301,19 +301,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return getGlobalState().getDssInternalTempDir();
     }
 
-    /**
-     * returns the recovery marker file if found, or null otherwise. It first checks if the incoming
-     * is the marker file, then if there is a marker file corresponding to this incoming file
-     */
-    private boolean isRecoveryMarkerFile(File incoming)
-    {
-        return state.getGlobalState().getStorageRecoveryManager().isRecoveryFile(incoming);
-    }
-
     protected boolean hasRecoveryMarkerFile(File incoming)
     {
-        return new File(incoming.getAbsolutePath()
-                + IDataSetStorageRecoveryManager.PROCESSING_MARKER).exists();
+        return getGlobalState().getStorageRecoveryManager().getProcessingMarkerFile(incoming)
+                .exists();
     }
 
     /**
@@ -335,20 +326,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         .getIncomingDataSetPathFromMarker(incomingDataSetFileOrIsFinishedFile)
                         : incomingDataSetFileOrIsFinishedFile;
 
-        if (isRecoveryMarkerFile(incomingDataSetFile))
+        if (hasRecoveryMarkerFile(incomingDataSetFile))
         {
             handleRecovery(incomingDataSetFile);
-            return;
-        } else if (hasRecoveryMarkerFile(incomingDataSetFile))
-        {
-            operationLog.info("Ignore file, as the recovery marker exists for it: "
-                    + incomingDataSetFile.getAbsolutePath());
             // will handle only the recovery file - don't do anything
-            return;
-        } else if (false == incomingDataSetFile.exists())
-        {
-            operationLog.info("The file doesn't exist: " + incomingDataSetFile.getAbsolutePath());
-            // it can mean that the recovery has already cleaned this file
             return;
         }
 
@@ -487,14 +468,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return new RuntimeException(cause.toString());
     }
 
-    private void handleRecovery(final File recoveryMarkerFile)
+    private void handleRecovery(final File incomingFileOriginal)
     {
+        //get the marker file
+        final File recoveryMarkerFile =
+                state.getGlobalState().getStorageRecoveryManager()
+                        .getProcessingMarkerFile(incomingFileOriginal);
+        
+        //deserialize recovery state
         final DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
-        // TODO: cleanup also with the incoming marker file, or are we guaranteed that the marker
-        // file is gone at this step.
         // then we should ensure that the recovery will actually take place itself!
         final File recoveryFile =
                 state.getGlobalState().getStorageRecoveryManager()
