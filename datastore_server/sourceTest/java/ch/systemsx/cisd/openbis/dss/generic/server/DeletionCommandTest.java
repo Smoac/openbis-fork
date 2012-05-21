@@ -103,17 +103,25 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
     {
         DatasetDescription ds1 =
                 new DatasetDescriptionBuilder("ds-1").location("a").getDatasetDescription();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).await("ds-1");
+                }
+            });
+
         DeletionCommand deletionCommand =
                 new DeletionCommandWithMockLogger(log, Arrays.asList(ds1));
 
         deletionCommand.execute(contentProvider, dataSetDirectoryProvider);
 
+        log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
         log.assertNextLogMessage("Couldn't delete Dataset 'ds-1', reason: unexpected invocation: "
                 + "iShareIdManager.getShareId(\"ds-1\")\n"
-                + "no expectations specified: did you...\n"
-                + " - forget to start an expectation with a cardinality clause?\n"
-                + " - call a mocked method to specify the parameter of an expectation?\n"
-                + "what happened before this: nothing!");
+                + "expectations:\n"
+                + "  expected once, already invoked 1 time: iShareIdManager.await(\"ds-1\"); returns a default value\n"
+                + "what happened before this:\n" + "  iShareIdManager.await(\"ds-1\")\n");
         context.assertIsSatisfied();
     }
 

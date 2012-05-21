@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -69,10 +68,8 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
                     {
                         try
                         {
-                            File dataSetDirectory =
-                                    dataSetDirectoryProvider.getDataSetDirectory(dataSet);
-                            SegmentedStoreUtils.deleteDataSet(dataSet.getDataSetCode(),
-                                    dataSetDirectory, shareIdManager, logger);
+                            SegmentedStoreUtils.deleteDataSet(dataSet, dataSetDirectoryProvider,
+                                    shareIdManager, logger);
                         } catch (Throwable ex)
                         {
                             logger.log(LogLevel.ERROR, "Couldn't delete " + dataSet + ", reason: "

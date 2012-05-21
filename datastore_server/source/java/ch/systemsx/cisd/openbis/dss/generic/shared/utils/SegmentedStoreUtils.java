@@ -44,9 +44,11 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -276,21 +278,28 @@ public class SegmentedStoreUtils
         {
             throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
-        File oldShare =
-                dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile()
-                        .getParentFile();
-        String relativePath = FileUtilities.getRelativeFilePath(oldShare, dataSetDirInStore);
-        if (share.getName().equals(oldShare.getName()))
+        shareIdManager.lock(dataSetCode);
+        try
         {
-            return;
+            File oldShare =
+                    dataSetDirInStore.getParentFile().getParentFile().getParentFile()
+                            .getParentFile().getParentFile();
+            String relativePath = FileUtilities.getRelativeFilePath(oldShare, dataSetDirInStore);
+            if (share.getName().equals(oldShare.getName()))
+            {
+                return;
+            }
+            File dataSetDirInNewShare = new File(share, relativePath);
+            dataSetDirInNewShare.mkdirs();
+            copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
+            long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
+            String shareId = share.getName();
+            service.updateShareIdAndSize(dataSetCode, shareId, size);
+            shareIdManager.setShareId(dataSetCode, shareId);
+        } finally
+        {
+            shareIdManager.releaseLock(dataSetCode);
         }
-        File dataSetDirInNewShare = new File(share, relativePath);
-        dataSetDirInNewShare.mkdirs();
-        copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
-        long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
-        String shareId = share.getName();
-        service.updateShareIdAndSize(dataSetCode, shareId, size);
-        shareIdManager.setShareId(dataSetCode, shareId);
         deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
     }
 
@@ -298,11 +307,26 @@ public class SegmentedStoreUtils
      * Deletes specified data set at specified location. This methods waits until any locks on the
      * specified data set have been released.
      */
-    public static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
+    protected static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
             final IShareIdManager shareIdManager, final ISimpleLogger logger)
     {
         logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
         shareIdManager.await(dataSetCode);
+        deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
+    }
+
+    /**
+     * Deletes specified data set. This methods waits until any locks on the specified data set have
+     * been released.
+     */
+    public static void deleteDataSet(final IDatasetLocation dataSet,
+            final IDataSetDirectoryProvider dataSetDirectoryProvider,
+            final IShareIdManager shareIdManager, final ISimpleLogger logger)
+    {
+        final String dataSetCode = dataSet.getDataSetCode();
+        logger.log(LogLevel.INFO, "Await for data set " + dataSetCode + " to be unlocked.");
+        shareIdManager.await(dataSetCode);
+        File dataSetDirInStore = dataSetDirectoryProvider.getDataSetDirectory(dataSet);
         deleteDataSetInstantly(dataSetCode, dataSetDirInStore, logger);
     }
 
