@@ -22,12 +22,9 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -46,7 +43,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
     private static final long serialVersionUID = 1L;
 
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            AbstractDatastorePlugin.class);
+            JythonBasedReportingPlugin.class);
 
     protected static String getScriptPathProperty(Properties properties)
     {
@@ -88,56 +85,32 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
         }
         return hierarchicalContentProvider;
     }
-
-    public static TableModel createReport(List<DatasetDescription> dataSets,
-            DataSetProcessingContext context, IPluginScriptRunnerFactory scriptRunnerFactory,
-            IHierarchicalContentProvider contentProvider)
+    
+    public static TableModel createReport(final List<DatasetDescription> dataSets,
+            final DataSetProcessingContext context, final IPluginScriptRunnerFactory scriptRunnerFactory,
+            final IHierarchicalContentProvider contentProvider)
     {
-        operationLog.info("Report for the following datasets has been requested: " + dataSets);
-        try
-        {
-            final IReportingPluginScriptRunner scriptRunner =
-                    scriptRunnerFactory.createReportingPluginRunner(context);
-            final List<IDataSet> iDataSets =
-                    JythonBasedPluginUtils.convert(dataSets, contentProvider);
-            try
+        ITableModelCreator generator = new ITableModelCreator()
             {
-                final ISimpleTableModelBuilderAdaptor builder =
-                        SimpleTableModelBuilderAdaptor.create();
-                delegateDescribe(scriptRunner, iDataSets, builder);
-                return (TableModel) builder.getTableModel();
-            } finally
-            {
-                operationLog.info("Reporting done");
-                JythonBasedPluginUtils.closeContent(iDataSets);
-            }
-        } catch (EvaluatorException ex)
-        {
-            StringBuilder errorString = new StringBuilder();
-            errorString
-                    .append("Could not run report script " + scriptRunnerFactory.getScriptPath());
-            if (null != ex.getCause())
-            {
-                notifyLog.error(errorString.toString(), ex.getCause());
-            } else
-            {
-                notifyLog.error(errorString.toString(), ex);
-            }
-            throw new UserFailureException("Chosen plugin failed to create a report.");
-        } catch (RuntimeException ex)
-        {
-            StringBuilder errorString = new StringBuilder();
-            errorString
-                    .append("Could not run report script " + scriptRunnerFactory.getScriptPath());
-            notifyLog.error(errorString.toString(), ex);
-            throw new UserFailureException("Chosen plugin failed to create a report.");
-        }
-    }
-
-    private static void delegateDescribe(IReportingPluginScriptRunner scriptRunner,
-            List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
-    {
-        scriptRunner.describe(dataSets, tableBuilder);
+                public void create(ISimpleTableModelBuilderAdaptor builder)
+                {
+                    operationLog.info("Report for the following datasets has been requested: "
+                            + dataSets);
+                    IReportingPluginScriptRunner scriptRunner =
+                            scriptRunnerFactory.createReportingPluginRunner(context);
+                    List<IDataSet> iDataSets =
+                            JythonBasedPluginUtils.convert(dataSets, contentProvider);
+                    try
+                    {
+                        scriptRunner.describe(iDataSets, builder);
+                    } finally
+                    {
+                        operationLog.info("Reporting done");
+                        JythonBasedPluginUtils.closeContent(iDataSets);
+                    }
+                }
+            };
+        return Utils.generateTableModel(generator, scriptRunnerFactory.getScriptPath(), notifyLog);
     }
 
 }

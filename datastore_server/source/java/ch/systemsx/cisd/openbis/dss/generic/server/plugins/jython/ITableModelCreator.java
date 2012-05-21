@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
-import java.io.Serializable;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Factory of plugin script runners.
+ * Creator of a {@link TableModel} using a {@link ISimpleTableModelBuilderAdaptor}
  * 
- * @author Piotr Buczek
+ * @author Franz-Josef Elmer
  */
-public interface IPluginScriptRunnerFactory extends Serializable
+interface ITableModelCreator
 {
-    String getScriptPath();
-    
-    IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(DataSetProcessingContext context);
-
-    IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
-
-    IProcessingPluginScriptRunner createProcessingPluginRunner(DataSetProcessingContext context);
-
+    public void create(ISimpleTableModelBuilderAdaptor builder);
 }

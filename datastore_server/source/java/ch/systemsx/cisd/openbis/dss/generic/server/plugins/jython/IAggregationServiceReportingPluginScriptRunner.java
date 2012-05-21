@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
-import java.io.Serializable;
+import java.util.Map;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Factory of plugin script runners.
- * 
- * @author Piotr Buczek
+ * Interface to be implemented for a script runner of aggregation service reporting.
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IPluginScriptRunnerFactory extends Serializable
+public interface IAggregationServiceReportingPluginScriptRunner
 {
-    String getScriptPath();
+    public void aggregate(Map<String, Object> parameters,
+            ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException;
     
-    IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(DataSetProcessingContext context);
-
-    IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
-
-    IProcessingPluginScriptRunner createProcessingPluginRunner(DataSetProcessingContext context);
-
+    public void closeContentResources();
 }

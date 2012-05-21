@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -25,22 +27,27 @@ import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
+ * Implementation of {@link IPluginScriptRunnerFactory} based on Jython scripts.
  * @author Piotr Buczek
  */
 public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 {
+
     private static final long serialVersionUID = 1L;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -51,6 +58,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     private final static String DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME = "queryService";
 
     private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
+    
+    private static final String CONTENT_PROVIDER_VARIABLE_NAME = "contentProvider";
 
     private final String scriptPath;
 
@@ -61,6 +70,27 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     }
 
     /**
+     * Factory method for creating an IAggregationServiceReportingPluginScriptRunner for a given
+     * processing context.
+     */
+    public IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(
+            DataSetProcessingContext context)
+    {
+        String scriptString = extractScriptFromPath(scriptPath);
+        try
+        {
+            Evaluator evaluator = createEvaluator(scriptString, context);
+            DataSetContentProvider contentProvider =
+                    new DataSetContentProvider(context.getHierarchicalContentProvider());
+            evaluator.set(CONTENT_PROVIDER_VARIABLE_NAME, contentProvider);
+            return new AggregationServiceReportingPluginScriptRunner(evaluator, contentProvider);
+        } catch (EvaluatorException ex)
+        {
+            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+        }
+    }
+
+    /**
      * Factory method for creating an IReportingPluginScriptRunner for a given processing context.
      */
     public IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context)
@@ -68,7 +98,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         String scriptString = extractScriptFromPath(scriptPath);
         try
         {
-            return createReportingPluginRunnerFromScriptString(scriptString, context);
+            return new ReportingPluginScriptRunner(createEvaluator(scriptString, context));
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -84,7 +114,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         String scriptString = extractScriptFromPath(scriptPath);
         try
         {
-            return createProcessingPluginRunnerFromScriptString(scriptString, context);
+            return new ProcessingPluginScriptRunner(createEvaluator(scriptString, context));
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -122,24 +152,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
     }
 
-    /**
-     * Factory method for creating an IReportingPluginScriptRunner given the script as a string.
-     */
-    IReportingPluginScriptRunner createReportingPluginRunnerFromScriptString(String scriptString,
-            DataSetProcessingContext context)
-    {
-        return new ReportingPluginScriptRunner(createEvaluator(scriptString, context));
-    }
-
-    /**
-     * Factory method for creating an IProcessingPluginScriptRunner given the script as a string.
-     */
-    IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptString(String scriptString,
-            DataSetProcessingContext context)
-    {
-        return new ProcessingPluginScriptRunner(createEvaluator(scriptString, context));
-    }
-
     protected Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
     {
         final Evaluator evaluator = new Evaluator("", null, scriptString, false);
@@ -164,12 +176,73 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return new MailService(context.getMailClient(), context.getUserEmailOrNull());
     }
 
-    static class ReportingPluginScriptRunner implements IReportingPluginScriptRunner
+    private static final class DataSetContentProvider implements IDataSetContentProvider
     {
-        private final static String DESCRIBE_FUNCTION_NAME = "describe";
+        private final IHierarchicalContentProvider contentProvider;
+        private final Map<String, IHierarchicalContent> contents = new HashMap<String, IHierarchicalContent>();
+
+        public DataSetContentProvider(IHierarchicalContentProvider contentProvider)
+        {
+            this.contentProvider = contentProvider;
+        }
+
+        public IHierarchicalContent getContent(String dataSetCode)
+        {
+            IHierarchicalContent content = contents.get(dataSetCode);
+            if (content == null)
+            {
+                content = contentProvider.asContent(dataSetCode);
+                contents.put(dataSetCode, content);
+            }
+            return content;
+        }
+
+        public void closeContents()
+        {
+            for (IHierarchicalContent content : contents.values())
+            {
+                content.close();
+            }
+        }
+    }
+
+    private static class AggregationServiceReportingPluginScriptRunner implements IAggregationServiceReportingPluginScriptRunner
+    {
+        private final static String FUNCTION_NAME = "aggregate";
 
         private final Evaluator evaluator;
 
+        private final DataSetContentProvider contentProvider;
+
+        AggregationServiceReportingPluginScriptRunner(Evaluator evaluator, DataSetContentProvider contentProvider)
+        {
+            this.evaluator = evaluator;
+            this.contentProvider = contentProvider;
+            if (false == evaluator.hasFunction(FUNCTION_NAME))
+            {
+                throw new EvaluatorException("Function '" + FUNCTION_NAME
+                        + "' was not defined in the reporting plugin script");
+            }
+        }
+
+        public void aggregate(Map<String, Object> parameters,
+                ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException
+        {
+            evaluator.evalFunction(FUNCTION_NAME, parameters, tableBuilder);
+        }
+
+        public void closeContentResources()
+        {
+            contentProvider.closeContents();
+        }
+    }
+    
+    private static class ReportingPluginScriptRunner implements IReportingPluginScriptRunner
+    {
+        private final static String DESCRIBE_FUNCTION_NAME = "describe";
+        
+        private final Evaluator evaluator;
+        
         ReportingPluginScriptRunner(Evaluator evaluator)
         {
             this.evaluator = evaluator;
@@ -179,14 +252,14 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                         + "' was not defined in the reporting plugin script");
             }
         }
-
+        
         public void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
         {
             evaluator.evalFunction(DESCRIBE_FUNCTION_NAME, dataSets, tableBuilder);
         }
     }
 
-    static class ProcessingPluginScriptRunner implements IProcessingPluginScriptRunner
+    private static class ProcessingPluginScriptRunner implements IProcessingPluginScriptRunner
     {
         private final static String PROCESS_FUNCTION_NAME = "process";
 

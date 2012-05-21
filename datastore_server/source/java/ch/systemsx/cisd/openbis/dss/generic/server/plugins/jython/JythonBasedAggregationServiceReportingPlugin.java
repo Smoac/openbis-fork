@@ -1,0 +1,85 @@
+/*
+ * Copyright 2012 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
+
+import java.io.File;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractAggregationServiceReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
+
+/**
+ * Aggregation service reporting plugin based on a Jython script.
+ *
+ * @author Franz-Josef Elmer
+ */
+public class JythonBasedAggregationServiceReportingPlugin extends
+        AbstractAggregationServiceReportingPlugin
+{
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            JythonBasedAggregationServiceReportingPlugin.class);
+
+    private final IPluginScriptRunnerFactory scriptRunnerFactory;
+
+
+    public JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot)
+    {
+        this(properties, storeRoot, new PluginScriptRunnerFactory(
+                JythonBasedProcessingPlugin.getScriptPathProperty(properties)));
+    }
+
+    protected JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot,
+            IPluginScriptRunnerFactory scriptRunnerFactory)
+    {
+        super(properties, storeRoot);
+        this.scriptRunnerFactory = scriptRunnerFactory;
+    }
+
+    public TableModel createAggregationReport(final Map<String, Object> parameters,
+            final DataSetProcessingContext context)
+    {
+        ITableModelCreator generator = new ITableModelCreator()
+            {
+                public void create(ISimpleTableModelBuilderAdaptor builder)
+                {
+                    operationLog.info("Aggregation report for the following parameters "
+                            + "has been requested: " + parameters);
+                    IAggregationServiceReportingPluginScriptRunner runner =
+                            scriptRunnerFactory
+                                    .createAggregationServiceReportingPluginRunner(context);
+                    try
+                    {
+                        runner.aggregate(parameters, builder);
+                    } finally
+                    {
+                        operationLog.info("Aggregation reporting done.");
+                        runner.closeContentResources();
+                    }
+                }
+            };
+        return Utils.generateTableModel(generator, scriptRunnerFactory.getScriptPath(), notifyLog);
+    }
+}
