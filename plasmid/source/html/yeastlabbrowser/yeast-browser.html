@@ -7,12 +7,16 @@
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
 	<script type="text/javascript" src="d3.time.js"></script>
+	<script type="text/javascript" src="d3.tsv.js"></script>
 	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="openbis-utils.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
+
 
 /// The openbisServer we use for our data
 openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
@@ -27,6 +31,8 @@ var inspectedYeasts = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
+
+//var appWidth = 200;
 
 function getAppHeight(){
 	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
@@ -118,6 +124,7 @@ function props_to_pairs1(data)
 	return new_list1;
 }
 
+
 function props_to_pairs2(data)
 {
 
@@ -193,6 +200,25 @@ function props_to_pairs4(data)
 	return new_list4;
 }
 
+function get_parents(data)
+{
+
+	d = data.properties;
+
+	new_list5=[]	
+	
+	if (data.parents != null) {
+		var i = 1;
+	  data.parents.forEach(function(parent) {
+      parentLabel = "PARENTS "+ i  ;
+      new_list5.push([parentLabel, parent ]);
+			i++;	  
+		});
+	  
+	}
+	
+	return new_list5;
+}
 
 /** Initialize the yeasts variable */
 function initializeYeasts(result)
@@ -207,6 +233,7 @@ function initializeYeasts(result)
 		} else {
 			otherYeasts.push(sample);
 		}
+
 	});
 	
 	// Sort each of the groups
@@ -220,6 +247,9 @@ function initializeYeasts(result)
 		var fryNumberB = parseInt(b.code.substring(3));
 		return (fryNumberA < fryNumberB) ? -1 : 1;
 	});
+	
+	
+	
 	
 	// Combine the two groups back together to produce the full collection of yeasts
 	yeasts = fryYeasts.concat(otherYeasts);
@@ -249,9 +279,13 @@ function resizeYeastTable()
 
 function inspectYeast(yeast)
 {
+  if (null == yeast) {
+  	// Ignore this -- it is not a yeast
+  	return;
+  }
+   
 	if (inspectedYeasts.indexOf(yeast) < 0) {
 		inspectedYeasts.push(yeast);
-		openbisServer.listDataSetsForSample(yeast, true, dataset.curry(yeast));
 	}
 	resizeYeastTable();
 	updateInspectors(1000);
@@ -269,34 +303,9 @@ function closeInspector(yeast)
 	updateInspectors(1000);
 }
 
-function dataset(yeast, data) {
-	for (var i in data.result) {
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(yeast, data.result[i]));
-	}
-}
 
-function filelist(yeast, dataset, files) {
-	for (var i in files.result) {
-		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+yeast.code+"_INSPECTOR");
-			var fileTable = inspector.select("table");
-			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
-			if (/\.svg$/.test(pathInDataSet)) {
-					// Retrieve the svg file and inject it into the DOM
-					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-						var importedNode = document.importNode(xml.documentElement, true);
-						d3.select(importedNode)
-							.attr("width", inspectorsWidth - 20)
-							.attr("height", inspectorsWidth - 20)
-							.attr("viewBox", "200 200 650 650");
-						inspector.node().appendChild(importedNode);
-					});
-			}
-		}
-	}
-}
+
+
 
 
 /**
@@ -339,6 +348,28 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");	
+				
+	var propsTableParents = box.append("table").attr("class", "properties");
+	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
+		.enter()
+			.append("tr")
+			//.on("click", inspectYeast)
+      .on("click", function(trData) { inspectYeast(trData[1]) } )
+     	.style("cursor", "pointer")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { 
+					if (null == d.identifier) {
+						return d;
+					} else { 
+					 	return d.identifier;
+					} 
+				})
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");			
 
 	var propsTable2 = box.append("table").attr("class", "properties");
 	propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
@@ -379,8 +410,10 @@ function updateInspectors(duration)
 				.text(function(d) { return d })
 			.transition()
 				.duration(duration)
-				.style("opacity", "1");					
+				.style("opacity", "1");			
 	
+	
+
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	
 	downloadTable
@@ -389,31 +422,9 @@ function updateInspectors(duration)
 				.attr("width", "100%")
 				.attr("class", "downloads");
 			
-/*
-	// Add a caption, but make sure there is just one (this does not work with select())
-	downloadTable.selectAll("caption")
-			.data(downloadTableCaption)
-		.enter()
-			.append("caption").text(function(d) { return d; });
-			
-	// We just want to see non-directories here
-	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
-	downloadTableRow
-		.enter()
-			.append("tr")
-				.append("td")
-				.style("text-align", "left")
-				.on("click", downloadTableFile)
-				.text(function(d) { return d.label; });
-	downloadTableRow
-		.exit()
-			.transition()
-				.duration(duration)
-				.style("opacity", "0")
-				.remove();
-	
-*/
+
 }
+
 
 
 /**
@@ -429,20 +440,43 @@ function displayReturnedSamples(data)
 	
 	initializeYeasts(data.result);
 	
-	// This will show the object in the log -- helpful for debugging
-	// console.log(data.result);
+// This will show the object in the log -- helpful for debugging
+// console.log(data.result);
 	if (yeasts.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-	visualize();
+	var selection = d3.select("#vis").select("#yeast-table").selectAll("tr.yeast-table-data").data(yeasts);
+		// Code under enter is run if there is no HTML element for a data element
+			
+	selection
+	   .enter()
+		.append("tr")	  
+	 	.attr("class", "yeast-table-data")
+		.style("cursor", "pointer")
+		.on("click", inspectYeast)
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.PLASMIDS, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
+			.enter()
+			.append("td")
+			.append("div")
+			.attr("class", "yeast-table-data-cell")
+			.text(String)
+		
+	
+		
+	
+		
+
 }
 
-function yeastFilter(filter, property, element, index, array) {
 
-	
+/**
+ * Filters
+ */
+function yeastFilter(filter, property, element, index, array) {
 	filter = filter.toLowerCase();
+	if (filter.length < 1) return true;
 
 	if (property == "CODE") {
 		if (element.code.toLowerCase().indexOf(filter) != -1) {
@@ -461,9 +495,13 @@ function yeastFilter(filter, property, element, index, array) {
 	return false;
 }
 
-
+/**
+ * Function visualize filters 
+ */
 function visualize(ownerFilterText, ownerNumFilterText, yeastNameFilterText, projectFilterText, plasmidsFilterText, yeastParentsFilterText, geneticBackgroundFilterText, matingTypeFilterText )
 {
+
+
 	if (ownerFilterText == undefined) 
 	{
 		ownerFilterText = "";
@@ -514,44 +552,30 @@ function visualize(ownerFilterText, ownerNumFilterText, yeastNameFilterText, pro
 	displayedYeasts = displayedYeasts.filter(yeastFilter.curry(matingTypeFilterText, "MATING_TYPE"));
 	
 	
-
-	var selection = d3.select("#vis").select("#yeast-table").selectAll("tr.yeast-table-data").data(yeasts);
+	var selection2 = d3.select("#vis").select("#yeast-table").selectAll("tr.yeast-table-data").data(yeasts);
 		// Code under enter is run if there is no HTML element for a data element
+
 	
-	selection
-		.enter()
-		.append("tr")
-		.attr("class", "yeast-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectYeast)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.PLASMIDS, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
-			.enter()
-			.append("td")
-			.append("div")
-			.attr("class", "yeast-table-data-cell")
-			.text(String)
-
-		selection.style("display", 
-			function(data) {
-				return "table-row"
-				});
-
-
-/* Original function -> not displaying all samples!
-		selection.style("display", 
-			function(data) {
-				if ($.inArray(data, displayedYeasts) != -1) {
+		selection2.style("display", function(data) {
+		 		if ($.inArray(data, displayedYeasts) != -1) {
 					return "table-row"
-				} else {
+				} 
+				else {
 					return  "none"
 				}
 			});
-*/		
-}
+			
+	  
+};
 
 /**
  * Request samples matching some criteria from the server and show them in the Page.
  */
+
+
+
+
+ 
 function showMatchingSamples()
 {
 	var sampleCriteria = 
@@ -565,10 +589,19 @@ function showMatchingSamples()
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamples(sampleCriteria, displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS"], displayReturnedSamples);
 }
 
 
+
+
+
+
+
+
+/**
+ * Login  
+ */
 function enterApp(data)
 {
 	if(data.result == null){
@@ -584,6 +617,7 @@ function enterApp(data)
 	
 	createVis()
 	showMatchingSamples();
+	
 }
 
 
@@ -643,7 +677,7 @@ $(document).ready(function() {
 
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
-		// Make the ENTER key the default button
+// Make the ENTER key the default button
 	$("login-form input").keypress(function (e) {
 		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
 			$('button[type=submit].default').click();
@@ -655,6 +689,9 @@ $(document).ready(function() {
 });
 
 
+/**
+ * Show and Hide the filters when clicking on the Filters button 
+ */
 function ShowHide(divId)
 {
 	if(document.getElementById(divId).style.display == 'none')
@@ -687,7 +724,7 @@ function ShowHide(divId)
 			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
 		</div>
 		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
+		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.h\\\\\ml">Yeasts</a>  
 		</div>
 		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
@@ -717,10 +754,16 @@ function ShowHide(divId)
  	
  		  
 		<div id="vis">
-			<table id="yeast-table" style="float: left; ">
-				<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
+  		<div style="float:left; width: 1200px;height: 800px; overflow: scroll">
+		  <table id="yeast-table" >
+			  <thead >
+					<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
+				</thead>
 			</table>
-			<span id="inspectorsContainer"></span>
+	 		</div> 
+	
+		 
+			<div id="inspectorsContainer" style="float:right "></div>
 		</div>
 	</div>
 </body>
