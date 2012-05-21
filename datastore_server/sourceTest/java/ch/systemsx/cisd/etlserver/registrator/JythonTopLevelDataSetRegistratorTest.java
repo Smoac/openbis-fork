@@ -536,7 +536,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 protected void setupExpectations()
                 {
                     generalAllowing();
-                    
+
                     if (testCase.failurePoint != null
                             && testCase.failurePoint
                                     .compareTo(TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION) < 0)
@@ -595,9 +595,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 private void generalAllowing()
                 {
                     allowing(storageRecoveryManager).getProcessingMarkerFile(with(any(File.class)));
-                    will(returnValue(new File(incomingDataSetFile.getAbsolutePath()+".NON_EXISTING")));
+                    will(returnValue(new File(incomingDataSetFile.getAbsolutePath()
+                            + ".NON_EXISTING")));
                 }
-                
+
                 @SuppressWarnings("unchecked")
                 private void cleanRecoveryCheckpoint(boolean required)
                 {
@@ -1267,6 +1268,47 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+
+        assertFalse(handler.getExpectations().didServiceRollbackHappen);
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+        assertFalse(handler.getExpectations().didRollbackServiceFunctionRun);
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testImportWithoutDataSet()
+    {
+        initializeStorageRecoveryManagerMock();
+
+        setUpHomeDataBaseExpectations();
+        Properties threadProperties =
+                createThreadPropertiesRelativeToScriptsFolder("v2-testcase-no-dataset.py");
+        threadProperties.put("TEST_V2_API", "");
+        createHandler(threadProperties, false, true);
+
+        createData();
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(storageRecoveryManager).getProcessingMarkerFile(incomingDataSetFile);
+                    will(returnValue(new File(incomingDataSetFile.getParent(), "a_marker_file")));
+
+                    one(storageRecoveryManager).checkpointPrecommittedState(
+                            with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    oneOf(openBisService)
+                            .performEntityOperations(
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+               
+                    oneOf(storageRecoveryManager).registrationCompleted(
+                            with(any(DataSetStorageAlgorithmRunner.class)));
+                }
+            });
+
+        handler.handle(markerFile);
 
         assertFalse(handler.getExpectations().didServiceRollbackHappen);
         assertFalse(handler.getExpectations().didTransactionRollbackHappen);
