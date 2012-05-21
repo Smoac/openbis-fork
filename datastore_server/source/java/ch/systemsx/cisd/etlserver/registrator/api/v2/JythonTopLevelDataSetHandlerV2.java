@@ -100,6 +100,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         try
         {
             PyFunction function = interpreter.get(PROCESS_FUNCTION_NAME, PyFunction.class);
+            if (function == null)
+            {
+                throw new IllegalStateException("Undefined process() function");
+            }
             function.__call__();
         } catch (Exception e)
         {
