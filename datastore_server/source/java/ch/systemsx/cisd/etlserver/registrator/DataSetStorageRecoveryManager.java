@@ -44,7 +44,9 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     private File dropboxRecoveryStateDir;
 
     private File recoveryMarkerFilesDir;
-
+    
+    private int maxRetryCount = 50;
+    
     public <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -150,4 +152,13 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         this.recoveryMarkerFilesDir = recoveryMarkerFileDir;
     }
 
+    public void setMaximumRertyCount(int maxRetryCount)
+    {
+        this.maxRetryCount = maxRetryCount;
+    }
+
+    public int getMaximumRertyCount()
+    {
+        return this.maxRetryCount;
+    }
 }

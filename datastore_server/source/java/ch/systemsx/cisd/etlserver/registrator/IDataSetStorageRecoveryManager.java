@@ -70,4 +70,8 @@ public interface IDataSetStorageRecoveryManager
     void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);
     
     void setRecoveryMarkerFilesDir(File recoveryMarkerFileDir);
+    
+    int getMaximumRertyCount();
+    
+    void setMaximumRertyCount(int maxRetryCount);
 }
