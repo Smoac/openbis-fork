@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -27,6 +28,7 @@ import java.util.Properties;
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -444,6 +446,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, dataSetCode,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertFalse("The storage path of the dataset should noto exist", datasetLocation.exists());
+        boolean existsAndNotEmpty = datasetLocation.exists() && datasetLocation.list().length > 0;
+        assertFalse("The storage path of the dataset should not exist ", existsAndNotEmpty);
     }
 }

@@ -470,12 +470,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     private void handleRecovery(final File incomingFileOriginal)
     {
-        //get the marker file
+        // get the marker file
         final File recoveryMarkerFile =
                 state.getGlobalState().getStorageRecoveryManager()
                         .getProcessingMarkerFile(incomingFileOriginal);
-        
-        //deserialize recovery state
+
+        // deserialize recovery state
         final DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 state.getGlobalState().getStorageRecoveryManager()
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
@@ -486,7 +486,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         .getRecoveryFileFromMarker(recoveryMarkerFile);
 
         final File recoveryFile = recoveryInfo.getRecoveryStateFile();
-        
+
         if (false == recoveryFile.exists())
         {
             // TODO: is it safe to throw from here?
@@ -502,26 +502,55 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     {
                         public Boolean execute(boolean didOperationSucceed)
                         {
-                            if (didOperationSucceed)
+                            if (!didOperationSucceed
+                                    && recoveryInfo.getTryCount() >= state.getGlobalState()
+                                            .getStorageRecoveryManager().getMaximumRertyCount())
                             {
-                                File incomingMarkerFile =
-                                        MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
-                                                .getIncomingDataSetFile().getRealIncomingFile());
-                                if (incomingMarkerFile.exists())
-                                {
-                                    incomingMarkerFile.delete();
-                                }
+                                notificationLog.error("The dataset "
+                                        + recoveryState.getIncomingDataSetFile()
+                                                .getRealIncomingFile()
+                                        + " has failed to register. Giving up.");
+                                deleteMarkerFile(recoveryState);
 
-                                recoveryMarkerFile.delete();
-                                recoveryFile.delete();
-                            }
-                            else {
-                                // this replaces the recovery file with a new one with increased count
-                                //FIXME: is this safe operation (how to assure, that it won't corrupt the recoveryMarkerFile?)
-                                recoveryInfo.increaseTryCount();
-                                recoveryInfo.writeToFile(recoveryMarkerFile);
+                                System.err.println("This is happening " + recoveryMarkerFile);
+                                File errorRecoveryMarkerFile =
+                                        new File(recoveryMarkerFile.getParent(),
+                                                recoveryMarkerFile.getName() + ".ERROR");
+                                state.fileOperations.move(recoveryMarkerFile,
+                                        errorRecoveryMarkerFile);
+                            } else
+                            {
+                                if (didOperationSucceed)
+                                {
+                                    deleteMarkerFile(recoveryState);
+
+                                    recoveryMarkerFile.delete();
+                                    recoveryFile.delete();
+                                } else
+                                {
+                                    // this replaces the recovery file with a new one with increased
+                                    // count
+                                    // FIXME: is this safe operation (how to assure, that it won't
+                                    // corrupt the recoveryMarkerFile?)
+
+                                    recoveryInfo.increaseTryCount();
+                                    recoveryInfo.writeToFile(recoveryMarkerFile);
+                                }
                             }
                             return true;
+                        }
+
+                        private void deleteMarkerFile(
+                                final DataSetStoragePrecommitRecoveryState recoveryState)
+                        {
+                            File incomingMarkerFile =
+                                    MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
+                                            .getIncomingDataSetFile().getRealIncomingFile());
+                            if (incomingMarkerFile.exists())
+                            {
+
+                                incomingMarkerFile.delete();
+                            }
                         }
                     };
 
@@ -529,11 +558,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
                         new DoNothingDelegatedAction());
 
-        handleRecoveryState(recoveryState, cleanupAction,  recoveryMarkerFileCleanupAction);
+        handleRecoveryState(recoveryState, cleanupAction, recoveryMarkerFileCleanupAction);
     }
 
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
-            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction, final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
         // TODO: Jobs left to do here:
         // rollback
@@ -546,10 +576,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         // rollback delegate
         final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
-        //keeps track of whether we should keep or delete the recovery files.
-        //we can delete if succesfully recovered, or rolledback, or gave up
+        // keeps track of whether we should keep or delete the recovery files.
+        // we can delete if succesfully recovered, or rolledback, or gave up
         boolean shouldDeleteRecoveryFiles = false;
-        
+
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
             {
                 public void didRollbackStorageAlgorithmRunner(
@@ -594,6 +624,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             // registrations that doesn't register anything.
             // OTOH: do we need to recover in this case? (as there is nothing to store)
             // maybe then we should only checkpoint for recovery if there ARE datasets registered?
+
+            // TODO: verify why if this throws exception - the empty directory is created in a
+            // store?
             List<ExternalData> registeredDataSets =
                     state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
             if (registeredDataSets.isEmpty())
@@ -617,7 +650,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                                 ErrorType.OPENBIS_REGISTRATION_FAILURE);
                 operationLog.info(rollbacker.getErrorMessageForLog());
                 rollbacker.doRollback(logger);
-                
+
                 shouldDeleteRecoveryFiles = true;
                 //
                 // invokeRollbackTransactionFunction
@@ -630,7 +663,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
-                
+
                 shouldDeleteRecoveryFiles = true;
             }
         } catch (org.jmock.api.ExpectationError r)
@@ -649,8 +682,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         logger.logDssRegistrationResult(encounteredErrors);
 
         cleanAfterwardsAction.execute(registrationSuccessful);
-        
-        recoveryMarkerCleanup.execute(shouldDeleteRecoveryFiles);        
+
+        recoveryMarkerCleanup.execute(shouldDeleteRecoveryFiles);
     }
 
     /**
