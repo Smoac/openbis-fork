@@ -107,6 +107,8 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                 {
                     one(reportingPluginScriptRunner).describe(with(iDataSetsMatcher),
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
+                    one(scriptRunnerFactory).getScriptPath();
+                    will(returnValue("script.py"));
                 }
             });
         plugin.createReport(Arrays.asList(datasetDescription1, datasetDescription2),
@@ -144,7 +146,9 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
             fail("Expected UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("Chosen plugin failed to create a report.", ex.getMessage());
+            assertEquals("Chosen plugin failed to create a report: "
+                    + "ch.systemsx.cisd.common.evaluator.EvaluatorException: blabla",
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();
