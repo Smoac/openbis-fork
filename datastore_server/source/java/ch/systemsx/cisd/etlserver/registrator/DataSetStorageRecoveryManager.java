@@ -47,6 +47,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     
     private int maxRetryCount = 50;
     
+    private int retryPeriodInSeconds = 60;
+    
     public <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -161,4 +163,16 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     {
         return this.maxRetryCount;
     }
+    
+    public int getRetryPeriodInSeconds()
+    {
+        return retryPeriodInSeconds;
+    }
+    
+    public void setRetryPeriodInSeconds(int retryPeriodInSeconds)
+    {
+        this.retryPeriodInSeconds = retryPeriodInSeconds;
+        
+    }
+    
 }

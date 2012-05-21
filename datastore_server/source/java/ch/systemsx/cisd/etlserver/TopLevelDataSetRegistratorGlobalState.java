@@ -155,6 +155,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.storageRecoveryManager.setDropboxRecoveryStateDir(dropboxRecoveryStateDir);
         this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
         this.storageRecoveryManager.setMaximumRertyCount(getMaximumRecoveryCount(threadParameters.getThreadProperties()));
+        this.storageRecoveryManager.setRetryPeriodInSeconds(getMinimumRecoveryPeriod(threadParameters.getThreadProperties()));
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -309,6 +310,8 @@ public class TopLevelDataSetRegistratorGlobalState
     
     public static final String RECOVERY_MAX_RETRY_COUNT = "recovery-max-retry-count";
 
+    public static final String RECOVERY_MIN_RETRY_PERIOD = "recovery-min-retry-period";
+    
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -337,6 +340,10 @@ public class TopLevelDataSetRegistratorGlobalState
         return PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
     }
     
+    private static int getMinimumRecoveryPeriod(Properties threadProperties)
+    {
+        return PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
+    }
     /**
      * Get a directory local to the share, respecting the user override, if one is specified, and
      * defaulting to the defaultDirName.

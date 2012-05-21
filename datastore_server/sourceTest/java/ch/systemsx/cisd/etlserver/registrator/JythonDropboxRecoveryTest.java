@@ -20,6 +20,8 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,12 +81,17 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED;
         testCase.recoveryRertyCount = 3;
         testCases.add(testCase);
-        
+
+        testCase = new RecoveryTestCase("check retry count incremented");
+        testCase.recoveryLastTry = new Date();
+        testCase.nextTryInTheFuture = true;
+        testCases.add(testCase);
+
         testCase = new RecoveryTestCase("check failure after the recovery count exceeded");
         testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED_GIVE_UP;
         testCase.recoveryRertyCount = 100;
         testCases.add(testCase);
-        
+
         testCase = new RecoveryTestCase("basic unrecoverable");
         testCase.canRecoverFromError = false;
         testCases.add(testCase);
@@ -139,11 +146,28 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
          */
         protected int recoveryRertyCount = 0;
 
+        /**
+         * the timestamp of a recovery last try.
+         */
+        // gets initialized to some date in the past in the constructor
+        protected Date recoveryLastTry;
+
+        /**
+         * if set to true, then the registration should do nothing
+         */
+        protected boolean nextTryInTheFuture = false;
+
         private RecoveryTestCase(String title)
         {
             this.title = title;
             this.overrideProperties = new HashMap<String, String>();
             this.overrideProperties.put("TEST_V2_API", "");
+
+            // this the ultra-awkward way of initializing the recovery last try to some date in the
+            // past
+            Calendar c = Calendar.getInstance();
+            c.set(2010, 1, 1);
+            recoveryLastTry = c.getTime();
         }
 
         @Override
@@ -176,72 +200,93 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         if (testCase.canRecoverFromError)
         {
-            if (testCase.recoveryRertyCount > 0)
-            {
-                setTheRertyCount(testCase.recoveryRertyCount);
-            }
+            setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
 
-            assertRecoveryFile(testCase.recoveryRertyCount);
+            assertRecoveryFile(testCase.recoveryRertyCount, RecoveryInfoDateConstraint.ORIGINAL,
+                    testCase.recoveryLastTry);
             assertOriginalMarkerFileExists();
+            assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
 
             handler.handle(markerFile);
 
-            // if failure happened here then don't expect recovery / marker files to be deleted
-
-            switch (testCase.registrationCheckResult)
+            if (testCase.nextTryInTheFuture)
             {
-                case REGISTRATION_SUCCEEDED:
-                    // item in store
-                    assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                            "sub_data_set_1", 0);
-                    // FIXME: this is commented out to cover the bug! beware
-                    // assertDirEmpty(stagingDirectory);
-                    assertDirEmpty(precommitDirectory);
-
-                    assertNoOriginalMarkerFileExists();
-                    assertNoRecoveryMarkerFile();
-                    break;
-                case REGISTRATION_FAILED:
-                    assertDataSetNotStoredProcess(DATA_SET_CODE);
-                    assertDirEmpty(stagingDirectory);
-
-                    // FIXME: this is commented out to cover the bug! beware
-                    // assertDirEmpty(precommitDirectory);
-
-                    assertNoOriginalMarkerFileExists();
-                    assertNoRecoveryMarkerFile();
-                    break;
-                case CHECK_FAILED:
-                    assertDataSetNotStoredProcess(DATA_SET_CODE);
-                    
-                    assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
-                    assertRecoveryFile(testCase.recoveryRertyCount + 1);
-                    assertOriginalMarkerFileExists();
-                    // marker file is still there
-                    // recovery state file is still there
-                    break;
-                case CHECK_FAILED_GIVE_UP:
-                    assertDataSetNotStoredProcess(DATA_SET_CODE);
-                    assertNoOriginalMarkerFileExists();
-                    assertNoRecoveryMarkerFile();
-                    
-                    assertDirNotEmpty(precommitDirectory, "precommit should not be empty");
-
-                    break;
+                assertRecoveryFile(testCase.recoveryRertyCount,
+                        RecoveryInfoDateConstraint.ORIGINAL, testCase.recoveryLastTry);
+                assertOriginalMarkerFileExists();
+                assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
+                // nothing happened
+            } else
+            {
+                assertPostRecoveryConstraints(testCase, atomicatOperationDetails);
             }
         } else
         {
-            assertDataSetNotStoredProcess(DATA_SET_CODE);
+            assertNoRecoveryTriggeredConstraints();
+        }
+    }
 
-            assertNoOriginalMarkerFileExists();
-            assertNoRecoveryMarkerFile();
-            
-            assertDirEmpty(stagingDirectory);
-            //FIXME: this check is commented out because of a bug!
-            //assertDirEmpty(precommitDirectory);
-            
-            // assert there is no recovery file
-            // rolllback requirementes
+    private void assertNoRecoveryTriggeredConstraints()
+    {
+        assertDataSetNotStoredProcess(DATA_SET_CODE);
+
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(stagingDirectory);
+        // FIXME: this check is commented out because of a bug!
+        // assertDirEmpty(precommitDirectory);
+
+        // assert there is no recovery file
+        // rolllback requirementes
+    }
+
+    private void assertPostRecoveryConstraints(
+            final RecoveryTestCase testCase,
+            final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails)
+    {
+
+        switch (testCase.registrationCheckResult)
+        {
+            case REGISTRATION_SUCCEEDED:
+                // item in store
+                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                        "sub_data_set_1", 0);
+                // FIXME: this is commented out to cover the bug! beware
+                // assertDirEmpty(stagingDirectory);
+                assertDirEmpty(precommitDirectory);
+
+                assertNoOriginalMarkerFileExists();
+                assertNoRecoveryMarkerFile();
+                break;
+            case REGISTRATION_FAILED:
+                assertDataSetNotStoredProcess(DATA_SET_CODE);
+                assertDirEmpty(stagingDirectory);
+
+                // FIXME: this is commented out to cover the bug! beware
+                // assertDirEmpty(precommitDirectory);
+
+                assertNoOriginalMarkerFileExists();
+                assertNoRecoveryMarkerFile();
+                break;
+            case CHECK_FAILED:
+                assertDataSetNotStoredProcess(DATA_SET_CODE);
+
+                assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
+                assertRecoveryFile(testCase.recoveryRertyCount + 1,
+                        RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
+                assertOriginalMarkerFileExists();
+                // marker file is still there
+                // recovery state file is still there
+                break;
+            case CHECK_FAILED_GIVE_UP:
+                assertDataSetNotStoredProcess(DATA_SET_CODE);
+                assertNoOriginalMarkerFileExists();
+                assertNoRecoveryMarkerFile();
+
+                assertDirNotEmpty(precommitDirectory, "precommit should not be empty");
+
+                break;
         }
 
     }
@@ -249,7 +294,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     /**
      * Use this method to update the retry count in the recovery info file.
      */
-    private void setTheRertyCount(int count)
+    private void setTheRecoveryInfo(int count, Date lastTryDate)
     {
         File file = getCreatedRecoveryMarkerFile();
 
@@ -262,6 +307,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             recoveryInfo.increaseTryCount();
         }
+
+        recoveryInfo.setLastTry(lastTryDate);
+
         recoveryInfo.writeToFile(file);
     }
 
@@ -289,10 +337,23 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 markerFile.exists());
     }
 
+    private enum RecoveryInfoDateConstraint
+    {
+        /**
+         * the last try date is the one of the original recovery file
+         */
+        ORIGINAL,
+        /**
+         * the last try date is later then the original recovery file
+         */
+        AFTER_ORIGINAL
+    }
+
     /**
      * @param tryCount - the excepted stored number of tries in a recovery file
      */
-    private File assertRecoveryFile(int tryCount)
+    private File assertRecoveryFile(int tryCount, RecoveryInfoDateConstraint dateConstraint,
+            Date originalLastTryDate)
     {
         File file = getCreatedRecoveryMarkerFile();
         assertTrue("The recovery marker file does not exist! " + file, file.exists());
@@ -305,6 +366,18 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         assertEquals("The try count in a recovery file is incorrect", tryCount,
                 recoveryInfo.getTryCount());
+
+        switch (dateConstraint)
+        {
+            case ORIGINAL:
+                assertEquals(originalLastTryDate, recoveryInfo.getLastTry());
+                break;
+            case AFTER_ORIGINAL:
+                assertTrue(
+                        "" + originalLastTryDate + " should be before " + recoveryInfo.getLastTry(),
+                        originalLastTryDate.before(recoveryInfo.getLastTry()));
+                break;
+        }
 
         return file;
     }
@@ -353,7 +426,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             // now registration has failed with the exception. we continue depending on where
 
-            if (testCase.canRecoverFromError)
+            if (testCase.canRecoverFromError && false == testCase.nextTryInTheFuture)
             {
                 checkRegistrationSucceeded();
 

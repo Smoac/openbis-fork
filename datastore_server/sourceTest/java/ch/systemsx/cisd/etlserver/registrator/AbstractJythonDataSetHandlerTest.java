@@ -216,6 +216,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     one(storageRecoveryManager).setRecoveryMarkerFilesDir(new File(
                             new File(workingDirectory, "recovery-marker"), "jython-handler-test"));
                     one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
+                    one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
                 }
             });
     }

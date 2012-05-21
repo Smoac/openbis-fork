@@ -36,7 +36,7 @@ public class DataSetStorageRecoveryInfo implements Serializable
 
     private final File recoveryStateFile;
     
-    private final Date lastTry;
+    private Date lastTry;
     
     private int tryCount;
 
@@ -51,6 +51,11 @@ public class DataSetStorageRecoveryInfo implements Serializable
     public void increaseTryCount()
     {
         tryCount++;
+    }
+    
+    public void setLastTry(Date lastTry)
+    {
+        this.lastTry = lastTry;
     }
     
     public File getRecoveryStateFile()

@@ -74,4 +74,14 @@ public interface IDataSetStorageRecoveryManager
     int getMaximumRertyCount();
     
     void setMaximumRertyCount(int maxRetryCount);
+    
+    /**
+     * get's the minimum time period that must pass before the next retry will happen. 
+     */
+    int getRetryPeriodInSeconds();
+    
+    /**
+     * set's the minimum time period that must pass before the next retry will happen. 
+     */
+    void setRetryPeriodInSeconds(int retryTimeInSeconds);
 }

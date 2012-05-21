@@ -21,6 +21,8 @@ import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -494,6 +496,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
         }
 
+        if (false == retryPeriodHasPassed(recoveryInfo))
+        {
+            operationLog.info("Found recovery inforation for "+incomingFileOriginal+". The recovery won't happen as the retry period has not yet passed" );
+            return;
+        }
+
         operationLog.info("will recover from broken registration. Found marker file "
                 + recoveryMarkerFile + " and " + recoveryFile);
 
@@ -534,6 +542,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                                     // corrupt the recoveryMarkerFile?)
 
                                     recoveryInfo.increaseTryCount();
+                                    recoveryInfo.setLastTry(new Date());
                                     recoveryInfo.writeToFile(recoveryMarkerFile);
                                 }
                             }
@@ -561,12 +570,23 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         handleRecoveryState(recoveryState, cleanupAction, recoveryMarkerFileCleanupAction);
     }
 
+    /**
+     * Check wheter the last retry + retry period < date.now
+     */
+    private boolean retryPeriodHasPassed(final DataSetStorageRecoveryInfo recoveryInfo)
+    {
+        Calendar c = Calendar.getInstance();
+        c.setTime(recoveryInfo.getLastTry());
+        c.add(Calendar.SECOND, state.getGlobalState().getStorageRecoveryManager()
+                .getRetryPeriodInSeconds());
+        return c.getTime().before(new Date());
+    }
+
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
         // TODO: Jobs left to do here:
-        // rollback
         // jython hooks
 
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
