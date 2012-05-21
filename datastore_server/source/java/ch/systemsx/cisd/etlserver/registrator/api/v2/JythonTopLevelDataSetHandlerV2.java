@@ -29,22 +29,21 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStoragePrecommitRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbacker;
-import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.DoNothingDelegatedAction;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.PostRegistrationCleanUpAction;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -146,14 +145,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         // If there is a recovery marker file, do not add the file to faulty paths.
         return hasRecoveryMarkerFile(file);
     }
-    
+
     @Override
     protected boolean hasRecoveryMarkerFile(File incoming)
     {
         return getGlobalState().getStorageRecoveryManager().getProcessingMarkerFile(incoming)
                 .exists();
     }
-    
+
     @Override
     protected void handleRecovery(final File incomingFileOriginal)
     {
@@ -254,8 +253,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         handleRecoveryState(recoveryState, cleanupAction, recoveryMarkerFileCleanupAction);
     }
-    
-    
+
     /**
      * Check wheter the last retry + retry period < date.now
      */
@@ -268,7 +266,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         return c.getTime().before(new Date());
     }
 
-    
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
@@ -362,13 +359,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
                 shouldDeleteRecoveryFiles = true;
             }
-        } catch (org.jmock.api.ExpectationError r)
-        {
-            // this exception can by only thrown by tests.
-            // propagation of the exception is essential to test some functionalities
-            throw r;
         } catch (Throwable error)
         {
+            if ("org.jmock.api.ExpectationError".equals(error.getClass().getCanonicalName()))
+            {
+                // this exception can by only thrown by tests.
+                // propagation of the exception is essential to test some functionalities
+                // implemented like this to avoid dependency to jmock in production
+                throw (Error) error;
+            }
+
             System.err.println("Caught an error! " + error);
             error.printStackTrace();
             // in this case we should ignore, and run the recovery again after some time
@@ -382,4 +382,21 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         recoveryMarkerCleanup.execute(shouldDeleteRecoveryFiles);
     }
 
+    /**
+     * Create an adaptor that offers access to the recovery hook functions.
+     */
+    protected IPrePostRegistrationHook<T> createRecoveryHookAdaptor()
+    {
+        IPrePostRegistrationHook<T> hookAdaptor = new IPrePostRegistrationHook<T>()
+            {
+                public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
+                {
+                }
+
+                public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
+                {
+                }
+            };
+        return hookAdaptor;
+    }
 }

@@ -476,26 +476,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return new RuntimeException(cause.toString());
     }
 
-    /**
-     * Create an adaptor that offers access to the recovery hook functions.
-     */
-    protected IPrePostRegistrationHook<T> createRecoveryHookAdaptor()
-    {
-        final AbstractOmniscientTopLevelDataSetRegistrator<T> myself = this;
-        IPrePostRegistrationHook<T> hookAdaptor = new IPrePostRegistrationHook<T>()
-            {
-                public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
-                {
-                    myself.didPreRegistration(null, transaction);
-                }
-
-                public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
-                {
-                    myself.didPostRegistration(null, transaction);
-                }
-            };
-        return hookAdaptor;
-    }
 
     /**
      * Set up the infrastructure and forward control to subclasses. Clients can query the service
