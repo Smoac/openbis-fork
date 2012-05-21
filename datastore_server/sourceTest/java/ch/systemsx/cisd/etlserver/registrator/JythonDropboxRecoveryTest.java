@@ -181,6 +181,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         } else
         {
             assertDataSetNotStoredProcess(DATA_SET_CODE);
+            
             assertNoOriginalMarkerFileExists();
             assertNoRecoveryMarkerFile();
             // assert there is no recovery file
@@ -211,7 +212,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     private void assertNoOriginalMarkerFileExists()
     {
-        assertFalse("The original registration marker file should be deleted", markerFile.exists());
+        assertFalse("The original registration marker " +markerFile+ " file should be deleted", markerFile.exists());
     }
 
     private File assertRecoveryMarkerFile()

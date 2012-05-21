@@ -481,10 +481,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         .extractPrecommittedCheckpoint(recoveryMarkerFile);
 
         // then we should ensure that the recovery will actually take place itself!
-        final File recoveryFile =
+        final DataSetStorageRecoveryInfo recoveryInfo =
                 state.getGlobalState().getStorageRecoveryManager()
                         .getRecoveryFileFromMarker(recoveryMarkerFile);
 
+        final File recoveryFile = recoveryInfo.getRecoveryStateFile();
+        
         if (false == recoveryFile.exists())
         {
             // TODO: is it safe to throw from here?
@@ -519,13 +521,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         PostRegistrationCleanUpAction cleanupAction =
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
-                        recoveryMarkerFileCleanupAction);
+                        new DoNothingDelegatedAction());
 
-        handleRecoveryState(recoveryState, cleanupAction);
+        handleRecoveryState(recoveryState, cleanupAction,  recoveryMarkerFileCleanupAction);
     }
 
     private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
-            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
+            final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction, final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
         // TODO: Jobs left to do here:
         // rollback
@@ -538,6 +540,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         // rollback delegate
         final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
+        //keeps track of whether we should keep or delete the recovery files.
+        //we can delete if succesfully recovered, or rolledback, or gave up
+        boolean shouldDeleteRecoveryFiles = false;
+        
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
             {
                 public void didRollbackStorageAlgorithmRunner(
@@ -605,6 +611,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                                 ErrorType.OPENBIS_REGISTRATION_FAILURE);
                 operationLog.info(rollbacker.getErrorMessageForLog());
                 rollbacker.doRollback(logger);
+                
+                shouldDeleteRecoveryFiles = true;
                 //
                 // invokeRollbackTransactionFunction
                 //
@@ -616,6 +624,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
+                
+                shouldDeleteRecoveryFiles = true;
             }
         } catch (org.jmock.api.ExpectationError r)
         {
@@ -632,8 +642,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         logger.logDssRegistrationResult(encounteredErrors);
 
-        // TODO: recreate this clean afterwards function
         cleanAfterwardsAction.execute(registrationSuccessful);
+        
+        recoveryMarkerCleanup.execute(shouldDeleteRecoveryFiles);        
     }
 
     /**

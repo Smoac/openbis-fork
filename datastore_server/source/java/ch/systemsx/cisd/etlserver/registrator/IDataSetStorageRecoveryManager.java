@@ -57,7 +57,7 @@ public interface IDataSetStorageRecoveryManager
     /**
      * Extracts the recovery file from the marker file
      */
-    File getRecoveryFileFromMarker(File markerFile);
+    DataSetStorageRecoveryInfo getRecoveryFileFromMarker(File markerFile);
     
     /**
      * @return the path of the recovery marker file for the given incoming

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 
@@ -60,7 +61,10 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         FileUtilities.writeToFile(serializedFile, recoveryState);
 
         File processingMarkerFile = getProcessingMarkerFile(runner);
-        FileUtilities.writeToFile(processingMarkerFile, serializedFile.getAbsolutePath());
+        
+        DataSetStorageRecoveryInfo info = new DataSetStorageRecoveryInfo(serializedFile, new Date(), 0);
+        
+        info.writeToFile(processingMarkerFile);
 
         operationLog.info("Store precommit recovery checkpoint with markerfile "
                 + processingMarkerFile);
@@ -95,19 +99,17 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return new File(dropboxRecoveryStateDir, incomingFileName + PRECOMMIT_SERIALIZED);
     }
 
-    public File getRecoveryFileFromMarker(File markerFile)
+    public DataSetStorageRecoveryInfo getRecoveryFileFromMarker(File markerFile)
     {
-        // trim is necessary as it reads the \n at the end of the file
-        String recoveryFilePath = FileUtilities.loadToString(markerFile).trim();
-        return new File(recoveryFilePath);
+        return DataSetStorageRecoveryInfo.loadFromFile(markerFile);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
             File markerFile)
     {
-        File recoveryFile = getRecoveryFileFromMarker(markerFile);
-        return FileUtilities.loadToObject(recoveryFile, DataSetStoragePrecommitRecoveryState.class);
+        DataSetStorageRecoveryInfo info = getRecoveryFileFromMarker(markerFile);
+        return FileUtilities.loadToObject(info.getRecoveryStateFile(), DataSetStoragePrecommitRecoveryState.class);
     }
 
     public <T extends DataSetInformation> void registrationCompleted(
