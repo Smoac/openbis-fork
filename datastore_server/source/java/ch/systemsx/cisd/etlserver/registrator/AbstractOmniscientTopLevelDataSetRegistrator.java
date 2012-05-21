@@ -515,6 +515,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                                 recoveryMarkerFile.delete();
                                 recoveryFile.delete();
                             }
+                            else {
+                                // this replaces the recovery file with a new one with increased count
+                                //FIXME: is this safe operation (how to assure, that it won't corrupt the recoveryMarkerFile?)
+                                recoveryInfo.increaseTryCount();
+                                recoveryInfo.writeToFile(recoveryMarkerFile);
+                            }
                             return true;
                         }
                     };

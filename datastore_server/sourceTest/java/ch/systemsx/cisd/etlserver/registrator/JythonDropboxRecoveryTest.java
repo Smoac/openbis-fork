@@ -160,7 +160,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         if (testCase.canRecoverFromError)
         {
-            assertRecoveryMarkerFile();
+            assertRecoveryFile(0);
             assertOriginalMarkerFileExists();
 
             handler.handle(markerFile);
@@ -192,7 +192,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                     break;
                 case CHECK_FAILED:
                     assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
-                    assertRecoveryMarkerFile();
+                    assertRecoveryFile(1);
                     assertOriginalMarkerFileExists();
                     // marker file is still there
                     // recovery state file is still there
@@ -235,15 +235,22 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 markerFile.exists());
     }
 
-    private File assertRecoveryMarkerFile()
+    /**
+     * @param tryCount - the excepted stored number of tries in a recovery file
+     */
+    private File assertRecoveryFile(int tryCount)
     {
         File file = getCreatedRecoveryMarkerFile();
         assertTrue("The recovery marker file does not exist! " + file, file.exists());
-        File recoveryFile =
+        DataSetStorageRecoveryInfo recoveryInfo =
                 handler.getGlobalState().getStorageRecoveryManager()
-                        .getRecoveryFileFromMarker(file).getRecoveryStateFile();
+                        .getRecoveryFileFromMarker(file);
+        File recoveryFile = recoveryInfo.getRecoveryStateFile();
         assertTrue("The recovery serialized file does not exist! " + recoveryFile,
                 recoveryFile.exists());
+        
+        assertEquals("The try count in a recovery file is incorrect", tryCount, recoveryInfo.getTryCount());
+        
         return file;
     }
 

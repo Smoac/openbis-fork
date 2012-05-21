@@ -20,13 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Simple data type with information about recovery state.
@@ -44,7 +38,7 @@ public class DataSetStorageRecoveryInfo implements Serializable
     
     private final Date lastTry;
     
-    private final int tryCount;
+    private int tryCount;
 
     public DataSetStorageRecoveryInfo(File recoveryStateFile, Date lastTry, int tryCount)
     {
@@ -53,7 +47,12 @@ public class DataSetStorageRecoveryInfo implements Serializable
         this.lastTry = lastTry;
         this.tryCount = tryCount;
     }
-
+    
+    public void increaseTryCount()
+    {
+        tryCount++;
+    }
+    
     public File getRecoveryStateFile()
     {
         return recoveryStateFile;
