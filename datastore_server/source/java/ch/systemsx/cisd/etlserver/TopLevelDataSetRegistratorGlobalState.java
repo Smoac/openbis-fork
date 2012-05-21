@@ -55,8 +55,6 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File dssRegistrationLogDir;
 
-    private final File dropboxRecoveryStateDir;
-
     private final File preStagingDir;
 
     private final File stagingDir;
@@ -125,8 +123,6 @@ public class TopLevelDataSetRegistratorGlobalState
         this.storeRootDir = storeRootDir;
         this.dssInternalTempDir = dssInternalTempDir;
         this.dssRegistrationLogDir = dssRegistrationLogDir;
-        this.dropboxRecoveryStateDir =
-                new File(dssRecoveryStateDir, threadParameters.getThreadName());
         this.preStagingDir =
                 getPreStagingDir(storeRootDir, shareId, threadParameters.getThreadProperties());
         this.stagingDir =
@@ -145,12 +141,22 @@ public class TopLevelDataSetRegistratorGlobalState
         this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
+
+        File dropboxRecoveryStateDir =
+                new File(dssRecoveryStateDir, threadParameters.getThreadName());
+        File recoveryMarkerFilesDirectory =
+                new File(getRecoveryMarkerDir(storeRootDir, shareId,
+                        threadParameters.getThreadProperties()), threadParameters.getThreadName());
+
+        dropboxRecoveryStateDir.mkdirs();
+        recoveryMarkerFilesDirectory.mkdirs();
+        
         this.storageRecoveryManager = storageRecoveryManager;
-        this.storageRecoveryManager.setDropboxRecoveryStateDir(this.dropboxRecoveryStateDir);
+        this.storageRecoveryManager.setDropboxRecoveryStateDir(dropboxRecoveryStateDir);
+        this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
-        dropboxRecoveryStateDir.mkdirs();
     }
 
     public String getDssCode()
@@ -182,14 +188,6 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getDssRegistrationLogDir()
     {
         return dssRegistrationLogDir;
-    }
-
-    /**
-     * Get the directory that holds the recovery state for this dropbox.
-     */
-    public File getDropboxRecoveryStateDir()
-    {
-        return dropboxRecoveryStateDir;
     }
 
     /**
@@ -306,6 +304,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
 
+    public static final String RECOVERY_MARKER_DIR = "recovery-marker-dir";
+
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -320,6 +320,13 @@ public class TopLevelDataSetRegistratorGlobalState
     private static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, "pre-commit");
+    }
+
+    private static File getRecoveryMarkerDir(File storeRoot, String shareId,
+            Properties threadProperties)
+    {
+        return getShareLocalDir(storeRoot, shareId, threadProperties, RECOVERY_MARKER_DIR,
+                "recovery-marker");
     }
 
     /**

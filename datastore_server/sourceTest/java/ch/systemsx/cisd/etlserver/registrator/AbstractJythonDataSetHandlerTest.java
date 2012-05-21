@@ -115,7 +115,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected static final String SAMPLE_PERM_ID = "sample-perm-id";
 
-    
     @BeforeTest
     public void init()
     {
@@ -179,9 +178,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                             shouldReThrowException);
         }
     }
-    
+
     protected TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
-    {   
+    {
         ThreadParameters threadParameters =
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
@@ -212,6 +211,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 {
                     one(storageRecoveryManager).setDropboxRecoveryStateDir(
                             new File(workingDirectory, "jython-handler-test"));
+                    one(storageRecoveryManager).setRecoveryMarkerFilesDir(new File(
+                            new File(workingDirectory, "recovery-marker"), "jython-handler-test"));
                 }
             });
     }
@@ -402,7 +403,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 };
         }
     }
-    
+
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
             String dataSetCode, String dataSetDirectory, int testId)
     {

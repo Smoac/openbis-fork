@@ -68,4 +68,6 @@ public interface IDataSetStorageRecoveryManager
     boolean canRecoverFromError(Throwable ex);
 
     void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);
+    
+    void setRecoveryMarkerFilesDir(File recoveryMarkerFileDir);
 }

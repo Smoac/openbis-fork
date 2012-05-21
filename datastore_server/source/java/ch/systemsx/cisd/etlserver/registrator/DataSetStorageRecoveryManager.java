@@ -36,11 +36,13 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     private static final String PRECOMMIT_SERIALIZED = ".PRECOMMIT_SERIALIZED";
 
     private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
-    
+
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetStorageRecoveryManager.class);
 
     private File dropboxRecoveryStateDir;
+
+    private File recoveryMarkerFilesDir;
 
     public <T extends DataSetInformation> void checkpointPrecommittedState(
             DataSetStorageAlgorithmRunner<T> runner)
@@ -81,9 +83,9 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
      */
     public File getProcessingMarkerFile(File incoming)
     {
-        return new File(incoming.getParentFile(), incoming.getName() +  PROCESSING_MARKER);
+        return new File(recoveryMarkerFilesDir, incoming.getName() + PROCESSING_MARKER);
     }
-    
+
     private <T extends DataSetInformation> File getSerializedFile(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -118,9 +120,9 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     {
         File markerFile = getProcessingMarkerFile(runner);
         File recoveryState = getSerializedFile(runner);
-        
-        operationLog.info("Cleanup recovery with marker file "+ markerFile);
-        
+
+        operationLog.info("Cleanup recovery with marker file " + markerFile);
+
         runner.getRollbackStack().setLockedState(false);
         // Cleanup the state we have accumulated
         FileUtilities.delete(markerFile);
@@ -136,14 +138,14 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return true;
     }
 
-    public static boolean isRecoveryFile(File file)
-    {
-        return file.getName().endsWith(PROCESSING_MARKER);
-    }
-
     public void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir)
     {
         this.dropboxRecoveryStateDir = dropboxRecoveryStateDir;
+    }
+
+    public void setRecoveryMarkerFilesDir(File recoveryMarkerFileDir)
+    {
+        this.recoveryMarkerFilesDir = recoveryMarkerFileDir;
     }
 
 }
