@@ -436,4 +436,13 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         .loadToString(new File(datasetLocation, "read" + (testId + 1) + ".me"))
                         .trim());
     }
+    
+    protected void assertDataSetNotStoredProcess(String dataSetCode)
+    {
+        File datasetLocation =
+                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, dataSetCode,
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
+        assertFalse("The storage path of the dataset should noto exist", datasetLocation.exists());
+    }
 }

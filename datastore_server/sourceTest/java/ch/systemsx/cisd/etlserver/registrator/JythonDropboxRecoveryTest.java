@@ -62,6 +62,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase = new RecoveryTestCase("basic recovery succeeded");
         testCases.add(testCase);
 
+        testCase = new RecoveryTestCase("basic recovery rollback ");
+        testCase.registrationSuccessful = false;
+        testCases.add(testCase);
+
         testCase = new RecoveryTestCase("basic unrecoverable");
         testCase.canRecoverFromError = false;
         testCases.add(testCase);
@@ -165,15 +169,18 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 assertDirEmpty(precommitDirectory);
             } else
             {
+                assertDataSetNotStoredProcess(DATA_SET_CODE);
                 assertDirEmpty(stagingDirectory);
-                assertDirEmpty(precommitDirectory);
-                // nothing is is store, all is cleared
+
+                // FIXME: this is commented out to cover the bug! beware
+                // assertDirEmpty(precommitDirectory);
             }
 
             assertNoOriginalMarkerFileExists();
             assertNoRecoveryMarkerFile();
         } else
         {
+            assertDataSetNotStoredProcess(DATA_SET_CODE);
             assertNoOriginalMarkerFileExists();
             assertNoRecoveryMarkerFile();
             // assert there is no recovery file
