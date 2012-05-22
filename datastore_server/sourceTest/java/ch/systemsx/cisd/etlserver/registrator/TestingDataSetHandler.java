@@ -1,14 +1,13 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
-import org.python.core.PyFunction;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
-public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation> implements ITestingDataSetHandler
+public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
+        implements ITestingDataSetHandler
 {
     protected final TestingDataSetHandlerExpectations expectations;
 
@@ -55,17 +54,9 @@ public class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetI
         expectations.handleRollbackException(throwable);
     }
 
-    @Override
-    protected void invokeFunction(
-            ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService<DataSetInformation> service,
-            PyFunction function, Object... args)
-    {
-        super.invokeFunction(service, function, args);
-    }
-
     public TestingDataSetHandlerExpectations getExpectations()
     {
-      return expectations;
+        return expectations;
     }
 
 }

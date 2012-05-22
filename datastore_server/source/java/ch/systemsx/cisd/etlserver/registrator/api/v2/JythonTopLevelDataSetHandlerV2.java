@@ -49,7 +49,6 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionSta
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * A top-level data set handler that runs a python (jython) script to register data sets.
