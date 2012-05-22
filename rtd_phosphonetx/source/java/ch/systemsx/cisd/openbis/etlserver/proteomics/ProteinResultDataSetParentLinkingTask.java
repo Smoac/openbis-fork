@@ -58,7 +58,7 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
 
     private static final String BASE_EXPERIMENT_KEY =
             DataSetInfoExtractorForProteinResults.EXPERIMENT_IDENTIFIER_KEY.toUpperCase();
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ProteinResultDataSetParentLinkingTask.class);
 
@@ -131,7 +131,7 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                 }
             }
         }
-        service.performEntityOperations(new AtomicEntityOperationDetails(null, Collections
+        service.performEntityOperations(new AtomicEntityOperationDetails(null, null, Collections
                 .<NewSpace> emptyList(), Collections.<NewProject> emptyList(), Collections
                 .<NewExperiment> emptyList(), Collections.<SampleUpdatesDTO> emptyList(),
                 Collections.<NewSample> emptyList(), Collections
