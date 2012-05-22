@@ -1,13 +1,13 @@
+from ch.systemsx.cisd.etlserver.registrator import JythonHookTestTool
+
+jythonHookTestTool = JythonHookTestTool.createFromIncoming(incoming)
+
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
 
 transaction.getPersistentMap().put("body","1")
 
-global contextTestFailed
-contextTestFailed = None
-
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
-    global didTransactionRollbackHappen
-    didTransactionRollbackHappen = True
+    jythonHookTestTool.log("rollback_transaction")
 
 def pre_metadata_registration(context):
     
@@ -16,8 +16,7 @@ def pre_metadata_registration(context):
     assert_context_content(context, "pre_metadata_registration", "post_storage", None);
 
     context.put("pre_metadata_registration", "2")
-    global didPreRegistrationFunctionRunHappen
-    didPreRegistrationFunctionRunHappen = True
+    jythonHookTestTool.log("pre_metadata_registration")
 
 def post_metadata_registration(context):
 
@@ -26,8 +25,7 @@ def post_metadata_registration(context):
     assert_context_content(context, "post_metadata_registration", "post_storage", None);
 
     context.put("post_metadata_registration", "3")
-    global didPostRegistrationFunctionRunHappen
-    didPostRegistrationFunctionRunHappen = True
+    jythonHookTestTool.log("post_metadata_registration")
 
 def post_storage(context):
 
@@ -36,14 +34,12 @@ def post_storage(context):
     assert_context_content(context, "post_storage", "post_metadata_registration", "3");
 
     context.put("post_storage", "4")
-    global didPostStorageFunctionRunHappen
-    didPostStorageFunctionRunHappen = True
+    jythonHookTestTool.log("post_storage")
     
 def assert_context_content(context, caller, name, expected):
     value = context.get(name)
     if (value != expected):
-        global contextTestFailed
         if (value != None and expected != None and type(value) != type(expected)):
             value = "%s:%s" % (type(value), value)
             expected = "%s:%s" % (type(expected), expected)
-        contextTestFailed = "in %s the value of %s should have been '%s', but was '%s'" % (caller, name, expected, value) 
+        jythonHookTestTool.log("transaction context failed. in %s the value of %s should have been '%s', but was '%s'" % (caller, name, expected, value) )

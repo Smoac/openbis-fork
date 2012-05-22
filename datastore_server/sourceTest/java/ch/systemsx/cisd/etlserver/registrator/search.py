@@ -1,10 +1,11 @@
+from ch.systemsx.cisd.etlserver.registrator import JythonHookTestTool
+jythonHookTestTool = JythonHookTestTool.createFromIncoming(incoming)
+
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
-	global didTransactionRollbackHappen
-	didTransactionRollbackHappen = True
+    jythonHookTestTool.log("rollback_transaction")
 	
 def rollback_service(service, throwable):
-	global didRollbackServiceFunctionRun
-	didRollbackServiceFunctionRun = True
+    jythonHookTestTool.log("rollback_service")
 
 tr = service.transaction(incoming, factory)
 searchService = tr.getSearchService()

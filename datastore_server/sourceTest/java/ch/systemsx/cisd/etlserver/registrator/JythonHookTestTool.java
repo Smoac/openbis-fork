@@ -35,7 +35,7 @@ public class JythonHookTestTool
 {
     private final File logFile;
 
-    private String[] originalFileContents;
+    private String[] originalFileContents = new String[] {};
 
     private int lineNumber;
 
@@ -73,12 +73,21 @@ public class JythonHookTestTool
     /**
      * The factory method to create util
      * 
-     * @param incoming - pre-staging copy of the file - the logical incoming available from the
+     * @param incoming - the logical or original incoming available from the
      *            dropbox
      */
     public static JythonHookTestTool createFromIncoming(File incoming)
     {
-        File workingDirectory = incoming.getParentFile().getParentFile().getParentFile();
+        File workingDirectory;
+        if (incoming.getParentFile().getParentFile().getName().equals("pre-staging"))
+        {
+            //prestaging
+            workingDirectory = incoming.getParentFile().getParentFile().getParentFile();
+        } else
+        {
+            //incoming
+            workingDirectory = incoming.getParentFile();
+        }
         return new JythonHookTestTool(workingDirectory);
     }
 
@@ -135,6 +144,9 @@ public class JythonHookTestTool
     {
         if (lineNumber < originalFileContents.length)
         {
+            for (String s: originalFileContents)
+            System.out.println(s);
+            
             throw new AssertionError("Unexpected message in jython hook test."
                     + originalFileContents[lineNumber]);
         }

@@ -1,8 +1,10 @@
 import sys
+from ch.systemsx.cisd.etlserver.registrator import JythonHookTestTool
+
+jythonHookTestTool = JythonHookTestTool.createFromIncoming(incoming)
 
 def did_encounter_secondary_transaction_errors(service, transaction, errors):
-    global didSecondaryTransactionErrorNotificationHappen
-    didSecondaryTransactionErrorNotificationHappen = errors.size() > 0
+    jythonHookTestTool.log("did_encounter_secondary_transaction_errors %s" % errors.size())
 
 # Execute a query
 tr = service.transaction()

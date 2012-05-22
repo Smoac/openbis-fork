@@ -62,7 +62,6 @@ public class TestingDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<Data
             PyFunction function, Object... args)
     {
         super.invokeFunction(service, function, args);
-        expectations.checkPythonInterpreterVariables(service);
     }
 
     public TestingDataSetHandlerExpectations getExpectations()
