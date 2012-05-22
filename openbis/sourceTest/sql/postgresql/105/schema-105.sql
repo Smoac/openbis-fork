@@ -745,6 +745,17 @@ CREATE SEQUENCE dstpt_id_seq
     NO MAXVALUE
     CACHE 1;
 SELECT pg_catalog.setval('dstpt_id_seq', 4, true);
+CREATE TABLE entity_operations_log (
+    id tech_id NOT NULL,
+    registration_id tech_id NOT NULL
+);
+CREATE SEQUENCE entity_operations_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('entity_operations_log_id_seq', 1, false);
 CREATE SEQUENCE etpt_id_seq
     START WITH 1
     INCREMENT BY 1

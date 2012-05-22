@@ -97,6 +97,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE</value>
 
             </list>
         </property>

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -108,6 +109,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IPostRegistrationDAO postRegistrationDAO;
 
+    private final IEntityOperationsLogDAO entityOperationsLogDAO;
+
     private EntityPropertyHistoryDAO entityPropertyHistoryDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
@@ -138,6 +141,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         scriptDAO = new ScriptDAO(sessionFactory, databaseInstance);
         corePluginDAO = new CorePluginDAO(sessionFactory, databaseInstance);
         postRegistrationDAO = new PostRegistrationDAO(sessionFactory, databaseInstance);
+        entityOperationsLogDAO = new EntityOperationsLogDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -268,5 +272,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IPostRegistrationDAO getPostRegistrationDAO()
     {
         return postRegistrationDAO;
+    }
+
+    public IEntityOperationsLogDAO getEntityOperationsLogDAO()
+    {
+        return entityOperationsLogDAO;
     }
 }

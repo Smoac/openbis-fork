@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -389,5 +390,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IPostRegistrationDAO getPostRegistrationDAO()
     {
         return daoFactory.getPostRegistrationDAO();
+    }
+
+    public IEntityOperationsLogDAO getEntityOperationsLogDAO()
+    {
+        return daoFactory.getEntityOperationsLogDAO();
     }
 }

@@ -85,12 +85,14 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         dataSetUpdates.add(dataSetUpdate);
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(null, spaceRegistrations, projectRegistrations,
-                        experimentRegistrations, sampleUpdates, sampleRegistrations,
-                        materialRegistrations, dataSetRegistrations, dataSetUpdates);
+                new AtomicEntityOperationDetails(null, null, spaceRegistrations,
+                        projectRegistrations, experimentRegistrations, sampleUpdates,
+                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
+                        dataSetUpdates);
 
         assertEquals(
-                "AtomicEntityOperationDetails[userIdOrNull=<null>"
+                "AtomicEntityOperationDetails[registrationIdOrNull=<null>"
+                        + ",userIdOrNull=<null>"
                         + ",spaceRegistrations=[SPACE1, SPACE2]"
                         + ",projectRegistrations=[/SPACE/P1, /SPACE/P2]"
                         + ",experimentUpdates=[]"

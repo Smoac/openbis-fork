@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -975,7 +976,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testPerformOperations()
+    public void testPerformOperationsWithoutRegistrationId()
     {
         prepareGetSession();
 
@@ -1019,6 +1020,41 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
             { "c1", "c2" });
 
+        prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+                newMaterial, newSamplePE, newSampleIdentifier, newSample, externalData,
+                updatedDataSetCode, dataSetUpdate);
+
+        AtomicEntityOperationDetails details =
+                new AtomicEntityOperationDetails(null, null, new ArrayList<NewSpace>(),
+                        new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
+                        Collections.singletonList(sampleUpdate),
+                        Collections.singletonList(newSample), materialRegistrations,
+                        Collections.singletonList(externalData),
+                        Collections.singletonList(dataSetUpdate));
+
+        AtomicEntityOperationResult result =
+                createService().performEntityOperations(SESSION_TOKEN, details);
+        assertNotNull(result);
+        assertEquals(sampleUpdate.getSampleIdentifier().toString(),
+                result.getSamplesUpdated().get(0).getIdentifier());
+        assertEquals(experiment.getIdentifier(), result.getSamplesUpdated().get(0).getExperiment()
+                .getIdentifier());
+
+        assertEquals(newSample.getIdentifier(), result.getSamplesCreated().get(0).getIdentifier());
+        assertEquals(experiment.getIdentifier(), result.getSamplesCreated().get(0).getExperiment()
+                .getIdentifier());
+        assertEquals(updatedDataSetCode, result.getDataSetsUpdated().get(0).getCode());
+
+        context.assertIsSatisfied();
+    }
+
+    private void prepareEntityOperationsExpectations(final SamplePE samplePE,
+            final SampleUpdatesDTO sampleUpdate, final MaterialPE material,
+            final MaterialTypePE materialType, final NewMaterial newMaterial,
+            final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
+            final NewSample newSample, final NewExternalData externalData,
+            final String updatedDataSetCode, final DataSetUpdatesDTO dataSetUpdate)
+    {
         context.checking(new Expectations()
             {
                 {
@@ -1106,9 +1142,66 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(updatedDataSet));
                 }
             });
+    }
+
+    @Test
+    public void testPerformOperations()
+    {
+        prepareGetSession();
+
+        final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
+        final SamplePE samplePE = createSampleWithExperiment(experiment);
+        final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
+
+        final Date version = new Date();
+        final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
+
+        final SampleUpdatesDTO sampleUpdate =
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
+                        sampleIdentifier, null, null);
+
+        final MaterialPE material = new MaterialPE();
+        material.setCode("new-material");
+        final MaterialTypePE materialType = new MaterialTypePE();
+        materialType.setCode("new-material-type");
+        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
+                .getDatabaseInstance());
+        final NewMaterial newMaterial = new NewMaterial(material.getCode());
+        Map<String, List<NewMaterial>> materialRegistrations =
+                new HashMap<String, List<NewMaterial>>();
+        materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
+
+        final SamplePE newSamplePE = createSampleWithExperiment(experiment);
+        newSamplePE.setCode("SAMPLE_CODE_NEW");
+        final SampleIdentifier newSampleIdentifier = newSamplePE.getSampleIdentifier();
+        final NewSample newSample = new NewSample();
+        newSample.setIdentifier(newSampleIdentifier.toString());
+
+        final NewExternalData externalData = new NewExternalData();
+        externalData.setCode("dc");
+        externalData.setMeasured(true);
+        externalData.setSampleIdentifierOrNull(newSampleIdentifier);
+
+        final String updatedDataSetCode = "updateDataSetCode";
+        final DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
+        dataSetUpdate.setFileFormatTypeCode("new-file-format");
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
+            { "c1", "c2" });
+
+        prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+                newMaterial, newSamplePE, newSampleIdentifier, newSample, externalData,
+                updatedDataSetCode, dataSetUpdate);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityOperationsLogDAO).addLogEntry(new Long(1));
+                }
+            });
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(null, new ArrayList<NewSpace>(),
+                new AtomicEntityOperationDetails(new TechId(1), null, new ArrayList<NewSpace>(),
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,

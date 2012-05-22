@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -40,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 public class AtomicEntityOperationDetails implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    // The unique identifier for this registration
+    private final TechId registrationIdOrNull;
 
     // The userid on whose behalf the operations are done.
     private final String userIdOrNull;
@@ -63,14 +67,16 @@ public class AtomicEntityOperationDetails implements Serializable
     private final List<? extends NewExternalData> dataSetRegistrations;
 
     private final List<DataSetUpdatesDTO> dataSetUpdates;
-    
-    public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
-            List<NewProject> projectRegistrations, List<NewExperiment> experimentRegistrations,
-            List<SampleUpdatesDTO> sampleUpdates, List<NewSample> sampleRegistrations,
+
+    public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
+            List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
+            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetUpdatesDTO> dataSetUpdates)
     {
+        this.registrationIdOrNull = registrationId;
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
         this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
@@ -81,6 +87,11 @@ public class AtomicEntityOperationDetails implements Serializable
         this.materialRegistrations = new TreeMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
+    }
+
+    public TechId getRegistrationIdOrNull()
+    {
+        return registrationIdOrNull;
     }
 
     public String tryUserIdOrNull()
@@ -117,7 +128,7 @@ public class AtomicEntityOperationDetails implements Serializable
     {
         return dataSetUpdates;
     }
-    
+
     public List<NewSpace> getSpaceRegistrations()
     {
         return spaceRegistrations;
@@ -137,6 +148,7 @@ public class AtomicEntityOperationDetails implements Serializable
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        sb.append("registrationIdOrNull", registrationIdOrNull);
         sb.append("userIdOrNull", userIdOrNull);
         sb.append("spaceRegistrations", spaceRegistrations);
         sb.append("projectRegistrations", projectRegistrations);

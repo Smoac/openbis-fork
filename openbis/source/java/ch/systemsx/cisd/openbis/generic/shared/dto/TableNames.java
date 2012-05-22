@@ -150,6 +150,8 @@ public final class TableNames
     public static final String POST_REGISTRATION_DATASET_QUEUE_TABLE =
             "post_registration_dataset_queue";
 
+    public static final String ENTITY_OPERATIONS_LOG_TABLE = "entity_operations_log";
+
     private TableNames()
     {
         // This class can not be instantiated.

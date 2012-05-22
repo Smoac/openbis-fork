@@ -124,6 +124,8 @@ public final class SequenceNames
     public static final String POST_REGISTRATION_DATASET_QUEUE_SEQUENCE =
             "POST_REGISTRATION_DATASET_QUEUE_ID_SEQ";
 
+    public static final String ENTITY_OPERATIONS_LOG_SEQUENCE = "ENTITY_OPERATIONS_LOG_ID_SEQ";
+
     private SequenceNames()
     {
         // Can not be instantiated.

@@ -125,6 +125,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -1250,19 +1251,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
-        return this.performEntityOperations(sessionToken, operationDetails,
-                new ProgressListener()
-                    {
+        return this.performEntityOperations(sessionToken, operationDetails, new ProgressListener()
+            {
 
-                        public void update(String label, int totalItemsToProcess,
-                                int numItemsProcessed)
-                        {
-                        }
-                    });
+                public void update(String label, int totalItemsToProcess, int numItemsProcessed)
+                {
+                }
+            });
     }
 
-    public AtomicEntityOperationResult performEntityOperations(
-            String sessionToken,
+    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails, ProgressListener progressListener)
     {
 
@@ -1288,8 +1286,29 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<ExternalData> dataSetsUpdated =
                 updateDataSets(session, operationDetails, progressListener);
 
+        // If the id is not null, the caller wants to persist the fact that the operation was
+        // invoked and completed;
+        // if the id is null, the caller does not care.
+        TechId registrationId = operationDetails.getRegistrationIdOrNull();
+        if (null != registrationId)
+        {
+            daoFactory.getEntityOperationsLogDAO().addLogEntry(registrationId.getId());
+        }
+
         return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
                 samplesUpdated, samplesCreated, materialsCreated, dataSetsCreated, dataSetsUpdated);
+    }
+
+    public Boolean didEntityOperationsSucceed(String token, TechId registrationId)
+    {
+        if (registrationId == null)
+        {
+            return false;
+        }
+
+        EntityOperationsLogEntryPE logEntry =
+                daoFactory.getEntityOperationsLogDAO().tryFindLogEntry(registrationId.getId());
+        return logEntry != null;
     }
 
     private List<Space> createSpaces(Session session,
@@ -1715,5 +1734,4 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
         return result;
     }
-
 }

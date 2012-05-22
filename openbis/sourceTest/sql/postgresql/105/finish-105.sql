@@ -64,6 +64,8 @@ ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_bk_uk UNIQUE (code, dbin_id);
 ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_pk PRIMARY KEY (id);
+ALTER TABLE ONLY entity_operations_log 
+	ADD CONSTRAINT eol_pk PRIMARY KEY (id);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_bk_uk UNIQUE (exty_id, prty_id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -219,6 +221,7 @@ CREATE INDEX dsse_ds_fk_i ON data_store_services USING btree (data_store_id);
 CREATE INDEX dstpt_dsty_fk_i ON data_set_type_property_types USING btree (dsty_id);
 CREATE INDEX dstpt_pers_fk_i ON data_set_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX dstpt_prty_fk_i ON data_set_type_property_types USING btree (prty_id);
+CREATE INDEX entity_operations_log_rid_i ON entity_operations_log USING btree (registration_id);
 CREATE INDEX etpt_exty_fk_i ON experiment_type_property_types USING btree (exty_id);
 CREATE INDEX etpt_pers_fk_i ON experiment_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX etpt_prty_fk_i ON experiment_type_property_types USING btree (prty_id);

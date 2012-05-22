@@ -581,4 +581,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    public Boolean didEntityOperationsSucceed(String token, TechId registrationId)
+    {
+        logAccess(Level.DEBUG, token, "didEntityOperationsSucceed", "REGISTRATION_ID(%s)",
+                registrationId);
+        return null;
+    }
+
 }

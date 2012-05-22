@@ -298,6 +298,8 @@ public final class ColumnNames
 
     public static final String DELETION_DISALLOW = "deletion_disallow";
 
+    public static final String REGISTRATION_ID = "registration_id";
+
     private ColumnNames()
     {
         // Can not be instantiated.

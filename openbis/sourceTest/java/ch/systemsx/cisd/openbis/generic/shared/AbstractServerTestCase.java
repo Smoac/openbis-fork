@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -197,6 +198,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IHibernateSearchDAO hibernateSearchDAO;
 
+    protected IEntityOperationsLogDAO entityOperationsLogDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -229,6 +232,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         queryDAO = context.mock(IQueryDAO.class);
         deletionDAO = context.mock(IDeletionDAO.class);
         hibernateSearchDAO = context.mock(IHibernateSearchDAO.class);
+        entityOperationsLogDAO = context.mock(IEntityOperationsLogDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
@@ -288,6 +292,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(deletionDAO));
                     allowing(daoFactory).getHibernateSearchDAO();
                     will(returnValue(hibernateSearchDAO));
+                    allowing(daoFactory).getEntityOperationsLogDAO();
+                    will(returnValue(entityOperationsLogDAO));
                 }
             });
     }

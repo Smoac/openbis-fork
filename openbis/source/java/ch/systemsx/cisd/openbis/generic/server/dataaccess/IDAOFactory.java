@@ -109,4 +109,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IPostRegistrationDAO}. */
     public IPostRegistrationDAO getPostRegistrationDAO();
 
+    /** Returns an implementation of {@link IEntityOperationsLogDAO}. */
+    public IEntityOperationsLogDAO getEntityOperationsLogDAO();
+
 }
