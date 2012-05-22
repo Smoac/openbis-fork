@@ -1,6 +1,6 @@
 def process():
   execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
-  transaction.getTransactionPersistentMap().put("body","1")
+  transaction.getPersistentMap().put("body","1")
 
 global contextTestFailed
 contextTestFailed = None
