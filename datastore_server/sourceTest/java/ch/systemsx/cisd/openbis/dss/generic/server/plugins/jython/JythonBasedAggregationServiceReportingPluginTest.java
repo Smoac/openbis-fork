@@ -98,7 +98,7 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                         mailClient, "test-user");
         store = new File(workingDirectory, "store");
         store.mkdirs();
-        scriptFolder = new File("resource/test-data/" + getClass().getSimpleName());
+        scriptFolder = new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
     }
 
     @AfterMethod
