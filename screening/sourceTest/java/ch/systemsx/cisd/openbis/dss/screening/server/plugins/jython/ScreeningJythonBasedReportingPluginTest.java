@@ -125,6 +125,9 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
         context.checking(new Expectations()
             {
                 {
+                    one(scriptRunnerFactory).getScriptPath();
+                    will(returnValue("script.py"));
+                    
                     one(scriptRunnerFactory).createReportingPluginRunner(processingContext);
                     will(returnValue(reportingPluginScriptRunner));
 
