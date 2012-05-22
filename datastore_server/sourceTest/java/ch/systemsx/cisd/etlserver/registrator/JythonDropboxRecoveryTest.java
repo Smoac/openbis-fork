@@ -483,6 +483,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         protected void registerDataSets()
         {
+            one(openBisService).drawANewUniqueID();
+            will(returnValue(new Long(1)));
+
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
             Exception e;

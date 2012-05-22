@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -99,7 +100,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         TestCaseParameters params = other.clone();
         params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
-        params.overrideProperties.put("TEST_V2_API", "");
+        params.overrideProperties.put(
+                "TEST_V2_API", "");
         params.dontCallOldApiJythonHooks = true;
         params.title += " - V2";
         params.shouldUseAutoRecovery = true;
@@ -120,7 +122,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         // creates the property with the setting
         HashMap<String, String> dontUsePrestaging = new HashMap<String, String>();
-        dontUsePrestaging.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
+        dontUsePrestaging.put(
+                ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
                 DataSetRegistrationPreStagingBehavior.USE_ORIGINAL.toString().toLowerCase());
 
         // creates data with more than only one dataset
@@ -177,7 +180,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase = new TestCaseParameters("The simple transaction rollback with DELETE on error.");
         for (String error : allErrors)
         {
-            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+            testCase.overrideProperties.put(
+                    ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
                     UnstoreDataAction.DELETE.toString());
         }
         testCase.incomingDataSetAfterRegistration = "deleted";
@@ -189,12 +193,14 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase =
                 new TestCaseParameters(
                         "The simple transaction rollback with DELETE on error without prestaging.");
-        testCase.overrideProperties.put(ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
+        testCase.overrideProperties.put(
+                ThreadParameters.DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR,
                 DataSetRegistrationPreStagingBehavior.USE_ORIGINAL.toString().toLowerCase());
 
         for (String error : allErrors)
         {
-            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+            testCase.overrideProperties.put(
+                    ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
                     UnstoreDataAction.DELETE.toString());
         }
 
@@ -206,7 +212,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase = new TestCaseParameters("The validation error with DELETE on error.");
         for (String error : allErrors)
         {
-            testCase.overrideProperties.put(ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
+            testCase.overrideProperties.put(
+                    ThreadParameters.ON_ERROR_DECISION_KEY + "." + error,
                     UnstoreDataAction.DELETE.toString());
         }
         testCase.incomingDataSetAfterRegistration = "deleted";
@@ -231,7 +238,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     PyException pyException = (PyException) arg;
                     IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
                     FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
-                    return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
+                    return ex.getMessage().startsWith(
+                            "Neither '/non/existent/path' nor '");
                 }
             };
         testCases.addAll(multipleVersionsOfTestCase(testCase));
@@ -263,7 +271,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     System.out.println(arg);
                     System.out.println(arg.getMessage());
-                    return arg.getMessage().contains("wrong number of arguments");
+                    return arg.getMessage().contains(
+                            "wrong number of arguments");
                 }
             };
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
@@ -442,11 +451,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         initializeStorageRecoveryManagerMock();
         setUpHomeDataBaseExpectations();
 
-        Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
-                        testCase.overrideProperties);
+        Properties properties = createThreadPropertiesRelativeToScriptsFolder(
+                testCase.dropboxScriptPath, testCase.overrideProperties);
 
-        createHandler(properties, false, testCase.shouldThrowExceptionDuringRegistration);
+        createHandler(
+                properties, false, testCase.shouldThrowExceptionDuringRegistration);
 
         if (testCase.createDataSetDelegate != null)
         {
@@ -459,7 +468,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
-        context.checking(getSimpleTransactionExpectations(testCase, atomicatOperationDetails));
+        context.checking(getSimpleTransactionExpectations(
+                testCase, atomicatOperationDetails));
 
         if (testCase.shouldThrowExceptionDuringRegistration)
         {
@@ -478,7 +488,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 if (testCase.exceptionAcceptor != null)
                 {
-                    assertTrue("Exception " + exception + "was not accepted by validator",
+                    assertTrue(
+                            "Exception " + exception + "was not accepted by validator",
                             testCase.exceptionAcceptor.execute(exception));
                 }
             }
@@ -506,18 +517,23 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 List<AtomicEntityOperationDetails> recordedObjects =
                         atomicatOperationDetails.getRecordedObjects();
 
-                assertEquals("There should be two items in recordedObjects", 2,
-                        recordedObjects.size());
-                assertStorageProcess(recordedObjects.get(0), DATA_SET_CODE, "sub_data_set_1", 0);
-                assertStorageProcess(recordedObjects.get(1), DATA_SET_CODE_1, "sub_data_set_2", 1);
+                assertEquals(
+                        "There should be two items in recordedObjects", 2, recordedObjects.size());
+                assertStorageProcess(
+                        recordedObjects.get(0), DATA_SET_CODE, "sub_data_set_1", 0);
+                assertStorageProcess(
+                        recordedObjects.get(1), DATA_SET_CODE_1, "sub_data_set_2", 1);
             } else
             {
-                assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                        "sub_data_set_1", 0);
+                assertStorageProcess(
+                        atomicatOperationDetails.recordedObject(), DATA_SET_CODE, "sub_data_set_1",
+                        0);
             }
         } else
         {
-            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+            assertEquals(
+                    "[]", Arrays.asList(
+                            stagingDirectory.list()).toString());
         }
         context.assertIsSatisfied();
     }
@@ -525,8 +541,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public Expectations getSimpleTransactionExpectations(final TestCaseParameters testCase,
             final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
     {
-        final Experiment experiment =
-                new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).getExperiment();
+        final Experiment experiment = new ExperimentBuilder().identifier(
+                EXPERIMENT_IDENTIFIER).getExperiment();
         return new Expectations()
             {
                 {
@@ -594,7 +610,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 private void generalAllowing()
                 {
-                    allowing(storageRecoveryManager).getProcessingMarkerFile(with(any(File.class)));
+                    allowing(
+                            storageRecoveryManager).getProcessingMarkerFile(
+                            with(any(File.class)));
                     will(returnValue(new File(incomingDataSetFile.getAbsolutePath()
                             + ".NON_EXISTING")));
                 }
@@ -606,11 +624,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     {
                         if (required)
                         {
-                            one(storageRecoveryManager).removeCheckpoint(
+                            one(
+                                    storageRecoveryManager).removeCheckpoint(
                                     with(any(DataSetStorageAlgorithmRunner.class)));
                         } else
                         {
-                            allowing(storageRecoveryManager).removeCheckpoint(
+                            allowing(
+                                    storageRecoveryManager).removeCheckpoint(
                                     with(any(DataSetStorageAlgorithmRunner.class)));
                         }
                     }
@@ -618,17 +638,26 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void setStorageConfirmed()
                 {
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE);
 
                     if (testCase.shouldRegisterTwoDataSets)
                     {
-                        one(openBisService).setStorageConfirmed(DATA_SET_CODE_1);
+                        one(
+                                openBisService).setStorageConfirmed(
+                                DATA_SET_CODE_1);
                     }
                 }
 
                 protected void registerDataSets()
                 {
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicatOperationDetails));
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_OPENBIS_REGISTRATION)
                     {
@@ -637,7 +666,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                         if (testCase.shouldUseAutoRecovery)
                         {
-                            one(storageRecoveryManager).canRecoverFromError(e);
+                            one(
+                                    storageRecoveryManager).canRecoverFromError(
+                                    e);
                             will(returnValue(false));
                         }
                     } else
@@ -645,14 +676,20 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         // return value from performEntityOperations
                         // perform additional check if the precommit dir is empty immediatelly after
                         // performEntityOperations returns
-                        will(doAll(returnValue(new AtomicEntityOperationResult()),
+                        will(doAll(
+                                returnValue(new AtomicEntityOperationResult()),
                                 checkPrecommitDirIsNotEmpty()));
 
                         if (testCase.shouldRegisterTwoDataSets)
                         {
-                            one(openBisService).performEntityOperations(
+                            one(
+                                    openBisService).drawANewUniqueID();
+                            will(returnValue(new Long(2)));
+                            one(
+                                    openBisService).performEntityOperations(
                                     with(atomicatOperationDetails));
-                            will(doAll(returnValue(new AtomicEntityOperationResult()),
+                            will(doAll(
+                                    returnValue(new AtomicEntityOperationResult()),
                                     checkPrecommitDirIsNotEmpty()));
                         }
                     }
@@ -660,7 +697,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void validateDataSet()
                 {
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
 
                     if (testCase.failurePoint == TestCaseParameters.FailurePoint.DURING_VALIDATION)
@@ -670,7 +709,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                 + DATA_SET_CODE + "' is invalid ", innerException)));
                     } else if (testCase.shouldRegisterTwoDataSets)
                     {
-                        one(dataSetValidator).assertValidDataSet(
+                        one(
+                                dataSetValidator).assertValidDataSet(
                                 DATA_SET_TYPE,
                                 new File(new File(stagingDirectory, DATA_SET_CODE_1),
                                         "sub_data_set_2"));
@@ -679,7 +719,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void tryGetExperiment()
                 {
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(
+                            1).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
@@ -687,11 +729,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void createDataSet()
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
                     if (testCase.shouldRegisterTwoDataSets)
                     {
-                        one(openBisService).createDataSetCode();
+                        one(
+                                openBisService).createDataSetCode();
                         will(returnValue(DATA_SET_CODE_1));
                     }
                 }
@@ -701,7 +745,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     if (testCase.shouldUseAutoRecovery)
                     {
-                        one(storageRecoveryManager).checkpointPrecommittedState(
+                        one(
+                                storageRecoveryManager).checkpointPrecommittedState(
+                                with(any(TechId.class)),
                                 with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
@@ -711,7 +757,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     if (testCase.shouldUseAutoRecovery)
                     {
-                        one(storageRecoveryManager).registrationCompleted(
+                        one(
+                                storageRecoveryManager).registrationCompleted(
                                 with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
@@ -738,7 +785,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             dataSetsStoredInIncomingDir = 1;
         }
 
-        assertEquals(dataSetsStoredInIncomingDir, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                dataSetsStoredInIncomingDir, MockStorageProcessor.instance.incomingDirs.size());
     }
 
     protected void assertCommitCount(final TestCaseParameters testCase)
@@ -756,13 +804,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             expectedCommitCount = 1;
         }
 
-        assertEquals(expectedCommitCount, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                expectedCommitCount, MockStorageProcessor.instance.calledCommitCount);
     }
 
     private void assertJythonHooksExecuted(final TestCaseParameters testCase)
     {
-        assertNull("Registration context error occured: "
-                + handler.getExpectations().registrationContextError,
+        assertNull(
+                "Registration context error occured: "
+                        + handler.getExpectations().registrationContextError,
                 handler.getExpectations().registrationContextError);
 
         if (testCase.failurePoint == null)
@@ -822,7 +872,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("two-simple-datasets.py");
-        createHandler(properties, false, true);
+        createHandler(
+                properties, false, true);
         createData();
         ExperimentBuilder builder1 = new ExperimentBuilder().identifier("/SPACE/PROJECT/EXP1");
         final Experiment experiment1 = builder1.getExperiment();
@@ -833,86 +884,126 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE + 1));
 
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(
+                            1).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment1.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment1));
 
-                    one(dataSetValidator).assertValidDataSet(
+                    one(
+                            dataSetValidator).assertValidDataSet(
                             DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE + 1),
                                     "sub_data_set_1"));
 
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE + 2));
 
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(
+                            1).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment2.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment2));
 
-                    one(dataSetValidator).assertValidDataSet(
+                    one(
+                            dataSetValidator).assertValidDataSet(
                             DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE + 2),
                                     "sub_data_set_2"));
 
-                    one(openBisService).performEntityOperations(with(operations));
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(operations));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE + 1);
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE + 2);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE + 1);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE + 2);
                 }
             });
 
         handler.handle(markerFile);
         checkInitialDirAfterRegistration("deleted");
 
-        assertEquals(2, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(2, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(2, operations.recordedObject().getDataSetRegistrations().size());
+        assertEquals(
+                2, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                2, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                2, operations.recordedObject().getDataSetRegistrations().size());
 
-        NewExternalData dataSet1 = operations.recordedObject().getDataSetRegistrations().get(0);
-        NewExternalData dataSet2 = operations.recordedObject().getDataSetRegistrations().get(1);
+        NewExternalData dataSet1 = operations.recordedObject().getDataSetRegistrations().get(
+                0);
+        NewExternalData dataSet2 = operations.recordedObject().getDataSetRegistrations().get(
+                1);
 
-        assertEquals(experiment1.getIdentifier(), dataSet1.getExperimentIdentifierOrNull()
-                .toString());
-        assertEquals(DATA_SET_CODE + 1, dataSet1.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet1.getDataSetType());
+        assertEquals(
+                experiment1.getIdentifier(), dataSet1.getExperimentIdentifierOrNull().toString());
+        assertEquals(
+                DATA_SET_CODE + 1, dataSet1.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet1.getDataSetType());
         File datasetLocation1 =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 1,
+                DatasetLocationUtil.getDatasetLocationPath(
+                        workingDirectory, DATA_SET_CODE + 1,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation1), dataSet1.getLocation());
-        assertEquals(new File(stagingDirectory, DATA_SET_CODE + 1 + "-storage"),
+        assertEquals(
+                FileUtilities.getRelativeFilePath(
+                        new File(
+                                workingDirectory,
+                                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                        datasetLocation1), dataSet1.getLocation());
+        assertEquals(
+                new File(stagingDirectory, DATA_SET_CODE + 1 + "-storage"),
                 MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
-        assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 1), "sub_data_set_1"),
+        assertEquals(
+                new File(new File(stagingDirectory, DATA_SET_CODE + 1), "sub_data_set_1"),
                 incomingDir1);
-        assertEquals("hello world1",
-                FileUtilities.loadToString(new File(datasetLocation1, "read1.me")).trim());
-        assertEquals(experiment2.getIdentifier(), dataSet2.getExperimentIdentifierOrNull()
-                .toString());
-        assertEquals(DATA_SET_CODE + 2, dataSet2.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet2.getDataSetType());
+        assertEquals(
+                "hello world1", FileUtilities.loadToString(
+                        new File(datasetLocation1, "read1.me")).trim());
+        assertEquals(
+                experiment2.getIdentifier(), dataSet2.getExperimentIdentifierOrNull().toString());
+        assertEquals(
+                DATA_SET_CODE + 2, dataSet2.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet2.getDataSetType());
         File datasetLocation2 =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 2,
+                DatasetLocationUtil.getDatasetLocationPath(
+                        workingDirectory, DATA_SET_CODE + 2,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation2), dataSet2.getLocation());
-        assertEquals(new File(stagingDirectory, DATA_SET_CODE + 2 + "-storage"),
+        assertEquals(
+                FileUtilities.getRelativeFilePath(
+                        new File(
+                                workingDirectory,
+                                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                        datasetLocation2), dataSet2.getLocation());
+        assertEquals(
+                new File(stagingDirectory, DATA_SET_CODE + 2 + "-storage"),
                 MockStorageProcessor.instance.rootDirs.get(1));
         File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
-        assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 2), "sub_data_set_2"),
+        assertEquals(
+                new File(new File(stagingDirectory, DATA_SET_CODE + 2), "sub_data_set_2"),
                 incomingDir2);
-        assertEquals("hello world2",
-                FileUtilities.loadToString(new File(datasetLocation2, "read2.me")).trim());
+        assertEquals(
+                "hello world2", FileUtilities.loadToString(
+                        new File(datasetLocation2, "read2.me")).trim());
         context.assertIsSatisfied();
     }
 
@@ -922,54 +1013,78 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-experiment.py");
-        createHandler(properties, false, true);
+        createHandler(
+                properties, false, true);
         createDataWithOneSubDataSet();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(openBisService).createPermId();
+                    one(
+                            openBisService).createPermId();
                     will(returnValue(EXPERIMENT_PERM_ID));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE);
                 }
             });
 
         handler.handle(markerFile);
 
         checkInitialDirAfterRegistration("deleted");
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
+        assertEquals(
+                1, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         NewExternalData dataSet =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(
+                        0);
 
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        assertEquals(
+                DATA_SET_CODE, dataSet.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet.getDataSetType());
 
         NewProperty newProp = new NewProperty("dataSetProp", "dataSetPropValue");
-        assertTrue(dataSet.getExtractableData().getDataSetProperties().contains(newProp));
+        assertTrue(dataSet.getExtractableData().getDataSetProperties().contains(
+                newProp));
 
         File datasetLocation =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                DatasetLocationUtil.getDatasetLocationPath(
+                        workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation), dataSet.getLocation());
-        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                FileUtilities.getRelativeFilePath(
+                        new File(
+                                workingDirectory,
+                                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                        datasetLocation), dataSet.getLocation());
+        assertEquals(
+                1, MockStorageProcessor.instance.calledCommitCount);
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
-        assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
-                incomingDir);
+        assertEquals(
+                new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"), incomingDir);
         context.assertIsSatisfied();
     }
 
@@ -979,68 +1094,104 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-sample.py");
-        createHandler(properties, false, true);
+        createHandler(
+                properties, false, true);
         createData();
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    one(openBisService).createPermId();
+                    one(
+                            openBisService).createPermId();
                     will(returnValue(EXPERIMENT_PERM_ID));
 
-                    one(openBisService).createPermId();
+                    one(
+                            openBisService).createPermId();
                     will(returnValue(SAMPLE_PERM_ID));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE);
                 }
             });
 
         handler.handle(markerFile);
 
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                1, MockStorageProcessor.instance.incomingDirs.size());
         ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
                 atomicatOperationDetails.recordedObject();
 
-        assertEquals(1, operations.getDataSetRegistrations().size());
-        assertEquals(0, operations.getExperimentUpdates().size());
-        assertEquals(0, operations.getSampleUpdates().size());
-        assertEquals(1, operations.getSampleRegistrations().size());
-        assertEquals(1, operations.getExperimentRegistrations().size());
+        assertEquals(
+                1, operations.getDataSetRegistrations().size());
+        assertEquals(
+                0, operations.getExperimentUpdates().size());
+        assertEquals(
+                0, operations.getSampleUpdates().size());
+        assertEquals(
+                1, operations.getSampleRegistrations().size());
+        assertEquals(
+                1, operations.getExperimentRegistrations().size());
 
-        NewSample newSample = operations.getSampleRegistrations().get(0);
-        assertEquals(SAMPLE_PERM_ID, newSample.getPermID());
-        assertEquals(EXPERIMENT_IDENTIFIER, newSample.getExperimentIdentifier());
-        assertEquals("sample_type", newSample.getSampleType().getCode());
+        NewSample newSample = operations.getSampleRegistrations().get(
+                0);
+        assertEquals(
+                SAMPLE_PERM_ID, newSample.getPermID());
+        assertEquals(
+                EXPERIMENT_IDENTIFIER, newSample.getExperimentIdentifier());
+        assertEquals(
+                "sample_type", newSample.getSampleType().getCode());
 
-        NewExperiment newExperiment = operations.getExperimentRegistrations().get(0);
-        assertEquals(EXPERIMENT_PERM_ID, newExperiment.getPermID());
-        assertEquals(EXPERIMENT_IDENTIFIER, newExperiment.getIdentifier());
-        assertEquals("experiment_type", newExperiment.getExperimentTypeCode());
+        NewExperiment newExperiment = operations.getExperimentRegistrations().get(
+                0);
+        assertEquals(
+                EXPERIMENT_PERM_ID, newExperiment.getPermID());
+        assertEquals(
+                EXPERIMENT_IDENTIFIER, newExperiment.getIdentifier());
+        assertEquals(
+                "experiment_type", newExperiment.getExperimentTypeCode());
 
-        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(
+                0);
+        assertEquals(
+                DATA_SET_CODE, dataSet.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet.getDataSetType());
 
         File datasetLocation =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                DatasetLocationUtil.getDatasetLocationPath(
+                        workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation), dataSet.getLocation());
-        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                FileUtilities.getRelativeFilePath(
+                        new File(
+                                workingDirectory,
+                                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                        datasetLocation), dataSet.getLocation());
+        assertEquals(
+                1, MockStorageProcessor.instance.calledCommitCount);
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
-        assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
-                incomingDir);
+        assertEquals(
+                new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"), incomingDir);
         context.assertIsSatisfied();
     }
 
@@ -1050,7 +1201,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-material.py");
-        createHandler(properties, false, true);
+        createHandler(
+                properties, false, true);
         createData();
 
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
@@ -1060,45 +1212,71 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(
+                            1).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE);
                 }
             });
 
         handler.handle(markerFile);
 
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                1, MockStorageProcessor.instance.incomingDirs.size());
         ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
                 atomicatOperationDetails.recordedObject();
 
-        assertEquals(1, operations.getDataSetRegistrations().size());
-        assertEquals(0, operations.getExperimentUpdates().size());
-        assertEquals(0, operations.getSampleUpdates().size());
-        assertEquals(0, operations.getSampleRegistrations().size());
-        assertEquals(0, operations.getExperimentRegistrations().size());
-        assertEquals(1, operations.getMaterialRegistrations().size());
+        assertEquals(
+                1, operations.getDataSetRegistrations().size());
+        assertEquals(
+                0, operations.getExperimentUpdates().size());
+        assertEquals(
+                0, operations.getSampleUpdates().size());
+        assertEquals(
+                0, operations.getSampleRegistrations().size());
+        assertEquals(
+                0, operations.getExperimentRegistrations().size());
+        assertEquals(
+                1, operations.getMaterialRegistrations().size());
 
-        NewMaterial newMaterial =
-                operations.getMaterialRegistrations().get("new-material-type").get(0);
-        assertEquals("new-material", newMaterial.getCode());
-        assertEquals("[material-prop: material-prop-value]",
-                Arrays.asList(newMaterial.getProperties()).toString());
+        NewMaterial newMaterial = operations.getMaterialRegistrations().get(
+                "new-material-type").get(
+                0);
+        assertEquals(
+                "new-material", newMaterial.getCode());
+        assertEquals(
+                "[material-prop: material-prop-value]", Arrays.asList(
+                        newMaterial.getProperties()).toString());
 
-        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(
+                0);
+        assertEquals(
+                DATA_SET_CODE, dataSet.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet.getDataSetType());
 
         context.assertIsSatisfied();
     }
@@ -1109,7 +1287,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("transaction-with-dataset-update.py");
-        createHandler(properties, false, true);
+        createHandler(
+                properties, false, true);
         createData();
 
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
@@ -1123,94 +1302,136 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
-                    exactly(2).of(openBisService).tryToGetExperiment(
+                    exactly(
+                            2).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
 
-                    one(openBisService).tryGetDataSet(CONTAINER_DATA_SET_CODE);
+                    one(
+                            openBisService).tryGetDataSet(
+                            CONTAINER_DATA_SET_CODE);
                     will(returnValue(containerDataSet));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "data_set"));
 
-                    one(openBisService).performEntityOperations(with(atomicOperationDetails));
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(
+                            openBisService).setStorageConfirmed(
+                            DATA_SET_CODE);
                 }
             });
 
         handler.handle(markerFile);
 
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                1, MockStorageProcessor.instance.incomingDirs.size());
         ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
                 atomicOperationDetails.recordedObject();
 
-        assertEquals(1, operations.getDataSetRegistrations().size());
-        assertEquals(0, operations.getExperimentUpdates().size());
-        assertEquals(0, operations.getSampleUpdates().size());
-        assertEquals(0, operations.getSampleRegistrations().size());
-        assertEquals(0, operations.getExperimentRegistrations().size());
-        assertEquals(1, operations.getDataSetUpdates().size());
+        assertEquals(
+                1, operations.getDataSetRegistrations().size());
+        assertEquals(
+                0, operations.getExperimentUpdates().size());
+        assertEquals(
+                0, operations.getSampleUpdates().size());
+        assertEquals(
+                0, operations.getSampleRegistrations().size());
+        assertEquals(
+                0, operations.getExperimentRegistrations().size());
+        assertEquals(
+                1, operations.getDataSetUpdates().size());
 
-        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(
+                0);
+        assertEquals(
+                DATA_SET_CODE, dataSet.getCode());
+        assertEquals(
+                DATA_SET_TYPE, dataSet.getDataSetType());
 
-        DataSetUpdatesDTO dataSetUpdate = operations.getDataSetUpdates().get(0);
-        assertEquals(Arrays.asList(DATA_SET_CODE),
+        DataSetUpdatesDTO dataSetUpdate = operations.getDataSetUpdates().get(
+                0);
+        assertEquals(
+                Arrays.asList(DATA_SET_CODE),
                 Arrays.asList(dataSetUpdate.getModifiedContainedDatasetCodesOrNull()));
 
-        EntityProperty propertyChanged =
-                new PropertyBuilder("newProp").value("newValue").getProperty();
-        assertEquals(Arrays.asList(propertyChanged).toString(), dataSetUpdate.getProperties()
-                .toString());
-        assertEquals(EXPERIMENT_IDENTIFIER, dataSetUpdate.getExperimentIdentifierOrNull()
-                .toString());
+        EntityProperty propertyChanged = new PropertyBuilder("newProp").value(
+                "newValue").getProperty();
+        assertEquals(
+                Arrays.asList(
+                        propertyChanged).toString(), dataSetUpdate.getProperties().toString());
+        assertEquals(
+                EXPERIMENT_IDENTIFIER, dataSetUpdate.getExperimentIdentifierOrNull().toString());
 
         File datasetLocation =
-                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                DatasetLocationUtil.getDatasetLocationPath(
+                        workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
-                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation), dataSet.getLocation());
-        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                FileUtilities.getRelativeFilePath(
+                        new File(
+                                workingDirectory,
+                                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                        datasetLocation), dataSet.getLocation());
+        assertEquals(
+                1, MockStorageProcessor.instance.calledCommitCount);
         context.assertIsSatisfied();
     }
 
     private void createData()
     {
-        incomingDataSetFile = createDirectory(workingDirectory, "data_set");
+        incomingDataSetFile = createDirectory(
+                workingDirectory, "data_set");
 
         assertTrue(incomingDataSetFile.isDirectory());
 
-        subDataSet1 = createDirectory(incomingDataSetFile, "sub_data_set_1");
-        subDataSet2 = createDirectory(incomingDataSetFile, "sub_data_set_2");
+        subDataSet1 = createDirectory(
+                incomingDataSetFile, "sub_data_set_1");
+        subDataSet2 = createDirectory(
+                incomingDataSetFile, "sub_data_set_2");
 
-        FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
-        FileUtilities.writeToFile(new File(subDataSet2, "read2.me"), "hello world2");
+        FileUtilities.writeToFile(
+                new File(subDataSet1, "read1.me"), "hello world1");
+        FileUtilities.writeToFile(
+                new File(subDataSet2, "read2.me"), "hello world2");
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
-        FileUtilities.writeToFile(markerFile, "");
+        FileUtilities.writeToFile(
+                markerFile, "");
     }
 
     private void createDataWithOneSubDataSet()
     {
-        incomingDataSetFile = createDirectory(workingDirectory, "data_set");
+        incomingDataSetFile = createDirectory(
+                workingDirectory, "data_set");
 
         assertTrue(incomingDataSetFile.isDirectory());
 
-        subDataSet1 = createDirectory(incomingDataSetFile, "sub_data_set_1");
+        subDataSet1 = createDirectory(
+                incomingDataSetFile, "sub_data_set_1");
 
-        FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
+        FileUtilities.writeToFile(
+                new File(subDataSet1, "read1.me"), "hello world1");
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
-        FileUtilities.writeToFile(markerFile, "");
+        FileUtilities.writeToFile(
+                markerFile, "");
     }
 
     @Test
@@ -1222,8 +1443,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         // test the situation where script has been deleted later
         File scriptFile = new File(scriptPath);
-        FileUtilities.writeToFile(scriptFile, "x");
-        createHandler(threadProperties, false);
+        FileUtilities.writeToFile(
+                scriptFile, "x");
+        createHandler(
+                threadProperties, false);
         FileUtilities.delete(scriptFile);
 
         createData();
@@ -1244,11 +1467,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         // it should not be possible to create a handler if script does not exist
         try
         {
-            createHandler(threadProperties, false);
+            createHandler(
+                    threadProperties, false);
             fail("The script should does not exist");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals(ex.getMessage(), "Script file 'foo.py' does not exist!");
+            assertEquals(
+                    ex.getMessage(), "Script file 'foo.py' does not exist!");
         }
         context.assertIsSatisfied();
     }
@@ -1258,7 +1483,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         setUpHomeDataBaseExpectations();
         Properties threadProperties = createThreadPropertiesRelativeToScriptsFolder("search.py");
-        createHandler(threadProperties, false, true);
+        createHandler(
+                threadProperties, false, true);
 
         createData();
 
@@ -1266,8 +1492,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                0, MockStorageProcessor.instance.calledCommitCount);
 
         assertFalse(handler.getExpectations().didServiceRollbackHappen);
         assertFalse(handler.getExpectations().didTransactionRollbackHappen);
@@ -1285,25 +1513,37 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("v2-testcase-no-dataset.py");
-        threadProperties.put("TEST_V2_API", "");
-        createHandler(threadProperties, false, true);
+        threadProperties.put(
+                "TEST_V2_API", "");
+        createHandler(
+                threadProperties, false, true);
 
         createData();
 
         context.checking(new Expectations()
             {
                 {
-                    allowing(storageRecoveryManager).getProcessingMarkerFile(incomingDataSetFile);
+                    allowing(
+                            storageRecoveryManager).getProcessingMarkerFile(
+                            incomingDataSetFile);
                     will(returnValue(new File(incomingDataSetFile.getParent(), "a_marker_file")));
 
-                    one(storageRecoveryManager).checkpointPrecommittedState(
-                            with(any(DataSetStorageAlgorithmRunner.class)));
+                    one(
+                            storageRecoveryManager)
+                            .checkpointPrecommittedState(
+                                    with(any(TechId.class)),
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+                    
+                    oneOf(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
 
-                    oneOf(openBisService)
+                    oneOf(
+                            openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
-               
-                    oneOf(storageRecoveryManager).registrationCompleted(
+
+                    oneOf(
+                            storageRecoveryManager).registrationCompleted(
                             with(any(DataSetStorageAlgorithmRunner.class)));
                 }
             });
@@ -1323,7 +1563,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("query-interface-test.py");
-        createHandler(threadProperties, false, true);
+        createHandler(
+                threadProperties, false, true);
 
         createData();
 
@@ -1331,8 +1572,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                0, MockStorageProcessor.instance.calledCommitCount);
 
         assertFalse(handler.getExpectations().didServiceRollbackHappen);
         assertFalse(handler.getExpectations().didTransactionRollbackHappen);
@@ -1345,7 +1588,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         setUpHomeDataBaseExpectations();
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("dynamic-query-failure-test.py");
-        createHandler(threadProperties, false, true);
+        createHandler(
+                threadProperties, false, true);
 
         createData();
 
@@ -1353,8 +1597,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         handler.handle(markerFile);
 
-        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(
+                0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(
+                0, MockStorageProcessor.instance.calledCommitCount);
 
         assertFalse(handler.getExpectations().didServiceRollbackHappen);
         assertFalse(handler.getExpectations().didTransactionRollbackHappen);
@@ -1365,13 +1611,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     private Properties createThreadProperties(String scriptPath)
     {
         Properties threadProperties = new Properties();
-        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
-        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+        threadProperties.put(
+                ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
-        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+        threadProperties.put(
+                ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(
+                IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
-        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        threadProperties.put(
+                JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
         return threadProperties;
     }
 
@@ -1388,16 +1639,21 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         // omit the script path
         Properties threadProperties = new Properties();
-        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
-        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+        threadProperties.put(
+                ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
-        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+        threadProperties.put(
+                ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(
+                IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
 
         try
         {
-            createHandler(threadProperties, false);
+            createHandler(
+                    threadProperties, false);
             fail("Should not be able to create the handler without specifiying a script");
         } catch (ConfigurationFailureException ex)
         {
@@ -1410,7 +1666,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     private void createHandler(Properties threadProperties, final boolean registrationShouldFail)
     {
-        createHandler(threadProperties, registrationShouldFail, false);
+        createHandler(
+                threadProperties, registrationShouldFail, false);
     }
 
     private void setUpSearchExpectations()
@@ -1420,7 +1677,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     ProjectIdentifier projectIdentifier =
                             new ProjectIdentifierFactory("/SPACE/PROJECT").createIdentifier();
-                    oneOf(openBisService).listExperiments(projectIdentifier);
+                    oneOf(
+                            openBisService).listExperiments(
+                            projectIdentifier);
 
                     Experiment experiment = new Experiment();
                     experiment.setIdentifier("/SPACE/PROJECT/EXP-CODE");
@@ -1431,14 +1690,22 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     will(returnValue(Arrays.asList(experiment)));
 
                     SearchCriteria searchCriteria = createTestSearchCriteria("DATA_SET_TYPE");
-                    oneOf(openBisService).searchForDataSets(searchCriteria);
+                    oneOf(
+                            openBisService).searchForDataSets(
+                            searchCriteria);
                     will(returnValue(Collections.EMPTY_LIST));
 
                     searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
-                    oneOf(openBisService).searchForSamples(searchCriteria);
+                    oneOf(
+                            openBisService).searchForSamples(
+                            searchCriteria);
                     will(returnValue(Collections.EMPTY_LIST));
 
-                    oneOf(openBisService)
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    oneOf(
+                            openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
                 }
@@ -1450,13 +1717,16 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    oneOf(dataSourceQueryService).select("path-info-db",
-                            "SELECT * from data_set_files WHERE parent_id is NULL");
+                    oneOf(
+                            dataSourceQueryService).select(
+                            "path-info-db", "SELECT * from data_set_files WHERE parent_id is NULL");
                     Object[] args =
                         { 155555 };
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
-                    oneOf(dataSourceQueryService).select("path-info-db",
-                            "SELECT * from data_set_files WHERE parent_id = ?1", args);
+                    oneOf(
+                            dataSourceQueryService).select(
+                            "path-info-db", "SELECT * from data_set_files WHERE parent_id = ?1",
+                            args);
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
                 }
             });
@@ -1467,12 +1737,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    oneOf(dynamicTransactionQuery)
+                    oneOf(
+                            dynamicTransactionQuery)
                             .select("SELECT * from data_set_files WHERE parent_id is NULL",
                                     (Object[]) null);
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
 
-                    oneOf(openBisService)
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    oneOf(
+                            openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
 
@@ -1483,8 +1758,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     protected SearchCriteria createTestSearchCriteria(String typeString)
     {
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, typeString));
-        sc.addMatchClause(MatchClause.createPropertyMatch("PROP", "VALUE"));
+        sc.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.TYPE, typeString));
+        sc.addMatchClause(MatchClause.createPropertyMatch(
+                "PROP", "VALUE"));
         return sc;
     }
 
@@ -1492,29 +1769,32 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         if (expectedBehavior.equals("deleted"))
         {
-            assertFalse("Incoming directory should have been deleted", incomingDataSetFile.exists());
+            assertFalse(
+                    "Incoming directory should have been deleted", incomingDataSetFile.exists());
         } else if (expectedBehavior.equals("empty"))
         {
-            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
-            assertEquals("Incomind directory should be empty", 0,
-                    incomingDataSetFile.listFiles().length);
+            assertTrue(
+                    "Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertEquals(
+                    "Incomind directory should be empty", 0, incomingDataSetFile.listFiles().length);
         } else if (expectedBehavior.equals("content"))
         {
-            assertTrue("Incoming directory should not be deleted.", incomingDataSetFile.exists());
-            assertNotSame("The incoming directory is not expected to be empty", 0,
+            assertTrue(
+                    "Incoming directory should not be deleted.", incomingDataSetFile.exists());
+            assertNotSame(
+                    "The incoming directory is not expected to be empty", 0,
                     incomingDataSetFile.listFiles().length);
         } else if (expectedBehavior.equals("untouched_two_datasets"))
         {
-            assertEquals("Staging directory is supposed to be empty", "[]",
-                    Arrays.asList(stagingDirectory.list()).toString());
             assertEquals(
-                    "The content of the incoming dataset 1 has changed",
-                    "hello world1",
+                    "Staging directory is supposed to be empty", "[]", Arrays.asList(
+                            stagingDirectory.list()).toString());
+            assertEquals(
+                    "The content of the incoming dataset 1 has changed", "hello world1",
                     FileUtilities.loadToString(
                             new File(workingDirectory, "data_set/sub_data_set_1/read1.me")).trim());
             assertEquals(
-                    "The content of the incoming dataset 2 has changed",
-                    "hello world2",
+                    "The content of the incoming dataset 2 has changed", "hello world2",
                     FileUtilities.loadToString(
                             new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
         } else
@@ -1529,9 +1809,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 public Object invoke(Invocation invocation) throws Throwable
                 {
-                    assertEquals("[]",
-                            Arrays.asList(handler.getGlobalState().getPreCommitDir().list())
-                                    .toString());
+                    assertEquals(
+                            "[]", Arrays.asList(
+                                    handler.getGlobalState().getPreCommitDir().list()).toString());
                     return null;
                 }
             };
@@ -1543,7 +1823,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             {
                 public Object invoke(Invocation invocation) throws Throwable
                 {
-                    assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);
+                    assertNotSame(
+                            0, handler.getGlobalState().getPreCommitDir().list().length);
                     return null;
                 }
             };

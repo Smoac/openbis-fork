@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * Class responsible for recovering after an environmental error.
@@ -38,18 +39,18 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
     private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
 
-    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            DataSetStorageRecoveryManager.class);
+    static final Logger operationLog = LogFactory.getLogger(
+            LogCategory.OPERATION, DataSetStorageRecoveryManager.class);
 
     private File dropboxRecoveryStateDir;
 
     private File recoveryMarkerFilesDir;
-    
+
     private int maxRetryCount = 50;
-    
+
     private int retryPeriodInSeconds = 60;
-    
-    public <T extends DataSetInformation> void checkpointPrecommittedState(
+
+    public <T extends DataSetInformation> void checkpointPrecommittedState(TechId registrationId,
             DataSetStorageAlgorithmRunner<T> runner)
     {
         DataSetFile incoming = runner.getIncomingDataSetFile();
@@ -57,18 +58,21 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         File serializedFile = getSerializedFile(runner);
 
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
-                new DataSetStoragePrecommitRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
-                        runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming,
-                        runner.getPersistentMap());
+                new DataSetStoragePrecommitRecoveryState<T>(registrationId,
+                        runner.getDataSetStorageAlgorithms(), runner.getDssRegistrationLogger(),
+                        runner.getRollbackStack(), incoming, runner.getPersistentMap());
 
-        runner.getRollbackStack().setLockedState(true);
+        runner.getRollbackStack().setLockedState(
+                true);
 
-        FileUtilities.writeToFile(serializedFile, recoveryState);
+        FileUtilities.writeToFile(
+                serializedFile, recoveryState);
 
         File processingMarkerFile = getProcessingMarkerFile(runner);
-        
-        DataSetStorageRecoveryInfo info = new DataSetStorageRecoveryInfo(serializedFile, new Date(), 0);
-        
+
+        DataSetStorageRecoveryInfo info =
+                new DataSetStorageRecoveryInfo(serializedFile, new Date(), 0);
+
         info.writeToFile(processingMarkerFile);
 
         operationLog.info("Store precommit recovery checkpoint with markerfile "
@@ -114,7 +118,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
             File markerFile)
     {
         DataSetStorageRecoveryInfo info = getRecoveryFileFromMarker(markerFile);
-        return FileUtilities.loadToObject(info.getRecoveryStateFile(), DataSetStoragePrecommitRecoveryState.class);
+        return FileUtilities.loadToObject(
+                info.getRecoveryStateFile(), DataSetStoragePrecommitRecoveryState.class);
     }
 
     public <T extends DataSetInformation> void registrationCompleted(
@@ -130,7 +135,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
         operationLog.info("Cleanup recovery with marker file " + markerFile);
 
-        runner.getRollbackStack().setLockedState(false);
+        runner.getRollbackStack().setLockedState(
+                false);
         // Cleanup the state we have accumulated
         FileUtilities.delete(markerFile);
         FileUtilities.delete(recoveryState);
@@ -164,16 +170,16 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     {
         return this.maxRetryCount;
     }
-    
+
     public int getRetryPeriodInSeconds()
     {
         return retryPeriodInSeconds;
     }
-    
+
     public void setRetryPeriodInSeconds(int retryPeriodInSeconds)
     {
         this.retryPeriodInSeconds = retryPeriodInSeconds;
-        
+
     }
-    
+
 }

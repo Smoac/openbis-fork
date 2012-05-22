@@ -511,6 +511,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                                         .createIdentifier());
                         will(returnValue(experiment));
 
+                        exactly(1).of(openBisService).drawANewUniqueID();
+                        will(returnValue(new Long(1)));
+
                         exactly(1).of(openBisService).performEntityOperations(
                                 with(any(AtomicEntityOperationDetails.class)));
                         will(returnValue(new AtomicEntityOperationResult()));

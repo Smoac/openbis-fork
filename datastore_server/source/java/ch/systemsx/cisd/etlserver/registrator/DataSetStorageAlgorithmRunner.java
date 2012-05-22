@@ -32,6 +32,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * An algorithm that implements the logic running many data set storage algorithms in one logical
@@ -60,8 +61,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
      */
     public static interface IDataSetInApplicationServerRegistrator<T extends DataSetInformation>
     {
-        public void registerDataSetsInApplicationServer(List<DataSetRegistrationInformation<T>> data)
-                throws Throwable;
+        public void registerDataSetsInApplicationServer(TechId registrationId,
+                List<DataSetRegistrationInformation<T>> data) throws Throwable;
     }
 
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
@@ -103,7 +104,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IDataSetStorageRecoveryManager storageRecoveryManager;
 
     private final DataSetFile incomingDataSetFile;
-    
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
@@ -126,7 +127,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * Constructor used by the autorecovery infrastructure.
      */
-    public DataSetStorageAlgorithmRunner(DataSetFile incomingDataSetFile, List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
+    public DataSetStorageAlgorithmRunner(DataSetFile incomingDataSetFile,
+            List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
             IPrePostRegistrationHook<T> postPreRegistrationHooks,
@@ -281,6 +283,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         ArrayList<DataSetRegistrationInformation<T>> registrationData =
                 tryPrepareRegistrationData();
 
+        TechId registrationId = new TechId(openBISService.drawANewUniqueID());
+
         if (registrationData == null)
         {
             return false;
@@ -289,10 +293,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // PRECOMMITED STATE
         if (shouldUseAutoRecovery())
         {
-            storageRecoveryManager.checkpointPrecommittedState(this);
+            storageRecoveryManager.checkpointPrecommittedState(registrationId, this);
         }
 
-        if (registerDataSetsInApplicationServer(registrationData) == false)
+        if (registerDataSetsInApplicationServer(registrationId, registrationData) == false)
         {
             return false;
         }
@@ -438,12 +442,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return true;
     }
 
-    private boolean registerDataSetsInApplicationServer(
+    private boolean registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
         try
         {
-            applicationServerRegistrator.registerDataSetsInApplicationServer(registrationData);
+            applicationServerRegistrator.registerDataSetsInApplicationServer(registrationId,
+                    registrationData);
 
         } catch (final Throwable throwable)
         {

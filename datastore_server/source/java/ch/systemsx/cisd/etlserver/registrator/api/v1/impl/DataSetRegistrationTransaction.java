@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutab
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -481,11 +482,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      * the DataSetRegistrationService to register not just the data sets, but perform any creation
      * or updates of Experiments and Samples as well.
      */
-    public void registerDataSetsInApplicationServer(
+    public void registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
         AtomicEntityOperationDetails<T> registrationDetails =
-                getStateAsLiveState().createEntityOperationDetails(dataSetRegistrations);
+                getStateAsLiveState().createEntityOperationDetails(registrationId,
+                        dataSetRegistrations);
         IEntityOperationService<T> entityRegistrationService =
                 registrationService.getEntityRegistrationService();
 

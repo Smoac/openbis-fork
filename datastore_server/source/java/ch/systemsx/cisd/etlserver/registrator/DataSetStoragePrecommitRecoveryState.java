@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author jakubs
@@ -35,6 +36,8 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
 {
     private static final long serialVersionUID = 1L;
 
+    private final TechId registrationId;
+
     private final List<DataSetStoragePrecommitRecoveryAlgorithm<T>> dataSetRecoveryStorageAlgorithms;
 
     private final File dssRegistrationLogFile;
@@ -42,19 +45,15 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
     private final File[] rollbackStackBackingFiles;
 
     private final DataSetFile incomingDataSetFile;
-    
-    private final DataSetRegistrationPersistentMap persistentMap;
-    
-    public DataSetRegistrationPersistentMap getPersistentMap()
-    {
-        return persistentMap;
-    }
 
-    public DataSetStoragePrecommitRecoveryState(
+    private final DataSetRegistrationContext persistentMap;
+
+    public DataSetStoragePrecommitRecoveryState(TechId registrationId,
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            DssRegistrationLogger logger, IRollbackStack rollbackStack, DataSetFile incomingDataSetFile,
-            DataSetRegistrationPersistentMap persistentMap)
+            DssRegistrationLogger logger, IRollbackStack rollbackStack,
+            DataSetFile incomingDataSetFile, DataSetRegistrationContext persistentMap)
     {
+        this.registrationId = registrationId;
         this.dataSetRecoveryStorageAlgorithms =
                 new ArrayList<DataSetStoragePrecommitRecoveryAlgorithm<T>>();
         for (DataSetStorageAlgorithm<T> algorithm : dataSetStorageAlgorithms)
@@ -63,28 +62,34 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         }
         dssRegistrationLogFile = logger.getFile();
         this.rollbackStackBackingFiles = ((RollbackStack) rollbackStack).getBackingFiles();
-        
+
         this.incomingDataSetFile = incomingDataSetFile;
-        
+
         this.persistentMap = persistentMap;
+    }
+
+    public TechId getRegistrationId()
+    {
+        return registrationId;
     }
 
     public DataSetFile getIncomingDataSetFile()
     {
         return incomingDataSetFile;
     }
-    
+
     public List<String> getDataSetCodes()
     {
         List<String> dataSetCodes = new ArrayList<String>();
         for (DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm : this.dataSetRecoveryStorageAlgorithms)
         {
             dataSetCodes.add(recoveryAlgorithm.getDataSetCode());
-        } 
+        }
         return dataSetCodes;
     }
-    
-    public ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(OmniscientTopLevelDataSetRegistratorState state)
+
+    public ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(
+            OmniscientTopLevelDataSetRegistratorState state)
     {
         ArrayList<DataSetStorageAlgorithm<T>> algorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>();
@@ -95,21 +100,26 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         }
         return algorithms;
     }
-    
-    public DssRegistrationLogger getRegistrationLogger(OmniscientTopLevelDataSetRegistratorState state)
+
+    public DssRegistrationLogger getRegistrationLogger(
+            OmniscientTopLevelDataSetRegistratorState state)
     {
         DssRegistrationLogDirectoryHelper helper =
                 new DssRegistrationLogDirectoryHelper(state.getGlobalState()
                         .getDssRegistrationLogDir());
 
         DssRegistrationLogger logger =
-                new DssRegistrationLogger(dssRegistrationLogFile, helper,
-                        state.getFileOperations());
+                new DssRegistrationLogger(dssRegistrationLogFile, helper, state.getFileOperations());
         return logger;
     }
-    
+
     public RollbackStack getRollbackStack()
     {
         return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
+    }
+
+    public DataSetRegistrationContext getPersistentMap()
+    {
+        return persistentMap;
     }
 }

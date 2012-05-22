@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -40,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 public class AtomicEntityOperationDetails<T extends DataSetInformation> implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    // Used to uniquely identify the registration in the database
+    private final TechId registrationId;
 
     // The userid on whose behalf the operations are done.
     private final String userIdOrNull;
@@ -62,8 +66,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<DataSetUpdatesDTO> dataSetUpdates;
 
-    public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
-            List<NewProject> projectRegistrations,
+    public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
+            List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
@@ -71,6 +75,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
             List<DataSetUpdatesDTO> dataSetUpdates)
     {
+        this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
         this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
@@ -82,6 +87,11 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
+    }
+
+    public TechId getRegistrationId()
+    {
+        return registrationId;
     }
 
     public String tryUserIdOrNull()

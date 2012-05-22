@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -80,6 +79,10 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
 
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
                             new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
+
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+
                     one(openBisService)
                             .performEntityOperations(
                                     with(new IsAnything<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>()));

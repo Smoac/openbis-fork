@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * Interface for recovery managers.
@@ -27,21 +28,23 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public interface IDataSetStorageRecoveryManager
 {
-    
+
     // Recovery Mechanics
     /**
      * Create a checkpoint at the precommitted state.
+     * 
+     * @param registrationId An identifier for the database registration that will happen in the
+     *            stage change from precommitted to committed.
+     * @param runner The algorithm object that manages the registration process.
      */
-    <T extends DataSetInformation> void checkpointPrecommittedState(
+    <T extends DataSetInformation> void checkpointPrecommittedState(TechId registrationId,
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
      * Remove recovery checkpoint.
      */
-    <T extends DataSetInformation> void removeCheckpoint(
-            DataSetStorageAlgorithmRunner<T> runner);
+    <T extends DataSetInformation> void removeCheckpoint(DataSetStorageAlgorithmRunner<T> runner);
 
-    
     /**
      * Note that registration has completed.
      */
@@ -58,21 +61,21 @@ public interface IDataSetStorageRecoveryManager
      * Extracts the recovery file from the marker file
      */
     DataSetStorageRecoveryInfo getRecoveryFileFromMarker(File markerFile);
-    
+
     /**
      * @return the path of the recovery marker file for the given incoming
      */
     File getProcessingMarkerFile(File incoming);
-    
+
     // Simple helper methods
     boolean canRecoverFromError(Throwable ex);
 
     void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir);
-    
+
     void setRecoveryMarkerFilesDir(File recoveryMarkerFileDir);
-    
+
     int getMaximumRertyCount();
-    
+
     void setMaximumRertyCount(int maxRetryCount);
     
     /**

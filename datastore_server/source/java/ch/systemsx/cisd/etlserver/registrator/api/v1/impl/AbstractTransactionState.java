@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -723,7 +724,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return openBisService.createDataSetCode();
         }
 
-        AtomicEntityOperationDetails<T> createEntityOperationDetails(
+        AtomicEntityOperationDetails<T> createEntityOperationDetails(TechId registrationId,
                 List<DataSetRegistrationInformation<T>> dataSetRegistrations)
         {
             for (DataSetRegistrationInformation<T> dataSetRegistrationInformation : dataSetRegistrations)
@@ -753,10 +754,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
-                    new AtomicEntityOperationDetails<T>(getUserId(), spaceRegistrations,
-                            projectRegistrations, experimentUpdates, experimentRegistrations,
-                            sampleUpdates, sampleRegistrations, materialRegistrations,
-                            dataSetRegistrations, dataSetUpdates);
+                    new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
+                            spaceRegistrations, projectRegistrations, experimentUpdates,
+                            experimentRegistrations, sampleUpdates, sampleRegistrations,
+                            materialRegistrations, dataSetRegistrations, dataSetUpdates);
             return registrationDetails;
         }
 
@@ -869,8 +870,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         public LiveTransactionRollbackDelegate(File stagingDirectory)
         {
             this.stagingDirectory = stagingDirectory;
-            this.fileSystemAvailablityWaitCount = LiveTransactionState.fileSystemAvailablityWaitCount;
-            this.fileSystemAvailablityPollingWaitTimeMs = LiveTransactionState.fileSystemAvailablityPollingWaitTimeMs;
+            this.fileSystemAvailablityWaitCount =
+                    LiveTransactionState.fileSystemAvailablityWaitCount;
+            this.fileSystemAvailablityPollingWaitTimeMs =
+                    LiveTransactionState.fileSystemAvailablityPollingWaitTimeMs;
         }
 
         public void willContinueRollbackAll(RollbackStack stack)
@@ -968,7 +971,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
     }
 
-    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends AbstractTransactionState<T>
+    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends
+            AbstractTransactionState<T>
     {
         public RecoveryPendingTransactionState(LiveTransactionState<T> liveState)
         {
