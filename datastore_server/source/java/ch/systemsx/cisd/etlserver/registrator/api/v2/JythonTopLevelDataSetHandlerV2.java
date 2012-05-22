@@ -182,7 +182,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         if (false == recoveryFile.exists())
         {
-            // TODO: is it safe to throw from here?
             operationLog.error("recovery file does not exist. " + recoveryFile);
             throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
         }
@@ -277,8 +276,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
-        // TODO: Jobs left to do here:
-        // jython hooks
 
         DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
 
@@ -331,9 +328,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         operationLog.info("Recovery succesfully deserialized the state of the registration");
         try
         {
-
-            // TODO: verify why if this throws exception - the empty directory is created in a
-            // store?
             TechId registrationId = recoveryState.getRegistrationId();
             if (false == state.getGlobalState().getOpenBisService()
                     .didEntityOperationsSucceed(registrationId))
