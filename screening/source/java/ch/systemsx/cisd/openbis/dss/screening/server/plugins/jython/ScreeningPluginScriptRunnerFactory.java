@@ -53,7 +53,7 @@ public class ScreeningPluginScriptRunnerFactory extends PluginScriptRunnerFactor
         return evaluator;
     }
 
-    private IScreeningOpenbisServiceFacade createScreeningFacade(DataSetProcessingContext context)
+    protected IScreeningOpenbisServiceFacade createScreeningFacade(DataSetProcessingContext context)
     {
         IConfigProvider configProvider = ServiceProvider.getConfigProvider();
         return ScreeningOpenbisServiceFacadeFactory.tryCreate(context.trySessionToken(),

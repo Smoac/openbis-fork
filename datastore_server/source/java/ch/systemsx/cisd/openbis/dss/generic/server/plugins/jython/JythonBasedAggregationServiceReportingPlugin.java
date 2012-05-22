@@ -42,13 +42,17 @@ public class JythonBasedAggregationServiceReportingPlugin extends
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             JythonBasedAggregationServiceReportingPlugin.class);
 
-    private final IPluginScriptRunnerFactory scriptRunnerFactory;
+    protected static String getScriptPathProperty(Properties properties)
+    {
+        return JythonBasedProcessingPlugin.getScriptPathProperty(properties);
+    }
 
+    private final IPluginScriptRunnerFactory scriptRunnerFactory;
 
     public JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new PluginScriptRunnerFactory(
-                JythonBasedProcessingPlugin.getScriptPathProperty(properties)));
+        this(properties, storeRoot,
+                new PluginScriptRunnerFactory(getScriptPathProperty(properties)));
     }
 
     protected JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot,

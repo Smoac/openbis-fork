@@ -54,6 +54,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
  */
 public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFileSystemTestCase
 {
+    public static final class ParametersBuilder
+    {
+        private final Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        public ParametersBuilder parameter(String name, Object value)
+        {
+            parameters.put(name, value);
+            return this;
+        }
+        
+        public Map<String, Object> getParameters()
+        {
+            return parameters;
+        }
+    }
+    
     private Mockery context;
     private ISearchService searchService;
     private IDataSourceQueryService queryService;
@@ -182,22 +198,6 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                 + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,<null>,EQUALS]],[]]]]]",
                 searchCriteriaRecorder.recordedObject().toString());
         context.assertIsSatisfied();
-    }
-    
-    private static final class ParametersBuilder
-    {
-        private final Map<String, Object> parameters = new HashMap<String, Object>();
-        
-        public ParametersBuilder parameter(String name, Object value)
-        {
-            parameters.put(name, value);
-            return this;
-        }
-        
-        public Map<String, Object> getParameters()
-        {
-            return parameters;
-        }
     }
     
     private IReportingPluginTask createPlugin(String scriptFile)
