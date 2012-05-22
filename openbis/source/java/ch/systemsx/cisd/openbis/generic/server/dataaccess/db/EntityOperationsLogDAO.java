@@ -9,7 +9,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 
@@ -43,7 +42,7 @@ public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOpera
         assert registrationId != null : "Unspecified registration id.";
 
         final Criteria criteria = getSession().createCriteria(getEntityClass());
-        criteria.add(Restrictions.eq(ColumnNames.REGISTRATION_ID, registrationId));
+        criteria.add(Restrictions.eq("registrationId", registrationId));
         EntityOperationsLogEntryPE result = (EntityOperationsLogEntryPE) criteria.uniqueResult();
         if (null != result)
         {
