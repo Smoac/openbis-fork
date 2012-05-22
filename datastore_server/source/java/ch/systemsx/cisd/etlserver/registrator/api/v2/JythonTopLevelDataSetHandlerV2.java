@@ -26,6 +26,8 @@ import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataActi
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
@@ -43,7 +46,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbacker;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -106,9 +108,13 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             PythonInterpreter interpreter)
     {
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
-        interpreter.set(TRANSACTION_VARIABLE_NAME, service.transaction());
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
-        interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+
+        if (service != null)
+        {
+            interpreter.set(TRANSACTION_VARIABLE_NAME, service.transaction());
+            interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
+        }
     }
 
     @Override
@@ -266,7 +272,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         return c.getTime().before(new Date());
     }
 
-    private void handleRecoveryState(DataSetStoragePrecommitRecoveryState<T> recoveryState,
+    private void handleRecoveryState(final DataSetStoragePrecommitRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
@@ -295,7 +301,19 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             };
 
         // hookAdaptor
-        IPrePostRegistrationHook<T> hookAdaptor = createRecoveryHookAdaptor();
+            RecoveryHookAdaptor hookAdaptor =
+                new RecoveryHookAdaptor(recoveryState.getIncomingDataSetFile()
+                        .getLogicalIncomingFile());
+
+        DataSetRegistrationPersistentMap.IHolder persistentMapHolder =
+                new DataSetRegistrationPersistentMap.IHolder()
+                    {
+
+                        public DataSetRegistrationPersistentMap getPersistentMap()
+                        {
+                            return recoveryState.getPersistentMap();
+                        }
+                    };
 
         DataSetStorageAlgorithmRunner<T> runner =
                 new DataSetStorageAlgorithmRunner<T>(recoveryState.getIncomingDataSetFile(), // incoming
@@ -305,7 +323,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         logger, // registrationLogger
                         state.getGlobalState().getOpenBisService(), // openBisService
                         hookAdaptor, // the hooks
-                        state.getGlobalState().getStorageRecoveryManager());
+                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder);
 
         boolean registrationSuccessful = false;
 
@@ -345,10 +363,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 rollbacker.doRollback(logger);
 
                 shouldDeleteRecoveryFiles = true;
-                //
-                // invokeRollbackTransactionFunction
-                //
-                // // rollback during metadata registration
+                
+                hookAdaptor.executePreRegistrationRollback(persistentMapHolder, null);
+                
             } else
             {
                 operationLog
@@ -356,6 +373,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
+
+                hookAdaptor.executePostStorage(persistentMapHolder);
 
                 shouldDeleteRecoveryFiles = true;
             }
@@ -385,18 +404,83 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     /**
      * Create an adaptor that offers access to the recovery hook functions.
      */
-    protected IPrePostRegistrationHook<T> createRecoveryHookAdaptor()
+    protected class RecoveryHookAdaptor implements IPrePostRegistrationHook<T>
     {
-        IPrePostRegistrationHook<T> hookAdaptor = new IPrePostRegistrationHook<T>()
-            {
-                public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
-                {
-                }
+        /**
+         * internally use only with getInterpreter
+         */
+        private PythonInterpreter internalInterpreter;
 
-                public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
-                {
-                }
-            };
-        return hookAdaptor;
+        private final File incoming;
+
+        public RecoveryHookAdaptor(File incoming)
+        {
+            this.incoming = incoming;
+        }
+
+        private PythonInterpreter getInterpreter()
+        {
+            if (internalInterpreter == null)
+            {
+                internalInterpreter = PythonUtils.createIsolatedPythonInterpreter();
+                // interpreter.execute script
+
+                configureEvaluator(incoming, null, internalInterpreter);
+
+                // Load the script
+                String scriptString = FileUtilities.loadToString(scriptFile);
+
+                // Invoke the evaluator
+                internalInterpreter.exec(scriptString);
+
+                verifyEvaluatorHookFunctions(internalInterpreter);
+            }
+            return internalInterpreter;
+        }
+
+        public void executePreRegistration(
+                DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+        {
+            throw new NotImplementedException("Recovery cannot execute pre-registration hook.");
+        }
+
+        public void executePostRegistration(
+                DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+        {
+            PyFunction function =
+                    tryJythonFunction(getInterpreter(),
+                            JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
+            if (function != null)
+            {
+                invokeFunction(function, persistentMapHolder.getPersistentMap());
+            }
+        }
+
+        /**
+         * This method does not belong to the IPrePostRegistrationHook interface. Is called directly
+         * by recovery.
+         */
+        public void executePostStorage(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+        {
+            PyFunction function =
+                    tryJythonFunction(getInterpreter(),
+                            JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
+            if (function != null)
+            {
+                invokeFunction(function, persistentMapHolder.getPersistentMap());
+            }
+        }
+        
+        public void executePreRegistrationRollback(DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Throwable t)
+        {
+            PyFunction function =
+                    tryJythonFunction(getInterpreter(),
+                            JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
+            if (function != null)
+            {
+                invokeFunction(function, persistentMapHolder.getPersistentMap(), t);
+            }
+        }
+        
     }
 }

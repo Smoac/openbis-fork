@@ -12,13 +12,18 @@ import java.util.Set;
  * 
  * @author jakubs
  */
-public class DataSetRegistrationContext implements Serializable
+public class DataSetRegistrationPersistentMap implements Serializable
 {
+    public static interface IHolder
+    {
+        DataSetRegistrationPersistentMap getPersistentMap();
+    }
+    
     private static final long serialVersionUID = 1L;
     
     private HashMap<String, Serializable> persistentMap;
     
-    public DataSetRegistrationContext()
+    public DataSetRegistrationPersistentMap()
     {
         persistentMap  = new HashMap<String, Serializable>();
     }

@@ -259,19 +259,19 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didRollbackTransaction(this, transaction, algorithm, ex);
     }
 
-    public void didCommitTransaction(DataSetRegistrationTransaction<T> transaction)
+    public void executePostCommit(DataSetRegistrationTransaction<T> transaction)
     {
         registrator.didCommitTransaction(this, transaction);
     }
 
-    public void executePreRegistration(DataSetRegistrationTransaction<T> transaction)
+    public void executePreRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
-        registrator.didPreRegistration(this, transaction);
+        registrator.didPreRegistration(this, persistentMapHolder);
     }
 
-    public void executePostRegistration(DataSetRegistrationTransaction<T> transaction)
+    public void executePostRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
-        registrator.didPostRegistration(this, transaction);
+        registrator.didPostRegistration(this, persistentMapHolder);
     }
 
     public void didEncounterSecondaryTransactionErrors(

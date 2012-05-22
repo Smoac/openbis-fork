@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         AbstractOmniscientTopLevelDataSetRegistrator<T>
 {
-    private enum JythonHookFunction
+    protected enum JythonHookFunction
     {
         /**
          * The name of the function to define to hook into the service rollback mechanism.
@@ -129,7 +129,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     // The key for the script in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
 
-    private final File scriptFile;
+    protected final File scriptFile;
 
     /**
      * Constructor.
@@ -176,7 +176,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         interpreter.exec(scriptString);
 
         executeJythonProcessFunction(service.interpreter);
-        
+
         verifyEvaluatorHookFunctions(interpreter);
     }
 
@@ -188,7 +188,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     }
 
-    private void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
+    protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
     {
         for (JythonHookFunction function : JythonHookFunction.values())
         {
@@ -290,18 +290,18 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     @Override
     public void didPreRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
-        super.didPreRegistration(service, transaction);
-        invokePreRegistrationFunction(service, transaction);
+        super.didPreRegistration(service, persistentMapHolder);
+        invokePreRegistrationFunction(service, persistentMapHolder);
     }
 
     @Override
     public void didPostRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
-        super.didPostRegistration(service, transaction);
-        invokePostRegistrationFunction(service, transaction);
+        super.didPostRegistration(service, persistentMapHolder);
+        invokePostRegistrationFunction(service, persistentMapHolder);
     }
 
     @Override
@@ -408,7 +408,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokePreRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationPersistentMap.IHolder persistentMapholder)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
@@ -416,17 +416,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, service, transaction);
+            invokeTransactionFunctionWithContext(function, service, persistentMapholder);
         }
     }
 
     private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
         PyFunction function = tryGetPostRegistrationFunction(service);
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, service, transaction);
+            invokeTransactionFunctionWithContext(function, service, persistentMapHolder);
         }
     }
 
@@ -449,7 +449,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    private PyFunction tryJythonFunction(PythonInterpreter interpreter,
+    protected PyFunction tryJythonFunction(PythonInterpreter interpreter,
             JythonHookFunction functionDefinition)
     {
         try
@@ -482,16 +482,16 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
+            DataSetRegistrationService<T> service, DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
             Object... additionalArgs)
     {
         if (additionalArgs.length > 0)
         {
-            invokeFunction(service, function, transaction.getTransactionPersistentMap(),
+            invokeFunction(service, function,  persistentMapHolder.getPersistentMap(),
                     additionalArgs);
         } else
         {
-            invokeFunction(service, function, transaction.getTransactionPersistentMap());
+            invokeFunction(service, function, persistentMapHolder.getPersistentMap());
         }
     }
 
@@ -502,12 +502,27 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeFunction(service, function, service, transaction, secondaryErrors);
     }
 
+    //TODO: refactor tests to not use the service to test the hooks!
     /**
      * Turns all arguments into a python objects, and calls the specified function. Service is here
      * only for the tests, so that the tests can hook it
      */
     protected void invokeFunction(DataSetRegistrationService<T> service, PyFunction function,
             Object... args)
+    {
+        PyObject[] pyArgs = new PyObject[args.length];
+        for (int i = 0; i < args.length; i++)
+        {
+            pyArgs[i] = Py.java2py(args[i]);
+        }
+        function.__call__(pyArgs);
+    }
+
+    /**
+     * Turn all arguments into a python objects, and calls the specified
+     * function. Preferable way of calling functions.
+     */
+    protected void invokeFunction(PyFunction function, Object... args)
     {
         PyObject[] pyArgs = new PyObject[args.length];
         for (int i = 0; i < args.length; i++)

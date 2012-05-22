@@ -34,7 +34,7 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
@@ -85,7 +85,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
         IDataSetRegistrationTransaction, DataSetStorageAlgorithmRunner.IRollbackDelegate<T>,
-        DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>
+        DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>,
+        DataSetRegistrationPersistentMap.IHolder
 {
     private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
 
@@ -186,7 +187,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private AbstractTransactionState<T> state;
 
-    private DataSetRegistrationContext registrationContext;
+    private DataSetRegistrationPersistentMap registrationContext;
 
     // The registration service that owns this transaction
     private final DataSetRegistrationService<T> registrationService;
@@ -215,7 +216,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.openBisService =
                 this.registrationService.getRegistratorContext().getGlobalState()
                         .getOpenBisService();
-        this.registrationContext = new DataSetRegistrationContext();
+        this.registrationContext = new DataSetRegistrationPersistentMap();
         this.autoRecoverySettings = autoRecoverySettings;
     }
 
@@ -375,7 +376,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         getStateAsLiveState().deleteFile(src);
     }
 
-    public DataSetRegistrationContext getTransactionPersistentMap()
+    /**
+     * Marked as deprecated, to prevent using this method directly. Instead it should only be used
+     * implicitly as an implementation of the persistent map holder interface.
+     */
+    @Deprecated
+    public DataSetRegistrationPersistentMap getPersistentMap()
     {
         return registrationContext;
     }
@@ -412,7 +418,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         try
         {
-            registrationService.didCommitTransaction(this);
+            registrationService.executePostCommit(this);
         } catch (Throwable t)
         {
             DssRegistrationLogger dssRegistrationLog = registrationService.getDssRegistrationLog();

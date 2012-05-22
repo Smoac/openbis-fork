@@ -43,9 +43,9 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
 
     private final DataSetFile incomingDataSetFile;
     
-    private final DataSetRegistrationContext persistentMap;
+    private final DataSetRegistrationPersistentMap persistentMap;
     
-    public DataSetRegistrationContext getPersistentMap()
+    public DataSetRegistrationPersistentMap getPersistentMap()
     {
         return persistentMap;
     }
@@ -53,7 +53,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
     public DataSetStoragePrecommitRecoveryState(
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DssRegistrationLogger logger, IRollbackStack rollbackStack, DataSetFile incomingDataSetFile,
-            DataSetRegistrationContext persistentMap)
+            DataSetRegistrationPersistentMap persistentMap)
     {
         this.dataSetRecoveryStorageAlgorithms =
                 new ArrayList<DataSetStoragePrecommitRecoveryAlgorithm<T>>();
