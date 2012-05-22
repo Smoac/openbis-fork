@@ -181,18 +181,18 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         if (false == recoveryFile.exists())
         {
-            operationLog.error("recovery file does not exist. " + recoveryFile);
+            operationLog.error("Recovery file does not exist. " + recoveryFile);
             throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
         }
 
         if (false == retryPeriodHasPassed(recoveryInfo))
         {
-            operationLog.info("Found recovery inforation for " + incomingFileOriginal
+            operationLog.info("Found recovery information for " + incomingFileOriginal
                     + ". The recovery won't happen as the retry period has not yet passed");
             return;
         }
 
-        operationLog.info("will recover from broken registration. Found marker file "
+        operationLog.info("Will recover from broken registration. Found marker file "
                 + recoveryMarkerFile + " and " + recoveryFile);
 
         IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
@@ -332,7 +332,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     .didEntityOperationsSucceed(registrationId))
             {
                 operationLog
-                        .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
+                        .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not successful.");
 
                 IRollbackStackDelegate rollbackStackDelegate =
                         new AbstractTransactionState.LiveTransactionRollbackDelegate(state
@@ -358,7 +358,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             } else
             {
                 operationLog
-                        .info("Recovery has found datasets in the AS. The registration of metadata was succesfull.");
+                        .info("Recovery has found datasets in the AS. The registration of metadata was successful.");
                 runner.storeAfterRegistration();
                 logger.registerSuccess();
                 registrationSuccessful = true;
