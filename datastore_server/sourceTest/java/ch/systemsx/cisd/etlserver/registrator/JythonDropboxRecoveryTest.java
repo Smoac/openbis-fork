@@ -215,6 +215,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         RecoveryInfoDateConstraint.ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
+                assertJythonHooks("pre_metadata_registration");
                 // nothing happened
             } else
             {
@@ -234,6 +235,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoRecoveryMarkerFile();
 
         assertDirEmpty(stagingDirectory);
+
+        assertJythonHooks("pre_metadata_registration", "rollback_pre_registration");
         // FIXME: this check is commented out because of a bug!
         // assertDirEmpty(precommitDirectory);
 
@@ -241,10 +244,25 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // rolllback requirementes
     }
 
+    private void assertJythonHooks(String... messages)
+    {
+        JythonHookTestTool jythonHookTestTool =
+                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+        for (String msg : messages)
+        {
+            jythonHookTestTool.assertLogged(msg);
+        }
+        jythonHookTestTool.assertNoMoreMessages();
+    }
+
     private void assertPostRecoveryConstraints(
             final RecoveryTestCase testCase,
             final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails)
     {
+        JythonHookTestTool jythonHookTestTool =
+                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+        // the check from the original registration
+        jythonHookTestTool.assertLogged("pre_metadata_registration");
 
         switch (testCase.registrationCheckResult)
         {
@@ -258,6 +276,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
                 assertNoOriginalMarkerFileExists();
                 assertNoRecoveryMarkerFile();
+
+                // the hooks after successful registration
+                jythonHookTestTool.assertLogged("post_metadata_registration");
+                jythonHookTestTool.assertLogged("post_storage");
                 break;
             case REGISTRATION_FAILED:
                 assertDataSetNotStoredProcess(DATA_SET_CODE);
@@ -268,6 +290,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
                 assertNoOriginalMarkerFileExists();
                 assertNoRecoveryMarkerFile();
+
+                jythonHookTestTool.assertLogged("rollback_pre_registration");
                 break;
             case CHECK_FAILED:
                 assertDataSetNotStoredProcess(DATA_SET_CODE);
@@ -288,7 +312,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
                 break;
         }
-
+        jythonHookTestTool.assertNoMoreMessages();
     }
 
     /**
