@@ -37,8 +37,10 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
+import org.python.core.PyTraceback;
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
@@ -189,13 +191,9 @@ public final class Evaluator
             return translateToJava(result);
         } catch (PyException ex)
         {
-            StringBuilder builder = new StringBuilder();
+            CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
             for (Object argument : args)
             {
-                if (builder.length() > 0)
-                {
-                    builder.append(", ");
-                }
                 builder.append(argument);
             }
             throw toEvaluatorException(ex, functionName + "(" + builder + ")");
@@ -473,20 +471,23 @@ public final class Evaluator
 
     private static EvaluatorException toEvaluatorException(PyException ex, String expressionOrNull)
     {
-        Exception exception = null;
+        Throwable exception = ex;
         PyObject value = ex.value;
         Object object = value.__tojava__(Object.class);
-        if (object instanceof Exception)
+        if (object instanceof Throwable)
         {
-            exception = (Exception) object;
+            exception = (Throwable) object;
         }
         String msg = extractExceptionMessage(ex);
         if (expressionOrNull != null)
         {
-            msg = "Error evaluating '" + expressionOrNull + "': " + msg;
+            PyTraceback traceback = ex.traceback;
+            String details =
+                    traceback == null ? "" : "occurred in line " + traceback.tb_lineno
+                            + " of the script when ";
+            msg = "Error " + details + "evaluating '" + expressionOrNull + "': " + msg;
         }
-        return exception == null ? new EvaluatorException(msg) : new EvaluatorException(msg,
-                exception);
+        return new EvaluatorException(msg, exception);
     }
 
     private static String extractExceptionMessage(PyException ex)

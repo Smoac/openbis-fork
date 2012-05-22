@@ -260,9 +260,8 @@ public class EvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals(
-                    "Error evaluating 'hello(world)': NameError: global name 'unknown' is not defined",
-                    ex.getMessage());
+            assertEquals("Error occurred in line 2 of the script when evaluating 'hello(world)': "
+                    + "NameError: global name 'unknown' is not defined", ex.getMessage());
         }
     }
 
@@ -350,7 +349,8 @@ public class EvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("Error evaluating 'get(world, universe)': AttributeError: "
+            assertEquals("Error occurred in line 2 of the script when evaluating "
+                    + "'get(world, universe)': AttributeError: "
                     + "'str' object has no attribute 'get'", ex.getMessage());
         }
     }
