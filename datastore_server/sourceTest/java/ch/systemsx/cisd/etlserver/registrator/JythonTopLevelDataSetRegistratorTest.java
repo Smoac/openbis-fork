@@ -248,7 +248,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         testCase =
                 new TestCaseParameters(
-                        "Postregistration hook error should not prevent succesfull registration.");
+                        "Postregistration hook error should not prevent successful registration.");
         testCase.dropboxScriptPath = "testcase-postregistration-hook-failed.py";
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
