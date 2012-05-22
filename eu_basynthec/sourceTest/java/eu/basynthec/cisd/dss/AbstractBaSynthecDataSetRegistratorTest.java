@@ -69,7 +69,8 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
     protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
             final DataSetType dataSetType, final DataSetType tsvDataSetType)
     {
-        return setUpDataSetRegistrationExpectations(dataSetType, tsvDataSetType, true);
+        return setUpDataSetRegistrationExpectations(
+                dataSetType, tsvDataSetType, true);
     }
 
     protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
@@ -83,11 +84,13 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
 
                     String excelDataSetCode = DATA_SET_CODE + "-EXCEL";
-                    one(openBisService).createDataSetCode();
+                    one(
+                            openBisService).createDataSetCode();
                     will(returnValue(excelDataSetCode));
 
                     // Some if there is a multistrain data set type, it needs to be taken care of in
@@ -95,33 +98,44 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     if (tsvDataSetType == TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE)
                     {
                         String tsvMultistrain = DATA_SET_CODE + "-TSV-MULTISTRAIN";
-                        one(openBisService).createDataSetCode();
+                        one(
+                                openBisService).createDataSetCode();
                         will(returnValue(tsvMultistrain));
                     }
 
                     String tsvDataSetCode = DATA_SET_CODE + "-TSV";
                     if (requireSingleStrainTsvExport)
                     {
-                        one(openBisService).createDataSetCode();
+                        one(
+                                openBisService).createDataSetCode();
                         will(returnValue(tsvDataSetCode));
                     }
 
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(
+                            1).of(
+                            openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
 
-                    allowing(openBisService).tryToGetExperiment(null);
+                    allowing(
+                            openBisService).tryToGetExperiment(
+                            null);
                     will(returnValue(null));
 
-                    one(dataSetValidator).assertValidDataSet(dataSetType, null);
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            dataSetType, null);
 
-                    one(dataSetValidator).assertValidDataSet(new DataSetType("EXCEL_ORIGINAL"),
+                    one(
+                            dataSetValidator).assertValidDataSet(
+                            new DataSetType("EXCEL_ORIGINAL"),
                             new File(new File(stagingDirectory, excelDataSetCode), "xls"));
 
                     if (tsvDataSetType == TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE)
                     {
-                        one(dataSetValidator).assertValidDataSet(
+                        one(
+                                dataSetValidator).assertValidDataSet(
                                 TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE,
                                 new File(new File(stagingDirectory, DATA_SET_CODE
                                         + "-TSV-MULTISTRAIN"), "tsv-multi"));
@@ -129,15 +143,25 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
                     if (requireSingleStrainTsvExport)
                     {
-                        one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
+                        one(
+                                dataSetValidator).assertValidDataSet(
+                                TSV_DATA_SET_TYPE,
                                 new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
                     }
 
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    one(
+                            openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+
+                    one(
+                            openBisService).performEntityOperations(
+                            with(atomicatOperationDetails));
 
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    allowing(openBisService).setStorageConfirmed(with(any(String.class)));
+                    allowing(
+                            openBisService).setStorageConfirmed(
+                            with(any(String.class)));
 
                 }
             });
@@ -146,19 +170,21 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
     protected Properties createThreadProperties()
     {
-        return createThreadPropertiesRelativeToScriptsFolder("data-set-handler.py",
-                "dist/etc/shared/shared-classes.py," + getRegistrationScriptsFolderPath()
-                        + "/data-set-validator.py");
+        return createThreadPropertiesRelativeToScriptsFolder(
+                "data-set-handler.py", "dist/etc/shared/shared-classes.py,"
+                        + getRegistrationScriptsFolderPath() + "/data-set-validator.py");
     }
 
     protected void createData(String fileName) throws IOException
     {
         File dataFile = new File("sourceTest/examples/" + fileName);
-        FileUtils.copyFileToDirectory(dataFile, workingDirectory);
+        FileUtils.copyFileToDirectory(
+                dataFile, workingDirectory);
         incomingDataSetFile = new File(workingDirectory, dataFile.getName());
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + dataFile.getName());
-        FileUtilities.writeToFile(markerFile, "");
+        FileUtilities.writeToFile(
+                markerFile, "");
     }
 
     protected HashMap<String, NewProperty> getDataSetPropertiesMap(
@@ -167,7 +193,8 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
         HashMap<String, NewProperty> propertyMap = new HashMap<String, NewProperty>();
         for (NewProperty prop : dataSetProperties)
         {
-            propertyMap.put(prop.getPropertyCode(), prop);
+            propertyMap.put(
+                    prop.getPropertyCode(), prop);
         }
         return propertyMap;
     }
@@ -177,7 +204,8 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
         HashMap<String, NewProperty> propertyMap =
                 getDataSetPropertiesMap(dataSet.getDataSetProperties());
         NewProperty property = propertyMap.get("DATA_TYPE");
-        assertEquals(expectedValue, property.getValue());
+        assertEquals(
+                expectedValue, property.getValue());
     }
 
 }
