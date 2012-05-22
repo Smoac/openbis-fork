@@ -66,6 +66,8 @@ ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY entity_operations_log 
 	ADD CONSTRAINT eol_pk PRIMARY KEY (id);
+ALTER TABLE ONLY entity_operations_log 
+	ADD CONSTRAINT EOL_REG_ID_UK UNIQUE (registration_id);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_bk_uk UNIQUE (exty_id, prty_id);
 ALTER TABLE ONLY experiment_type_property_types

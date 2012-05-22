@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
@@ -64,7 +66,13 @@ public final class EntityOperationsLogDAOTest extends AbstractDAOTest
     public void testCreateDuplicateLogEntry()
     {
         final IEntityOperationsLogDAO eaolDao = daoFactory.getEntityOperationsLogDAO();
-        eaolDao.addLogEntry(new Long(1));
+        try
+        {
+            eaolDao.addLogEntry(new Long(1));
+            fail("Inserting a duplicate entry should have thrown a data integrity violation.");
+        } catch (DataIntegrityViolationException e)
+        {
+            // This should violate a constraint
+        }
     }
-
 }
