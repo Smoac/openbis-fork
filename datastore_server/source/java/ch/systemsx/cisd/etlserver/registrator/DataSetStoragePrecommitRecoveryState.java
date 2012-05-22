@@ -46,12 +46,12 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
 
     private final DataSetFile incomingDataSetFile;
 
-    private final DataSetRegistrationContext persistentMap;
+    private final DataSetRegistrationPersistentMap persistentMap;
 
     public DataSetStoragePrecommitRecoveryState(TechId registrationId,
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DssRegistrationLogger logger, IRollbackStack rollbackStack,
-            DataSetFile incomingDataSetFile, DataSetRegistrationContext persistentMap)
+            DataSetFile incomingDataSetFile, DataSetRegistrationPersistentMap persistentMap)
     {
         this.registrationId = registrationId;
         this.dataSetRecoveryStorageAlgorithms =
@@ -118,7 +118,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
     }
 
-    public DataSetRegistrationContext getPersistentMap()
+    public DataSetRegistrationPersistentMap getPersistentMap()
     {
         return persistentMap;
     }
