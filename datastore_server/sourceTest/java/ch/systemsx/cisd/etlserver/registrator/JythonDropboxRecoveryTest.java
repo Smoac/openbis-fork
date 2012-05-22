@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -35,8 +34,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -503,20 +502,17 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         }
 
-        @SuppressWarnings(
-            { "rawtypes", "unchecked" })
         protected void checkRegistrationSucceeded()
         {
-            one(openBisService).listDataSetsByCode(Arrays.asList(DATA_SET_CODE));
+            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
             switch (testCase.registrationCheckResult)
             {
                 case REGISTRATION_SUCCEEDED:
                     // with the current implemntation returning the non-empty list should be enough
-                    List<ExternalData> externalDatas = (List) Arrays.asList(new Object());
-                    will(returnValue(externalDatas));
+                    will(returnValue(true));
                     break;
                 case REGISTRATION_FAILED:
-                    will(returnValue(new LinkedList<ExternalData>()));
+                    will(returnValue(false));
                     break;
                 case CHECK_FAILED:
                 case CHECK_FAILED_GIVE_UP:

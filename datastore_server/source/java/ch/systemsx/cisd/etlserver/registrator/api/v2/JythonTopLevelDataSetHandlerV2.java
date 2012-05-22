@@ -48,6 +48,7 @@ import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
@@ -301,7 +302,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             };
 
         // hookAdaptor
-            RecoveryHookAdaptor hookAdaptor =
+        RecoveryHookAdaptor hookAdaptor =
                 new RecoveryHookAdaptor(recoveryState.getIncomingDataSetFile()
                         .getLogicalIncomingFile());
 
@@ -330,17 +331,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         operationLog.info("Recovery succesfully deserialized the state of the registration");
         try
         {
-            List<String> dataSetCodes = recoveryState.getDataSetCodes();
-            // TODO: we need to check for something more than just a registered datasets, for the
-            // registrations that doesn't register anything.
-            // OTOH: do we need to recover in this case? (as there is nothing to store)
-            // maybe then we should only checkpoint for recovery if there ARE datasets registered?
 
             // TODO: verify why if this throws exception - the empty directory is created in a
             // store?
-            List<ExternalData> registeredDataSets =
-                    state.getGlobalState().getOpenBisService().listDataSetsByCode(dataSetCodes);
-            if (registeredDataSets.isEmpty())
+            TechId registrationId = recoveryState.getRegistrationId();
+            if (false == state.getGlobalState().getOpenBisService()
+                    .didEntityOperationsSucceed(registrationId))
             {
                 operationLog
                         .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not succesfull.");
@@ -363,9 +359,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 rollbacker.doRollback(logger);
 
                 shouldDeleteRecoveryFiles = true;
-                
+
                 hookAdaptor.executePreRegistrationRollback(persistentMapHolder, null);
-                
+
             } else
             {
                 operationLog
@@ -470,8 +466,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 invokeFunction(function, persistentMapHolder.getPersistentMap());
             }
         }
-        
-        public void executePreRegistrationRollback(DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Throwable t)
+
+        public void executePreRegistrationRollback(
+                DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Throwable t)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
@@ -481,6 +478,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 invokeFunction(function, persistentMapHolder.getPersistentMap(), t);
             }
         }
-        
+
     }
 }
