@@ -150,7 +150,8 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         assertEquals(expectedDp1ErrorValue, dp1Error.getValue());
         assertEquals(properties.size() + "", dp2.getValue());
         final String expectedDp3ErrorValue =
-                expectedErrorMessage("Error evaluating '" + s3
+                expectedErrorMessage("Error occurred in line 1 of the script when evaluating '"
+                        + s3
                         + "': AttributeError: 'ch.systemsx.cisd.openbis.generic.server.business.b'"
                         + " object has no attribute 'getCode'");
         assertEquals(expectedDp3ErrorValue, dp3Error.getValue());

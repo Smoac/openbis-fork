@@ -224,8 +224,9 @@ public class RowCalculatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException e)
         {
-            assertEquals("Error evaluating 'minOrDefault([0.0,None,'  ',-2,'-3'])': "
-                    + "TypeError: minOrDefault(): expected 2 args; got 1", e.getMessage());
+            assertEquals(
+                    "Error occurred in line 1 of the script when evaluating 'minOrDefault([0.0,None,'  ',-2,'-3'])': "
+                            + "TypeError: minOrDefault(): expected 2 args; got 1", e.getMessage());
         }
 
         calculator = createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
@@ -248,8 +249,9 @@ public class RowCalculatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException e)
         {
-            assertEquals("Error evaluating 'maxOrDefault([0.0,None,'  ',-2,'-3'])': "
-                    + "TypeError: maxOrDefault(): expected 2 args; got 1", e.getMessage());
+            assertEquals(
+                    "Error occurred in line 1 of the script when evaluating 'maxOrDefault([0.0,None,'  ',-2,'-3'])': "
+                            + "TypeError: maxOrDefault(): expected 2 args; got 1", e.getMessage());
         }
 
         calculator = createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'], 38.6)");

@@ -844,9 +844,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         list = resultSet.getList();
         assertEquals(1, list.size());
-        assertEquals("0-a0 Error: (Error evaluating 'row.col('blabla')': "
-                + "java.lang.IllegalArgumentException: "
-                + "java.lang.IllegalArgumentException: Unknown column ID: blabla).",
+        assertEquals(
+                "0-a0 Error: (Error occurred in line 1 of the script when evaluating 'row.col('blabla')': "
+                        + "java.lang.IllegalArgumentException: "
+                        + "java.lang.IllegalArgumentException: Unknown column ID: blabla).",
                 render(list.get(0)));
 
         context.assertIsSatisfied();

@@ -127,7 +127,9 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
             fail("expected EvaluatorException");
         } catch (EvaluatorException e)
         {
-            final String expectedMsg = "Error evaluating 'calculate()': NameError: name 'calculate' is not defined";
+            final String expectedMsg =
+                    "Error occurred in line 1 of the script when evaluating 'calculate()': "
+                            + "NameError: name 'calculate' is not defined";
             assertEquals("expected exception message: " + expectedMsg, expectedMsg, e.getMessage());
         }
     }

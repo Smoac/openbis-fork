@@ -140,8 +140,8 @@ public class CustomColumnUtilsTest extends AssertJUnit
                 GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, true);
 
         assertEquals(
-                "[Error: (Error evaluating 'junk + 10': NameError: name 'junk' is not defined).]",
-                values.toString());
+                "[Error: (Error occurred in line 1 of the script when evaluating 'junk + 10': "
+                        + "NameError: name 'junk' is not defined).]", values.toString());
     }
 
 }
