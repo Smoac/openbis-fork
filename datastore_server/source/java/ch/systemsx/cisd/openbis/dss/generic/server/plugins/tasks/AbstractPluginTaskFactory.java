@@ -113,7 +113,6 @@ public abstract class AbstractPluginTaskFactory<T>
             servletPropertiesManager.addServletProperties(label, props);
         }
         String pluginKey = sectionProperties.getKey();
-        String[] datasetCodes = extractDatasetCodes(pluginProperties);
 
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);
         this.instanceParameters = extractInstanceParameters(pluginProperties);
@@ -124,11 +123,15 @@ public abstract class AbstractPluginTaskFactory<T>
         {
             ReportingPluginType type =
                     ((IReportingPluginTask) pluginInstance).getReportingPluginType();
+            String[] datasetCodes =
+                    type == ReportingPluginType.AGGREGATION_TABLE_MODEL ? new String[0]
+                            : extractDatasetCodes(pluginProperties);
             this.description =
                     DatastoreServiceDescription.reporting(pluginKey, label, datasetCodes,
                             datastoreCode, type);
         } else
         {
+            String[] datasetCodes = extractDatasetCodes(pluginProperties);
             this.description =
                     DatastoreServiceDescription.processing(pluginKey, label, datasetCodes,
                             datastoreCode);

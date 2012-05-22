@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -39,16 +38,6 @@ class Utils
             ISimpleTableModelBuilderAdaptor builder = SimpleTableModelBuilderAdaptor.create();
             tableModelCreator.create(builder);
             return (TableModel) builder.getTableModel();
-        } catch (EvaluatorException ex)
-        {
-            if (null != ex.getCause())
-            {
-                notifyLog.error(createErrorMessage(scriptPath), ex.getCause());
-            } else
-            {
-                notifyLog.error(createErrorMessage(scriptPath), ex);
-            }
-            throw createUserFailureException(ex);
         } catch (RuntimeException ex)
         {
             notifyLog.error(createErrorMessage(scriptPath), ex);
@@ -64,7 +53,7 @@ class Utils
     private static UserFailureException createUserFailureException(RuntimeException ex)
     {
         return new UserFailureException("Chosen plugin failed to create a report: "
-                + ExceptionUtils.getEndOfChain(ex));
+                + ExceptionUtils.getEndOfChain(ex), ex);
     }
 
 }

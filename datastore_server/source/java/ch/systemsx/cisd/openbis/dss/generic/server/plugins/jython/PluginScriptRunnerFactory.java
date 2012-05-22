@@ -161,12 +161,12 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return evaluator;
     }
 
-    private static ISearchService createSearchService()
+    protected ISearchService createSearchService()
     {
         return ServiceProvider.getSearchService();
     }
 
-    private static IDataSourceQueryService createDataSourceQueryService()
+    protected IDataSourceQueryService createDataSourceQueryService()
     {
         return ServiceProvider.getDataSourceQueryService();
     }

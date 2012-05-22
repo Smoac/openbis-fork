@@ -49,13 +49,19 @@ public abstract class AbstractAggregationServiceReportingPlugin extends Abstract
 
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
-        throw new IllegalArgumentException(
-                "The method createReport is not supported by AGGREGATION_TABLE_MODEL tasks");
+        throw createException();
     }
 
     public LinkModel createLink(DatasetDescription dataset)
     {
-        throw new IllegalArgumentException(
-                "The method createLink is not supported by AGGREGATION_TABLE_MODEL tasks");
+        throw createException();
     }
+    
+    private IllegalArgumentException createException()
+    {
+        return new IllegalArgumentException(
+                "The method createReport is not supported by " + getReportingPluginType()
+                        + " tasks");
+    }
+    
 }
