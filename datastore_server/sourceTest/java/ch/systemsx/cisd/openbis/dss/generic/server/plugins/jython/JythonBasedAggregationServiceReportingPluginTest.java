@@ -172,8 +172,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                     + "java.lang.IllegalArgumentException: Invalid", ex.getMessage());
             String message = ex.getCause().getMessage();
             String prefix =
-                    "Error occured in line 28 of the script when evaluating 'aggregate({}, ";
-            assertEquals("Message '" + message + "' doesn't starts with '" + prefix + "'.", true,
+                    "Error occurred in line 28 of the script when evaluating 'aggregate({}, ";
+            assertTrue("Message '" + message + "' doesn't starts with '" + prefix + "'.", 
                     message.startsWith(prefix));
         }
         
