@@ -139,7 +139,7 @@ public class DataViewSection extends TabContent
                             if (reportingPluginTypeOrNull == ReportingPluginType.DSS_LINK)
                             {
                                 showGeneratedDssLink(service);
-                            } else
+                            } else if (reportingPluginTypeOrNull == ReportingPluginType.TABLE_MODEL)
                             {
                                 showGeneratedReportComponentView(service);
                             }
