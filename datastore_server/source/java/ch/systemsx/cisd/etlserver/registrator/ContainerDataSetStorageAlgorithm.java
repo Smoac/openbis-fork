@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -67,26 +66,26 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     @Override
     public IStorageProcessorTransaction prepare(IRollbackStack rollbackStack)
     {
-        //assert initialized - move to prepared state.
+        // assert initialized - move to prepared state.
         return new NullStorageProcessorTransaction();
     }
 
     @Override
     public void preCommit() throws Throwable
     {
-        //assert prepared state, leave in precommit
+        // assert prepared state, leave in precommit
     }
 
     @Override
     public void moveToTheStore() throws Throwable
     {
-        //assert commited state, leave in stored
+        // assert commited state, leave in stored
     }
-    
+
     @Override
     public void transitionToRolledbackState(Throwable throwable)
     {
-        //return in rolledback state
+        // return in rolledback state
     }
 
     @Override
@@ -98,7 +97,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     @Override
     public void commitStorageProcessor()
     {
-        //assert precommitted state - return in committed state
+        // assert precommitted state - return in committed state
     }
 
     @Override
@@ -121,6 +120,12 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     {
         return "Error trying to register container data set '" + getDataSetInformation().toString()
                 + "'.";
+    }
+
+    @Override
+    protected boolean isInAStateAllowingPrecommitRecovery()
+    {
+        return true;
     }
 
 }

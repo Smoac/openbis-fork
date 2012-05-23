@@ -188,9 +188,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         state = new PrecommittedState<T>(this, precommitRecoveryAlgorithm);
     }
     
+    protected boolean isInAStateAllowingPrecommitRecovery()
+    {
+        return state instanceof PrecommittedState<?>;
+    }
+    
     public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
     {
-        if (false == (state instanceof PrecommittedState<?>))
+        if (false == isInAStateAllowingPrecommitRecovery())
         {
             throw new IllegalStateException(
                     "Precommit recovery algorithm available only at precommited state");
