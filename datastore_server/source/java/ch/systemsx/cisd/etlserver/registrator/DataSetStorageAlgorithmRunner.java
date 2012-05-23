@@ -67,9 +67,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
     {
-        public void executePreRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
+        public void executePreRegistration(
+                DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
 
-        public void executePostRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
+        public void executePostRegistration(
+                DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
     }
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -91,7 +93,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private final IRollbackStack rollbackStack;
 
     private final DataSetRegistrationPersistentMap.IHolder persistentMapHolder;
-    
+
     private final IPrePostRegistrationHook<T> postPreRegistrationHooks;
 
     private final DssRegistrationLogger dssRegistrationLog;
@@ -284,6 +286,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 tryPrepareRegistrationData();
 
         TechId registrationId = new TechId(openBISService.drawANewUniqueID());
+        logMetadataRegistration(registrationId);
 
         if (registrationData == null)
         {
@@ -306,6 +309,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         // confirm storage in AS
 
         // STORAGECONFIRMED
+    }
+
+    private void logMetadataRegistration(TechId registrationId)
+    {
+        dssRegistrationLog.log("About to register metadata with AS: registrationId("
+                + registrationId.toString() + ")");
     }
 
     /**
@@ -567,7 +576,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         return incomingDataSetFile;
     }
-    
+
     public DataSetRegistrationPersistentMap getPersistentMap()
     {
         return persistentMapHolder.getPersistentMap();
