@@ -71,47 +71,16 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
     row = ((tileNumber - 1) / columns) + 1
     col = ((tileNumber - 1) % columns) + 1
     return Location(row, col)
-    
-
-def getAvailableChannelTransformations():
-  """
-  Create a collection of transformations that are applicable to the image
-  """
-  transforms = ImageTransformationBuffer()
-  transforms.appendImageMagicConvert("-edge 1", "Edge detection")
-  transforms.appendImageMagicConvert("-radial-blur 30", "Radial Blur")
-  transforms.appendImageMagicConvert("-blur 3x.7 -solarize 50% -level 50%,0", "Fuzzy")
-  transforms.appendImageMagicConvert("-shade 0x45", "3D 1")
-  transforms.appendImageMagicConvert("-shade 90x60", "3D 2")
-  transforms.appendImageMagicConvert("-blur 0x3 -shade 120x45 -normalize", "3D 3")
-  transforms.appendImageMagicConvert("-motion-blur 0x12+45", "Motion Blur")
-  transforms.appendImageMagicConvert("-fft -delete 1 -auto-level -evaluate log 100000", "FFT")
-  
-  return transforms.getTransformations()
 
       
 if incoming.isDirectory(): 
   imageDataset = ImageDataSetFlexible()
   imageDataset.setRawImageDatasetType()
   imageDataset.setPlate("PLATONIC", incoming.getName())
-  transforms = getAvailableChannelTransformations()
-#  imageDataset.setGenerateImageRepresentationsWithScaleFactors([0.25, 0.5])    
-#  imageDataset.setGenerateImageRepresentationsUsingImageResolutions(['128x128', '256x256'])
-  for resolution in ['64x64', '128x128']:
-    representation = imageDataset.addGeneratedImageRepresentationWithResolution(resolution)
-    representation.setFileFormat('JPEG')
-    for channel in ["DAPI", "GFP", "Cy5"]:
-      representation.setTransformation(channel, transforms[1].getCode())
-  imageDataset.addGeneratedImageRepresentationWithResolution('256x256')
-
   imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
   datasetInfo = imageRegistrationDetails.getDataSetInformation()
   channels = [ Channel(code, code) for code in ["DAPI", "GFP", "Cy5"]]
   colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN, ChannelColorComponent.RED]
-  
-  # Add transforms to the channels
-  for channel in channels:
-    channel.setAvailableTransformations(transforms)
   
   datasetInfo.setChannels(channels, colorComponents)
   
