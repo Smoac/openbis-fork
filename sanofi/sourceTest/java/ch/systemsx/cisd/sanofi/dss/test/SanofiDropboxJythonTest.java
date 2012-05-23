@@ -367,6 +367,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -517,6 +519,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -590,6 +594,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
@@ -979,16 +985,19 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     }
 
-    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler implements ITestingDataSetHandler
+    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler implements
+            ITestingDataSetHandler
     {
-    
+
         private final TestingDataSetHandlerExpectations expectations;
-        
+
         public TestingPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
             super(globalState);
-            expectations = new TestingDataSetHandlerExpectations(shouldRegistrationFail, shouldReThrowRollbackException);
+            expectations =
+                    new TestingDataSetHandlerExpectations(shouldRegistrationFail,
+                            shouldReThrowRollbackException);
         }
 
         @Override
