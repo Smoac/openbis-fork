@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.common.utilities.ReflectingStringUnescaper;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
@@ -2283,6 +2284,13 @@ public final class CommonClientService extends AbstractClientService implements
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } catch (Exception e)
+        {
+            String message = ExceptionUtils.getEndOfChain(e).getMessage();
+
+            throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
+                    extractStackTraces(message)
+                            + " (More details can be found in the server logs.)");
         } finally
         {
             if (uploadedFiles != null)
@@ -2294,6 +2302,24 @@ public final class CommonClientService extends AbstractClientService implements
                 httpSession.removeAttribute(sessionKey);
             }
         }
+    }
+
+    private String extractStackTraces(String message)
+    {
+        String[] lines = message.split("\n");
+        StringBuilder builder = new StringBuilder();
+        for (String line : lines)
+        {
+            if (line.startsWith("\tat ") == false)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append('\n');
+                }
+                builder.append(line);
+            }
+        }
+        return builder.toString();
     }
 
     private static void abortIfMaxSizeExceeded(UploadedFilesBean uploadedFiles)
