@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ProxyShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -51,8 +53,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses = SegmentedStoreUtils.class)
 public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 {
-    private static final String DATA_STORE_CODE = "ds-code";
+    private static final String MOVED = "Moved";
+    private static final String LOCK = "lock";
+    private static final String START_DELETION = "Start deletion";
 
+    private static final String DATA_STORE_CODE = "ds-code";
+    
     private Mockery context;
 
     private IEncapsulatedOpenBISService service;
@@ -188,14 +194,9 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(2, shares.size());
     }
 
-    @Test(groups = "slow")
+    @Test
     public void testMoveDataSetToAnothetShareAndDelete()
     {
-        // completed[0] indicates weather shuffling is completed
-        // completed[1] indicates if deletion is done
-        final boolean[] completed = new boolean[2];
-        completed[0] = completed[1] = false;
-
         File share1 = new File(workingDirectory, "store/1");
         File share1uuid01 = new File(share1, "uuid/01");
         File ds2 = new File(share1uuid01, "0b/0c/ds-2/original");
@@ -205,7 +206,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         File original = new File(dataSetDirInStore, "original");
         original.mkdirs();
         FileUtilities.writeToFile(new File(original, "hello.txt"), "hello world");
-        File share2 = new File(workingDirectory, "store/2");
+        final File share2 = new File(workingDirectory, "store/2");
         share2.mkdirs();
         File share2uuid01 = new File(share2, "uuid/01");
         File file = new File(share2uuid01, "22/33/orig");
@@ -233,82 +234,39 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
         assertEquals(true, dataSetDirInStore.exists());
         assertFileNames(share2uuid01, "22");
+        final MessageChannel moveChannel = new MessageChannel(10000);
+        final MessageChannel deletionChannel = new MessageChannel(10000);
 
-        final IShareIdManager manager = new IShareIdManager()
+        new Thread(new Runnable()
             {
-                private boolean locked = false;
-
-                public void setShareId(String dataSetCode, String shareId)
+                public void run()
                 {
-                    shareIdManager.setShareId(dataSetCode, shareId);
+                    SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2,
+                            service, new ProxyShareIdManager(shareIdManager)
+                                {
+                                    @Override
+                                    public void lock(String dataSetCode)
+                                    {
+                                        super.lock(dataSetCode);
+                                        moveChannel.send(LOCK);
+                                        deletionChannel.assertNextMessage(START_DELETION);
+                                    }
+                                }, log);
+                    moveChannel.send(MOVED);
                 }
-
-                public void releaseLocks()
-                {
-                    shareIdManager.releaseLocks();
-                    locked = false;
-                }
-
-                public void releaseLock(String dataSetCode)
-                {
-                    shareIdManager.releaseLock(dataSetCode);
-                    locked = false;
-                }
-
-                public void lock(List<String> dataSetCodes)
-                {
-                    shareIdManager.lock(dataSetCodes);
-                }
-
-                public void lock(final String dataSetCode)
-                {
-                    shareIdManager.lock(dataSetCode);
-                    locked = true;
-                    final IShareIdManager _this = this;
-
-                    Runnable r = new Runnable()
-                        {
-                            public void run()
-                            {
-                                SegmentedStoreUtils.deleteDataSet(datasetLocation,
-                                        dataSetDirectoryProvider, _this, log);
-                                completed[1] = true;
-                            }
-                        };
-                    new Thread(r).start();
-                }
-
-                public boolean isKnown(String dataSetCode)
-                {
-                    return shareIdManager.isKnown(dataSetCode);
-                }
-
-                public String getShareId(String dataSetCode)
-                {
-                    return shareIdManager.getShareId(dataSetCode);
-                }
-
-                public void await(String dataSetCode)
-                {
-                    shareIdManager.await(dataSetCode);
-                    while (locked
-                            || /* ensures, that logs will be printed in correct order */(false == "main"
-                                    .equals(Thread.currentThread().getName()) && false == completed[0]))
+            }).start();
+        moveChannel.assertNextMessage(LOCK);
+        SegmentedStoreUtils.deleteDataSet(datasetLocation, dataSetDirectoryProvider,
+                new ProxyShareIdManager(shareIdManager)
                     {
-                        try
+                        @Override
+                        public void await(String dataSetCode)
                         {
-                            Thread.sleep(1000L);
-                        } catch (InterruptedException ex)
-                        {
-                            ex.printStackTrace();
+                            super.await(dataSetCode);
+                            deletionChannel.send(START_DELETION);
+                            moveChannel.assertNextMessage(MOVED);
                         }
-                    }
-                }
-            };
-
-        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service, manager,
-                log);
-        completed[0] = true;
+                    }, log);
 
         log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
         log.assertNextLogMessage("Start moving directory 'targets/unit-test-wd/ch.systemsx.cisd."
@@ -324,18 +282,6 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "/uuid/01/02/03/ds-1");
         log.assertNextLogMessage("Data set ds-1 at " + share1
                 + "/uuid/01/02/03/ds-1 has been successfully deleted.");
-
-        while (false == completed[1])
-        {
-            try
-            {
-                Thread.sleep(100L);
-            } catch (InterruptedException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-
         log.assertNextLogMessage("Start deleting data set ds-1 at " + share2
                 + "/uuid/01/02/03/ds-1");
         log.assertNextLogMessage("Data set ds-1 at " + share2
@@ -345,6 +291,8 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 "targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.shared.utils."
                         + "SegmentedStoreUtilsTest/store/2/uuid/01/02/03/ds-1").exists());
         assertFileNames(share2uuid01, "02", "22");
+        moveChannel.assertEmpty();
+        deletionChannel.assertEmpty();
         log.assertNoMoreLogMessages();
     }
 
