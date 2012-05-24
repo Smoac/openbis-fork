@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
-import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.INSERT_TIMESTAMP_SQL_KEY;
-import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.READ_TIMESTAMP_SQL_KEY;
-import static ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.UPDATE_TIMESTAMP_SQL_KEY;
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask.INSERT_TIMESTAMP_SQL_KEY;
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask.READ_TIMESTAMP_SQL_KEY;
+import static ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask.UPDATE_TIMESTAMP_SQL_KEY;
 
 import java.io.File;
 import java.sql.Connection;
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.server.task.MaterialReportingTask.MappingInfo;
+import ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask.MappingInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -67,8 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { MaterialReportingTask.class, MappingInfo.class })
-public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
+    { MaterialExternalDBSyncTask.class, MappingInfo.class })
+public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session-token";
 
@@ -78,7 +78,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
     private DatabaseConfigurationContext dbConfigContext;
 
-    private MaterialReportingTask materialReportingTask;
+    private MaterialExternalDBSyncTask materialReportingTask;
 
     private String databaseName;
 
@@ -94,7 +94,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         context = new Mockery();
         server = context.mock(ICommonServerForInternalUse.class);
         timeProvider = context.mock(ITimeProvider.class);
-        materialReportingTask = new MaterialReportingTask(server, timeProvider);
+        materialReportingTask = new MaterialExternalDBSyncTask(server, timeProvider);
 
         dbConfigContext = new DatabaseConfigurationContext();
         dbConfigContext.setDatabaseEngineCode("postgresql");
@@ -118,7 +118,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
         properties.setProperty("database-driver", "org.postgresql.Driver");
         properties.setProperty("database-url", "jdbc:postgresql://localhost/" + databaseName);
         properties.setProperty("database-username", "postgres");
-        properties.setProperty(MaterialReportingTask.MAPPING_FILE_KEY, mappingFile.getPath());
+        properties.setProperty(MaterialExternalDBSyncTask.MAPPING_FILE_KEY, mappingFile.getPath());
     }
 
     @AfterMethod
@@ -136,7 +136,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
                 + "[T2: TABLE2, code]\n  P2 : Prop2   \n P1 :  PROP1  ");
 
         Map<String, MappingInfo> mapping =
-                MaterialReportingTask.readMappingFile(mappingFile.getPath());
+                MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
 
         MappingInfo mappingInfo1 = mapping.get("T1");
         assertEquals("insert into table1 (code) values(?)", mappingInfo1.createInsertStatement());
@@ -153,7 +153,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -170,7 +170,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -186,7 +186,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -202,7 +202,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -218,7 +218,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -234,7 +234,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -250,7 +250,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -266,7 +266,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -282,7 +282,7 @@ public class MaterialReportingTaskTest extends AbstractFileSystemTestCase
 
         try
         {
-            MaterialReportingTask.readMappingFile(mappingFile.getPath());
+            MaterialExternalDBSyncTask.readMappingFile(mappingFile.getPath());
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {

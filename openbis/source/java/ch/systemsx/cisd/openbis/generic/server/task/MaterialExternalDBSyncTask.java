@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.Supp
  * 
  * @author Franz-Josef Elmer
  */
-public class MaterialReportingTask implements IMaintenanceTask
+public class MaterialExternalDBSyncTask implements IMaintenanceTask
 {
     @Private
     static final String READ_TIMESTAMP_SQL_KEY = "read-timestamp-sql";
@@ -356,7 +356,7 @@ public class MaterialReportingTask implements IMaintenanceTask
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            MaterialReportingTask.class);
+            MaterialExternalDBSyncTask.class);
 
     private final ICommonServerForInternalUse server;
 
@@ -374,12 +374,12 @@ public class MaterialReportingTask implements IMaintenanceTask
 
     private String updateTimestampSql;
 
-    public MaterialReportingTask()
+    public MaterialExternalDBSyncTask()
     {
         this(CommonServiceProvider.getCommonServer(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    public MaterialReportingTask(ICommonServerForInternalUse server, ITimeProvider timeProvider)
+    public MaterialExternalDBSyncTask(ICommonServerForInternalUse server, ITimeProvider timeProvider)
     {
         this.server = server;
         this.timeProvider = timeProvider;
@@ -653,8 +653,8 @@ public class MaterialReportingTask implements IMaintenanceTask
     @Private
     static Map<String, MappingInfo> readMappingFile(String mappingFileName)
     {
-        Map<String, MaterialReportingTask.MappingInfo> map =
-                new HashMap<String, MaterialReportingTask.MappingInfo>();
+        Map<String, MaterialExternalDBSyncTask.MappingInfo> map =
+                new HashMap<String, MaterialExternalDBSyncTask.MappingInfo>();
         List<String> lines = FileUtilities.loadToStringList(new File(mappingFileName));
         MappingInfo currentMappingInfo = null;
         for (int i = 0; i < lines.size(); i++)
