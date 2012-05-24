@@ -57,6 +57,23 @@ public class SampleLister implements ISampleLister
             }
         };
 
+    private static final Comparator<SampleRecord> SAMPLE_COMPARATOR2 =
+            new Comparator<SampleRecord>()
+                {
+                    public int compare(SampleRecord s1, SampleRecord s2)
+                    {
+                        return getIdentifier(s1).compareTo(getIdentifier(s2));
+                    }
+
+                    private String getIdentifier(SampleRecord sampleRecord)
+                    {
+                        String spaceCode = sampleRecord.sp_code;
+                        String sampleCode = sampleRecord.s_code;
+                        return spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
+                                + sampleCode;
+                    }
+                };
+
     private static final IKeyExtractor<Long, SampleRecord> ID_EXTRACTOR =
             new IKeyExtractor<Long, SampleRecord>()
                 {
@@ -144,14 +161,30 @@ public class SampleLister implements ISampleLister
         enrichWithAncestors(ancestors, sampleRecords,
                 fetchOptions.contains(SampleFetchOption.ANCESTORS));
         List<Sample> samples = new ArrayList<Sample>();
+        Map<Long, Sample> repository = new HashMap<Long, Sample>(); // Repository of all unlinked
+                                                                    // samples
         for (Long rootSampleID : sampleIDs)
         {
             SampleRecord sampleRecord = sampleRecords.tryGet(rootSampleID);
             if (sampleRecord != null)
             {
-                samples.add(createSample(sampleRecord));
+                samples.add(createSample(sampleRecord, repository));
             }
         }
+        // "Tying the knot": Resolving all references between samples.
+        for (Sample sample : repository.values())
+        {
+            if (sample.getRetrievedFetchOptions().contains(SampleFetchOption.CHILDREN))
+            {
+                sample.getChildren();
+            }
+            if (sample.getRetrievedFetchOptions().contains(SampleFetchOption.PARENTS))
+            {
+                sample.getParents();
+            }
+        }
+        // Repository now longer needed
+        repository.clear();
         Collections.sort(samples, SAMPLE_COMPARATOR);
         return samples;
     }
@@ -252,8 +285,13 @@ public class SampleLister implements ISampleLister
         }
     }
 
-    private Sample createSample(SampleRecord sampleRecord)
+    private Sample createSample(SampleRecord sampleRecord, Map<Long, Sample> repository)
     {
+        Sample sample = repository.get(sampleRecord.s_id);
+        if (sample != null)
+        {
+            return sample;
+        }
         Sample.SampleInitializer initializer = new Sample.SampleInitializer();
         initializer.setId(sampleRecord.s_id);
         String spaceCode = sampleRecord.sp_code;
@@ -293,15 +331,37 @@ public class SampleLister implements ISampleLister
             }
         }
         initializer.setRetrievedFetchOptions(sampleRecord.fetchOptions);
+        List<SampleRecord> linkedSampleRecords = new ArrayList<SampleRecord>();
         if (sampleRecord.children != null)
         {
-            initializer.setChildren(createChildren(sampleRecord.children));
+            initializer.setChildReferences(getIDs(sampleRecord.children), repository);
+            linkedSampleRecords.addAll(sampleRecord.children);
         }
         if (sampleRecord.parents != null)
         {
-            initializer.setParents(createParents(sampleRecord.parents));
+            initializer.setParentReferences(getIDs(sampleRecord.parents), repository);
+            linkedSampleRecords.addAll(sampleRecord.parents);
         }
-        return new Sample(initializer);
+        sample = new Sample(initializer);
+        repository.put(sampleRecord.s_id, sample);
+        // Linked samples have to be created after the current sample has been added to the
+        // repository, otherwise a stack overflow might occur because of a recursive endless loop.
+        for (SampleRecord linkedSampleRecord : linkedSampleRecords)
+        {
+            createSample(linkedSampleRecord, repository);
+        }
+        return sample;
+    }
+
+    private List<Long> getIDs(List<SampleRecord> records)
+    {
+        Collections.sort(records, SAMPLE_COMPARATOR2);
+        List<Long> ids = new ArrayList<Long>();
+        for (SampleRecord record : records)
+        {
+            ids.add(record.s_id);
+        }
+        return ids;
     }
 
     private EnumSet<SampleFetchOption> createAppropriateFetchOptions(
@@ -310,28 +370,6 @@ public class SampleLister implements ISampleLister
         return EnumSet
                 .of(fetchOptions.contains(SampleFetchOption.PROPERTIES) ? SampleFetchOption.PROPERTIES
                         : SampleFetchOption.BASIC);
-    }
-
-    private List<Sample> createChildren(List<SampleRecord> childRecords)
-    {
-        List<Sample> children = new ArrayList<Sample>();
-        for (SampleRecord childRecord : childRecords)
-        {
-            children.add(createSample(childRecord));
-        }
-        Collections.sort(children, SAMPLE_COMPARATOR);
-        return children;
-    }
-
-    private List<Sample> createParents(List<SampleRecord> parentRecords)
-    {
-        List<Sample> parents = new ArrayList<Sample>();
-        for (SampleRecord parentRecord : parentRecords)
-        {
-            parents.add(createSample(parentRecord));
-        }
-        Collections.sort(parents, SAMPLE_COMPARATOR);
-        return parents;
     }
 
 }

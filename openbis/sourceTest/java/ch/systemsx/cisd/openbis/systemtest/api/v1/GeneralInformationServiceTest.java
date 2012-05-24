@@ -307,6 +307,66 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesWhichAreParentChildRelatedToTestRecursiveLoop()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "CELL_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PARENTS, SampleFetchOption.CHILDREN);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8, /CISD/CP-TEST-1, "
+                + "/CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/CP1-A1, /CISD/CP1-A2, /CISD/CP1-B1, "
+                + "/CISD/CP2-A1, /CISD/PLATE_WELLSEARCH]", samples);
+
+        Sample sample0 = samples.get(0);
+        assertEquals("3VCP5", sample0.getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
+                SampleFetchOption.CHILDREN), sample0.getRetrievedFetchOptions());
+        assertEntities("[]", sample0.getChildren());
+        assertEquals("/CISD/NEMO/EXP10", sample0.getExperimentIdentifierOrNull());
+        List<Sample> parents = sample0.getParents();
+        assertEntities("[/CISD/3V-125]", parents);
+        assertEquals("3V-125", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
+
+        Sample sample8 = samples.get(8);
+        assertEquals("CP1-A2", sample8.getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
+                SampleFetchOption.CHILDREN), sample8.getRetrievedFetchOptions());
+        assertEntities("[/CISD/DP1-A]", sample8.getParents());
+        List<Sample> children = sample8.getChildren();
+        assertEntities("[/CISD/RP1-A2X]", children);
+        assertEquals("RP1-A2X", children.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC), children.get(0)
+                .getRetrievedFetchOptions());
+
+        Sample sample4 = samples.get(4);
+        assertEquals("CP-TEST-1", sample4.getCode());
+        parents = sample4.getParents();
+        assertEntities("[/CISD/CP-TEST-2]", parents);
+        assertEquals("CP-TEST-2", parents.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
+                SampleFetchOption.CHILDREN), parents.get(0).getRetrievedFetchOptions());
+        assertEntities("[/CISD/CP-TEST-1]", parents.get(0).getChildren());
+        assertEntities("[]", parents.get(0).getParents());
+
+        Sample sample5 = samples.get(5);
+        assertEquals("CP-TEST-2", sample5.getCode());
+        children = sample5.getChildren();
+        assertEntities("[/CISD/CP-TEST-1]", children);
+        assertEquals("CP-TEST-1", children.get(0).getCode());
+        assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
+                SampleFetchOption.CHILDREN), children.get(0).getRetrievedFetchOptions());
+        assertEntities("[/CISD/CP-TEST-2]", children.get(0).getParents());
+        assertEntities("[]", children.get(0).getChildren());
+    }
+
+    @Test
     public void testSearchForSamplesWithAncestors()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -797,7 +857,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         {
             identifiers.add(entity.getIdentifier());
         }
-        Collections.sort(identifiers);
+        // Collections.sort(identifiers);
         assertEquals(expectedEntities, identifiers.toString());
     }
 

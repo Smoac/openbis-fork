@@ -43,6 +43,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 public final class Sample implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
+    
+    private static class Reference
+    {
+        private final Long id;
+        private final Map<Long, Sample> repository;
+        Reference(Long id, Map<Long, Sample> repository)
+        {
+            this.id = id;
+            this.repository = repository;
+        }
+        
+        Sample resolve()
+        {
+            return repository.get(id);
+        }
+    }
 
     /**
      * Class used to initialize a new sample instance. Necessary since all the fields of a sample
@@ -76,8 +92,12 @@ public final class Sample implements Serializable, IIdentifierHolder
         private EntityRegistrationDetails registrationDetails;
 
         private EnumSet<SampleFetchOption> retrievedFetchOptions = EnumSet.noneOf(SampleFetchOption.class);
+        
+        private List<Reference> parentReferences;
 
         private List<Sample> parents = Collections.emptyList();
+        
+        private List<Reference> childReferences;
 
         private List<Sample> children = Collections.emptyList();
 
@@ -212,6 +232,24 @@ public final class Sample implements Serializable, IIdentifierHolder
         {
             this.children = (null == children) ? new ArrayList<Sample>() : children;
         }
+
+        public void setParentReferences(List<Long> parentIDs, Map<Long, Sample> repository)
+        {
+            parentReferences = new ArrayList<Reference>();
+            for (Long parentID : parentIDs)
+            {
+                parentReferences.add(new Reference(parentID, repository));
+            }
+        }
+
+        public void setChildReferences(List<Long> childIDs, Map<Long, Sample> repository)
+        {
+            childReferences = new ArrayList<Reference>();
+            for (Long childID : childIDs)
+            {
+                childReferences.add(new Reference(childID, repository));
+            }
+        }
     }
 
     private Long id;
@@ -236,9 +274,13 @@ public final class Sample implements Serializable, IIdentifierHolder
 
     private EnumSet<SampleFetchOption> retrievedFetchOptions;
 
-    private List<Sample> parents = Collections.emptyList();
+    private List<Reference> parentReferences = Collections.emptyList();
 
-    private List<Sample> children = Collections.emptyList();
+    private List<Sample> parents;
+    
+    private List<Reference> childReferences = Collections.emptyList();
+
+    private List<Sample> children;
 
     /**
      * Creates a new instance with the provided initializer
@@ -278,8 +320,20 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.registrationDetails = initializer.getRegistrationDetails();
 
         this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
-        this.parents = initializer.getParents();
-        this.children = initializer.getChildren();
+        if (initializer.parentReferences != null)
+        {
+            this.parentReferences = initializer.parentReferences;
+        } else
+        {
+            this.parents = initializer.getParents();
+        }
+        if (initializer.childReferences != null)
+        {
+            this.childReferences = initializer.childReferences;
+        } else
+        {
+            this.children = initializer.getChildren();
+        }
     }
 
     /**
@@ -385,6 +439,16 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         if (getRetrievedFetchOptions().contains(SampleFetchOption.CHILDREN))
         {
+            if (children == null)
+            {
+                children = new ArrayList<Sample>();
+                for (Reference reference : childReferences)
+                {
+                    children.add(reference.resolve());
+                }
+                childReferences = null;
+            }
+
             return Collections.unmodifiableList(children);
         } else
         {
@@ -404,6 +468,15 @@ public final class Sample implements Serializable, IIdentifierHolder
     {
         if (getRetrievedFetchOptions().contains(SampleFetchOption.PARENTS))
         {
+            if (parents == null)
+            {
+                parents = new ArrayList<Sample>();
+                for (Reference reference : parentReferences)
+                {
+                    parents.add(reference.resolve());
+                }
+                parentReferences = null;
+            }
             return Collections.unmodifiableList(parents);
         } else
         {
