@@ -25,4 +25,8 @@
         <property name="smtpUser" value="${mail.smtp.user}"/>
         <property name="smtpPassword" value="${mail.smtp.password}"/>
     </bean>
+    
+    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper">
+    </bean>
+    
 </beans>

@@ -248,8 +248,10 @@
     <bean id="trusted-origin-domain-provider" class="ch.systemsx.cisd.openbis.generic.server.TrustedCrossOriginDomainsProvider">
         <constructor-arg value="${trusted-cross-origin-domains}"/>
     </bean>
-        
-    
+
+    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper">
+    </bean>
+
     <!--
         // Plugins
     -->
