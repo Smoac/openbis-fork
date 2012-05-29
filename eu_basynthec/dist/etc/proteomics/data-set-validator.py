@@ -1,6 +1,7 @@
 def validate_data(time_series_data, errors):
   gene_locus_regex = re.compile("^BSU[0-9]+|^BSU_misc_RNA_[0-9]+|^VMG_[0-9]+_[0-9]+(_c)?")
-  column_header_regex = re.compile("(\+|-)?[0-9]+::(value|mean|median|std|var|error|iqr)")
+  # Column headers encode timepoint, value type, biological replicates, technical replicates
+  column_header_regex = re.compile("^(\+|-)?[0-9]+::(value|mean|median|std|var|error|iqr)::b.+::t.+")
   dataLines = time_series_data.getRawDataLines()
   lineCount = 0
   for line in dataLines:
@@ -18,7 +19,7 @@ def validate_data(time_series_data, errors):
         range_start = 1
       for i in range(range_start, len(line)):
         if not column_header_regex.match(line[i].lower()):
-          errors.append(createFileValidationError("Column " + str(i) + " header must be of the format Timepoint::(value|mean|median|std|var|error|iqr), (instead of " + line[i] + ")."))
+          errors.append(createFileValidationError("Column " + str(i) + " header must be of the format Timepoint::(value|mean|median|std|var|error|iqr)::Biological Replicates::Technical Replicates, (instead of " + line[i] + ")."))
       continue
 
     # The compound id should be one of these forms
@@ -47,7 +48,7 @@ def validate_metadata(time_series_data, errors):
 
   # validate the value unit
   validationHelper.validateControlledVocabularyProperty("VALUE UNIT", 
-    "value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'")
+    "value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS', 'FMOL/UG PROTEIN DIGEST'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless', 'fmol/ug protein digest'")
   
   # validate the scale
   validationHelper.validateControlledVocabularyProperty("SCALE", "scale",
