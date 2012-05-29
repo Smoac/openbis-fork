@@ -48,7 +48,7 @@ def validate_metadata(time_series_data, errors):
 
   # validate the value unit
   validationHelper.validateControlledVocabularyProperty("VALUE UNIT", 
-    "value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS', 'FMOL/UG PROTEIN DIGEST'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless', 'fmol/ug protein digest'")
+    "value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS', 'FMOL/UG'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless', 'fmol/ug'")
   
   # validate the scale
   validationHelper.validateControlledVocabularyProperty("SCALE", "scale",

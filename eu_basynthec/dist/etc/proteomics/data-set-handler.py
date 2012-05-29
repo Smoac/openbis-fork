@@ -35,6 +35,8 @@ def assign_properties(dataset, metadata):
       value = metadata.get(prop)
       if (key == "STRAIN"):
         value = value + " (STRAIN)"
+      if (key == "VALUE_UNIT" and value == "fmol/ug"):
+        value = "FMOL_UG"
       dataset.setPropertyValue(key, strain_canonical(value))
  
 def convert_data_to_tsv(tr, dataset, location):
