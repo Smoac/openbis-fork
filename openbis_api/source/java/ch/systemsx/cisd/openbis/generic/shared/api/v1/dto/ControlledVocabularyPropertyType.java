@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -27,10 +28,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ControlledVocabularyPropertyType")
 public class ControlledVocabularyPropertyType extends PropertyType
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonTypeName("VocabularyTermProperty")
     public static class VocabularyTerm extends
             ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm
     {

@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -39,6 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 final class WellImageCache
 {
+    @JsonTypeName("InternalPlateWellImageReference")
     private static final class InternalPlateWellImageReference extends DatasetIdentifier
     {
         private static final long serialVersionUID = 1L;

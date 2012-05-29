@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Data types of {@link QueryTableModel}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("QueryTableColumnDataType")
 public enum QueryTableColumnDataType
 {
     LONG, DOUBLE, STRING;

@@ -1,11 +1,16 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Identifies one image acquired in a screening context.
  * 
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("PlateImageReference")
 public class PlateImageReference extends DatasetIdentifier
 {
     private static final long serialVersionUID = 1L;

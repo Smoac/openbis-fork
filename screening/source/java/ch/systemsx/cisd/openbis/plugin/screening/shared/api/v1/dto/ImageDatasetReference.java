@@ -22,6 +22,9 @@ import java.util.Map;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * Description of one image dataset.
@@ -29,6 +32,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ImageDatasetReference")
 public class ImageDatasetReference extends DatasetReference implements IImageDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;

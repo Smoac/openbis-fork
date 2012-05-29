@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 /**
  * Immutable value object representing an openBIS vocabulary.
@@ -31,6 +32,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
+@JsonTypeName("VocabularyGeneric")
 public class Vocabulary implements Serializable
 {
 

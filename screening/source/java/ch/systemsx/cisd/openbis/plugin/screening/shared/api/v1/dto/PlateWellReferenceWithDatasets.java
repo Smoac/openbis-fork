@@ -20,6 +20,10 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Provides a reference to a well on a screening plate, together with available data sets for the
  * screening plate.
@@ -28,6 +32,7 @@ import java.util.List;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("PlateWellReferenceWithDatasets")
 public class PlateWellReferenceWithDatasets implements Serializable
 {
     private static final long serialVersionUID = 1L;

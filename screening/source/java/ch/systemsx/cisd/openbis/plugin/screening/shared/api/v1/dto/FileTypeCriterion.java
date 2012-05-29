@@ -20,11 +20,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Criterion based on the file type.
  *
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("FileTypeCriterion")
 public class FileTypeCriterion extends AbstractFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

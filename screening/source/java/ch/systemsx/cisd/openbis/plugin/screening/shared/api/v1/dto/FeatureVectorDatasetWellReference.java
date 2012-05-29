@@ -19,12 +19,17 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.Date;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Reference to one well in a feature vector dataset.
  * 
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FeatureVectorDatasetWellReference")
 public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetReference
 {
     private static final long serialVersionUID = 1L;

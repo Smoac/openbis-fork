@@ -66,6 +66,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("SearchCriteria")
 public class SearchCriteria implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -75,6 +76,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("MatchClauseFieldType")
     public static enum MatchClauseFieldType
     {
         PROPERTY, ATTRIBUTE
@@ -87,6 +89,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("MatchClauseAttribute")
     public static enum MatchClauseAttribute
     {
         // common
@@ -102,12 +105,14 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("MatchClauseTimeAttribute")
     public static enum MatchClauseTimeAttribute
     {
         REGISTRATION_DATE,
         MODIFICATION_DATE
     }
 
+    @JsonTypeName("CompareMode")
     public static enum CompareMode
     {
         LESS_THAN_OR_EQUAL, EQUALS, GREATER_THAN_OR_EQUAL
@@ -118,7 +123,6 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonTypeName("MatchClause")
     @JsonSubTypes(value =
         { @JsonSubTypes.Type(AttributeMatchClause.class),
@@ -500,6 +504,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("SearchOperator")
     public static enum SearchOperator
     {
         MATCH_ALL_CLAUSES, MATCH_ANY_CLAUSES

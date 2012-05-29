@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of
  * wells are given a special treatment - API users can retrieve {@link Material} property values via
@@ -30,6 +34,7 @@ import java.util.Map;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
+@JsonTypeName("WellMetadata")
 public class WellMetadata extends WellIdentifier
 {
     private static final long serialVersionUID = 1L;

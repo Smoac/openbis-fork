@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Holds the complete metadata of a plate and its wells.
  * 
@@ -29,6 +33,7 @@ import java.util.Map;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
+@JsonTypeName("PlateMetadata")
 public class PlateMetadata extends PlateIdentifier
 {
 

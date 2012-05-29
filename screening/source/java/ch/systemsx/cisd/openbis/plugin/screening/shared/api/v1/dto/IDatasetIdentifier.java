@@ -16,11 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Contains data which uniquely define a dataset
  * 
  * @author Tomasz Pylak
  */
+@JsonTypeName("IDatasetIdentifier")
+@JsonSubTypes(value = {@JsonSubTypes.Type(DatasetIdentifier.class), 
+        @JsonSubTypes.Type(IFeatureVectorDatasetIdentifier.class), 
+        @JsonSubTypes.Type(IImageDatasetIdentifier.class)})
 public interface IDatasetIdentifier extends IPermanentIdentifier
 {
     /** a code of the dataset */

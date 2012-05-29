@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Immutable value object representing an authorization role. A role has a code and a flag which
  * tells whether this role is for a certain space or for all spaces.
@@ -25,6 +27,7 @@ import java.io.Serializable;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
+@JsonTypeName("Role")
 public final class Role implements Serializable
 {
     private static final long serialVersionUID = 1L;

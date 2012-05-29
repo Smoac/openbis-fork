@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * A class that represents an image transformation.
@@ -27,6 +30,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ImageTransformationInfo")
 public class ImageTransformationInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -18,12 +18,17 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * A unique identifier for a material type.
  * 
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("MaterialTypeIdentifierScreening")
 public class MaterialTypeIdentifier implements Serializable
 {
 

@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Contains summary meta data for images within an experiment.
  * <p>
@@ -31,6 +35,7 @@ import java.util.List;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ExperimentImageMetadata")
 public class ExperimentImageMetadata implements Serializable
 {
 

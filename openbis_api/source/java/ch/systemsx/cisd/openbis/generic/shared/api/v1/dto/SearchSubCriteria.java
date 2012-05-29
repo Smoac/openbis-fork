@@ -6,6 +6,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 
@@ -15,6 +16,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
  * @author Piotr Buczek
  */
 @SuppressWarnings("unused")
+@JsonTypeName("SearchSubCriteria")
 public class SearchSubCriteria implements Serializable
 {
     private static final long serialVersionUID = 1L;

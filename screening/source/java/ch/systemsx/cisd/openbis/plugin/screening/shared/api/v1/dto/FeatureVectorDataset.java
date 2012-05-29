@@ -3,12 +3,17 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Feature vectors of one dataset.
  * 
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FeatureVectorDataset")
 public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
 {
     private static final long serialVersionUID = 1L;

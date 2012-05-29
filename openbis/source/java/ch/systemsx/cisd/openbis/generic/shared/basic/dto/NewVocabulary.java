@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * New controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
+@JsonTypeName("NewVocabulary")
 public class NewVocabulary extends Vocabulary
 {
 

@@ -7,12 +7,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Description of one plate-based screening dataset.
  * 
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("DatasetReference")
+@JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetReference.class), 
+        @JsonSubTypes.Type(ImageDatasetReference.class)})
 public class DatasetReference extends DatasetIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 
 /**
  * @author pkupczyk
  */
+@JsonTypeName("DataSetFetchOption")
 public enum DataSetFetchOption implements FetchOption
 {
 

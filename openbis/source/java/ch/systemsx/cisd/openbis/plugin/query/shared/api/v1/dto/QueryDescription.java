@@ -19,22 +19,25 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Description of a query. Contains everything needed on client side to show to the user what
  * queries are available, to specify parameter bindings, and to identify a query uniquely.
  * 
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("QueryDescription")
 public class QueryDescription implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private long id;
-    
+
     private String name;
-    
+
     private String description;
-    
+
     private List<String> parameters;
 
     /**

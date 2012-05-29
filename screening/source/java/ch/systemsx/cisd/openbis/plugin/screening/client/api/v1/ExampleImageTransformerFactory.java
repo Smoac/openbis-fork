@@ -18,12 +18,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.awt.image.BufferedImage;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+
 
 /**
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("ExampleImageTransformerFactory")
 public class ExampleImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;

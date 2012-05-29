@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("Sample")
 public final class Sample implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;

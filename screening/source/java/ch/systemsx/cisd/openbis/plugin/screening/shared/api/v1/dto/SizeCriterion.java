@@ -21,11 +21,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Criterion based on the image size.
  * 
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("SizeCriterion")
 public class SizeCriterion implements IImageRepresentationFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

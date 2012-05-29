@@ -23,6 +23,9 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * A bean that lists all image representation formats available for a data set.
@@ -31,6 +34,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("DatasetImageRepresentationFormats")
 public class DatasetImageRepresentationFormats implements Serializable,
         Comparable<DatasetImageRepresentationFormats>
 {

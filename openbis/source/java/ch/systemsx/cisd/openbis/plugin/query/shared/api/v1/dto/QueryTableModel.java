@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 /**
  * Model of query data.
@@ -29,6 +30,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
+@JsonTypeName("QueryTableModel")
 public class QueryTableModel implements Serializable
 {
     private static final long serialVersionUID = 1L;

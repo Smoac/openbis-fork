@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Criterion which filters image representation formats concerning whether they are original or not.
  *
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("OriginalCriterion")
 public class OriginalCriterion extends AbstractFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

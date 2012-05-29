@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * A unique identifier for a material like e.g. a gene.
@@ -29,7 +33,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
+@JsonTypeName("MaterialIdentifierScreening")
+@JsonSubTypes(value = {@JsonSubTypes.Type(Material.class)})
 public class MaterialIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;

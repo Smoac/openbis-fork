@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Holds information about which vocabulary term attributes should be updated.
  * 
  * @author Piotr Buczek
  */
+@JsonTypeName("VocabularyTermBatchUpdateDetails")
 public class VocabularyTermBatchUpdateDetails implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

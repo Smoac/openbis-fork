@@ -3,6 +3,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Unique identifier for a plate which is assigned to an experiment. This class really should be
  * called <code>ExperimentPlateIdentifier</code>.
@@ -10,6 +15,7 @@ import java.io.ObjectInputStream;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("Plate")
 public class Plate extends PlateIdentifier
 {
     private static final long serialVersionUID = 1L;

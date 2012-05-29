@@ -22,9 +22,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
@@ -34,7 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
+@JsonTypeName("PropertyType")
+@JsonSubTypes(value = {@JsonSubTypes.Type(ControlledVocabularyPropertyType.class)})
 public class PropertyType implements Serializable
 {
     private static final long serialVersionUID = 1L;

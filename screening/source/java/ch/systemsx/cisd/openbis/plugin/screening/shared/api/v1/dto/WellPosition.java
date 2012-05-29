@@ -5,12 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Identifier of a well on a screening plate, contains row and column number.
  * 
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("WellPosition")
 public class WellPosition implements Serializable, Comparable<WellPosition>
 {
     private static final long serialVersionUID = 1L;

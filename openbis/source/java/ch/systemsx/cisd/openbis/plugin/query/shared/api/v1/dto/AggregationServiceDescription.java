@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Bean with information about aggregation services that provide data.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@JsonTypeName("AggregationServiceDescription")
 public class AggregationServiceDescription implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -77,6 +80,7 @@ public class AggregationServiceDescription implements Serializable
     @Override
     public String toString()
     {
-        return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", serviceKey=" + serviceKey + ", type=" + type + "]";
+        return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", serviceKey="
+                + serviceKey + ", type=" + type + "]";
     }
 }

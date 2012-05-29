@@ -18,6 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * A bean that provides information about a feature.
  * 
@@ -25,6 +29,7 @@ import java.io.Serializable;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FeatureInformation")
 public class FeatureInformation implements Serializable, Comparable<FeatureInformation>
 {
 

@@ -18,6 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Width and height of an image.
  * 
@@ -25,6 +29,7 @@ import java.io.Serializable;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ImageSize")
 public class ImageSize implements Serializable
 {
     private static final long serialVersionUID = 1L;

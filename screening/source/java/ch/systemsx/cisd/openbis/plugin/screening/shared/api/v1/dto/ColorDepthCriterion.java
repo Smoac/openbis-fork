@@ -20,11 +20,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Criterion based on the color depth.
  *
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("ColorDepthCriterion")
 public class ColorDepthCriterion extends AbstractFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

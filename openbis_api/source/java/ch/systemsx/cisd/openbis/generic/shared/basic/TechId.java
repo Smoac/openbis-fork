@@ -21,13 +21,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 /**
  * Technical identifier of an entity.
  * 
  * @author Piotr Buczek
  */
+@JsonTypeName("TechId")
+@JsonSubTypes(value = {@JsonSubTypes.Type(TechId.WildcardTechId.class)})
 public class TechId implements IIdHolder, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -174,6 +178,7 @@ public class TechId implements IIdHolder, Serializable
     }
 
     /** {@link TechId} which string representation matches all technical identifiers. */
+    @JsonTypeName("WildcardTechId")
     private static class WildcardTechId extends TechId
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;

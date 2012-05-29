@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * A class that represents an image channel.
@@ -29,6 +32,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ImageChannel")
 public class ImageChannel implements Serializable, Comparable<ImageChannel>
 {
     private static final long serialVersionUID = 1L;

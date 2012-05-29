@@ -24,6 +24,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * An image representation format is made up of its dimensions, bit depth, and file format.
@@ -32,8 +35,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ImageRepresentationFormat")
 public class ImageRepresentationFormat implements Serializable
 {
+    @JsonTypeName("ImageRepresentationTransformation")
     public static class ImageRepresentationTransformation implements Serializable
     {
         private static final long serialVersionUID = 1L;

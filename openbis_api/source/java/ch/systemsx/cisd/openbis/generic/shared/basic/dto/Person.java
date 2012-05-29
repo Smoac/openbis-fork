@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * The <i>GWT</i> equivalent PersonPE.
  * 
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("Person")
 public class Person extends AbstractRegistrationHolder implements Comparable<Person>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

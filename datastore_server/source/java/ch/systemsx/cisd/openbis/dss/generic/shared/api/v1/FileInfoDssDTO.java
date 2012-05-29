@@ -21,6 +21,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * Represents information about a file stored in DSS.
@@ -28,6 +31,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FileInfoDssDTO")
 public class FileInfoDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;

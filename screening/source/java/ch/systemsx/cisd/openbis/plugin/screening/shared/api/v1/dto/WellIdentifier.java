@@ -1,11 +1,18 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Contains data which uniquely define a well on a plate.
  * 
  * @author Piotr Buczek
  */
 @SuppressWarnings("unused")
+@JsonTypeName("WellIdentifier")
+@JsonSubTypes(value = {@JsonSubTypes.Type(WellMetadata.class)})
 public class WellIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;

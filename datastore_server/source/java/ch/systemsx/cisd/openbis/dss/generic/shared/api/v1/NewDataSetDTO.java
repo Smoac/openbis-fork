@@ -23,6 +23,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * Represents a new data set that the DSS should register.
@@ -36,6 +39,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@JsonTypeName("NewDataSetDTO")
 public class NewDataSetDTO implements Serializable
 {
     public static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
@@ -45,7 +49,8 @@ public class NewDataSetDTO implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static enum DataSetOwnerType
+    @JsonTypeName("DataSetOwnerType")
+    public static enum DataSetOwnerType 
     {
         EXPERIMENT
         {
@@ -82,6 +87,7 @@ public class NewDataSetDTO implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("DataSetOwner")
     public static class DataSetOwner implements Serializable
     {
         private static final long serialVersionUID = 1L;

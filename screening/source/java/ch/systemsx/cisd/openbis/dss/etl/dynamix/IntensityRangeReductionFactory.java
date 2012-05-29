@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.awt.image.BufferedImage;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+
 
 /**
  * Image transformation factory which reduces the intensity of the 8 bit grayscale images, so that
@@ -31,6 +34,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
  * 
  * @author Tomasz Pylak
  */
+@JsonTypeName("IntensityRangeReductionFactory")
 public class IntensityRangeReductionFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;

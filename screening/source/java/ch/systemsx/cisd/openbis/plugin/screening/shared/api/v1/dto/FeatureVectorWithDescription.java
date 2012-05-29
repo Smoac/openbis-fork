@@ -3,6 +3,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Feature vectors of one well in one feature vector dataset.
  * 
@@ -10,6 +14,7 @@ import java.util.List;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FeatureVectorWithDescription")
 public class FeatureVectorWithDescription extends FeatureVector implements IFeatureCodesProvider,
         Serializable
 {

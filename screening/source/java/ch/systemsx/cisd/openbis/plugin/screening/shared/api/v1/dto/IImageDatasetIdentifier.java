@@ -16,11 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Contains data which uniquely define an image dataset.
  * 
  * @author Tomasz Pylak
  */
+@JsonTypeName("IImageDatasetIdentifier")
+@JsonSubTypes(value = {@JsonSubTypes.Type(ImageDatasetReference.class)})
 public interface IImageDatasetIdentifier extends IDatasetIdentifier
 {
 }

@@ -18,10 +18,14 @@ package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
+import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
@@ -42,7 +46,11 @@ public class TestJsonServiceFactory
     {
         try
         {
-            JsonRpcHttpClient client = new JsonRpcHttpClient(new URL(GENERAL_INFO_SERVICE_URL));
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(null));
+            JsonRpcHttpClient client =
+                    new JsonRpcHttpClient(mapper, new URL(GENERAL_INFO_SERVICE_URL),
+                            new HashMap<String, String>());
             return ProxyUtil.createProxy(TestJsonServiceFactory.class.getClassLoader(),
                     IGeneralInformationService.class, client);
         } catch (MalformedURLException ex)

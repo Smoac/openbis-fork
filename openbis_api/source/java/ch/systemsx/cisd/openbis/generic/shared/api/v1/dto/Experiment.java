@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("Experiment")
 public final class Experiment implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;

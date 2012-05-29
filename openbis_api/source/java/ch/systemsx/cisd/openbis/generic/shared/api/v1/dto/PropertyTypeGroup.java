@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 /**
  * Immutable value object representing a data set type.
@@ -31,6 +32,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
+@JsonTypeName("PropertyTypeGroup")
 public final class PropertyTypeGroup implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * Immutable class defining the width and height of something. Two instances are equal if and only
@@ -27,6 +30,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
+@JsonTypeName("Geometry")
 public final class Geometry implements Serializable
 {
     public static final Geometry GEOMETRY_96_8X12 = new Geometry(12, 8);

@@ -19,12 +19,19 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.Date; 
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
+
 /**
  * Description of one feature vector dataset.
  * 
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
+@JsonTypeName("FeatureVectorDatasetReference")
+@JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetWellReference.class)})
 public class FeatureVectorDatasetReference extends DatasetReference implements
         IFeatureVectorDatasetIdentifier
 {

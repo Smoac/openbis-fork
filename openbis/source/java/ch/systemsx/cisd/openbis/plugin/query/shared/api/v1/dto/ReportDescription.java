@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonTypeName;
+
 /**
  * Bean with basic meta data of a service offered by a Data Store Server.
  * 
  * @author Franz-Josef Elmer
  */
+@JsonTypeName("ReportDescription")
 public class ReportDescription implements Serializable
 {
     private static final long serialVersionUID = 1L;

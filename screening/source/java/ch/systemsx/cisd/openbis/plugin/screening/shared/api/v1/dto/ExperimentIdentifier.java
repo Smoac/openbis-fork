@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonTypeName;
+
+
 
 /**
  * Unique identifier for an experiment in openBIS.
@@ -24,6 +27,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
+@JsonTypeName("ExperimentIdentifier")
 public class ExperimentIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
