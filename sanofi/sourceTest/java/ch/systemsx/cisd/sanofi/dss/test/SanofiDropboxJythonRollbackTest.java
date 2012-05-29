@@ -480,26 +480,4 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         }
     }
 
-    /**
-     * Simulate the file system becoming unavailable
-     */
-    private static void makeFileSystemUnavailable(File storeRootDirectory)
-    {
-        new File(storeRootDirectory, "1").renameTo(new File(storeRootDirectory, "1.unavailable"));
-
-        new File(storeRootDirectory, "staging").renameTo(new File(storeRootDirectory,
-                "staging.unavailable"));
-    }
-
-    /**
-     * Simulate the file system becoming available again
-     */
-    private static void makeFileSystemAvailable(File storeRootDirectory)
-    {
-        new File(storeRootDirectory, "1.unavailable").renameTo(new File(storeRootDirectory, "1"));
-
-        new File(storeRootDirectory, "staging.unavailable").renameTo(new File(storeRootDirectory,
-                "staging"));
-    }
-
 }
