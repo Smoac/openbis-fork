@@ -18,14 +18,14 @@ public class DataSetRegistrationPersistentMap implements Serializable
     {
         DataSetRegistrationPersistentMap getPersistentMap();
     }
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private HashMap<String, Serializable> persistentMap;
-    
+
     public DataSetRegistrationPersistentMap()
     {
-        persistentMap  = new HashMap<String, Serializable>();
+        persistentMap = new HashMap<String, Serializable>();
     }
 
     public int size()
@@ -48,9 +48,20 @@ public class DataSetRegistrationPersistentMap implements Serializable
         return persistentMap.containsKey(key);
     }
 
-    public Serializable put(String key, Serializable value)
+    /**
+     * @param value object to put into the map. Method accepts Object instead of Serializable, so
+     *            that it can fail with informative message if the jython script calls the method
+     *            with inappropriate type
+     * @throws IllegalArgumentException if the value is not Serializable.
+     */
+    public Serializable put(String key, Object value)
     {
-        return persistentMap.put(key, value);
+        if (false == (value instanceof Serializable))
+            throw new IllegalArgumentException(
+                    "Provided non-serializable argument to persistent map. Argument type is "
+                            + value.getClass());
+        return persistentMap.put(key, (Serializable) value);
+
     }
 
     public Serializable remove(Object key)
@@ -77,5 +88,5 @@ public class DataSetRegistrationPersistentMap implements Serializable
     {
         return persistentMap.values();
     }
-    
+
 }
