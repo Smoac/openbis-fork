@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -662,6 +664,12 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         private void moveToTheStore()
         {
+            if (false == storagePaths.precommitBaseDirectory.exists())
+            {
+                IOException ioException = new FileNotFoundException("Can't find precommit directory "+ storagePaths.precommitBaseDirectory);
+                throw new IOExceptionUnchecked(ioException);
+            }
+            
             File[] stagedFiles = storagePaths.precommitBaseDirectory.listFiles();
             if (null == stagedFiles)
             {

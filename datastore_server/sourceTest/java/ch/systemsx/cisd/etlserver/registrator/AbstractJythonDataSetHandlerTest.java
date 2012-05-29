@@ -205,14 +205,15 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected void initializeStorageRecoveryManagerMock()
     {
         storageRecoveryManager = context.mock(IDataSetStorageRecoveryManager.class);
-        
+
         context.checking(new Expectations()
             {
                 {
                     one(storageRecoveryManager).setDropboxRecoveryStateDir(
                             new File(workingDirectory, "jython-handler-test"));
-                    one(storageRecoveryManager).setRecoveryMarkerFilesDir(new File(
-                            new File(workingDirectory, "recovery-marker"), "jython-handler-test"));
+                    one(storageRecoveryManager).setRecoveryMarkerFilesDir(
+                            new File(new File(workingDirectory, "recovery-marker"),
+                                    "jython-handler-test"));
                     one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
                     one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
                 }
@@ -438,7 +439,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         .loadToString(new File(datasetLocation, "read" + (testId + 1) + ".me"))
                         .trim());
     }
-    
+
     protected void assertDataSetNotStoredProcess(String dataSetCode)
     {
         File datasetLocation =
@@ -446,6 +447,36 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
         boolean existsAndNotEmpty = datasetLocation.exists() && datasetLocation.list().length > 0;
-        assertFalse("The storage path of the dataset should not exist ", existsAndNotEmpty);
+        assertFalse("The storage path of the dataset should not exist " + datasetLocation,
+                existsAndNotEmpty);
     }
+
+    private static final String[] registrationDirectories =
+        { "1", "pre-commit", "staging", "pre-staging" };
+
+    /**
+     * Simulate the file system becoming unavailable
+     */
+    protected static void makeFileSystemUnavailable(File storeRootDirectory)
+    {
+        System.out.println("Make stuff anavailabl!!!!!!!!!!!!!!!!!!!e");
+        for (String regDir : registrationDirectories)
+        {
+            new File(storeRootDirectory, regDir).renameTo(new File(storeRootDirectory, regDir
+                    + ".unavailable"));
+        }
+    }
+
+    /**
+     * Simulate the file system becoming available again
+     */
+    protected static void makeFileSystemAvailable(File storeRootDirectory)
+    {
+        for (String regDir : registrationDirectories)
+        {
+            new File(storeRootDirectory, regDir + ".unavailable").renameTo(new File(
+                    storeRootDirectory, regDir));
+        }
+    }
+
 }

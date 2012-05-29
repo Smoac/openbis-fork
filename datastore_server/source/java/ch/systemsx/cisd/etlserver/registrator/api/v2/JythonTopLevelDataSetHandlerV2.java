@@ -359,13 +359,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             {
                 operationLog
                         .info("Recovery has found datasets in the AS. The registration of metadata was successful.");
-                runner.storeAfterRegistration();
-                logger.registerSuccess();
-                registrationSuccessful = true;
+                boolean success = runner.storeAfterRegistration();
+                if (success)
+                {
+                    logger.registerSuccess();
+                    registrationSuccessful = true;
 
-                hookAdaptor.executePostStorage(persistentMapHolder);
+                    hookAdaptor.executePostStorage(persistentMapHolder);
 
-                shouldDeleteRecoveryFiles = true;
+                    shouldDeleteRecoveryFiles = true;
+                }
             }
         } catch (Throwable error)
         {

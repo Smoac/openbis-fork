@@ -215,7 +215,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     }
 
-    private void confirmStorageInApplicationServer()
+    private boolean confirmStorageInApplicationServer()
     {
         try
         {
@@ -227,12 +227,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
+            return false;
             // as this case doesn't allow rollbacking, we don't have to catch aggresively
             // (throwables).
             // There is nothing we can do about this at the moment,
             // Graceful recovery should (and will) take care of this case
-
         }
+        return true;
     }
 
     private void logPreCommitMessage()
@@ -336,10 +337,15 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        confirmStorageInApplicationServer();
+        boolean confirmStorageSucceeded =   confirmStorageInApplicationServer();
 
         if (shouldUseAutoRecovery())
         {
+            if (!confirmStorageSucceeded)
+            {
+                return false;
+            }
+            
             storageRecoveryManager.registrationCompleted(this);
         }
 
