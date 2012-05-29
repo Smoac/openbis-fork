@@ -61,5 +61,13 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
+	<classpathentry kind="lib" path="/libraries/dom4j/dom4j.jar"/>
+	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/reflections/lib/gson-1.4.jar"/>
+	<classpathentry kind="lib" path="/libraries/reflections/lib/guava-r08.jar"/>
+	<classpathentry kind="lib" path="/libraries/reflections/lib/jboss-vfs-3.0.0.CR5.jar"/>
+	<classpathentry kind="lib" path="/libraries/reflections/lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="/libraries/reflections/reflections.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
