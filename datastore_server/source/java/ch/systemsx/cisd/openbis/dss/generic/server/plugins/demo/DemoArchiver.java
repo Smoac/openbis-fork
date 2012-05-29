@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -27,8 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -78,9 +78,13 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> dataSets)
+    public DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> dataSets)
     {
-        List<String> datasetCodes = Code.extractCodes(dataSets);
+        List<String> datasetCodes = new ArrayList<String>();
+        for (IDatasetLocation datasetLocation : dataSets)
+        {
+            datasetCodes.add(datasetLocation.getDataSetCode());
+        }
         archiveContents.addAll(datasetCodes);
         System.out.println("DemoArchiver - deleteFromArchive: " + datasetCodes);
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();

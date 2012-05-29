@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -61,8 +61,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     public MLArchiverTask(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, null, tryCreateUnarchivingStatusChecker(
-                properties, storeRoot));
+        super(properties, storeRoot, null, tryCreateUnarchivingStatusChecker(properties, storeRoot));
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
         // Check if given data source exists
         getDataSource(dataSourceName);
@@ -255,10 +254,10 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets)
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DatasetLocation dataset : datasets)
+        for (IDatasetLocation dataset : datasets)
         {
             statuses.addResult(dataset.getDataSetCode(), Status.OK, Operation.DELETE_FROM_ARCHIVE);
         }

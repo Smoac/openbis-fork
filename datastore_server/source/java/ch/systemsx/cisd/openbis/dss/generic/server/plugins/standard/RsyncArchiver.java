@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -70,7 +70,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         DELETE(Operation.DELETE_FROM_ARCHIVE)
         {
             @Override
-            public Status execute(IDataSetFileOperationsManager manager, DatasetLocation dataSet)
+            public Status execute(IDataSetFileOperationsManager manager, IDatasetLocation dataSet)
             {
                 return manager.deleteFromDestination(dataSet);
             }
@@ -78,7 +78,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         MARK_AS_DELETED(Operation.MARK_AS_DELETED)
         {
             @Override
-            public Status execute(IDataSetFileOperationsManager manager, DatasetLocation dataSet)
+            public Status execute(IDataSetFileOperationsManager manager, IDatasetLocation dataSet)
             {
                 return manager.markAsDeleted(dataSet);
             }
@@ -96,7 +96,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         }
 
         public abstract Status execute(IDataSetFileOperationsManager manager,
-                DatasetLocation dataSet);
+                IDatasetLocation dataSet);
     }
 
     private transient IDataSetFileOperationsManager fileOperationsManager;
@@ -258,10 +258,10 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets)
+    protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        for (DatasetLocation dataset : datasets)
+        for (IDatasetLocation dataset : datasets)
         {
             Status status = deleteAction.execute(fileOperationsManager, dataset);
             statuses.addResult(dataset.getDataSetCode(), status, deleteAction.getOperation());

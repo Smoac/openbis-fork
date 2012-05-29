@@ -44,6 +44,7 @@ public class ServiceProviderTestWrapper
         classNameToBeanName.put(IShareIdManager.class, "share-id-manager");
         classNameToBeanName.put(IConfigProvider.class, "config-provider");
         classNameToBeanName.put(IDataSourceProvider.class, "data-source-provider");
+        classNameToBeanName.put(IDataStoreServiceInternal.class, "data-store-service");
         classNameToBeanName
                 .put(IHierarchicalContentProvider.class, "hierarchical-content-provider");
     }

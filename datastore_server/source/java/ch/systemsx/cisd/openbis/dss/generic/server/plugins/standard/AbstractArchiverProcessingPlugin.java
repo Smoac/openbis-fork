@@ -22,7 +22,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
@@ -80,7 +80,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     @Private
     public static final String SHARE_FINDER_KEY = "share-finder";
 
-    private static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
+    @Private static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
 
     private final IStatusChecker archivePrerequisiteOrNull;
 
@@ -124,7 +124,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      * deletes data sets from archive. At the time when this method is invoked the data sets do not
      * exist in the openBIS database.
      */
-    abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<DatasetLocation> datasets);
+    abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets);
 
     /**
      * @return <code>true</code> if the dataset is present and synchronized with the archive,
@@ -177,7 +177,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private DatasetProcessingStatuses safeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
-        Status prerequisiteStatus = checkUnarchivePrerequisite(datasets);
+        Status prerequisiteStatus = checkArchivePrerequisite(datasets);
         DatasetProcessingStatuses statuses = null;
         if (prerequisiteStatus.isError())
         {
@@ -206,83 +206,63 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
+        List<DatasetDescription> unArchivedDataSets =
+                getUnarchivedOrUnsynchronizedDataSets(datasets, context);
+        DatasetProcessingStatuses statuses = doArchive(unArchivedDataSets, context);
 
-        GroupedDatasets groupedDatasets =
-                groupByArchiveDifferencies(datasets, context, synchronizeArchive);
-
-        List<DatasetDescription> toBeArchived = groupedDatasets.getDifferenciesAsList();
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
-        if (toBeArchived.isEmpty() == false)
-        {
-            // copy data sets in the archive
-            statuses = doArchive(toBeArchived, context);
-
-            // paranoid check to make sure everything really got archived
-            groupedDatasets = groupByArchiveDifferencies(datasets, context, true);
-        }
-
+        doDeleteFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
         if (removeFromDataStore)
         {
-            // only remove the when we are sure we have got a backup in the archive
-            Set<String> failedDataSets = new HashSet<String>(statuses.getFailedDatasetCodes());
-            List<DatasetDescription> upToDateInArchive = groupedDatasets.getUpToDateInArchive();
-            List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>();
-            for (DatasetDescription datasetDescription : upToDateInArchive)
+            removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
+        }
+        return statuses;
+    }
+
+    private List<DatasetDescription> getUnarchivedOrUnsynchronizedDataSets(
+            List<DatasetDescription> datasets, final ArchiverTaskContext context)
+    {
+        List<DatasetDescription> toBeArchived = new ArrayList<DatasetDescription>();
+        for (DatasetDescription dataset : datasets)
+        {
+            BooleanStatus upToDateStatus =
+                    synchronizeArchive ? isDataSetSynchronizedWithArchive(dataset, context)
+                            : isDataSetPresentInArchive(dataset);
+            if (upToDateStatus.isSuccess() == false)
             {
-                if (failedDataSets.contains(datasetDescription.getDataSetCode()) == false)
-                {
-                    filteredDataSets.add(datasetDescription);
-                }
+                toBeArchived.add(dataset);
             }
-            removeFromDataStore(filteredDataSets, context);
         }
-
-        // merge the archiver statuses with the paranoid check results
-        return mergeArchiveStatuses(statuses, groupedDatasets);
+        return toBeArchived;
     }
 
-    private DatasetProcessingStatuses mergeArchiveStatuses(DatasetProcessingStatuses statuses,
-            GroupedDatasets groupedDatasets)
+    private List<DatasetDescription> getDataSetsFailedToBeArchived(
+            List<DatasetDescription> datasets, DatasetProcessingStatuses statuses)
     {
-        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
-        for (DatasetDescription dataset : groupedDatasets.getUpToDateInArchive())
+        Set<String> dataSetsFailedToArchive = new HashSet<String>(statuses.getFailedDatasetCodes());
+        List<DatasetDescription> failedDataSets = new ArrayList<DatasetDescription>();
+        for (DatasetDescription dataSet : datasets)
         {
-            String dataSetCode = dataset.getDataSetCode();
-            Status status = getStatusForDataset(statuses, dataSetCode, Status.OK);
-            result.addResult(dataSetCode, status, Operation.ARCHIVE);
+            if (dataSetsFailedToArchive.contains(dataSet.getDataSetCode()))
+            {
+                failedDataSets.add(dataSet);
+            }
         }
-        for (DatasetDescription dataset : groupedDatasets.getDifferenciesAsList())
-        {
-            String dataSetCode = dataset.getDataSetCode();
-            BooleanStatus booleanStatus = groupedDatasets.getDifferencyArchiveStatus(dataset);
-            String errorMessage =
-                    (booleanStatus.tryGetMessage() != null) ? booleanStatus.tryGetMessage() : "";
-            Status status =
-                    getStatusForDataset(statuses, dataSetCode, Status.createError(errorMessage));
-            result.addResult(dataSetCode, status, Operation.ARCHIVE);
-        }
-
-        return result;
+        return failedDataSets;
     }
 
-    private Status getStatusForDataset(DatasetProcessingStatuses statuses, String dataSetCode,
-            Status defaultStatus)
+    private List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets,
+            DatasetProcessingStatuses statuses)
     {
-        Status status = statuses.getProcessingStatus().tryGetStatusByDataset(dataSetCode);
-        if (status == null)
+        Set<String> dataSetsFailedToArchive = new HashSet<String>(statuses.getFailedDatasetCodes());
+        List<DatasetDescription> archivedDataSets = new ArrayList<DatasetDescription>();
+        for (DatasetDescription dataSet : datasets)
         {
-            status = defaultStatus;
-        } else if (status.isError())
-        {
-            return status;
-        } 
-        if (status.isError() != defaultStatus.isError())
-        {
-            // the status returned from the archiver is actually incorrect !
-            // our paranoic check showed that the dataset was in fact *not* present in archive
-            status = defaultStatus;
+            if (dataSetsFailedToArchive.contains(dataSet.getDataSetCode()) == false)
+            {
+                archivedDataSets.add(dataSet);
+            }
         }
-        return status;
+        return archivedDataSets;
     }
 
     protected void removeFromDataStore(List<DatasetDescription> datasets,
@@ -532,30 +512,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             return differentInArchive.get(description);
         }
-    }
-
-    private GroupedDatasets groupByArchiveDifferencies(List<DatasetDescription> datasets,
-            ArchiverTaskContext context, boolean checkIfSynchronized)
-    {
-        List<DatasetDescription> upToDateInArchive = new ArrayList<DatasetDescription>();
-        Map<DatasetDescription, BooleanStatus> differentInArchive =
-                new HashMap<DatasetDescription, BooleanStatus>();
-
-        for (DatasetDescription dataset : datasets)
-        {
-            BooleanStatus upToDateStatus =
-                    checkIfSynchronized ? isDataSetSynchronizedWithArchive(dataset, context)
-                            : isDataSetPresentInArchive(dataset);
-            if (upToDateStatus.isSuccess())
-            {
-                upToDateInArchive.add(dataset);
-            } else
-            {
-                differentInArchive.put(dataset, upToDateStatus);
-            }
-        }
-
-        return new GroupedDatasets(upToDateInArchive, differentInArchive);
     }
 
     private IShareIdManager getShareIdManager()

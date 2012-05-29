@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetFileOperationsExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -197,7 +197,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
-    public Status deleteFromDestination(DatasetLocation dataset)
+    public Status deleteFromDestination(IDatasetLocation dataset)
     {
         return delete(dataset, new IDeleteAction()
             {
@@ -213,7 +213,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             });
     }
 
-    public Status markAsDeleted(DatasetLocation dataset)
+    public Status markAsDeleted(IDatasetLocation dataset)
     {
         return delete(dataset, new IDeleteAction()
             {
@@ -233,7 +233,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             });
     }
     
-    private Status delete(DatasetLocation dataset, IDeleteAction action)
+    private Status delete(IDatasetLocation dataset, IDeleteAction action)
     {
         try
         {

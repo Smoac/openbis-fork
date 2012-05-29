@@ -30,4 +30,22 @@ public class LogUtils
         logger.error(message);
         assert false : message;
     }
+    
+    public static String removeEmbeddedStackTrace(String message)
+    {
+        StringBuilder builder = new StringBuilder();
+        String[] lines = message.split("\n");
+        for (String line : lines)
+        {
+            if (line.startsWith("\tat ") == false)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append('\n');
+                }
+                builder.append(line);
+            }
+        }
+        return builder.toString();
+    }
 }
