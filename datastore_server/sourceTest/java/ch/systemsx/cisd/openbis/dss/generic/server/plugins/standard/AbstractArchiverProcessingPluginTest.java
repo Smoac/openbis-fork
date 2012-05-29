@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -288,6 +289,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     @BeforeMethod
     public void beforeMethod()
     {
+        TestInitializer.init();
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         statusChecker = context.mock(IStatusChecker.class);
@@ -385,9 +387,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving for dataset ds1 finished with the status: OK.",
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -507,9 +507,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals(null, status.getDatasetsByStatus(Status.createError()));
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                + "Archiving for dataset ds1 finished with the status: OK.",
+                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -542,9 +540,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving for dataset ds1 finished with the status: OK.",
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -580,9 +576,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving for dataset ds1 finished with the status: OK.",
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -621,8 +615,6 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving for dataset ds1 finished with the status: OK.\n"
                         + "ERROR OPERATION.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds2 finished with the status: ERROR.",
                 logRecorder.getLogContent());
@@ -727,11 +719,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                 "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Unarchiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                         + "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Obtained the list of all datasets in all shares in ?.?? s.\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving for dataset ds1 finished with the status: OK.\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving for dataset ds2 finished with the status: OK.",
+                        + "Obtained the list of all datasets in all shares in ?.?? s.",
                 replaceTimeInfo(logRecorder.getLogContent()));
         context.assertIsSatisfied();
     }
@@ -813,9 +801,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                         + "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Obtained the list of all datasets in all shares in ?.?? s.\n"
                         + "ERROR OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving for dataset ds1 finished with the status: ERROR.\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving for dataset ds2 finished with the status: OK.",
+                        + "Unarchiving for dataset ds1 finished with the status: ERROR.",
                 replaceTimeInfo(LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent())));
         context.assertIsSatisfied();
     }
