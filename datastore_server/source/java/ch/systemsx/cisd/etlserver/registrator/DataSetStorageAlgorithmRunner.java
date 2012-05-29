@@ -29,6 +29,10 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
+import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
@@ -227,11 +231,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
+            if (shouldUseAutoRecovery())
+            {
+                rollbackAfterStorageConfirmation(ex);
+            }
             return false;
-            // as this case doesn't allow rollbacking, we don't have to catch aggresively
-            // (throwables).
-            // There is nothing we can do about this at the moment,
-            // Graceful recovery should (and will) take care of this case
+            // There is nothing we can do without recovery
         }
         return true;
     }
@@ -305,11 +310,23 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        return storeAfterRegistration();
+        postRegistration();
+
+        return storeAfterRegistration(RecoveryStage.PRECOMMIT);
 
         // confirm storage in AS
 
         // STORAGECONFIRMED
+    }
+
+    public void postRegistration()
+    {
+        executeJythonScriptsForPostRegistration();
+
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointPrecommittedStateAfterPostRegistrationHook(this);
+        }
     }
 
     private void logMetadataRegistration(TechId registrationId)
@@ -318,26 +335,38 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 + registrationId.toString() + ")");
     }
 
+    // FIXME: only temporary - extract this knowledge a leve higher
     /**
      * Execute the post-registration part of the storage process
      */
-    public boolean storeAfterRegistration()
+    public boolean storeAfterRegistration(DataSetStorageRecoveryInfo.RecoveryStage stage)
     {
-        executePostRegistrationHooks();
 
-        if (commitStorageProcessors() == false)
+        if (stage.before(RecoveryStage.STORAGE_COMPLETED))
         {
-            return false;
+            // checkpoint - post-registration-hook executed
+
+            if (commitStorageProcessors() == false)
+            {
+                return false;
+            }
+
+            // COMMITED
+
+            if (storeCommitedDatasets() == false)
+            {
+                return false;
+            }
+
+            if (shouldUseAutoRecovery())
+            {
+                storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
+            }
         }
+        
+        cleanPrecommitDirectory();
 
-        // COMMITED
-
-        if (storeCommitedDatasets() == false)
-        {
-            return false;
-        }
-
-        boolean confirmStorageSucceeded =   confirmStorageInApplicationServer();
+        boolean confirmStorageSucceeded = confirmStorageInApplicationServer();
 
         if (shouldUseAutoRecovery())
         {
@@ -345,7 +374,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             {
                 return false;
             }
-            
+
             storageRecoveryManager.registrationCompleted(this);
         }
 
@@ -410,6 +439,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 ErrorType.POST_REGISTRATION_ERROR);
     }
 
+    private void rollbackAfterStorageConfirmation(Throwable ex)
+    {
+        operationLog.error("Failed to confirm storage in as", ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
+                ErrorType.STORAGE_CONFIRMATION_ERROR);
+    }
+
     /**
      * Committed => Stored
      */
@@ -431,6 +467,24 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
         return true;
+    }
+
+    /**
+     * Stored => Stored. Idempotent operation of cleanup. Can fail.
+     */
+    private void cleanPrecommitDirectory()
+    {
+        try
+        {
+            for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
+            {
+                storageAlgorithm.cleanPrecommitDirectory();
+            }
+        } catch (final Throwable throwable)
+        {
+            // failed to delete precommit directory? oh well...
+            operationLog.warn("Failed to delete precommit directory", throwable);
+        }
     }
 
     /**
@@ -500,7 +554,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return true;
     }
 
-    private void executePostRegistrationHooks()
+    private void executeJythonScriptsForPostRegistration()
     {
         try
         {

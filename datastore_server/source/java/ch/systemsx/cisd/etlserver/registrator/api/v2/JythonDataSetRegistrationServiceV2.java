@@ -23,10 +23,10 @@ import org.python.util.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

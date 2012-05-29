@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetStorageRecoveryManager;
+import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.Erro
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

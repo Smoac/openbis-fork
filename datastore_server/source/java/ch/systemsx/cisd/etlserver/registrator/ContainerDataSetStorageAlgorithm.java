@@ -121,11 +121,4 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         return "Error trying to register container data set '" + getDataSetInformation().toString()
                 + "'.";
     }
-
-    @Override
-    protected boolean isInAStateAllowingPrecommitRecovery()
-    {
-        return true;
-    }
-
 }

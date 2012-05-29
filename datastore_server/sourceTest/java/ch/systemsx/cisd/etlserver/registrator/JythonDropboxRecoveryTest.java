@@ -36,10 +36,12 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
@@ -47,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 {
+
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
 
@@ -63,7 +66,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     private static enum RecoveryResult
     {
-        RECOVERY_SUCCEEDED, RECOVERY_ROLLED_BACK, RETRY_AT_CANT_CHECK_REGISTRATION_STATUS, RETRY_AT_STORAGE_FAILURE, RETRY_AT_STORAGE_CONFIRMED_FAILURE, GIVE_UP
+        RECOVERY_SUCCEEDED, RECOVERY_ROLLED_BACK, RETRY_AT_CANT_CHECK_REGISTRATION_STATUS,
+        RETRY_AT_STORAGE_FAILURE, RETRY_AT_STORAGE_CONFIRMED_FAILURE, GIVE_UP
     }
 
     @DataProvider(name = "recoveryTestCaseProvider")
@@ -105,7 +109,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase.shouldMakeFilesystemUnavailable = true;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_STORAGE_FAILURE;
         testCases.add(testCase);
-        
+
         testCase = new RecoveryTestCase("retry if storage confirmation failed");
         testCase.shouldStorageConfirmationFail = true;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_STORAGE_CONFIRMED_FAILURE;
@@ -215,8 +219,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
     }
 
+    // INFO: basic testcase
     @Test(dataProvider = "recoveryTestCaseProvider")
-    public void testRecovery(final RecoveryTestCase testCase)
+    public void testBasicRecovery(final RecoveryTestCase testCase)
     {
         setUpHomeDataBaseExpectations();
 
@@ -232,7 +237,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
         // create expectations
-        context.checking(new RecoveryTestExpectations(testCase, atomicatOperationDetails));
+        context.checking(new BasicRecoveryTestExpectations(testCase, atomicatOperationDetails));
 
         handler.handle(markerFile);
 
@@ -306,7 +311,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             jythonHookTestTool.assertLogged("post_metadata_registration");
         }
-        
+
         switch (testCase.recoveryResult)
         {
             case RECOVERY_SUCCEEDED:
@@ -346,7 +351,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 assertRecoveryFile(testCase.recoveryRertyCount + 1,
                         RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
-                break;                
+                break;
             case RETRY_AT_STORAGE_CONFIRMED_FAILURE:
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
@@ -473,22 +478,90 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         return recoveryMarkerFile;
     }
 
-    class RecoveryTestExpectations extends Expectations
+    // INFO: test with recovery from error in storage confirmed
+    @Test
+    public void testRecoveryOriginalFailureAtStorageConfirmed()
+    {
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new StorageConfirmedErrorExpectations(atomicatOperationDetails));
+
+        handler.handle(markerFile);
+
+        JythonHookTestTool jythonHookTestTool =
+                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+        // the check from the original registration
+        jythonHookTestTool.assertLogged("pre_metadata_registration");
+
+        jythonHookTestTool.assertLogged("post_metadata_registration");
+
+        assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                "sub_data_set_1", 0);
+        
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+
+        assertRecoveryFile(testCase.recoveryRertyCount, RecoveryInfoDateConstraint.ORIGINAL,
+                testCase.recoveryLastTry);
+        assertOriginalMarkerFileExists();
+
+        // this recovery should succeed
+        handler.handle(markerFile);
+
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        //
+        // // item in store
+        //
+        //
+        // // the hooks after successful registration
+        // jythonHookTestTool.assertLogged("post_storage");
+
+    }
+
+    class StorageConfirmedErrorExpectations extends AbstractExpectations
+    {
+        public StorageConfirmedErrorExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndSucceed();
+            setStorageConfirmed(true);
+
+            // the recovery should happen here
+
+            setStorageConfirmed(false);
+        }
+    }
+
+    class BasicRecoveryTestExpectations extends AbstractExpectations
     {
         final RecoveryTestCase testCase;
 
-        final Experiment experiment;
-
-        final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails;
-
-        public RecoveryTestExpectations(final RecoveryTestCase testCase,
+        public BasicRecoveryTestExpectations(final RecoveryTestCase testCase,
                 final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
         {
+            super(atomicatOperationDetails);
             this.testCase = testCase;
-            ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
-            this.experiment = builder.getExperiment();
-
-            this.atomicatOperationDetails = atomicatOperationDetails;
 
             prepareExpecatations();
         }
@@ -497,7 +570,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             initialExpectations();
 
-            registerDataSets();
+            registerDataSetsAndThrow(testCase.canRecoverFromError);
 
             // now registration has failed with the exception. we continue depending on where
 
@@ -505,54 +578,15 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 checkRegistrationSucceeded();
 
-                if (testCase.recoveryResult == RecoveryResult.RECOVERY_SUCCEEDED ||
-                        testCase.recoveryResult ==RecoveryResult.RETRY_AT_STORAGE_CONFIRMED_FAILURE)
+                if (testCase.recoveryResult == RecoveryResult.RECOVERY_SUCCEEDED
+                        || testCase.recoveryResult == RecoveryResult.RETRY_AT_STORAGE_CONFIRMED_FAILURE)
                 {
-                    setStorageConfirmed();
+                    setStorageConfirmed(testCase.shouldStorageConfirmationFail);
                 }
             } else
             {
                 // rollback
             }
-        }
-
-        protected void initialExpectations()
-        {
-
-            // create dataset
-            one(openBisService).createDataSetCode();
-            will(returnValue(DATA_SET_CODE));
-
-            // get experiment
-            atLeast(1).of(openBisService).tryToGetExperiment(
-                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
-            will(returnValue(experiment));
-
-            // validate dataset
-            one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
-                    new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
-        }
-
-        protected void registerDataSets()
-        {
-            one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
-
-            one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-
-            Exception e;
-            if (testCase.canRecoverFromError)
-            {
-                e =
-                        new EnvironmentFailureException(
-                                "Potentially recoverable failure in registration");
-            } else
-            {
-                e = new UserFailureException("Unrecoverable failure in registration");
-            }
-
-            will(throwException(e));
-
         }
 
         protected void checkRegistrationSucceeded()
@@ -577,31 +611,112 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             if (testCase.shouldMakeFilesystemUnavailable)
             {
-                CustomAction makeFileSystemUnavailable = new CustomAction("makeSystemUnavailable")
-                    {
-                        public Object invoke(Invocation invocation) throws Throwable
-                        {
-                            makeFileSystemUnavailable(workingDirectory);
-                            return null;
-                        }
-                    };
-                will(doAll(makeFileSystemUnavailable, returnValue(true)));
+                will(doAll(makeFileSystemUnavailableAction(), returnValue(true)));
             } else
             {
                 will(returnValue(true));
             }
         }
 
-        protected void setStorageConfirmed()
+    }
+
+    abstract class AbstractExpectations extends Expectations
+    {
+        final Experiment experiment;
+
+        final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails;
+
+        public AbstractExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
+            this.experiment = builder.getExperiment();
+            this.atomicatOperationDetails = atomicatOperationDetails;
+
+        }
+
+        protected void initialExpectations()
+        {
+
+            // create dataset
+            one(openBisService).createDataSetCode();
+            will(returnValue(DATA_SET_CODE));
+
+            // get experiment
+            atLeast(1).of(openBisService).tryToGetExperiment(
+                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
+            will(returnValue(experiment));
+
+            // validate dataset
+            one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                    new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
+        }
+
+        protected CustomAction makeFileSystemUnavailableAction()
+        {
+            return new CustomAction("makeSystemUnavailable")
+                {
+                    public Object invoke(Invocation invocation) throws Throwable
+                    {
+                        makeFileSystemUnavailable(workingDirectory);
+                        return null;
+                    }
+                };
+        }
+
+        protected CustomAction makeFileSystemAvailableAction()
+        {
+            return new CustomAction("makeSystemAvailable")
+                {
+                    public Object invoke(Invocation invocation) throws Throwable
+                    {
+                        makeFileSystemAvailable(workingDirectory);
+                        return null;
+                    }
+                };
+        }
+
+        protected void registerDataSetsAndThrow(boolean canRecoverFromError)
+        {
+            one(openBisService).drawANewUniqueID();
+            will(returnValue(new Long(1)));
+
+            one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+
+            Exception e;
+            if (canRecoverFromError)
+            {
+                e =
+                        new EnvironmentFailureException(
+                                "Potentially recoverable failure in registration");
+            } else
+            {
+                e = new UserFailureException("Unrecoverable failure in registration");
+            }
+
+            will(throwException(e));
+        }
+
+        protected void registerDataSetsAndSucceed()
+        {
+            one(openBisService).drawANewUniqueID();
+            will(returnValue(new Long(1)));
+            one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+            will(returnValue(new AtomicEntityOperationResult()));
+        }
+
+        /**
+         * @param shouldFail - if true the call to as should throw an exception
+         */
+        protected void setStorageConfirmed(boolean shouldFail)
         {
             one(openBisService).setStorageConfirmed(DATA_SET_CODE);
-            if (testCase.shouldStorageConfirmationFail)
+            if (shouldFail)
             {
                 will(throwException(new EnvironmentFailureException(
                         "Setting storage confirmation fail.")));
             }
         }
-
     }
 
     /**

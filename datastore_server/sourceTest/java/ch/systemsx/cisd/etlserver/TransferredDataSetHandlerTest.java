@@ -53,7 +53,7 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;

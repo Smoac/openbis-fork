@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator;
+package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 /**
  * @author jakubs

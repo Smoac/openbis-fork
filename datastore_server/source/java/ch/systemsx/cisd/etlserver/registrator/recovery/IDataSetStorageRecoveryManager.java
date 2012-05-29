@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator;
+package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 import java.io.File;
 
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -41,6 +42,18 @@ public interface IDataSetStorageRecoveryManager
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
+     * Create a checkpoint at the precommitted state - after the post-registration hook has executed (so after the entity operations registration has succeeded).
+     * 
+     * @param runner The algorithm object that manages the registration process.
+     */
+    <T extends DataSetInformation> void checkpointPrecommittedStateAfterPostRegistrationHook(DataSetStorageAlgorithmRunner<T> runner);
+
+    /**
+     * Create a checkpoint after the data has been moved to the store, just before setting the storage confirmed in the application server.
+     */
+    <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(DataSetStorageAlgorithmRunner<T> runner);
+    
+    /**
      * Remove recovery checkpoint.
      */
     <T extends DataSetInformation> void removeCheckpoint(DataSetStorageAlgorithmRunner<T> runner);
@@ -54,7 +67,7 @@ public interface IDataSetStorageRecoveryManager
     /**
      * Use the marker file to recreate the state necessary to complete registration.
      */
-    <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
+    <T extends DataSetInformation> AbstractRecoveryState<T> extractRecoveryCheckpoint(
             File markerFile);
 
     /**

@@ -71,7 +71,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryManager;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;

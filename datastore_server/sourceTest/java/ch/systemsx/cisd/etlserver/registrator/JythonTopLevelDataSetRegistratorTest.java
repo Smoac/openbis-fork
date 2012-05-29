@@ -589,6 +589,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         return;
                     }
 
+                    checkpointStored();
+                    
                     setStorageConfirmed();
 
                     registrationCompleted();
@@ -620,6 +622,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
                 }
 
+
+                @SuppressWarnings("unchecked")
+                private void checkpointStored()
+                {
+                    if (testCase.shouldUseAutoRecovery)
+                    {
+                        one(storageRecoveryManager)
+                                .checkpointStoredStateBeforeStorageConfirmation(
+                                        with(any(DataSetStorageAlgorithmRunner.class)));
+                    }
+                }
+
                 protected void setStorageConfirmed()
                 {
                     one(openBisService).setStorageConfirmed(DATA_SET_CODE);
@@ -630,6 +644,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
                 }
 
+                @SuppressWarnings("unchecked")
                 protected void registerDataSets()
                 {
                     one(openBisService).drawANewUniqueID();
@@ -662,6 +677,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                                     with(atomicatOperationDetails));
                             will(doAll(returnValue(new AtomicEntityOperationResult()),
                                     checkPrecommitDirIsNotEmpty()));
+                        }
+                        if (testCase.shouldUseAutoRecovery)
+                        {
+                            one(storageRecoveryManager)
+                                    .checkpointPrecommittedStateAfterPostRegistrationHook(
+                                            with(any(DataSetStorageAlgorithmRunner.class)));
                         }
                     }
                 }
@@ -797,8 +818,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 .beforeOrEqual(TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION))
         {
             throw new NotImplementedException("Not a single test comes here");
-        }
-        else {
+        } else
+        {
             jythonHookTestTool.assertLogged("pre_metadata_registration");
             jythonHookTestTool.assertLogged("rollback_pre_registration");
         }
@@ -1283,8 +1304,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         assertFalse(handler.getExpectations().didServiceRollbackHappen);
-         assertFalse(handler.getExpectations().didTransactionRollbackHappen);
-         
+        assertFalse(handler.getExpectations().didTransactionRollbackHappen);
+
         context.assertIsSatisfied();
     }
 
@@ -1319,19 +1340,28 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
 
+                    one(storageRecoveryManager)
+                            .checkpointPrecommittedStateAfterPostRegistrationHook(
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    one(storageRecoveryManager)
+                    .checkpointStoredStateBeforeStorageConfirmation(
+                            with(any(DataSetStorageAlgorithmRunner.class)));
+                    
                     oneOf(storageRecoveryManager).registrationCompleted(
                             with(any(DataSetStorageAlgorithmRunner.class)));
                 }
             });
 
         handler.handle(markerFile);
-        
-        JythonHookTestTool hookTool = JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
-        
+
+        JythonHookTestTool hookTool =
+                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+
         hookTool.assertLogged("pre_metadata_registration");
         hookTool.assertLogged("post_metadata_registration");
         hookTool.assertLogged("post_storage");
-        
+
         hookTool.assertNoMoreMessages();
 
         context.assertIsSatisfied();
@@ -1353,7 +1383,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-        
+
         context.assertIsSatisfied();
     }
 

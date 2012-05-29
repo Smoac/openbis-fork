@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator;
+package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -25,6 +26,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -39,8 +43,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
     private static final String PROCESSING_MARKER = ".PROCESSING_MARKER";
 
-    static final Logger operationLog = LogFactory.getLogger(
-            LogCategory.OPERATION, DataSetStorageRecoveryManager.class);
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetStorageRecoveryManager.class);
 
     private File dropboxRecoveryStateDir;
 
@@ -50,33 +54,65 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
     private int retryPeriodInSeconds = 60;
 
+    /**
+     * Serializes data for recovery information
+     */
     public <T extends DataSetInformation> void checkpointPrecommittedState(TechId registrationId,
             DataSetStorageAlgorithmRunner<T> runner)
     {
         DataSetFile incoming = runner.getIncomingDataSetFile();
-
-        File serializedFile = getSerializedFile(runner);
 
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(registrationId,
                         runner.getDataSetStorageAlgorithms(), runner.getDssRegistrationLogger(),
                         runner.getRollbackStack(), incoming, runner.getPersistentMap());
 
-        runner.getRollbackStack().setLockedState(
-                true);
+        checkpointState(runner, recoveryState, RecoveryStage.PRECOMMIT);
+    }
 
-        FileUtilities.writeToFile(
-                serializedFile, recoveryState);
+    public <T extends DataSetInformation> void checkpointPrecommittedStateAfterPostRegistrationHook(
+            DataSetStorageAlgorithmRunner<T> runner)
+    {
+        DataSetFile incoming = runner.getIncomingDataSetFile();
+
+        DataSetStoragePrecommitRecoveryState<T> recoveryState =
+                new DataSetStoragePrecommitRecoveryState<T>(null,
+                        runner.getDataSetStorageAlgorithms(), runner.getDssRegistrationLogger(),
+                        runner.getRollbackStack(), incoming, runner.getPersistentMap());
+
+        checkpointState(runner, recoveryState, RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED);
+    }
+
+    public <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(
+            DataSetStorageAlgorithmRunner<T> runner)
+    {
+        DataSetFile incoming = runner.getIncomingDataSetFile();
+
+        DataSetStorageStorageRecoveryState<T> recoveryState =
+                new DataSetStorageStorageRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
+                        runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming,
+                        runner.getPersistentMap());
+        checkpointState(runner, recoveryState, RecoveryStage.STORAGE_COMPLETED);
+    }
+
+    public <T extends DataSetInformation> void checkpointState(
+            DataSetStorageAlgorithmRunner<T> runner, Serializable recoveryState,
+            RecoveryStage recoveryStage)
+    {
+        File serializedFile = getSerializedFile(runner);
+
+        runner.getRollbackStack().setLockedState(true);
+
+        FileUtilities.writeToFile(serializedFile, recoveryState);
 
         File processingMarkerFile = getProcessingMarkerFile(runner);
 
         DataSetStorageRecoveryInfo info =
-                new DataSetStorageRecoveryInfo(serializedFile, new Date(), 0);
+                new DataSetStorageRecoveryInfo(serializedFile, new Date(), 0, recoveryStage);
 
         info.writeToFile(processingMarkerFile);
 
-        operationLog.info("Store precommit recovery checkpoint with markerfile "
-                + processingMarkerFile);
+        operationLog.info("Store recovery checkpoint with markerfile " + processingMarkerFile);
     }
 
     public <T extends DataSetInformation> void removeCheckpoint(
@@ -114,12 +150,12 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends DataSetInformation> DataSetStoragePrecommitRecoveryState<T> extractPrecommittedCheckpoint(
+    public <T extends DataSetInformation> AbstractRecoveryState<T> extractRecoveryCheckpoint(
             File markerFile)
     {
         DataSetStorageRecoveryInfo info = getRecoveryFileFromMarker(markerFile);
-        return FileUtilities.loadToObject(
-                info.getRecoveryStateFile(), DataSetStoragePrecommitRecoveryState.class);
+        return FileUtilities.loadToObject(info.getRecoveryStateFile(),
+                DataSetStoragePrecommitRecoveryState.class);
     }
 
     public <T extends DataSetInformation> void registrationCompleted(
@@ -135,8 +171,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
 
         operationLog.info("Cleanup recovery with marker file " + markerFile);
 
-        runner.getRollbackStack().setLockedState(
-                false);
+        runner.getRollbackStack().setLockedState(false);
         // Cleanup the state we have accumulated
         FileUtilities.delete(markerFile);
         FileUtilities.delete(recoveryState);

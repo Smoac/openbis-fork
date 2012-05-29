@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -40,7 +39,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
@@ -55,6 +53,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionSta
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RecoveryPendingTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -460,7 +460,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 registrationService.getRegistratorContext().getGlobalState()
                         .getStorageRecoveryManager();
         boolean canRecover =
-                useAutoRecovery && errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE
+                useAutoRecovery
+                        && (errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE || errorType == ErrorType.STORAGE_CONFIRMATION_ERROR)
                         && storageRecoveryManager.canRecoverFromError(ex);
         if (useAutoRecovery && canRecover)
         {

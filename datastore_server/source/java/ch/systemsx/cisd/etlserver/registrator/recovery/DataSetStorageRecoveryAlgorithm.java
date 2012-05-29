@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator;
+package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 import java.io.File;
 import java.io.Serializable;
 
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
-import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * 
+ *
  * @author jakubs
  */
-public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformation> implements
-        Serializable
+public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
 
     private final DataStoreStrategyKey dssKey;
@@ -49,17 +44,12 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
 
     private final T dataSetInformation;
 
-    private final IStorageProcessorTransaction transaction;
-
-    private final File markerFile;
-
     private final DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths;
-
-    public DataSetStoragePrecommitRecoveryAlgorithm(T dataSetInformation,
+    
+    public DataSetStorageRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
             File stagingDirectory, File preCommitDirectory, String dataStoreCode,
-            DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths, File markerFile,
-            IStorageProcessorTransaction transaction)
+            DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths)
     {
         this.dataSetInformation = dataSetInformation;
 
@@ -71,24 +61,6 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
         this.dataStoreCode = dataStoreCode;
 
         this.dataSetStoragePaths = dataSetStoragePaths;
-        this.transaction = transaction;
-        this.markerFile = markerFile;
-    }
-
-    public DataSetStorageAlgorithm<T> recoverDataSetStorageAlgorithm(
-            OmniscientTopLevelDataSetRegistratorState state)
-    {
-        IDataStoreStrategy dataStoreStrategy =
-                state.getDataStrategyStore().getDataStoreStrategy(getDataStoreStrategyKey());
-
-        IMailClient mailClient = state.getGlobalState().getMailClient();
-        IFileOperations fileOperations = state.getFileOperations();
-
-        IStorageProcessorTransactional storageProcessor = state.getStorageProcessor();
-
-        return new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor, fileOperations,
-                mailClient, this);
-
     }
 
     public String getDataSetCode()
@@ -125,17 +97,7 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
     {
         return dataStoreCode;
     }
-
-    public IStorageProcessorTransaction getTransaction()
-    {
-        return transaction;
-    }
-
-    public File getMarkerFile()
-    {
-        return markerFile;
-    }
-
+    
     public DataSetStorageAlgorithm.DataSetStoragePaths getDataSetStoragePaths()
     {
         return dataSetStoragePaths;

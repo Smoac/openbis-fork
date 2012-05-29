@@ -46,6 +46,8 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
+import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
@@ -216,6 +218,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                                     "jython-handler-test"));
                     one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
                     one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
+                    
                 }
             });
     }

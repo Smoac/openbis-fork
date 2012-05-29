@@ -14,45 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator;
+package ch.systemsx.cisd.etlserver.registrator.recovery;
 
-import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * @author jakubs
  */
-public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> implements
-        Serializable
+public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> extends
+        AbstractRecoveryState<T>
 {
     private static final long serialVersionUID = 1L;
 
     private final TechId registrationId;
 
     private final List<DataSetStoragePrecommitRecoveryAlgorithm<T>> dataSetRecoveryStorageAlgorithms;
-
-    private final File dssRegistrationLogFile;
-
-    private final File[] rollbackStackBackingFiles;
-
-    private final DataSetFile incomingDataSetFile;
-
-    private final DataSetRegistrationPersistentMap persistentMap;
-
+    
+    /**
+     * @param registrationId - if null then we assume, the registration has been proven succesfull
+     */
     public DataSetStoragePrecommitRecoveryState(TechId registrationId,
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DssRegistrationLogger logger, IRollbackStack rollbackStack,
             DataSetFile incomingDataSetFile, DataSetRegistrationPersistentMap persistentMap)
     {
+        super(logger, rollbackStack, incomingDataSetFile, persistentMap);
         this.registrationId = registrationId;
         this.dataSetRecoveryStorageAlgorithms =
                 new ArrayList<DataSetStoragePrecommitRecoveryAlgorithm<T>>();
@@ -60,22 +56,11 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         {
             this.dataSetRecoveryStorageAlgorithms.add(algorithm.getPrecommitRecoveryAlgorithm());
         }
-        dssRegistrationLogFile = logger.getFile();
-        this.rollbackStackBackingFiles = ((RollbackStack) rollbackStack).getBackingFiles();
-
-        this.incomingDataSetFile = incomingDataSetFile;
-
-        this.persistentMap = persistentMap;
     }
 
     public TechId getRegistrationId()
     {
         return registrationId;
-    }
-
-    public DataSetFile getIncomingDataSetFile()
-    {
-        return incomingDataSetFile;
     }
 
     public List<String> getDataSetCodes()
@@ -88,6 +73,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
         return dataSetCodes;
     }
 
+    @Override
     public ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(
             OmniscientTopLevelDataSetRegistratorState state)
     {
@@ -99,27 +85,5 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
             algorithms.add(recoveryAlgorithm.recoverDataSetStorageAlgorithm(state));
         }
         return algorithms;
-    }
-
-    public DssRegistrationLogger getRegistrationLogger(
-            OmniscientTopLevelDataSetRegistratorState state)
-    {
-        DssRegistrationLogDirectoryHelper helper =
-                new DssRegistrationLogDirectoryHelper(state.getGlobalState()
-                        .getDssRegistrationLogDir());
-
-        DssRegistrationLogger logger =
-                new DssRegistrationLogger(dssRegistrationLogFile, helper, state.getFileOperations());
-        return logger;
-    }
-
-    public RollbackStack getRollbackStack()
-    {
-        return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
-    }
-
-    public DataSetRegistrationPersistentMap getPersistentMap()
-    {
-        return persistentMap;
     }
 }

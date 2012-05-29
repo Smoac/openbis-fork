@@ -40,13 +40,15 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStoragePrecommitRecoveryState;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbacker;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryState;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -168,9 +170,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         .getProcessingMarkerFile(incomingFileOriginal);
 
         // deserialize recovery state
-        final DataSetStoragePrecommitRecoveryState<T> recoveryState =
+        final AbstractRecoveryState<T> recoveryState =
                 state.getGlobalState().getStorageRecoveryManager()
-                        .extractPrecommittedCheckpoint(recoveryMarkerFile);
+                        .extractRecoveryCheckpoint(recoveryMarkerFile);
 
         // then we should ensure that the recovery will actually take place itself!
         final DataSetStorageRecoveryInfo recoveryInfo =
@@ -256,7 +258,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
                         new DoNothingDelegatedAction());
 
-        handleRecoveryState(recoveryState, cleanupAction, recoveryMarkerFileCleanupAction);
+        handleRecoveryState(recoveryInfo.getRecoveryStage(), recoveryState, cleanupAction,
+                recoveryMarkerFileCleanupAction);
     }
 
     /**
@@ -271,7 +274,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         return c.getTime().before(new Date());
     }
 
-    private void handleRecoveryState(final DataSetStoragePrecommitRecoveryState<T> recoveryState,
+    private void handleRecoveryState(RecoveryStage recoveryStage,
+            final AbstractRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
@@ -327,9 +331,22 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         operationLog.info("Recovery succesfully deserialized the state of the registration");
         try
         {
-            TechId registrationId = recoveryState.getRegistrationId();
-            if (false == state.getGlobalState().getOpenBisService()
-                    .didEntityOperationsSucceed(registrationId))
+            boolean entityOperationsSucceeded;
+
+            if (recoveryStage.beforeOrEqual(RecoveryStage.PRECOMMIT))
+            {
+                TechId registrationId = ((DataSetStoragePrecommitRecoveryState<T>)recoveryState).getRegistrationId();
+                entityOperationsSucceeded =
+                        state.getGlobalState().getOpenBisService()
+                                .didEntityOperationsSucceed(registrationId);
+            } else
+            {
+                // if we are at the later stage than precommit - it means that the entity operations
+                // have succeeded
+                entityOperationsSucceeded = true;
+            }
+
+            if (false == entityOperationsSucceeded)
             {
                 operationLog
                         .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not successful.");
@@ -357,9 +374,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             } else
             {
+
                 operationLog
                         .info("Recovery has found datasets in the AS. The registration of metadata was successful.");
-                boolean success = runner.storeAfterRegistration();
+                
+                if (recoveryStage.beforeOrEqual(RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED)){
+                    runner.postRegistration();
+                }
+                
+                
+                boolean success = runner.storeAfterRegistration(recoveryStage);
                 if (success)
                 {
                     logger.registerSuccess();
