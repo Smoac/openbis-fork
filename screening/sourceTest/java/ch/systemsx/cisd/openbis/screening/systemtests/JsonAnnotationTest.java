@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.api.server.json.ClassReferences;
+import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
@@ -50,14 +50,15 @@ import static org.hamcrest.Matchers.is;
  */
 public class JsonAnnotationTest
 {
-    private Collection<Class<?>> classes = new HashSet<Class<?>>();
+    private Collection<Class<?>> allJsonClasses = new HashSet<Class<?>>();
     private Reflections reflections = new Reflections("");
     private Collection<Class<?>> empty = Collections.emptySet();
     private Map<String,Collection<Class<?>>> emptyMap = new HashMap<String, Collection<Class<?>>>();
-
     
+    // Used by TestNG
+    @SuppressWarnings("unused")
     @BeforeClass
-    public void findAllClassesUsedByJsonRpcApi() 
+    private void findAllClassesUsedByJsonRpcApi() 
     {
         Class<?>[] jsonRpcInterfaces = {IDssServiceRpcGeneric.class, IScreeningApiServer.class, 
                 IGeneralInformationChangingService.class, IGeneralInformationService.class,
@@ -65,46 +66,40 @@ public class JsonAnnotationTest
         
         for (Class<?> jsonClass : jsonRpcInterfaces) 
         {
-            classes.addAll(ClassReferences.search(jsonClass));
+            allJsonClasses.addAll(ClassReferences.search(jsonClass));
         }    
     }
+
     
-    @Test(enabled = false)
-    public void allJsonRpcApiClassesAreAnnotatedWithJsonTypeName() 
+    @Test(enabled=false)
+    public void jsonClassesAreAnnotatedWithJsonTypeName() 
     {
         Collection<Class<?>> classesWithoutJsonTypeName = getAllJsonRpcClassesWithoutJsonTypeName();
         assertThat(classesWithoutJsonTypeName, is(empty));
     }
     
-    
-    @Test(enabled = false)
-    public void allJsonTypeNamesAreUnique() 
+    @Test
+    public void jsonTypeNamesAreUnique() 
     {   
-        Map<String, Class<?>> map = new HashMap<String, Class<?>>();
-        Map<String, Collection<Class<?>>> failMap = new HashMap<String, Collection<Class<?>>>();
+        Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(JsonTypeName.class)) 
         {
-            String name = clazz.getAnnotation(JsonTypeName.class).value();
-            Class<?> c = map.put(name, clazz);
-            if (c != null) 
-            {
-                @SuppressWarnings("unchecked")
-                Collection<Class<?>> oldDuplicates = failMap.put(name, Arrays.asList(c, clazz));
-                if (oldDuplicates != null) 
-                {
-                    failMap.get(name).addAll(oldDuplicates);
-                }
+            if (clazz.getAnnotation(JsonUniqueCheckIgnore.class) != null) {
+                continue;
             }
-         }
+            
+            String name = clazz.getAnnotation(JsonTypeName.class).value();
+            addValueToCollectionMap(names, name, clazz);
+        }
 
-        assertThat(failMap, is(emptyMap));
+        assertThat(duplicatedValuesIn(names), is(emptyMap));
     }
     
-    @Test(enabled = false)
-    public void allJsonClassesWithSubClassesAreAnnotatedWithJsonSubTypes() 
+    @Test(enabled=false)
+    public void jsonClassesWithSubClassesAreAnnotatedWithJsonSubTypes() 
     {
         Collection<Class<?>> classesWithoutAnnotation = new HashSet<Class<?>>();
-        for (Class<?> clazz : classes) 
+        for (Class<?> clazz : allJsonClasses) 
         {
             if (clazz.isEnum() == false && reflections.getSubTypesOf(clazz).isEmpty() == false) 
             {
@@ -116,42 +111,101 @@ public class JsonAnnotationTest
         assertThat(classesWithoutAnnotation, is(empty));
     }
 
-    @Test(enabled = false)
-    public void allJsonSubTypesAnnotationsContainAllTheSubClasses() 
+    @Test(enabled=false)
+    public void jsonSubTypesAnnotationsContainAllDirectSubClasses() 
     {
-        Map<String, Collection<Class<?>>> missingSubtypeAnnotations = new HashMap<String, Collection<Class<?>>>();
+        Map<String, Collection<Class<?>>> missingSubtypeAnnotations = new PrettyPrintingCollectionMap<String, Collection<Class<?>>>();
         for (Class<?> main : reflections.getTypesAnnotatedWith(JsonSubTypes.class)) 
         {
-            JsonSubTypes types = main.getAnnotation(JsonSubTypes.class);
-            Collection<Class<?>> annotated = new HashSet<Class<?>>();
-            for (Type type : types.value()) 
-            {
-                annotated.add(type.value());
-            }
+            Collection<Class<?>> annotatedSubtypes = getAnnotatedSubTypes(main);
             
             for (Class<?> subtype : reflections.getSubTypesOf(main)) 
             {
-                annotated.remove(subtype);
-            }
-            
-            if (!annotated.isEmpty())
-            {
-                missingSubtypeAnnotations.put(main.getCanonicalName(), annotated);
-            }
-            
+                if (subtypeIsMissing(main, subtype, annotatedSubtypes)) {
+                    addValueToCollectionMap(missingSubtypeAnnotations, main.getCanonicalName(), subtype);
+                }
+            }            
         }
+        
         assertThat(missingSubtypeAnnotations, is(emptyMap));
+    }
+    
+    
+    private static class PrettyPrintingCollectionMap<K, V extends Collection<?>> extends HashMap<K, V> {
+
+        private static final long serialVersionUID = 2615134692782526120L;
+        
+        @Override
+        public String toString() {
+            String value = "\n";
+            for (K key : this.keySet()) {
+                value += key.toString()+"\n";
+                for (Object o : this.get(key)) 
+                {
+                    value += "\t"+o+"\n";                    
+                }
+                value += "\n";
+            }
+           return value;
+        }
+    }
+
+    private static boolean subtypeIsMissing(Class<?> main, Class<?> subtype, Collection<Class<?>> classes) {
+
+        if (subtype.isAnonymousClass()) {
+            return false;
+        }
+        
+        if (classes.contains(subtype)) {
+            return false;
+        }
+        
+        if (subtype.isInterface()) 
+        {
+            return true;
+        } else {
+           return subtype.getSuperclass().equals(main);
+        } 
+    }
+    
+    private static Collection<Class<?>> getAnnotatedSubTypes(Class<?> clazz) {
+        Collection<Class<?>> annotated = new HashSet<Class<?>>();
+        JsonSubTypes types = clazz.getAnnotation(JsonSubTypes.class);
+        for (Type type : types.value()) 
+        {
+            annotated.add(type.value());
+        }
+        return annotated;
     }
     
     private Collection<Class<?>> getAllJsonRpcClassesWithoutJsonTypeName() 
     {
         Collection<Class<?>> classesWithoutJsonTypeName = new HashSet<Class<?>>();
-        for (Class<?> clazz : classes) 
+        for (Class<?> clazz : allJsonClasses) 
         {
             if (clazz.getAnnotation(JsonTypeName.class) == null) {
                 classesWithoutJsonTypeName.add(clazz);
             }
         } 
         return classesWithoutJsonTypeName;
+    }
+    
+    private static <K, V> void addValueToCollectionMap(Map<K, Collection<V>> map, K key, V value) {
+        Collection<V> col = map.get(key);
+        if (col == null) {
+            col = new HashSet<V>();
+        }
+        col.add(value);
+        map.put(key, col);
+    }
+
+    private static <K, V> Map<K, Collection<V>> duplicatedValuesIn(Map<K, Collection<V>> original) {
+        Map<K, Collection<V>> map = new PrettyPrintingCollectionMap<K, Collection<V>>();
+        for (K key : original.keySet()) {
+            if (original.get(key).size() > 1) {
+                map.put(key, original.get(key));
+            }
+        }
+        return map;
     }
 }

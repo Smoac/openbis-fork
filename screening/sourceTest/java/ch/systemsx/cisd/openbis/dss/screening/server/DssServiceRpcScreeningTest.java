@@ -28,6 +28,7 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang.SerializationUtils;
+import org.codehaus.jackson.annotate.JsonTypeName;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactory;
@@ -112,6 +113,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class DssServiceRpcScreeningTest extends AssertJUnit
 {
+    @JsonTypeName("ImageTransformerFactory")
     private static final class ImageTransformerFactory implements IImageTransformerFactory
     {
         private static final long serialVersionUID = 1L;
