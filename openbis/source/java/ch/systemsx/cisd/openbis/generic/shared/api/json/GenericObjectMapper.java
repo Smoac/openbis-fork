@@ -29,7 +29,7 @@ public class GenericObjectMapper extends ObjectMapper
     public GenericObjectMapper()
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
-                new GenericJsonClassValueToClassObjectsMap()));
+                new GenericJsonClassValueToClassObjectsMapping()));
     }
 
 }

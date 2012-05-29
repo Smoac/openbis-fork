@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
-import ch.systemsx.cisd.common.api.server.json.JsonClassValueToClassObjectsMap;
+import ch.systemsx.cisd.common.api.server.json.JsonClassValueToClassObjectsMapping;
 
 /**
  * @author pkupczyk
  */
-public class GenericJsonClassValueToClassObjectsMap extends JsonClassValueToClassObjectsMap
+public class GenericJsonClassValueToClassObjectsMapping extends JsonClassValueToClassObjectsMapping
 {
 
-    public GenericJsonClassValueToClassObjectsMap()
+    public GenericJsonClassValueToClassObjectsMapping()
     {
-        put(".MaterialIdentifier",
+        add(".MaterialIdentifier",
                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier.class);
-        put(".Material", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.class);
-        put(".PropertyType", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.class);
-        put(".ControlledVocabularyPropertyType",
+        add(".Material", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.class);
+        add(".PropertyType", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.class);
+        add(".ControlledVocabularyPropertyType",
                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.class);
     }
 }

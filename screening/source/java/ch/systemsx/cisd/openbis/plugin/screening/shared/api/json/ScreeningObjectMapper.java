@@ -29,7 +29,7 @@ public class ScreeningObjectMapper extends ObjectMapper
     public ScreeningObjectMapper()
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
-                new ScreeningJsonClassValueToClassObjectsMap()));
+                new ScreeningJsonClassValueToClassObjectsMapping()));
     }
 
 }

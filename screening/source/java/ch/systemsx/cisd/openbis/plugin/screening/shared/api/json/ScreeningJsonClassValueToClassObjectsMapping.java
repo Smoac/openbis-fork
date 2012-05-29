@@ -16,51 +16,51 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.json;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericJsonClassValueToClassObjectsMap;
+import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericJsonClassValueToClassObjectsMapping;
 
 /**
  * @author pkupczyk
  */
-public class ScreeningJsonClassValueToClassObjectsMap extends
-        GenericJsonClassValueToClassObjectsMap
+public class ScreeningJsonClassValueToClassObjectsMapping extends
+        GenericJsonClassValueToClassObjectsMapping
 {
 
-    public ScreeningJsonClassValueToClassObjectsMap()
+    public ScreeningJsonClassValueToClassObjectsMapping()
     {
-        put(".FeatureVector",
+        add(".FeatureVector",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector.class);
-        put(".FeatureVectorDataset",
+        add(".FeatureVectorDataset",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset.class);
-        put(".FeatureVectorWithDescription",
+        add(".FeatureVectorWithDescription",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription.class);
-        put(".MaterialIdentifier",
+        add(".MaterialIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier.class);
-        put(".PermanentIdentifier",
+        add(".PermanentIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PermanentIdentifier.class);
-        put(".ExperimentIdentifier",
+        add(".ExperimentIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier.class);
-        put(".PlateIdentifier",
+        add(".PlateIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier.class);
-        put(".Plate", ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate.class);
-        put(".PlateMetadata",
+        add(".Plate", ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate.class);
+        add(".PlateMetadata",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata.class);
-        put(".WellIdentifier",
+        add(".WellIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier.class);
-        put(".WellMetadata",
+        add(".WellMetadata",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellMetadata.class);
-        put(".DatasetIdentifier",
+        add(".DatasetIdentifier",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier.class);
-        put(".DatasetReference",
+        add(".DatasetReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetReference.class);
-        put(".FeatureVectorDatasetReference",
+        add(".FeatureVectorDatasetReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference.class);
-        put(".FeatureVectorDatasetWellReference",
+        add(".FeatureVectorDatasetWellReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference.class);
-        put(".ImageDatasetReference",
+        add(".ImageDatasetReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference.class);
-        put(".MicroscopyImageReference",
+        add(".MicroscopyImageReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference.class);
-        put(".PlateImageReference",
+        add(".PlateImageReference",
                 ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference.class);
 
     }
