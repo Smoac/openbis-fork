@@ -35,7 +35,6 @@
 	<property name="query.api.doc" value="${dist}/${query.api}/doc" />
 	<property name="query.api.doc.zip" value="${dist}/doc.zip" />
 	<property name="query.api.src.zip" value="${dist}/src.zip" />
-  <property name="query.api.dist.file" value="${dist}/${query.api}.zip" />
 
   <property name="webapp.file.name" value="openBIS.war" />
   <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
@@ -263,7 +262,7 @@
 	
   <target name="query-api-dist" depends="jar, make-query-api-doc" 
   	description="Makes a distribution file for Query API.">
-    <zip destfile="${query.api.dist.file}">
+    <zip destfile="${dist}/openBIS-query-API-${version.number}-r${revision.number}.zip">
       <zipfileset prefix="${query.api}" file="${query.api.jar.file}"/>
       <zipfileset prefix="${query.api}" file="${query.api.doc.zip}"/>
       <zipfileset prefix="${query.api}" file="${query.api.src.zip}"/>
@@ -298,7 +297,6 @@
     <echo file="${server.dist}/jetty-version.txt">${jetty.version}</echo>
     <copy file="${original.openbis.server.dist}/jetty.xml" todir="${server.dist}" />
     <move file="${admin.dist.file}" todir="${server.dist}" />
-    <move file="${query.api.dist.file}" todir="${server.dist}" />
   	<move file="${checksum.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
     <copy file="${original.server.dist}/web-client.properties" todir="${server.dist}" />   
