@@ -126,7 +126,7 @@ public class SearchCriteria implements Serializable
     @JsonTypeName("MatchClause")
     @JsonSubTypes(value =
         { @JsonSubTypes.Type(AttributeMatchClause.class),
-                @JsonSubTypes.Type(PropertyMatchClause.class), @JsonSubTypes.Type(TimeAttributeMatchClause.class), })
+                @JsonSubTypes.Type(PropertyMatchClause.class), @JsonSubTypes.Type(TimeAttributeMatchClause.class) })
     public static class MatchClause implements Serializable
     {
         private static final long serialVersionUID = 1L;
