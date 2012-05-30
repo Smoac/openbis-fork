@@ -137,6 +137,8 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
     @Private
     static final class MappingInfo
     {
+        private final int SELECT_CHUNK_SIZE = 500;
+
         private final String materialTypeCode;
 
         private final String tableName;
@@ -246,14 +248,29 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
             return result;
         }
 
-        String createSelectStatement(List<Material> materials)
+        List<String> createSelectStatement(List<Material> materials)
         {
-            StringBuilder builder = new StringBuilder("select * from ");
+            final List<String> sqls = new ArrayList<String>();
+            int startIndex = 0;
+            int endIndex = Math.min(SELECT_CHUNK_SIZE, materials.size());
+            while (startIndex != endIndex)
+            {
+                sqls.add(createPartialSelectStatement(materials, startIndex, endIndex));
+                startIndex = endIndex;
+                endIndex = Math.min(endIndex + SELECT_CHUNK_SIZE, materials.size());
+            }
+            return sqls;
+        }
+
+        String createPartialSelectStatement(List<Material> materials, int startIndex, int endIndex)
+        {
+            final StringBuilder builder = new StringBuilder("select * from ");
             builder.append(tableName).append(" where ");
             builder.append(codeColumnName).append(" in ");
             String delim = "(";
-            for (Material material : materials)
+            for (int i = startIndex; i < endIndex; ++i)
             {
+                final Material material = materials.get(i);
                 builder.append(delim).append('\'').append(material.getCode()).append('\'');
                 delim = ", ";
             }
@@ -520,7 +537,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
 
     private void addOrUpdate(MappingInfo mappingInfo, final List<Material> materials)
     {
-        String sql = mappingInfo.createSelectStatement(materials);
+        final List<String> sql = mappingInfo.createSelectStatement(materials);
         List<Map<String, Object>> rows = retrieveRowsToBeUpdated(sql);
         Map<String, Map<String, Object>> reportedMaterials = mappingInfo.groupByMaterials(rows);
         List<Material> newMaterials = new ArrayList<Material>();
@@ -556,16 +573,20 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
     }
 
     @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> retrieveRowsToBeUpdated(String sql)
+    private List<Map<String, Object>> retrieveRowsToBeUpdated(List<String> sqls)
     {
-        List<Map<String, Object>> rows = jdbcTemplate.query(sql, new ColumnMapRowMapper()
-            {
-                @Override
-                protected String getColumnKey(String columnName)
+        final List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+        for (String sql : sqls)
+        {
+            rows.addAll(jdbcTemplate.query(sql, new ColumnMapRowMapper()
                 {
-                    return columnName.toLowerCase();
-                }
-            });
+                    @Override
+                    protected String getColumnKey(String columnName)
+                    {
+                        return columnName.toLowerCase();
+                    }
+                }));
+        }
         return rows;
     }
 
