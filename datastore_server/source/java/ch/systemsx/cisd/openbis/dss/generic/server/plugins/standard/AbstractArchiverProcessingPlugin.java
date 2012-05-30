@@ -208,7 +208,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
         DatasetProcessingStatuses statuses = doArchive(groupedDataSets.getDifferentInArchive(), context);
 
-        doDeleteFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
+        deletePermanentlyFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
         if (removeFromDataStore)
         {
             removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
@@ -329,6 +329,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         DatasetProcessingStatuses status = doDeleteFromArchive(datasets);
         return status != null ? status.getProcessingStatus() : null;
+    }
+    
+    protected DatasetProcessingStatuses deletePermanentlyFromArchive(List<? extends IDatasetLocation> dataSets)
+    {
+        return doDeleteFromArchive(dataSets);
     }
 
     protected final Status checkUnarchivePrerequisite(List<DatasetDescription> datasets)

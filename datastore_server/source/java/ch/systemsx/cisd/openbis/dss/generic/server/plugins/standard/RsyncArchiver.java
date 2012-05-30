@@ -260,11 +260,24 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
     {
+        return delete(datasets, deleteAction);
+    }
+
+    @Override
+    protected DatasetProcessingStatuses deletePermanentlyFromArchive(
+            List<? extends IDatasetLocation> dataSets)
+    {
+        return delete(dataSets, DeleteAction.DELETE);
+    }
+
+    private DatasetProcessingStatuses delete(List<? extends IDatasetLocation> datasets,
+            DeleteAction action)
+    {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (IDatasetLocation dataset : datasets)
         {
-            Status status = deleteAction.execute(fileOperationsManager, dataset);
-            statuses.addResult(dataset.getDataSetCode(), status, deleteAction.getOperation());
+            Status status = action.execute(fileOperationsManager, dataset);
+            statuses.addResult(dataset.getDataSetCode(), status, action.getOperation());
         }
         return statuses;
     }
