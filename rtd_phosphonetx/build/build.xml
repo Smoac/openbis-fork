@@ -95,9 +95,6 @@
   
   <target name="make-api-doc">
     <javadoc destdir="${api.doc}" access="public" author="false" version="false" classpath="${ecp}">
-      <packageset dir="../openbis/${sources}">
-        <patternset refid="openbis-api-sources"/>
-      </packageset>
       <packageset dir="../openbis_api/${sources}">
         <patternset refid="openbis_api-api-sources"/>
       </packageset>
@@ -116,9 +113,6 @@
     </zip>
     <delete dir="${dist}/${api.prefix}" />
     <zip destfile="${api.src.zip}">
-      <fileset dir="../openbis/${sources}">
-        <patternset refid="openbis-api-sources"/>
-      </fileset>
       <fileset dir="../openbis_api/${sources}">
         <patternset refid="openbis_api-api-sources"/>
       </fileset>
