@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.api.v1;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import ch.systemsx.cisd.common.api.client.IServicePinger;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
  * A factory for creating proxies to the openBIS application server.
