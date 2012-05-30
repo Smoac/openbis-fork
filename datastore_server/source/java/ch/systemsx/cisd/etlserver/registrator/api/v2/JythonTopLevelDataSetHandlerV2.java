@@ -392,7 +392,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     runner.postRegistration();
                 }
 
-                boolean success = runner.storeAfterRegistration(recoveryStage);
+                boolean success = true;
+                if (recoveryStage.before(RecoveryStage.STORAGE_COMPLETED))
+                {
+                    success = runner.commitAndStore();
+                }
+
+                if (success)
+                {
+                    success = runner.storeAfterRegistration();
+                }
                 if (success)
                 {
                     logger.registerSuccess();

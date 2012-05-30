@@ -312,7 +312,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         postRegistration();
 
-        return storeAfterRegistration(RecoveryStage.PRECOMMIT);
+        if (false == commitAndStore())
+        {
+            return false;
+        }
+
+        return storeAfterRegistration();
 
         // confirm storage in AS
 
@@ -335,35 +340,33 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 + registrationId.toString() + ")");
     }
 
-    // FIXME: only temporary - extract this knowledge a leve higher
+    public boolean commitAndStore()
+    {
+        if (commitStorageProcessors() == false)
+        {
+            return false;
+        }
+
+        // COMMITED
+
+        if (storeCommitedDatasets() == false)
+        {
+            return false;
+        }
+
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
+        }
+        return true;
+    }
+
     /**
      * Execute the post-registration part of the storage process
      */
-    public boolean storeAfterRegistration(DataSetStorageRecoveryInfo.RecoveryStage stage)
+    public boolean storeAfterRegistration()
     {
 
-        if (stage.before(RecoveryStage.STORAGE_COMPLETED))
-        {
-            // checkpoint - post-registration-hook executed
-
-            if (commitStorageProcessors() == false)
-            {
-                return false;
-            }
-
-            // COMMITED
-
-            if (storeCommitedDatasets() == false)
-            {
-                return false;
-            }
-
-            if (shouldUseAutoRecovery())
-            {
-                storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
-            }
-        }
-        
         cleanPrecommitDirectory();
 
         boolean confirmStorageSucceeded = confirmStorageInApplicationServer();
