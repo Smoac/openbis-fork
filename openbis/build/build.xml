@@ -728,6 +728,9 @@
       <lib dir="${lib}/eodsql">
         <include name="eodsql.jar" />
       </lib>
+      <fileset dir="${lib}/reflections">
+        <include name="**/*.jar" />
+      </fileset>
       <!-- Hibernate -->
       <lib dir="${lib}/antlr">
         <include name="antlr.jar" />
