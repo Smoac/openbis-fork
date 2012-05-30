@@ -10,4 +10,5 @@
 /dss-tmp
 /log-registrations
 /core-plugins
+/recovery-state
 .DS_Store
