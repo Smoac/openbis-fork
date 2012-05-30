@@ -527,12 +527,21 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     }
 
+    @DataProvider(name = "multipleCheckpointsDataProvider")
+    public Object[][] multipleCheckpointsData()
+    {
+        return new Object[][]
+            {
+                { "v2-simple-testcase.py", false },
+                { "v2-container-testcase.py", true } };
+    }
+
     /**
      * This tests the registration with adventure, where the failure and recovery happens at every
      * possible step.
      */
-    @Test
-    public void testRecoveryAtMultipleCheckpoints()
+    @Test(dataProvider = "multipleCheckpointsDataProvider")
+    public void testRecoveryAtMultipleCheckpoints(String script, boolean includeContainer)
     {
         RecoveryTestCase testCase = new RecoveryTestCase("No name");
         setUpHomeDataBaseExpectations();
@@ -540,8 +549,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
-                        testCase.overrideProperties);
+                createThreadPropertiesRelativeToScriptsFolder(script, testCase.overrideProperties);
 
         createHandler(properties, true, false);
 
@@ -549,7 +557,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
         // create expectations
-        context.checking(new MultipleErrorsExpectations(atomicatOperationDetails));
+        context.checking(new MultipleErrorsExpectations(atomicatOperationDetails, includeContainer));
 
         handler.handle(markerFile);
         setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
@@ -573,10 +581,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // now the storage has succeeded, but storage confirmation has not.
 
         handler.handle(markerFile);
-//        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        // setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
         // now the storage confirmation has succeeded
         assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                "sub_data_set_1", 0);
+                "sub_data_set_1", 0, includeContainer);
 
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
@@ -592,15 +600,20 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     class MultipleErrorsExpectations extends AbstractExpectations
     {
         public MultipleErrorsExpectations(
-                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
+                boolean withContainer)
         {
             super(atomicatOperationDetails);
-            prepareExpectations();
+            prepareExpectations(withContainer);
         }
 
-        private void prepareExpectations()
+        private void prepareExpectations(boolean withContainer)
         {
             initialExpectations();
+            if (withContainer)
+            {
+                initialContainerExpectations();
+            }
             // first try - fail at registration
             registerDataSetsAndThrow(true);
 
@@ -613,6 +626,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             // fourth try - success
             setStorageConfirmed(false);
+            if (withContainer)
+            {
+                setStorageConfirmed(CONTAINER_DATA_SET_CODE, false);
+            }
         }
     }
 
@@ -736,6 +753,17 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                     new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"));
         }
 
+        protected void initialContainerExpectations()
+        {
+
+            // create dataset
+            one(openBisService).createDataSetCode();
+            will(returnValue(CONTAINER_DATA_SET_CODE));
+
+            // validate dataset
+            one(dataSetValidator).assertValidDataSet(CONTAINER_DATA_SET_TYPE, null);
+        }
+
         protected CustomAction makeFileSystemUnavailableAction()
         {
             return new CustomAction("makeSystemUnavailable")
@@ -794,7 +822,16 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
          */
         protected void setStorageConfirmed(boolean shouldFail)
         {
-            one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+            setStorageConfirmed(DATA_SET_CODE, shouldFail);
+        }
+
+        /**
+         * @param dataSetCode - the dataset to be confirmed
+         * @param shouldFail - if true the call to as should throw an exception
+         */
+        protected void setStorageConfirmed(String dataSetCode, boolean shouldFail)
+        {
+            one(openBisService).setStorageConfirmed(dataSetCode);
             if (shouldFail)
             {
                 will(throwException(new EnvironmentFailureException(

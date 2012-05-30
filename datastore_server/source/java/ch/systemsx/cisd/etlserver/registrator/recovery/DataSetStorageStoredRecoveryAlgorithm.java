@@ -25,31 +25,51 @@ import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.ContainerDataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm.DataSetStoragePaths;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author jakubs
  */
-public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation>implements
-Serializable
+public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation> implements
+        Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm;
-    
+
+    private boolean isContainer;
+
+    public boolean isContainer()
+    {
+        return isContainer;
+    }
+
     public DataSetStorageStoredRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
             File stagingDirectory, File preCommitDirectory, String dataStoreCode,
             DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths)
     {
-        recoveryAlgorithm = new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey, incomingDataSetFile, stagingDirectory,
-                preCommitDirectory, dataStoreCode, dataSetStoragePaths);
+        recoveryAlgorithm =
+                new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
+                        incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
+                        dataSetStoragePaths);
+        isContainer = false;
     }
-    
+
+    public DataSetStorageStoredRecoveryAlgorithm(T dataSetInformation,
+            DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
+            File stagingDirectory, File preCommitDirectory, String dataStoreCode)
+    {
+        recoveryAlgorithm =
+                new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
+                        incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
+                        null);
+        isContainer = true;
+    }
+
     public DataSetStorageAlgorithm<T> recoverDataSetStorageAlgorithm(
             OmniscientTopLevelDataSetRegistratorState state)
     {
@@ -61,8 +81,20 @@ Serializable
 
         IStorageProcessorTransactional storageProcessor = state.getStorageProcessor();
 
-        return new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor, fileOperations,
-                mailClient, this);
+        if (isContainer)
+        {
+            return new ContainerDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
+                    fileOperations, mailClient, recoveryAlgorithm);
+        } else
+        {
+            return new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
+                    fileOperations, mailClient, this);
+        }
+    }
+
+    public DataSetStorageRecoveryAlgorithm<T> getRecoveryAlgorithm()
+    {
+        return recoveryAlgorithm;
     }
 
     /**

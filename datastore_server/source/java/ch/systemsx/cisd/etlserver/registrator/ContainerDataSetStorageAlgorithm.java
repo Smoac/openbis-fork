@@ -25,6 +25,9 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -61,6 +64,16 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
                 dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory,
                 precommitDirectory);
+    }
+
+    /**
+     * Creates algorithm from a recovery algorithm.
+     */
+    public ContainerDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        super(dataStoreStrategy, storageProcessor, fileOperations, mailClient, recoveryAlgorithm);
     }
 
     @Override
@@ -101,6 +114,12 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     }
 
     @Override
+    public void cleanPrecommitDirectory()
+    {
+        // do nothing
+    }
+
+    @Override
     public NewExternalData createExternalData()
     {
         return ConversionUtils.convertToNewContainerDataSet(getRegistrationDetails(),
@@ -121,4 +140,21 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         return "Error trying to register container data set '" + getDataSetInformation().toString()
                 + "'.";
     }
+
+    @Override
+    public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
+    {
+        return new DataSetStoragePrecommitRecoveryAlgorithm<T>(getDataSetInformation(),
+                getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
+                getPreCommitDirectory(), getDataStoreCode());
+    }
+
+    @Override
+    public DataSetStorageStoredRecoveryAlgorithm<T> getStoredRecoveryAlgorithm()
+    {
+        return new DataSetStorageStoredRecoveryAlgorithm<T>(getDataSetInformation(),
+                getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
+                getPreCommitDirectory(), getDataStoreCode());
+    }
+
 }

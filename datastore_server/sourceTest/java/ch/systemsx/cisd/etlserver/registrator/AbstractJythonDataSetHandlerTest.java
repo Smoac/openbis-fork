@@ -111,6 +111,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
+    protected static final DataSetType CONTAINER_DATA_SET_TYPE = new DataSetType("CONTAINER_TYPE");
+    
     protected static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
 
     protected static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
@@ -411,9 +413,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     }
 
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
-            String dataSetCode, String dataSetDirectory, int testId)
+            String dataSetCode, String dataSetDirectory, int testId, boolean withContainer)
     {
-        assertEquals(1, recordedObject.getDataSetRegistrations().size());
+        assertEquals(1 + (withContainer ? 1 : 0), recordedObject.getDataSetRegistrations().size());
 
         NewExternalData dataSet = recordedObject.getDataSetRegistrations().get(0);
 
@@ -443,6 +445,13 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         .trim());
     }
 
+    protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
+            String dataSetCode, String dataSetDirectory, int testId)
+    {
+        assertStorageProcess(recordedObject, dataSetCode, dataSetDirectory, testId, false);
+        assertEquals(1, recordedObject.getDataSetRegistrations().size());
+    }
+
     protected void assertDataSetNotStoredProcess(String dataSetCode)
     {
         File datasetLocation =
@@ -462,7 +471,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
      */
     protected static void makeFileSystemUnavailable(File storeRootDirectory)
     {
-        System.out.println("Make stuff anavailabl!!!!!!!!!!!!!!!!!!!e");
         for (String regDir : registrationDirectories)
         {
             new File(storeRootDirectory, regDir).renameTo(new File(storeRootDirectory, regDir

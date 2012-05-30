@@ -44,6 +44,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.NewFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -177,20 +178,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             IMailClient mailClient,
             DataSetStoragePrecommitRecoveryAlgorithm<T> precommitRecoveryAlgorithm)
     {
-        this.incomingDataSetFile = precommitRecoveryAlgorithm.getIncomingDataSetFile();
-        this.registrationDetails = null;
-        this.dataSetInformation = precommitRecoveryAlgorithm.getDataSetInformation();
-        
-        this.dataStoreStrategy = dataStoreStrategy;
-        this.storageProcessor = storageProcessor;
-        this.dataStoreCode = precommitRecoveryAlgorithm.getDataStoreCode();
-        this.fileOperations = fileOperations;
-        this.mailClient = mailClient;
-        this.stagingDirectory = precommitRecoveryAlgorithm.getStagingDirectory();
-        this.preCommitDirectory = precommitRecoveryAlgorithm.getPreCommitDirectory();
-
-        this.storeRoot = storageProcessor.getStoreRootDirectory();
-        this.dataSetType = null;
+        this(dataStoreStrategy, storageProcessor, fileOperations, mailClient,
+                precommitRecoveryAlgorithm.getRecoveryAlgorithm());
         
         state = new PrecommittedState<T>(this, precommitRecoveryAlgorithm);
     }
@@ -203,6 +192,16 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             IFileOperations fileOperations,
             IMailClient mailClient,
             DataSetStorageStoredRecoveryAlgorithm<T> storedRecoveryAlgorithm)
+    {
+        this(dataStoreStrategy, storageProcessor, fileOperations, mailClient,
+                storedRecoveryAlgorithm.getRecoveryAlgorithm());
+        
+        state = new StoredState<T>(this, storedRecoveryAlgorithm);
+    }
+
+    public DataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> storedRecoveryAlgorithm)
     {
         this.incomingDataSetFile = storedRecoveryAlgorithm.getIncomingDataSetFile();
         this.registrationDetails = null;
@@ -218,8 +217,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         this.storeRoot = storageProcessor.getStoreRootDirectory();
         this.dataSetType = null;
-        
-        state = new StoredState<T>(this, storedRecoveryAlgorithm);
     }
     
     public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
