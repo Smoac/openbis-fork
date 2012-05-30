@@ -18,16 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-
 /**
  * Common interface of classes providing feature codes.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
 public interface IFeatureCodesProvider
 {
 
