@@ -607,7 +607,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 {
                     private static final long serialVersionUID = 1L;
 
-                    private File storedFile;
+                    private File storedFolder;
 
                     public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
                             File incomingDataSetDirectory)
@@ -627,7 +627,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                             ex.printStackTrace();
                             throw new IOExceptionUnchecked(ex);
                         }
-                        storedFile = new File(rootDir, incomingDataSetDirectory.getName());
+                        storedFolder = rootDir;
                     }
 
                     public UnstoreDataAction rollback(Throwable exception)
@@ -637,12 +637,12 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
                     public File getStoredDataDirectory()
                     {
-                        return storedFile;
+                        return storedFolder;
                     }
 
                     public void setStoredDataDirectory(File folder)
                     {
-                        storedFile = folder;
+                        storedFolder = folder;
                     }
 
                     public void commit()
