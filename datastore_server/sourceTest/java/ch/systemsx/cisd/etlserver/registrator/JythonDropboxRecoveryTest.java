@@ -480,7 +480,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     // INFO: test with recovery from error in storage confirmed
     @Test
-    public void testRecoveryOriginalFailureAtStorageConfirmed()
+    public void testRecoveryFailureAtStorageConfirmed()
     {
         RecoveryTestCase testCase = new RecoveryTestCase("No name");
         setUpHomeDataBaseExpectations();
@@ -501,16 +501,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         handler.handle(markerFile);
 
-        JythonHookTestTool jythonHookTestTool =
-                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
-        // the check from the original registration
-        jythonHookTestTool.assertLogged("pre_metadata_registration");
-
-        jythonHookTestTool.assertLogged("post_metadata_registration");
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration", "post_metadata_registration");
 
         assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                 "sub_data_set_1", 0);
-        
+
         setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
 
         assertRecoveryFile(testCase.recoveryRertyCount, RecoveryInfoDateConstraint.ORIGINAL,
@@ -527,9 +523,97 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // // item in store
         //
         //
-        // // the hooks after successful registration
-        // jythonHookTestTool.assertLogged("post_storage");
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
 
+    }
+
+    /**
+     * This tests the registration with adventure, where the failure and recovery happens at every
+     * possible step.
+     */
+    @Test
+    public void testRecoveryAtMultipleCheckpoints()
+    {
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new MultipleErrorsExpectations(atomicatOperationDetails));
+
+        handler.handle(markerFile);
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+
+        // now we have registered, but error was thrown from registration
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration");
+
+        handler.handle(markerFile);
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+
+        // now we know we have registered, post_registration_hook executed, but storage failed.
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "post_metadata_registration");
+
+        // so make filesystem avaiable this time
+        makeFileSystemAvailable(workingDirectory);
+
+        handler.handle(markerFile);
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        // now the storage has succeeded, but storage confirmation has not.
+
+        handler.handle(markerFile);
+//        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        // now the storage confirmation has succeeded
+        assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                "sub_data_set_1", 0);
+
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        //
+        // // item in store
+        //
+        //
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
+
+    }
+
+    class MultipleErrorsExpectations extends AbstractExpectations
+    {
+        public MultipleErrorsExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            prepareExpectations();
+        }
+
+        private void prepareExpectations()
+        {
+            initialExpectations();
+            // first try - fail at registration
+            registerDataSetsAndThrow(true);
+
+            // second handle - fail at storage
+            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
+            will(doAll(makeFileSystemUnavailableAction(), returnValue(true)));
+
+            // third try - fail at storage confirmation
+            setStorageConfirmed(true);
+
+            // fourth try - success
+            setStorageConfirmed(false);
+        }
     }
 
     class StorageConfirmedErrorExpectations extends AbstractExpectations

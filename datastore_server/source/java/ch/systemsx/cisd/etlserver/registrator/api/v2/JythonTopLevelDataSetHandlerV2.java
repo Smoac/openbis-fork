@@ -232,10 +232,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                                     // count
                                     // FIXME: is this safe operation (how to assure, that it won't
                                     // corrupt the recoveryMarkerFile?)
-
-                                    recoveryInfo.increaseTryCount();
-                                    recoveryInfo.setLastTry(new Date());
-                                    recoveryInfo.writeToFile(recoveryMarkerFile);
+                                    DataSetStorageRecoveryInfo rInfo =
+                                            state.getGlobalState().getStorageRecoveryManager()
+                                                    .getRecoveryFileFromMarker(recoveryMarkerFile);
+                                    rInfo.increaseTryCount();
+                                    rInfo.setLastTry(new Date());
+                                    rInfo.writeToFile(recoveryMarkerFile);
                                 }
                             }
                             return true;
@@ -335,7 +337,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             if (recoveryStage.beforeOrEqual(RecoveryStage.PRECOMMIT))
             {
-                TechId registrationId = ((DataSetStoragePrecommitRecoveryState<T>)recoveryState).getRegistrationId();
+                TechId registrationId =
+                        ((DataSetStoragePrecommitRecoveryState<T>) recoveryState)
+                                .getRegistrationId();
+                if (registrationId == null)
+                {
+                    throw new IllegalStateException(
+                            "Recovery state cannot have null registrationId at the precommit phase");
+                }
                 entityOperationsSucceeded =
                         state.getGlobalState().getOpenBisService()
                                 .didEntityOperationsSucceed(registrationId);
@@ -377,12 +386,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
                 operationLog
                         .info("Recovery has found datasets in the AS. The registration of metadata was successful.");
-                
-                if (recoveryStage.beforeOrEqual(RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED)){
+
+                if (recoveryStage.before(RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED))
+                {
                     runner.postRegistration();
                 }
-                
-                
+
                 boolean success = runner.storeAfterRegistration(recoveryStage);
                 if (success)
                 {

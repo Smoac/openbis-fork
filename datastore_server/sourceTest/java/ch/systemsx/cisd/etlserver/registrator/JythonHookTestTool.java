@@ -71,21 +71,35 @@ public class JythonHookTestTool
     }
 
     /**
+     * Assert that the provided messages has been logged and nothign else. Clears the log file
+     * afterwards.
+     */
+    public static void assertMessagesInWorkingDirectory(File workingDirectory, String... messages)
+    {
+        JythonHookTestTool instance = createFromWorkingDirectory(workingDirectory);
+        for (String message : messages)
+        {
+            instance.assertLogged(message);
+        }
+        instance.assertNoMoreMessages();
+        instance.logFile.delete();
+    }
+
+    /**
      * The factory method to create util
      * 
-     * @param incoming - the logical or original incoming available from the
-     *            dropbox
+     * @param incoming - the logical or original incoming available from the dropbox
      */
     public static JythonHookTestTool createFromIncoming(File incoming)
     {
         File workingDirectory;
         if (incoming.getParentFile().getParentFile().getName().equals("pre-staging"))
         {
-            //prestaging
+            // prestaging
             workingDirectory = incoming.getParentFile().getParentFile().getParentFile();
         } else
         {
-            //incoming
+            // incoming
             workingDirectory = incoming.getParentFile();
         }
         return new JythonHookTestTool(workingDirectory);
@@ -144,9 +158,6 @@ public class JythonHookTestTool
     {
         if (lineNumber < originalFileContents.length)
         {
-            for (String s: originalFileContents)
-            System.out.println(s);
-            
             throw new AssertionError("Unexpected message in jython hook test."
                     + originalFileContents[lineNumber]);
         }
