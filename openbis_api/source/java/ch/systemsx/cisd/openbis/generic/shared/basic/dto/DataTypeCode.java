@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Available types of entity properties.
  * 
  * @author Izabela Adamczyk
  */
-@JsonTypeName("DataTypeCode")
+@JsonObject("DataTypeCode")
 public enum DataTypeCode implements Serializable
 {
     // Do not refactor names - they are stored in database.

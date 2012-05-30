@@ -21,7 +21,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -31,7 +32,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-@JsonTypeName("FileInfoDssDTO")
+@JsonObject("FileInfoDssDTO")
 public class FileInfoDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;

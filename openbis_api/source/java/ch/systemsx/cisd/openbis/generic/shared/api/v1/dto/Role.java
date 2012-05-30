@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Immutable value object representing an authorization role. A role has a code and a flag which
@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("Role")
+@JsonObject("Role")
 public final class Role implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -6,7 +6,8 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -17,7 +18,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  */
 
 @SuppressWarnings("unused")
-@JsonTypeName("DatasetIdentifier")
+@JsonObject("DatasetIdentifier")
 @JsonSubTypes(value={@JsonSubTypes.Type(DatasetReference.class), 
         @JsonSubTypes.Type(MicroscopyImageReference.class), 
         @JsonSubTypes.Type(PlateImageReference.class)})

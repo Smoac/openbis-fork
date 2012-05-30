@@ -23,13 +23,13 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * @author jakubs
  */
 @SuppressWarnings("unused")
-@JsonTypeName("MaterialIdentifierGeneric")
+@JsonObject("MaterialIdentifierGeneric")
 @JsonSubTypes(value = {@JsonSubTypes.Type(Material.class)})
 public class MaterialIdentifier implements Serializable
 {

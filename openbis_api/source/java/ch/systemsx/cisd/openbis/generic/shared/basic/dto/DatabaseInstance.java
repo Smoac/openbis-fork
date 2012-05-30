@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("DatabaseInstance")
+@JsonObject("DatabaseInstance")
 public class DatabaseInstance extends Code<DatabaseInstance>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

@@ -1,13 +1,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * An enum listing the different kinds of entities that are searchable.
  * 
  * @author Piotr Buczek
  */
-@JsonTypeName("SearchableEntityKind")
+@JsonObject("SearchableEntityKind")
 public enum SearchableEntityKind
 {
     SAMPLE, EXPERIMENT, DATA_SET, MATERIAL,

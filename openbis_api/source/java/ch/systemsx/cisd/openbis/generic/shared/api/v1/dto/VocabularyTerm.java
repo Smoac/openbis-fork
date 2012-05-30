@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
-@JsonTypeName("VocabularyTermGeneric")
+@JsonObject("VocabularyTermGeneric")
 @JsonSubTypes(value = {@JsonSubTypes.Type(ControlledVocabularyPropertyType.VocabularyTerm.class)})
 public class VocabularyTerm implements Serializable
 {

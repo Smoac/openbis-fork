@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -33,7 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
-@JsonTypeName("PlateMetadata")
+@JsonObject("PlateMetadata")
 public class PlateMetadata extends PlateIdentifier
 {
 

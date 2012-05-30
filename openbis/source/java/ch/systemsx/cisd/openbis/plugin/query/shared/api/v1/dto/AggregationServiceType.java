@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * The different kinds of aggregation services.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@JsonTypeName("AggregationServiceType")
+@JsonObject("AggregationServiceType")
 public enum AggregationServiceType
 {
     /**

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.Date;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -29,7 +29,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeName("FeatureVectorDatasetWellReference")
+@JsonObject("FeatureVectorDatasetWellReference")
 public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetReference
 {
     private static final long serialVersionUID = 1L;

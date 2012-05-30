@@ -20,7 +20,8 @@ import java.util.Date;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -30,7 +31,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("FeatureVectorDatasetReference")
+@JsonObject("FeatureVectorDatasetReference")
 @JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetWellReference.class)})
 public class FeatureVectorDatasetReference extends DatasetReference implements
         IFeatureVectorDatasetIdentifier

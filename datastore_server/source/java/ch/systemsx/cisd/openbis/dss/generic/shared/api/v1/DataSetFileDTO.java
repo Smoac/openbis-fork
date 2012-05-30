@@ -20,16 +20,15 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonTypeName;
 
-
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Represents a reference to a file/folder within a data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@JsonTypeName("DataSetFileDTO")
+@JsonObject("DataSetFileDTO")
 public class DataSetFileDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;

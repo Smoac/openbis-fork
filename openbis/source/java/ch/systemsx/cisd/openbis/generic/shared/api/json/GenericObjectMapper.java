@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import ch.systemsx.cisd.common.api.server.json.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
 
 /**
@@ -30,6 +31,7 @@ public class GenericObjectMapper extends ObjectMapper
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
                 new GenericJsonClassValueToClassObjectsMapping()));
+        setSubtypeResolver(new JsonReflectionsSubTypeResolver());
     }
 
 }

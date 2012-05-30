@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * A (mutable) object representing the specification of a search. A search is specified by
@@ -66,7 +66,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-@JsonTypeName("SearchCriteria")
+@JsonObject("SearchCriteria")
 public class SearchCriteria implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -76,7 +76,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("MatchClauseFieldType")
+    @JsonObject("MatchClauseFieldType")
     public static enum MatchClauseFieldType
     {
         PROPERTY, ATTRIBUTE
@@ -89,7 +89,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("MatchClauseAttribute")
+    @JsonObject("MatchClauseAttribute")
     public static enum MatchClauseAttribute
     {
         // common
@@ -105,14 +105,14 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("MatchClauseTimeAttribute")
+    @JsonObject("MatchClauseTimeAttribute")
     public static enum MatchClauseTimeAttribute
     {
         REGISTRATION_DATE,
         MODIFICATION_DATE
     }
 
-    @JsonTypeName("CompareMode")
+    @JsonObject("CompareMode")
     public static enum CompareMode
     {
         LESS_THAN_OR_EQUAL, EQUALS, GREATER_THAN_OR_EQUAL
@@ -123,7 +123,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("MatchClause")
+    @JsonObject("MatchClause")
     @JsonSubTypes(value =
         { @JsonSubTypes.Type(AttributeMatchClause.class),
                 @JsonSubTypes.Type(PropertyMatchClause.class), @JsonSubTypes.Type(TimeAttributeMatchClause.class) })
@@ -312,7 +312,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("PropertyMatchClause")
+    @JsonObject("PropertyMatchClause")
     public static class PropertyMatchClause extends MatchClause
     {
         private static final long serialVersionUID = 1L;
@@ -360,7 +360,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("AttributeMatchClause")
+    @JsonObject("AttributeMatchClause")
     public static class AttributeMatchClause extends MatchClause
     {
         private static final long serialVersionUID = 1L;
@@ -406,7 +406,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("TimeAttributeMatchClause")
+    @JsonObject("TimeAttributeMatchClause")
     public static class TimeAttributeMatchClause extends MatchClause
     {
         private static final long serialVersionUID = 1L;
@@ -504,7 +504,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("SearchOperator")
+    @JsonObject("SearchOperator")
     public static enum SearchOperator
     {
         MATCH_ALL_CLAUSES, MATCH_ANY_CLAUSES

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 /**
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Izabela Adamczyk
  */
-@JsonTypeName("VocabularyTermBasic")
+@JsonObject("VocabularyTermBasic")
 @JsonSubTypes(value = {})
 public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements  
         IVocabularyTermUpdates

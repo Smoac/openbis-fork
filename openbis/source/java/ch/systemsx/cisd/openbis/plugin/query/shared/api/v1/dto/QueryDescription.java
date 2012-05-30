@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Description of a query. Contains everything needed on client side to show to the user what
@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * 
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("QueryDescription")
+@JsonObject("QueryDescription")
 public class QueryDescription implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Abstract super class of {@link IImageRepresentationFormatSelectionCriterion} which accepting
@@ -28,7 +29,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * 
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("AbstractFormatSelectionCriterion")
+@JsonObject("AbstractFormatSelectionCriterion")
 @JsonSubTypes(value = {@JsonSubTypes.Type(ColorDepthCriterion.class), 
         @JsonSubTypes.Type(FileTypeCriterion.class), @JsonSubTypes.Type(OriginalCriterion.class)})
 public abstract class AbstractFormatSelectionCriterion implements 

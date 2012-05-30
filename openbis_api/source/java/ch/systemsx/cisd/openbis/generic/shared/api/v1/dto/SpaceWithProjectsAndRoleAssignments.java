@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("SpaceWithProjectsAndRoleAssignments")
+@JsonObject("SpaceWithProjectsAndRoleAssignments")
 public class SpaceWithProjectsAndRoleAssignments implements ICodeHolder, Serializable
 {
     private static final long serialVersionUID = 1L;

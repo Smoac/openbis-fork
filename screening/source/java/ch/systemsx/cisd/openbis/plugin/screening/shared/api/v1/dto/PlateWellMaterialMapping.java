@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -29,7 +30,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeName("PlateWellMaterialMapping")
+@JsonObject("PlateWellMaterialMapping")
 public class PlateWellMaterialMapping implements Serializable
 {
     private static final long serialVersionUID = 1L;

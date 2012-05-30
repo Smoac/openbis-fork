@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -15,7 +16,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("Plate")
+@JsonObject("Plate")
 public class Plate extends PlateIdentifier
 {
     private static final long serialVersionUID = 1L;

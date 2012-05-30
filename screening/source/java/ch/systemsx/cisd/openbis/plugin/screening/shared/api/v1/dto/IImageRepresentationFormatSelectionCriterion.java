@@ -20,7 +20,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -29,7 +30,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * 
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("IImageRepresentationFormatSelectionCriterion")
+@JsonObject("IImageRepresentationFormatSelectionCriterion")
 @JsonSubTypes(value = {@JsonSubTypes.Type(AbstractFormatSelectionCriterion.class), 
         @JsonSubTypes.Type(SizeCriterion.class)})
 public interface IImageRepresentationFormatSelectionCriterion extends Serializable

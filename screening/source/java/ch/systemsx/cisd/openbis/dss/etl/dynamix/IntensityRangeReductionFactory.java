@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.awt.image.BufferedImage;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
  * 
  * @author Tomasz Pylak
  */
-@JsonTypeName("IntensityRangeReductionFactory")
+@JsonObject("IntensityRangeReductionFactory")
 public class IntensityRangeReductionFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;

@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * A vocabulary term to update.
  * 
  * @author Piotr Buczek
  */
-@JsonTypeName("UpdatedVocabularyTerm")
+@JsonObject("UpdatedVocabularyTerm")
 public final class UpdatedVocabularyTerm extends VocabularyTerm
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

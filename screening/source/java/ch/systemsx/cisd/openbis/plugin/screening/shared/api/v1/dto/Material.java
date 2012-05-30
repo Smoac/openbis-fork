@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -31,7 +31,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Kaloyan Enimanev
  */
 @SuppressWarnings("unused")
-@JsonTypeName("MaterialScreening")
+@JsonObject("MaterialScreening")
 public class Material extends MaterialIdentifier
 {
     private static final long serialVersionUID = 1L;

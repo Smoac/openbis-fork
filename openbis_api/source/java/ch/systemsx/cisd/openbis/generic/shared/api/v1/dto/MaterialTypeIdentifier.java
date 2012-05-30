@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * duplicated from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier
@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author jakubs
  */
 @SuppressWarnings("unused")
-@JsonTypeName("MaterialTypeIdentifierGeneric")
+@JsonObject("MaterialTypeIdentifierGeneric")
 public class MaterialTypeIdentifier implements Serializable
 {
 

@@ -20,13 +20,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * @author jakubs
  */
 @SuppressWarnings("unused")
-@JsonTypeName("MaterialGeneric")
+@JsonObject("MaterialGeneric")
 public class Material extends MaterialIdentifier
 {
     private static final long serialVersionUID = 1L;

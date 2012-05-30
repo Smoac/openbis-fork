@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
+package ch.systemsx.cisd.common.json;
 
-import ch.systemsx.cisd.common.json.JsonObject;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOptions;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("DataSetFetchOptions")
-public class DataSetFetchOptions extends FetchOptions<DataSetFetchOption>
+@Target(
+    { ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface JsonObject
 {
-
-    private static final long serialVersionUID = 1L;
-
-    public DataSetFetchOptions()
-    {
-        super();
-        addOption(DataSetFetchOption.BASIC);
-    }
-
-    public DataSetFetchOptions(DataSetFetchOption... options)
-    {
-        super(options);
-        addOption(DataSetFetchOption.BASIC);
-    }
-
+    /**
+     * Logical type name for annotated type.
+     */
+    public String value();
 }

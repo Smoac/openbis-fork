@@ -21,7 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -32,7 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeName("ImageChannel")
+@JsonObject("ImageChannel")
 public class ImageChannel implements Serializable, Comparable<ImageChannel>
 {
     private static final long serialVersionUID = 1L;

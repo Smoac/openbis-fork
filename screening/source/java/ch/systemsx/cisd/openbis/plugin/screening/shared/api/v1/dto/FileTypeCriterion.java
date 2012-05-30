@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -29,7 +29,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  *
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("FileTypeCriterion")
+@JsonObject("FileTypeCriterion")
 public class FileTypeCriterion extends AbstractFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

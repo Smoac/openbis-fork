@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -32,7 +32,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeName("PlateWellReferenceWithDatasets")
+@JsonObject("PlateWellReferenceWithDatasets")
 public class PlateWellReferenceWithDatasets implements Serializable
 {
     private static final long serialVersionUID = 1L;

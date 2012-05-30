@@ -9,7 +9,8 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -19,7 +20,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("FeatureVector")
+@JsonObject("FeatureVector")
 @JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorWithDescription.class)})
 public class FeatureVector implements Serializable
 {

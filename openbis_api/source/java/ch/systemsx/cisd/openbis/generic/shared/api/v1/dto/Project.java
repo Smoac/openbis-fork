@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("Project")
+@JsonObject("Project")
 public final class Project implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;

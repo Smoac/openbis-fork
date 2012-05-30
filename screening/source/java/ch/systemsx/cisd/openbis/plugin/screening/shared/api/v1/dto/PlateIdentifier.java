@@ -3,7 +3,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -13,7 +14,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("PlateIdentifier")
+@JsonObject("PlateIdentifier")
 @JsonSubTypes(value = {@JsonSubTypes.Type(Plate.class), @JsonSubTypes.Type(PlateMetadata.class)})
 public class PlateIdentifier extends PermanentIdentifier
 {

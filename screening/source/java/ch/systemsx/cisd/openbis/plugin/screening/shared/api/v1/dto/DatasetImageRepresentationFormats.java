@@ -23,7 +23,8 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -34,7 +35,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-@JsonTypeName("DatasetImageRepresentationFormats")
+@JsonObject("DatasetImageRepresentationFormats")
 public class DatasetImageRepresentationFormats implements Serializable,
         Comparable<DatasetImageRepresentationFormats>
 {

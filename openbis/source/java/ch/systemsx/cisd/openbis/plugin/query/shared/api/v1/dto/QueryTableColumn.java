@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Column of query data. Defines title and data type.
@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("QueryTableColumn")
+@JsonObject("QueryTableColumn")
 public class QueryTableColumn implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * A value object representing a new vocabulary term to be created by the openBIS backend.
  * 
  * @author Kaloyan Enimanev
  */
-@JsonTypeName("NewVocabularyTerm")
+@JsonObject("NewVocabularyTerm")
 public class NewVocabularyTerm implements Serializable
 {
     private static final long serialVersionUID = 1L;

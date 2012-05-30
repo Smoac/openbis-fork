@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -26,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * 
  * @author Tomasz Pylak
  */
-@JsonTypeName("IDatasetIdentifier")
+@JsonObject("IDatasetIdentifier")
 @JsonSubTypes(value = {@JsonSubTypes.Type(DatasetIdentifier.class), 
         @JsonSubTypes.Type(IFeatureVectorDatasetIdentifier.class), 
         @JsonSubTypes.Type(IImageDatasetIdentifier.class)})

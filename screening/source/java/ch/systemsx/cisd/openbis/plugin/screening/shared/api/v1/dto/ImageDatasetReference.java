@@ -22,7 +22,8 @@ import java.util.Map;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -32,7 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("ImageDatasetReference")
+@JsonObject("ImageDatasetReference")
 public class ImageDatasetReference extends DatasetReference implements IImageDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;

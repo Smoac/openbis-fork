@@ -1,7 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -11,7 +12,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Piotr Buczek
  */
 @SuppressWarnings("unused")
-@JsonTypeName("WellIdentifier")
+@JsonObject("WellIdentifier")
 @JsonSubTypes(value = {@JsonSubTypes.Type(WellMetadata.class)})
 public class WellIdentifier extends PermanentIdentifier
 {

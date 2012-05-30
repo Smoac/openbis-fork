@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
  * 
  * @author Franz-Josef Elmer
  */
-@JsonTypeName("SampleFetchOption")
+@JsonObject("SampleFetchOption")
 public enum SampleFetchOption implements FetchOption  
 {
     /**

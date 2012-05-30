@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-@JsonTypeName("VocabularyBasic")
+@JsonObject("VocabularyBasic")
 @JsonSubTypes(value = {})
 public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVocabularyUpdates
 {

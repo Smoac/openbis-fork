@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -29,7 +29,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("ImageSize")
+@JsonObject("ImageSize")
 public class ImageSize implements Serializable
 {
     private static final long serialVersionUID = 1L;

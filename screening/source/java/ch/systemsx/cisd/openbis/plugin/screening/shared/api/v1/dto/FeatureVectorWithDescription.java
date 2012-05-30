@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -14,7 +14,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonTypeName("FeatureVectorWithDescription")
+@JsonObject("FeatureVectorWithDescription")
 public class FeatureVectorWithDescription extends FeatureVector implements IFeatureCodesProvider,
         Serializable
 {

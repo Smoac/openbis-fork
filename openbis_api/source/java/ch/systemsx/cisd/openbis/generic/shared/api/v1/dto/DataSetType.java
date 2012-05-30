@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Immutable value object representing a data set type.
@@ -32,7 +32,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Chandrasekhar Ramakrishnan
  */
 @SuppressWarnings("unused")
-@JsonTypeName("DataSetType")
+@JsonObject("DataSetType")
 public final class DataSetType implements Serializable
 {
     private static final long serialVersionUID = 1L;

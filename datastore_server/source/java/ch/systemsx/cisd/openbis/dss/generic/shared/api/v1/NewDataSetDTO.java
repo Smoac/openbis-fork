@@ -23,7 +23,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -39,7 +40,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@JsonTypeName("NewDataSetDTO")
+@JsonObject("NewDataSetDTO")
 public class NewDataSetDTO implements Serializable
 {
     public static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
@@ -49,7 +50,7 @@ public class NewDataSetDTO implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("DataSetOwnerType")
+    @JsonObject("DataSetOwnerType")
     public static enum DataSetOwnerType 
     {
         EXPERIMENT
@@ -87,7 +88,7 @@ public class NewDataSetDTO implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeName("DataSetOwner")
+    @JsonObject("DataSetOwner")
     public static class DataSetOwner implements Serializable
     {
         private static final long serialVersionUID = 1L;

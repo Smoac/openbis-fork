@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -18,7 +19,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("DatasetReference")
+@JsonObject("DatasetReference")
 @JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetReference.class), 
         @JsonSubTypes.Type(ImageDatasetReference.class)})
 public class DatasetReference extends DatasetIdentifier implements Serializable

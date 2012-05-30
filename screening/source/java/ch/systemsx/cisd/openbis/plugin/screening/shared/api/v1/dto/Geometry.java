@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonTypeName;
+
+import ch.systemsx.cisd.common.json.JsonObject;
 
 
 
@@ -30,7 +31,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Franz-Josef Elmer
  */
 @SuppressWarnings("unused")
-@JsonTypeName("Geometry")
+@JsonObject("Geometry")
 public final class Geometry implements Serializable
 {
     public static final Geometry GEOMETRY_96_8X12 = new Geometry(12, 8);

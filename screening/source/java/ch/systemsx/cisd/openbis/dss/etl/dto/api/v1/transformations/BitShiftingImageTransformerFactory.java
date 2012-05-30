@@ -2,11 +2,11 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
 import java.awt.image.BufferedImage;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
 
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Transformation performed by
@@ -18,7 +18,7 @@ import ch.systemsx.cisd.common.image.IntensityRescaling;
  * 
  * @author Tomasz Pylak
  */
-@JsonTypeName("BitShiftingImageTransformerFactory")
+@JsonObject("BitShiftingImageTransformerFactory")
 final class BitShiftingImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;

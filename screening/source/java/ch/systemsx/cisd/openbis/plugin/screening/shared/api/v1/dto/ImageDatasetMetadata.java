@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * Metadata information about images in a specified dataset.
@@ -15,7 +15,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  * @author Tomasz Pylak
  */
 @SuppressWarnings("unused")
-@JsonTypeName("ImageDatasetMetadata")
+@JsonObject("ImageDatasetMetadata")
 public class ImageDatasetMetadata implements Serializable
 {
     private static final long serialVersionUID = 1L;

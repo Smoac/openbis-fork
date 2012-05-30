@@ -23,14 +23,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonTypeName;
+import ch.systemsx.cisd.common.json.JsonObject;
 
 /**
  * A class that encapsulates the details about entity registration.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@JsonTypeName("EntityRegistrationDetails")
+@JsonObject("EntityRegistrationDetails")
 public class EntityRegistrationDetails implements Serializable
 {
     private static final long serialVersionUID = 1L;
