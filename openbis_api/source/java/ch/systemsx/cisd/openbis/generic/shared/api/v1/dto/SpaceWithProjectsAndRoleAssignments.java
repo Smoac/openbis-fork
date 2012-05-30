@@ -27,7 +27,8 @@ import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
-import ch.systemsx.cisd.common.json.JsonObject;
+
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 

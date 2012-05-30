@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 
 

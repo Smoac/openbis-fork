@@ -23,7 +23,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import ch.systemsx.cisd.common.json.JsonObject;
+
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 

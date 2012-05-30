@@ -31,9 +31,9 @@ import org.reflections.Reflections;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.ClassReferences;
 import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
-import ch.systemsx.cisd.common.json.JsonObject;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;

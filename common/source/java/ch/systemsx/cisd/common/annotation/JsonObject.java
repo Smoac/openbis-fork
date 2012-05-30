@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.json;
+package ch.systemsx.cisd.common.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

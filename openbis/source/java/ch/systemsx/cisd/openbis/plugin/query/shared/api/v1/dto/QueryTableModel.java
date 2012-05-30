@@ -23,7 +23,7 @@ import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * Model of query data.

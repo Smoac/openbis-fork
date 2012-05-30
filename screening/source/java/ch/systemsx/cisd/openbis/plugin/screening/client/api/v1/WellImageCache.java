@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;

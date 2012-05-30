@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * @author jakubs

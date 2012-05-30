@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * A vocabulary term to update.

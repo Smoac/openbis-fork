@@ -28,7 +28,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import ch.systemsx.cisd.common.json.JsonObject;
+
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * A (mutable) object representing the specification of a search. A search is specified by

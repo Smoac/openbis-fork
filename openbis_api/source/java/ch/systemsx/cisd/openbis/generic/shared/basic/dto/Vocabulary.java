@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
-import ch.systemsx.cisd.common.json.JsonObject;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * Controlled vocabulary.

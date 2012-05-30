@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.awt.image.BufferedImage;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;

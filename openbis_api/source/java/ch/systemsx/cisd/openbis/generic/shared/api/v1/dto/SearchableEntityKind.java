@@ -1,6 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import ch.systemsx.cisd.common.json.JsonObject;
+import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
  * An enum listing the different kinds of entities that are searchable.
