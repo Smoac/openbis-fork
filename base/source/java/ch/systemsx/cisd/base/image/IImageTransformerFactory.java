@@ -18,12 +18,15 @@ package ch.systemsx.cisd.base.image;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * Factory creating an {@link IImageTransformer}. The parameters of the transformer should be
  * stored as serializable attributes of concrete implementations of this interface.
  *
  * @author Franz-Josef Elmer
  */
+@JsonObject(value="IImageTransformerFactory")
 public interface IImageTransformerFactory extends Serializable
 {
     /**
