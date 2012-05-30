@@ -1,5 +1,6 @@
 <project name="datastore_server" default="dist" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
+	<import file="../../openbis/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
 	<property name="dss.original.dist" value="../datastore_server/dist" />
@@ -23,10 +24,16 @@
 	<property name="dist.dss_upload_gui.lib" value="${dist.dss_upload_gui}/lib" />
   <property name="dss-upload-gui-jar.file" value="${dist.dss_upload_gui.lib}/dss_upload_gui.jar" />
   <property name="dist.upload-gui.file.prefix" value="${dist}/${dss_upload_gui}" />
-	
-	<property name="nativesrc" value="${lib}/unix/native" />
-	<property name="nativeroot" value="${targets}/ant" />
-	<property name="native" value="${nativeroot}/native" />
+  
+  <property name="query.api" value="openBIS-query-API" />
+  <property name="query.api.jar.file" value="${dist}/openbis-query-api.jar" />
+  <property name="query.api.doc" value="${dist}/${query.api}/doc" />
+  <property name="query.api.doc.zip" value="${dist}/doc.zip" />
+  <property name="query.api.src.zip" value="${dist}/src.zip" />
+
+  <property name="nativesrc" value="${lib}/unix/native" />
+  <property name="nativeroot" value="${targets}/ant" />
+  <property name="native" value="${nativeroot}/native" />
 
 	<target name="clean">
 		<delete dir="${dist}" />
@@ -91,6 +98,21 @@
 			<zipfileset src="${lib}/gwt2.4/gwt-user.jar"
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
+    <jar destfile="${query.api.jar.file}">
+      <zipfileset src="${dss-jar.file}">
+        <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
+        <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
+        <include name="ch/systemsx/cisd/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
+        <include name="*.INFO" />
+      </zipfileset>
+    </jar>
 	</target>
 	
   <target name="make-plugin-dist">
@@ -111,6 +133,71 @@
   	<delete dir="${dist.datastore_server}"/>
   </target>
 	
+  <!-- Pattern sets of API source in project 'datastore_server' -->
+  <patternset id="datastore_server-api-sources">
+    <include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**" />
+  </patternset>
+  
+  <target name="make-query-api-doc">
+    <javadoc destdir="${query.api.doc}" access="public" author="false" version="false" classpath="${ecp}">
+      <packageset dir="../datastore_server/${sources}">
+        <patternset refid="datastore_server-api-sources"/>
+      </packageset>
+      <packageset dir="../openbis/${sources}">
+        <patternset refid="openbis-api-sources"/>
+      </packageset>
+      <packageset dir="../openbis_api/${sources}">
+        <patternset refid="openbis_api-api-sources"/>
+      </packageset>
+      <packageset dir="../common/${sources}">
+        <patternset refid="common-api-sources"/>
+      </packageset>
+      <packageset dir="../server-common/${sources}">
+        <patternset refid="server-common-api-sources"/>
+      </packageset>
+    </javadoc>
+    <zip destfile="${query.api.doc.zip}">
+      <zipfileset dir="${query.api.doc}" includes="**" />
+    </zip>
+    <delete dir="${dist}/${query.api}" />
+    <zip destfile="${query.api.src.zip}">
+      <fileset dir="../datastore_server/${sources}">
+        <patternset refid="datastore_server-api-sources"/>
+      </fileset>
+      <fileset dir="../openbis/${sources}">
+        <patternset refid="openbis-api-sources"/>
+      </fileset>
+      <fileset dir="../openbis_api/${sources}">
+        <patternset refid="openbis_api-api-sources"/>
+      </fileset>
+      <fileset dir="../common/${sources}">
+        <patternset refid="common-api-sources"/>
+      </fileset>
+      <fileset dir="../server-common/${sources}">
+        <patternset refid="server-common-api-sources"/>
+      </fileset>
+    </zip>
+  </target>
+	
+  <target name="query-api-dist" depends="dss-jar, make-query-api-doc" 
+  	description="Makes a distribution file for Query API.">
+    <zip destfile="${dist}/openBIS-query-API-${version.number}-r${revision.number}.zip">
+      <zipfileset prefix="${query.api}" file="${query.api.jar.file}"/>
+      <zipfileset prefix="${query.api}" file="${query.api.doc.zip}"/>
+      <zipfileset prefix="${query.api}" file="${query.api.src.zip}"/>
+      <zipfileset prefix="${query.api}" file="${lib}/cisd-base/cisd-base.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/commons-codec/commons-codec.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/commons-logging/commons-logging.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/log4j/log4j.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/spring/spring.jar"/>
+      <zipfileset prefix="${query.api}" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
+    </zip>
+  	<delete file="${query.api.jar.file}"/>
+  	<delete file="${query.api.doc.zip}"/>
+  	<delete file="${query.api.src.zip}"/>
+  </target>
+
 	<target name="dist">
 		<antcall target="make-dist">
 			<param name="variant" value="" />
@@ -277,7 +364,7 @@
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
 		-->
-	<target name="make-dist" depends="prepare-dist-libs, compute-checksum, create-distribution" />
+	<target name="make-dist" depends="prepare-dist-libs, query-api-dist, compute-checksum, create-distribution" />
   
   <!--  
     dss-client-jar is designed to be called from make-dist. Thus, it does not depend on compile, but
