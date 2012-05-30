@@ -22,6 +22,8 @@ import ch.systemsx.cisd.common.api.server.json.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
 
 /**
+ * Jackson library object mapper used in screening OpenBIS.
+ * 
  * @author pkupczyk
  */
 public class ScreeningObjectMapper extends ObjectMapper
@@ -31,7 +33,7 @@ public class ScreeningObjectMapper extends ObjectMapper
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
                 new ScreeningJsonClassValueToClassObjectsMapping()));
-        setSubtypeResolver(new JsonReflectionsSubTypeResolver());
+        setSubtypeResolver(JsonReflectionsSubTypeResolver.getDefaultInstance());
     }
 
 }

@@ -22,6 +22,8 @@ import ch.systemsx.cisd.common.api.server.json.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
 
 /**
+ * Jackson library object mapper used in generic OpenBIS.
+ * 
  * @author pkupczyk
  */
 public class GenericObjectMapper extends ObjectMapper
@@ -31,7 +33,7 @@ public class GenericObjectMapper extends ObjectMapper
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
                 new GenericJsonClassValueToClassObjectsMapping()));
-        setSubtypeResolver(new JsonReflectionsSubTypeResolver());
+        setSubtypeResolver(JsonReflectionsSubTypeResolver.getDefaultInstance());
     }
 
 }

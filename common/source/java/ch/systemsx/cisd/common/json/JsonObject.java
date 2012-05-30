@@ -23,6 +23,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation all JSON transfered classes should be marked with. It was originally created to
+ * replace @JsonTypeName annotation which was not visible in the documentation. With @JsonTypeName
+ * annotation it would be impossible for our users to find a logical type name of a class to be sent
+ * to JSON-RPC services.
+ * 
  * @author pkupczyk
  */
 @Target(
