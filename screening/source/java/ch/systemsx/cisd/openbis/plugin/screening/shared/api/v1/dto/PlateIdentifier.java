@@ -2,11 +2,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
 
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Contains data which uniquely define a plate.
@@ -15,7 +12,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("PlateIdentifier")
-@JsonSubTypes(value = {@JsonSubTypes.Type(Plate.class), @JsonSubTypes.Type(PlateMetadata.class)})
 public class PlateIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;

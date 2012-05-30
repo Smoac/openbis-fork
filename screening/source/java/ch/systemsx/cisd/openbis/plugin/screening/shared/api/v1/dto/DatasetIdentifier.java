@@ -2,14 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Contains data which uniquely define a dataset.
@@ -19,9 +12,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
 
 @SuppressWarnings("unused")
 @JsonObject("DatasetIdentifier")
-@JsonSubTypes(value={@JsonSubTypes.Type(DatasetReference.class), 
-        @JsonSubTypes.Type(MicroscopyImageReference.class), 
-        @JsonSubTypes.Type(PlateImageReference.class)})
 public class DatasetIdentifier implements Serializable, IDatasetIdentifier
 {
     private static final long serialVersionUID = 1L;

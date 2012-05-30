@@ -19,11 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Interface of an image selection criterion based on {@link ImageRepresentationFormat}.
@@ -31,8 +27,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("IImageRepresentationFormatSelectionCriterion")
-@JsonSubTypes(value = {@JsonSubTypes.Type(AbstractFormatSelectionCriterion.class), 
-        @JsonSubTypes.Type(SizeCriterion.class)})
 public interface IImageRepresentationFormatSelectionCriterion extends Serializable
 {
     /**

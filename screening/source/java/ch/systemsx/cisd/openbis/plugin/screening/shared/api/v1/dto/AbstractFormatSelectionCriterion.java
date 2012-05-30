@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
 
 /**
@@ -30,9 +28,7 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("AbstractFormatSelectionCriterion")
-@JsonSubTypes(value = {@JsonSubTypes.Type(ColorDepthCriterion.class), 
-        @JsonSubTypes.Type(FileTypeCriterion.class), @JsonSubTypes.Type(OriginalCriterion.class)})
-public abstract class AbstractFormatSelectionCriterion implements 
+public abstract class AbstractFormatSelectionCriterion implements
         IImageRepresentationFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;

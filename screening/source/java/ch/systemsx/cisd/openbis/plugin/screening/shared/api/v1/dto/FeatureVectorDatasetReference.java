@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import java.util.Date; 
+import java.util.Date;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Description of one feature vector dataset.
@@ -32,7 +28,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("FeatureVectorDatasetReference")
-@JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetWellReference.class)})
 public class FeatureVectorDatasetReference extends DatasetReference implements
         IFeatureVectorDatasetIdentifier
 {

@@ -1,10 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Contains data which uniquely define a well on a plate.
@@ -13,7 +9,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("WellIdentifier")
-@JsonSubTypes(value = {@JsonSubTypes.Type(WellMetadata.class)})
 public class WellIdentifier extends PermanentIdentifier
 {
     private static final long serialVersionUID = 1L;
@@ -93,7 +88,7 @@ public class WellIdentifier extends PermanentIdentifier
         }
         return true;
     }
-    
+
     //
     // JSON-RPC
     //
@@ -102,12 +97,12 @@ public class WellIdentifier extends PermanentIdentifier
     {
         super(null);
     }
-    
+
     private void setPlateIdentifier(PlateIdentifier plateIdentifier)
     {
         this.plateIdentifier = plateIdentifier;
     }
-    
+
     private void setWellPosition(WellPosition wellPosition)
     {
         this.wellPosition = wellPosition;

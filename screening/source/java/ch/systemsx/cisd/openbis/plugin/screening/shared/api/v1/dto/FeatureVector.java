@@ -5,14 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Feature vector for one well.
@@ -21,7 +15,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("FeatureVector")
-@JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorWithDescription.class)})
 public class FeatureVector implements Serializable
 {
     private static final long serialVersionUID = 1L;

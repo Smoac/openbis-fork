@@ -17,18 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonSubTypes;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.annotation.JsonObject;
+
 /**
  * A vocabulary term.
  * 
  * @author Izabela Adamczyk
  */
 @JsonObject("VocabularyTermBasic")
-@JsonSubTypes(value = {})
-public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements  
+public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         IVocabularyTermUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

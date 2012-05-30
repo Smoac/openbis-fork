@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 
 import ch.systemsx.cisd.common.annotation.JsonObject;
 
@@ -31,7 +27,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("MaterialIdentifierGeneric")
-@JsonSubTypes(value = {@JsonSubTypes.Type(Material.class)})
 public class MaterialIdentifier implements Serializable
 {
     private static final long serialVersionUID = 1L;

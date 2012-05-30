@@ -16,11 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.JsonObject;
-
-
 
 /**
  * Uniquely Identifies a feature vector dataset.
@@ -28,7 +24,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  * @author Tomasz Pylak
  */
 @JsonObject("IFeatureVectorDatasetIdentifier")
-@JsonSubTypes(value = {@JsonSubTypes.Type(FeatureVectorDatasetReference.class)})
 public interface IFeatureVectorDatasetIdentifier extends IDatasetIdentifier
 {
 }

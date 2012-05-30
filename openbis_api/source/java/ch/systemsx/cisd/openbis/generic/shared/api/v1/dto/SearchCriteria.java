@@ -19,15 +19,12 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import ch.systemsx.cisd.common.annotation.JsonObject;
 
@@ -109,8 +106,7 @@ public class SearchCriteria implements Serializable
     @JsonObject("MatchClauseTimeAttribute")
     public static enum MatchClauseTimeAttribute
     {
-        REGISTRATION_DATE,
-        MODIFICATION_DATE
+        REGISTRATION_DATE, MODIFICATION_DATE
     }
 
     @JsonObject("CompareMode")
@@ -125,9 +121,6 @@ public class SearchCriteria implements Serializable
      * @author Chandrasekhar Ramakrishnan
      */
     @JsonObject("MatchClause")
-    @JsonSubTypes(value =
-        { @JsonSubTypes.Type(AttributeMatchClause.class),
-                @JsonSubTypes.Type(PropertyMatchClause.class), @JsonSubTypes.Type(TimeAttributeMatchClause.class) })
     public static class MatchClause implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -140,7 +133,8 @@ public class SearchCriteria implements Serializable
 
         private CompareMode compareMode = CompareMode.EQUALS;
 
-        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode, String desiredValue, CompareMode compareMode)
+        protected MatchClause(MatchClauseFieldType fieldType, String fieldCode,
+                String desiredValue, CompareMode compareMode)
         {
             this.fieldType = fieldType;
             this.fieldCode = fieldCode;
@@ -172,7 +166,8 @@ public class SearchCriteria implements Serializable
         }
 
         /**
-         * Factory method to create a MatchClause matching against registration or modification date.
+         * Factory method to create a MatchClause matching against registration or modification
+         * date.
          * 
          * @param attribute The attribute to compare against
          * @param mode The kind of comparison (<=, ==, >=)
@@ -198,9 +193,9 @@ public class SearchCriteria implements Serializable
             {
                 final char c = s.charAt(i);
                 // These characters are part of the query syntax and must be escaped
-                if (c == '\\' || c == '+' || c == '-' || c == '!' || c == '(' || c == ')' || c == ':'
-                        || c == '^' || c == '[' || c == ']' || c == '\"' || c == '{' || c == '}'
-                        || c == '~' || c == '*' || c == '?' || c == '|' || c == '&')
+                if (c == '\\' || c == '+' || c == '-' || c == '!' || c == '(' || c == ')'
+                        || c == ':' || c == '^' || c == '[' || c == ']' || c == '\"' || c == '{'
+                        || c == '}' || c == '~' || c == '*' || c == '?' || c == '|' || c == '&')
                 {
                     sb.append('\\');
                 }
@@ -376,7 +371,8 @@ public class SearchCriteria implements Serializable
          */
         protected AttributeMatchClause(MatchClauseAttribute attribute, String desiredValue)
         {
-            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue, CompareMode.EQUALS);
+            super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredValue,
+                    CompareMode.EQUALS);
             this.attribute = attribute;
         }
 
@@ -424,7 +420,8 @@ public class SearchCriteria implements Serializable
          * @param timezone The time zone to use in the comparison.
          * @param mode The kind of comparison to carry out.
          */
-        protected TimeAttributeMatchClause(MatchClauseTimeAttribute attribute, String desiredDate, String timezone, CompareMode mode)
+        protected TimeAttributeMatchClause(MatchClauseTimeAttribute attribute, String desiredDate,
+                String timezone, CompareMode mode)
         {
             super(MatchClauseFieldType.ATTRIBUTE, attribute.toString(), desiredDate, mode);
             this.timezone = timezone;

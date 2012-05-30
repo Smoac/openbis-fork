@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.common.annotation.JsonObject;
 
@@ -30,7 +28,6 @@ import ch.systemsx.cisd.common.annotation.JsonObject;
  * @author Izabela Adamczyk
  */
 @JsonObject("VocabularyBasic")
-@JsonSubTypes(value = {})
 public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVocabularyUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
