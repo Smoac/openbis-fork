@@ -288,7 +288,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(3).of(dataSetDirectoryProvider).getDataSetDirectory(ds1);
+                    exactly(2).of(dataSetDirectoryProvider).getDataSetDirectory(ds1);
                     File file = new File(share1, LOCATION);
                     will(returnValue(file));
 
@@ -297,9 +297,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(fileOperationsManager).copyToDestination(file, ds1);
                     will(returnValue(Status.OK));
-
-                    one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
-                    will(returnValue(BooleanStatus.createTrue()));
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);

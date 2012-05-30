@@ -370,7 +370,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                     will(returnValue(Status.OK));
                     
                     one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(ds1, ds2));
-                    one(statusUpdater).update(Arrays.asList("ds1"),
+                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
                             DataSetArchivingStatus.ARCHIVED, true);
                 }
             });
@@ -523,7 +523,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         context.checking(new Expectations()
             {
                 {
-                    one(statusUpdater).update(Arrays.asList("ds1"),
+                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
                             DataSetArchivingStatus.AVAILABLE, true);
                 }
             });
@@ -557,7 +557,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             {
                 {
                     one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(ds1, ds2));
-                    one(statusUpdater).update(Arrays.asList("ds1"),
+                    one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
                             DataSetArchivingStatus.ARCHIVED, true);
                 }
             });

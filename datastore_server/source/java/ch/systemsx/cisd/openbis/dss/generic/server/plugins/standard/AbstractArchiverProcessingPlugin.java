@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -206,35 +205,36 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
-        List<DatasetDescription> unArchivedDataSets =
-                getUnarchivedOrUnsynchronizedDataSets(datasets, context);
-        DatasetProcessingStatuses statuses = doArchive(unArchivedDataSets, context);
+        GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
+        DatasetProcessingStatuses statuses = doArchive(groupedDataSets.getDifferentInArchive(), context);
 
         doDeleteFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
         if (removeFromDataStore)
         {
             removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
         }
+        statuses.addResult(groupedDataSets.getUpToDateInArchive(), Status.OK, Operation.ARCHIVE);
         return statuses;
     }
 
-    private List<DatasetDescription> getUnarchivedOrUnsynchronizedDataSets(
-            List<DatasetDescription> datasets, final ArchiverTaskContext context)
+    private GroupedDatasets groupByArchiveDifferencies(List<DatasetDescription> datasets,
+            ArchiverTaskContext context)
     {
-        List<DatasetDescription> toBeArchived = new ArrayList<DatasetDescription>();
+        List<DatasetDescription> upToDateInArchive = new ArrayList<DatasetDescription>();
+        List<DatasetDescription> differentInArchive =
+                new ArrayList<DatasetDescription>();
+
         for (DatasetDescription dataset : datasets)
         {
             BooleanStatus upToDateStatus =
                     synchronizeArchive ? isDataSetSynchronizedWithArchive(dataset, context)
                             : isDataSetPresentInArchive(dataset);
-            if (upToDateStatus.isSuccess() == false)
-            {
-                toBeArchived.add(dataset);
-            }
+            (upToDateStatus.isSuccess() ? upToDateInArchive : differentInArchive).add(dataset);
         }
-        return toBeArchived;
-    }
 
+        return new GroupedDatasets(upToDateInArchive, differentInArchive);
+    }
+    
     private List<DatasetDescription> getDataSetsFailedToBeArchived(
             List<DatasetDescription> datasets, DatasetProcessingStatuses statuses)
     {
@@ -483,10 +483,10 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         private List<DatasetDescription> upToDateInArchive;
 
-        private Map<DatasetDescription, BooleanStatus> differentInArchive;
+        private List<DatasetDescription> differentInArchive;
 
         GroupedDatasets(List<DatasetDescription> upToDateInArchive,
-                Map<DatasetDescription, BooleanStatus> differentInArchive)
+                List<DatasetDescription> differentInArchive)
         {
             this.upToDateInArchive = upToDateInArchive;
             this.differentInArchive = differentInArchive;
@@ -497,20 +497,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             return upToDateInArchive;
         }
 
-        public Map<DatasetDescription, BooleanStatus> getDifferentInArchive()
+        public List<DatasetDescription> getDifferentInArchive()
         {
             return differentInArchive;
-        }
-
-        public List<DatasetDescription> getDifferenciesAsList()
-        {
-
-            return new ArrayList<DatasetDescription>(differentInArchive.keySet());
-        }
-
-        public BooleanStatus getDifferencyArchiveStatus(DatasetDescription description)
-        {
-            return differentInArchive.get(description);
         }
     }
 
