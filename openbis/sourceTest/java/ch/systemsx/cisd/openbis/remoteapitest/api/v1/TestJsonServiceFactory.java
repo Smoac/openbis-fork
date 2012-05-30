@@ -25,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
+import ch.systemsx.cisd.common.api.server.json.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -48,6 +49,7 @@ public class TestJsonServiceFactory
         {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(null));
+            mapper.setSubtypeResolver(JsonReflectionsSubTypeResolver.getDefaultInstance());
             JsonRpcHttpClient client =
                     new JsonRpcHttpClient(mapper, new URL(GENERAL_INFO_SERVICE_URL),
                             new HashMap<String, String>());
