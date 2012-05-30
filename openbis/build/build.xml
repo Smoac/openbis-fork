@@ -30,8 +30,8 @@
   <property name="admin.console" value="openbis-admin-console" />
   <property name="admin.jar.file" value="${dist}/${admin.console}.jar" />
   <property name="admin.dist.file" value="${dist}/${admin.console}.zip" />
-  <property name="query.api" value="openbis-query-api" />
-  <property name="query.api.jar.file" value="${dist}/${query.api}.jar" />
+  <property name="query.api" value="openBIS-query-API" />
+  <property name="query.api.jar.file" value="${dist}/openbis-query-api.jar" />
 	<property name="query.api.doc" value="${dist}/${query.api}/doc" />
 	<property name="query.api.doc.zip" value="${dist}/doc.zip" />
 	<property name="query.api.src.zip" value="${dist}/src.zip" />
@@ -234,20 +234,51 @@
     </zip>
   	<delete file="${admin.jar.file}"/>
   </target>
-
+  
+  <!-- 
+     Pattern sets of API sources 
+  -->
+  <!-- Pattern sets of API source in project 'openbis' -->
+  <patternset id="openbis-api-sources">
+    <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
+    <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/dto/**" />
+  </patternset>
+  
+  <!-- Pattern sets of API source in project 'openbis_api' -->
+  <patternset id="openbis_api-api-sources">
+    <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
+    <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/dto/**" />
+  </patternset>
+  
+  <!-- Pattern sets of API source in project 'common' -->
+  <patternset id="common-api-sources">
+    <include name="ch/systemsx/cisd/common/exceptions/**" />
+    <include name="ch/systemsx/cisd/common/api/**" />
+  </patternset>
+  
+  <!-- Pattern sets of API source in project 'server-common' -->
+  <patternset id="server-common-api-sources">
+    <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.java" />
+    <include name="ch/systemsx/cisd/common/api/client/**" />
+  </patternset>
+  
   <target name="make-query-api-doc">
     <javadoc destdir="${query.api.doc}" access="public" author="false" version="false" classpath="${ecp}">
       <packageset dir="../openbis/${sources}">
-        <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/**" />
-        <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
-        <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
-        <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/dto/**" />
+        <patternset refid="openbis-api-sources"/>
       </packageset>
       <packageset dir="../openbis_api/${sources}">
-        <include name="ch/systemsx/cisd/openbis/plugin/query/client/api/v1/**" />
-        <include name="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
-        <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
-        <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/dto/**" />
+        <patternset refid="openbis_api-api-sources"/>
+      </packageset>
+      <packageset dir="../common/${sources}">
+        <patternset refid="common-api-sources"/>
+      </packageset>
+      <packageset dir="../server-common/${sources}">
+        <patternset refid="server-common-api-sources"/>
       </packageset>
     </javadoc>
     <zip destfile="${query.api.doc.zip}">
@@ -255,8 +286,18 @@
     </zip>
     <delete dir="${dist}/${query.api}" />
     <zip destfile="${query.api.src.zip}">
-      <zipfileset dir="../openbis/${sources}" includes="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
-      <zipfileset dir="../openbis/${sources}" includes="ch/systemsx/cisd/openbis/plugin/query/shared/api/v1/dto/**" />
+      <fileset dir="../openbis/${sources}">
+        <patternset refid="openbis-api-sources"/>
+      </fileset>
+      <fileset dir="../openbis_api/${sources}">
+        <patternset refid="openbis_api-api-sources"/>
+      </fileset>
+      <fileset dir="../common/${sources}">
+        <patternset refid="common-api-sources"/>
+      </fileset>
+      <fileset dir="../server-common/${sources}">
+        <patternset refid="server-common-api-sources"/>
+      </fileset>
     </zip>
   </target>
 	
