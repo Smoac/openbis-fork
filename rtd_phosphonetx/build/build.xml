@@ -6,12 +6,11 @@
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_phosphonetx" />
 	<property name="variant" value="-proteomics" />
-	<property name="api.prefix" value="raw-data-api" />
+	<property name="api.prefix" value="openBIS-proteomics-API" />
 	<property name="api.jar" value="${dist}/${api.prefix}.jar" />
 	<property name="api.doc" value="${dist}/${api.prefix}/doc" />
 	<property name="api.doc.zip" value="${dist}/doc.zip" />
 	<property name="api.src.zip" value="${dist}/src.zip" />
-	<property name="api.dist.file" value="${dist}/${api.prefix}.zip" />
 	<property name="proteomics-build.info.filename" value="BUILD-proteomics.INFO" />
 	<property name="proteomics.classes" value="../rtd_phosphonetx/${classes}"/>
 	<property name="proteomics-build.info.file" value="${proteomics.classes}/BUILD-proteomics.INFO" />
@@ -71,7 +70,7 @@
     </antcall>
   </target>
 
-  <!-- Tasks for Raw Data API -->
+  <!-- Tasks for Proteomics API -->
 	
   <target name="jar" depends="openbis.jar">
     <jar destfile="${api.jar}">
@@ -111,8 +110,8 @@
   </target>
 	
   <target name="make-api-dist" depends="jar, make-api-doc" 
-  	description="Makes a distribution file for Raw Data API.">
-    <zip destfile="${api.dist.file}">
+  	description="Makes a distribution file for Proteomics API.">
+    <zip destfile="${dist}/${api.prefix}-${version.number}-r${revision.number}.zip">
       <zipfileset prefix="${api.prefix}" file="${api.jar}"/>
       <zipfileset prefix="${api.prefix}" file="${api.doc.zip}"/>
       <zipfileset prefix="${api.prefix}" file="${api.src.zip}"/>
@@ -127,7 +126,6 @@
   	<delete file="${api.jar}"/>
   	<delete file="${api.doc.zip}"/>
   	<delete file="${api.src.zip}"/>
-    <move file="${api.dist.file}" todir="${server.dist}" />
   </target>
 
 	
