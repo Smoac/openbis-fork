@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_PROTEOMICS;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_SCREENING;
-import static ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction.DISABLED_CORE_PLUGINS_KEY;
-import static ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction.ENABLED_TECHNOLOGIES_VARNAME;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction.DISABLED_CORE_PLUGINS_KEY;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction.ENABLED_TECHNOLOGIES_VARNAME;
 import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  *
  * @author Franz-Josef Elmer
  */
-public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystemTestCase
+public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemTestCase
 {
     private File configFile;
     private File dssConfigFile;
@@ -79,7 +79,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
-        AutomatedInstallData data = updateDisabledTechnologyProperties(variables, true);
+        AutomatedInstallData data = updateEnabledTechnologyProperties(variables, true);
 
         assertEquals("proteomics", data.getVariable(ENABLED_TECHNOLOGIES_VARNAME));
     }
@@ -91,7 +91,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
-        AutomatedInstallData data = updateDisabledTechnologyProperties(variables, true);
+        AutomatedInstallData data = updateEnabledTechnologyProperties(variables, true);
 
         assertEquals("", data.getVariable(ENABLED_TECHNOLOGIES_VARNAME));
     }
@@ -105,7 +105,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         
         try
         {
-            updateDisabledTechnologyProperties(variables, false);
+            updateEnabledTechnologyProperties(variables, false);
             fail("Exception expected.");
         } catch (RuntimeException ex)
         {
@@ -124,7 +124,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
-        updateDisabledTechnologyProperties(variables, false);
+        updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
                 .loadToStringList(configFile).toString());
@@ -139,7 +139,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
-        updateDisabledTechnologyProperties(variables, false);
+        updateEnabledTechnologyProperties(variables, false);
         
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = proteomics, screening, answer = 42]", FileUtilities
                 .loadToStringList(configFile).toString());
@@ -155,7 +155,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
-        updateDisabledTechnologyProperties(variables, false);
+        updateEnabledTechnologyProperties(variables, false);
         
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = screening]", FileUtilities
                 .loadToStringList(configFile).toString());
@@ -163,6 +163,23 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
                 .loadToStringList(dssConfigFile).toString());
     }
 
+    @Test
+    public void testUpdateAppendPropertyWithEmptyDisabledCorePluginsProperty()
+    {
+        FileUtilities.writeToFile(configFile, "abc = 123");
+        FileUtilities.writeToFile(dssConfigFile, DISABLED_CORE_PLUGINS_KEY + "= ");
+        Properties variables = new Properties();
+        variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
+        variables.setProperty(TECHNOLOGY_SCREENING, "true");
+        
+        updateEnabledTechnologyProperties(variables, false);
+        
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = screening]", FileUtilities
+                .loadToStringList(configFile).toString());
+        assertEquals("[" + DISABLED_CORE_PLUGINS_KEY + " = proteomics]", FileUtilities
+                .loadToStringList(dssConfigFile).toString());
+    }
+    
     @Test
     public void testUpdateDisabledPluginsForSwitchedTechnologies()
     {
@@ -173,7 +190,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
 
-        updateDisabledTechnologyProperties(variables, false);
+        updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[a = b, " + DISABLED_CORE_PLUGINS_KEY + " = proteomics:a:b, proteomics, "
                 + "gamma = alpha]", FileUtilities.loadToStringList(dssConfigFile).toString());
@@ -189,14 +206,14 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
-        updateDisabledTechnologyProperties(variables, false);
+        updateEnabledTechnologyProperties(variables, false);
     }
 
-    private AutomatedInstallData updateDisabledTechnologyProperties(Properties variables,
+    private AutomatedInstallData updateEnabledTechnologyProperties(Properties variables,
             boolean isFirstTimeInstallation)
     {
         InstallData data = new InstallData(variables, new VariableSubstitutorImpl(new Properties()));
-        SetDisableTechnologiesVariableAction action = new SetDisableTechnologiesVariableAction();
+        SetEnableTechnologiesVariableAction action = new SetEnableTechnologiesVariableAction();
         action.updateEnabledTechnologyProperty(data, isFirstTimeInstallation, workingDirectory);
         return data;
     }

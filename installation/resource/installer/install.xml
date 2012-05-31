@@ -105,7 +105,7 @@
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES" condition="isStandardTechnologies">
       <actions>
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction" />
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction" />
       </actions>
     </panel>
 

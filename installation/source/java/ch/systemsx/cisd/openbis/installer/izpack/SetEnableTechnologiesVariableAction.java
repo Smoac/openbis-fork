@@ -39,9 +39,10 @@ import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
  * 
  * @author Franz-Josef Elmer
  */
-public class SetDisableTechnologiesVariableAction implements PanelAction
+public class SetEnableTechnologiesVariableAction implements PanelAction
 {
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
+    static final String DISABLED_TECHNOLOGIES_VARNAME = "DISABLED_TECHNOLOGIES";
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
     public void initialize(PanelActionConfiguration configuration)
@@ -58,6 +59,7 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
     void updateEnabledTechnologyProperty(AutomatedInstallData data,
             boolean isFirstTimeInstallation, File installDir)
     {
+        data.setVariable(DISABLED_TECHNOLOGIES_VARNAME, createListOfDisabledTechnologies(data));
         String newTechnologyList = createListOfEnabledTechnologies(data);
         data.setVariable(ENABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
         if (isFirstTimeInstallation == false)
@@ -143,6 +145,20 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
         {
             String technologyFlag = data.getVariable(technology);
             if (Boolean.TRUE.toString().equalsIgnoreCase(technologyFlag))
+            {
+                builder.append(technology.toLowerCase());
+            }
+        }
+        return builder.toString();
+    }
+    
+    private String createListOfDisabledTechnologies(AutomatedInstallData data)
+    {
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (String technology : GlobalInstallationContext.TECHNOLOGIES)
+        {
+            String technologyFlag = data.getVariable(technology);
+            if (technologyFlag == null || Boolean.FALSE.toString().equalsIgnoreCase(technologyFlag))
             {
                 builder.append(technology.toLowerCase());
             }

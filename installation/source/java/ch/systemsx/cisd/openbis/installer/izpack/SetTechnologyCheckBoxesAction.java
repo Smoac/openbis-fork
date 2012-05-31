@@ -29,7 +29,7 @@ import com.izforge.izpack.data.PanelAction;
  * Action which sets the variables which are the values of check boxes on the technology page. If
  * the variable is already set nothing is done. Otherwise the behavior depends on whether this is
  * installation or upgrading. In case of installation the flag will be <code>true</code>. In case of
- * upgrading <code>service.properties</code> files are scanned in order to check whether a certain
+ * upgrading <code>service.properties</code> file of AS is scanned in order to check whether a certain
  * technology is enabled or not.
  * 
  * @author Franz-Josef Elmer
@@ -98,7 +98,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             String variable = data.getVariable(technology);
             if (variable == null)
             {
-                boolean technologyFlag = true;
+                boolean technologyFlag = false;
                 if (GlobalInstallationContext.isUpdateInstallation)
                 {
                     technologyFlag =
