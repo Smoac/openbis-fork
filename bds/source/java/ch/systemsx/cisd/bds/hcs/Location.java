@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.common.geometry.ConversionUtils;
 import ch.systemsx.cisd.common.geometry.Point;
 
@@ -24,8 +26,10 @@ import ch.systemsx.cisd.common.geometry.Point;
  * 
  * @author Christian Ribeaud
  */
-public final class Location
+public final class Location implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     static final String NOT_POSITIVE = "Given coordinate '%s' must be > 0 (%d <= 0).";
 
     /**
