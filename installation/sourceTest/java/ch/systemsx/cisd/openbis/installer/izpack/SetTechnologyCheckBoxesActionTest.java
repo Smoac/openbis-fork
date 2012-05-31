@@ -53,20 +53,20 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
-        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
+        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
     }
     
     @Test
     public void testDisabledTechnologiesPropertyPresent() throws Exception
     {
         Properties properties = new Properties();
-        properties.setProperty(SetTechnologyCheckBoxesAction.DISABLED_TECHNOLOGIES_KEY, "proteomics");
+        properties.setProperty(SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY, "proteomics");
         saveProperties(properties, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
         
-        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
-        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
-        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
+        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
+        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
+        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
     }
     
     @Test
@@ -78,30 +78,6 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
-    }
-    
-    @Test
-    public void testDisabledTechnologiesPropertyNotPresentForProteomics() throws Exception
-    {
-        Properties properties = new Properties();
-        properties.setProperty("blabla.Proteomics", "blub");
-        saveProperties(properties, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-        SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
-        
-        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
-        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
-    }
-    
-    @Test
-    public void testDisabledTechnologiesPropertyNotPresentForScreening() throws Exception
-    {
-        Properties properties = new Properties();
-        properties.setProperty("blabla.class", "blub.ScreeningProcessor");
-        saveProperties(properties, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-        SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
-        
-        assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
-        assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
     }
     
     private void saveProperties(Properties properties, String path) throws IOException

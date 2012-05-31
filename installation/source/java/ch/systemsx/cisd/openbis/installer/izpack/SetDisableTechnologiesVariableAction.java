@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
-import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.DISABLED_TECHNOLOGIES_KEY;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
 import java.util.HashSet;
@@ -34,14 +34,14 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 
 /**
- * Action which sets the variable <code>DISABLED_TECHNOLOGIES_VARNAME</code> or updates
+ * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates
  * service.properties of AS.
  * 
  * @author Franz-Josef Elmer
  */
 public class SetDisableTechnologiesVariableAction implements PanelAction
 {
-    static final String DISABLED_TECHNOLOGIES_VARNAME = "DISABLED_TECHNOLOGIES";
+    static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
     public void initialize(PanelActionConfiguration configuration)
@@ -52,18 +52,18 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
     {
         boolean isFirstTimeInstallation = GlobalInstallationContext.isFirstTimeInstallation;
         File installDir = GlobalInstallationContext.installDir;
-        updateDisabledTechnologyProperty(data, isFirstTimeInstallation, installDir);
+        updateEnabledTechnologyProperty(data, isFirstTimeInstallation, installDir);
     }
 
-    void updateDisabledTechnologyProperty(AutomatedInstallData data,
+    void updateEnabledTechnologyProperty(AutomatedInstallData data,
             boolean isFirstTimeInstallation, File installDir)
     {
-        String newTechnologyList = createListOfDisabledTechnologies(data);
-        data.setVariable(DISABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
+        String newTechnologyList = createListOfEnabledTechnologies(data);
+        data.setVariable(ENABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
         if (isFirstTimeInstallation == false)
         {
             File configFile = new File(installDir, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-            Utils.updateOrAppendProperty(configFile, DISABLED_TECHNOLOGIES_KEY, newTechnologyList);
+            Utils.updateOrAppendProperty(configFile, ENABLED_TECHNOLOGIES_KEY, newTechnologyList);
             updateDisabledDssPluginsProperty(data, installDir);
         }
     }
@@ -136,13 +136,13 @@ public class SetDisableTechnologiesVariableAction implements PanelAction
         return builder.toString();
     }
 
-    private String createListOfDisabledTechnologies(AutomatedInstallData data)
+    private String createListOfEnabledTechnologies(AutomatedInstallData data)
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String technologyFlag = data.getVariable(technology);
-            if (Boolean.FALSE.toString().equalsIgnoreCase(technologyFlag))
+            if (Boolean.TRUE.toString().equalsIgnoreCase(technologyFlag))
             {
                 builder.append(technology.toLowerCase());
             }

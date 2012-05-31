@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
-import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.DISABLED_TECHNOLOGIES_KEY;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
 import java.io.FileReader;
@@ -139,7 +139,7 @@ class Utils
             printWriter.println(propertiesEntry);
         } catch (IOException ex)
         {
-            throw new RuntimeException("Couldn't append property " + DISABLED_TECHNOLOGIES_KEY
+            throw new RuntimeException("Couldn't append property " + ENABLED_TECHNOLOGIES_KEY
                     + " to " + configFile, ex);
         } finally
         {

@@ -42,7 +42,7 @@ public class CorePluginRegistrator implements InitializingBean
 
     private String pluginsFolderName;
 
-    private Set<String> disabledTechnologies = new HashSet<String>();
+    private Set<String> enabledTechnologies = new HashSet<String>();
 
     /**
      * Loads and installs the deployed core plugins. Invoked from the Spring container after the
@@ -59,7 +59,7 @@ public class CorePluginRegistrator implements InitializingBean
         String sessionToken = getSessionToken();
         for (CorePlugin plugin : pluginScanner.scanForPlugins())
         {
-            if (disabledTechnologies.contains(plugin.getName()) == false)
+            if (enabledTechnologies.contains(plugin.getName()))
             {
                 try
                 {
@@ -82,9 +82,9 @@ public class CorePluginRegistrator implements InitializingBean
         this.pluginsFolderName = pluginsFolderName;
     }
 
-    public void setDisabledTechnologies(String listOfDisabledTechnologies)
+    public void setEnabledTechnologies(String listOfEnabledTechnologies)
     {
-        disabledTechnologies = ServerUtils.extractSet(listOfDisabledTechnologies);
+        enabledTechnologies = ServerUtils.extractSet(listOfEnabledTechnologies);
     }
 
     public void setCommonServer(ICommonServerForInternalUse commonServer)

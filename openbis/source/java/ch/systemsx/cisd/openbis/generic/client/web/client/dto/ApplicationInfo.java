@@ -44,7 +44,7 @@ public final class ApplicationInfo implements IsSerializable
 
     private WebClientConfiguration webClientConfiguration;
 
-    private Set<String> disabledTechnologies;
+    private Set<String> enabledTechnologies;
 
     private int maxResults = 100000;
 
@@ -113,14 +113,14 @@ public final class ApplicationInfo implements IsSerializable
         return webClientConfiguration;
     }
 
-    public Set<String> getDisabledTechnologies()
+    public Set<String> getEnabledTechnologies()
     {
-        return disabledTechnologies;
+        return enabledTechnologies;
     }
 
-    public void setDisabledTechnologies(Set<String> disabledTechnologies)
+    public void setEnabledTechnologies(Set<String> enabledTechnologies)
     {
-        this.disabledTechnologies = disabledTechnologies;
+        this.enabledTechnologies = enabledTechnologies;
     }
 
     public void setCustomImports(List<CustomImport> customImports)

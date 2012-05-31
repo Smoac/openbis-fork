@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_PROTEOMICS;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_SCREENING;
 import static ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction.DISABLED_CORE_PLUGINS_KEY;
-import static ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction.DISABLED_TECHNOLOGIES_VARNAME;
-import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.DISABLED_TECHNOLOGIES_KEY;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetDisableTechnologiesVariableAction.ENABLED_TECHNOLOGIES_VARNAME;
+import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
 
         AutomatedInstallData data = updateDisabledTechnologyProperties(variables, true);
 
-        assertEquals("screening", data.getVariable(DISABLED_TECHNOLOGIES_VARNAME));
+        assertEquals("proteomics", data.getVariable(ENABLED_TECHNOLOGIES_VARNAME));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
 
         AutomatedInstallData data = updateDisabledTechnologyProperties(variables, true);
 
-        assertEquals("proteomics, screening", data.getVariable(DISABLED_TECHNOLOGIES_VARNAME));
+        assertEquals("", data.getVariable(ENABLED_TECHNOLOGIES_VARNAME));
     }
     
     @Test
@@ -118,22 +118,22 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
     @Test
     public void testUpdateUnchangedProperty()
     {
-        FileUtilities.writeToFile(configFile, "abc = 123\n" + DISABLED_TECHNOLOGIES_KEY
-                + "=screening");
+        FileUtilities.writeToFile(configFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
+                + "=proteomics");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
         updateDisabledTechnologyProperties(variables, false);
 
-        assertEquals("[abc = 123, " + DISABLED_TECHNOLOGIES_KEY + "=screening]", FileUtilities
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
                 .loadToStringList(configFile).toString());
     }
     
     @Test
     public void testUpdateChangeProperty()
     {
-        FileUtilities.writeToFile(configFile, "abc = 123\n" + DISABLED_TECHNOLOGIES_KEY
+        FileUtilities.writeToFile(configFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
                 + "=screening\nanswer = 42\n");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
@@ -141,7 +141,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         
         updateDisabledTechnologyProperties(variables, false);
         
-        assertEquals("[abc = 123, " + DISABLED_TECHNOLOGIES_KEY + " = , answer = 42]", FileUtilities
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = proteomics, screening, answer = 42]", FileUtilities
                 .loadToStringList(configFile).toString());
         assertEquals("[" + DISABLED_CORE_PLUGINS_KEY + " = ]", FileUtilities
                 .loadToStringList(dssConfigFile).toString());
@@ -157,7 +157,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
         
         updateDisabledTechnologyProperties(variables, false);
         
-        assertEquals("[abc = 123, " + DISABLED_TECHNOLOGIES_KEY + " = proteomics]", FileUtilities
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = screening]", FileUtilities
                 .loadToStringList(configFile).toString());
         assertEquals("[" + DISABLED_CORE_PLUGINS_KEY + " = proteomics]", FileUtilities
                 .loadToStringList(dssConfigFile).toString());
@@ -197,7 +197,7 @@ public class SetDisableTechnologiesVariableActionTest extends AbstractFileSystem
     {
         InstallData data = new InstallData(variables, new VariableSubstitutorImpl(new Properties()));
         SetDisableTechnologiesVariableAction action = new SetDisableTechnologiesVariableAction();
-        action.updateDisabledTechnologyProperty(data, isFirstTimeInstallation, workingDirectory);
+        action.updateEnabledTechnologyProperty(data, isFirstTimeInstallation, workingDirectory);
         return data;
     }
 }

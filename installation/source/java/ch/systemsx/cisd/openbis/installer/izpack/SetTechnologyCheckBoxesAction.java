@@ -36,7 +36,7 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class SetTechnologyCheckBoxesAction implements PanelAction
 {
-    static final String DISABLED_TECHNOLOGIES_KEY = "disabled-technologies";
+    static final String ENABLED_TECHNOLOGIES_KEY = "enabled-technologies";
     
     private static interface ITechnologyChecker
     {
@@ -62,12 +62,12 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
         public boolean isTechnologyEnabled(File installDir)
         {
             String technologies =
-                    Utils.tryToGetServicePropertyOfAS(installDir, DISABLED_TECHNOLOGIES_KEY);
+                    Utils.tryToGetServicePropertyOfAS(installDir, ENABLED_TECHNOLOGIES_KEY);
             if (technologies != null)
             {
-                return technologies.contains(technologyName.toLowerCase()) == false;
+                return technologies.contains(technologyName.toLowerCase());
             }
-            return Utils.dssPropertiesContains(installDir, technologyName.toLowerCase());
+            return false;
         }
     }
     
@@ -114,7 +114,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
         ITechnologyChecker technologyChecker = technologyCheckers.get(technology);
         if (technologyChecker == null)
         {
-            return true;
+            return false;
         }
         return technologyChecker.isTechnologyEnabled(installDir);
     }
