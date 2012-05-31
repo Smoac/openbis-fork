@@ -419,6 +419,12 @@
       <fileset dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </fileset>
+      <fileset dir="${lib}/reflections">
+        <include name="reflections.jar" />
+      </fileset>
+      <fileset dir="${lib}/reflections/lib">
+        <include name="*.jar" />
+      </fileset>
       <fileset dir="${lib}/postgresql">
         <include name="postgresql.jar" />
       </fileset>
@@ -430,9 +436,6 @@
       </fileset>
       <fileset dir="${lib}/eodsql">
         <include name="eodsql.jar" />
-      </fileset>
-      <fileset dir="${lib}/reflections">
-        <include name="**/*.jar" />
       </fileset>
       <!-- Hibernate -->
       <fileset dir="${lib}/antlr">
@@ -705,6 +708,12 @@
       <lib dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </lib>
+      <fileset dir="${lib}/reflections">
+        <include name="reflections.jar" />
+      </fileset>
+      <fileset dir="${lib}/reflections/lib">
+        <include name="*.jar" />
+      </fileset>
     	<!-- Excel -->
     	<lib dir="${lib}/poi">
         <include name="poi-3.7-20101029.jar" />
@@ -728,9 +737,6 @@
       <lib dir="${lib}/eodsql">
         <include name="eodsql.jar" />
       </lib>
-      <fileset dir="${lib}/reflections">
-        <include name="**/*.jar" />
-      </fileset>
       <!-- Hibernate -->
       <lib dir="${lib}/antlr">
         <include name="antlr.jar" />
