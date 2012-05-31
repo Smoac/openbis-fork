@@ -74,13 +74,8 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki("h5. openBIS for Standard Technologies")
   printWiki()
   processFile("Installation and Upgrade Wizard (AS+DSS)", "openBIS-installation-standard-technologies", version)
-  processFile("DSS Client", "dss_client", version)
-  processFile("KNIME Nodes", "ch.systemsx.cisd.openbis.knime", "")
+  processFile("Clients and APIs", "openBIS-clients-and-APIs", version)
   printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
-  printWiki()
-  printWiki('h5. openBIS for High Content Screening')
-  printWiki()
-  processFile("API", "screening-api", version)
   printWiki()
 
 def uploadToConfluenceMetabolomicsAndPrintPageText(version):

@@ -19,7 +19,26 @@
 		<antcall target="_dist"><param name="project" value="installation"/></antcall>
 		<antcall target="_dist"><param name="project" value="openbis_knime"/></antcall>
 		<antcall target="javadoc"/>
+	  <antcall target="apis-dist"/>
 	</target>
+  
+  <target name="apis-dist">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+    <zip destfile="${result.dir}/openBIS-clients-and-APIs-${version.number}-r${revision.number}.zip">
+      <fileset dir="${result.dir}">
+        <include name="dss_client-S*"/>
+        <include name="dss_client-screening-S*"/>
+        <include name="dss_upload_gui-S*"/>
+        <include name="dss_upload_gui-screening-S*"/>
+        <include name="openBIS-*-API*"/>
+        <include name="*knime-12.04*"/>
+      </fileset>
+      <fileset dir="dist">
+        <include name="readme.txt"/>
+      </fileset>
+    </zip>
+  </target>
+
 
 	<target name="_dist">
 		<exec executable="ant" failonerror="true">
