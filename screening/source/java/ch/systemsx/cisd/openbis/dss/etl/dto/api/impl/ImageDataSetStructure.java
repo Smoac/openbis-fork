@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -33,8 +34,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
  * 
  * @author Tomasz Pylak
  */
-public class ImageDataSetStructure
+public class ImageDataSetStructure implements Serializable
 {
+    
+    private static final long serialVersionUID = 1L;
+
     private List<ImageFileInfo> images;
 
     private List<Channel> channels;

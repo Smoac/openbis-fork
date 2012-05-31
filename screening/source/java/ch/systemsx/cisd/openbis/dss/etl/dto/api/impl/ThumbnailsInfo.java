@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,10 +16,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * 
  * @author Tomasz Pylak
  */
-public class ThumbnailsInfo
+public class ThumbnailsInfo implements Serializable
 {
-    public static class PhysicalDatasetInfo
+    private static final long serialVersionUID = 1L;
+
+    public static class PhysicalDatasetInfo implements Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         private final String rootPath;
 
         private int thumbnailsWidth;

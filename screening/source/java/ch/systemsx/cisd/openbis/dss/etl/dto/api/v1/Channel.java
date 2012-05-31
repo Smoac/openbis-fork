@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import ch.systemsx.cisd.common.image.WavelengthColor;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
@@ -14,8 +15,10 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransfor
  * 
  * @author Tomasz Pylak
  */
-public final class Channel extends AbstractHashable
+public final class Channel extends AbstractHashable implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String code;
 
     private final String label;

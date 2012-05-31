@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,8 +33,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  * 
  * @author Tomasz Pylak
  */
-public class ThumbnailsStorageFormat extends AbstractHashable
+public class ThumbnailsStorageFormat extends AbstractHashable implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     public enum FileFormat
     {

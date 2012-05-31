@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +40,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  * 
  * @author Tomasz Pylak
  */
-public class FeatureDefinition implements IFeatureDefinition
+public class FeatureDefinition implements IFeatureDefinition, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final ImgFeatureDefDTO imgFeatureDefDTO;
 
     private final List<FeatureValuesMap> values;

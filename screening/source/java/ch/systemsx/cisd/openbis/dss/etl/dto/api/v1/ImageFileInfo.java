@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -8,8 +10,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * 
  * @author Tomasz Pylak
  */
-public final class ImageFileInfo
+public final class ImageFileInfo implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private WellLocation wellLocationOrNull;
 
     private Location tileLocation;

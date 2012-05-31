@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,8 +32,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * 
  * @author Tomasz Pylak
  */
-public class FeatureValuesMap
+public class FeatureValuesMap implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final Map<WellLocation, String> valuesMap;
 
     private final Double depthOrNull;

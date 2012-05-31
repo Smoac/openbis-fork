@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 
@@ -24,8 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
  * 
  * @author Tomasz Pylak
  */
-public class ImageTransformation
+public class ImageTransformation implements Serializable
 {
+    
+    private static final long serialVersionUID = 1L;
+
     private String code;
 
     private String label;

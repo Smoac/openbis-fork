@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
@@ -25,8 +27,10 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
  * 
  * @author Tomasz Pylak
  */
-public class RelativeImageFile extends AbstractHashable
+public class RelativeImageFile extends AbstractHashable implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String imageRelativePath;
 
     private final String imageIDOrNull;

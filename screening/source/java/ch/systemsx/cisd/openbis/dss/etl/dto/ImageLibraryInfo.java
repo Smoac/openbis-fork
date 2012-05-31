@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
+import java.io.Serializable;
+
 /**
  * Stores information about the library and its reader which should be used to read the image.
  * 
  * @author Tomasz Pylak
  */
-public class ImageLibraryInfo
+public class ImageLibraryInfo implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     // Which image library should be used to read the image?
     private final String name;
 

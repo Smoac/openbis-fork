@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.imagereaders.ImageID;
 
 /**
@@ -25,8 +27,10 @@ import ch.systemsx.cisd.imagereaders.ImageID;
  * 
  * @author Franz-Josef Elmer
  */
-public class ImageIdentifier implements Comparable<ImageIdentifier>
+public class ImageIdentifier implements Comparable<ImageIdentifier>, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     public static final ImageIdentifier NULL = new ImageIdentifier(0, 0, 0, 0);
 
     private final int seriesIndex;

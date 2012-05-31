@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,10 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
  * 
  * @author Tomasz Pylak
  */
-public class ImageStorageConfiguraton extends AbstractHashable
+public class ImageStorageConfiguraton extends AbstractHashable implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /** Returns the default configuration. */
     public static ImageStorageConfiguraton createDefault()
     {

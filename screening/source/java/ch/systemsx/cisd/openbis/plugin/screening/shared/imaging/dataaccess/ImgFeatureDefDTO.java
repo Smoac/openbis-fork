@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
+import java.io.Serializable;
+
 import net.lemnik.eodsql.ResultColumn;
 
 /**
@@ -24,8 +26,10 @@ import net.lemnik.eodsql.ResultColumn;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ImgFeatureDefDTO extends AbstractImgIdentifiable
+public class ImgFeatureDefDTO extends AbstractImgIdentifiable implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @ResultColumn("LABEL")
     private String label;
 
