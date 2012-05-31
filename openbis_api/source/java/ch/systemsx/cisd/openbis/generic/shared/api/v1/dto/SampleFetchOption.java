@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 public enum SampleFetchOption implements FetchOption  
 {
     /**
-     * Samples will only basic attributes (id, code, type, space code, experiment identifier,
+     * Samples will have only basic attributes (id, code, type, space code, experiment identifier,
      * registrator, registration date, modification date) but no properties.
      */
     BASIC,
