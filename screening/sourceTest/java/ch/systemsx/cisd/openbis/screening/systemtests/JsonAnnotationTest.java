@@ -31,7 +31,7 @@ import org.reflections.Reflections;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.ClassReferences;
 import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -65,10 +65,10 @@ public class JsonAnnotationTest
     private void findAllClassesUsedByJsonRpcApi()
     {
         Class<?>[] jsonRpcInterfaces =
-                    { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
-                            IGeneralInformationChangingService.class,
-                            IGeneralInformationService.class, IWebInformationService.class,
-                            IQueryApiServer.class, IDssServiceRpcScreening.class };
+            { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
+                    IGeneralInformationChangingService.class,
+                    IGeneralInformationService.class, IWebInformationService.class,
+                    IQueryApiServer.class, IDssServiceRpcScreening.class };
 
         for (Class<?> jsonClass : jsonRpcInterfaces)
         {
@@ -76,7 +76,7 @@ public class JsonAnnotationTest
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void jsonClassesAreAnnotatedWithJsonObject()
     {
         Collection<Class<?>> classesWithoutJsonObject = getAllJsonRpcClassesWithoutJsonObject();

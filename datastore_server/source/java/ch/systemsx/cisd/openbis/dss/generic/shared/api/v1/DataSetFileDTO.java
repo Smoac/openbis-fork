@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Represents a reference to a file/folder within a data set.

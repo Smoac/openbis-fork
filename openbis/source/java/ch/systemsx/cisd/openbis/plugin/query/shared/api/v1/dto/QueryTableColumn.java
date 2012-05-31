@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Column of query data. Defines title and data type.

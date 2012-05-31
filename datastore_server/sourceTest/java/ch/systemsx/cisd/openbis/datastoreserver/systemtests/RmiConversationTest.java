@@ -44,7 +44,7 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
-import ch.systemsx.cisd.common.conversation.ProgressListener;
+import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.conversation.RmiConversationController;
 import ch.systemsx.cisd.common.conversation.ConversationalRmiServer;
 import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
@@ -183,7 +183,7 @@ public class RmiConversationTest extends SystemTestCase
             return echo(input, delayInMillis);
         }
         
-        public String echo(String input, Integer delayInMillis,ProgressListener progress) {
+        public String echo(String input, Integer delayInMillis,IProgressListener progress) {
                         
             long startTime = System.currentTimeMillis();
             
@@ -206,7 +206,7 @@ public class RmiConversationTest extends SystemTestCase
             return echoWithoutProgress(input, delayInMillis, null);
         }
         
-        public String echoWithoutProgress(String input, Integer delayInMillis, ProgressListener progress) {
+        public String echoWithoutProgress(String input, Integer delayInMillis, IProgressListener progress) {
             try
             {
                 Thread.sleep(delayInMillis);
@@ -222,7 +222,7 @@ public class RmiConversationTest extends SystemTestCase
             return echoWithStore(input, null);
         }
         
-        public String echoWithStore(String input, ProgressListener progress) {
+        public String echoWithStore(String input, IProgressListener progress) {
             
             DatabaseInstancePE db = new DatabaseInstancePE();
             db.setCode(input);
@@ -238,7 +238,7 @@ public class RmiConversationTest extends SystemTestCase
             return echoWithStoreAndProcessingException(input, null);
         }
         
-        public String echoWithStoreAndProcessingException(String input, ProgressListener progress) {
+        public String echoWithStoreAndProcessingException(String input, IProgressListener progress) {
             
             DatabaseInstancePE db = new DatabaseInstancePE();
             db.setCode(input);
@@ -254,7 +254,7 @@ public class RmiConversationTest extends SystemTestCase
             return exists(code, null);
         }
         
-        public boolean exists(String code, ProgressListener progress) {
+        public boolean exists(String code, IProgressListener progress) {
             
            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DatabaseInstancePE.class);
            criteria.add(Restrictions.eq("code", code));

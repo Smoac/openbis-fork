@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 
 

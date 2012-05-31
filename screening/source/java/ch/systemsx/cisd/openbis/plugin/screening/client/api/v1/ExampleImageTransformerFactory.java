@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.awt.image.BufferedImage;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;

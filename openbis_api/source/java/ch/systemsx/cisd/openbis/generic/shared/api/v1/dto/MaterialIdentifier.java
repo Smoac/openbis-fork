@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author jakubs

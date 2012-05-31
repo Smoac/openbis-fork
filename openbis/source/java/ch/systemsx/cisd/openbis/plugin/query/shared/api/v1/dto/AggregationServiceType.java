@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * The different kinds of aggregation services.

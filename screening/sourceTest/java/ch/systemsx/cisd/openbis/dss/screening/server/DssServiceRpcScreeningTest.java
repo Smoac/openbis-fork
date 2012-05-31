@@ -28,7 +28,6 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang.SerializationUtils;
-import org.codehaus.jackson.annotate.JsonTypeName;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactory;
@@ -38,6 +37,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -113,7 +113,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class DssServiceRpcScreeningTest extends AssertJUnit
 {
-    @JsonTypeName("ImageTransformerFactory")
+    @JsonObject("ImageTransformerFactory")
     private static final class ImageTransformerFactory implements IImageTransformerFactory
     {
         private static final long serialVersionUID = 1L;
@@ -278,8 +278,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             { 1, 2 };
         String[][] featureCodesPerDataset = new String[][]
             {
-                { "f1", "f2" },
-                { "f2", "f3" } };
+                    { "f1", "f2" },
+                    { "f2", "f3" } };
         prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
@@ -303,16 +303,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         FeatureInformation[][] featureCodesPerDataset =
                 new FeatureInformation[][]
                     {
-                                {
-                                        new FeatureInformation("f1", "Feature 1",
-                                                "The first feature."),
-                                        new FeatureInformation("f2", "Feature 2",
-                                                "The second feature.") },
-                                {
-                                        new FeatureInformation("f2", "Feature 2",
-                                                "The second feature."),
-                                        new FeatureInformation("f3", "Feature 3",
-                                                "The third feature.") } };
+                            {
+                                    new FeatureInformation("f1", "Feature 1",
+                                            "The first feature."),
+                                    new FeatureInformation("f2", "Feature 2",
+                                            "The second feature.") },
+                            {
+                                    new FeatureInformation("f2", "Feature 2",
+                                            "The second feature."),
+                                    new FeatureInformation("f3", "Feature 3",
+                                            "The third feature.") } };
         prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
@@ -338,12 +338,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference(DATASET_CODE2);
         String[][] featureCodesPerDataset = new String[][]
             {
-                { "F1", "F2" } };
+                    { "F1", "F2" } };
         prepareLoadFeatures(new long[]
             { 1 }, featureCodesPerDataset);
         featureCodesPerDataset = new String[][]
             {
-                { "F2" } };
+                    { "F2" } };
         prepareLoadFeatures(new long[]
             { 2 }, featureCodesPerDataset);
 
@@ -825,8 +825,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                     new PlateFeatureValues(NativeTaggedArray
                                             .toByteArray(new MDFloatArray(new float[][]
                                                 {
-                                                    { 3.5f * dataSetId + offset },
-                                                    { 1.25f * dataSetId + offset } })));
+                                                        { 3.5f * dataSetId + offset },
+                                                        { 1.25f * dataSetId + offset } })));
                             ImgFeatureValuesDTO value =
                                     new ImgFeatureValuesDTO(0.0, 0.0, matrixValues, 0L);
                             value.setFeatureDefId(featureDefIds[featureDefIx]);

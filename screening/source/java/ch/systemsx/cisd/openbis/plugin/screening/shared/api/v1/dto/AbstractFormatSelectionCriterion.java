@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Abstract super class of {@link IImageRepresentationFormatSelectionCriterion} which accepting

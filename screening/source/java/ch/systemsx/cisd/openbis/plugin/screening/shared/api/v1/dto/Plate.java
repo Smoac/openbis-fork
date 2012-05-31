@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 
 

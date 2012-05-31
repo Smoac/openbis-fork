@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Description of one plate-based screening dataset.

@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * A unique identifier for a material like e.g. a gene.

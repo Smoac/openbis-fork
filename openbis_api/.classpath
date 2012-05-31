@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar" sourcepath="/libraries/jackson/jackson-src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import ch.systemsx.cisd.common.annotation.JsonObject;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Contains data which uniquely define a plate.
