@@ -123,6 +123,7 @@
         <include name="tabular-data-graph.properties" />
       </fileset>
     </copy>
+    <copy file="${lib}/javassist/javassist.jar" todir="${dist.datastore_server.lib}"/>
     <copy todir="${dist.datastore_server.lib}" flatten="true">
       <fileset dir="${lib}/reflections">
         <include name="**/*.jar"/>
