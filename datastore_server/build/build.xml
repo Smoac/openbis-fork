@@ -109,6 +109,7 @@
         <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
@@ -136,6 +137,7 @@
   <!-- Pattern sets of API source in project 'datastore_server' -->
   <patternset id="datastore_server-api-sources">
     <include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**" />
   </patternset>
   
   <target name="make-query-api-doc">
