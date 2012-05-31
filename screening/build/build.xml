@@ -532,7 +532,7 @@
   </target>
 
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" >
-     <zip destfile="${dist}/screening-api-${version.number}-r${revision.number}.zip">
+     <zip destfile="${dist}/openBIS-screening-API-${version.number}-r${revision.number}.zip">
       <zipfileset dir="${dist.screening-api}" includes="**" />
      </zip>
     <delete dir="${dist.screening-api}" />
