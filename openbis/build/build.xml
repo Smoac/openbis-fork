@@ -708,12 +708,12 @@
       <lib dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </lib>
-      <fileset dir="${lib}/reflections">
+      <lib dir="${lib}/reflections">
         <include name="reflections.jar" />
-      </fileset>
-      <fileset dir="${lib}/reflections/lib">
+      </lib>
+      <lib dir="${lib}/reflections/lib">
         <include name="*.jar" />
-      </fileset>
+      </lib>
     	<!-- Excel -->
     	<lib dir="${lib}/poi">
         <include name="poi-3.7-20101029.jar" />
