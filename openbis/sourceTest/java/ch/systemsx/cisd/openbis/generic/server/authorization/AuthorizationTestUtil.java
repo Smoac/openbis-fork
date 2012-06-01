@@ -165,6 +165,7 @@ public final class AuthorizationTestUtil
                 // InvocationHandler
                 //
 
+                @Override
                 public final Object invoke(final Object proxy, final Method method,
                         final Object[] args) throws Throwable
                 {
@@ -244,17 +245,20 @@ public final class AuthorizationTestUtil
             {
                 private static final long serialVersionUID = 1L;
 
+                @Override
                 public PersonPE tryGetPerson()
                 {
                     return person;
                 }
 
+                @Override
                 public String tryGetHomeGroupCode()
                 {
                     SpacePE homeGroup = person.getHomeSpace();
                     return homeGroup == null ? null : homeGroup.getCode();
                 }
 
+                @Override
                 public String getUserName()
                 {
                     return person.getFirstName() + " " + person.getLastName();

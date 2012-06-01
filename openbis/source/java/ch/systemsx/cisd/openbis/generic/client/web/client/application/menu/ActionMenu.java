@@ -67,6 +67,7 @@ public class ActionMenu extends MenuItem
     {
         this(actionMenu, messageProvider, new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     if (messageProvider instanceof IViewContext<?>)

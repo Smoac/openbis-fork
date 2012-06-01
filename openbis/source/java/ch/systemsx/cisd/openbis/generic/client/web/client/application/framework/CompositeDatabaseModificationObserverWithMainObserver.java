@@ -60,6 +60,7 @@ public class CompositeDatabaseModificationObserverWithMainObserver extends
         {
             mainObserver.setSuccessfulUpdateCallback(new IDelegatedAction()
                 {
+                    @Override
                     public void execute()
                     {
                         updateOtherObservers(observedModifications);

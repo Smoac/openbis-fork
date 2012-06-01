@@ -68,6 +68,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
     // AbstractVocabularyBusinessObject
     //
 
+    @Override
     public final void define(final PropertyType propertyType) throws UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
@@ -182,6 +183,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
     }
 
+    @Override
     public void update(IPropertyTypeUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
@@ -200,6 +202,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         getPropertyTypeDAO().validateAndSaveUpdatedEntity(propertyTypePE);
     }
 
+    @Override
     public final PropertyTypePE getPropertyType()
     {
         assert propertyTypePE != null : "Property type not defined.";

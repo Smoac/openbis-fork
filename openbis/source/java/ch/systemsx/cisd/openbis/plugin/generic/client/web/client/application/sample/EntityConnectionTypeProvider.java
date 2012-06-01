@@ -47,6 +47,7 @@ public class EntityConnectionTypeProvider implements IDirectlyConnectedControlle
     {
         showOnlyDirectlyConnectedCheckBox.addListener(Events.Change, new Listener<FieldEvent>()
             {
+                @Override
                 public void handleEvent(FieldEvent be)
                 {
                     if (onChangeAction != null)
@@ -57,11 +58,13 @@ public class EntityConnectionTypeProvider implements IDirectlyConnectedControlle
             });
     }
 
+    @Override
     public void setOnChangeAction(IDelegatedAction onChangeAction)
     {
         this.onChangeAction = onChangeAction;
     }
 
+    @Override
     public boolean isOnlyDirectlyConnected()
     {
         return showOnlyDirectlyConnectedCheckBox.getValue();

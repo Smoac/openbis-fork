@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -42,12 +43,13 @@ public class ListMaterials extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public void execute()
     {
 
         final ComboBox<MaterialTypeModel> typeSelector =
                 (MaterialTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(MaterialTypeSelectionWidget.ID
+                        .getWidgetWithID(DropDownList.ID
                                 + MaterialTypeSelectionWidget.SUFFIX + MaterialBrowserToolbar.ID);
 
         GWTUtils.setSelectedItem(typeSelector, ModelDataPropertyNames.CODE, materialTypeName);

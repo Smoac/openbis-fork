@@ -125,6 +125,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 new ArrayList<Entry<String, Set<Role>>>(namedRoleSets.entrySet());
         Collections.sort(entries, new Comparator<Entry<String, Set<Role>>>()
             {
+                @Override
                 public int compare(Entry<String, Set<Role>> e1, Entry<String, Set<Role>> e2)
                 {
                     return e1.getKey().compareTo(e2.getKey());
@@ -156,6 +157,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         List<Role> roles = new ArrayList<Role>(entry.getValue());
         Collections.sort(roles, new Comparator<Role>()
             {
+                @Override
                 public int compare(Role r1, Role r2)
                 {
                     return r1.toString().compareTo(r2.toString());
@@ -743,6 +745,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         List<Project> projects = space.getProjects();
         Collections.sort(projects, new Comparator<Project>()
             {
+                @Override
                 public int compare(Project p1, Project p2)
                 {
                     return p1.toString().compareTo(p2.toString());
@@ -756,6 +759,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         List<Role> list = new ArrayList<Role>(roles);
         Collections.sort(list, new Comparator<Role>()
             {
+                @Override
                 public int compare(Role r1, Role r2)
                 {
                     return r1.toString().compareTo(r2.toString());

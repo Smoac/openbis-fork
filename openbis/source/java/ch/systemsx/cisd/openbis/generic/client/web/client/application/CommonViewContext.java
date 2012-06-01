@@ -124,26 +124,31 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     // IViewContext
     //
 
+    @Override
     public final ICommonClientServiceAsync getService()
     {
         return service;
     }
 
+    @Override
     public String getTechnology()
     {
         return TECHNOLOGY_NAME;
     }
 
+    @Override
     public String getPropertyOrNull(String key)
     {
         return AbstractPluginViewContext.getPropertyOrNull(this, key);
     }
 
+    @Override
     public final GenericViewModel getModel()
     {
         return viewModel;
     }
 
+    @Override
     public void initDisplaySettingsManager()
     {
         final DisplaySettings loggedUserDisplaySettings =
@@ -153,6 +158,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                         .getApplicationInfo().getWebClientConfiguration());
     }
 
+    @Override
     public DisplaySettingsManager getDisplaySettingsManager()
     {
         assert displaySettingsManager != null : "displaySettingsManager not initialized";
@@ -164,6 +170,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         IDelegatedAction settingsUpdater = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     service.updateDisplaySettings(displaySettings, new VoidAsyncCallback<Void>(
@@ -173,54 +180,64 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         return new DisplaySettingsManager(displaySettings, settingsUpdater, this);
     }
 
+    @Override
     public final IGenericImageBundle getImageBundle()
     {
         return imageBundle;
     }
 
+    @Override
     public final IPageController getPageController()
     {
         return pageController;
     }
 
+    @Override
     public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
     {
         return clientPluginFactoryProvider;
     }
 
+    @Override
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
     {
         return this;
     }
 
     /** @see IMessageProvider#containsKey(String) */
+    @Override
     public boolean containsKey(String key)
     {
         return messageProvider.containsKey(key);
     }
 
     /** @see IMessageProvider#getMessage(String, Object...) */
+    @Override
     public String getMessage(String key, Object... parameters)
     {
         return messageProvider.getMessage(key, parameters);
     }
 
     /** @see IMessageProvider#getName() */
+    @Override
     public String getName()
     {
         return messageProvider.getName();
     }
 
+    @Override
     public ICommonClientServiceAsync getCommonService()
     {
         return getService();
     }
 
+    @Override
     public void addMessageSource(String messageSource)
     {
         messageProvider.add(new DictonaryBasedMessageProvider(messageSource));
     }
 
+    @Override
     public ViewLocatorResolverRegistry getLocatorResolverRegistry()
     {
         return locatorHandlerRegistry;
@@ -228,41 +245,49 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     // ----- delegation to profilingTable
 
+    @Override
     public final void clearLog()
     {
         profilingTable.clearLog();
     }
 
+    @Override
     public final List<String> getLoggedEvents()
     {
         return profilingTable.getLoggedEvents();
     }
 
+    @Override
     public final int log(String description)
     {
         return profilingTable.log(description);
     }
 
+    @Override
     public void log(int taskId, String description)
     {
         profilingTable.log(taskId, description);
     }
 
+    @Override
     public final void logStop(int taskId)
     {
         profilingTable.logStop(taskId);
     }
 
+    @Override
     public boolean isLoggingEnabled()
     {
         return profilingTable.isLoggingEnabled();
     }
 
+    @Override
     public boolean isDebuggingEnabled()
     {
         return isDebuggingEnabled;
     }
 
+    @Override
     public boolean isSimpleOrEmbeddedMode()
     {
         return ClientStaticState.isSimpleMode();

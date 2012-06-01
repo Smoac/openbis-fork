@@ -21,6 +21,7 @@ public final class LoginAction implements IDelegatedAction
         logoutAction = new LogoutAction(viewContext);
     }
 
+    @Override
     public void execute()
     {
         UrlBuilder urlBuilder = Window.Location.createUrlBuilder();

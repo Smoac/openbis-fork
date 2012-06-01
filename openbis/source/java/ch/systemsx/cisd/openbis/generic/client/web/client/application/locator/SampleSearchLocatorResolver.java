@@ -79,12 +79,14 @@ public class SampleSearchLocatorResolver
             this.historyToken = historyToken;
         }
 
+        @Override
         public final void onFailure(Throwable caught)
         {
             // Error in the search -- notify the user
             MessageBox.alert("Error", caught.getMessage(), null);
         }
 
+        @Override
         public final void onSuccess(ResultSetWithEntityTypes<Sample> result)
         {
             // If the search found just one sample, show it in the details view. If many samples

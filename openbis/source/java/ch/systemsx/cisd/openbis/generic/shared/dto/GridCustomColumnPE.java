@@ -47,6 +47,7 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
 
     private String label;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, sequenceName = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE)
@@ -115,6 +116,7 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
         return getLabel();
     }
 
+    @Override
     public int compareTo(GridCustomColumnPE that)
     {
         return getCode().compareTo(that.getCode());

@@ -48,6 +48,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         super(daoFactory, session);
     }
 
+    @Override
     public void deleteHolderAttachments(final AttachmentHolderPE holder,
             final List<String> fileNames, final String reason)
     {
@@ -85,6 +86,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         return String.format("%s/%s/%s", holder.getHolderName(), holder.getIdentifier(), fileName);
     }
 
+    @Override
     public void updateAttachment(AttachmentHolderPE holder, Attachment attachmentDTO)
     {
         load(holder, attachmentDTO.getFileName(), attachmentDTO.getVersion());
@@ -93,6 +95,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         dataChanged = true;
     }
 
+    @Override
     public final void save()
     {
         assert attachment != null : "Can not save an undefined attachment.";

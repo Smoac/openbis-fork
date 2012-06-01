@@ -464,6 +464,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public void add(String name, int value)
         {
             mapNameToValue.put(name, new Integer(value));
@@ -473,6 +474,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public String name(int value)
         {
             return (String) mapValueToName.get(value);
@@ -481,6 +483,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public int value(String name)
         {
             Object value = mapNameToValue.get(name);
@@ -501,6 +504,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public void add(String name, int value)
         {
             mapNameToValue.put(name, new Integer(value));
@@ -510,6 +514,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public String name(int value)
         {
             return mapValueToName.get(new Integer(value));
@@ -518,6 +523,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public int value(String name)
         {
             Object value = mapNameToValue.get(name);
@@ -640,6 +646,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public void add(String name, int value)
         {
             ensureCapacity(size + 1);
@@ -670,6 +677,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public String name(int value)
         {
             for (int i = 0; i < size; ++i)
@@ -685,6 +693,7 @@ class Entities
         /**
          * {@inheritDoc}
          */
+        @Override
         public int value(String name)
         {
             for (int i = 0; i < size; ++i)

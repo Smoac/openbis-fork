@@ -42,6 +42,7 @@ public final class ObjectArrayPropertyValueRenderer<T> extends AbstractPropertyV
     // AbstractPropertyValueRenderer
     //
 
+    @Override
     public Widget getAsWidget(T[] objects)
     {
         FlowPanel panel = new FlowPanel();

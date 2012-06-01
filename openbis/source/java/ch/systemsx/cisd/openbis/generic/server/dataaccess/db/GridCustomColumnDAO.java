@@ -47,6 +47,7 @@ public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColu
         super(sessionFactory, databaseInstance, GridCustomColumnPE.class);
     }
 
+    @Override
     public void createColumn(GridCustomColumnPE column)
     {
         assert column != null : "Unspecified column";
@@ -56,6 +57,7 @@ public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColu
         persist(column);
     }
 
+    @Override
     public List<GridCustomColumnPE> listColumns(String gridId)
     {
         assert gridId != null : "Unspecified grid ID.";

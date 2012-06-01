@@ -117,6 +117,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
         setWidth(100);
     }
 
+    @Override
     public ParameterWithValue getParameterWithValue()
     {
         return new ParameterWithValue(parameterName, getRawValue());
@@ -253,6 +254,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             callback.ignore();
         }
 
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[0];
@@ -288,6 +290,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             }
         }
 
+        @Override
         public ParameterWithValue getParameterWithValue()
         {
             return new ParameterWithValue(parameterName, getRawValue());

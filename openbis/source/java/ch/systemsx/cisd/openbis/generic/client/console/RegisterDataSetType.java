@@ -31,6 +31,7 @@ class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implem
     {
         DESCRIPTION("description")
         {
+            @Override
             public void setAttributeFor(DataSetType type, String value)
             {
                 type.setDescription(value);
@@ -39,6 +40,7 @@ class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implem
         },
         PATTERN("main-pattern")
         {
+            @Override
             public void setAttributeFor(DataSetType type, String value)
             {
                 type.setMainDataSetPattern(value);
@@ -47,6 +49,7 @@ class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implem
         },
         PATH("main-path")
         {
+            @Override
             public void setAttributeFor(DataSetType type, String value)
             {
                 type.setMainDataSetPath(value);
@@ -61,11 +64,13 @@ class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implem
             this.attributeName = attributeName;
         }
 
+        @Override
         public String getAttributeName()
         {
             return attributeName;
         }
 
+        @Override
         public void setDefaultFor(DataSetType type)
         {
         }
@@ -88,6 +93,7 @@ class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implem
         return attributeSetters;
     }
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

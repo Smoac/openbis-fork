@@ -53,6 +53,7 @@ public class UpdatedExperimentLoader
                 new BisTabFileLoader<UpdatedBasicExperiment>(
                         new IParserObjectFactoryFactory<UpdatedBasicExperiment>()
                             {
+                                @Override
                                 public final IParserObjectFactory<UpdatedBasicExperiment> createFactory(
                                         final IPropertyMapper propertyMapper)
                                         throws ParserException

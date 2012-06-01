@@ -86,11 +86,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         super(daoFactory, exampleSession, propertiesConverter);
     }
 
+    @Override
     public DataPE tryGetData()
     {
         return data;
     }
 
+    @Override
     public DataPE getData()
     {
         // TODO 2010-04-12, CR: This should throw an exception if the external data is null
@@ -98,6 +100,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return data;
     }
 
+    @Override
     public void loadByCode(String dataSetCode)
     {
         loadByCode(dataSetCode, true, false);
@@ -114,6 +117,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     static final String PROPERTY_TYPES = "dataSetType.dataSetTypePropertyTypesInternal";
 
+    @Override
     public void loadDataByTechId(TechId datasetId)
     {
         String[] connections =
@@ -126,6 +130,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
+    @Override
     public void enrichWithParentsAndExperiment()
     {
         if (data != null)
@@ -134,6 +139,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
+    @Override
     public void enrichWithChildren()
     {
         if (data != null)
@@ -142,6 +148,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
+    @Override
     public final void enrichWithProperties()
     {
         if (data != null)
@@ -150,6 +157,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
+    @Override
     public void enrichWithContainedDataSets()
     {
         if (data != null && data.isContainer())
@@ -158,6 +166,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
+    @Override
     public void define(NewExternalData newData, SamplePE sample, SourceType sourceType)
     {
         assert sample != null : "Undefined sample.";
@@ -179,6 +188,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         setParentDataSets(experiment, newData);
     }
 
+    @Override
     public void define(NewExternalData newData, ExperimentPE experiment, SourceType sourceType)
     {
         assert experiment != null : "Undefined experiment.";
@@ -212,6 +222,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         replaceParents(data, parentsToAdd, false);
     }
 
+    @Override
     public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
     {
         SpacePE containerSpace = data.getSpace();
@@ -387,6 +398,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return result;
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert data != null : "Undefined external data.";
@@ -427,6 +439,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 data.getDataSetType());
     }
 
+    @Override
     public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties)
     {
         loadByCode(dataSetCode);
@@ -479,6 +492,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return propertiesToUpdate;
     }
 
+    @Override
     public void update(DataSetUpdatesDTO updates)
     {
         loadDataByTechId(updates.getDatasetId());
@@ -634,12 +648,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return result;
     }
 
+    @Override
     public void updateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive)
     {
         getDataDAO().updateDataSetStatuses(dataSetCodes, newStatus, newPresentInArchive);
     }
 
+    @Override
     public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive)
     {
@@ -656,6 +672,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return true;
     }
 
+    @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<DataSetPropertyPE> existingProperties = data.getProperties();
@@ -665,6 +682,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 type, managedProperty, registrator));
     }
 
+    @Override
     public void setStorageConfirmed()
     {
         ExternalDataPE externalData = data.tryAsExternalData();

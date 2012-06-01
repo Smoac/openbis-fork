@@ -95,6 +95,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     // IClientPluginFactory
     //
 
+    @Override
     @SuppressWarnings("unchecked")
     public final <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
@@ -140,6 +141,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                 + "' not implemented yet.");
     }
 
+    @Override
     public final Set<String> getEntityTypeCodes(EntityKind entityKind)
     {
         throw new UnsupportedOperationException(
@@ -170,6 +172,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         // IViewClientPlugin
         //
 
+        @Override
         public AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
@@ -210,6 +213,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                 };
         }
 
+        @Override
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
                 final SampleType sampleType, final ActionContext context)
         {
@@ -218,16 +222,19 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
             return new DatabaseModificationAwareWidget(form, form);
         }
 
+        @Override
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
 
+        @Override
         public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
         {
             return new GenericSampleBatchUpdateForm(getViewContext(), sampleType);
         }
 
+        @Override
         public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()
@@ -244,7 +251,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericSampleEditForm.createId(identifiable, EntityKind.SAMPLE);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.SAMPLE);
                     }
 
                     @Override
@@ -345,7 +352,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericMaterialEditForm.createId(identifiable, EntityKind.MATERIAL);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.MATERIAL);
                     }
 
                     @Override
@@ -458,7 +465,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericExperimentEditForm.createId(identifiable,
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable,
                                 EntityKind.EXPERIMENT);
                     }
 
@@ -546,7 +553,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericDataSetEditForm.createId(identifiable, EntityKind.DATA_SET);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.DATA_SET);
                     }
 
                     @Override

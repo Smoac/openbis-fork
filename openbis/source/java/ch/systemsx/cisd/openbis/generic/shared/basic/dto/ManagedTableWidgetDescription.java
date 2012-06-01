@@ -48,6 +48,7 @@ public class ManagedTableWidgetDescription implements IManagedOutputWidgetDescri
     // IManagedWidgetDescription
     //
 
+    @Override
     public ManagedOutputWidgetType getManagedOutputWidgetType()
     {
         return ManagedOutputWidgetType.TABLE;

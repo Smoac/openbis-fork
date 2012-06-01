@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -54,7 +55,7 @@ public final class FillDataSetEditForm extends AbstractDefaultTestCommand
 
     private FillDataSetEditForm(final TechId dataSetId)
     {
-        this.formId = GenericDataSetEditForm.createId(dataSetId, EntityKind.DATA_SET);
+        this.formId = AbstractGenericEntityRegistrationForm.createId(dataSetId, EntityKind.DATA_SET);
         this.properties = new ArrayList<PropertyField>();
     }
 
@@ -65,9 +66,10 @@ public final class FillDataSetEditForm extends AbstractDefaultTestCommand
         return this;
     }
 
+    @Override
     public final void execute()
     {
-        String simpleId = formId.substring(GenericDataSetEditForm.ID_PREFIX.length());
+        String simpleId = formId.substring(AbstractGenericEntityRegistrationForm.ID_PREFIX.length());
         for (final PropertyField property : properties)
         {
             GWTTestUtil.setPropertyFieldValue(formId, property);

@@ -46,6 +46,7 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
         this.samplePredicate = new SampleOwnerIdentifierPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         sampleTechIdPredicate.init(provider);

@@ -359,6 +359,7 @@ public class PropertiesHistoryTest extends SystemTestCase
                 new Comparator<TableModelRowWithObject<EntityPropertyHistory>>()
                     {
 
+                        @Override
                         public int compare(TableModelRowWithObject<EntityPropertyHistory> o1,
                                 TableModelRowWithObject<EntityPropertyHistory> o2)
                         {

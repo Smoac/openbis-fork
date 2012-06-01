@@ -152,6 +152,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
     private class PropertyGridDatabaseModificationObserver extends
             AbstractDatabaseModificationObserverWithCallback
     {
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
@@ -165,6 +166,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
                         DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
         }
 
+        @Override
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
             reloadData(new ExperimentInfoCallback(viewContext, ExperimentPropertiesPanel.this));

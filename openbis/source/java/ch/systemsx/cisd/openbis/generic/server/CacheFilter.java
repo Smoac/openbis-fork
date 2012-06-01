@@ -50,6 +50,7 @@ public class CacheFilter implements Filter
 
     private static final String NO_CACHE = ".nocache.";
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws IOException, ServletException
     {
@@ -76,10 +77,12 @@ public class CacheFilter implements Filter
                 || requestURI.endsWith(".png") || requestURI.endsWith(".ico");
     }
 
+    @Override
     public void destroy()
     {
     }
 
+    @Override
     public void init(FilterConfig arg0) throws ServletException
     {
     }

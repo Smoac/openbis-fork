@@ -40,6 +40,7 @@ public final class LocatorTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.LOCATOR_TYPE_SEQUENCE, sequenceName = SequenceNames.LOCATOR_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.LOCATOR_TYPE_SEQUENCE)

@@ -130,6 +130,7 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
     // BeanFactoryAware
     //
 
+    @Override
     @SuppressWarnings("unchecked")
     public final void setBeanFactory(final BeanFactory beanFactory) throws BeansException
     {

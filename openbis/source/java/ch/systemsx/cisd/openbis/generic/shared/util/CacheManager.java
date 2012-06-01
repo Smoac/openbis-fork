@@ -165,6 +165,7 @@ public class CacheManager implements ICacheManager
         {
             File[] keyFiles = cacheFolder.listFiles(new FilenameFilter()
                 {
+                    @Override
                     public boolean accept(File dir, String name)
                     {
                         return name.endsWith(KEY_FILE_TYPE);
@@ -232,6 +233,7 @@ public class CacheManager implements ICacheManager
         return value == null ? defaultValue : value;
     }
     
+    @Override
     public Object tryToGetData(Key key)
     {
         synchronized (keyToFileNameMap)
@@ -265,6 +267,7 @@ public class CacheManager implements ICacheManager
         }
     }
 
+    @Override
     public void storeData(Key key, Object object)
     {
         synchronized (keyToFileNameMap)

@@ -47,36 +47,43 @@ public class VocabularyImmutable implements IVocabularyImmutable
         return vocabulary;
     }
 
+    @Override
     public String getCode()
     {
         return getVocabulary().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getVocabulary().getDescription();
     }
 
+    @Override
     public boolean isManagedInternally()
     {
         return getVocabulary().isManagedInternally();
     }
 
+    @Override
     public boolean isInternalNamespace()
     {
         return getVocabulary().isInternalNamespace();
     }
 
+    @Override
     public boolean isChosenFromList()
     {
         return getVocabulary().isChosenFromList();
     }
 
+    @Override
     public String getUrlTemplate()
     {
         return getVocabulary().getURLTemplate();
     }
 
+    @Override
     public List<IVocabularyTermImmutable> getTerms()
     {
         List<IVocabularyTermImmutable> terms = new ArrayList<IVocabularyTermImmutable>();

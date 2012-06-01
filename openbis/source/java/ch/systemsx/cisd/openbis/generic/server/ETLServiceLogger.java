@@ -88,6 +88,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         super(sessionManager, context);
     }
 
+    @Override
     public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
             String typeId)
     {
@@ -95,34 +96,40 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public void send(ServiceMessage message)
     {
         logTracking(message.toString(), "send", "");
     }
 
+    @Override
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "createDataSetCode", "");
         return null;
     }
 
+    @Override
     public String createPermId(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "createPermId", "");
         return null;
     }
 
+    @Override
     public long drawANewUniqueID(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "drawANewUniqueID", "");
         return 0;
     }
 
+    @Override
     public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
     {
         return null;
     }
 
+    @Override
     public void registerDataStoreServer(String sessionToken, DataStoreServerInfo info)
     {
         String code = info.getDataStoreCode();
@@ -139,6 +146,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 services.getProcessingServiceDescriptions());
     }
 
+    @Override
     public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
@@ -147,11 +155,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return 0;
     }
 
+    @Override
     public void updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "updateSample", "SAMPLE(%S)", updates.getSampleIdentifier());
     }
 
+    @Override
     public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException
     {
@@ -161,6 +171,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 newExperiments.size(), newDataSets.size());
     }
 
+    @Override
     public long registerExperiment(String sessionToken, NewExperiment experiment)
             throws UserFailureException
     {
@@ -169,6 +180,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return 0;
     }
 
+    @Override
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
             NewExternalData externalData) throws UserFailureException
     {
@@ -176,6 +188,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 externalData);
     }
 
+    @Override
     public void registerDataSet(String sessionToken, ExperimentIdentifier experimentIdentifier,
             NewExternalData externalData) throws UserFailureException
     {
@@ -189,6 +202,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         logTracking(sessionToken, "deleteDataSet", "DATA_SET(%s) REASON(%s)", dataSetCode, reason);
     }
 
+    @Override
     public Experiment tryToGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
@@ -196,12 +210,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
         logAccess(sessionToken, "listSamples", "CRITERIA(%s)", criteria);
         return null;
     }
 
+    @Override
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
             throws UserFailureException
     {
@@ -209,6 +225,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
             throws UserFailureException
     {
@@ -216,6 +233,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
             throws UserFailureException
     {
@@ -223,6 +241,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)
             throws UserFailureException
     {
@@ -230,12 +249,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
     {
         logAccess(sessionToken, "getDataSetType", "DATA_SET_TYPE(%s)", dataSetTypeCode);
         return null;
     }
 
+    @Override
     public List<ExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
             throws UserFailureException
     {
@@ -243,6 +264,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
@@ -250,6 +272,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
             throws UserFailureException
     {
@@ -257,6 +280,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
@@ -265,34 +289,40 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
     {
         logAccess(sessionToken, "checkInstanceAdminAuthorization");
     }
 
+    @Override
     public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException
     {
         logAccess(sessionToken, "checkSpacePowerUserAuthorization");
     }
 
+    @Override
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
         logAccess(sessionToken, "checkDataSetAccess", "DATA_SET(%s)", dataSetCode);
     }
 
+    @Override
     public void checkDataSetCollectionAccess(String sessionToken, List<String> dataSetCodes)
     {
         logTracking(sessionToken, "checkDataSetCollectionAccess", "DATA_SET_CODES(%s)",
                 dataSetCodes);
     }
 
+    @Override
     public void checkSpaceAccess(String sessionToken, SpaceIdentifier spaceId)
             throws UserFailureException
     {
         logAccess(sessionToken, "checkSpaceAccess", "SPACE(%s)", spaceId);
     }
 
+    @Override
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
@@ -300,6 +330,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
@@ -307,6 +338,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
             throws UserFailureException
     {
@@ -314,6 +346,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStore)
             throws UserFailureException
     {
@@ -321,6 +354,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
@@ -329,6 +363,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
             TrackingDataSetCriteria criteria)
     {
@@ -346,6 +381,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
             Long lastSeenDeletionEventIdOrNull, Date maxDeletionDateOrNull)
     {
@@ -356,6 +392,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
             String dataSetCode, SpaceIdentifier space) throws UserFailureException
     {
@@ -363,6 +400,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 properties.size());
     }
 
+    @Override
     public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
             long size) throws UserFailureException
     {
@@ -370,6 +408,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 "DATA_SET_CODE(%s) SHARE_ID(%s) SIZE(%s)", dataSetCode, shareId, size);
     }
 
+    @Override
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
             DataSetArchivingStatus newStatus, boolean presentInArchive) throws UserFailureException
     {
@@ -378,6 +417,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 newStatus, presentInArchive);
     }
 
+    @Override
     public boolean compareAndSetDataSetStatus(String token, String dataSetCode,
             DataSetArchivingStatus oldStatus, DataSetArchivingStatus newStatus,
             boolean newPresentInArchive) throws UserFailureException
@@ -394,6 +434,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
@@ -402,6 +443,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabulary)
             throws UserFailureException
     {
@@ -409,6 +451,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType,
             String userIdOrNull) throws UserFailureException
     {
@@ -433,24 +476,28 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return sb.toString();
     }
 
+    @Override
     public List<String> generateCodes(String sessionToken, String prefix, int number)
     {
         logAccess(sessionToken, "generateCodes", "PREFIX(%s) NUMBER(%s)", prefix, number);
         return null;
     }
 
+    @Override
     public List<Person> listAdministrators(String sessionToken)
     {
         logAccess(sessionToken, "listAdministrators");
         return null;
     }
 
+    @Override
     public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail)
     {
         logAccess(sessionToken, "tryPersonWithUserIdOrEmail", "USERID_OR_EMAIL(%s)", useridOrEmail);
         return null;
     }
 
+    @Override
     public Sample registerSampleAndDataSet(String sessionToken, NewSample newSample,
             NewExternalData externalData, String userIdOrNull) throws UserFailureException
     {
@@ -460,6 +507,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public Sample updateSampleAndRegisterDataSet(String sessionToken, SampleUpdatesDTO updates,
             NewExternalData externalData)
     {
@@ -468,6 +516,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
@@ -475,24 +524,28 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public Space tryGetSpace(String sessionToken, SpaceIdentifier spaceIdentifier)
     {
         logAccess(sessionToken, "tryGetSpace", "%s", spaceIdentifier);
         return null;
     }
 
+    @Override
     public Project tryGetProject(String sessionToken, ProjectIdentifier projectIdentifier)
     {
         logAccess(sessionToken, "tryGetProject", "%s", projectIdentifier);
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken, ProjectIdentifier projectIdentifier)
     {
         logAccess(sessionToken, "listExperiments", "%s", projectIdentifier);
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken,
             List<ExperimentIdentifier> experimentIdentifiers,
             ExperimentFetchOptions experimentFetchOptions)
@@ -503,6 +556,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<Experiment> listExperimentsForProjects(String sessionToken,
             List<ProjectIdentifier> projectIdentifiers,
             ExperimentFetchOptions experimentFetchOptions)
@@ -513,30 +567,35 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public List<Project> listProjects(String sessionToken)
     {
         logAccess(sessionToken, "listProjects");
         return null;
     }
 
+    @Override
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "searchForSamples", "%s", searchCriteria);
         return null;
     }
 
+    @Override
     public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "searchForDataSets", "%s", searchCriteria);
         return null;
     }
 
+    @Override
     public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier)
     {
         logAccess(sessionToken, "tryGetMaterial", "%s", materialIdentifier);
         return null;
     }
 
+    @Override
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -545,6 +604,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public void removeDataSetsPermanently(String sessionToken, List<String> dataSetCodes,
             String reason)
     {
@@ -552,27 +612,32 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 CollectionUtils.abbreviate(dataSetCodes, 5), reason);
     }
 
+    @Override
     public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates)
     {
         logAccess(sessionToken, "updateDataSet", "DATA_SET_UPDATES(%s)", dataSetUpdates);
     }
 
+    @Override
     public List<String> getTrustedCrossOriginDomains(String sessionToken)
     {
         logAccess(sessionToken, "getTrustedCrossOriginDomains");
         return null;
     }
 
+    @Override
     public void setStorageConfirmed(String sessionToken, String dataSetCode)
     {
         logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_CODE(%s)", dataSetCode);
     }
 
+    @Override
     public void markSuccessfulPostRegistration(String sessionToken, String dataSetCode)
     {
         logAccess(sessionToken, "markSuccessfulPostRegistration", "DATA_SET_CODE(%s)", dataSetCode);
     }
 
+    @Override
     public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {
@@ -581,6 +646,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
     public Boolean didEntityOperationsSucceed(String token, TechId registrationId)
     {
         logAccess(Level.DEBUG, token, "didEntityOperationsSucceed", "REGISTRATION_ID(%s)",

@@ -81,6 +81,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     {
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.TERM_CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.TERM_CODE_PATTERN_MESSAGE)
@@ -146,6 +147,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
         this.id = id;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE)
@@ -235,6 +237,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     // Comparable
     //
 
+    @Override
     public final int compareTo(final VocabularyTermPE o)
     {
         return this.getOrdinal().compareTo(o.getOrdinal());

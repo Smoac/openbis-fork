@@ -266,6 +266,7 @@ public final class CommonClientService extends AbstractClientService implements
      * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)}
      * has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
+    @Override
     public final String getExportTable(final String exportDataKey, final String lineSeparator)
     {
         // NOTE: no generics in GWT
@@ -285,6 +286,7 @@ public final class CommonClientService extends AbstractClientService implements
         return TSVRenderer.createTable(dataProvider, lineSeparator);
     }
 
+    @Override
     public final void removeResultSet(final String resultSetKey)
     {
         try
@@ -307,12 +309,14 @@ public final class CommonClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
+    @Override
     public final void registerGroup(final String groupCode, final String descriptionOrNull)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerSpace(sessionToken, groupCode, descriptionOrNull);
     }
 
+    @Override
     public final void updateGroup(final ISpaceUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
@@ -321,6 +325,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateSpace(sessionToken, updates);
     }
 
+    @Override
     public final void updateScript(final IScriptUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
@@ -329,12 +334,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateScript(sessionToken, updates);
     }
 
+    @Override
     public final void registerPerson(final String code)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerPerson(sessionToken, code);
     }
 
+    @Override
     public final void registerGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
@@ -344,12 +351,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
+    @Override
     public final void registerInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerInstanceRole(sessionToken, role.getRoleCode(), grantee);
     }
 
+    @Override
     public final void deleteGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
@@ -359,12 +368,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
+    @Override
     public final void deleteInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
         commonServer.deleteInstanceRole(sessionToken, role.getRoleCode(), grantee);
     }
 
+    @Override
     public final List<SampleType> listSampleTypes()
     {
         final String sessionToken = getSessionToken();
@@ -375,115 +386,135 @@ public final class CommonClientService extends AbstractClientService implements
     // --------- methods preparing exported content. Note: GWT does not support
     // generic methods :(
 
+    @Override
     public String prepareExportSamples(TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public final String prepareExportExperiments(
             final TableExportCriteria<TableModelRowWithObject<Experiment>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public final String prepareExportMatchingEntities(
             final TableExportCriteria<TableModelRowWithObject<MatchingEntity>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportPropertyTypes(
             TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportEntityPropertyHistory(
             TableExportCriteria<TableModelRowWithObject<EntityPropertyHistory>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportPropertyTypeAssignments(
             TableExportCriteria<TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportProjects(
             TableExportCriteria<TableModelRowWithObject<Project>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportDeletions(
             TableExportCriteria<TableModelRowWithObject<Deletion>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportVocabularies(
             final TableExportCriteria<TableModelRowWithObject<Vocabulary>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportVocabularyTerms(
             TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportMaterialTypes(
             final TableExportCriteria<TableModelRowWithObject<MaterialType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportExperimentTypes(
             final TableExportCriteria<TableModelRowWithObject<ExperimentType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportSampleTypes(
             final TableExportCriteria<TableModelRowWithObject<SampleType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportDataSetTypes(
             final TableExportCriteria<TableModelRowWithObject<DataSetType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportAttachmentVersions(
             TableExportCriteria<TableModelRowWithObject<AttachmentVersions>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportScripts(TableExportCriteria<TableModelRowWithObject<Script>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportGroups(TableExportCriteria<TableModelRowWithObject<Space>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportPersons(TableExportCriteria<TableModelRowWithObject<Person>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportRoleAssignments(
             TableExportCriteria<TableModelRowWithObject<RoleAssignment>> criteria)
     {
@@ -492,6 +523,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ---------------- methods which list entities using cache
 
+    @Override
     public final ResultSetWithEntityTypes<Sample> listSamples(
             final ListSampleDisplayCriteria listCriteria)
     {
@@ -500,12 +532,14 @@ public final class CommonClientService extends AbstractClientService implements
                 commonServer, sessionToken, listCriteria));
     }
 
+    @Override
     public TypedTableResultSet<Sample> listSamples2(ListSampleDisplayCriteria2 criteria)
     {
         SampleProvider provider = new SampleProvider(commonServer, getSessionToken(), criteria);
         return listEntities(provider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<ExternalData> searchForDataSets(
             final DetailedSearchCriteria criteria,
             final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
@@ -521,6 +555,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, resultSetConfig);
     }
 
+    @Override
     public TypedTableResultSet<ExternalData> searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
             final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
@@ -556,6 +591,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new DataSetRelatedEntities(entities);
     }
 
+    @Override
     public final TypedTableResultSet<Experiment> listExperiments(
             final ListExperimentsCriteria listCriteria)
     {
@@ -564,12 +600,14 @@ public final class CommonClientService extends AbstractClientService implements
                 listCriteria);
     }
 
+    @Override
     public TypedTableResultSet<PropertyType> listPropertyTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> criteria)
     {
         return listEntities(new PropertyTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
+    @Override
     public TypedTableResultSet<EntityPropertyHistory> listEntityPropertyHistory(
             ListEntityPropertyHistoryCriteria criteria)
     {
@@ -578,6 +616,7 @@ public final class CommonClientService extends AbstractClientService implements
                 new EntityPropertyHistoryProvider(commonServer, sessionToken, criteria), criteria);
     }
 
+    @Override
     public final TypedTableResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
             final boolean useWildcardSearchMode,
@@ -591,6 +630,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, resultSetConfig);
     }
 
+    @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
     {
@@ -598,6 +638,7 @@ public final class CommonClientService extends AbstractClientService implements
                 criteria);
     }
 
+    @Override
     public TypedTableResultSet<Space> listGroups(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
@@ -605,6 +646,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(spacesProvider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<Script> listScripts(final ListScriptsCriteria criteria)
     {
         ScriptProvider scriptProvider =
@@ -613,6 +655,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(scriptProvider, criteria);
     }
 
+    @Override
     public List<AuthorizationGroup> listAuthorizationGroups()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -622,6 +665,7 @@ public final class CommonClientService extends AbstractClientService implements
         return authGroups;
     }
 
+    @Override
     public TypedTableResultSet<Person> listPersons(final ListPersonsCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -631,6 +675,7 @@ public final class CommonClientService extends AbstractClientService implements
                 criteria);
     }
 
+    @Override
     public final List<Person> listPersons()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -639,6 +684,7 @@ public final class CommonClientService extends AbstractClientService implements
         return persons;
     }
 
+    @Override
     public TypedTableResultSet<RoleAssignment> listRoleAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -654,6 +700,7 @@ public final class CommonClientService extends AbstractClientService implements
         return roles;
     }
 
+    @Override
     public TypedTableResultSet<Project> listProjects(
             DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -662,6 +709,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(projectsProvider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
             boolean excludeInternal,
             DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria)
@@ -673,6 +721,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(
             final Vocabulary vocabulary,
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> criteria)
@@ -682,6 +731,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(vocabularyTermsProvider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<MaterialType> listMaterialTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -696,6 +746,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, criteria);
     }
 
+    @Override
     public TypedTableResultSet<SampleType> listSampleTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -703,6 +754,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(new SampleTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
+    @Override
     public TypedTableResultSet<ExperimentType> listExperimentTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -717,6 +769,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, criteria);
     }
 
+    @Override
     public TypedTableResultSet<DataSetType> listDataSetTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<DataSetType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -724,6 +777,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(new DataSetTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
+    @Override
     public TypedTableResultSet<FileFormatType> listFileTypes(
             DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -733,6 +787,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, criteria);
     }
 
+    @Override
     public TypedTableResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
             final boolean showOnlyDirectlyConnected)
@@ -749,6 +804,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, criteria);
     }
 
+    @Override
     public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
             final boolean onlyDirectlyConnected)
@@ -765,6 +821,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, criteria);
     }
 
+    @Override
     public TypedTableResultSet<ExternalData> listDataSetRelationships(final TechId datasetId,
             final DataSetRelationshipRole role,
             final DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
@@ -782,6 +839,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ---------------- end list using cache ----------
 
+    @Override
     public final List<SearchableEntity> listSearchableEntities()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -800,6 +858,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public List<ExperimentType> listExperimentTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -808,6 +867,7 @@ public final class CommonClientService extends AbstractClientService implements
         return experimentTypes;
     }
 
+    @Override
     public List<PropertyType> listPropertyTypes(boolean withRelations)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -817,6 +877,7 @@ public final class CommonClientService extends AbstractClientService implements
         return propertyTypes;
     }
 
+    @Override
     public final List<DataType> listDataTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -825,6 +886,7 @@ public final class CommonClientService extends AbstractClientService implements
         return dataTypes;
     }
 
+    @Override
     public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -832,6 +894,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.assignPropertyType(sessionToken, assignment);
     }
 
+    @Override
     public void updatePropertyTypeAssignment(NewETPTAssignment assignmentUpdates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -839,6 +902,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updatePropertyTypeAssignment(sessionToken, assignmentUpdates);
     }
 
+    @Override
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -848,6 +912,7 @@ public final class CommonClientService extends AbstractClientService implements
                 entityTypeCode);
     }
 
+    @Override
     public int countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -857,6 +922,7 @@ public final class CommonClientService extends AbstractClientService implements
                 entityTypeCode);
     }
 
+    @Override
     public final void registerPropertyType(final PropertyType propertyType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -865,6 +931,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerPropertyType(sessionToken, propertyType);
     }
 
+    @Override
     public final void updatePropertyType(final IPropertyTypeUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -874,6 +941,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updatePropertyType(sessionToken, updates);
     }
 
+    @Override
     public final void updateVocabularyTerm(final IVocabularyTermUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -883,6 +951,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateVocabularyTerm(sessionToken, updates);
     }
 
+    @Override
     public final void registerVocabulary(final String termsSessionKey,
             final NewVocabulary vocabulary)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -900,6 +969,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerVocabulary(sessionToken, vocabulary);
     }
 
+    @Override
     public final void updateVocabulary(final IVocabularyUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -967,6 +1037,7 @@ public final class CommonClientService extends AbstractClientService implements
                     new BisTabFileLoader<VocabularyTerm>(
                             new IParserObjectFactoryFactory<VocabularyTerm>()
                                 {
+                                    @Override
                                     public final IParserObjectFactory<VocabularyTerm> createFactory(
                                             final IPropertyMapper propertyMapper)
                                             throws ParserException
@@ -1015,8 +1086,8 @@ public final class CommonClientService extends AbstractClientService implements
              */
             private VocabularyTermBatchUpdateDetails createBasicBatchUpdateDetails()
             {
-                boolean updateLabel = isColumnAvailable(UpdatedVocabularyTerm.LABEL);
-                boolean updateDescription = isColumnAvailable(UpdatedVocabularyTerm.DESCRIPTION);
+                boolean updateLabel = isColumnAvailable(VocabularyTerm.LABEL);
+                boolean updateDescription = isColumnAvailable(VocabularyTerm.DESCRIPTION);
                 return new VocabularyTermBatchUpdateDetails(updateLabel, updateDescription);
             }
 
@@ -1087,6 +1158,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
             Long previousTermOrdinal)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1101,6 +1173,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1112,6 +1185,7 @@ public final class CommonClientService extends AbstractClientService implements
                 description, previousTermOrdinal);
     }
 
+    @Override
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1125,6 +1199,7 @@ public final class CommonClientService extends AbstractClientService implements
                 termsToBeReplaced);
     }
 
+    @Override
     public void makeVocabularyTermsOfficial(TechId vocabularyId,
             List<VocabularyTerm> termsToBeOfficial)
     {
@@ -1135,6 +1210,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.makeVocabularyTermsOfficial(sessionToken, vocabularyId, termsToBeOfficial);
     }
 
+    @Override
     public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)
     {
         final String sessionToken = getSessionToken();
@@ -1143,6 +1219,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArrayList<VocabularyTerm>(terms);
     }
 
+    @Override
     public void registerProject(String sessionKey, final Project project)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1166,6 +1243,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
+    @Override
     public String prepareExportDataSetSearchHits(
             TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1173,6 +1251,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public List<MaterialType> listMaterialTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1181,6 +1260,7 @@ public final class CommonClientService extends AbstractClientService implements
         return materialTypes;
     }
 
+    @Override
     public List<DataSetType> listDataSetTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1189,6 +1269,7 @@ public final class CommonClientService extends AbstractClientService implements
         return types;
     }
 
+    @Override
     public TypedTableResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1204,6 +1285,7 @@ public final class CommonClientService extends AbstractClientService implements
             }, criteria);
     }
 
+    @Override
     public String prepareExportMaterials(
             TableExportCriteria<TableModelRowWithObject<Material>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1211,6 +1293,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public void registerMaterialType(MaterialType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1218,6 +1301,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerMaterialType(sessionToken, entityType);
     }
 
+    @Override
     public void registerExperimentType(ExperimentType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1225,6 +1309,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerExperimentType(sessionToken, entityType);
     }
 
+    @Override
     public void registerSampleType(SampleType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1232,6 +1317,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerSampleType(sessionToken, entityType);
     }
 
+    @Override
     public void registerDataSetType(DataSetType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1239,6 +1325,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerDataSetType(sessionToken, entityType);
     }
 
+    @Override
     public void registerFileType(FileFormatType type)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1246,6 +1333,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerFileFormatType(sessionToken, type);
     }
 
+    @Override
     public void updateEntityType(EntityKind entityKind, EntityType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1267,6 +1355,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public String uploadDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
             DataSetUploadParameters uploadParameters)
@@ -1290,6 +1379,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
     }
 
+    @Override
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
             boolean forceNotExistingLocations, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1308,6 +1398,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
             DeletionType deletionType, boolean forceNotExistingLocations,
@@ -1328,6 +1419,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1335,6 +1427,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
     }
 
+    @Override
     public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1343,6 +1436,7 @@ public final class CommonClientService extends AbstractClientService implements
                 deletionType);
     }
 
+    @Override
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
             String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1352,6 +1446,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
     }
 
+    @Override
     public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1360,6 +1455,7 @@ public final class CommonClientService extends AbstractClientService implements
                 reason, deletionType);
     }
 
+    @Override
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
             String reason, DeletionType deletionType)
@@ -1370,6 +1466,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteExperiments(sessionToken, experimentIds, reason, deletionType);
     }
 
+    @Override
     public void deleteVocabularies(List<TechId> vocabularyIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1377,6 +1474,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteVocabularies(sessionToken, vocabularyIds, reason);
     }
 
+    @Override
     public void deletePropertyTypes(List<TechId> propertyTypeIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1384,6 +1482,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deletePropertyTypes(sessionToken, propertyTypeIds, reason);
     }
 
+    @Override
     public void deleteProjects(List<TechId> projectIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1391,6 +1490,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteProjects(sessionToken, projectIds, reason);
     }
 
+    @Override
     public void deleteGroups(List<TechId> groupIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1398,6 +1498,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteSpaces(sessionToken, groupIds, reason);
     }
 
+    @Override
     public void deleteScripts(List<TechId> scriptIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1405,6 +1506,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteScripts(sessionToken, scriptIds);
     }
 
+    @Override
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1424,6 +1526,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public TypedTableResultSet<AttachmentVersions> listAttachmentVersions(
             final TechId holderId,
             final AttachmentHolderKind holderKind,
@@ -1434,11 +1537,13 @@ public final class CommonClientService extends AbstractClientService implements
                 holderId, holderKind), criteria);
     }
 
+    @Override
     public LastModificationState getLastModificationState()
     {
         return commonServer.getLastModificationState(getSessionToken());
     }
 
+    @Override
     public final Experiment getExperimentInfo(final String experimentIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1450,6 +1555,7 @@ public final class CommonClientService extends AbstractClientService implements
         return experiment;
     }
 
+    @Override
     public Experiment getExperimentInfoByPermId(String experimentPermId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1460,6 +1566,7 @@ public final class CommonClientService extends AbstractClientService implements
         return getExperimentInfo(new TechId(expInfo.getId()));
     }
 
+    @Override
     public final Experiment getExperimentInfo(final TechId experimentId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1469,6 +1576,7 @@ public final class CommonClientService extends AbstractClientService implements
         return experiment;
     }
 
+    @Override
     public Project getProjectInfo(TechId projectId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1477,6 +1585,7 @@ public final class CommonClientService extends AbstractClientService implements
         return project;
     }
 
+    @Override
     public Project getProjectInfo(BasicProjectIdentifier projectIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1486,6 +1595,7 @@ public final class CommonClientService extends AbstractClientService implements
         return project;
     }
 
+    @Override
     public String generateCode(String prefix)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1493,6 +1603,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.generateCode(sessionToken, prefix);
     }
 
+    @Override
     public Date updateProject(final ProjectUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1522,6 +1633,7 @@ public final class CommonClientService extends AbstractClientService implements
         return updatesDTO;
     }
 
+    @Override
     public void deleteEntityTypes(EntityKind entityKind, List<String> entityTypesCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1543,6 +1655,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(EntityKind entityKind,
             String permId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1551,6 +1664,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.getEntityInformationHolder(sessionToken, entityKind, permId);
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(
             MaterialIdentifier identifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1559,6 +1673,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.getMaterialInformationHolder(sessionToken, identifier);
     }
 
+    @Override
     public Material getMaterialInfo(MaterialIdentifier identifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1566,6 +1681,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.getMaterialInfo(sessionToken, identifier);
     }
 
+    @Override
     public Material getMaterialInfo(TechId techId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1575,6 +1691,7 @@ public final class CommonClientService extends AbstractClientService implements
         return material;
     }
 
+    @Override
     public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind)
     {
@@ -1583,6 +1700,7 @@ public final class CommonClientService extends AbstractClientService implements
                 withExperiments, withSpace, operationKind);
     }
 
+    @Override
     public List<FileFormatType> listFileTypes()
     {
         final String sessionToken = getSessionToken();
@@ -1590,6 +1708,7 @@ public final class CommonClientService extends AbstractClientService implements
         return types;
     }
 
+    @Override
     public void deleteFileFormatTypes(List<String> fileFormatTypeCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1597,12 +1716,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteFileFormatTypes(sessionToken, fileFormatTypeCodes);
     }
 
+    @Override
     public void updateFileFormatType(AbstractType type)
     {
         final String sessionToken = getSessionToken();
         commonServer.updateFileFormatType(sessionToken, type);
     }
 
+    @Override
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment)
     {
@@ -1621,6 +1742,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void addAttachment(final TechId holderId, String sessionKey,
             final AttachmentHolderKind holderKind, final NewAttachment attachment)
     {
@@ -1653,6 +1775,7 @@ public final class CommonClientService extends AbstractClientService implements
             "Problem occured when updating managed property. "
                     + "Contact instance admin about a possible bug in script definition.";
 
+    @Override
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1697,6 +1820,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public List<DatastoreServiceDescription> listDataStoreServices(
             DataStoreServiceKind dataStoreServiceKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1705,6 +1829,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.listDataStoreServices(sessionToken, dataStoreServiceKind);
     }
 
+    @Override
     public TableModelReference createReportFromDatasets(
             DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
@@ -1719,6 +1844,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
 
+    @Override
     public TableModelReference createReportFromTableModel(TableModel tableModel)
     {
         // WORKAROUND Need to unescape table model that was provided by the client.
@@ -1729,17 +1855,20 @@ public final class CommonClientService extends AbstractClientService implements
         return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
 
+    @Override
     public TypedTableResultSet<ReportRowModel> listReport(
             IResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig)
     {
         IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>> dataProvider =
                 new IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>>()
                     {
+                        @Override
                         public List<TableModelColumnHeader> getHeaders()
                         {
                             return null;
                         }
 
+                        @Override
                         public List<TableModelRowWithObject<ReportRowModel>> getOriginalData(
                                 int maxSize) throws UserFailureException
                         {
@@ -1750,6 +1879,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new TypedTableResultSet<ReportRowModel>(listEntities(resultSetConfig, dataProvider));
     }
 
+    @Override
     public String prepareExportReport(
             TableExportCriteria<TableModelRowWithObject<ReportRowModel>> criteria)
     {
@@ -1856,6 +1986,7 @@ public final class CommonClientService extends AbstractClientService implements
         return result;
     }
 
+    @Override
     public void processDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
@@ -1865,6 +1996,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.processDatasets(sessionToken, serviceDescription, datasetCodes);
     }
 
+    @Override
     public ArchivingResult archiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
@@ -1874,6 +2006,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public ArchivingResult unarchiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
@@ -1883,12 +2016,14 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public void deleteAuthorizationGroups(List<TechId> groupIds, String reason)
     {
         final String sessionToken = getSessionToken();
         commonServer.deleteAuthorizationGroups(sessionToken, groupIds, reason);
     }
 
+    @Override
     public TypedTableResultSet<AuthorizationGroup> listAuthorizationGroups(
             DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig)
     {
@@ -1896,24 +2031,28 @@ public final class CommonClientService extends AbstractClientService implements
                 resultSetConfig);
     }
 
+    @Override
     public String prepareExportAuthorizationGroups(
             TableExportCriteria<TableModelRowWithObject<AuthorizationGroup>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerAuthorizationGroup(sessionToken, newAuthorizationGroup);
     }
 
+    @Override
     public void registerScript(Script script)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerScript(sessionToken, script);
     }
 
+    @Override
     public List<Person> listPersonsInAuthorizationGroup(TechId group)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -1921,6 +2060,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.listPersonInAuthorizationGroup(sessionToken, group);
     }
 
+    @Override
     public void updateAuthorizationGroup(AuthorizationGroupUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
@@ -1929,6 +2069,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateAuthorizationGroup(sessionToken, updates);
     }
 
+    @Override
     public void addPersonsToAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes)
     {
@@ -1937,6 +2078,7 @@ public final class CommonClientService extends AbstractClientService implements
                 personsCodes);
     }
 
+    @Override
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes)
     {
@@ -1978,12 +2120,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     // -- custom grid filters
 
+    @Override
     public List<GridCustomFilter> listFilters(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return commonServer.listFilters(getSessionToken(), gridId);
     }
 
+    @Override
     public TypedTableResultSet<GridCustomFilter> listFilters(
             final String gridId,
             DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> resultSetConfig)
@@ -1993,6 +2137,7 @@ public final class CommonClientService extends AbstractClientService implements
                 resultSetConfig);
     }
 
+    @Override
     public String prepareExportFilters(
             TableExportCriteria<TableModelRowWithObject<GridCustomFilter>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2000,6 +2145,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public void registerFilter(NewColumnOrFilter filter)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2007,12 +2153,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerFilter(getSessionToken(), filter);
     }
 
+    @Override
     public void deleteFilters(List<TechId> filterIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         commonServer.deleteFilters(getSessionToken(), filterIds);
     }
 
+    @Override
     public final void updateFilter(final IExpressionUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2022,12 +2170,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     // -- grid custom columns
 
+    @Override
     public List<GridCustomColumn> listGridCustomColumns(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return commonServer.listGridCustomColumns(getSessionToken(), gridId);
     }
 
+    @Override
     public TypedTableResultSet<GridCustomColumn> listGridCustomColumns(
             final String gridId,
             DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomColumn>> resultSetConfig)
@@ -2037,6 +2187,7 @@ public final class CommonClientService extends AbstractClientService implements
                 resultSetConfig);
     }
 
+    @Override
     public String prepareExportColumns(
             TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2044,6 +2195,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public void registerColumn(NewColumnOrFilter newColumn)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2051,12 +2203,14 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.registerGridCustomColumn(getSessionToken(), newColumn);
     }
 
+    @Override
     public void deleteColumns(List<TechId> columnIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         commonServer.deleteGridCustomColumns(getSessionToken(), columnIds);
     }
 
+    @Override
     public void updateColumn(IExpressionUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2067,6 +2221,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     // --
 
+    @Override
     public Boolean keepSessionAlive()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2081,6 +2236,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void updateVocabularyTerms(String termsSessionKey, TechId vocabularyId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2091,6 +2247,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateVocabularyTerms(sessionToken, vocabularyId, extractedTerms);
     }
 
+    @Override
     public void deleteMaterials(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Material>> criteria,
             String reason)
@@ -2101,6 +2258,7 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.deleteMaterials(sessionToken, materialIds, reason);
     }
 
+    @Override
     public ArchivingResult lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2110,6 +2268,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2119,6 +2278,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public LinkModel retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode)
     {
@@ -2128,6 +2288,7 @@ public final class CommonClientService extends AbstractClientService implements
         return url;
     }
 
+    @Override
     public Script getScriptInfo(TechId scriptId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2136,6 +2297,7 @@ public final class CommonClientService extends AbstractClientService implements
         return script;
     }
 
+    @Override
     public String evaluate(DynamicPropertyEvaluationInfo info)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2143,6 +2305,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.evaluate(sessionToken, info);
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(BasicEntityDescription info)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2150,6 +2313,7 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.getEntityInformationHolder(sessionToken, info);
     }
 
+    @Override
     public ArchivingResult archiveDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
@@ -2159,6 +2323,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public ArchivingResult unarchiveDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
@@ -2168,6 +2333,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public ArchivingResult lockDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2178,6 +2344,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public ArchivingResult unlockDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2188,6 +2355,7 @@ public final class CommonClientService extends AbstractClientService implements
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
+    @Override
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2226,6 +2394,7 @@ public final class CommonClientService extends AbstractClientService implements
         return result;
     }
 
+    @Override
     public TypedTableResultSet<Deletion> listDeletions(
             DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2235,6 +2404,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(deletionsProvider, criteria);
     }
 
+    @Override
     public void revertDeletions(List<TechId> deletionIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2248,6 +2418,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
             boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2263,6 +2434,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2271,6 +2443,7 @@ public final class CommonClientService extends AbstractClientService implements
                 forceDisallowedTypes);
     }
 
+    @Override
     public String performCustomImport(String sessionKey, String customImportCode)
     {
         HttpSession httpSession = getHttpSession();

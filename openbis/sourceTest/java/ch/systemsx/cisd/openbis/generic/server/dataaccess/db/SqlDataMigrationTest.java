@@ -69,6 +69,7 @@ public final class SqlDataMigrationTest
                 new File(getDataFolder(configurationContext) + SqlUnitTestRunner.MIGRATION_FOLDER);
         final File[] folders = migrationFolder.listFiles(new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.isDirectory() && pathname.getName().startsWith(".") == false;

@@ -34,11 +34,13 @@ import net.lemnik.eodsql.TypeMapper;
 public class LongSetMapper implements TypeMapper<Set<Long>>
 {
 
+    @Override
     public Set<Long> get(ResultSet results, int column) throws SQLException
     {
         return new LongOpenHashSet((long[]) results.getArray(column).getArray());
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, Set<Long> obj) throws SQLException
     {
         if (obj != null)
@@ -50,6 +52,7 @@ public class LongSetMapper implements TypeMapper<Set<Long>>
         }
     }
 
+    @Override
     public void set(ResultSet results, int column, Set<Long> obj) throws SQLException
     {
         results.updateArray(column, new SimpleSQLLongArray(obj));

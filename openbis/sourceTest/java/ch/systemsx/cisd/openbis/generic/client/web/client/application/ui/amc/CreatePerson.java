@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -48,8 +49,8 @@ public final class CreatePerson extends CheckTableCommand
         GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, PersonGrid.createBrowserId()
                 + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(PersonGrid.createAddButtonId(null));
-        GWTTestUtil.getTextFieldWithID(AddPersonDialog.CODE_FIELD_ID).setValue(personCode);
-        GWTTestUtil.clickButtonWithID(AbstractRegistrationDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.getTextFieldWithID(AbstractRegistrationDialog.CODE_FIELD_ID).setValue(personCode);
+        GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }
 
 }

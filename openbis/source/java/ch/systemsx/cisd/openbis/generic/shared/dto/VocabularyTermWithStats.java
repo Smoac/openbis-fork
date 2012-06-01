@@ -69,6 +69,7 @@ public class VocabularyTermWithStats implements Serializable, Comparable<Vocabul
     // Comparable
     //
 
+    @Override
     public int compareTo(VocabularyTermWithStats o)
     {
         return this.getTerm().compareTo(o.getTerm());

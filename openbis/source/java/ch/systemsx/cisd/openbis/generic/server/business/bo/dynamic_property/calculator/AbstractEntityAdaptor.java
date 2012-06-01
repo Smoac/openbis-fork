@@ -91,28 +91,33 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         propertiesByCode.put(property.propertyTypeCode().toUpperCase(), property);
     }
 
+    @Override
     public String code()
     {
         return code;
     }
 
+    @Override
     public IEntityPropertyAdaptor property(String propertyTypeCode)
     {
         return propertiesByCode.get(propertyTypeCode.toUpperCase());
     }
 
+    @Override
     public String propertyValue(String propertyTypeCode)
     {
         final IEntityPropertyAdaptor propertyOrNull = property(propertyTypeCode);
         return propertyOrNull == null ? "" : propertyOrNull.valueAsString();
     }
 
+    @Override
     public String propertyRendered(String propertyTypeCode)
     {
         final IEntityPropertyAdaptor propertyOrNull = property(propertyTypeCode);
         return propertyOrNull == null ? "" : propertyOrNull.renderedValue();
     }
 
+    @Override
     public Collection<IEntityPropertyAdaptor> properties()
     {
         return propertiesByCode.values();

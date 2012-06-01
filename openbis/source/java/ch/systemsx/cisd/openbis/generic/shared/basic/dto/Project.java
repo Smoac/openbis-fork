@@ -42,6 +42,7 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
 
     private Long id;
 
+    @Override
     public Long getId()
     {
         return id;
@@ -59,6 +60,7 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
 
     private Date modificationDate;
 
+    @Override
     public AttachmentHolderKind getAttachmentHolderKind()
     {
         return AttachmentHolderKind.PROJECT;

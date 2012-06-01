@@ -103,6 +103,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
         checkBox.setValue(true);
         checkBox.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     if (checkBox.getValue())

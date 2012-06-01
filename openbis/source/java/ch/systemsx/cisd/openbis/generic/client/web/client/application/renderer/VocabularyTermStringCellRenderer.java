@@ -25,6 +25,7 @@ public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEn
         this.columnIndex = columnIndex;
     }
 
+    @Override
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)

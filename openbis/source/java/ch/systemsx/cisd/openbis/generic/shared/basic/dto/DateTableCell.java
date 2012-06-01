@@ -44,6 +44,7 @@ public class DateTableCell implements ISerializableComparable
         return new Date(dateTime);
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         if (o instanceof DateTableCell)

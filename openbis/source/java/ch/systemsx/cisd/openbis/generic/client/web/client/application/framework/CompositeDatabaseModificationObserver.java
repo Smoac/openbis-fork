@@ -55,6 +55,7 @@ public class CompositeDatabaseModificationObserver implements IDatabaseModificat
         }
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         Set<DatabaseModificationKind> relevantModifications =
@@ -66,6 +67,7 @@ public class CompositeDatabaseModificationObserver implements IDatabaseModificat
         return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
     }
 
+    @Override
     public void update(final Set<DatabaseModificationKind> observedModifications)
     {
         for (IDatabaseModificationObserver observer : registeredObservers)

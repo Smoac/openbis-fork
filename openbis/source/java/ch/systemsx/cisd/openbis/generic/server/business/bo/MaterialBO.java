@@ -55,12 +55,14 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         super(daoFactory, session);
     }
 
+    @Override
     public void loadDataByTechId(TechId materialId)
     {
         material = getMaterialById(materialId);
         dataChanged = false;
     }
 
+    @Override
     public void loadByMaterialIdentifier(MaterialIdentifier identifier)
     {
         material = getMaterialDAO().tryFindMaterial(identifier);
@@ -72,6 +74,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         dataChanged = false;
     }
 
+    @Override
     public final void enrichWithProperties()
     {
         if (material != null)
@@ -80,6 +83,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         }
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert dataChanged : "Data not changed";
@@ -100,6 +104,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
                 material.getMaterialType());
     }
 
+    @Override
     public void update(MaterialUpdateDTO materialUpdate)
     {
         loadDataByTechId(materialUpdate.getMaterialId());
@@ -118,11 +123,13 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         material.setProperties(convertProperties(type, existingProperties, properties));
     }
 
+    @Override
     public MaterialPE getMaterial()
     {
         return material;
     }
 
+    @Override
     public void deleteByTechId(TechId materialId, String reason)
     {
         loadDataByTechId(materialId);
@@ -150,6 +157,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     }
 
 
+    @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();

@@ -56,6 +56,7 @@ public class EntityPropertyHistoryProvider extends
                         criteria.getEntityID());
         Collections.sort(history, new Comparator<EntityPropertyHistory>()
             {
+                @Override
                 public int compare(EntityPropertyHistory e1, EntityPropertyHistory e2)
                 {
                     long d1 = e1.getValidUntilDate().getTime();

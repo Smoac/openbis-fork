@@ -53,6 +53,7 @@ public final class SampleOwnerIdentifierCollectionPredicate extends
     // AbstractPredicate
     //
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         spacePredicate.init(provider);

@@ -35,11 +35,13 @@ public class PersonAdapter implements IPerson
         this.userName = userName;
     }
 
+    @Override
     public String getUserId()
     {
         return userId;
     }
 
+    @Override
     public String getUserName()
     {
         return userName;

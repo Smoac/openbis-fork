@@ -100,6 +100,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public int compareTo(final T o)
     {
         final String thatCode = o.code;

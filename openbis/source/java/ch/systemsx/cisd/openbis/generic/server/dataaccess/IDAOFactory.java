@@ -101,6 +101,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     public IAuthorizationGroupDAO getAuthorizationGroupDAO();
 
     /** Returns an implementation of {@link IDeletionDAO}. */
+    @Override
     public IDeletionDAO getDeletionDAO();
 
     /** Returns an implementation of {@link ICorePluginDAO}. */

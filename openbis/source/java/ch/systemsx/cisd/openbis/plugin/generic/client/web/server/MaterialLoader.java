@@ -32,6 +32,7 @@ public class MaterialLoader
         tabFileLoader =
                 new BisTabFileLoader<NewMaterial>(new IParserObjectFactoryFactory<NewMaterial>()
                     {
+                        @Override
                         public final IParserObjectFactory<NewMaterial> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {

@@ -52,17 +52,17 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
      */
     private SampleBatchUpdateDetails createBasicBatchUpdateDetails()
     {
-        boolean updateExperiment = isColumnAvailable(UpdatedSample.EXPERIMENT);
-        boolean updateParent = isColumnAvailable(UpdatedSample.PARENT);
-        boolean updateParents = isColumnAvailable(UpdatedSample.PARENTS);
+        boolean updateExperiment = isColumnAvailable(NewSample.EXPERIMENT);
+        boolean updateParent = isColumnAvailable(NewSample.PARENT);
+        boolean updateParents = isColumnAvailable(NewSample.PARENTS);
         if (updateParent == true && updateParents == true)
         {
-            throw new ParserException("Both '" + UpdatedSample.PARENT + "' and '"
-                    + UpdatedSample.PARENTS
+            throw new ParserException("Both '" + NewSample.PARENT + "' and '"
+                    + NewSample.PARENTS
                     + "' columns were specified. One of them should be removed from the file.");
         }
         updateParents |= updateParent;
-        boolean updateContainer = isColumnAvailable(UpdatedSample.CONTAINER);
+        boolean updateContainer = isColumnAvailable(NewSample.CONTAINER);
         return new SampleBatchUpdateDetails(updateExperiment, updateParents, updateContainer,
                 getUnmatchedProperties());
     }

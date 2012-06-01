@@ -95,6 +95,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
     // IRoleAssignmentTable
     //
 
+    @Override
     public final void add(final NewRoleAssignment newRoleAssignment)
     {
         if (roleAssignments == null)
@@ -139,6 +140,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
     // AbstractBusinessObject
     //
 
+    @Override
     public final void save() throws UserFailureException
     {
         assert roleAssignments != null : "Role assignments unspecified";

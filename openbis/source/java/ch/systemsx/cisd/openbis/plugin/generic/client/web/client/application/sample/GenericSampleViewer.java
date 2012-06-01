@@ -159,6 +159,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
+                @Override
                 @SuppressWarnings(
                     { "unchecked", "rawtypes" })
                 public void execute()
@@ -173,6 +174,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     new RevertDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
@@ -392,11 +394,13 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createDatabaseModificationObserver().getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createDatabaseModificationObserver().update(observedModifications);
@@ -434,6 +438,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             AbstractDatabaseModificationObserverWithCallback
     {
 
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
@@ -448,6 +453,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                         DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
         }
 
+        @Override
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
             reloadSampleGenerationData(new ReloadPropertyGridCallback(getViewContext(),

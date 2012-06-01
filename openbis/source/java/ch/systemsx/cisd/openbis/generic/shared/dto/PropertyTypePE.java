@@ -178,6 +178,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
+    @Override
     @Transient
     public String getCode()
     {
@@ -272,6 +273,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         this.internalNamespace = internalNamespace;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.PROPERTY_TYPES_SEQUENCE, sequenceName = SequenceNames.PROPERTY_TYPES_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.PROPERTY_TYPES_SEQUENCE)
@@ -292,6 +294,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public final int compareTo(final PropertyTypePE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);

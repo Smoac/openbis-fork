@@ -30,6 +30,7 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         EntityKind entityKind = getEntityKind(locator);

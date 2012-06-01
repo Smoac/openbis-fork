@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -42,11 +43,12 @@ public final class ChooseTypeOfNewExperiment extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(ExperimentTypeSelectionWidget.ID
+                        .getWidgetWithID(DropDownList.ID
                                 + ExperimentTypeSelectionWidget.SUFFIX
                                 + ExperimentRegistrationPanel.ID);
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,

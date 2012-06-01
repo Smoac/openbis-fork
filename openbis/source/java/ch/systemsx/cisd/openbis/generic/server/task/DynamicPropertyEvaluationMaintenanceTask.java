@@ -55,6 +55,7 @@ public class DynamicPropertyEvaluationMaintenanceTask implements IMaintenanceTas
         entityClasses.add(SamplePE.class);
     }
 
+    @Override
     public void execute()
     {
         operationLog.info("execution started");
@@ -73,6 +74,7 @@ public class DynamicPropertyEvaluationMaintenanceTask implements IMaintenanceTas
         operationLog.info("task executed");
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         operationLog.info("Task " + pluginName + " initialized.");

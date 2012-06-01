@@ -55,6 +55,7 @@ public class ManagedHtmlWidgetDescription implements IManagedOutputWidgetDescrip
     //
     // IManagedWidgetDescription
     //
+    @Override
     public ManagedOutputWidgetType getManagedOutputWidgetType()
     {
         return ManagedOutputWidgetType.HTML;

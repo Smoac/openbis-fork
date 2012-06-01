@@ -418,6 +418,7 @@ public final class GWTTestUtil
         final List<String> ids = new ArrayList<String>();
         traverseRootPanel(new IWidgetHandler<Widget>()
             {
+                @Override
                 public boolean handle(final Widget widgetOrNull)
                 {
                     final String widgetID = tryToGetWidgetID(widgetOrNull);
@@ -440,6 +441,7 @@ public final class GWTTestUtil
             this.handler = handler;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public final boolean handle(final Widget widgetOrNull)
         {
@@ -507,6 +509,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final BrowserGridPagingToolBar pagingToolBar)
         {
             for (final Component item : pagingToolBar.getItems())
@@ -535,6 +538,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final TextToolItem menuItem)
         {
             if (handler.handle(menuItem.getMenu()))
@@ -560,6 +564,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final MenuItem menuItem)
         {
             if (handler.handle(menuItem.getSubMenu()))
@@ -585,6 +590,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final Menu menu)
         {
             if (menu != null)
@@ -615,6 +621,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final ComplexPanel panel)
         {
             for (int i = 0, n = panel.getWidgetCount(); i < n; i++)
@@ -641,6 +648,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public final boolean handle(final Container<Component> container)
         {
             for (Component c : container.getItems())
@@ -696,6 +704,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
+        @Override
         public boolean handle(final MultiField<Field<?>> widget)
         {
             for (Field<?> f : widget.getAll())

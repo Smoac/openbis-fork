@@ -265,6 +265,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     // Comparable
     //
 
+    @Override
     public int compareTo(EntityTypePropertyTypePE o)
     {
         return this.getOrdinal().compareTo(o.getOrdinal());

@@ -79,6 +79,7 @@ public class CheckBoxGroupWithModel<T> extends CheckBoxGroup
         final CheckBoxWithModel<T> checkBox = new CheckBoxWithModel<T>(item, false);
         checkBox.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     T changedItem = checkBox.getItem();

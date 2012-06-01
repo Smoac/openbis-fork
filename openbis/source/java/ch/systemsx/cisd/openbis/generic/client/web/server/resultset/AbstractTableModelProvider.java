@@ -39,6 +39,7 @@ public abstract class AbstractTableModelProvider<T extends Serializable> impleme
      * Creates the table model with the specified maximum number of rows. If
      * {@link Integer#MAX_VALUE} is specified the complete table will be created.
      */
+    @Override
     public TypedTableModel<T> getTableModel(int maxSize)
     {
         if (tableModel == null)

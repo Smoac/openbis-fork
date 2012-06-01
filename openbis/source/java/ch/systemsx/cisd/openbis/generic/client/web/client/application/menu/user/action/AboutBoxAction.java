@@ -35,6 +35,7 @@ public class AboutBoxAction implements IDelegatedAction
         this.viewContext = viewContext;
     }
 
+    @Override
     public void execute()
     {
         MessageBox

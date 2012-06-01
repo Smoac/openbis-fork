@@ -148,6 +148,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
         StoreFilter<M> filter = new StoreFilter<M>()
             {
+                @Override
                 public boolean select(Store<M> s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
@@ -217,11 +218,13 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         this.allowValueNotFromList = allowValueNotFromList;
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         if (resultSetKey != null && viewContextOrNull != null)
@@ -231,6 +234,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         }
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshStore();

@@ -76,12 +76,14 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     // IExperimentTable
     //
 
+    @Override
     public final void load(final String experimentTypeCode,
             final ProjectIdentifier projectIdentifier)
     {
         load(experimentTypeCode, projectIdentifier, false, false);
     }
 
+    @Override
     public final void load(final String experimentTypeCode,
             final ProjectIdentifier projectIdentifier, boolean onlyHavingSamples,
             boolean onlyHavingDataSets)
@@ -109,6 +111,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
+    @Override
     public final void load(final String experimentTypeCode, final SpaceIdentifier spaceIdentifier)
     {
         checkNotNull(experimentTypeCode, spaceIdentifier);
@@ -132,6 +135,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
+    @Override
     public final void load(final Collection<ExperimentIdentifier> identifiers)
     {
         checkNotEmpty(identifiers);
@@ -183,12 +187,14 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
+    @Override
     public final List<ExperimentPE> getExperiments()
     {
         assert experiments != null : "Experiments have not been loaded.";
         return experiments;
     }
 
+    @Override
     public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE)
     {
         experiments = new ArrayList<ExperimentPE>();
@@ -201,6 +207,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         dataChanged = true;
     }
 
+    @Override
     public void prepareForUpdate(List<ExperimentBatchUpdatesDTO> updates)
     {
         assert updates != null : "Unspecified experiments.";
@@ -368,6 +375,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
+    @Override
     public void save()
     {
         assert experiments != null : "Experiments not loaded.";

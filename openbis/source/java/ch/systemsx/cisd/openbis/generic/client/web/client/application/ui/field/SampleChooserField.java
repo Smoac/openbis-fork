@@ -95,21 +95,25 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
     {
         return new SampleChooserFieldAdaptor()
             {
+                @Override
                 public Field<?> getField()
                 {
                     return chooserField;
                 }
 
+                @Override
                 public SampleChooserField getChooserField()
                 {
                     return chooserField;
                 }
 
+                @Override
                 public String getValue()
                 {
                     return chooserField.getValue();
                 }
 
+                @Override
                 public void updateOriginalValue()
                 {
                     String valueOrNull = getValue();
@@ -117,6 +121,7 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
                     chooserField.setOriginalValue(textValue);
                 }
 
+                @Override
                 public void updateValue(String identifierOrNull)
                 {
                     chooserField.updateValue(identifierOrNull);

@@ -64,6 +64,7 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
 
     private DataSetTypePE dataSetType;
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
@@ -78,6 +79,7 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
         this.id = id;
     }
 
+    @Override
     @Transient
     public String getPermId()
     {
@@ -184,6 +186,7 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
         this.dataStore = dataStorePE;
     }
 
+    @Override
     @Transient
     public String getIdentifier()
     {
@@ -204,12 +207,14 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
         this.dataSetType = dataSetType;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
         return getDataSetType();
     }
 
+    @Override
     @Transient
     public EntityKind getEntityKind()
     {

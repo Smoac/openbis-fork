@@ -254,6 +254,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.size = size;
     }
 
+    @Override
     public final Deletion getDeletion()
     {
         return deletion;
@@ -279,6 +280,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.dataSetProperties = dataSetProperties;
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return dataSetProperties;
@@ -294,21 +296,25 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.dataStore = dataStore;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
     }
 
+    @Override
     public EntityType getEntityType()
     {
         return dataSetType;
     }
 
+    @Override
     public String getIdentifier()
     {
         return getCode();
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -319,6 +325,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.id = id;
     }
 
+    @Override
     public String getPermId()
     {
         return getCode();
@@ -366,6 +373,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private static final class DataSetComponentsComparator implements Comparator<ExternalData>
     {
+        @Override
         public int compare(ExternalData o1, ExternalData o2)
         {
             Integer order1 = o1.getOrderInContainer();

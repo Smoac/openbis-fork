@@ -247,6 +247,7 @@ public class DeletionTestCase extends SystemTestCase
 
         CollectionUtils.filter(registeredSamples, new Predicate<Sample>()
             {
+                @Override
                 public boolean evaluate(Sample s)
                 {
                     return !s.getCode().equals("S1.4");

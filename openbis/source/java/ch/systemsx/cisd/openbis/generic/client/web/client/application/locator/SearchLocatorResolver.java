@@ -45,6 +45,7 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         // Extract the search criteria from the ViewLocator and dispatch to a resolver that can

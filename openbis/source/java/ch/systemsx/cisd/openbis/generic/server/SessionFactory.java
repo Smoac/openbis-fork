@@ -32,6 +32,7 @@ public final class SessionFactory implements ISessionFactory<Session>
     // ISessionFactory
     //
 
+    @Override
     public final Session create(final String sessionToken, final String userName,
             final Principal principal, final String remoteHost, final long sessionStart,
             final int expirationTime)

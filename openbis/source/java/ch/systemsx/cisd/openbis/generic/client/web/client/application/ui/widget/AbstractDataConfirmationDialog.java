@@ -144,6 +144,7 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     refreshMessage();

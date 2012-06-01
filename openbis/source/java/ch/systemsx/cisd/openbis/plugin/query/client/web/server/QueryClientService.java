@@ -88,18 +88,21 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     // IQueryClientService
     //
 
+    @Override
     public int initDatabases()
     {
         final String sessionToken = getSessionToken();
         return queryServer.initDatabases(sessionToken);
     }
 
+    @Override
     public List<QueryDatabase> listQueryDatabases()
     {
         final String sessionToken = getSessionToken();
         return queryServer.listQueryDatabases(sessionToken);
     }
 
+    @Override
     public TableModelReference createQueryResultsReport(QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindingsOrNull)
     {
@@ -109,6 +112,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         return createTableModelReference(tableModel);
     }
 
+    @Override
     public List<ParameterValue> listParameterValues(QueryDatabase database, String sqlQuery)
     {
         final String sessionToken = getSessionToken();
@@ -126,6 +130,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         return new ArrayList<ParameterValue>(valuesSet);
     }
 
+    @Override
     public TableModelReference createQueryResultsReport(TechId query,
             QueryParameterBindings bindingsOrNull)
     {
@@ -153,12 +158,14 @@ public class QueryClientService extends AbstractClientService implements IQueryC
                 tableModel.tryGetMessage());
     }
 
+    @Override
     public List<QueryExpression> listQueries(QueryType queryType, BasicEntityType entityTypeOrNull)
     {
         final String sessionToken = getSessionToken();
         return queryServer.listQueries(sessionToken, queryType, entityTypeOrNull);
     }
 
+    @Override
     public TypedTableResultSet<QueryExpression> listQueries(
             final IResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig)
     {
@@ -166,22 +173,26 @@ public class QueryClientService extends AbstractClientService implements IQueryC
                 resultSetConfig);
     }
 
+    @Override
     public String prepareExportQueries(
             TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public void registerQuery(NewQuery query)
     {
         queryServer.registerQuery(getSessionToken(), query);
     }
 
+    @Override
     public void deleteQueries(List<TechId> filterIds)
     {
         queryServer.deleteQueries(getSessionToken(), filterIds);
     }
 
+    @Override
     public void updateQuery(IQueryUpdates queryUpdate)
     {
         queryServer.updateQuery(getSessionToken(), queryUpdate);

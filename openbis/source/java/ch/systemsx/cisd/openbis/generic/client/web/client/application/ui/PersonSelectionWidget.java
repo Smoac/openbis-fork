@@ -77,6 +77,7 @@ public final class PersonSelectionWidget extends DropDownList<PersonModel, Perso
         viewContext.getCommonService().listPersons(callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PERSON);

@@ -149,6 +149,7 @@ public final class EntityTypePropertyTypeSelectionWidget
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE);

@@ -171,6 +171,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals(2, queries.size());
         Collections.sort(queries, new Comparator<QueryExpression>()
             {
+                @Override
                 public int compare(QueryExpression o1, QueryExpression o2)
                 {
                     return o1.getName().compareTo(o2.getName());

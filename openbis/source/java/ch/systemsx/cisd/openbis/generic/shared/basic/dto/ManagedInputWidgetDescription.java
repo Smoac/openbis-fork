@@ -37,6 +37,7 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
     // IManagedInputWidgetDescription
     //
 
+    @Override
     public String getLabel()
     {
         return label;
@@ -47,33 +48,39 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
         this.label = label;
     }
 
+    @Override
     public String getValue()
     {
         return value;
     }
 
+    @Override
     public IManagedInputWidgetDescription setValue(String value)
     {
         this.value = value;
         return this;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
     }
 
+    @Override
     public IManagedInputWidgetDescription setDescription(String description)
     {
         this.description = description;
         return this;
     }
 
+    @Override
     public boolean isMandatory()
     {
         return mandatory;
     }
 
+    @Override
     public IManagedInputWidgetDescription setMandatory(boolean mandatory)
     {
         this.mandatory = mandatory;

@@ -125,6 +125,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
         return description;
     }
 
+    @Override
     public void init(IAuthorizationDataProvider provider)
     {
         this.authorizationDataProvider = provider;

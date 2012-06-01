@@ -121,6 +121,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
          */
         private static final String SEARCHABLE_ATTACHMENT_MARKER = "[searchable]";
 
+        @Override
         public void set(String name, Object/* AttachmentPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
@@ -242,6 +243,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.version = version;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.ATTACHMENT_SEQUENCE, sequenceName = SequenceNames.ATTACHMENT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ATTACHMENT_SEQUENCE)
@@ -357,6 +359,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     // Comparable
     //
 
+    @Override
     public final int compareTo(final AttachmentPE o)
     {
         final int byFile = getFileName().compareTo(o.getFileName());

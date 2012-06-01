@@ -94,6 +94,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     // ISampleDAO
     //
 
+    @Override
     public final void createOrUpdateSample(final SamplePE sample, final PersonPE modifier)
             throws DataAccessException
     {
@@ -110,11 +111,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 new ArrayList<DataPE>(sample.getDatasets()));
     }
 
+    @Override
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
     {
         return sample.getGenerated();
     }
 
+    @Override
     public final List<SamplePE> listSamplesBySpaceAndProperty(final String propertyCode,
             final String propertyValue, final SpacePE space) throws DataAccessException
     {
@@ -169,6 +172,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return samples;
     }
 
+    @Override
     public SamplePE tryToFindByPermID(String permID) throws DataAccessException
     {
         assert permID != null : "Unspecified permanent ID.";
@@ -184,6 +188,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return sample;
     }
 
+    @Override
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
             final DatabaseInstancePE databaseInstance)
     {
@@ -208,6 +213,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return sample;
     }
 
+    @Override
     public final List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
             final String containerCodeOrNull, final DatabaseInstancePE databaseInstance)
     {
@@ -224,6 +230,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return result;
     }
 
+    @Override
     public final SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
     {
         assert sampleCode != null : "Unspecified sample code.";
@@ -246,6 +253,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return sample;
     }
 
+    @Override
     public final List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes,
             final String containerCodeOrNull, final SpacePE space)
     {
@@ -327,6 +335,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         }
     }
 
+    @Override
     public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier)
             throws DataAccessException
     {
@@ -351,6 +360,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         hibernateTemplate.clear();
     }
 
+    @Override
     public final void updateSample(final SamplePE sample, final PersonPE modifier)
             throws DataAccessException
     {
@@ -369,11 +379,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         }
     }
 
+    @Override
     public List<SamplePE> listByPermID(Set<String> values)
     {
         return listByIDsOfName("permId", values);
     }
 
+    @Override
     public List<SamplePE> listByIDs(Collection<Long> ids)
     {
         return listByIDsOfName("id", ids);
@@ -394,6 +406,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return list;
     }
 
+    @Override
     public void delete(final List<TechId> sampleIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
@@ -418,6 +431,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
     }
 
+    @Override
     public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
             final TechId relationship)
     {
@@ -429,6 +443,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
 
+                        @Override
                         public final Object doInHibernate(final Session session)
                         {
                             final List<Long> longIds = TechId.asLongs(children);
@@ -445,11 +460,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return result;
     }
 
+    @Override
     public Set<TechId> listSampleIdsByParentIds(Collection<TechId> parentIds)
     {
         return listChildrenIds(parentIds, TableNames.SAMPLE_RELATIONSHIPS_VIEW);
     }
 
+    @Override
     public Set<TechId> listChildrenForTrashedSamples(Collection<TechId> parentIds)
     {
         return listChildrenIds(parentIds, TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE);
@@ -465,6 +482,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
 
+                        @Override
                         public final Object doInHibernate(final Session session)
                         {
                             final List<Long> longIds = TechId.asLongs(parents);
@@ -481,12 +499,14 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return result;
     }
 
+    @Override
     public List<TechId> listSampleIdsByContainerIds(final Collection<TechId> containers)
     {
         final List<Long> longIds = TechId.asLongs(containers);
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -503,12 +523,14 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return transformNumbers2TechIdList(results);
     }
 
+    @Override
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
         final List<Long> longIds = TechId.asLongs(experiments);
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =

@@ -66,6 +66,7 @@ public class Identifier<T extends Identifier<T>> implements Serializable, Compar
     // IIdentifierHolder
     //
 
+    @Override
     public final String getIdentifier()
     {
         return identifier;
@@ -75,6 +76,7 @@ public class Identifier<T extends Identifier<T>> implements Serializable, Compar
     // Comparable
     //
 
+    @Override
     public final int compareTo(final T o)
     {
         return IDENTIFIER_HOLDER_COMPARATOR.compare(this, o);
@@ -118,6 +120,7 @@ public class Identifier<T extends Identifier<T>> implements Serializable, Compar
         // Comparable
         //
 
+        @Override
         public int compare(final IIdentifierHolder o1, final IIdentifierHolder o2)
         {
             assert o1 != null : "Unspecified code provider.";

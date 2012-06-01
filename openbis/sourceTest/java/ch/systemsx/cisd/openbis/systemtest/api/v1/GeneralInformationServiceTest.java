@@ -114,6 +114,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Project> projects = generalInformationService.listProjects(sessionToken);
         Collections.sort(projects, new Comparator<Project>()
             {
+                @Override
                 public int compare(Project p1, Project p2)
                 {
                     return p1.getIdentifier().compareTo(p2.getIdentifier());
@@ -708,6 +709,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSetType> types = generalInformationService.listDataSetTypes(sessionToken);
         Collections.sort(types, new Comparator<DataSetType>()
             {
+                @Override
                 public int compare(DataSetType t1, DataSetType t2)
                 {
                     return t1.getCode().compareTo(t2.getCode());
@@ -721,6 +723,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<PropertyType> propertyTypes = groups.get(0).getPropertyTypes();
         Collections.sort(propertyTypes, new Comparator<PropertyType>()
             {
+                @Override
                 public int compare(PropertyType t1, PropertyType t2)
                 {
                     return t1.getCode().compareTo(t2.getCode());
@@ -901,6 +904,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         assertCollection("[SRM_1, SRM_1A]", materials, new IToStringDelegate<Material>()
             {
+                @Override
                 public String toString(Material t)
                 {
                     return t.getMaterialCode();
@@ -927,6 +931,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         assertCollection("[SRM_1, SRM_1A]", materials, new IToStringDelegate<Material>()
             {
+                @Override
                 public String toString(Material t)
                 {
                     return t.getMaterialCode();
@@ -976,6 +981,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertCollection("[BACTERIUM-X, BACTERIUM-Y, BACTERIUM1, BACTERIUM2]", materials,
                 new IToStringDelegate<Material>()
                     {
+                        @Override
                         public String toString(Material t)
                         {
                             return t.getMaterialCode();

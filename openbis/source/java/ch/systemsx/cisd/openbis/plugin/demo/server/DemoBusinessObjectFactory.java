@@ -37,6 +37,7 @@ public final class DemoBusinessObjectFactory extends AbstractPluginBusinessObjec
     // IGenericBusinessObjectFactory
     //
 
+    @Override
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);

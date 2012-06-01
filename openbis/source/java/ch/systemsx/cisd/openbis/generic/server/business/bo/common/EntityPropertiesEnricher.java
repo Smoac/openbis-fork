@@ -57,6 +57,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             {
                 private final static int BATCH_SIZE = 50000;
 
+                @Override
                 public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
                         LongSet entityIDs)
                 {
@@ -72,6 +73,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                         };
                 }
 
+                @Override
                 public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
                         LongSet entityIDs)
                 {
@@ -86,6 +88,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                         };
                 }
 
+                @Override
                 public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
                         LongSet entityIDs)
                 {
@@ -108,6 +111,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
      * Enriches the entities with given <var>entityIDs</var> with its properties. The entities will
      * be resolved by the {@link IEntityPropertiesHolderResolver} and will be enriched in place.
      */
+    @Override
     public void enrich(final LongSet entityIDs, final IEntityPropertiesHolderResolver entities)
     {
         final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();

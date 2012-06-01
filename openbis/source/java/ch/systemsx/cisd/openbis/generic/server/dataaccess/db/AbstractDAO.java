@@ -82,14 +82,14 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /*
-    private static Map<Class<?>, ClassValidator<?>> validators =
-            new HashMap<Class<?>, ClassValidator<?>>();
-    */
+     * private static Map<Class<?>, ClassValidator<?>> validators =
+     * new HashMap<Class<?>, ClassValidator<?>>();
+     */
     /**
-     * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
+     * Validates given <i>Persistence Entity</i> using an appropriate {@link Validator}.
      */
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+        { "rawtypes" })
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
 
@@ -215,6 +215,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                 // HibernateCallback
                 //
 
+                @Override
                 public final Object doInHibernate(final Session session) throws HibernateException,
                         SQLException
                 {
@@ -259,6 +260,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                 // HibernateCallback
                 //
 
+                @Override
                 public final Object doInHibernate(final Session session)
                 {
                     return session.createSQLQuery(String.format(sql, parameters)).uniqueResult();
@@ -275,6 +277,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     {
         final Object result = getHibernateTemplate().execute(new HibernateCallback()
             {
+                @Override
                 public Object doInHibernate(Session sess) throws HibernateException, SQLException
                 {
                     SQLQuery sqlQuery =
@@ -301,6 +304,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         return getHibernateTemplate().execute(new HibernateCallback()
             {
 
+                @Override
                 public final Object doInHibernate(final Session session) throws HibernateException,
                         SQLException
                 {

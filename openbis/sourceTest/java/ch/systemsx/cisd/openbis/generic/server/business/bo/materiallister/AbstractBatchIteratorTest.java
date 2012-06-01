@@ -34,8 +34,6 @@ public class AbstractBatchIteratorTest extends AssertJUnit
 {
     private static class TestPartialIterator extends AbstractBatchIterator<Long>
     {
-        int callCounter = 0;
-
         protected TestPartialIterator(final LongSet ids, int chunkSize)
         {
             super(ids, chunkSize);
@@ -50,9 +48,9 @@ public class AbstractBatchIteratorTest extends AssertJUnit
                         "Chunk of the wrong size requested, expected at most %d, was %d",
                         chunkSize, ids.size()));
             }
-            callCounter++;
             return new Iterable<Long>()
                 {
+                    @Override
                     public Iterator<Long> iterator()
                     {
                         return ids.iterator();

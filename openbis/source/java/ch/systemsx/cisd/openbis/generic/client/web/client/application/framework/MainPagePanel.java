@@ -64,6 +64,7 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         return WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
     }
 
+    @Override
     public final void open(final AbstractTabItemFactory tabItemFactory)
     {
         GWTUtils.updatePageTitle(tabItemFactory.getTabTitle());
@@ -73,6 +74,7 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         layout();
     }
 
+    @Override
     public final void reset()
     {
         if (content != null)

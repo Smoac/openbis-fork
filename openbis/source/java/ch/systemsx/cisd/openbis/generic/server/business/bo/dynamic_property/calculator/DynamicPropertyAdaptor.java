@@ -65,6 +65,7 @@ public class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
         this.evaluator = evaluator;
     }
 
+    @Override
     public String valueAsString()
     {
         switch (state)
@@ -102,11 +103,13 @@ public class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
         return evaluator.evaluateProperty(entityAdaptor, etpt);
     }
 
+    @Override
     public String renderedValue()
     {
         return valueAsString();
     }
 
+    @Override
     public String propertyTypeCode()
     {
         return code;

@@ -84,6 +84,7 @@ public interface ISampleBO extends IEntityBusinessObject
     /**
      * Writes changed are added data to the Data Access Layers.
      */
+    @Override
     public void save() throws UserFailureException;
 
     /**

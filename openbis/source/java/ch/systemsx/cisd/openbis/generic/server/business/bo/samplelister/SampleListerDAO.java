@@ -88,18 +88,21 @@ public final class SampleListerDAO extends AbstractDAO
     {
         return new IEntityPropertySetListingQuery()
             {
+                @Override
                 public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
                         LongSet entityIDs)
                 {
                     return query.getEntityPropertyGenericValues(entityIDs);
                 }
 
+                @Override
                 public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
                         LongSet entityIDs)
                 {
                     return query.getEntityPropertyMaterialValues(entityIDs);
                 }
 
+                @Override
                 public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
                         LongSet entityIDs)
                 {

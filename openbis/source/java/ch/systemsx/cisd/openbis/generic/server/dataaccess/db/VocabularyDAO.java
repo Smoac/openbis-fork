@@ -61,6 +61,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
     // IVocabularyDAO
     //
 
+    @Override
     public final void createOrUpdateVocabulary(final VocabularyPE vocabularyPE)
     {
         assert vocabularyPE != null : "Given vocabulary can not be null.";
@@ -76,6 +77,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
 
     }
 
+    @Override
     public final VocabularyPE tryFindVocabularyByCode(final String vocabularyCode)
     {
         assert vocabularyCode != null : "Unspecified vocabulary code.";
@@ -97,6 +99,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
         return entity;
     }
 
+    @Override
     public final List<VocabularyPE> listVocabularies(boolean excludeInternal)
     {
         String excludeInternalQuery = " and v.internalNamespace = false";
@@ -113,6 +116,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
     }
 
     // this one could be moved to VocabularyTermDAO if we create it
+    @Override
     public VocabularyTermPE tryFindVocabularyTermByCode(VocabularyPE vocabulary, String code)
     {
         assert vocabulary != null : "Unspecified vocabulary.";

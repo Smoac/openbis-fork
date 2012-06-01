@@ -181,6 +181,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     {
         return new IScriptTypeProvider()
             {
+                @Override
                 public ScriptType tryGetScriptType()
                 {
                     return isManaged() ? ScriptType.MANAGED_PROPERTY : ScriptType.DYNAMIC_PROPERTY;
@@ -229,6 +230,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         result.setLabelSeparator("");
         result.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     scriptChooser.setRawValue("");
@@ -258,6 +260,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             propertyTypeSelectionWidget.addListener(Events.SelectionChange,
                     new Listener<BaseEvent>()
                         {
+                            @Override
                             public void handleEvent(BaseEvent be)
                             {
                                 updatePropertyTypeRelatedFields();
@@ -322,6 +325,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             result.addListener(Events.Focus, new InfoBoxResetListener(infoBox));
             result.addListener(Events.SelectionChange, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         updateEntityTypePropertyTypeRelatedFields();
@@ -376,6 +380,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             scriptableCheckbox.setValue(false);
             scriptableCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         updateShownInEditView();
@@ -426,6 +431,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             shownInEditViewCheckBox.setVisible(false);
             shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         // Make sure the User triggered the change
@@ -722,11 +728,13 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         getTypeSelectionWidget().refreshStore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return modificationManager.getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         modificationManager.update(observedModifications);

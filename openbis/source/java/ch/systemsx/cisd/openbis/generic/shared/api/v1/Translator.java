@@ -287,6 +287,7 @@ public class Translator
         Collections.sort(sortedTerms,
                 new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>()
                     {
+                        @Override
                         public int compare(
                                 ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm o1,
                                 ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm o2)

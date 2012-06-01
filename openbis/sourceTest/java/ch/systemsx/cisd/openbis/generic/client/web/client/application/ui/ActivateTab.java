@@ -40,6 +40,7 @@ public class ActivateTab extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public void execute()
     {
         GWTTestUtil.selectTabItemWithId(tabPanelId, tabItemId);

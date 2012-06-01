@@ -139,6 +139,7 @@ public class FieldUtil
 
         final IDelegatedAction alignInfoIcon = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     infoIcon.el().alignTo(field.getElement(), INFO_LINK_POSITION,
@@ -148,6 +149,7 @@ public class FieldUtil
 
         field.addListener(Events.Render, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     Element parent = field.el().getParent().dom;
@@ -168,6 +170,7 @@ public class FieldUtil
             });
         field.addListener(Events.Show, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     if (field.isRendered())
@@ -191,6 +194,7 @@ public class FieldUtil
         info.sinkEvents(Events.OnClick.getEventCode());
         info.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent e)
                 {
                     MessageBox.info("Info", message, null);

@@ -53,12 +53,14 @@ final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
         return null;
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
     {
         logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
         return null;
     }
 
+    @Override
     public void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
@@ -66,6 +68,7 @@ final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
+    @Override
     public int getNumberOfExperiments(String sessionToken)
     {
         logTracking(sessionToken, "get_number_of_experiments", "");

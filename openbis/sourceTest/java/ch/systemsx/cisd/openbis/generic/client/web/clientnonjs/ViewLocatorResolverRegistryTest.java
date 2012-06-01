@@ -61,6 +61,7 @@ public class ViewLocatorResolverRegistryTest extends AssertJUnit
             super(handledAction);
         }
 
+        @Override
         public void resolve(ViewLocator locator)
         {
             wasCalled = true;

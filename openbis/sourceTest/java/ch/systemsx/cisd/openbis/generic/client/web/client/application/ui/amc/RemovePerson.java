@@ -46,6 +46,7 @@ public class RemovePerson extends AbstractDefaultTestCommand
         this.person = personId;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void execute()
     {

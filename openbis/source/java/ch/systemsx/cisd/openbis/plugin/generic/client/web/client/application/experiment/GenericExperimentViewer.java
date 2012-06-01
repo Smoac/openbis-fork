@@ -130,6 +130,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
@@ -141,6 +142,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
@@ -191,6 +193,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
         GWTUtils.executeDelayed(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     remove(loadingLabel);
@@ -241,16 +244,19 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     {
         return new IAttachmentHolder()
             {
+                @Override
                 public AttachmentHolderKind getAttachmentHolderKind()
                 {
                     return AttachmentHolderKind.EXPERIMENT;
                 }
 
+                @Override
                 public Long getId()
                 {
                     return identifiable.getId();
                 }
 
+                @Override
                 public String getCode()
                 {
                     return identifiable.getCode();
@@ -343,11 +349,13 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createModificationObserver().getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createModificationObserver().update(observedModifications);

@@ -323,6 +323,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         {
             this.filters.add(new Filter<DataSetInfo>()
                 {
+                    @Override
                     public boolean accepts(DataSetInfo t)
                     {
                         return t.getRegistrationDate().startsWith(aDate);
@@ -341,6 +342,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         {
             this.filters.add(new Filter<DataSetInfo>()
                 {
+                    @Override
                     public boolean accepts(DataSetInfo t)
                     {
                         return t.getModificationDate().startsWith(aDateString);
@@ -441,6 +443,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             return this.param.getCode().equals(name);
         }
 
+        @Override
         public boolean foundIn(Collection<DataSet> items)
         {
             for (DataSet dataset : items)
@@ -453,6 +456,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             return false;
         }
 
+        @Override
         public String getRealId()
         {
             return this.info.getCode();
@@ -508,6 +512,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             this.identifiers = Collections.unmodifiableList(Arrays.asList(ids));
         }
 
+        @Override
         public final void describeTo(Description description)
         {
             description.appendText("A collection containing at least these elements:");
@@ -549,6 +554,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
             this.identifiers = Collections.unmodifiableList(Arrays.asList(ids));
         }
 
+        @Override
         public final void describeTo(Description description)
         {
             description.appendText("A collection that does not contain any of these elements:");

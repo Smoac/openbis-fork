@@ -99,6 +99,7 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<RoleAssignment>>>()
                             {
 
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<RoleAssignment>> selectedItem,
                                         boolean keyPressed)

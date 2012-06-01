@@ -109,6 +109,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         entityPropertiesConverter = converter;
     }
 
+    @Override
     public SessionFactory getSessionFactory()
     {
         return daoFactory.getSessionFactory();
@@ -207,191 +208,229 @@ abstract class AbstractBusinessObject implements IDAOFactory
     // IDAOFactory
     //
 
+    @Override
     public final DatabaseInstancePE getHomeDatabaseInstance()
     {
         return daoFactory.getHomeDatabaseInstance();
     }
 
+    @Override
     public final ISpaceDAO getSpaceDAO()
     {
         return daoFactory.getSpaceDAO();
     }
 
+    @Override
     public final IScriptDAO getScriptDAO()
     {
         return daoFactory.getScriptDAO();
     }
 
+    @Override
     public final IPersonDAO getPersonDAO()
     {
         return daoFactory.getPersonDAO();
     }
 
+    @Override
     public final IDatabaseInstanceDAO getDatabaseInstanceDAO()
     {
         return daoFactory.getDatabaseInstanceDAO();
     }
 
+    @Override
     public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return daoFactory.getRoleAssignmentDAO();
     }
 
+    @Override
     public final ISampleDAO getSampleDAO()
     {
         return daoFactory.getSampleDAO();
     }
 
+    @Override
     public final ISampleTypeDAO getSampleTypeDAO()
     {
         return daoFactory.getSampleTypeDAO();
     }
 
+    @Override
     public final IDataDAO getDataDAO()
     {
         return daoFactory.getDataDAO();
     }
 
+    @Override
     public final IHibernateSearchDAO getHibernateSearchDAO()
     {
         return daoFactory.getHibernateSearchDAO();
     }
 
+    @Override
     public IPropertyTypeDAO getPropertyTypeDAO()
     {
         return daoFactory.getPropertyTypeDAO();
     }
 
+    @Override
     public IEntityTypeDAO getEntityTypeDAO(final EntityKind entityKind)
     {
         return daoFactory.getEntityTypeDAO(entityKind);
     }
 
+    @Override
     public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(final EntityKind entityKind)
     {
         return daoFactory.getEntityPropertyTypeDAO(entityKind);
     }
 
+    @Override
     public IEntityPropertyHistoryDAO getEntityPropertyHistoryDAO()
     {
         return daoFactory.getEntityPropertyHistoryDAO();
     }
 
+    @Override
     public IExperimentDAO getExperimentDAO()
     {
         return daoFactory.getExperimentDAO();
     }
 
+    @Override
     public IProjectDAO getProjectDAO()
     {
         return daoFactory.getProjectDAO();
     }
 
+    @Override
     public final IVocabularyDAO getVocabularyDAO()
     {
         return daoFactory.getVocabularyDAO();
     }
 
+    @Override
     public final IVocabularyTermDAO getVocabularyTermDAO()
     {
         return daoFactory.getVocabularyTermDAO();
     }
 
+    @Override
     public final IAttachmentDAO getAttachmentDAO()
     {
         return daoFactory.getAttachmentDAO();
     }
 
+    @Override
     public IDataSetTypeDAO getDataSetTypeDAO()
     {
         return daoFactory.getDataSetTypeDAO();
     }
 
+    @Override
     public IFileFormatTypeDAO getFileFormatTypeDAO()
     {
         return daoFactory.getFileFormatTypeDAO();
     }
 
+    @Override
     public ILocatorTypeDAO getLocatorTypeDAO()
     {
         return daoFactory.getLocatorTypeDAO();
     }
 
+    @Override
     public IMaterialDAO getMaterialDAO()
     {
         return daoFactory.getMaterialDAO();
     }
 
+    @Override
     public ICodeSequenceDAO getCodeSequenceDAO()
     {
         return daoFactory.getCodeSequenceDAO();
     }
 
+    @Override
     public IDataStoreDAO getDataStoreDAO()
     {
         return daoFactory.getDataStoreDAO();
     }
 
+    @Override
     public IPermIdDAO getPermIdDAO()
     {
         return daoFactory.getPermIdDAO();
     }
 
+    @Override
     public IEventDAO getEventDAO()
     {
         return daoFactory.getEventDAO();
     }
 
+    @Override
     public final IDeletionDAO getDeletionDAO()
     {
         return daoFactory.getDeletionDAO();
     }
 
+    @Override
     public void setBatchUpdateMode(boolean batchMode)
     {
         daoFactory.setBatchUpdateMode(batchMode);
     }
 
+    @Override
     public IAuthorizationGroupDAO getAuthorizationGroupDAO()
     {
         return daoFactory.getAuthorizationGroupDAO();
     }
 
+    @Override
     public PersistencyResources getPersistencyResources()
     {
         return daoFactory.getPersistencyResources();
     }
 
+    @Override
     public IGridCustomFilterDAO getGridCustomFilterDAO()
     {
         return daoFactory.getGridCustomFilterDAO();
     }
 
+    @Override
     public IGridCustomColumnDAO getGridCustomColumnDAO()
     {
         return daoFactory.getGridCustomColumnDAO();
     }
 
+    @Override
     public IQueryDAO getQueryDAO()
     {
         return daoFactory.getQueryDAO();
     }
 
+    @Override
     public IRelationshipTypeDAO getRelationshipTypeDAO()
     {
         return daoFactory.getRelationshipTypeDAO();
     }
 
+    @Override
     public ICorePluginDAO getCorePluginDAO()
     {
         return daoFactory.getCorePluginDAO();
     }
 
+    @Override
     public IPostRegistrationDAO getPostRegistrationDAO()
     {
         return daoFactory.getPostRegistrationDAO();
     }
 
+    @Override
     public IEntityOperationsLogDAO getEntityOperationsLogDAO()
     {
         return daoFactory.getEntityOperationsLogDAO();

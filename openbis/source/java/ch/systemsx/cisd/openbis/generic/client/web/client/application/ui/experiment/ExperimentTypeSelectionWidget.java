@@ -93,6 +93,7 @@ public final class ExperimentTypeSelectionWidget extends
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

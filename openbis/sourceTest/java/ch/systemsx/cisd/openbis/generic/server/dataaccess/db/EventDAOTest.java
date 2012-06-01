@@ -185,6 +185,7 @@ public class EventDAOTest extends AbstractDAOTest
         List<DeletedDataSet> events = listDataDeletionEvents(null);
         Collections.sort(events, new Comparator<DeletedDataSet>()
             {
+                @Override
                 public int compare(DeletedDataSet s1, DeletedDataSet s2)
                 {
                     return s1.getIdentifier().compareTo(s2.getIdentifier());

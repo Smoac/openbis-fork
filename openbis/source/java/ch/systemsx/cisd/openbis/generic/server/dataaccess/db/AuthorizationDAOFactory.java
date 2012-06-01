@@ -112,11 +112,13 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance, persistencyResources);
     }
 
+    @Override
     public final PersistencyResources getPersistencyResources()
     {
         return persistencyResources;
     }
 
+    @Override
     public SessionFactory getSessionFactory()
     {
         return persistencyResources.getSessionFactoryOrNull();
@@ -181,71 +183,85 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     // IAuthorizationDAOFactory
     //
 
+    @Override
     public final DatabaseInstancePE getHomeDatabaseInstance()
     {
         return homeDatabaseInstance;
     }
 
+    @Override
     public final IDatabaseInstanceDAO getDatabaseInstanceDAO()
     {
         return databaseInstancesDAO;
     }
 
+    @Override
     public final ISpaceDAO getSpaceDAO()
     {
         return groupDAO;
     }
 
+    @Override
     public final IPersonDAO getPersonDAO()
     {
         return personDAO;
     }
 
+    @Override
     public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return roleAssignmentDAO;
     }
 
+    @Override
     public final IDataDAO getDataDAO()
     {
         return dataDAO;
     }
 
+    @Override
     public final IExperimentDAO getExperimentDAO()
     {
         return experimentDAO;
     }
 
+    @Override
     public final IProjectDAO getProjectDAO()
     {
         return projectDAO;
     }
 
+    @Override
     public final ISampleDAO getSampleDAO()
     {
         return sampleDAO;
     }
 
+    @Override
     public IGridCustomFilterDAO getGridCustomFilterDAO()
     {
         return gridCustomFilterDAO;
     }
 
+    @Override
     public IGridCustomColumnDAO getGridCustomColumnDAO()
     {
         return gridCustomColumnDAO;
     }
 
+    @Override
     public IQueryDAO getQueryDAO()
     {
         return queryDAO;
     }
 
+    @Override
     public IRelationshipTypeDAO getRelationshipTypeDAO()
     {
         return relationshipTypeDAO;
     }
 
+    @Override
     public IDeletionDAO getDeletionDAO()
     {
         return deletionDAO;
@@ -256,6 +272,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
      * 
      * @see HibernateUtils#setBatchUpdateMode(org.hibernate.Session, boolean)
      */
+    @Override
     public void setBatchUpdateMode(boolean batchMode)
     {
         SessionFactory sessionFactory = persistencyResources.getSessionFactoryOrNull();

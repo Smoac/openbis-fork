@@ -34,21 +34,25 @@ public class ScriptImmutable implements IScriptImmutable
         this.script = script;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.valueOf(script.getEntityKind().name());
     }
 
+    @Override
     public String getDescription()
     {
         return script.getDescription();
     }
 
+    @Override
     public String getName()
     {
         return script.getName();
     }
 
+    @Override
     public String getScript()
     {
         return script.getScript();
@@ -86,6 +90,7 @@ public class ScriptImmutable implements IScriptImmutable
         }
     }
 
+    @Override
     public String getCode()
     {
         return script.getId().toString();

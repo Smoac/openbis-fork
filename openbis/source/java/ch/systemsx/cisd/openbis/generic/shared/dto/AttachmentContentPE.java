@@ -47,6 +47,7 @@ public class AttachmentContentPE implements IIdHolder, Serializable
 
     transient private Long id;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE, sequenceName = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ATTACHMENT_CONTENT_SEQUENCE)

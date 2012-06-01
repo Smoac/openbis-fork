@@ -42,10 +42,12 @@ public class ChangeUserSettingsAction implements IDelegatedAction
         this.onDisplaySettingsResetAction = onDisplaySettingsResetAction;
     }
 
+    @Override
     public void execute()
     {
         IDelegatedAction saveCallback = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     menu.refreshTitle();
@@ -53,6 +55,7 @@ public class ChangeUserSettingsAction implements IDelegatedAction
             };
         IDelegatedAction resetCallback = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     onDisplaySettingsResetAction.execute();

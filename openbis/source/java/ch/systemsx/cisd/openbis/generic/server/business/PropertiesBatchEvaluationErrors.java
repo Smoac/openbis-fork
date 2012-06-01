@@ -204,6 +204,7 @@ class PropertiesBatchEvaluationErrors
         List<ErrorDetail> result = new ArrayList<ErrorDetail>(errorDetails.values());
         Collections.sort(result, new Comparator<ErrorDetail>()
             {
+                @Override
                 public int compare(ErrorDetail o1, ErrorDetail o2)
                 {
                     return o1.rows.get(0) - o2.rows.get(0);

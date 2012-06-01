@@ -133,11 +133,13 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         this.commonServer = commonServer;
     }
 
+    @Override
     public IGeneralInformationService createLogger(IInvocationLoggerContext context)
     {
         return new GeneralInformationServiceLogger(sessionManager, context);
     }
 
+    @Override
     @Transactional
     // this is not a readOnly transaction - it can create new users
     public String tryToAuthenticateForAllServices(String userID, String userPassword)
@@ -146,12 +148,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return session == null ? null : session.getSessionToken();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public boolean isSessionActive(String sessionToken)
     {
         return tryGetSession(sessionToken) != null;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
@@ -173,6 +177,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return namedRoleSets;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SimpleSpaceValidator.class)
@@ -203,11 +208,13 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 17;
@@ -279,6 +286,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
@@ -289,6 +297,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 EnumSet.of(SampleFetchOption.PROPERTIES));
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
@@ -316,6 +325,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return new SampleLister(getDAOFactory());
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
@@ -338,6 +348,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateSamples(privateSamples);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -349,6 +360,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
@@ -360,6 +372,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return listExperiments(sessionToken, projects, experimentTypeString, false, false);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
@@ -371,6 +384,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return listExperiments(sessionToken, projects, experimentTypeString, false, true);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
@@ -449,6 +463,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return null;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -464,6 +479,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(externalData, EnumSet.noneOf(Connections.class));
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
@@ -471,6 +487,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return commonServer.getDefaultPutDataStoreBaseURL(sessionToken);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
@@ -488,6 +505,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return data.getDataStore().getDownloadUrl();
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken)
@@ -506,6 +524,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return dataSetTypes;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
@@ -523,6 +542,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return vocabTerms;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Vocabulary> listVocabularies(String sessionToken)
@@ -537,6 +557,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -558,6 +579,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(dataSets, connectionsToGet);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -579,6 +601,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(dataSets, connectionsToGet);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -605,6 +628,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -654,6 +678,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
@@ -672,6 +697,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(privateDataSets, EnumSet.noneOf(Connections.class));
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
@@ -691,6 +717,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateExperiments(experiments);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ProjectByIdentiferValidator.class)
@@ -702,6 +729,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateProjects(commonServer.listProjects(sessionToken));
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @Capability("GET_MATERIALS_BY_CODES")
@@ -715,6 +743,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                                 materialIdentifier,
                                 new Transformer<MaterialIdentifier, ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier>()
                                     {
+                                        @Override
                                         public ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier transform(
                                                 MaterialIdentifier arg0)
                                         {
@@ -733,6 +762,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateMaterials(materials);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @Capability("SEARCH_FOR_MATERIALS")

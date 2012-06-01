@@ -210,6 +210,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
                     {
 
+                        @Override
                         public void invoke(
                                 BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
                                 boolean keyPressed)
@@ -231,6 +232,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
                     {
+                        @Override
                         public void invoke(
                                 BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
                                 boolean keyPressed)
@@ -331,6 +333,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                         mandatoryCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
                             {
+                                @Override
                                 public void handleEvent(FieldEvent be)
                                 {
                                     defaultValueField.setVisible(getMandatoryValue()

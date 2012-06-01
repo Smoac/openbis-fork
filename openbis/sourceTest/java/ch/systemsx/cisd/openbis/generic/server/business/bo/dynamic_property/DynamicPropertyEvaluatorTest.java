@@ -70,6 +70,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         final Session session = new Mockery().mock(Session.class);
         sessionProvider = new IHibernateSessionProvider()
             {
+                @Override
                 public Session getSession()
                 {
                     return session;

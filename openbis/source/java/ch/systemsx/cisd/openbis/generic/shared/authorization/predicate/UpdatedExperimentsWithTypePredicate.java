@@ -39,6 +39,7 @@ public final class UpdatedExperimentsWithTypePredicate extends
 
     private final IPredicate<SpaceIdentifier> delegate;
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         delegate.init(provider);

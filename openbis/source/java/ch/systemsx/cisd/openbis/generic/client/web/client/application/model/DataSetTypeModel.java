@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * {@link ModelData} for {@link DataSetType}.
@@ -73,7 +72,7 @@ public class DataSetTypeModel extends SimplifiedBaseModelData
     private static DataSetTypeModel createTypeInFileModel()
     {
         final DataSetType typeInFile = new DataSetType();
-        typeInFile.setCode(SampleType.DEFINED_IN_FILE);
+        typeInFile.setCode(EntityType.DEFINED_IN_FILE);
         return new DataSetTypeModel(typeInFile);
     }
 

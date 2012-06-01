@@ -59,6 +59,7 @@ public final class MigrationStepFrom046To047 extends MigrationStepAdapter
     private final static ParameterizedRowMapper<PersonWithDisplaySettings> PERSON_WITH_DISPLAY_SETTINGS_ROW_MAPPER =
             new ParameterizedRowMapper<PersonWithDisplaySettings>()
                 {
+                    @Override
                     public final PersonWithDisplaySettings mapRow(final ResultSet rs,
                             final int rowNum) throws SQLException
                     {

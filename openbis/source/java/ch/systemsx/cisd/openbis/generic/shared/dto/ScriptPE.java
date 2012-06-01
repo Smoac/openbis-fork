@@ -121,6 +121,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
         this.id = id;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.SCRIPT_SEQUENCE, sequenceName = SequenceNames.SCRIPT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SCRIPT_SEQUENCE)
@@ -188,6 +189,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
         return getName();
     }
 
+    @Override
     public int compareTo(ScriptPE that)
     {
         final String thatName = that.getName();

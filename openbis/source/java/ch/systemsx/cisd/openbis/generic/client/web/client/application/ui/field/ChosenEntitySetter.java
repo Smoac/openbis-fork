@@ -44,6 +44,7 @@ public abstract class ChosenEntitySetter<T> extends TriggerField<String> impleme
         listeners.add(listener);
     }
 
+    @Override
     public void setChosenEntities(List<T> entityOrNull)
     {
         if (entityOrNull != null)

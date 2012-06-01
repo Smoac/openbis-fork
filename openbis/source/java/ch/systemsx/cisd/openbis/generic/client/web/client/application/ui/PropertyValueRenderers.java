@@ -269,6 +269,7 @@ public final class PropertyValueRenderers
         // IPropertyValueRenderer
         //
 
+        @Override
         public Widget getAsWidget(IEntityProperty object)
         {
             // strip error prefix from error message
@@ -425,6 +426,7 @@ public final class PropertyValueRenderers
         // AbstractPropertyValueRenderer
         //
 
+        @Override
         public FlowPanel getAsWidget(final T entity)
         {
             final String displayText = getDisplayText(entity);
@@ -467,12 +469,14 @@ public final class PropertyValueRenderers
         //
         // AbstractPropertyValueRenderer
         //
+        @Override
         public Widget getAsWidget(final Project project)
         {
             final String displayText = project.getIdentifier();
             final String href = LinkExtractor.tryExtract(project);
             final ClickHandler listener = new ClickHandler()
                 {
+                    @Override
                     public void onClick(ClickEvent event)
                     {
                         OpenEntityDetailsTabHelper.open(viewContext, project,
@@ -537,6 +541,7 @@ public final class PropertyValueRenderers
         // AbstractPropertyValueRenderer
         //
 
+        @Override
         public Widget getAsWidget(String object)
         {
             return createMultilineHtmlWidget(object);

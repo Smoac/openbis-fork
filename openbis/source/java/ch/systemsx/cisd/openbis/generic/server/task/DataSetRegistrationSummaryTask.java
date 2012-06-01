@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -147,6 +146,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         this.mailClient = mailClient;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         daysOfWeek = extractDays(properties, DAYS_OF_WEEK_KEY, "");
@@ -217,6 +217,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return list;
     }
 
+    @Override
     public void execute()
     {
         if (isDay() == false)
@@ -283,6 +284,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             }
             Collections.sort(newDataSets, new Comparator<ExternalData>()
                 {
+                    @Override
                     public int compare(ExternalData d1, ExternalData d2)
                     {
                         return d1.getCode().compareTo(d2.getCode());
@@ -406,6 +408,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         List<DataSetType> dataSetTypes = server.listDataSetTypes(sessionToken);
         Collections.sort(dataSetTypes, new Comparator<DataSetType>()
             {
+                @Override
                 public int compare(DataSetType t1, DataSetType t2)
                 {
                     return t1.getCode().compareTo(t2.getCode());
@@ -416,7 +419,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
 
     private boolean isDay()
     {
-        Calendar calendar = GregorianCalendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeProvider.getTimeInMilliseconds());
         return isDay(calendar);
     }
@@ -427,7 +430,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
     private long getStart()
     {
         long time = timeProvider.getTimeInMilliseconds();
-        Calendar calendar = GregorianCalendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         do
         {
             time -= DateUtils.MILLIS_PER_DAY;
@@ -441,7 +444,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
      */
     private long getEnd()
     {
-        Calendar calendar = GregorianCalendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeProvider.getTimeInMilliseconds());
         return calendar.getTimeInMillis();
     }

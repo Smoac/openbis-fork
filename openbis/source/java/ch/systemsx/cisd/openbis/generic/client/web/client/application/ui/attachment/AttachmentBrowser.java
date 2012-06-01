@@ -199,6 +199,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
         registerListenerAndLinkGeneratorForAnyMode(AttachmentGridColumnIDs.FILE_NAME,
                 new ICellListenerAndLinkGenerator<AttachmentVersions>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<AttachmentVersions> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -211,6 +212,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                             AttachmentDownloadHelper.download(fileName, version, attachmentHolder);
                         }
 
+                        @Override
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
@@ -224,6 +226,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
         registerListenerAndLinkGeneratorForAnyMode(AttachmentGridColumnIDs.VERSION,
                 new ICellListenerAndLinkGenerator<AttachmentVersions>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<AttachmentVersions> rowItem,
                                 boolean keyPressed)
                         {
@@ -237,6 +240,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                             showVersionsPanel(fileName, versions, keyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(AttachmentVersions entity,
                                 ISerializableComparable comparableValue)
                         {
@@ -316,6 +320,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                     new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AttachmentVersions>>>()
                         {
 
+                            @Override
                             public void invoke(
                                     BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> selectedItem,
                                     boolean keyPressed)
@@ -349,6 +354,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
     {
         return new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AttachmentVersions>>>()
             {
+                @Override
                 public void invoke(
                         BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> selectedItem,
                         boolean keyPressed)
@@ -547,6 +553,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
             attachmentGrid.addListener(Events.CellClick,
                     new Listener<GridEvent<AttachmentVersionModel>>()
                         {
+                            @Override
                             public void handleEvent(final GridEvent<AttachmentVersionModel> be)
                             {
                                 if (ColumnListener.isLinkTarget(be))
@@ -607,6 +614,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
             column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
                 {
 
+                    @Override
                     public Object render(AttachmentVersionModel model, String property,
                             ColumnData config, int rowIndex, int colIndex,
                             ListStore<AttachmentVersionModel> store,
@@ -635,6 +643,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
             column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
                 {
 
+                    @Override
                     public Object render(AttachmentVersionModel model, String property,
                             ColumnData config, int rowIndex, int colIndex,
                             ListStore<AttachmentVersionModel> store,

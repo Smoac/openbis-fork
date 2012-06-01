@@ -73,6 +73,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         this.entityKind = entityKind;
     }
 
+    @Override
     public EntityTypePropertyTypePE getLoadedAssignment()
     {
         if (assignment == null)
@@ -82,6 +83,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return assignment;
     }
 
+    @Override
     public void deleteLoadedAssignment()
     {
         if (assignment == null)
@@ -92,6 +94,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         assignment = null;
     }
 
+    @Override
     public void loadAssignment(String propertyTypeCode, String entityTypeCode)
     {
         EntityTypePE entityType = findEntityType(entityTypeCode);
@@ -100,12 +103,14 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         assignment = entityPropertyTypeDAO.tryFindAssignment(entityType, propertyType);
     }
 
+    @Override
     public int countAssignmentValues(String propertyTypeCode, String entityTypeCode)
     {
         IEntityPropertyTypeDAO entityPropertyTypeDAO = getEntityPropertyTypeDAO(entityKind);
         return entityPropertyTypeDAO.countAssignmentValues(entityTypeCode, propertyTypeCode);
     }
 
+    @Override
     public void createAssignment(NewETPTAssignment newAssignment)
     {
         EntityTypePE entityType = findEntityType(newAssignment.getEntityTypeCode());
@@ -202,6 +207,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
     }
 
+    @Override
     public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
         // if ordinal was changed some etpts need to be shifted by 1

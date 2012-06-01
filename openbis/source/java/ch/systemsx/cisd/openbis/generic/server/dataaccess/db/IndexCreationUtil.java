@@ -102,14 +102,17 @@ public final class IndexCreationUtil
         return new IFullTextIndexUpdater()
             {
 
+                @Override
                 public void clear()
                 {
                 }
 
+                @Override
                 public void start()
                 {
                 }
 
+                @Override
                 public void scheduleUpdate(IndexUpdateOperation entities)
                 {
                 }

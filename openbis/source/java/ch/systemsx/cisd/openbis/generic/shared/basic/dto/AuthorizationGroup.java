@@ -70,6 +70,7 @@ public class AuthorizationGroup extends AbstractRegistrationHolder implements
         this.databaseInstance = databaseInstance;
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -81,6 +82,7 @@ public class AuthorizationGroup extends AbstractRegistrationHolder implements
         return code;
     }
 
+    @Override
     public int compareTo(final AuthorizationGroup o)
     {
         if (o == null)

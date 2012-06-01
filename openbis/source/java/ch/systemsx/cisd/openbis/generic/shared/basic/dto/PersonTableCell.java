@@ -35,6 +35,7 @@ public class PersonTableCell implements ISerializableComparable
         return person;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         // TODO 2010-10-25, felmer: Auto-generated method stub

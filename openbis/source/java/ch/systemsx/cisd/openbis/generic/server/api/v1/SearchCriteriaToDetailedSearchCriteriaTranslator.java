@@ -145,6 +145,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     public static class SampleAttributeTranslator implements IMatchClauseAttributeTranslator
     {
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
@@ -167,6 +168,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             return ans;
         }
 
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseTimeAttribute attribute)
         {
@@ -190,6 +192,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     public static class ExperimentAttributeTranslator implements IMatchClauseAttributeTranslator
     {
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
@@ -214,6 +217,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             return ans;
         }
 
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseTimeAttribute attribute)
         {
@@ -236,6 +240,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     public static class MaterialAttributeTranslator implements IMatchClauseAttributeTranslator
     {
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
@@ -254,6 +259,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             return ans;
         }
 
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseTimeAttribute attribute)
         {
@@ -275,6 +281,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     public static class DataSetAttributeTranslator implements IMatchClauseAttributeTranslator
     {
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
@@ -293,6 +300,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             return ans;
         }
 
+        @Override
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseTimeAttribute attribute)
         {

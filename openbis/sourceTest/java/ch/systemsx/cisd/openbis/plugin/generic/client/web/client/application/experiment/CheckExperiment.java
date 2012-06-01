@@ -47,17 +47,20 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         propertyCheckingManager = new PropertyCheckingManager();
     }
 
+    @Override
     public Property property(final String name)
     {
         return new Property(name, this);
     }
 
+    @Override
     public CheckExperiment property(final String name, final IValueAssertion<?> valueAssertion)
     {
         propertyCheckingManager.addExcpectedProperty(name, valueAssertion);
         return this;
     }
 
+    @Override
     public void execute()
     {
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesPanel.PROPERTIES_ID_PREFIX

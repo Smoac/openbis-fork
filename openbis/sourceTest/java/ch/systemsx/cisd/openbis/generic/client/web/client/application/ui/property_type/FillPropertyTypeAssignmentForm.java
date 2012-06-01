@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -63,6 +64,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         widgetId = PropertyTypeAssignmentForm.ID_PREFIX + entityKind;
     }
 
+    @Override
     public final void execute()
     {
 
@@ -77,7 +79,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
     {
         final PropertyTypeSelectionWidget propertyTypeSelector =
                 (PropertyTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(PropertyTypeSelectionWidget.ID
+                        .getWidgetWithID(DropDownList.ID
                                 + PropertyTypeSelectionWidget.SUFFIX + widgetId
                                 + PropertyTypeAssignmentForm.PROPERTY_TYPE_ID_SUFFIX);
         GWTUtils.setSelectedItem(propertyTypeSelector, ModelDataPropertyNames.CODE,
@@ -112,7 +114,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         {
             final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                     (ExperimentTypeSelectionWidget) GWTTestUtil
-                            .getWidgetWithID(ExperimentTypeSelectionWidget.ID
+                            .getWidgetWithID(DropDownList.ID
                                     + ExperimentTypeSelectionWidget.SUFFIX
                                     + PropertyTypeAssignmentForm.EXPERIMENT_TYPE_ID_SUFFIX);
             GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
@@ -123,7 +125,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         {
             final ComboBox<SampleTypeModel> sampleTypeSelector =
                     (SampleTypeSelectionWidget) GWTTestUtil
-                            .getWidgetWithID(SampleTypeSelectionWidget.ID
+                            .getWidgetWithID(DropDownList.ID
                                     + SampleTypeSelectionWidget.SUFFIX
                                     + PropertyTypeAssignmentForm.SAMPLE_TYPE_ID_SUFFIX);
             GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
@@ -134,7 +136,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         {
             final ComboBox<DataSetTypeModel> sampleTypeSelector =
                     (DataSetTypeSelectionWidget) GWTTestUtil
-                            .getWidgetWithID(DataSetTypeSelectionWidget.ID
+                            .getWidgetWithID(DropDownList.ID
                                     + DataSetTypeSelectionWidget.SUFFIX
                                     + PropertyTypeAssignmentForm.DATA_SET_TYPE_ID_SUFFIX);
             GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,

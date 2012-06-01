@@ -133,6 +133,7 @@ public class SampleUploadSectionsParser
         final BisTabFileLoader<NewSample> tabFileLoader =
                 new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
                     {
+                        @Override
                         public final IParserObjectFactory<NewSample> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {
@@ -161,6 +162,7 @@ public class SampleUploadSectionsParser
         final BisExcelFileLoader<NewSample> tabFileLoader =
                 new BisExcelFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
                     {
+                        @Override
                         public final IParserObjectFactory<NewSample> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {

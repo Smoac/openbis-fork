@@ -106,6 +106,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
         List<IEntityProperty> props = updatesDTO.getProperties();
         Collections.sort(props, new Comparator<IEntityProperty>()
             {
+                @Override
                 public int compare(IEntityProperty o1, IEntityProperty o2)
                 {
                     return o1.getPropertyType().getCode().compareTo(o2.getPropertyType().getCode());

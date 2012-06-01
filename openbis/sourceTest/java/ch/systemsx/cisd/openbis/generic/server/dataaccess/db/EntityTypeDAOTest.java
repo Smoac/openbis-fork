@@ -79,6 +79,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
                 // Comparator
                 //
 
+                @Override
                 public final int compare(final EntityTypePE o1, final EntityTypePE o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());

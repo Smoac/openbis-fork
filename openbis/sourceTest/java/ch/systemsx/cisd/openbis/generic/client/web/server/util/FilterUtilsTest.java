@@ -46,11 +46,13 @@ public class FilterUtilsTest extends AssertJUnit
             this.rows = Arrays.asList(rows);
         }
 
+        @Override
         public List<List<? extends Comparable<?>>> getRows()
         {
             return rows;
         }
 
+        @Override
         public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
         {
             assertEquals(expectedColumnID, columnID);
@@ -58,16 +60,19 @@ public class FilterUtilsTest extends AssertJUnit
             return rowValues.get(0);
         }
 
+        @Override
         public Collection<String> getAllColumnIDs()
         {
             return null;
         }
 
+        @Override
         public List<String> getAllColumnTitles()
         {
             return null;
         }
         
+        @Override
         public String tryToGetProperty(String columnID, String key)
         {
             return null;

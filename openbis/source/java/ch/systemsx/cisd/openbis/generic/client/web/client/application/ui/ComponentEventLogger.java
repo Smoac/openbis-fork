@@ -62,6 +62,7 @@ public class ComponentEventLogger
         final Object dummySource = new Object();
         component.addListener(eventPair.beforeEvent, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     String id = component.getId();
@@ -84,6 +85,7 @@ public class ComponentEventLogger
             });
         component.addListener(eventPair.afterEvent, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     Object key = be.getSource();

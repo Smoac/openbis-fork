@@ -77,6 +77,7 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
         }
     }
 
+    @Override
     public PropertyTypesCriteria tryGetCriteria()
     {
         if (criteria.tryGetPropertyTypes() == null)
@@ -88,11 +89,13 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
         }
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback dataRefreshCallback)
     {

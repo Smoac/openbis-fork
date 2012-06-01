@@ -74,6 +74,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
         // refresh data when connection type provider value changes
         connectionTypeProvider.setOnChangeAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     refresh();

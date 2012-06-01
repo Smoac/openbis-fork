@@ -62,6 +62,7 @@ public final class DataTypePE implements IIdHolder, Serializable, Comparable<Dat
 
     private String description;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.DATA_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_TYPE_SEQUENCE)
@@ -143,6 +144,7 @@ public final class DataTypePE implements IIdHolder, Serializable, Comparable<Dat
     // Comparable
     //
 
+    @Override
     public final int compareTo(final DataTypePE o)
     {
         return getCode().name().compareTo(o.getCode().name());

@@ -53,6 +53,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
+    @Override
     public List<AuthorizationGroupPE> list()
     {
         final List<AuthorizationGroupPE> list =
@@ -67,6 +68,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
         return list;
     }
 
+    @Override
     public void create(AuthorizationGroupPE authorizationGroup)
     {
         assert authorizationGroup != null : "Missing authorization group.";
@@ -82,6 +84,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
         }
     }
 
+    @Override
     public AuthorizationGroupPE tryFindByCode(String code)
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);

@@ -73,6 +73,7 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         setTopComponent(toolBar);
         toolBar.setRefreshViewerAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     refresh();
@@ -113,11 +114,13 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         }
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return queryProvider.getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         queryProvider.update(observedModifications);
@@ -129,11 +132,13 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         return new IReportInformationProvider()
             {
 
+                @Override
                 public String getDownloadURL()
                 {
                     return null;
                 }
 
+                @Override
                 public String getKey()
                 {
                     if (queryIdOrNull != null)
@@ -154,6 +159,7 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
     {
         return new IOnReportComponentGeneratedAction()
             {
+                @Override
                 public void execute(final IDisposableComponent reportComponent)
                 {
                     if (currentGridOrNull != null)

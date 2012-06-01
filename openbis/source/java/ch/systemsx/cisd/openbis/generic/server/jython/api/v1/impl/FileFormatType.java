@@ -28,6 +28,7 @@ public class FileFormatType extends FileFormatTypeImmutable implements IFileForm
         super(code);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getFileFormatType().setDescription(description);

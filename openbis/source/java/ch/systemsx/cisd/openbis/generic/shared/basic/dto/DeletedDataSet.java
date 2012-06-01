@@ -53,6 +53,7 @@ public class DeletedDataSet implements Serializable, ICodeHolder
         return identifier;
     }
 
+    @Override
     public String getCode()
     {
         return getIdentifier();

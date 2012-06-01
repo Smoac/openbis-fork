@@ -124,6 +124,7 @@ public class AttachmentsFileFieldManager extends FileFieldManager<AttachmentFile
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     AttachmentFileUploadField newField = addField();

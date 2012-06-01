@@ -111,6 +111,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     // IExternalDataTable
     //
 
+    @Override
     public void loadByDataSetCodes(List<String> dataSetCodes)
     {
         IDataDAO dataDAO = getDataDAO();
@@ -119,6 +120,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         deletedDataSets.addAll(dataDAO.tryToFindDeletedDataSetsByCodes(dataSetCodes));
     }
 
+    @Override
     public void permanentlyDeleteLoadedDataSets(String reason, boolean forceNotExistingLocations,
             boolean forceDisallowedTypes)
     {

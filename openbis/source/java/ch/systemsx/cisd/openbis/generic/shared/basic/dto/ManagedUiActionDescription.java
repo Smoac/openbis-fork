@@ -53,22 +53,26 @@ public class ManagedUiActionDescription implements IManagedUiAction, Serializabl
         this.name = name;
     }
 
+    @Override
     public String getName()
     {
         return name;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
     }
 
+    @Override
     public IManagedUiAction setDescription(String aDescription)
     {
         this.description = aDescription;
         return this;
     }
 
+    @Override
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
     {
         return inputWidgets;
@@ -79,6 +83,7 @@ public class ManagedUiActionDescription implements IManagedUiAction, Serializabl
         this.inputWidgets = widgetDescriptions;
     }
 
+    @Override
     public void addInputWidgets(IManagedInputWidgetDescription... widgetDescriptions)
     {
         for (IManagedInputWidgetDescription widget : widgetDescriptions)
@@ -87,6 +92,7 @@ public class ManagedUiActionDescription implements IManagedUiAction, Serializabl
         }
     }
 
+    @Override
     public String getInputValue(String inputLabel)
     {
         for (IManagedInputWidgetDescription inputDescription : getInputWidgetDescriptions())
@@ -99,6 +105,7 @@ public class ManagedUiActionDescription implements IManagedUiAction, Serializabl
         return null;
     }
 
+    @Override
     public IPerson getPerson()
     {
         return person;

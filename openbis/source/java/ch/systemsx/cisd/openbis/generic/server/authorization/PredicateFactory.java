@@ -34,6 +34,7 @@ final class PredicateFactory implements IPredicateFactory
     // IPredicateProvider
     //
 
+    @Override
     public final <P extends IPredicate<T>, T> IPredicate<T> createPredicateForClass(
             final Class<P> predicateClass)
     {

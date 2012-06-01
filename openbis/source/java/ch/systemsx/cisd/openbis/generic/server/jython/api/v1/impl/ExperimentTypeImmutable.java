@@ -43,16 +43,19 @@ public class ExperimentTypeImmutable implements IExperimentTypeImmutable
         return expType;
     }
 
+    @Override
     public String getCode()
     {
         return getExperimentType().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getExperimentType().getDescription();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;

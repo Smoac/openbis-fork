@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsDialog;
+import com.extjs.gxt.ui.client.widget.Dialog;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -40,6 +41,6 @@ public class CheckFiltersTableCommand extends CheckTableCommand
     public void execute()
     {
         super.execute();
-        GWTTestUtil.clickButtonWithID(ColumnSettingsDialog.OK + gridDisplayId);
+        GWTTestUtil.clickButtonWithID(Dialog.OK + gridDisplayId);
     }
 }

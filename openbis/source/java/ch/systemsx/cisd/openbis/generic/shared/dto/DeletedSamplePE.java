@@ -81,6 +81,7 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
 
     private Set<DeletedSampleRelationshipPE> parentRelationships;
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
@@ -117,6 +118,7 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
         this.containerId = containerId;
     }
 
+    @Override
     @Transient
     public String getPermId()
     {
@@ -174,18 +176,21 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
         this.space = space;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
         return getSampleType();
     }
 
+    @Override
     @Transient
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
     }
 
+    @Override
     @Transient
     public String getIdentifier()
     {

@@ -37,11 +37,13 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
     {
         CommonServiceProvider.setApplicationContext(applicationContext);
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         MaintenanceTaskParameters[] tasks =

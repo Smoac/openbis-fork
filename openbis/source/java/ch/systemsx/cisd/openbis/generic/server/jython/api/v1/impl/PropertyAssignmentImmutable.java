@@ -33,31 +33,37 @@ public class PropertyAssignmentImmutable implements IPropertyAssignmentImmutable
         this.entityTypePropType = entityTypePropType;
     }
 
+    @Override
     public boolean isMandatory()
     {
         return entityTypePropType.isMandatory();
     }
 
+    @Override
     public String getSection()
     {
         return entityTypePropType.getSection();
     }
 
+    @Override
     public Long getPositionInForms()
     {
         return entityTypePropType.getOrdinal();
     }
 
+    @Override
     public String getEntityTypeCode()
     {
         return entityTypePropType.getEntityType().getCode();
     }
 
+    @Override
     public String getPropertyTypeCode()
     {
         return entityTypePropType.getPropertyType().getCode();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.valueOf(entityTypePropType.getEntityKind().name());

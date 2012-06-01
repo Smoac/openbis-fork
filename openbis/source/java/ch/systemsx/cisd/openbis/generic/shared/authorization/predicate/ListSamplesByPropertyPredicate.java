@@ -41,6 +41,7 @@ public class ListSamplesByPropertyPredicate extends
         this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         spacePredicate.init(provider);

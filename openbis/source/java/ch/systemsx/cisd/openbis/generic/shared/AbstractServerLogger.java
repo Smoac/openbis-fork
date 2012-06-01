@@ -204,6 +204,7 @@ public abstract class AbstractServerLogger implements IServer
     // ISessionProvider
     //
 
+    @Override
     public final IAuthSession getAuthSession(final String sessionToken) throws UserFailureException
     {
         return null;
@@ -213,74 +214,87 @@ public abstract class AbstractServerLogger implements IServer
     // IServer
     //
 
+    @Override
     public final int getVersion()
     {
         return IServer.VERSION;
     }
 
+    @Override
     public final SessionContextDTO tryToAuthenticate(final String user, final String password)
     {
         // No logging because already done by the session manager
         return null;
     }
 
+    @Override
     public SessionContextDTO tryToAuthenticateAnonymously()
     {
         return null;
     }
 
+    @Override
     public SessionContextDTO tryGetSession(String sessionToken)
     {
         logAccess(sessionToken, "tryGetCurrentSession");
         return null;
     }
 
+    @Override
     public final void logout(final String sessionToken) throws UserFailureException
     {
         // No logging because already done by the session manager
     }
 
+    @Override
     public boolean isArchivingConfigured(String sessionToken)
     {
         // Do not log that
         return false;
     }
 
+    @Override
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits)
     {
         logTracking(sessionToken, "save_display_settings", "");
     }
 
+    @Override
     public DisplaySettings getDefaultDisplaySettings(String sessionToken)
     {
         logTracking(sessionToken, "get_default_display_settings", "");
         return null;
     }
 
+    @Override
     public void changeUserHomeSpace(String sessionToken, TechId spaceIdOrNull)
     {
         String spaceId = spaceIdOrNull == null ? "null" : spaceIdOrNull.toString();
         logTracking(sessionToken, "change_user_home_space", "SPACE_ID (%s)", spaceId);
     }
 
+    @Override
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
         logAccess(sessionToken, "listGridCustomColumns", "GRID_ID(%s)", gridId);
         return null;
     }
 
+    @Override
     public void setBaseIndexURL(String sessionToken, String baseURL)
     {
         logAccess(sessionToken, "set_base_url", "BASE_URL(%s)", baseURL);
     }
 
+    @Override
     public String getBaseIndexURL(String sessionToken)
     {
         logAccess(sessionToken, "get_base_url", "");
         return null;
     }
 
+    @Override
     public void setSessionUser(String sessionToken, String userID)
     {
         logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]

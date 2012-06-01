@@ -52,6 +52,7 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
         }
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         // If there is exactly one material matching given parameters open its detail view,

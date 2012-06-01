@@ -120,11 +120,13 @@ public class NewDataSet extends Code<NewDataSet> implements Comparable<NewDataSe
         this.fileFormatOrNull = fileFormatOrNull;
     }
 
+    @Override
     public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
+    @Override
     public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;

@@ -62,6 +62,7 @@ public final class InfoBox extends Html implements IInfoHandler
     /**
      * Display given <var>text</var> as <i>error</i> text.
      */
+    @Override
     public final void displayError(final String text)
     {
         display(text, Type.ERROR);
@@ -70,6 +71,7 @@ public final class InfoBox extends Html implements IInfoHandler
     /**
      * Display given <var>text</var> as <i>info</i> text.
      */
+    @Override
     public final void displayInfo(final String text)
     {
         display(text, Type.INFO);

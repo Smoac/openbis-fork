@@ -42,6 +42,7 @@ public class ShowAuthorizationGroup extends AbstractDefaultTestCommand
         this.code = authGroupCode;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void execute()
     {

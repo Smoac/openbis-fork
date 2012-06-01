@@ -61,6 +61,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return entityClass;
     }
 
+    @Override
     public final T getByTechId(final TechId techId) throws DataAccessException
     {
         assert techId != null : "Technical identifier unspecified.";
@@ -97,6 +98,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
     // TODO 2009-05-22, Tomasz Pylak: remove connections, it forces BOs to use strings with field
     // paths
+    @Override
     public final T tryGetByTechId(final TechId techId, String... connections)
             throws DataAccessException
     {
@@ -116,6 +118,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
+    @Override
     public void validateAndSaveUpdatedEntity(T entity) throws DataAccessException
     {
         assert entity != null : "entity is null";
@@ -130,6 +133,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         flushWithSqlExceptionHandling(getHibernateTemplate());
     }
 
+    @Override
     public final void validate(T entity)
     {
         assert entity != null : "entity is null";
@@ -153,6 +157,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         getHibernateTemplate().flush();
     }
 
+    @Override
     public void persist(T entity)
     {
         assert entity != null : "entity unspecified";
@@ -170,6 +175,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         }
     }
 
+    @Override
     public void delete(T entity) throws DataAccessException
     {
         assert entity != null : "entity unspecified";
@@ -185,6 +191,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         }
     }
 
+    @Override
     public List<T> listAllEntities() throws DataAccessException
     {
         return cast(getHibernateTemplate().loadAll(getEntityClass()));

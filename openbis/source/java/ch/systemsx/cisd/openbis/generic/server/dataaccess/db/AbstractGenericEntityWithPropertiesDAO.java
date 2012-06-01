@@ -175,21 +175,25 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlInsertEvent = sqlInsertEvent;
         }
 
+        @Override
         public List<Long> getAllEntities()
         {
             return allEntityIds;
         }
 
+        @Override
         public String getEntityName()
         {
             return entityType.name();
         }
 
+        @Override
         public String getOperationName()
         {
             return "permanently deleting";
         }
 
+        @Override
         public void execute(final List<Long> batchEntityIds)
         {
             executeStatelessAction(createPermanentDeleteAction(batchEntityIds));
@@ -210,6 +214,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 this.entityIdsToDelete = entityIdsToDelete;
             }
 
+            @Override
             public Object doInStatelessSession(StatelessSession session)
             {
                 final SQLQuery sqlQuerySelectPermIds = session.createSQLQuery(sqlSelectPermIds);

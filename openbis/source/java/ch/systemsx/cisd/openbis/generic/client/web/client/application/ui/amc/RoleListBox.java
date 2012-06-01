@@ -49,6 +49,7 @@ public class RoleListBox extends ListBox
         addChangeHandler(new ChangeHandler()
             {
 
+                @Override
                 public final void onChange(final ChangeEvent sender)
                 {
                     updateWidgetsVisibility(groupWidget);

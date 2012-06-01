@@ -152,6 +152,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                 new TableMap<String, SampleType>(sampleTypes,
                         new IKeyExtractor<String, SampleType>()
                             {
+                                @Override
                                 public String getKey(SampleType e)
                                 {
                                     return e.getCode();

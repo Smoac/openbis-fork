@@ -59,6 +59,7 @@ public class EntityTableCell implements ISerializableComparable
         this.identifierOrNull = identifierOrNull;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return this.toString().compareTo(o.toString());

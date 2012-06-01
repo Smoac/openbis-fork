@@ -60,6 +60,7 @@ public class Wizard<M extends IWizardDataModel> extends LayoutContainer implemen
         workflowModel = model.getWorkflow();
         workflowModel.addStateChangeListener(new IWizardStateChangeListener()
             {
+                @Override
                 public void stateChanged(IWizardState previousStateOrNull,
                         IWizardState currentStateOrNull)
                 {
@@ -90,20 +91,24 @@ public class Wizard<M extends IWizardDataModel> extends LayoutContainer implemen
         workflowModel.nextState();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         for (WizardPage<M> page : visitedPages)

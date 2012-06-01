@@ -36,10 +36,12 @@ public class AsyncCallbackWithProgressBar<T> implements AsyncCallback<T>
     {
         final AsyncCallback<Void> dummyCallback = new AsyncCallback<Void>()
             {
+                @Override
                 public void onFailure(Throwable caught)
                 {
                 }
 
+                @Override
                 public void onSuccess(Void result)
                 {
                 }
@@ -49,6 +51,7 @@ public class AsyncCallbackWithProgressBar<T> implements AsyncCallback<T>
         return new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     progressCallback.onSuccess(null);
@@ -76,12 +79,14 @@ public class AsyncCallbackWithProgressBar<T> implements AsyncCallback<T>
         this.progressBar = createAndShowProgressBar(progressMessage);
     }
 
+    @Override
     public void onFailure(Throwable caught)
     {
         progressBar.hide();
         decoratedCallback.onFailure(caught);
     }
 
+    @Override
     public void onSuccess(T result)
     {
         progressBar.hide();

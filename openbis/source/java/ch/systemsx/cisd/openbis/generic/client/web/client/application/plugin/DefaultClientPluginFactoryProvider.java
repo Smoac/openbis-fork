@@ -98,6 +98,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
     //
     // IClientPluginFactoryProvider
     //
+    @Override
     public final IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
             final BasicEntityType entityType)
     {
@@ -131,6 +132,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         return modules;
     }
 
+    @Override
     public void registerModuleInitializationObserver(IModuleInitializationObserver observer)
     {
         ModuleInitializationController.createAndInitialize(getUninitializedModules()).addObserver(

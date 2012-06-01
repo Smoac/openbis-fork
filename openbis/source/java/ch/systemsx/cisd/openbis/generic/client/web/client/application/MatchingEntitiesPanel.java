@@ -99,12 +99,14 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
         ICellListenerAndLinkGenerator<MatchingEntity> listenerLinkGenerator =
                 new ICellListenerAndLinkGenerator<MatchingEntity>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<MatchingEntity> rowItem,
                                 boolean specialKeyPressed)
                         {
                             showEntityViewer(rowItem, false, specialKeyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(MatchingEntity entity,
                                 ISerializableComparable comparableValue)
                         {

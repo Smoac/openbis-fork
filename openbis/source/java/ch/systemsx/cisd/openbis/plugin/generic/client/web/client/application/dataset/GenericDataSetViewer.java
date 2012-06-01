@@ -153,6 +153,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         Button exportButton = new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS));
         exportButton.addListener(Events.Select, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     TableModelRowWithObject<ExternalData> row =
@@ -164,6 +165,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
                             new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
                                 {
+                                    @Override
                                     public SelectedAndDisplayedItems execute()
                                     {
                                         return new SelectedAndDisplayedItems(dataSets, null, 1);
@@ -179,6 +181,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
@@ -194,6 +197,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     new RevertDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
@@ -346,6 +350,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         processButtonHolder.setupData(result);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -361,6 +366,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     DatabaseModificationKind.edit(ObjectKind.SAMPLE), };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         reloadAllData(); // reloads everything
@@ -464,11 +470,13 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         {
             return new IActionMenuItem()
                 {
+                    @Override
                     public String getMenuId()
                     {
                         return service.getKey();
                     }
 
+                    @Override
                     public String getMenuText(IMessageProvider messageProvider)
                     {
                         return service.getLabel();
@@ -482,6 +490,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         {
             return new IDelegatedAction()
                 {
+                    @Override
                     public void execute()
                     {
                         viewContext.getCommonService().processDatasets(service, criteria,

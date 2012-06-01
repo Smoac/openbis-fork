@@ -38,22 +38,26 @@ public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
         this.entities = entities;
     }
 
+    @Override
     public void execute(List<SampleBatchUpdatesDTO> updates)
     {
         businessTable.prepareForUpdate(updates);
         businessTable.save();
     }
 
+    @Override
     public List<SampleBatchUpdatesDTO> getAllEntities()
     {
         return entities;
     }
 
+    @Override
     public String getEntityName()
     {
         return "sample";
     }
 
+    @Override
     public String getOperationName()
     {
         return "update";

@@ -47,6 +47,7 @@ public class OpenEntityDetailsTabClickListener implements ClickHandler
         return entity;
     }
 
+    @Override
     public void onClick(ClickEvent event)
     {
         new OpenEntityDetailsTabAction(getEntity(), viewContext,

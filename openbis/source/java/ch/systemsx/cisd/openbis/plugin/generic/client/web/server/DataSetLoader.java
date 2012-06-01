@@ -52,6 +52,7 @@ public class DataSetLoader
         tabFileLoader =
                 new BisTabFileLoader<NewDataSet>(new IParserObjectFactoryFactory<NewDataSet>()
                     {
+                        @Override
                         public final IParserObjectFactory<NewDataSet> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -98,6 +99,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         return result;
     }
 
+    @Override
     public final void save()
     {
         assert project != null : "Can not save an undefined project.";
@@ -132,11 +134,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
+    @Override
     public final ProjectPE getProject()
     {
         return project;
     }
 
+    @Override
     public void define(ProjectIdentifier projectIdentifier, String description, String leaderId)
             throws UserFailureException
     {
@@ -145,6 +149,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         dataChanged = true;
     }
 
+    @Override
     public void loadByProjectIdentifier(ProjectIdentifier identifier)
     {
         String databaseInstanceCode = identifier.getDatabaseInstanceCode();
@@ -159,6 +164,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         dataChanged = false;
     }
 
+    @Override
     public void loadDataByTechId(TechId projectId)
     {
         try
@@ -172,6 +178,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         dataChanged = false;
     }
 
+    @Override
     public final void addAttachment(final AttachmentPE attachment)
     {
         assert project != null : "no project has been loaded";
@@ -184,10 +191,11 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     {
         if (attachment != null)
         {
-            attachment.setFileName(ProjectPE.escapeFileName(attachment.getFileName()));
+            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
         }
     }
 
+    @Override
     public AttachmentPE getProjectFileAttachment(final String filename, final Integer versionOrNull)
     {
         checkProjectLoaded();
@@ -250,6 +258,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
+    @Override
     public final void enrichWithAttachments()
     {
         if (project != null)
@@ -258,6 +267,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
+    @Override
     public void update(ProjectUpdatesDTO updates)
     {
         loadDataByTechId(updates.getTechId());
@@ -301,6 +311,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         return group;
     }
 
+    @Override
     public void deleteByTechId(TechId projectId, String reason) throws UserFailureException
     {
         loadDataByTechId(projectId);

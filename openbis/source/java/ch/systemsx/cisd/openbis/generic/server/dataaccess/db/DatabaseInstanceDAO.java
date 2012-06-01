@@ -93,6 +93,7 @@ final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstanc
     // IDatabaseInstancesDAO
     //
 
+    @Override
     public final DatabaseInstancePE getHomeInstance() throws DataAccessException
     {
         final List<DatabaseInstancePE> list =
@@ -102,18 +103,21 @@ final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstanc
         return getEntity(list);
     }
 
+    @Override
     public final DatabaseInstancePE tryFindDatabaseInstanceByUUID(final String databaseInstanceUUID)
             throws DataAccessException
     {
         return tryFindDatabaseInstanceByCode(databaseInstanceUUID, true);
     }
 
+    @Override
     public final DatabaseInstancePE tryFindDatabaseInstanceByCode(final String databaseInstanceCode)
             throws DataAccessException
     {
         return tryFindDatabaseInstanceByCode(databaseInstanceCode, false);
     }
 
+    @Override
     public final void updateDatabaseInstancePE(final DatabaseInstancePE databaseInstancePE)
             throws DataAccessException
     {
@@ -131,6 +135,7 @@ final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstanc
         }
     }
 
+    @Override
     public final List<DatabaseInstancePE> listDatabaseInstances()
     {
         final List<DatabaseInstancePE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
@@ -143,6 +148,7 @@ final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstanc
 
     }
 
+    @Override
     public final DatabaseInstancePE getDatabaseInstanceById(final long databaseInstanceId)
             throws DataAccessException
     {
@@ -156,6 +162,7 @@ final class DatabaseInstanceDAO extends AbstractGenericEntityDAO<DatabaseInstanc
         return databaseInstance;
     }
 
+    @Override
     public final void createDatabaseInstance(final DatabaseInstancePE databaseInstance)
             throws DataAccessException
     {

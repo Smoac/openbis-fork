@@ -148,6 +148,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     // Comparable
     //
 
+    @Override
     public int compareTo(final SampleOwnerIdentifier other)
     {
         if (isSpaceLevel())

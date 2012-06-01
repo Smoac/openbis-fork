@@ -89,6 +89,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return result;
     }
 
+    @Override
     public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity)
     {
         if (operationLog.isDebugEnabled())
@@ -149,11 +150,13 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         }
     }
 
+    @Override
     public List<EntityTypePropertyTypePE> getEvaluationPath()
     {
         return evaluationPath;
     }
 
+    @Override
     public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
     {
         // TODO 2010-11-22, Piotr Buczek: are values computed by dependent properties thrown away?

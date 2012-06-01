@@ -174,6 +174,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         return this;
     }
 
+    @Override
     public void execute()
     {
         Grid<ModelData> grid = checkColumnModelExpectations();

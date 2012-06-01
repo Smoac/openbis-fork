@@ -86,6 +86,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
         registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT,
                 new ICellListenerAndLinkGenerator<ExternalData>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<ExternalData> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -96,6 +97,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                                     specialKeyPressed, href);
                         }
 
+                        @Override
                         public String tryGetLink(ExternalData entity,
                                 ISerializableComparable comparableValue)
                         {
@@ -269,6 +271,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     {
         return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
             {
+                @Override
                 public SelectedAndDisplayedItems execute()
                 {
                     return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
@@ -299,6 +302,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
 
+                @Override
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)

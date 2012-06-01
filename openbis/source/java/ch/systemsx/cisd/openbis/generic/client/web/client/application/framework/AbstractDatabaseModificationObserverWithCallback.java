@@ -30,6 +30,7 @@ public abstract class AbstractDatabaseModificationObserverWithCallback implement
 
     private IDelegatedAction action;
 
+    @Override
     public final void setSuccessfulUpdateCallback(IDelegatedAction action)
     {
         this.action = action;

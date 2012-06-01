@@ -74,6 +74,7 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.dataSetType = dataSetType;
     }
 
+    @Override
     public String getDataSetCode()
     {
         return dataSetCode;
@@ -104,6 +105,7 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.dataSetSize = dataSetSize;
     }
 
+    @Override
     public String getDataSetLocation()
     {
         return dataSetLocation;

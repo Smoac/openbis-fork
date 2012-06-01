@@ -46,6 +46,7 @@ class EntityPropertyHistoryDAO extends AbstractDAO implements IEntityPropertyHis
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EntityPropertyHistoryDAO.class);
 
+    @Override
     public List<AbstractEntityPropertyHistoryPE> getPropertyHistory(EntityKind entityKind,
             final TechId id)
     {

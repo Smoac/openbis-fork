@@ -38,6 +38,7 @@ public class Property extends AbstractProperty<CheckDataSet>
     {
         return by(new IValueAssertion<Person>()
             {
+                @Override
                 public void assertValue(final Person value)
                 {
                     String actualName = value.getLastName() + ", " + value.getFirstName();

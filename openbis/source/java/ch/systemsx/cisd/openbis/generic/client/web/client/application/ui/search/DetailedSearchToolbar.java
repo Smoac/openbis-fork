@@ -65,20 +65,24 @@ public class DetailedSearchToolbar extends ToolBar implements IDisposableCompone
         }
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return null;
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
     }

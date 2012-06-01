@@ -41,6 +41,7 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
     {
     }
 
+    @Override
     public int compareTo(final Attachment o)
     {
         final int byFile = getFileName().compareTo(o.getFileName());

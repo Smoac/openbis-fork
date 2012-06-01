@@ -50,6 +50,7 @@ public final class DemoSampleServerPlugin extends AbstractSampleServerPlugin
     // ISampleServerPlugin
     //
 
+    @Override
     public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
         if (entityKind == EntityKind.SAMPLE)
@@ -59,6 +60,7 @@ public final class DemoSampleServerPlugin extends AbstractSampleServerPlugin
         return Collections.emptySet();
     }
 
+    @Override
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
         return getGenericSampleTypeSlaveServerPlugin();

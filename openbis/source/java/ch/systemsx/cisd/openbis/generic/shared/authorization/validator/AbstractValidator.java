@@ -42,6 +42,7 @@ public abstract class AbstractValidator<T> implements IValidator<T>
     // IValidator
     //
 
+    @Override
     public final boolean isValid(final PersonPE person, final T value)
     {
         assert person != null : "Unspecified person";
@@ -49,6 +50,7 @@ public abstract class AbstractValidator<T> implements IValidator<T>
         return doValidation(person, value);
     }
 
+    @Override
     public void init(
             @SuppressWarnings("hiding") IAuthorizationDataProvider authorizationDataProvider)
     {

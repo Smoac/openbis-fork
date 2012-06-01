@@ -48,6 +48,7 @@ public final class FillVocabularyRegistrationForm extends AbstractDefaultTestCom
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         GWTTestUtil.setTextField(VocabularyRegistrationForm.ID_PREFIX + "form"

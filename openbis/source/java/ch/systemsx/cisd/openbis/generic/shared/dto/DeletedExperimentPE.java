@@ -65,6 +65,7 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
 
     private ExperimentTypePE experimentType;
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_SEQUENCE)
@@ -79,6 +80,7 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
         this.id = id;
     }
 
+    @Override
     @Transient
     public String getPermId()
     {
@@ -99,12 +101,14 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
         this.permIdInternal = permIdInternal;
     }
 
+    @Override
     @Transient
     public final EntityTypePE getEntityType()
     {
         return getExperimentType();
     }
 
+    @Override
     @Transient
     public final EntityKind getEntityKind()
     {
@@ -145,6 +149,7 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
         return getProjectInternal();
     }
 
+    @Override
     @Transient
     public String getIdentifier()
     {

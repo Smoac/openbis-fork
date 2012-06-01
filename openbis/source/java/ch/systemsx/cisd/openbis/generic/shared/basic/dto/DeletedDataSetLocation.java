@@ -52,6 +52,7 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
     {
     }
 
+    @Override
     public String getDatastoreCode()
     {
         return datastoreCode;
@@ -62,6 +63,7 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
         this.datastoreCode = datastoreCode;
     }
 
+    @Override
     public String getShareId()
     {
         return shareId;
@@ -72,6 +74,7 @@ public class DeletedDataSetLocation implements IDeletedDataSetLocation, Serializ
         this.shareId = shareId;
     }
 
+    @Override
     public String getLocation()
     {
         return location;

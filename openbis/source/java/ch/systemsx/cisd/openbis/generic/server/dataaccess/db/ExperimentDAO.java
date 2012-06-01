@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -66,6 +67,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         super(persistencyResources, databaseInstance, ExperimentPE.class);
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project,
             boolean onlyHavingSamples, boolean onlyHavingDataSets) throws DataAccessException
     {
@@ -77,6 +79,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
                 onlyHavingDataSets);
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsWithProperties(final SpacePE space)
             throws DataAccessException
     {
@@ -87,6 +90,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return listExperimentsWithProperties(null, null, space);
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsWithProperties(
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException
@@ -95,6 +99,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
                 false, false);
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsWithProperties(
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull, final boolean onlyHavingSamples,
@@ -124,7 +129,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             criteria.add(Restrictions.isNotEmpty("experimentDataSets"));
         }
 
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -135,6 +140,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsWithProperties(Collection<Long> experimentIDs)
             throws DataAccessException
     {
@@ -145,11 +151,12 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final List<ExperimentPE> list =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
                             criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
-                            criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+                            criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
                             return criteria;
                         }
                     }, "id", experimentIDs);
@@ -161,6 +168,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
+    @Override
     public List<ExperimentPE> listExperiments() throws DataAccessException
     {
         final DetachedCriteria criteria = createCriteriaForUndeleted();
@@ -180,6 +188,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return criteria;
     }
 
+    @Override
     public ExperimentPE tryFindByCodeAndProject(final ProjectPE project, final String experimentCode)
     {
         assert experimentCode != null : "Unspecified experiment code.";
@@ -199,6 +208,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return experiment;
     }
 
+    @Override
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
             String propertyValue, ProjectPE project) throws DataAccessException
     {
@@ -255,6 +265,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return samples;
     }
 
+    @Override
     public ExperimentPE tryGetByPermID(String permId)
     {
         final Criteria criteria = getSession().createCriteria(getEntityClass());
@@ -269,11 +280,13 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return experimentOrNull;
     }
 
+    @Override
     public List<ExperimentPE> listByPermID(Set<String> permIds)
     {
         return listByIDsOfName("permId", permIds);
     }
 
+    @Override
     public List<ExperimentPE> listByIDs(Collection<Long> ids)
     {
         return listByIDsOfName("id", ids);
@@ -294,6 +307,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
+    @Override
     public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
     {
         HibernateTemplate template = getHibernateTemplate();
@@ -303,6 +317,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
     }
 
+    @Override
     public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier)
     {
         assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
@@ -334,6 +349,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         }
     }
 
+    @Override
     public void delete(final List<TechId> experimentIds, final PersonPE registrator,
             final String reason) throws DataAccessException
     {

@@ -45,6 +45,7 @@ public class StringTableCell implements ISerializableComparable
         this.string = string;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return string.compareTo(o.toString());

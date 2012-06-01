@@ -76,21 +76,25 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
     // ICustomQueryProvider
     //
 
+    @Override
     public Long tryGetQueryId()
     {
         return null;
     }
 
+    @Override
     public String tryGetSQLQuery()
     {
         return queryField.getValue();
     }
 
+    @Override
     public QueryDatabase tryGetQueryDatabase()
     {
         return queryDatabaseSelectionWidget.tryGetSelected();
     }
 
+    @Override
     public QueryParameterBindings tryGetQueryParameterBindings()
     {
         return null;
@@ -98,11 +102,13 @@ public class RunCustomQueryToolbar extends AbstractQueryProviderToolbar
 
     // IDatabaseModificationObserver
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         // nothing to do

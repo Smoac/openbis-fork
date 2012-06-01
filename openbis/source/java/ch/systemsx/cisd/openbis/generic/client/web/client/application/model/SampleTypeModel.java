@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -88,7 +89,7 @@ public class SampleTypeModel extends SimplifiedBaseModelData
     private static SampleTypeModel createTypeInFileModel()
     {
         final SampleType typeInFile = new SampleType();
-        typeInFile.setCode(SampleType.DEFINED_IN_FILE);
+        typeInFile.setCode(EntityType.DEFINED_IN_FILE);
         typeInFile.setListable(false);
         return new SampleTypeModel(typeInFile);
     }

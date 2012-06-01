@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -51,7 +52,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     {
         if (FORM_ID == null)
         {
-            FORM_ID = GenericSampleRegistrationForm.createId((TechId) null, EntityKind.SAMPLE);
+            FORM_ID = AbstractGenericEntityRegistrationForm.createId((TechId) null, EntityKind.SAMPLE);
         }
         return FORM_ID;
     }

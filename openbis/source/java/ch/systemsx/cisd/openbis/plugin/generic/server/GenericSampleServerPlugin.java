@@ -42,6 +42,7 @@ public final class GenericSampleServerPlugin extends AbstractGenericServerPlugin
     // ISampleServerPlugin
     //
 
+    @Override
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
         return genericSampleTypeSlaveServerPlugin;

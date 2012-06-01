@@ -53,6 +53,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
     // EntityPropertyPE
     //
 
+    @Override
     @NotNull(message = ValidationMessages.MATERIAL_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = MaterialTypePropertyTypePE.class)
     @JoinColumn(name = ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN)
@@ -61,6 +62,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
         return entityTypePropertyType;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.MATERIAL_PROPERTY_SEQUENCE, sequenceName = SequenceNames.MATERIAL_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_PROPERTY_SEQUENCE)
@@ -72,6 +74,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
     /**
      * Returns the material that this property belongs to.
      */
+    @Override
     @NotNull(message = ValidationMessages.MATERIAL_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.MATERIAL_COLUMN)

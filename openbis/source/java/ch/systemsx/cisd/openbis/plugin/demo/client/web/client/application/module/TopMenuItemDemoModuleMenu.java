@@ -85,11 +85,13 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
     {
         STATISTICS;
 
+        @Override
         public String getMenuId()
         {
             return ID + "_" + this.name();
         }
 
+        @Override
         public String getMenuText(IMessageProvider messageProvider)
         {
             return messageProvider.getMessage(this.name());

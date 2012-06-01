@@ -131,6 +131,7 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
 
     private class ShowUpdatedDataSet extends AbstractDefaultTestCommand
     {
+        @Override
         public void execute()
         {
             String tabItemId =

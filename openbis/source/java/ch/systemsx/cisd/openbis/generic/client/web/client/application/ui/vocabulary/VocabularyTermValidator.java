@@ -59,6 +59,7 @@ final class VocabularyTermValidator implements Validator
         return terms;
     }
 
+    @Override
     final public String validate(Field<?> field, String value)
     {
         final List<String> terms = VocabularyTermValidator.getTerms(value);

@@ -77,6 +77,7 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
      */
     private Map<String, DatabaseDefinition> definitions;
 
+    @Override
     public void initDatabaseDefinitions()
     {
         if (definitions != null)
@@ -153,12 +154,14 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
         }
     }
 
+    @Override
     public DatabaseDefinition getDefinition(String dbKey)
     {
         checkInitialization();
         return definitions.get(dbKey);
     }
 
+    @Override
     public Collection<DatabaseDefinition> getAllDefinitions()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

@@ -138,6 +138,7 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

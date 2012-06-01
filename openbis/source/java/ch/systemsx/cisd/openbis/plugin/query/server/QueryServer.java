@@ -90,11 +90,13 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         this.dbDefinitionProvider = dbDefinitionProvider;
     }
 
+    @Override
     public IQueryServer createLogger(IInvocationLoggerContext context)
     {
         return new QueryServerLogger(getSessionManager(), context);
     }
 
+    @Override
     public int initDatabases(String sessionToken)
     {
         checkSession(sessionToken);
@@ -102,6 +104,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return dbDefinitionProvider.getAllDefinitions().size();
     }
 
+    @Override
     public List<QueryDatabase> listQueryDatabases(String sessionToken)
     {
         checkSession(sessionToken);
@@ -115,6 +118,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return results;
     }
 
+    @Override
     public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
             BasicEntityType entityTypeOrNull)
     {
@@ -149,6 +153,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
+    @Override
     public void registerQuery(String sessionToken, NewQuery expression)
     {
         Session session = getSession(sessionToken);
@@ -174,6 +179,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
+    @Override
     public void deleteQueries(String sessionToken, List<TechId> filterIds)
     {
         Session session = getSession(sessionToken);
@@ -194,6 +200,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
+    @Override
     public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         Session session = getSession(sessionToken);
@@ -221,6 +228,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
+    @Override
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings, boolean onlyPerform)
     {
@@ -243,6 +251,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
     }
 
+    @Override
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings)
     {

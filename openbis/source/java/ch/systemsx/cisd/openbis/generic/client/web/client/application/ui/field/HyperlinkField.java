@@ -60,6 +60,7 @@ public class HyperlinkField extends VarcharField
 
         private final static String DEFAULT_PROTOCOL = "http://";
 
+        @Override
         public String validate(Field<?> field, final String fieldValue)
         {
             // add default protocol if none is provided

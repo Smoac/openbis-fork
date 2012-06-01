@@ -83,6 +83,7 @@ public final class ResultSet<T> implements IsSerializable, IResultSetHolder<T>
         return totalLength;
     }
 
+    @Override
     public ResultSet<T> getResultSet()
     {
         return this;

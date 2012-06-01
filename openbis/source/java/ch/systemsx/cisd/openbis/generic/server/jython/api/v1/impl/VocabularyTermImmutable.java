@@ -37,26 +37,31 @@ public class VocabularyTermImmutable implements IVocabularyTermImmutable
         return vocabularyTerm;
     }
 
+    @Override
     public String getCode()
     {
         return getVocabularyTerm().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getVocabularyTerm().getDescription();
     }
 
+    @Override
     public String getLabel()
     {
         return getVocabularyTerm().getLabel();
     }
 
+    @Override
     public String getUrl()
     {
         return getVocabularyTerm().getUrl();
     }
 
+    @Override
     public Long getOrdinal()
     {
         return getVocabularyTerm().getOrdinal();

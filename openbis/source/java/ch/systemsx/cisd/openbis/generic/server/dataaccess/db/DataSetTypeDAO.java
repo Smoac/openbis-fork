@@ -35,6 +35,7 @@ public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements ID
         super(sessionFactory, databaseInstance, DataSetTypePE.class);
     }
 
+    @Override
     public DataSetTypePE tryToFindDataSetTypeByCode(String code)
     {
         return tryFindTypeByCode(code);

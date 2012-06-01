@@ -31,6 +31,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
 
     private IMessageValidator messageValidator = new IMessageValidator()
         {
+            @Override
             public void assertValid(String message)
             {
             }
@@ -55,6 +56,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     {
         return with(new IMessageValidator()
             {
+                @Override
                 public void assertValid(String message)
                 {
                     assertEquals(failureMessage, message);
@@ -99,6 +101,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
         }
     }
 
+    @Override
     public void execute()
     {
         // nothing to do

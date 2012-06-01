@@ -134,6 +134,7 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     // Comparable
     //
 
+    @Override
     public final int compareTo(final SpaceIdentifier other)
     {
         final int dbCompare = super.compareTo(other);

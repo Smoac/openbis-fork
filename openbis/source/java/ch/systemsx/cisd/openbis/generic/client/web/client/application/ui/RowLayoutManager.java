@@ -68,26 +68,31 @@ public class RowLayoutManager
 
     private static final IManipulator HEIGHT_MANIPULATOR = new IManipulator()
         {
+            @Override
             public void setFor(RowData rowData, double newValue)
             {
                 rowData.setHeight(newValue);
             }
 
+            @Override
             public double getFor(RowData rowData)
             {
                 return rowData.getHeight();
             }
 
+            @Override
             public int getFrameSizeFor(ContentPanel panel)
             {
                 return panel.isRendered() ? panel.getFrameHeight() : 0;
             }
 
+            @Override
             public int getSize(Container<?> container)
             {
                 return container.getHeight();
             }
 
+            @Override
             public int getPositionFrom(DragEvent dragEvent)
             {
                 return dragEvent.getY();
@@ -96,26 +101,31 @@ public class RowLayoutManager
 
     private static final IManipulator WIDTH_MANIPULATOR = new IManipulator()
         {
+            @Override
             public void setFor(RowData rowData, double newValue)
             {
                 rowData.setWidth(newValue);
             }
 
+            @Override
             public double getFor(RowData rowData)
             {
                 return rowData.getWidth();
             }
 
+            @Override
             public int getFrameSizeFor(ContentPanel panel)
             {
                 return panel.isRendered() ? panel.getFrameWidth() : 0;
             }
 
+            @Override
             public int getSize(Container<?> container)
             {
                 return container.getWidth();
             }
 
+            @Override
             public int getPositionFrom(DragEvent dragEvent)
             {
                 return dragEvent.getX();
@@ -172,6 +182,7 @@ public class RowLayoutManager
         adjustRelative();
         Listener<BaseEvent> listener = new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent event)
                 {
                     adjustRelative();
@@ -210,6 +221,7 @@ public class RowLayoutManager
     {
         return new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     SplitBar splitBar = new SplitBar(LayoutRegion.NORTH, contentPanel);

@@ -57,6 +57,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         this.useWildcardSearchMode = useWildcardSearchMode;
     }
 
+    @Override
     public TypedTableModel<MatchingEntity> getTableModel(int maxSize)
     {
         List<MatchingEntity> entities =

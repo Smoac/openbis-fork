@@ -43,6 +43,7 @@ public class TypedTableResultSet<T extends Serializable> implements IsSerializab
     {
     }
 
+    @Override
     public final ResultSet<TableModelRowWithObject<T>> getResultSet()
     {
         return resultSet;

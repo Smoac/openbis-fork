@@ -95,6 +95,7 @@ public class LoginPanelAutofill extends VerticalPanel
 
         formPanel.addSubmitHandler(new SubmitHandler()
             {
+                @Override
                 public void onSubmit(SubmitEvent event)
                 {
                     if (!isUserInputValid())

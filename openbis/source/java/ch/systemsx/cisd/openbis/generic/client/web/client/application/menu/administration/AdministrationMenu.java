@@ -59,6 +59,7 @@ public class AdministrationMenu extends TopMenuItem
         setMenu(submenu);
         submenu.addListener(Events.BeforeHide, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     viewContext.log("start hiding menu '" + getText() + "'");
@@ -66,6 +67,7 @@ public class AdministrationMenu extends TopMenuItem
             });
         submenu.addListener(Events.Hide, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     viewContext.log("finished hiding menu '" + getText() + "'");

@@ -40,6 +40,7 @@ public class Property extends AbstractProperty<CheckSample>
     {
         return by(new IValueAssertion<Person>()
             {
+                @Override
                 public void assertValue(Person value)
                 {
                     String actualName = value.getLastName() + ", " + value.getFirstName();
@@ -52,6 +53,7 @@ public class Property extends AbstractProperty<CheckSample>
     {
         return by(new IValueAssertion<Sample[]>()
             {
+                @Override
                 public void assertValue(Sample[] actualSamples)
                 {
                     for (int i = 0, n = Math.min(samples.length, actualSamples.length); i < n; i++)

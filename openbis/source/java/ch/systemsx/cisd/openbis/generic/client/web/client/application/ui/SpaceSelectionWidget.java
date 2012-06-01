@@ -221,6 +221,7 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.SPACE);

@@ -47,17 +47,20 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
     private final IRelationshipHandler CHILDREN_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
+            @Override
             public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
                 return findSampleIds(criteria, otherSubCriterias);
             }
 
+            @Override
             public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> sampleIds)
             {
                 return lister.getParentToChildrenIdsMap(sampleIds);
             }
 
+            @Override
             public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenSampleIds)
             {
                 return lister.getChildToParentsIdsMap(childrenSampleIds);
@@ -67,17 +70,20 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
     private final IRelationshipHandler PARENT_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
+            @Override
             public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
                 return findSampleIds(criteria, otherSubCriterias);
             }
 
+            @Override
             public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> sampleIds)
             {
                 return lister.getChildToParentsIdsMap(sampleIds);
             }
 
+            @Override
             public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentSampleIds)
             {
                 return lister.getParentToChildrenIdsMap(parentSampleIds);

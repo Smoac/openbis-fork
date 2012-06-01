@@ -140,6 +140,7 @@ public final class DefaultAccessController implements IAccessController
         }
     }
 
+    @Override
     public final Status isAuthorized(final IAuthSession session, final Method method,
             final Argument<?>[] arguments) throws UserFailureException
     {

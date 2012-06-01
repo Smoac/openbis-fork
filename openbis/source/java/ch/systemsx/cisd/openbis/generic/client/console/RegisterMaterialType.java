@@ -32,6 +32,7 @@ public class RegisterMaterialType extends AbstractRegisterEntityType<MaterialTyp
     {
         DESCRIPTION("description")
         {
+            @Override
             public void setAttributeFor(MaterialType materialType, String value)
             {
                 materialType.setDescription(value);
@@ -45,11 +46,13 @@ public class RegisterMaterialType extends AbstractRegisterEntityType<MaterialTyp
             this.attributeName = attributeName;
         }
 
+        @Override
         public String getAttributeName()
         {
             return attributeName;
         }
 
+        @Override
         public void setDefaultFor(MaterialType type)
         {
         }
@@ -72,6 +75,7 @@ public class RegisterMaterialType extends AbstractRegisterEntityType<MaterialTyp
         return attributeSetters;
     }
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

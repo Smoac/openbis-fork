@@ -37,16 +37,19 @@ public class TypedTableGridColumnDefinition<T extends Serializable> implements
     {
     }
 
+    @Override
     public String getHeader()
     {
         return title;
     }
 
+    @Override
     public String getIdentifier()
     {
         return header.getId();
     }
 
+    @Override
     public DataTypeCode tryToGetDataType()
     {
         return header.getDataType();
@@ -57,11 +60,13 @@ public class TypedTableGridColumnDefinition<T extends Serializable> implements
         return header.getIndex();
     }
 
+    @Override
     public String tryToGetProperty(String key)
     {
         return header.tryToGetProperty(key);
     }
 
+    @Override
     public String getValue(GridRowModel<TableModelRowWithObject<T>> rowModel)
     {
         Comparable<?> cell = tryGetComparableValue(rowModel);
@@ -89,6 +94,7 @@ public class TypedTableGridColumnDefinition<T extends Serializable> implements
         return cell.toString();
     }
 
+    @Override
     public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRowWithObject<T>> rowModel)
     {
         List<ISerializableComparable> values = rowModel.getOriginalObject().getValues();

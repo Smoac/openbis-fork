@@ -105,6 +105,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         this.searchlink = searchlink;
     }
 
+    @Override
     public AttachmentHolderKind getAttachmentHolderKind()
     {
         return AttachmentHolderKind.SAMPLE;
@@ -203,6 +204,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         parents.add(generatedFrom);
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return properties;
@@ -233,6 +235,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     // IIdentifierHolder
     //
 
+    @Override
     public String getIdentifier()
     {
         return identifier;
@@ -242,6 +245,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     // IDeletionProvider
     //
 
+    @Override
     public final Deletion getDeletion()
     {
         return deletion;
@@ -257,6 +261,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         return getIdentifier().compareTo(o.getIdentifier());
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -267,11 +272,13 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         this.id = id;
     }
 
+    @Override
     public EntityType getEntityType()
     {
         return getSampleType();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
@@ -292,6 +299,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         this.permId = permId;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

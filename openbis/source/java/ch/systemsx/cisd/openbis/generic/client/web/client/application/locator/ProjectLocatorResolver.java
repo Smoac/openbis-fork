@@ -54,6 +54,7 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
         }
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         assert (PROJECT.equals(locator.tryGetEntity()));

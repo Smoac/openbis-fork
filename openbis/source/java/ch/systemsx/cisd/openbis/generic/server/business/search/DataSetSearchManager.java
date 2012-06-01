@@ -46,17 +46,20 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     private final IRelationshipHandler CHILDREN_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
+            @Override
             public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
                 return findDataSetIds(criteria, otherSubCriterias);
             }
 
+            @Override
             public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
             {
                 return lister.listChildrenIds(dataSetIds);
             }
 
+            @Override
             public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenDataSetIds)
             {
                 return lister.listParentIds(childrenDataSetIds);
@@ -66,17 +69,20 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     private final IRelationshipHandler PARENT_RELATIONSHIP_HANDLER = new IRelationshipHandler()
         {
 
+            @Override
             public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
                 return findDataSetIds(criteria, otherSubCriterias);
             }
 
+            @Override
             public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
             {
                 return lister.listParentIds(dataSetIds);
             }
 
+            @Override
             public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentDataSetIds)
             {
                 return lister.listChildrenIds(parentDataSetIds);

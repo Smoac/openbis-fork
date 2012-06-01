@@ -46,6 +46,7 @@ public class DownloadAttachment extends AbstractDefaultTestCommand
         this.experimentId = experimentId;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void execute()
     {

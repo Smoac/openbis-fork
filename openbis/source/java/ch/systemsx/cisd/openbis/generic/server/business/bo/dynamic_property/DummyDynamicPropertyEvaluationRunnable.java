@@ -43,11 +43,13 @@ public final class DummyDynamicPropertyEvaluationRunnable extends HibernateDaoSu
         operationLog.debug("dummy property evaluator created");
     }
 
+    @Override
     public void clear()
     {
         operationLog.debug("clear");
     }
 
+    @Override
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         operationLog.debug("scheduling " + operation);
@@ -57,6 +59,7 @@ public final class DummyDynamicPropertyEvaluationRunnable extends HibernateDaoSu
     // Runnable
     //
 
+    @Override
     public final void run()
     {
         operationLog.debug("started");

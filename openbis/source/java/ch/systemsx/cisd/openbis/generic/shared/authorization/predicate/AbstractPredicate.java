@@ -60,6 +60,7 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     // IPredicate
     //
 
+    @Override
     public final Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T valueOrNull)
     {

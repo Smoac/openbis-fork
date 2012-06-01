@@ -134,6 +134,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
                 new TableMap<String, ExperimentType>(experimentTypes,
                         new IKeyExtractor<String, ExperimentType>()
                             {
+                                @Override
                                 public String getKey(ExperimentType e)
                                 {
                                     return e.getCode();

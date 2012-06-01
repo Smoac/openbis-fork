@@ -25,11 +25,13 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
         this.handledAction = handledAction;
     }
 
+    @Override
     public boolean canHandleLocator(ViewLocator locator)
     {
         return handledAction.equals(locator.tryGetAction());
     }
 
+    @Override
     public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
@@ -128,6 +130,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
             this.callback = callback;
         }
 
+        @Override
         public final void onSuccess(T result)
         {
             if (result != null)
@@ -139,6 +142,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
             }
         }
 
+        @Override
         public final void onFailure(Throwable caught)
         {
             callback.onFailure(null);

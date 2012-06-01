@@ -53,6 +53,7 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
         this.viewContext = viewContext;
     }
 
+    @Override
     public void onClick(ClickEvent event)
     {
         showEntityEditor(viewContext, entity,

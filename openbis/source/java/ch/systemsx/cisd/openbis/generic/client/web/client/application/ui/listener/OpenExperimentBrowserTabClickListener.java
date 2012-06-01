@@ -50,6 +50,7 @@ public class OpenExperimentBrowserTabClickListener implements ClickHandler
         this.forceReopen = forceReopen;
     }
 
+    @Override
     public void onClick(ClickEvent event)
     {
         final AbstractTabItemFactory tabView =

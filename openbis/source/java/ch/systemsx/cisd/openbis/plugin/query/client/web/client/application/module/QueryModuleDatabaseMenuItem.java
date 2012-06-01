@@ -59,6 +59,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
     {
         RUN_CANNED_QUERY("Run Predefined Query")
         {
+            @Override
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
@@ -74,6 +75,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         },
         RUN_CUSTOM_QUERY("Run Custom SQL Query")
         {
+            @Override
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
@@ -82,6 +84,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         },
         QUERY_BROWSER("Browsing and Edition of SQL Queries")
         {
+            @Override
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
@@ -96,16 +99,19 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             this.helpPageTitle = helpPageTitle;
         }
 
+        @Override
         public String getHelpPageTitle()
         {
             return helpPageTitle;
         }
 
+        @Override
         public String getName()
         {
             return name();
         }
 
+        @Override
         public String tryGetLink()
         {
             return null;

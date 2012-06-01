@@ -103,11 +103,13 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             return taskKind;
         }
 
+        @Override
         public String getMenuId()
         {
             return this.name();
         }
 
+        @Override
         public String getMenuText(IMessageProvider messageProvider)
         {
             return messageProvider.getMessage(this.name());
@@ -127,6 +129,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     final SelectedAndDisplayedItems selectedAndDisplayedItems =
@@ -174,6 +177,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             return computationAction;
         }
 
+        @Override
         public List<Experiment> getSelectedExperiments()
         {
             List<TableModelRowWithObject<Experiment>> items = selectedAndDisplayedItems.getSelectedItems();
@@ -192,6 +196,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
     {
         return new IComputationAction()
             {
+                @Override
                 public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
                         DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria =

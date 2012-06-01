@@ -172,6 +172,7 @@ public class DataViewSection extends TabContent
                     IOnReportComponentGeneratedAction action =
                             new IOnReportComponentGeneratedAction()
                                 {
+                                    @Override
                                     public void execute(IDisposableComponent reportComponent)
                                     {
                                         disposeCurrentReport();
@@ -276,6 +277,7 @@ public class DataViewSection extends TabContent
         {
             return new IDataRefreshCallback()
                 {
+                    @Override
                     public void postRefresh(boolean wasSuccessful)
                     {
                         // - select first service that has 'default-' prefix in key
@@ -329,6 +331,7 @@ public class DataViewSection extends TabContent
                     callback);
         }
 
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[0]; // don't update

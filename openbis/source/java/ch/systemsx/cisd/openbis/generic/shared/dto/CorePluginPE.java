@@ -112,6 +112,7 @@ public final class CorePluginPE implements Comparable<CorePluginPE>
         this.masterDataRegistrationScript = masterDataRegistrationScript;
     }
 
+    @Override
     public int compareTo(CorePluginPE other)
     {
         if (version != other.version)

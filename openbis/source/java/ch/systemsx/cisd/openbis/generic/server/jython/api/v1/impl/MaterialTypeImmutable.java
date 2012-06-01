@@ -44,16 +44,19 @@ public class MaterialTypeImmutable implements IMaterialTypeImmutable
         return materialType;
     }
 
+    @Override
     public String getCode()
     {
         return getMaterialType().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getMaterialType().getDescription();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;

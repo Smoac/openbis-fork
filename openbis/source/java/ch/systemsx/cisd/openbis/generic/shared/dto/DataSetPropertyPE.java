@@ -53,6 +53,7 @@ public class DataSetPropertyPE extends EntityPropertyPE
     // EntityPropertyPE
     //
 
+    @Override
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataSetTypePropertyTypePE.class)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN)
@@ -61,6 +62,7 @@ public class DataSetPropertyPE extends EntityPropertyPE
         return entityTypePropertyType;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, sequenceName = SequenceNames.DATA_SET_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_PROPERTY_SEQUENCE)
@@ -69,6 +71,7 @@ public class DataSetPropertyPE extends EntityPropertyPE
         return id;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.DATA_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.DATA_SET_COLUMN)

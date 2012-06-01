@@ -86,6 +86,7 @@ public class DisplaySettingsManager
         {
             return new IDelayedUpdater()
                 {
+                    @Override
                     public void executeDelayed(int delayMs)
                     {
                         // in simple view mode or anonymous login settings are temporary - don't
@@ -96,6 +97,7 @@ public class DisplaySettingsManager
         {
             final DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent event)
                     {
                         settingsUpdater.execute();
@@ -103,6 +105,7 @@ public class DisplaySettingsManager
                 });
             return new IDelayedUpdater()
                 {
+                    @Override
                     public void executeDelayed(int delayMs)
                     {
                         delayedTask.delay(delayMs);
@@ -135,6 +138,7 @@ public class DisplaySettingsManager
     {
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
             {
+                @Override
                 public void handleEvent(ColumnModelEvent event)
                 {
                     if (event.getType() == Events.ColumnMove)

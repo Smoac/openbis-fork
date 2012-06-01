@@ -194,6 +194,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             // If user changes value of this checkbox to true a confirmation window will be shown.
             result.addListener(Events.Change, new Listener<FieldEvent>()
                 {
+                    @Override
                     public void handleEvent(FieldEvent be)
                     {
                         if (result.getValue() == true)
@@ -244,6 +245,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             // manually clear invalid messages on focus (automatic validation is turned off)
             result.addListener(Events.Focus, new Listener<FieldEvent>()
                 {
+                    @Override
                     public void handleEvent(FieldEvent be)
                     {
                         result.clearInvalid();
@@ -303,6 +305,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             result.setLabelSeparator("");
             result.addListener(Events.Change, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         Boolean useFreeText = freeText.getValue();

@@ -57,6 +57,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     // IGroupBO
     //
 
+    @Override
     public final void save() throws UserFailureException
     {
         assert group != null : "Space not defined";
@@ -74,6 +75,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
+    @Override
     public void update(ISpaceUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
@@ -88,6 +90,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         getSpaceDAO().validateAndSaveUpdatedEntity(group);
     }
 
+    @Override
     public final void define(String groupCode, final String descriptionOrNull)
             throws UserFailureException
     {
@@ -103,11 +106,13 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         group.setRegistrator(findPerson());
     }
 
+    @Override
     public SpacePE getGroup() throws UserFailureException
     {
         return group;
     }
 
+    @Override
     public void load(final GroupIdentifier groupIdentifier) throws UserFailureException
     {
         group = GroupIdentifierHelper.tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
@@ -118,6 +123,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
+    @Override
     public void loadDataByTechId(TechId groupId)
     {
         try
@@ -129,6 +135,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
+    @Override
     public void deleteByTechId(TechId groupId, String reason) throws UserFailureException
     {
         loadDataByTechId(groupId);

@@ -27,6 +27,7 @@ import org.eclipse.jetty.util.component.LifeCycle;
 public class LifeCycleListener implements LifeCycle.Listener
 {
 
+    @Override
     public void lifeCycleFailure(LifeCycle lifeCycle, Throwable throwable)
     {
         System.err.println("ERROR: Failed component " + lifeCycle + ": " + throwable);
@@ -40,20 +41,24 @@ public class LifeCycleListener implements LifeCycle.Listener
         }
     }
 
+    @Override
     public void lifeCycleStarted(LifeCycle lifeCycle)
     {
         System.out.println("SERVER STARTED: " + lifeCycle);
     }
 
+    @Override
     public void lifeCycleStarting(LifeCycle lifeCycle)
     {
         System.out.println("STARTING SERVER: " + lifeCycle);
     }
 
+    @Override
     public void lifeCycleStopped(LifeCycle lifeCycle)
     {
     }
 
+    @Override
     public void lifeCycleStopping(LifeCycle lifeCycle)
     {
     }

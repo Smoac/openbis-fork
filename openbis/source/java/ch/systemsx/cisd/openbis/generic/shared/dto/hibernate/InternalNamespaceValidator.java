@@ -40,11 +40,13 @@ public final class InternalNamespaceValidator implements
     // Validator
     //
 
+    @Override
     public final void initialize(final InternalNamespace annotation)
     {
         this.internalNamespace = annotation.value();
     }
 
+    @Override
     public final boolean isValid(final Boolean value, ConstraintValidatorContext constraintContext)
     {
         return value == internalNamespace;

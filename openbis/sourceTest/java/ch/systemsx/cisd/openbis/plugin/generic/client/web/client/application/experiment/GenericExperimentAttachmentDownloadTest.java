@@ -134,6 +134,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
             this.openedUrlCallback = openedUrlCallback;
         }
 
+        @Override
         public void execute()
         {
             String openedUrl = openedUrlCallback.tryGetOpenedUrl();
@@ -169,11 +170,13 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         {
             requestBuilder.sendRequest(null, new RequestCallback()
                 {
+                    @Override
                     public void onError(Request request, Throwable exception)
                     {
                         responseCallback.onFailure(exception);
                     }
 
+                    @Override
                     public void onResponseReceived(Request request, Response response)
                     {
                         responseCallback.onSuccess(response.getText());

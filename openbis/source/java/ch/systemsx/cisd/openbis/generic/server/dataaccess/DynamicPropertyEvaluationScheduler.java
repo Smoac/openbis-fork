@@ -96,6 +96,7 @@ public final class DynamicPropertyEvaluationScheduler implements
         return new File(DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME);
     }
 
+    @Override
     public void clear()
     {
         evaluatorQueue.clear();
@@ -105,6 +106,7 @@ public final class DynamicPropertyEvaluationScheduler implements
         }
     }
 
+    @Override
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         threadDebugLog("Scheduling update: " + operation);
@@ -112,6 +114,7 @@ public final class DynamicPropertyEvaluationScheduler implements
         threadOperations.add(operation);
     }
 
+    @Override
     public void synchronizeThreadQueue()
     {
         List<DynamicPropertyEvaluationOperation> threadOperations = getThreadOperations();
@@ -129,6 +132,7 @@ public final class DynamicPropertyEvaluationScheduler implements
         }
     }
 
+    @Override
     public void clearThreadQueue()
     {
         threadDebugLog("Clearing scheduled operations");
@@ -145,11 +149,13 @@ public final class DynamicPropertyEvaluationScheduler implements
         }
     }
 
+    @Override
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException
     {
         return evaluatorQueue.peekWait();
     }
 
+    @Override
     public DynamicPropertyEvaluationOperation take() throws InterruptedException
     {
         return evaluatorQueue.take();

@@ -42,6 +42,7 @@ abstract class DelegatedNullableAbstractPredicate<T> extends AbstractPredicate<T
     // AbstractPredicate
     //
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         delegate.init(provider);

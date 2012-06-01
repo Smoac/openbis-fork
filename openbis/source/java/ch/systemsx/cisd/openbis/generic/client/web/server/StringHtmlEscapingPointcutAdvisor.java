@@ -75,6 +75,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
             return new RootClassFilter(IClientService.class);
         }
 
+        @Override
         @SuppressWarnings("rawtypes")
         public boolean matches(Method method, Class targetClass)
         {
@@ -104,6 +105,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
          * Get the session token and any guarded parameters and invoke the guards on those
          * parameters.
          */
+        @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
         {
             Object result = methodInvocation.proceed();

@@ -73,6 +73,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     // AbstractIdAndCodeHolder
     //
 
+    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)

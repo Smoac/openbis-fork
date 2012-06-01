@@ -28,6 +28,7 @@ public class ExperimentType extends ExperimentTypeImmutable implements IExperime
         super(code);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getExperimentType().setDescription(description);

@@ -53,36 +53,43 @@ class QueryApiFacade implements IQueryApiFacade
 
     }
 
+    @Override
     public String getSessionToken()
     {
         return sessionToken;
     }
 
+    @Override
     public void logout()
     {
         service.logout(sessionToken);
     }
 
+    @Override
     public IGeneralInformationService getGeneralInformationService()
     {
         return generalInformationService;
     }
 
+    @Override
     public List<QueryDescription> listQueries()
     {
         return service.listQueries(sessionToken);
     }
 
+    @Override
     public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
     {
         return service.executeQuery(sessionToken, queryID, parameterBindings);
     }
 
+    @Override
     public List<ReportDescription> listTableReportDescriptions()
     {
         return service.listTableReportDescriptions(sessionToken);
     }
 
+    @Override
     public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
             List<String> dataSetCodes)
     {
@@ -90,12 +97,14 @@ class QueryApiFacade implements IQueryApiFacade
                 reportDescription.getKey(), dataSetCodes);
     }
 
+    @Override
     public List<AggregationServiceDescription> listAggregationServices()
     {
         checkMinimalServerVersion(1, 3);
         return service.listAggregationServices(sessionToken);
     }
 
+    @Override
     public QueryTableModel createReportFromAggregationService(AggregationServiceDescription serviceDescription, Map<String, Object> parameters)
     {
         checkMinimalServerVersion(1, 3);

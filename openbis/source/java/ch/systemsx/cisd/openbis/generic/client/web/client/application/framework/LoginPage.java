@@ -22,9 +22,10 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -52,7 +53,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         setSpacing(CELL_SPACING);
         setWidth("100%");
         this.setHeight("100%");
-        setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         final Widget loginPanel = createLoginPanel(viewContext);
         final Anchor logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
@@ -66,7 +67,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         add(northPanel);
         add(loginPanel);
         add(footerPanel);
-        this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
+        this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
 
     }
 

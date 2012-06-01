@@ -53,6 +53,7 @@ public final class PackageBasedIndexedEntityFinder implements IIndexedEntityFind
                 // IClassFilter
                 //
 
+                @Override
                 public final boolean accept(final Class<?> clazz)
                 {
                     if (clazz.isAnnotationPresent(Indexed.class))
@@ -78,6 +79,7 @@ public final class PackageBasedIndexedEntityFinder implements IIndexedEntityFind
     // IIndexedEntityFinder
     //
 
+    @Override
     public final Set<Class<?>> getIndexedEntities()
     {
         return indexedEntities;

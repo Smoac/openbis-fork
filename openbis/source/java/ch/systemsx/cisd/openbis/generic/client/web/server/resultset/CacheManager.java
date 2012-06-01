@@ -98,6 +98,7 @@ public class CacheManager<K, T>
         // IResultSetKeyProvider
         //
 
+        @Override
         public final String createKey()
         {
             return tokenGenerator.getNewToken(System.currentTimeMillis());

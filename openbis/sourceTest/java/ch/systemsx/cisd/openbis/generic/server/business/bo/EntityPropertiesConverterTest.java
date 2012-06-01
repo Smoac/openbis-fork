@@ -382,6 +382,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         List<SamplePropertyPE> props = new ArrayList<SamplePropertyPE>(properties);
         Collections.sort(props, new Comparator<SamplePropertyPE>()
             {
+                @Override
                 public int compare(SamplePropertyPE o1, SamplePropertyPE o2)
                 {
                     return o1.getEntityTypePropertyType().getPropertyType().getCode()

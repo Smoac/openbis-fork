@@ -198,6 +198,7 @@ public class HistoryWidget extends ContentPanel
                         }
                         final ClickHandler listener = new ClickHandler()
                             {
+                                @Override
                                 public void onClick(ClickEvent event)
                                 {
                                     OpenEntityDetailsTabHelper.open(viewContext, entityKind,

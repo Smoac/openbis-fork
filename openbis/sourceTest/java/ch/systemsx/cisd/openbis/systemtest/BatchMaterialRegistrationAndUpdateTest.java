@@ -235,6 +235,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
             assertEquals(code, materialInfo.getCode());
             Collections.sort(materialInfo.getProperties(), new Comparator<IEntityProperty>()
                 {
+                    @Override
                     public int compare(IEntityProperty p1, IEntityProperty p2)
                     {
                         return p1.getPropertyType().getCode()

@@ -102,21 +102,25 @@ public class ColumnSettingsConfigurer<T extends Serializable>
                             displaySettingsManager.storeSettings(gridDisplayTypeID,
                                     new IDisplaySettingsGetter()
                                         {
+                                            @Override
                                             public Object getModifier()
                                             {
                                                 return browserGrid;
                                             }
 
+                                            @Override
                                             public List<String> getFilteredColumnIds()
                                             {
                                                 return filteredColumnIds;
                                             }
 
+                                            @Override
                                             public ColumnModel getColumnModel()
                                             {
                                                 return newColumnModel;
                                             }
 
+                                            @Override
                                             public SortInfo getSortState()
                                             {
                                                 return browserGrid.getGridSortInfo();

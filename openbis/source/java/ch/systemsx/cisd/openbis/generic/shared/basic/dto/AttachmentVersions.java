@@ -43,6 +43,7 @@ public class AttachmentVersions implements Comparable<AttachmentVersions>, Seria
         this.current = versions.get(versions.size() - 1);
     }
 
+    @Override
     public int compareTo(final AttachmentVersions o)
     {
         return getCurrent().getFileName().compareTo(o.getCurrent().getFileName());

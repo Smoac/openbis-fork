@@ -231,6 +231,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             anyAttachmentCollection());
                     will(new CustomAction("check sample")
                         {
+                            @Override
                             @SuppressWarnings("unchecked")
                             public Object invoke(Invocation invocation) throws Throwable
                             {
@@ -296,6 +297,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -311,6 +313,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
+                            @Override
                             @SuppressWarnings(
                                 { "unchecked" })
                             public Object invoke(Invocation invocation) throws Throwable
@@ -383,6 +386,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -397,6 +401,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
+                            @Override
                             @SuppressWarnings(
                                 { "unchecked" })
                             public Object invoke(Invocation invocation) throws Throwable
@@ -459,6 +464,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -475,6 +481,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
+                            @Override
                             @SuppressWarnings(
                                 { "unchecked", "deprecation" })
                             public Object invoke(Invocation invocation) throws Throwable
@@ -546,6 +553,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -560,6 +568,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
+                            @Override
                             @SuppressWarnings("unchecked")
                             public Object invoke(Invocation invocation) throws Throwable
                             {
@@ -672,6 +681,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -710,6 +720,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             getTranslatedExperiment(), anyAttachmentCollection());
                     will(new CustomAction("check experiment")
                         {
+                            @Override
                             @SuppressWarnings("unchecked")
                             public Object invoke(Invocation invocation) throws Throwable
                             {
@@ -768,6 +779,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -783,6 +795,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check experiment")
                         {
 
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final UpdatedExperimentsWithType experiments =
@@ -845,6 +858,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     one(multipartFile).transferTo(with(any(File.class)));
                     will(new CustomAction("copy content")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File target = (File) invocation.getParameter(0);
@@ -862,6 +876,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             with(new IsAnything<UpdatedExperimentsWithType>()));
                     will(new CustomAction("check experiment")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final UpdatedExperimentsWithType experiments =
@@ -986,11 +1001,13 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         // BaseMatcher
         //
 
+        @Override
         public final void describeTo(final Description description)
         {
             description.appendValue(newSamples);
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public final boolean matches(final Object item)
         {

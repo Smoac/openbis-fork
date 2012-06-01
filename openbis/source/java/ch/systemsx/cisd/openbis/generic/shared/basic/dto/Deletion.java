@@ -49,6 +49,7 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
         this.reasonOrNull = reasonOrNull;
     }
 
+    @Override
     public Long getId()
     {
         return id;

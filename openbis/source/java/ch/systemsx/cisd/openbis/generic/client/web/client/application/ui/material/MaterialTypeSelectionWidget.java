@@ -169,6 +169,7 @@ public final class MaterialTypeSelectionWidget extends
 
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

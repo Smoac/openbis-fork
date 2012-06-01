@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -45,10 +46,11 @@ public class ShowDataSetEditor extends AbstractDefaultTestCommand
         this.dataSetId = dataSetId;
     }
 
+    @Override
     public void execute()
     {
         GWTTestUtil.clickButtonWithID(GenericDataSetViewer.createId(dataSetId)
-                + GenericDataSetViewer.ID_EDIT_SUFFIX);
+                + AbstractViewer.ID_EDIT_SUFFIX);
     }
 
 }

@@ -41,11 +41,13 @@ public class PropertyAssignment implements IPropertyAssignment
         return assignment;
     }
 
+    @Override
     public boolean isMandatory()
     {
         return assignment.isMandatory();
     }
 
+    @Override
     public void setMandatory(boolean mandatory)
     {
         assignment.setMandatory(mandatory);
@@ -56,41 +58,49 @@ public class PropertyAssignment implements IPropertyAssignment
         return assignment.getDefaultValue();
     }
 
+    @Override
     public void setDefaultValue(String defaultValue)
     {
         assignment.setDefaultValue(defaultValue);
     }
 
+    @Override
     public String getSection()
     {
         return assignment.getSection();
     }
 
+    @Override
     public void setSection(String section)
     {
         assignment.setSection(section);
     }
 
+    @Override
     public Long getPositionInForms()
     {
         return assignment.getOrdinal();
     }
 
+    @Override
     public void setPositionInForms(Long ordinal)
     {
         assignment.setOrdinal(ordinal);
     }
 
+    @Override
     public String getEntityTypeCode()
     {
         return assignment.getEntityTypeCode();
     }
 
+    @Override
     public String getPropertyTypeCode()
     {
         return assignment.getPropertyTypeCode();
     }
 
+    @Override
     public ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind getEntityKind()
     {
         String name = assignment.getEntityKind().name();

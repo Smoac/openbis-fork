@@ -240,6 +240,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             this.header = header;
         }
 
+        @Override
         public String tryGetLink(T entity, final ISerializableComparable value)
         {
             if (value == null || value.toString().length() == 0)
@@ -266,6 +267,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             return LinkExtractor.createPermlink(entityKind, value.toString());
         }
 
+        @Override
         public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)
         {
             ISerializableComparable cellValue = rowItem.getValues().get(header.getIndex());
@@ -341,11 +343,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     newValueOrNull == null ? null : StringEscapeUtils.unescapeHtml(newValueOrNull);
         }
 
+        @Override
         public String getColumnID()
         {
             return columnID;
         }
 
+        @Override
         public String tryGetNewValue()
         {
             return newValueOrNull;
@@ -476,6 +480,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
         grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(final GridEvent<ModelData> ge)
                 {
                     Menu menu = ge.getMenu();
@@ -502,6 +507,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new ICellListener<TableModelRowWithObject<T>>()
             {
+                @Override
                 public void handle(TableModelRowWithObject<T> rowItem, boolean keyPressed)
                 {
                     showEntityViewer(rowItem, false, keyPressed);
@@ -515,6 +521,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         // - no 'overflow' button when some buttons don't fit into pagingToolbar
         pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     pagingToolbar.syncSize();
@@ -523,6 +530,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         // - hidden paging toolbar
         pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     contentPanel.syncSize();
@@ -531,6 +539,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         // - bottom toolbar is not resized when new filter row appears
         filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     contentPanel.syncSize();
@@ -666,6 +675,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     if (resultSetKeyOrNull != null && pendingFetchManager.hasNoPendingFetch())
@@ -737,6 +747,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         final TypedTableGrid<T> self = this;
         return new DisposableEntityChooser<TableModelRowWithObject<T>>()
             {
+                @Override
                 public List<TableModelRowWithObject<T>> getSelected()
                 {
                     List<BaseEntityModel<TableModelRowWithObject<T>>> items = getSelectedItems();
@@ -749,6 +760,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     return result;
                 }
 
+                @Override
                 public void dispose()
                 {
                     debug("dispose a browser");
@@ -759,16 +771,19 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     }
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return mainComponent;
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return self.getRelevantModifications();
                 }
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     self.update(observedModifications);
@@ -1004,12 +1019,14 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             {
                 final Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>()
                     {
+                        @Override
                         public void handleEvent(MessageBoxEvent me)
                         {
                             if (me.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
                                 tableModificationsManager.saveModifications(new IDelegatedAction()
                                     {
+                                        @Override
                                         public void execute()
                                         {
                                             // ignore this callback and refresh the table
@@ -1167,11 +1184,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         final TypedTableGrid<T> delegate = this;
         return new IBrowserGridActionInvoker()
             {
+                @Override
                 public void export(boolean allColumns)
                 {
                     delegate.export(allColumns);
                 }
 
+                @Override
                 public void refresh()
                 {
                     int id = log("refresh in action invoker");
@@ -1179,11 +1198,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     viewContext.logStop(id);
                 }
 
+                @Override
                 public void configure()
                 {
                     delegate.configureColumnSettings();
                 }
 
+                @Override
                 public void toggleFilters(boolean show)
                 {
                     if (show)
@@ -1239,6 +1260,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
             {
+                @Override
                 public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                         boolean keyPressed)
                 {
@@ -1254,6 +1276,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
             {
+                @Override
                 public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                         boolean keyPressed)
                 {
@@ -1335,6 +1358,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         button.setEnabled(false);
         addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
                     boolean enabled = se.getSelection().size() > 0;
@@ -1352,6 +1376,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         button.setEnabled(false);
         addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
                     boolean enabled = se.getSelection().size() == 1;
@@ -1370,6 +1395,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
                     boolean noSelected = se.getSelection().size() == 0;
@@ -1410,6 +1436,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     int id = log("execute refrish grid action");
@@ -1690,21 +1717,25 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new IDisplaySettingsGetter()
             {
+                @Override
                 public ColumnModel getColumnModel()
                 {
                     return TypedTableGrid.this.getFullColumnModel();
                 }
 
+                @Override
                 public List<String> getFilteredColumnIds()
                 {
                     return filterToolbar.extractFilteredColumnIds();
                 }
 
+                @Override
                 public Object getModifier()
                 {
                     return TypedTableGrid.this;
                 }
 
+                @Override
                 public SortInfo getSortState()
                 {
                     return TypedTableGrid.this.getGridSortInfo();
@@ -1721,6 +1752,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return filterToolbar.rebuildColumnFilters(filteredColumns);
     }
 
+    @Override
     public List<IColumnDefinition<TableModelRowWithObject<T>>> getColumnDefinitions(
             List<String> columnIds)
     {
@@ -1769,6 +1801,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     if (customColumnsMetadataProvider.getHasChangedAndSetFalse())
@@ -1793,6 +1826,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         return new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     c1.postRefresh(wasSuccessful);
@@ -2039,6 +2073,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         editorGrid.addListener(Events.BeforeEdit,
                 new Listener<GridEvent<BaseEntityModel<TableModelRowWithObject<T>>>>()
                     {
+                        @Override
                         public void handleEvent(
                                 GridEvent<BaseEntityModel<TableModelRowWithObject<T>>> event)
                         {
@@ -2066,6 +2101,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         editorGrid.addListener(Events.AfterEdit,
                 new Listener<GridEvent<BaseEntityModel<TableModelRowWithObject<T>>>>()
                     {
+                        @Override
                         public void handleEvent(
                                 GridEvent<BaseEntityModel<TableModelRowWithObject<T>>> event)
                         {
@@ -2093,6 +2129,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     });
         editorGrid.addListener(Events.SortChange, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     saveColumnDisplaySettings();
@@ -2290,11 +2327,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         //
 
         // @Override
+        @Override
         public boolean isTableDirty()
         {
             return isApplyModificationsComplete() == false;
         }
 
+        @Override
         public void saveModifications()
         {
             saveModifications(null);
@@ -2305,6 +2344,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             this.afterSaveActionOrNull = afterSaveAction;
         }
 
+        @Override
         public void saveModifications(IDelegatedAction afterSaveAction)
         {
             setAfterSaveAction(afterSaveAction);
@@ -2316,6 +2356,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             }
         }
 
+        @Override
         public void cancelModifications()
         {
             clearModifications();
@@ -2323,6 +2364,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             refresh(); // WORKAROUND remove this refresh after LMS-2397 is resolved
         }
 
+        @Override
         public void handleEditingEvent(BaseEntityModel<TableModelRowWithObject<T>> model,
                 String columnID, String newValueOrNull)
         {
@@ -2335,6 +2377,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             modificationsForModel.add(new Modification(columnID, newValueOrNull));
         }
 
+        @Override
         public AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
                 final BaseEntityModel<TableModelRowWithObject<T>> model,
                 final List<IModification> modifications)
@@ -2463,6 +2506,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * 
      * @return id at which grid display settings are saved.
      */
+    @Override
     public String getGridDisplayTypeID()
     {
         return createGridDisplayTypeID(null);
@@ -2715,11 +2759,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return Collections.<String> emptyList();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[] {};
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshGridSilently();

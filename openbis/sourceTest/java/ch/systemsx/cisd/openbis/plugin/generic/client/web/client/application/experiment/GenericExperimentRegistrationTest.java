@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 import ch.systemsx.cisd.openbis.systemtest.plugin.generic.ExperimentRegistrationTest;
 
@@ -55,7 +56,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         if (FORM_ID == null)
         {
             FORM_ID =
-                    GenericExperimentRegistrationForm
+                    AbstractGenericEntityRegistrationForm
                             .createId((TechId) null, EntityKind.EXPERIMENT);
         }
         return FORM_ID;

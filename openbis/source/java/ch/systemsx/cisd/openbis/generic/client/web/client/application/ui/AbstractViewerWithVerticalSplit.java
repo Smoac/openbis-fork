@@ -99,6 +99,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
         final String panelId = getLeftPanelId();
         getLayout().addListener(Events.Collapse, new Listener<BorderLayoutEvent>()
             {
+                @Override
                 public void handleEvent(BorderLayoutEvent be)
                 {
                     viewContext.log(panelId + " Collapsed");
@@ -109,6 +110,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
             });
         getLayout().addListener(Events.Expand, new Listener<BorderLayoutEvent>()
             {
+                @Override
                 public void handleEvent(BorderLayoutEvent be)
                 {
                     viewContext.log(panelId + " Expand");
@@ -119,6 +121,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
             });
         getLayout().addListener(Events.AfterLayout, new Listener<LayoutEvent>()
             {
+                @Override
                 public void handleEvent(LayoutEvent le)
                 {
                     final Integer size = panel.getOffsetWidth();

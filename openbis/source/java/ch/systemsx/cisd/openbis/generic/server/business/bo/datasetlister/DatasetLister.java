@@ -150,6 +150,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         this.baseIndexURL = baseIndexURL;
     }
 
+    @Override
     public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
     {
         if (showOnlyDirectlyConnected)
@@ -174,6 +175,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
+    @Override
     public List<ExternalData> listBySampleIds(Collection<Long> sampleIds)
     {
         LongSet ids = new LongOpenHashSet();
@@ -184,6 +186,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(query.getDatasetsForSamples(ids));
     }
 
+    @Override
     public List<ExternalData> listByExperimentTechId(TechId experimentId,
             boolean showOnlyDirectlyConnected)
     {
@@ -198,6 +201,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(dataSets);
     }
 
+    @Override
     public Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
@@ -220,6 +224,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return map;
     }
 
+    @Override
     public Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
@@ -242,11 +247,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return map;
     }
 
+    @Override
     public Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples)
     {
         TableMap<Long, Sample> samplesByID =
                 new TableMap<Long, Sample>(samples, new IKeyExtractor<Long, Sample>()
                     {
+                        @Override
                         public Long getKey(Sample e)
                         {
                             return e.getId();
@@ -319,16 +326,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
+    @Override
     public List<ExternalData> listByChildTechId(TechId childDatasetId)
     {
         return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
     }
 
+    @Override
     public List<ExternalData> listByContainerTechId(TechId containerDatasetId)
     {
         return enrichDatasets(query.getContainedDatasetsForContainer(containerDatasetId.getId()));
     }
 
+    @Override
     public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
         DataIterator<DatasetRecord> childrenDataSets =
@@ -336,11 +346,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return enrichDatasets(childrenDataSets);
     }
 
+    @Override
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
         return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)));
     }
 
+    @Override
     public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes)
     {
         String[] codes = datasetCodes.toArray(new String[datasetCodes.size()]);
@@ -350,11 +362,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         // return asList(createPrimaryDatasets(asList(datasets)));
     }
 
+    @Override
     public List<ExternalData> listByDataStore(long dataStoreID)
     {
         return enrichDatasets(query.getDatasetsByDataStoreId(dataStoreID));
     }
 
+    @Override
     public List<DataSetShareId> listAllDataSetShareIdsByDataStore(long dataStoreID)
     {
         List<DataSetShareId> results = new ArrayList<DataSetShareId>();
@@ -371,6 +385,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return results;
     }
 
+    @Override
     public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
     {
         DataIterator<DatasetRecord> dataSets;
@@ -394,6 +409,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return asList(datasetMap);
     }
 
+    @Override
     public List<ExternalData> listByArchiverCriteria(String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
@@ -539,6 +555,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         propertiesEnricher.enrich(resultMap.keySet(), new IEntityPropertiesHolderResolver()
             {
+                @Override
                 public ExternalData get(long id)
                 {
                     return resultMap.get(id);
@@ -869,6 +886,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
+    @Override
     public Map<Long, GenericEntityPropertyRecord> fetchProperties(List<Long> ids,
             String propertyTypeCode)
     {

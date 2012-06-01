@@ -313,6 +313,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
         {
             return new BatchPreparedStatementSetter()
                 {
+                    @Override
                     public void setValues(PreparedStatement ps, int index) throws SQLException
                     {
                         Material material = materials.get(index);
@@ -346,6 +347,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
                         }
                     }
 
+                    @Override
                     public int getBatchSize()
                     {
                         return materials.size();
@@ -402,6 +404,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
         this.timeProvider = timeProvider;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
@@ -435,6 +438,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
         checkTimestampReadingWriting();
     }
 
+    @Override
     public void execute()
     {
         SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
@@ -501,6 +505,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
             JdbcUtils.extractDatabaseMetaData(dbConfigurationContext.getDataSource(),
                     new DatabaseMetaDataCallback()
                         {
+                            @Override
                             public Object processMetaData(DatabaseMetaData metaData)
                                     throws SQLException, MetaDataAccessException
                             {

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -120,6 +121,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     // IGenericClientService
     //
 
+    @Override
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
     {
         try
@@ -135,11 +137,13 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public final Sample getSampleInfo(final TechId sampleId)
     {
         return getSampleGenerationInfo(sampleId).getParent();
     }
 
+    @Override
     public final void registerSample(final String sessionKey, final NewSample newSample)
     {
         final String sessionToken = getSessionToken();
@@ -153,6 +157,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             }.process(sessionKey, getHttpSession(), newSample.getAttachments());
     }
 
+    @Override
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
             final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
     {
@@ -172,6 +177,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
             final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting,
             boolean async, String userEmail) throws UserFailureException
@@ -180,7 +186,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                 updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
 
         final SampleType sampleType = new SampleType();
-        sampleType.setCode(SampleType.DEFINED_IN_FILE);
+        sampleType.setCode(EntityType.DEFINED_IN_FILE);
 
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -192,7 +198,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                             defaultGroupIdentifier != null, true, "SAMPLES", operationKind);
 
             final MaterialType materialType = new MaterialType();
-            materialType.setCode(SampleType.DEFINED_IN_FILE);
+            materialType.setCode(EntityType.DEFINED_IN_FILE);
             BatchMaterialsOperation materialsInfo =
                     parseMaterials(session, uploadedFiles, materialType, "MATERIALS",
                             updateExisting);
@@ -228,6 +234,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
             final String sessionKey, final String defaultGroupIdentifier)
     {
@@ -246,6 +253,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     }
 
+    @Override
     public final ExternalData getDataSetInfo(final TechId datasetId)
     {
         try
@@ -260,6 +268,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public void registerExperiment(final String attachmentsSessionKey,
             final String samplesSessionKey, final NewExperiment experiment)
     {
@@ -344,6 +353,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             return new SampleCodeGenerator()
                 {
+                    @Override
                     public List<String> generateCodes(int size)
                     {
                         return genericServer.generateCodes(getSessionToken(), codePrefix, size);
@@ -355,6 +365,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             boolean updateExisting, final String sessionKey)
     {
@@ -366,6 +377,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return results.getResultList();
     }
 
+    @Override
     public final List<BatchRegistrationResult> registerExperiments(
             final ExperimentType experimentType, final String sessionKey)
     {
@@ -378,6 +390,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return loader.getResults();
     }
 
+    @Override
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
             String sessionKey, boolean ignoreUnregisteredMaterials)
     {
@@ -465,6 +478,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public SampleUpdateResult updateSample(final SampleUpdates updates)
     {
         final String sessionToken = getSessionToken();
@@ -503,6 +517,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return result;
     }
 
+    @Override
     public Date updateMaterial(TechId materialId, List<IEntityProperty> properties, Date version)
     {
         try
@@ -515,6 +530,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public ExperimentUpdateResult updateExperiment(final ExperimentUpdates updates)
     {
         final String sessionToken = getSessionToken();
@@ -568,6 +584,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return updatesDTO;
     }
 
+    @Override
     public DataSetUpdateResult updateDataSet(final DataSetUpdates updates)
     {
         final String sessionToken = getSessionToken();
@@ -595,6 +612,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return updatesDTO;
     }
 
+    @Override
     public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey)
     {
 
@@ -620,6 +638,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    @Override
     public List<BatchRegistrationResult> updateExperiments(ExperimentType experimentType,
             String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

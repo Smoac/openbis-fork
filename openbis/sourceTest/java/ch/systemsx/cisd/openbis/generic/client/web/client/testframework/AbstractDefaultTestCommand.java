@@ -36,11 +36,13 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
     {
     }
 
+    @Override
     public boolean isValidOnSucess(Object result)
     {
         return true; // if previous command succeeded this command should be executed
     }
 
+    @Override
     public boolean isValidOnFailure(AbstractAsyncCallback<?> callback, String failureMessage,
             Throwable throwable)
     {

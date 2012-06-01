@@ -53,6 +53,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
 
     private String entityTypeCodePattern; // can be a regexp
 
+    @Override
     @SequenceGenerator(name = SequenceNames.QUERY_SEQUENCE, sequenceName = SequenceNames.QUERY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.QUERY_SEQUENCE)
@@ -145,6 +146,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         return getName();
     }
 
+    @Override
     public int compareTo(QueryPE that)
     {
         final String thatName = that.getName();

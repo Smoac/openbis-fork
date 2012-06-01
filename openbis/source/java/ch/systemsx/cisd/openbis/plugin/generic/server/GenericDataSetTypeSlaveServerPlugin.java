@@ -46,6 +46,7 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     {
     }
 
+    @Override
     public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason,
             boolean forceNotExistingLocations, boolean forceDisallowedTypes)
     {
@@ -54,6 +55,7 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
         dataSetTable.deleteLoadedDataSets(reason, forceNotExistingLocations, forceDisallowedTypes);
     }
 
+    @Override
     public void updateDataSets(Session session, List<DataSetBatchUpdatesDTO> dataSets)
     {
         assert session != null : "Unspecified session.";

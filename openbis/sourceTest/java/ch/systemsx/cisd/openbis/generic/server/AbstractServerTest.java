@@ -79,6 +79,7 @@ public class AbstractServerTest extends AssertJUnit
         server = new AbstractServer<Object>(sessionManager, daoFactory, null)
         {
 
+                @Override
                 public Object createLogger(IInvocationLoggerContext loggerContext)
                 {
                     return null;

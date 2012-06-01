@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Authori
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -66,6 +67,7 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
         this.roleNameOrNull = roleNameOrNull;
     }
 
+    @Override
     public void execute()
     {
         final RoleListBox listBox =
@@ -73,7 +75,7 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
         if (groupNameOrNull != null)
         {
             String groupSelectorId =
-                    SpaceSelectionWidget.ID + SpaceSelectionWidget.SUFFIX
+                    DropDownList.ID + SpaceSelectionWidget.SUFFIX
                             + AddRoleAssignmentDialog.PREFIX;
             GWTTestUtil.selectValueInSelectionWidget(groupSelectorId, ModelDataPropertyNames.CODE,
                     groupNameOrNull);
@@ -85,12 +87,12 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
         if (personRole == false)
         {
             GWTTestUtil.setRadioValue(AddRoleAssignmentDialog.AUTH_GROUP_RADIO, true);
-            GWTTestUtil.selectValueInSelectionWidget(AuthorizationGroupSelectionWidget.ID
+            GWTTestUtil.selectValueInSelectionWidget(DropDownList.ID
                     + AuthorizationGroupSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
                     ModelDataPropertyNames.CODE, grantee);
         } else
         {
-            GWTTestUtil.selectValueInSelectionWidget(PersonSelectionWidget.ID
+            GWTTestUtil.selectValueInSelectionWidget(DropDownList.ID
                     + PersonSelectionWidget.SUFFIX + AddRoleAssignmentDialog.PREFIX,
                     ModelDataPropertyNames.CODE, grantee);
         }

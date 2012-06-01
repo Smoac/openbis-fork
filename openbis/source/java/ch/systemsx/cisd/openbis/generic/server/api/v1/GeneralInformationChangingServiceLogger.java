@@ -39,12 +39,14 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
         super(sessionManagerNull, context);
     }
 
+    @Override
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
     {
         logTracking(sessionToken, "update-sample-properties", "SAMPLE(%s)", sampleID);
     }
 
+    @Override
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
     {
@@ -53,6 +55,7 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 code, label, description, Long.toString(previousTermOrdinal));
     }
 
+    @Override
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term)
     {
@@ -61,11 +64,13 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
 
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 0;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;

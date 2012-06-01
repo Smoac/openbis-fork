@@ -35,11 +35,13 @@ public class TabActionMenuItemFactory
     {
         IActionMenuItem menuItem = new IActionMenuItem()
             {
+                @Override
                 public String getMenuId()
                 {
                     return widgetIDPrefix + "_" + definition.getName();
                 }
 
+                @Override
                 public String getMenuText(IMessageProvider messageProvider)
                 {
                     return messageProvider.getMessage(definition.getName() + "_menu_item");

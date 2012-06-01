@@ -105,7 +105,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
                         entityTypeOrNull);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
         parameterFields = new HashSet<IParameterField>();
-        resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
+        resetButton = new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_RESET));
         add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
         add(querySelectionWidget);
         add(parameterContainer);
@@ -124,6 +124,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             });
         querySelectionWidget.addPostRefreshCallback(new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateParameterFields();
@@ -173,6 +174,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         parameterContainer.hide();
         final IDelegatedAction updateExecuteButtonAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     updateExecuteButtonEnabledState();
@@ -180,6 +182,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             };
         final IParameterValuesLoader parameterValuesloader = new IParameterValuesLoader()
             {
+                @Override
                 public void loadData(String queryExpression,
                         AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
                 {
@@ -260,24 +263,28 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     // ICustomQueryProvider
     //
 
+    @Override
     public Long tryGetQueryId()
     {
         QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
         return selectedQueryOrNull == null ? null : selectedQueryOrNull.getId();
     }
 
+    @Override
     public String tryGetSQLQuery()
     {
         QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
         return selectedQueryOrNull == null ? null : selectedQueryOrNull.getExpression();
     }
 
+    @Override
     public QueryDatabase tryGetQueryDatabase()
     {
         QueryExpression selectedQueryOrNull = querySelectionWidget.tryGetSelected();
         return selectedQueryOrNull == null ? null : selectedQueryOrNull.getQueryDatabase();
     }
 
+    @Override
     public QueryParameterBindings tryGetQueryParameterBindings()
     {
         QueryParameterBindings bindings = new QueryParameterBindings();
@@ -294,11 +301,13 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     // IDatabaseModificationObserver
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return querySelectionWidget.getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         querySelectionWidget.update(observedModifications);

@@ -69,6 +69,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         super(daoFactory, session);
     }
 
+    @Override
     public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
     {
         onlyNewSamples = false;
@@ -158,11 +159,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return group;
     }
 
+    @Override
     public final List<SamplePE> getSamples()
     {
         return samples;
     }
 
+    @Override
     public void prepareForRegistration(List<NewSample> newSamples, PersonPE registratorOrNull)
             throws UserFailureException
     {
@@ -194,6 +197,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         dataChanged = true;
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert samples != null : "Samples not loaded.";
@@ -282,6 +286,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 properties, registrator, propertiesToUpdate));
     }
 
+    @Override
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates)
     {
         assert updates != null : "Unspecified samples.";
@@ -327,6 +332,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return results;
     }
 
+    @Override
     public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException
     {
         try

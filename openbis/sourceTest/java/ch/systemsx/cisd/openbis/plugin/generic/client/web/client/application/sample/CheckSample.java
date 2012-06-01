@@ -46,11 +46,13 @@ public class CheckSample extends AbstractDefaultTestCommand implements
         propertyCheckingManager = new PropertyCheckingManager();
     }
 
+    @Override
     public Property property(String name)
     {
         return new Property(name, this);
     }
 
+    @Override
     public CheckSample property(String name, IValueAssertion<?> valueAssertion)
     {
         propertyCheckingManager.addExcpectedProperty(name, valueAssertion);
@@ -75,6 +77,7 @@ public class CheckSample extends AbstractDefaultTestCommand implements
         return new CheckTableCommand(gridId);
     }
 
+    @Override
     public void execute()
     {
         propertyCheckingManager.assertPropertiesOf(PROPERTIES_ID_PREFIX + sampleId);

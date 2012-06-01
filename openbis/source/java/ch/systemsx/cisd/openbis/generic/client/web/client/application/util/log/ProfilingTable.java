@@ -48,29 +48,35 @@ public class ProfilingTable implements IProfilingTable
     {
         return new IProfilingTable()
             {
+                @Override
                 public void clearLog()
                 {
                 }
 
+                @Override
                 public List<String> getLoggedEvents()
                 {
                     return new ArrayList<String>();
                 }
 
+                @Override
                 public boolean isLoggingEnabled()
                 {
                     return false;
                 }
 
+                @Override
                 public int log(String description)
                 {
                     return 0;
                 }
 
+                @Override
                 public void log(int taskId, String description)
                 {
                 }
 
+                @Override
                 public void logStop(int taskId)
                 {
                 }
@@ -83,6 +89,7 @@ public class ProfilingTable implements IProfilingTable
         this.stopEvents = new HashMap<Integer, Date>();
     }
 
+    @Override
     public boolean isLoggingEnabled()
     {
         return true;
@@ -125,6 +132,7 @@ public class ProfilingTable implements IProfilingTable
      * @return id of the logged task. Use this id in {@link #logStop} method to measure the time
      *         between event start and stop.
      */
+    @Override
     public int log(String description)
     {
         int taskId = startEvents.size();
@@ -136,6 +144,7 @@ public class ProfilingTable implements IProfilingTable
      * Logs the event with the specified id. Use {@link #log(String)} if you do not want to manage
      * the events ids.
      */
+    @Override
     public void log(int taskId, String description)
     {
         startEvents.add(new ProfilingEventStarted(taskId, description));
@@ -145,17 +154,20 @@ public class ProfilingTable implements IProfilingTable
      * Logs end of the event. It's cheap to call this method. Call this method only if you want to
      * measure time between start and stop.
      */
+    @Override
     public void logStop(int taskId)
     {
         stopEvents.put(taskId, new Date());
     }
 
+    @Override
     public void clearLog()
     {
         startEvents.clear();
         stopEvents.clear();
     }
 
+    @Override
     public List<String> getLoggedEvents()
     {
         List<String> result = new ArrayList<String>();

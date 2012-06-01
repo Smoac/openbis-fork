@@ -79,56 +79,67 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     // IViewContext
     //
 
+    @Override
     public final T getService()
     {
         return service;
     }
 
+    @Override
     public String getPropertyOrNull(String key)
     {
         return getPropertyOrNull(this, key);
     }
 
+    @Override
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
     {
         return commonViewContext;
     }
 
+    @Override
     public final ICommonClientServiceAsync getCommonService()
     {
         return commonViewContext.getService();
     }
 
+    @Override
     public final GenericViewModel getModel()
     {
         return commonViewContext.getModel();
     }
 
+    @Override
     public void initDisplaySettingsManager()
     {
         commonViewContext.initDisplaySettingsManager();
     }
 
+    @Override
     public DisplaySettingsManager getDisplaySettingsManager()
     {
         return commonViewContext.getDisplaySettingsManager();
     }
 
+    @Override
     public final IPageController getPageController()
     {
         return commonViewContext.getPageController();
     }
 
+    @Override
     public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
     {
         return commonViewContext.getClientPluginFactoryProvider();
     }
 
+    @Override
     public final IGenericImageBundle getImageBundle()
     {
         return commonViewContext.getImageBundle();
     }
 
+    @Override
     public boolean isDebuggingEnabled()
     {
         return commonViewContext.isDebuggingEnabled();
@@ -137,35 +148,41 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     // -------- IProfilingTable delegate
 
     /** @see IProfilingTable#log */
+    @Override
     public int log(String description)
     {
         return commonViewContext.log(description);
     }
 
+    @Override
     public void log(int taskId, String description)
     {
         commonViewContext.log(taskId, description);
     }
 
     /** @see IProfilingTable#logStop */
+    @Override
     public void logStop(int taskId)
     {
         commonViewContext.logStop(taskId);
     }
 
     /** @see IProfilingTable#clearLog */
+    @Override
     public void clearLog()
     {
         commonViewContext.clearLog();
     }
 
     /** @see IProfilingTable#getLoggedEvents() */
+    @Override
     public List<String> getLoggedEvents()
     {
         return commonViewContext.getLoggedEvents();
     }
 
     /** @see IProfilingTable#isLoggingEnabled() */
+    @Override
     public boolean isLoggingEnabled()
     {
         return commonViewContext.isLoggingEnabled();
@@ -174,18 +191,21 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     // -------- IMessageProvider delegate
 
     /** @see IMessageProvider#containsKey(String) */
+    @Override
     public boolean containsKey(String key)
     {
         return commonViewContext.containsKey(key);
     }
 
     /** @see IMessageProvider#getMessage(String, Object...) */
+    @Override
     public String getMessage(String key, Object... parameters)
     {
         return commonViewContext.getMessage(key, parameters);
     }
 
     /** @see IMessageProvider#getName() */
+    @Override
     public String getName()
     {
         return commonViewContext.getName();
@@ -193,11 +213,13 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
 
     // --------
 
+    @Override
     public void addMessageSource(String messageSource)
     {
         commonViewContext.addMessageSource(messageSource);
     }
 
+    @Override
     public ViewLocatorResolverRegistry getLocatorResolverRegistry()
     {
         // Delegate to the common view context
@@ -212,6 +234,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
 
     }
 
+    @Override
     public boolean isSimpleOrEmbeddedMode()
     {
         return commonViewContext.isSimpleOrEmbeddedMode();

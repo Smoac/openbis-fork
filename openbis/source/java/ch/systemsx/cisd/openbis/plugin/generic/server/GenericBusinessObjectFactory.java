@@ -50,61 +50,73 @@ public final class GenericBusinessObjectFactory extends AbstractPluginBusinessOb
     // IGenericBusinessObjectFactory
     //
 
+    @Override
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);
     }
 
+    @Override
     public IExperimentBO createExperimentBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createExperimentBO(session);
     }
 
+    @Override
     public IExperimentTable createExperimentTable(final Session session)
     {
         return getCommonBusinessObjectFactory().createExperimentTable(session);
     }
 
+    @Override
     public IMaterialBO createMaterialBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createMaterialBO(session);
     }
 
+    @Override
     public final ISampleTable createSampleTable(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleTable(session);
     }
 
+    @Override
     public IMaterialTable createMaterialTable(Session session)
     {
         return getCommonBusinessObjectFactory().createMaterialTable(session);
     }
 
+    @Override
     public IDataBO createDataBO(Session session)
     {
         return getCommonBusinessObjectFactory().createDataBO(session);
     }
 
+    @Override
     public IDataSetTable createDataSetTable(Session session)
     {
         return getCommonBusinessObjectFactory().createDataSetTable(session);
     }
 
+    @Override
     public IProjectBO createProjectBO(Session session)
     {
         return getCommonBusinessObjectFactory().createProjectBO(session);
     }
 
+    @Override
     public ITrashBO createTrashBO(Session session)
     {
         return getCommonBusinessObjectFactory().createTrashBO(session);
     }
 
+    @Override
     public ISampleLister createSampleLister(Session session)
     {
         return SampleLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 
+    @Override
     public IMaterialLister createMaterialLister(Session session)
     {
         return MaterialLister.create(getDaoFactory(), session.getBaseIndexURL());

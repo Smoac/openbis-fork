@@ -97,153 +97,183 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         super(daoFactory, dssFactory);
     }
 
+    @Override
     public final IAttachmentBO createAttachmentBO(final Session session)
     {
         return new AttachmentBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IGroupBO createGroupBO(final Session session)
     {
         return new GroupBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IScriptBO createScriptBO(final Session session)
     {
         return new ScriptBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)
     {
         return new RoleAssignmentTable(getDaoFactory(), session);
     }
 
+    @Override
     public final ISampleTable createSampleTable(final Session session)
     {
         return new SampleTable(getDaoFactory(), session);
     }
 
+    @Override
     public ISampleLister createSampleLister(Session session)
     {
         return SampleLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 
+    @Override
     public IDatasetLister createDatasetLister(Session session)
     {
         return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 
+    @Override
     public IMaterialLister createMaterialLister(Session session)
     {
         return MaterialLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 
+    @Override
     public final ISampleBO createSampleBO(final Session session)
     {
         return new SampleBO(getDaoFactory(), session);
     }
 
+    @Override
     public IDataBO createDataBO(Session session)
     {
         return new DataBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
         return new DataSetTable(getDaoFactory(), getDSSFactory(), session);
     }
 
+    @Override
     public IDeletedDataSetTable createDeletedDataSetTable(Session session)
     {
         return new DeletedDataSetTable(getDaoFactory(), getDSSFactory(), session);
     }
 
+    @Override
     public IExperimentTable createExperimentTable(final Session session)
     {
         return new ExperimentTable(getDaoFactory(), session);
     }
 
+    @Override
     public IMaterialTable createMaterialTable(final Session session)
     {
         return new MaterialTable(getDaoFactory(), session);
     }
 
+    @Override
     public final IExperimentBO createExperimentBO(final Session session)
     {
         return new ExperimentBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IPropertyTypeTable createPropertyTypeTable(final Session session)
     {
         return new PropertyTypeTable(getDaoFactory(), session);
     }
 
+    @Override
     public final IPropertyTypeBO createPropertyTypeBO(final Session session)
     {
         return new PropertyTypeBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IVocabularyBO createVocabularyBO(Session session)
     {
         return new VocabularyBO(getDaoFactory(), session);
     }
 
+    @Override
     public final IVocabularyTermBO createVocabularyTermBO(Session session)
     {
         return new VocabularyTermBO(getDaoFactory(), session);
     }
 
+    @Override
     public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,
             EntityKind entityKind)
     {
         return new EntityTypePropertyTypeBO(getDaoFactory(), session, entityKind);
     }
 
+    @Override
     public IProjectBO createProjectBO(Session session)
     {
         return new ProjectBO(getDaoFactory(), session);
     }
 
+    @Override
     public IEntityTypeBO createEntityTypeBO(Session session)
     {
         return new EntityTypeBO(getDaoFactory(), session);
     }
 
+    @Override
     public IMaterialBO createMaterialBO(Session session)
     {
         return new MaterialBO(getDaoFactory(), session);
     }
 
+    @Override
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session)
     {
         return new AuthorizationGroupBO(getDaoFactory(), session);
     }
 
+    @Override
     public IGridCustomFilterOrColumnBO createGridCustomFilterBO(Session session)
     {
         return new GridCustomFilterBO(getDaoFactory(), session);
     }
 
+    @Override
     public IGridCustomFilterOrColumnBO createGridCustomColumnBO(Session session)
     {
         return new GridCustomColumnBO(getDaoFactory(), session);
     }
 
+    @Override
     public ITrashBO createTrashBO(Session session)
     {
         return new TrashBO(getDaoFactory(), this, session);
     }
 
+    @Override
     public IDeletionTable createDeletionTable(Session session)
     {
         return new DeletionTable(getDaoFactory(), session);
     }
 
+    @Override
     public ICorePluginTable createCorePluginTable(Session session,
             IMasterDataScriptRegistrationRunner masterDataScriptRunner)
     {
         return new CorePluginTable(getDaoFactory(), session, masterDataScriptRunner);
     }
 
+    @Override
     public IDataStoreBO createDataStoreBO(Session session)
     {
         return new DataStoreBO(getDaoFactory(), session, getDSSFactory());

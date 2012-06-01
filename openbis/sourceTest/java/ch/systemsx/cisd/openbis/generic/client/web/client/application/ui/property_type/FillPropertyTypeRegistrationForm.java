@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -60,13 +61,14 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_code", code);
         GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_label", label);
         GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_description", description);
         final Widget widgetWithID =
-                GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID
+                GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + DataTypeSelectionWidget.SUFFIX);
         assertTrue(widgetWithID instanceof DataTypeSelectionWidget);
         final ComboBox<DataTypeModel> dataTypeSelectionWidget =

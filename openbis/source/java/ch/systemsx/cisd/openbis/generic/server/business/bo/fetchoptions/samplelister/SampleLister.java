@@ -51,6 +51,7 @@ public class SampleLister implements ISampleLister
 {
     private static final Comparator<Sample> SAMPLE_COMPARATOR = new Comparator<Sample>()
         {
+            @Override
             public int compare(Sample s1, Sample s2)
             {
                 return s1.getIdentifier().compareTo(s2.getIdentifier());
@@ -60,6 +61,7 @@ public class SampleLister implements ISampleLister
     private static final Comparator<SampleRecord> SAMPLE_COMPARATOR2 =
             new Comparator<SampleRecord>()
                 {
+                    @Override
                     public int compare(SampleRecord s1, SampleRecord s2)
                     {
                         return getIdentifier(s1).compareTo(getIdentifier(s2));
@@ -77,6 +79,7 @@ public class SampleLister implements ISampleLister
     private static final IKeyExtractor<Long, SampleRecord> ID_EXTRACTOR =
             new IKeyExtractor<Long, SampleRecord>()
                 {
+                    @Override
                     public Long getKey(SampleRecord s)
                     {
                         return s.s_id;
@@ -112,6 +115,7 @@ public class SampleLister implements ISampleLister
         return relationID;
     }
 
+    @Override
     public List<Sample> getSamples(Collection<Long> sampleIDs,
             EnumSet<SampleFetchOption> fetchOptions)
     {

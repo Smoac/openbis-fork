@@ -35,6 +35,7 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
 
     private String identifier;
 
+    @Override
     public final String getDescription()
     {
         return description;
@@ -65,6 +66,7 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
         this.identifier = identifier;
     }
 
+    @Override
     public Long getId()
     {
         return id;

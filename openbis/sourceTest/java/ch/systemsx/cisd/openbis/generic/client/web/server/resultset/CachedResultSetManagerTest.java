@@ -264,6 +264,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     {
         private List<String> recordedColumnCodes = new ArrayList<String>();
 
+        @Override
         public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
                 GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
                 boolean errorMessagesAreLong)
@@ -301,6 +302,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             this.timeToDeliver = timeToDeliver;
         }
 
+        @Override
         public List<DataHolder> getOriginalData(int maxSize) throws UserFailureException
         {
             recordedMaxSizes.add(maxSize);
@@ -317,6 +319,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             return data.subList(0, Math.min(data.size(), maxSize));
         }
 
+        @Override
         public List<TableModelColumnHeader> getHeaders()
         {
             return Arrays.asList();
@@ -1115,31 +1118,37 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     {
         return new IColumnDefinition<DataHolder>()
             {
+                @Override
                 public String getValue(GridRowModel<DataHolder> rowModel)
                 {
                     return rowModel.getOriginalObject().getData().split(separator)[tokenIndex];
                 }
 
+                @Override
                 public String getIdentifier()
                 {
                     return identifier;
                 }
 
+                @Override
                 public Comparable<?> tryGetComparableValue(GridRowModel<DataHolder> rowModel)
                 {
                     return getValue(rowModel);
                 }
 
+                @Override
                 public String getHeader()
                 {
                     return null; // unused
                 }
 
+                @Override
                 public DataTypeCode tryToGetDataType()
                 {
                     return null;
                 }
 
+                @Override
                 public String tryToGetProperty(String key)
                 {
                     return "a".equals(key) ? "42" : null;

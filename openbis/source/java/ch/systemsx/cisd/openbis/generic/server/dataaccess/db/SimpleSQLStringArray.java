@@ -39,6 +39,7 @@ class SimpleSQLStringArray extends AbstractSQLArray
      * 
      * @return the object array
      */
+    @Override
     public Object getArray()
     {
         return value;
@@ -49,6 +50,7 @@ class SimpleSQLStringArray extends AbstractSQLArray
      * 
      * @return VARCHAR
      */
+    @Override
     public int getBaseType()
     {
         return Types.VARCHAR;
@@ -59,6 +61,7 @@ class SimpleSQLStringArray extends AbstractSQLArray
      * 
      * @return "varchar"
      */
+    @Override
     public String getBaseTypeName()
     {
         return "varchar";

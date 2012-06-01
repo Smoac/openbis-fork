@@ -30,6 +30,7 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         String entityKindValueOrNull = locator.tryGetEntity();
@@ -130,16 +131,19 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
             return new IAttachmentHolder()
                 {
 
+                    @Override
                     public AttachmentHolderKind getAttachmentHolderKind()
                     {
                         return attachmentHolderKind;
                     }
 
+                    @Override
                     public Long getId()
                     {
                         return result.getId();
                     }
 
+                    @Override
                     public String getCode()
                     {
                         return result.getCode();

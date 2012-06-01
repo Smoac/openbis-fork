@@ -37,6 +37,7 @@ public final class NewSamplesWithTypePredicate extends AbstractPredicate<NewSamp
 
     private final IPredicate<SampleOwnerIdentifier> delegate;
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         delegate.init(provider);

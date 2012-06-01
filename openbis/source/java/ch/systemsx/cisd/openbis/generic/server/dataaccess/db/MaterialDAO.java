@@ -30,6 +30,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
@@ -82,6 +83,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         super(persistencyResources, databaseInstance, ENTITY_CLASS);
     }
 
+    @Override
     public List<MaterialPE> listMaterialsWithProperties(final MaterialTypePE materialType)
             throws DataAccessException
     {
@@ -98,7 +100,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
             operationLog.info(String.format("Found %d materials, disable properties loading.",
                     count));
         }
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<MaterialPE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -109,6 +111,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return list;
     }
 
+    @Override
     public void createOrUpdateMaterials(List<MaterialPE> materials)
     {
         assert materials != null && materials.size() > 0 : "Unspecified or empty materials.";
@@ -166,11 +169,13 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return MaterialConfigurationProvider.getInstance();
     }
 
+    @Override
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
     {
         return tryFindMaterial(getSession(), identifier);
     }
 
+    @Override
     public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier)
     {
         assert identifier != null : "identifier not given";
@@ -193,6 +198,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return material;
     }
 
+    @Override
     public List<MaterialPE> listMaterialsById(final List<Long> ids)
     {
         if (ids == null || ids.isEmpty())
@@ -209,6 +215,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return list;
     }
 
+    @Override
     public void delete(final List<TechId> materialIds, final PersonPE registrator,
             final String reason) throws DataAccessException
     {
@@ -229,6 +236,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
         executeStatelessAction(new StatelessHibernateCallback()
             {
+                @Override
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     final SQLQuery sqlQueryCodeAndType = session.createSQLQuery(sqlCodeAndType);

@@ -84,6 +84,7 @@ public class VocabularyTermModel extends SimplifiedBaseModel implements
     //
     // Comparable
     //
+    @Override
     public int compareTo(VocabularyTermModel o)
     {
         if (isOfficial() == o.isOfficial())

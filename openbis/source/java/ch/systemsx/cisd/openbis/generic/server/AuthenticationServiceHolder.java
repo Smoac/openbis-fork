@@ -43,17 +43,20 @@ public final class AuthenticationServiceHolder implements FactoryBean
     // FactoryBean
     //
 
+    @Override
     public final Object getObject() throws Exception
     {
         return authenticationService;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public final Class getObjectType()
     {
         return IAuthenticationService.class;
     }
 
+    @Override
     public final boolean isSingleton()
     {
         return true;

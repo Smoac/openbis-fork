@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -57,23 +58,26 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
     // IEntityTypeDAO
     //
 
+    @Override
     public final EntityTypePE tryToFindEntityTypeByCode(final String code)
             throws DataAccessException
     {
         return super.tryFindTypeByCode(code);
     }
 
+    @Override
     public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         final String entityKindName = entityKind.getLabel();
         criteria.setFetchMode(entityKindName + "TypePropertyTypesInternal", FetchMode.JOIN);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         return list;
     }
 
+    @Override
     public final <T extends EntityTypePE> void createOrUpdateEntityType(T entityType)
             throws DataAccessException
     {
@@ -90,6 +94,7 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         }
     }
 
+    @Override
     public final <T extends EntityTypePE> void deleteEntityType(final T entityType)
     {
         assert entityType != null : "Entity Type unspecified";

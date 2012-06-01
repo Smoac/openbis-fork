@@ -108,6 +108,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     {
         return new DelayedTask(new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     onFilterAction.execute();
@@ -166,6 +167,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         return models;
     }
 
+    @Override
     public IColumnFilterWidget<T> createOrRefresh(List<String> distinctValuesOrNull)
     {
         if (distinctValuesOrNull == null)
@@ -196,6 +198,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         return (String) model.get(MODEL_VALUE_KEY);
     }
 
+    @Override
     public GridColumnFilterInfo<T> getFilter()
     {
         return new GridColumnFilterInfo<T>(filteredField, tryGetFilterPattern());
@@ -219,16 +222,19 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         return pattern;
     }
 
+    @Override
     public String getFilteredColumnId()
     {
         return filteredField.getIdentifier();
     }
 
+    @Override
     public void setFilteredField(IColumnDefinition<T> filteredField)
     {
         this.filteredField = filteredField;
     }
 
+    @Override
     public Widget getWidget()
     {
         return this;

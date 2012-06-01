@@ -37,6 +37,7 @@ public class IntegerTableCell implements ISerializableComparable
         return number;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         if (o instanceof IntegerTableCell)

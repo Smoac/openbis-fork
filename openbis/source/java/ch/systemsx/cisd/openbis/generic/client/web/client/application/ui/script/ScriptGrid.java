@@ -121,6 +121,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
                         viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Script>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,
                                         boolean keyPressed)
@@ -220,7 +221,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
                 @Override
                 public String getId()
                 {
-                    return ScriptEditForm.createId(scriptId);
+                    return AbstractScriptEditRegisterForm.createId(scriptId);
                 }
 
                 @Override

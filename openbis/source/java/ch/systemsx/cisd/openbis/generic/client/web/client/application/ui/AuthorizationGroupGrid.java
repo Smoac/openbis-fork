@@ -105,6 +105,7 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
                         viewContext.getMessage(Dict.BUTTON_SHOW_USERS),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>> selectedItem,
                                         boolean keyPressed)
@@ -137,6 +138,7 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>>>()
                     {
 
+                        @Override
                         public void invoke(
                                 BaseEntityModel<TableModelRowWithObject<AuthorizationGroup>> selectedItem,
                                 boolean keyPressed)

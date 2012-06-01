@@ -123,6 +123,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
         allowMultipleSelection(); // we allow revert of multiple deletions
         addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(SelectionChangedEvent<ModelData> be)
                 {
                     deletePermanentlyButton.setEnabled(be.getSelection().size() == 1);

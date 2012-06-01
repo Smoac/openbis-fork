@@ -28,6 +28,7 @@ class Assignment implements ICommand
 
     private static final String MANDATORY = "mandatory";
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

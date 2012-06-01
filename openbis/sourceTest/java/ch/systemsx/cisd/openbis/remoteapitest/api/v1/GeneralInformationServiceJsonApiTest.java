@@ -104,6 +104,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         Collections.sort(spaces, new Comparator<SpaceWithProjectsAndRoleAssignments>()
             {
+                @Override
                 public int compare(SpaceWithProjectsAndRoleAssignments s1,
                         SpaceWithProjectsAndRoleAssignments s2)
                 {
@@ -356,6 +357,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<Project> projects = space.getProjects();
         Collections.sort(projects, new Comparator<Project>()
             {
+                @Override
                 public int compare(Project p1, Project p2)
                 {
                     return p1.getCode().compareTo(p2.getCode());
@@ -365,6 +367,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<Role> roles = new ArrayList<Role>(space.getRoles("test"));
         Collections.sort(roles, new Comparator<Role>()
             {
+                @Override
                 public int compare(Role r1, Role r2)
                 {
                     return r1.toString().compareTo(r2.toString());
@@ -420,6 +423,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         Comparator<Experiment> experimentCompare = new Comparator<Experiment>()
             {
 
+                @Override
                 public int compare(Experiment o1, Experiment o2)
                 {
                     return o1.getIdentifier().compareTo(o2.getIdentifier());

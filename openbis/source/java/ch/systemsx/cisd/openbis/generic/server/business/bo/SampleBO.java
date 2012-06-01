@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -75,11 +76,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     //
     // ISampleBO
     //
+    @Override
     public SamplePE tryToGetSample()
     {
         return sample;
     }
 
+    @Override
     public void tryToLoadBySampleIdentifier(SampleIdentifier identifier)
     {
         assert identifier != null : "Unspecified identifier.";
@@ -101,6 +104,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample = tryToGetSampleByTechId(sampleId);
     }
 
+    @Override
     public final SamplePE getSample() throws IllegalStateException
     {
         if (sample == null)
@@ -110,6 +114,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         return sample;
     }
 
+    @Override
     public void loadDataByTechId(TechId sampleId)
     {
         onlyNewSamples = false;
@@ -122,6 +127,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = spaceUpdated = false;
     }
 
+    @Override
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)
             throws UserFailureException
     {
@@ -133,6 +139,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public final void loadBySamplePermId(final String permId) throws UserFailureException
     {
         tryToLoadBySamplePermId(permId);
@@ -143,6 +150,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public final void define(final NewSample newSample)
     {
         assert newSample != null : "Unspecified new sample.";
@@ -152,6 +160,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         onlyNewSamples = true;
     }
 
+    @Override
     public final void save()
     {
         assert sample != null : "Sample not loaded.";
@@ -197,6 +206,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public void setExperiment(ExperimentPE experiment)
     {
         assert sample != null : "Sample not loaded.";
@@ -253,6 +263,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public void update(SampleUpdatesDTO updates)
     {
         loadDataByTechId(updates.getSampleIdOrNull());
@@ -304,6 +315,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample.setCode(code);
     }
 
+    @Override
     public void addAttachment(AttachmentPE sampleAttachment)
     {
         assert sample != null : "no sample has been loaded";
@@ -316,7 +328,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         if (attachment != null)
         {
-            attachment.setFileName(SamplePE.escapeFileName(attachment.getFileName()));
+            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
         }
     }
 
@@ -328,6 +340,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public AttachmentPE getSampleFileAttachment(final String filename, final Integer versionOrNull)
     {
         checkSampleLoaded();
@@ -382,6 +395,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         return latest;
     }
 
+    @Override
     public final void enrichWithAttachments()
     {
         if (sample != null)
@@ -390,6 +404,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public final void enrichWithPropertyTypes()
     {
         if (sample != null)
@@ -399,6 +414,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public void enrichWithProperties()
     {
         if (sample != null)
@@ -407,6 +423,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();

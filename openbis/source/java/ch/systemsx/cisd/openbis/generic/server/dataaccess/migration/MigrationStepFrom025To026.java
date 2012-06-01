@@ -59,6 +59,7 @@ public final class MigrationStepFrom025To026 extends MigrationStepAdapter
     private final static ParameterizedRowMapper<ExternalData> EXTERNAL_DATA_ROW_MAPPER =
             new ParameterizedRowMapper<ExternalData>()
                 {
+                    @Override
                     public final ExternalData mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {

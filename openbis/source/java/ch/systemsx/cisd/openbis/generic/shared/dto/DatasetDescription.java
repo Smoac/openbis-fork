@@ -98,6 +98,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         this.dataSetSize = dataSetSize;
     }
 
+    @Override
     public String getDataSetLocation()
     {
         return dataSetLocation;
@@ -113,6 +114,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         return instanceCode;
     }
 
+    @Override
     public String getDataSetCode()
     {
         return datasetCode;

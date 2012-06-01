@@ -39,27 +39,32 @@ public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdAndCode
     // IClientPlugin
     //
 
+    @Override
     public Widget createBatchRegistrationForEntityType(final E entityType)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    @Override
     public Widget createBatchUpdateForEntityType(E entityType)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    @Override
     public AbstractTabItemFactory createEntityViewer(final IEntityInformationHolderWithPermId entity)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    @Override
     public DatabaseModificationAwareWidget createRegistrationForEntityType(final E entityType,
             final ActionContext context)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    @Override
     public AbstractTabItemFactory createEntityEditor(I identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");

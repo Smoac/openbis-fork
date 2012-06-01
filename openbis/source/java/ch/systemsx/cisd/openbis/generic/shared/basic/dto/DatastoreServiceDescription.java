@@ -88,6 +88,7 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     }
 
     /** the unique key of the plugin */
+    @Override
     public String getKey()
     {
         return key;
@@ -115,6 +116,7 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
         return datastoreCode;
     }
 
+    @Override
     public String getDownloadURL()
     {
         return downloadURL;
@@ -170,6 +172,7 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     // Comparable
     //
 
+    @Override
     public int compareTo(DatastoreServiceDescription o)
     {
         return this.getLabel().compareTo(o.getLabel());

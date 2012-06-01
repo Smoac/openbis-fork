@@ -186,6 +186,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         result.add(importFromFile);
         result.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     updateSamples();
@@ -233,6 +234,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     if (typeSelection.tryGetSelectedSampleType() != null)

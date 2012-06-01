@@ -63,12 +63,14 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
     // EntityTypePropertyTypePE
     //
 
+    @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
     public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
@@ -84,6 +86,7 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
         ((SampleTypePE) entityType).addSampleTypePropertyType(this);
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE)

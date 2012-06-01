@@ -44,6 +44,7 @@ public class MaterialRenderer implements GridCellRenderer<BaseEntityModel<?>>
         this.columnIndex = columnIndex;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,

@@ -32,6 +32,7 @@ public class Logout extends AbstractDefaultTestCommand
     {
     }
 
+    @Override
     public void execute()
     {
         GWTTestUtil.selectActionMenu(ActionMenuKind.USER_MENU_LOGOUT);

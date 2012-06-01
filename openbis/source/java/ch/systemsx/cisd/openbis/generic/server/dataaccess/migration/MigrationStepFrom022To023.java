@@ -42,6 +42,7 @@ public final class MigrationStepFrom022To023 implements IMigrationStep
     // IMigrationStep
     //
 
+    @Override
     public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {
@@ -59,6 +60,7 @@ public final class MigrationStepFrom022To023 implements IMigrationStep
         }
     }
 
+    @Override
     public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {

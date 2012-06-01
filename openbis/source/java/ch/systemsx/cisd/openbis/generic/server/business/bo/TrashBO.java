@@ -60,6 +60,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         this.boFactory = boFactory;
     }
 
+    @Override
     public void createDeletion(String reason)
     {
         try
@@ -74,6 +75,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
+    @Override
     public void trashSamples(final List<TechId> sampleIds)
     {
         assert deletion != null;
@@ -99,6 +101,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
+    @Override
     public void trashExperiments(final List<TechId> experimentIds)
     {
         assert deletion != null;
@@ -115,6 +118,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
+    @Override
     public void trashDataSets(final List<TechId> dataSetIds)
     {
         assert deletion != null;
@@ -231,6 +235,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         trashDataSets(batchOperation.getResults());
     }
 
+    @Override
     public void revertDeletion(TechId deletionId)
     {
         try
@@ -264,21 +269,25 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             this.deletionDAO = deletionDAO;
         }
 
+        @Override
         public void execute(List<TechId> entities)
         {
             counter += deletionDAO.trash(entityKind, entities, deletion);
         }
 
+        @Override
         public List<TechId> getAllEntities()
         {
             return entityIds;
         }
 
+        @Override
         public String getEntityName()
         {
             return entityKind.getLabel();
         }
 
+        @Override
         public String getOperationName()
         {
             return "trash";
@@ -305,21 +314,25 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
         public abstract Collection<TechId> listAction(List<TechId> entities);
 
+        @Override
         public void execute(List<TechId> entities)
         {
             results.addAll(listAction(entities));
         }
 
+        @Override
         public List<TechId> getAllEntities()
         {
             return entityIds;
         }
 
+        @Override
         public String getEntityName()
         {
             return entityKind.getLabel();
         }
 
+        @Override
         public String getOperationName()
         {
             return operationName;

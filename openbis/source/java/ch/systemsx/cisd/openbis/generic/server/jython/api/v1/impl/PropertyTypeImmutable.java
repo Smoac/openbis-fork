@@ -52,27 +52,32 @@ public class PropertyTypeImmutable implements IPropertyTypeImmutable
         return propertyType;
     }
 
+    @Override
     public String getCode()
     {
         return getPropertyType().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getPropertyType().getDescription();
     }
 
+    @Override
     public String getLabel()
     {
         return getPropertyType().getLabel();
     }
 
+    @Override
     public DataType getDataType()
     {
         final String typeName = getPropertyType().getDataType().getCode().name();
         return DataType.valueOf(typeName);
     }
 
+    @Override
     public IMaterialTypeImmutable getMaterialType()
     {
         MaterialType materialType = getPropertyType().getMaterialType();
@@ -83,26 +88,31 @@ public class PropertyTypeImmutable implements IPropertyTypeImmutable
         return null;
     }
 
+    @Override
     public String getXmlSchema()
     {
         return getPropertyType().getSchema();
     }
 
+    @Override
     public String getTransformation()
     {
         return getPropertyType().getTransformation();
     }
 
+    @Override
     public boolean isManagedInternally()
     {
         return getPropertyType().isManagedInternally();
     }
 
+    @Override
     public boolean isInternalNamespace()
     {
         return getPropertyType().isInternalNamespace();
     }
 
+    @Override
     public IVocabularyImmutable getVocabulary()
     {
         final Vocabulary vocabulary = getPropertyType().getVocabulary();

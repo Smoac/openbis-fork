@@ -37,6 +37,7 @@ public class DoubleTableCell implements ISerializableComparable
         return number;
     }
     
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         if (o instanceof DoubleTableCell)

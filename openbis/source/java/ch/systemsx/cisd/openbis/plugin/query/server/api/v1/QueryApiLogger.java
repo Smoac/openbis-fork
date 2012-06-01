@@ -40,17 +40,20 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
         super(sessionManager, context);
     }
 
+    @Override
     public String tryToAuthenticateAtQueryServer(String userID, String userPassword)
     {
         return null;
     }
 
+    @Override
     public List<QueryDescription> listQueries(String sessionToken)
     {
         logAccess(sessionToken, "list_queries");
         return null;
     }
 
+    @Override
     public QueryTableModel executeQuery(String sessionToken, long queryID,
             Map<String, String> parameterBindings)
     {
@@ -59,12 +62,14 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
         return null;
     }
 
+    @Override
     public List<ReportDescription> listTableReportDescriptions(String sessionToken)
     {
         logAccess(sessionToken, "list_table_report_descriptions");
         return null;
     }
 
+    @Override
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
@@ -73,22 +78,26 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
         return null;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
     {
         logAccess(sessionToken, "list_aggregation_services");
         return null;
     }
 
+    @Override
     public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         logAccess(sessionToken, "create_report_from_aggregation_service",

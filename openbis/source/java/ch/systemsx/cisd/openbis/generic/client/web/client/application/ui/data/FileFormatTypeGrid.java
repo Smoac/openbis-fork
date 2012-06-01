@@ -99,6 +99,7 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<FileFormatType>>>()
                             {
 
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<FileFormatType>> selectedItem,
                                         boolean keyPressed)

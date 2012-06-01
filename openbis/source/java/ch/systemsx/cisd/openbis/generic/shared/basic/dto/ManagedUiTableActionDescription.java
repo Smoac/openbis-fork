@@ -57,29 +57,34 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
         super(name);
     }
 
+    @Override
     public ManagedTableActionRowSelectionType getSelectionType()
     {
         return selectionType;
     }
 
+    @Override
     public IManagedUiTableAction setRowSelectionNotRequired()
     {
         selectionType = ManagedTableActionRowSelectionType.NOT_REQUIRED;
         return this;
     }
 
+    @Override
     public IManagedUiTableAction setRowSelectionRequired()
     {
         selectionType = ManagedTableActionRowSelectionType.REQUIRED;
         return this;
     }
 
+    @Override
     public IManagedUiTableAction setRowSelectionRequiredSingle()
     {
         selectionType = ManagedTableActionRowSelectionType.REQUIRED_SINGLE;
         return this;
     }
 
+    @Override
     public List<Integer> getSelectedRows()
     {
         return selectedRows;
@@ -90,12 +95,14 @@ public class ManagedUiTableActionDescription extends ManagedUiActionDescription 
         this.selectedRows = selectedRows;
     }
 
+    @Override
     public IManagedUiTableAction addBinding(String inputLabel, String columnTitle)
     {
         bindings.put(inputLabel, columnTitle);
         return this;
     }
 
+    @Override
     public Map<String, String> getBindings()
     {
         return bindings;

@@ -149,6 +149,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
     /**
      * Executes the column changing events in the order they had been added.
      */
+    @Override
     public void execute()
     {
         ColumnModel columnModel = GWTTestUtil.getGridWithID(tableID).getColumnModel();

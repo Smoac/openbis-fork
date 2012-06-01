@@ -46,6 +46,7 @@ public class RegisterPropertyType implements ICommand
                 && tokens.get(3).equals(TYPE);
     }
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

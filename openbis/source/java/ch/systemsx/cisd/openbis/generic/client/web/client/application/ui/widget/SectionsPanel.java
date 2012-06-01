@@ -144,6 +144,7 @@ public class SectionsPanel extends LayoutContainer
 
             addListener(Events.Select, new Listener<TabPanelEvent>()
                 {
+                    @Override
                     public void handleEvent(TabPanelEvent be)
                     {
                         tabContent.setContentVisible(true);

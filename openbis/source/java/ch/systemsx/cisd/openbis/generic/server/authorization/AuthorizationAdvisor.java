@@ -146,6 +146,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
         // MethodInterceptor
         //
 
+        @Override
         public final Object invoke(final MethodInvocation methodInvocation) throws Throwable
         {
             final IAuthSession session = obtainSession(methodInvocation);

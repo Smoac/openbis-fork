@@ -34,16 +34,19 @@ import org.apache.commons.lang.SerializationUtils;
 public class SerializableObjectMapper implements TypeMapper<Serializable>
 {
 
+    @Override
     public Serializable get(ResultSet results, int column) throws SQLException
     {
         return (Serializable) SerializationUtils.deserialize(results.getBytes(column));
     }
 
+    @Override
     public void set(ResultSet results, int column, Serializable obj) throws SQLException
     {
         results.updateBytes(column, SerializationUtils.serialize(obj));
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, Serializable obj) throws SQLException
     {
         if (obj != null)

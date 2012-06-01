@@ -45,16 +45,19 @@ public class BasicPropertyAdaptor implements IEntityPropertyAdaptor
         this(code, value, null);
     }
 
+    @Override
     public String propertyTypeCode()
     {
         return code;
     }
 
+    @Override
     public String valueAsString()
     {
         return value;
     }
 
+    @Override
     public String renderedValue()
     {
         return valueAsString();

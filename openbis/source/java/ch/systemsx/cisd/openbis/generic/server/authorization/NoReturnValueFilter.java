@@ -33,6 +33,7 @@ public final class NoReturnValueFilter implements IReturnValueFilter
     // IReturnValueFilter
     //
 
+    @Override
     public final Object applyFilter(final IAuthSession session, final Method method,
             final Object returnValueOrNull)
     {

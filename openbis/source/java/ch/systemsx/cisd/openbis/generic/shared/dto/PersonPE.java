@@ -305,6 +305,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     // IIdHolder
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.PERSON_SEQUENCE, sequenceName = SequenceNames.PERSON_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.PERSON_SEQUENCE)
@@ -370,6 +371,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public final int compareTo(final PersonPE o)
     {
         final String thatUserID = o.userId;

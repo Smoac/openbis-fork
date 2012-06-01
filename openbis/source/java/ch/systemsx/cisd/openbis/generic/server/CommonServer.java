@@ -141,6 +141,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -157,7 +158,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -299,6 +299,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
+    @Override
     public final ICommonServerForInternalUse createLogger(IInvocationLoggerContext context)
     {
         return new CommonServerLogger(getSessionManager(), context);
@@ -308,6 +309,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // ISystemAuthenticator
     //
 
+    @Override
     public SessionContextDTO tryToAuthenticateAsSystem()
     {
         final PersonPE systemUser = getSystemUser();
@@ -328,6 +330,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // IGenericServer
     //
 
+    @Override
     public final List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
@@ -344,6 +347,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return SpaceTranslator.translate(spaces);
     }
 
+    @Override
     public final void registerSpace(final String sessionToken, final String spaceCode,
             final String descriptionOrNull)
     {
@@ -353,6 +357,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         groupBO.save();
     }
 
+    @Override
     public final void updateScript(final String sessionToken, final IScriptUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -363,6 +368,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.update(updates);
     }
 
+    @Override
     public final void updateSpace(final String sessionToken, final ISpaceUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -373,11 +379,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         groupBO.update(updates);
     }
 
+    @Override
     public final void registerPerson(final String sessionToken, final String userID)
     {
         registerPersons(sessionToken, Arrays.asList(userID));
     }
 
+    @Override
     public final List<RoleAssignment> listRoleAssignments(final String sessionToken)
     {
         checkSession(sessionToken);
@@ -386,6 +394,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return RoleAssignmentTranslator.translate(roles);
     }
 
+    @Override
     public final void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
             final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
@@ -402,6 +411,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
@@ -419,6 +429,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public final void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
             final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
@@ -454,6 +465,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
+    @Override
     public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
@@ -477,6 +489,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
     }
 
+    @Override
     public final List<Person> listPersons(final String sessionToken)
     {
         checkSession(sessionToken);
@@ -485,6 +498,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return PersonTranslator.translate(persons);
     }
 
+    @Override
     public final List<Project> listProjects(final String sessionToken)
     {
         checkSession(sessionToken);
@@ -493,6 +507,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ProjectTranslator.translate(projects);
     }
 
+    @Override
     public final List<SampleType> listSampleTypes(final String sessionToken)
     {
         checkSession(sessionToken);
@@ -502,6 +517,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    @Override
     public final List<Sample> listSamples(final String sessionToken,
             final ListSampleCriteria criteria)
     {
@@ -510,6 +526,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }
 
+    @Override
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -518,6 +535,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return searchHelper.searchForSamples(criteria);
     }
 
+    @Override
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
@@ -529,6 +547,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return datasets;
     }
 
+    @Override
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
@@ -541,6 +560,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     // 'fast' implementation
+    @Override
     public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
             DataSetRelationshipRole role)
     {
@@ -565,6 +585,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return datasets;
     }
 
+    @Override
     public final List<PropertyType> listPropertyTypes(final String sessionToken,
             boolean withRelations)
     {
@@ -584,12 +605,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    @Override
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken)
     {
         List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
         return extractAssignments(propertyTypes);
     }
 
+    @Override
     public List<EntityPropertyHistory> listEntityPropertyHistory(String sessionToken,
             EntityKind entityKind, TechId entityID)
     {
@@ -635,6 +658,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
             final boolean useWildcardSearchMode, int maxSize)
@@ -653,30 +677,35 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return list;
     }
 
+    @Override
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, false);
     }
 
+    @Override
     public final List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifier, true, false);
     }
 
+    @Override
     public final List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, true);
     }
 
+    @Override
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifier)
     {
         return listExperiments(sessionToken, experimentType, spaceIdentifier, null, false, false);
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken,
             List<ExperimentIdentifier> experimentIdentifiers)
     {
@@ -711,6 +740,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
     }
 
+    @Override
     public final List<ExperimentType> listExperimentTypes(final String sessionToken)
     {
         final List<ExperimentTypePE> experimentTypes =
@@ -718,6 +748,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ExperimentTranslator.translate(experimentTypes);
     }
 
+    @Override
     public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         final List<MaterialTypePE> materialTypes =
@@ -726,6 +757,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    @Override
     public MaterialType getMaterialType(String sessionToken, String code)
     {
         final EntityTypePE materialType = findEntityType(EntityKind.MATERIAL, code);
@@ -743,6 +775,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return types;
     }
 
+    @Override
     public final List<DataType> listDataTypes(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -751,6 +784,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<DataType> dataTypes = DataTypeTranslator.translate(dataTypePEs);
         Collections.sort(dataTypes, new Comparator<DataType>()
             {
+                @Override
                 public int compare(DataType o1, DataType o2)
                 {
                     return o1.getCode().name().compareTo(o2.getCode().name());
@@ -759,6 +793,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataTypes;
     }
 
+    @Override
     public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -768,6 +803,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<FileFormatType> fileFormatTypes = TypeTranslator.translate(fileFormatTypePEs);
         Collections.sort(fileFormatTypes, new Comparator<FileFormatType>()
             {
+                @Override
                 public int compare(FileFormatType o1, FileFormatType o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());
@@ -776,6 +812,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return fileFormatTypes;
     }
 
+    @Override
     public final List<Vocabulary> listVocabularies(final String sessionToken,
             final boolean withTerms, boolean excludeInternal)
     {
@@ -799,6 +836,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         HibernateUtils.initialize(vocabularyPE.getTerms());
     }
 
+    @Override
     public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -832,6 +870,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void updatePropertyTypeAssignment(final String sessionToken,
             NewETPTAssignment assignmentUpdates)
     {
@@ -846,6 +885,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         etptBO.updateLoadedAssignment(assignmentUpdates);
     }
 
+    @Override
     public void unassignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -859,6 +899,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         etptBO.deleteLoadedAssignment();
     }
 
+    @Override
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -871,6 +912,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return etptBO.countAssignmentValues(propertyTypeCode, entityTypeCode);
     }
 
+    @Override
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {
@@ -883,6 +925,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         propertyTypeBO.save();
     }
 
+    @Override
     public final void updatePropertyType(final String sessionToken,
             final IPropertyTypeUpdates updates)
     {
@@ -894,6 +937,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         propertyTypeBO.update(updates);
     }
 
+    @Override
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -905,6 +949,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
+    @Override
     public final void updateVocabulary(final String sessionToken, final IVocabularyUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -915,6 +960,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.update(updates);
     }
 
+    @Override
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms, Long previousTermOrdinal)
     {
@@ -929,6 +975,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
+    @Override
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
     {
@@ -944,6 +991,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
+    @Override
     public final void updateVocabularyTerm(final String sessionToken,
             final IVocabularyTermUpdates updates)
     {
@@ -956,6 +1004,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyTermBO.update(updates);
     }
 
+    @Override
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
@@ -969,6 +1018,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyBO.save();
     }
 
+    @Override
     public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeOfficial)
     {
@@ -981,6 +1031,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         vocabularyTermBO.makeOfficial(termsToBeOfficial);
     }
 
+    @Override
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
             String description, String leaderId, Collection<NewAttachment> attachments)
     {
@@ -997,6 +1048,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -1005,6 +1057,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return searchHelper.searchForDataSets(criteria);
     }
 
+    @Override
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         final Session session = getSession(sessionToken);
@@ -1018,6 +1071,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false);
     }
 
+    @Override
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
@@ -1033,6 +1087,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return result;
     }
 
+    @Override
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities, boolean withDetails)
     {
@@ -1094,6 +1149,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -1102,6 +1158,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return materialLister.list(criteria, withProperties);
     }
 
+    @Override
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1110,11 +1167,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         entityTypeBO.save();
     }
 
+    @Override
     public void updateSampleType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.SAMPLE, entityType);
     }
 
+    @Override
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1123,11 +1182,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         entityTypeBO.save();
     }
 
+    @Override
     public void updateMaterialType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.MATERIAL, entityType);
     }
 
+    @Override
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1136,11 +1197,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         entityTypeBO.save();
     }
 
+    @Override
     public void updateExperimentType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.EXPERIMENT, entityType);
     }
 
+    @Override
     public void registerFileFormatType(String sessionToken, FileFormatType type)
     {
         checkSession(sessionToken);
@@ -1157,6 +1220,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSession(sessionToken);
@@ -1165,6 +1229,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         entityTypeBO.save();
     }
 
+    @Override
     public void updateDataSetType(String sessionToken, EntityType entityType)
     {
         updateEntityType(sessionToken, EntityKind.DATA_SET, entityType);
@@ -1207,6 +1272,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
     {
@@ -1214,6 +1280,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 false, isTrashEnabled);
     }
 
+    @Override
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
     {
@@ -1261,6 +1328,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
             DeletionType deletionType)
     {
@@ -1279,6 +1347,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
             DeletionType deletionType)
     {
@@ -1297,6 +1366,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -1307,6 +1377,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -1318,6 +1389,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
+    @Override
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -1328,6 +1400,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -1338,6 +1411,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteScripts(String sessionToken, List<TechId> scriptIds)
     {
         Session session = getSession(sessionToken);
@@ -1348,6 +1422,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -1357,6 +1432,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         deleteHolderAttachments(session, experimentBO.getExperiment(), fileNames, reason);
     }
 
+    @Override
     public void updateExperimentAttachments(String sessionToken, TechId experimentId,
             Attachment attachment)
     {
@@ -1368,6 +1444,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         attachmentBO.save();
     }
 
+    @Override
     public void addExperimentAttachment(String sessionToken, TechId experimentId,
             NewAttachment attachment)
     {
@@ -1378,6 +1455,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
@@ -1387,6 +1465,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         deleteHolderAttachments(session, sampleBO.getSample(), fileNames, reason);
     }
 
+    @Override
     public void deleteProjectAttachments(String sessionToken, TechId projectId,
             List<String> fileNames, String reason)
     {
@@ -1403,6 +1482,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         attachmentBO.deleteHolderAttachments(holder, fileNames, reason);
     }
 
+    @Override
     public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
         Session session = getSession(sessionToken);
@@ -1413,6 +1493,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 session.getBaseIndexURL());
     }
 
+    @Override
     public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
         Session session = getSession(sessionToken);
@@ -1422,6 +1503,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 session.getBaseIndexURL());
     }
 
+    @Override
     public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
         Session session = getSession(sessionToken);
@@ -1436,6 +1518,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return getDAOFactory().getAttachmentDAO().listAttachments(holder);
     }
 
+    @Override
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
@@ -1445,6 +1528,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
     }
 
+    @Override
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
     {
@@ -1454,6 +1538,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return vocabularyBO.countTermsUsageStatistics();
     }
 
+    @Override
     public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         final Session session = getSession(sessionToken);
@@ -1462,6 +1547,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return VocabularyTermTranslator.translateTerms(vocabularyBO.enrichWithTerms());
     }
 
+    @Override
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
@@ -1469,12 +1555,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    @Override
     public LastModificationState getLastModificationState(String sessionToken)
     {
         checkSession(sessionToken);
         return lastModificationState;
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -1491,6 +1579,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
+    @Override
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
@@ -1506,6 +1595,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return result;
     }
 
+    @Override
     public Experiment getExperimentInfo(final String sessionToken,
             final ExperimentIdentifier identifier)
     {
@@ -1525,6 +1615,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
+    @Override
     public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
         final Session session = getSession(sessionToken);
@@ -1538,6 +1629,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
+    @Override
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
@@ -1551,6 +1643,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return result;
     }
 
+    @Override
     public Project getProjectInfo(String sessionToken, TechId projectId)
     {
         final Session session = getSession(sessionToken);
@@ -1561,6 +1654,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ProjectTranslator.translate(project);
     }
 
+    @Override
     public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier)
     {
         final Session session = getSession(sessionToken);
@@ -1570,6 +1664,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ProjectTranslator.translate(project);
     }
 
+    @Override
     public Material getMaterialInfo(String sessionToken, final MaterialIdentifier identifier)
     {
         Session session = getSession(sessionToken);
@@ -1579,6 +1674,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return MaterialTranslator.translate(materialBO.getMaterial());
     }
 
+    @Override
     public Material getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         final Session session = getSession(sessionToken);
@@ -1589,12 +1685,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return MaterialTranslator.translate(material, true);
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier)
     {
         return getMaterialInfo(sessionToken, identifier);
     }
 
+    @Override
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
@@ -1605,6 +1703,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return materialBO.getMaterial().getModificationDate();
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             final EntityKind entityKind, final String permId)
     {
@@ -1651,12 +1750,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return new BasicEntityInformationHolder(kind, entityType, code, id, permId);
     }
 
+    @Override
     public String generateCode(String sessionToken, String prefix)
     {
         checkSession(sessionToken);
         return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
     }
 
+    @Override
     public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
@@ -1678,12 +1779,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
             throws UserFailureException
     {
         deleteEntityTypes(sessionToken, EntityKind.DATA_SET, entityTypesCodes);
     }
 
+    @Override
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
             throws UserFailureException
     {
@@ -1691,6 +1794,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
             throws UserFailureException
     {
@@ -1698,12 +1802,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
             throws UserFailureException
     {
         deleteEntityTypes(sessionToken, EntityKind.SAMPLE, entityTypesCodes);
     }
 
+    @Override
     public void deleteFileFormatTypes(String sessionToken, List<String> codes)
             throws UserFailureException
     {
@@ -1733,6 +1839,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
             boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind)
@@ -1784,7 +1891,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             case SAMPLE:
                 if (autoGenerate == false)
                 {
-                    columns.add(NewSample.IDENTIFIER_COLUMN);
+                    columns.add(Identifier.IDENTIFIER_COLUMN);
                 }
                 columns.add(NewSample.CONTAINER);
                 columns.add(NewSample.PARENTS);
@@ -1800,7 +1907,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         ((SampleTypePE) entityType).getSampleTypePropertyTypes());
                 break;
             case DATA_SET:
-                columns.add(NewDataSet.CODE);
+                columns.add(Code.CODE);
                 columns.add(NewDataSet.CONTAINER);
                 columns.add(NewDataSet.PARENTS);
                 columns.add(NewDataSet.EXPERIMENT);
@@ -1810,12 +1917,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         ((DataSetTypePE) entityType).getDataSetTypePropertyTypes());
                 break;
             case MATERIAL:
-                columns.add(NewMaterial.CODE);
+                columns.add(Code.CODE);
                 addPropertiesToTemplateColumns(columns,
                         ((MaterialTypePE) entityType).getMaterialTypePropertyTypes());
                 break;
             case EXPERIMENT:
-                columns.add(NewSample.IDENTIFIER_COLUMN);
+                columns.add(Identifier.IDENTIFIER_COLUMN);
                 if (operationKind == BatchOperationKind.UPDATE)
                 {
                     columns.add("project");
@@ -1920,6 +2027,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return typeOrNull;
     }
 
+    @Override
     public void updateFileFormatType(String sessionToken, AbstractType type)
     {
         checkSession(sessionToken);
@@ -1930,6 +2038,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    @Override
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
     {
@@ -1941,6 +2050,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         attachmentBO.save();
     }
 
+    @Override
     public void addProjectAttachments(String sessionToken, TechId projectId,
             NewAttachment attachment)
     {
@@ -1951,6 +2061,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -1961,6 +2072,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         attachmentBO.save();
     }
 
+    @Override
     public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -1970,6 +2082,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {
@@ -1999,6 +2112,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return result;
     }
 
+    @Override
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
@@ -2008,6 +2122,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), datasetCodes);
     }
 
+    @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
     {
@@ -2017,6 +2132,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), parameters);
     }
 
+    @Override
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
@@ -2027,6 +2143,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), datasetCodes, parameterBindings);
     }
 
+    @Override
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup)
     {
@@ -2036,6 +2153,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public void registerScript(String sessionToken, Script script)
     {
         Session session = getSession(sessionToken);
@@ -2044,6 +2162,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -2055,6 +2174,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
     {
         checkSession(sessionToken);
@@ -2064,6 +2184,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return AuthorizationGroupTranslator.translate(persons);
     }
 
+    @Override
     public List<Script> listScripts(String sessionToken, ScriptType scriptTypeOrNull,
             EntityKind entityKindOrNull)
     {
@@ -2074,6 +2195,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ScriptTranslator.translate(scripts);
     }
 
+    @Override
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
     {
         final Session session = getSession(sessionToken);
@@ -2083,6 +2205,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return bo.getAuthorizationGroup().getModificationDate();
     }
 
+    @Override
     public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId)
     {
@@ -2092,6 +2215,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return PersonTranslator.translate(bo.getAuthorizationGroup().getPersons());
     }
 
+    @Override
     public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
             List<String> personsCodes)
     {
@@ -2116,6 +2240,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return inexistent;
     }
 
+    @Override
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
@@ -2154,6 +2279,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
         checkSession(sessionToken);
@@ -2163,18 +2289,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return GridCustomFilterTranslator.translate(filters);
     }
 
+    @Override
     public void registerFilter(String sessionToken, NewColumnOrFilter filter)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomFilterBO(sessionToken);
         registerFilterOrColumn(filter, bo);
     }
 
+    @Override
     public void deleteFilters(String sessionToken, List<TechId> filterIds)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomFilterBO(sessionToken);
         deleteFiltersOrColumns(filterIds, bo);
     }
 
+    @Override
     public void updateFilter(String sessionToken, IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
@@ -2183,18 +2312,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     // -- columns
 
+    @Override
     public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomColumnBO(sessionToken);
         registerFilterOrColumn(column, bo);
     }
 
+    @Override
     public void deleteGridCustomColumns(String sessionToken, List<TechId> columnIds)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomColumnBO(sessionToken);
         deleteFiltersOrColumns(columnIds, bo);
     }
 
+    @Override
     public void updateGridCustomColumn(String sessionToken, IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
@@ -2203,11 +2335,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     // --
 
+    @Override
     public void keepSessionAlive(String sessionToken) throws UserFailureException
     {
         checkSession(sessionToken);
     }
 
+    @Override
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms)
     {
@@ -2218,6 +2352,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.save();
     }
 
+    @Override
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -2225,6 +2360,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         materialTable.deleteByTechIds(materialIds, reason);
     }
 
+    @Override
     public int lockDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
@@ -2233,6 +2369,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataSetTable.lockDatasets();
     }
 
+    @Override
     public int unlockDatasets(String sessionToken, List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
@@ -2241,6 +2378,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataSetTable.unlockDatasets();
     }
 
+    @Override
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription, String dataSetCode)
     {
@@ -2250,6 +2388,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), dataSetCode);
     }
 
+    @Override
     public Script getScriptInfo(String sessionToken, TechId scriptId)
     {
         getSession(sessionToken);
@@ -2257,6 +2396,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ScriptTranslator.translate(script);
     }
 
+    @Override
     public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info)
     {
         Session session = getSession(sessionToken);
@@ -2277,6 +2417,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             BasicEntityDescription info)
     {
@@ -2324,6 +2465,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return entity;
     }
 
+    @Override
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -2343,6 +2485,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         experimentBO.save();
     }
 
+    @Override
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -2362,6 +2505,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         sampleBO.save();
     }
 
+    @Override
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -2381,6 +2525,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         dataSetBO.save();
     }
 
+    @Override
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -2440,6 +2585,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .getEntityTypePropertyType().getScript().getScript());
     }
 
+    @Override
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         checkSession(sessionToken);
@@ -2455,6 +2601,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataStores.get(0).getDownloadUrl();
     }
 
+    @Override
     public void updateDataSetProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -2489,6 +2636,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void updateExperimentProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -2511,6 +2659,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void updateSampleProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -2526,6 +2675,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public void updateMaterialProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -2547,6 +2697,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return properties;
     }
 
+    @Override
     public final List<Deletion> listDeletions(final String sessionToken, boolean withDeletedEntities)
     {
         Session session = getSession(sessionToken);
@@ -2555,6 +2706,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return deletionTable.getDeletions();
     }
 
+    @Override
     public final void revertDeletions(final String sessionToken, final List<TechId> deletionIds)
     {
         final Session session = getSession(sessionToken);
@@ -2566,12 +2718,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @Override
     public final void deletePermanently(final String sessionToken, final List<TechId> deletionIds,
             boolean forceNotExistingLocations)
     {
         deletePermanentlyCommon(sessionToken, deletionIds, forceNotExistingLocations, false);
     }
 
+    @Override
     public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds,
             boolean forceNotExistingLocations)
     {
@@ -2620,6 +2774,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .getDescription(), entity.getIdentifier(), exception.getMessage());
     }
 
+    @Override
     public void registerPlugin(String sessionToken, CorePlugin plugin,
             ICorePluginResourceLoader resourceLoader)
     {
@@ -2633,6 +2788,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         pluginTable.registerPlugin(plugin, resourceLoader);
     }
 
+    @Override
     public List<DataStore> listDataStores()
     {
         IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
@@ -2640,6 +2796,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return DataStoreTranslator.translate(dataStorePEs);
     }
 
+    @Override
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -2648,6 +2805,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return searchHelper.searchForMaterials(criteria);
     }
 
+    @Override
     public String performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile)
     {

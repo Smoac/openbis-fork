@@ -56,6 +56,7 @@ public class ToolTipAction
     {
         return new Listener<ComponentEvent>()
             {
+                @Override
                 public void handleEvent(ComponentEvent ce)
                 {
                     Element source = aTarget.getElement();
@@ -64,8 +65,8 @@ public class ToolTipAction
                     {
                         EventTarget from = ce.getEvent().getRelatedEventTarget();
                         if (from == null
-                                || (Element.is(source) && Element.is(from) && !DOM.isOrHasChild(
-                                        source, (Element) Element.as(from))))
+                                || (com.google.gwt.dom.client.Element.is(source) && com.google.gwt.dom.client.Element.is(from) && !DOM.isOrHasChild(
+                                        source, (Element) com.google.gwt.dom.client.Element.as(from))))
                         {
                             onTargetOver(ce);
                         }
@@ -73,8 +74,8 @@ public class ToolTipAction
                     {
                         EventTarget to = ce.getEvent().getRelatedEventTarget();
                         if (to == null
-                                || (Element.is(source) && Element.is(to) && !DOM.isOrHasChild(
-                                        source, (Element) Element.as(to))))
+                                || (com.google.gwt.dom.client.Element.is(source) && com.google.gwt.dom.client.Element.is(to) && !DOM.isOrHasChild(
+                                        source, (Element) com.google.gwt.dom.client.Element.as(to))))
                         {
                             onTargetOut(ce);
                         }

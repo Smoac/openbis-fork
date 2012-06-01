@@ -63,12 +63,14 @@ public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE
     // EntityTypePropertyTypePE
     //
 
+    @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = DataSetPropertyPE.class)
     public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
@@ -84,6 +86,7 @@ public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE
         ((DataSetTypePE) entityType).addDataSetTypePropertyType(this);
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SET_TYPE_PROPERTY_TYPE_SEQUENCE)

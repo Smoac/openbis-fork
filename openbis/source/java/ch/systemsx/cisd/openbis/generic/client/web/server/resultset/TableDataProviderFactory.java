@@ -43,11 +43,13 @@ public class TableDataProviderFactory
             this.availableColumns = availableColumns;
         }
 
+        @Override
         public String tryToGetProperty(String columnID, String key)
         {
             return getDefinition(columnID).tryToGetProperty(key);
         }
 
+        @Override
         public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
         {
             Integer index = indexMap.get(columnID);
@@ -58,6 +60,7 @@ public class TableDataProviderFactory
             return rowValues.get(index);
         }
 
+        @Override
         public Collection<String> getAllColumnIDs()
         {
             List<String> result = new ArrayList<String>();
@@ -68,6 +71,7 @@ public class TableDataProviderFactory
             return result;
         }
 
+        @Override
         public List<String> getAllColumnTitles()
         {
             List<String> result = new ArrayList<String>();
@@ -113,6 +117,7 @@ public class TableDataProviderFactory
             this.rows = rows;
         }
 
+        @Override
         public List<List<? extends Comparable<?>>> getRows()
         {
             List<IColumnDefinition<T>> definitions =
@@ -164,6 +169,7 @@ public class TableDataProviderFactory
             this.rows = rows;
         }
 
+        @Override
         public List<List<? extends Comparable<?>>> getRows()
         {
             List<IColumnDefinition<T>> definitions =

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkE
 public class ElementFactory implements IElementFactory
 {
 
+    @Override
     public IElement createElement(String name)
     {
         if (EntityLinkElementKind.tryGetForElementName(name) != null)
@@ -41,27 +42,32 @@ public class ElementFactory implements IElementFactory
         return new Element(name);
     }
 
+    @Override
     public IEntityLinkElement createSampleLink(String permId)
     {
         return new EntityLinkElement(EntityLinkElementKind.SAMPLE, permId);
     }
 
+    @Override
     public IEntityLinkElement createExperimentLink(String permId)
     {
         return new EntityLinkElement(EntityLinkElementKind.EXPERIMENT, permId);
     }
 
+    @Override
     public IEntityLinkElement createDataSetLink(String permId)
     {
         return new EntityLinkElement(EntityLinkElementKind.DATA_SET, permId);
     }
 
+    @Override
     public IEntityLinkElement createMaterialLink(String code, String typeCode)
     {
         String materialPermId = MaterialIdentifier.print(code, typeCode);
         return new EntityLinkElement(EntityLinkElementKind.MATERIAL, materialPermId);
     }
 
+    @Override
     public boolean isEntityLink(IElement element)
     {
         return element instanceof IEntityLinkElement;

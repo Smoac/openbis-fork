@@ -170,11 +170,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 headerColumnDefinitions.add(new IColumnDefinition<T>()
                     {
 
+                        @Override
                         public String getValue(GridRowModel<T> rowModel)
                         {
                             throw new UnsupportedOperationException();
                         }
 
+                        @Override
                         public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
                         {
                             T originalObject = rowModel.getOriginalObject();
@@ -186,21 +188,25 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                             return null;
                         }
 
+                        @Override
                         public String getHeader()
                         {
                             throw new UnsupportedOperationException();
                         }
 
+                        @Override
                         public String getIdentifier()
                         {
                             return header.getId();
                         }
 
+                        @Override
                         public DataTypeCode tryToGetDataType()
                         {
                             return null;
                         }
 
+                        @Override
                         public String tryToGetProperty(String key)
                         {
                             throw new UnsupportedOperationException();
@@ -457,6 +463,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         this(resultSetKeyProvider, customColumnsProvider, new IColumnCalculator()
             {
+                @Override
                 public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
                         GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
                         boolean errorMessagesAreLong)
@@ -667,6 +674,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     // IDataManager
     //
 
+    @Override
     public final <T> IResultSet<K, T> getResultSet(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
@@ -834,6 +842,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 new TableMap<String, GridColumnFilterInfo<T>>(filterInfosOrNull,
                         new IKeyExtractor<String, GridColumnFilterInfo<T>>()
                             {
+                                @Override
                                 public String getKey(GridColumnFilterInfo<T> e)
                                 {
                                     return e.getFilteredField().getIdentifier();
@@ -873,26 +882,31 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         return new Future<TableData<T>>()
             {
+                @Override
                 public boolean cancel(boolean mayInterruptIfRunning)
                 {
                     return true;
                 }
 
+                @Override
                 public boolean isCancelled()
                 {
                     return false;
                 }
 
+                @Override
                 public boolean isDone()
                 {
                     return true;
                 }
 
+                @Override
                 public TableData<T> get() throws InterruptedException, ExecutionException
                 {
                     return tableData;
                 }
 
+                @Override
                 public TableData<T> get(long timeout, TimeUnit unit) throws InterruptedException,
                         ExecutionException, TimeoutException
                 {
@@ -907,6 +921,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Future<TableData<T>> future;
         Callable<TableData<T>> callable = new Callable<TableData<T>>()
             {
+                @Override
                 public TableData<T> call() throws Exception
                 {
                     List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
@@ -971,6 +986,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }
 
+    @Override
     public final void removeResultSet(final K resultSetKey)
     {
         assert resultSetKey != null : "Unspecified data key holder.";

@@ -208,21 +208,25 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
         return new IBrowserGridActionInvoker()
             {
 
+                @Override
                 public void toggleFilters(boolean show)
                 {
                     delegate.toggleFilters(show);
                 }
 
+                @Override
                 public void refresh()
                 {
                     onRefreshAction.execute();
                 }
 
+                @Override
                 public void export(boolean allColumns)
                 {
                     delegate.export(allColumns);
                 }
 
+                @Override
                 public void configure()
                 {
                     delegate.configure();

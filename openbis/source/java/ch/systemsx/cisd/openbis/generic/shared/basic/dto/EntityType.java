@@ -60,6 +60,7 @@ abstract public class EntityType extends BasicEntityType
         Collections.sort(etpts, new Comparator<EntityTypePropertyType<?>>()
             {
 
+                @Override
                 public int compare(EntityTypePropertyType<?> o1, EntityTypePropertyType<?> o2)
                 {
                     return o1.getOrdinal().compareTo(o2.getOrdinal());

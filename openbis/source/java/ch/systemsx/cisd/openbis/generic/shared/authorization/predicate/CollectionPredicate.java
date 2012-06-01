@@ -49,6 +49,7 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
     // AbstractPredicate
     //
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         predicate.init(provider);

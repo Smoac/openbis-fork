@@ -59,6 +59,7 @@ final class SearchCommand extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         final TextField<String> textField =

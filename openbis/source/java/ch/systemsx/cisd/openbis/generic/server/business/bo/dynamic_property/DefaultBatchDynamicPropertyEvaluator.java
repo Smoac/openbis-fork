@@ -83,6 +83,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     {
         return new DynamicPropertyEvaluator(daoFactory, new IHibernateSessionProvider()
             {
+                @Override
                 public Session getSession()
                 {
                     return hibernateSession;
@@ -94,6 +95,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     // IDynamicPropertyEvaluator
     //
 
+    @Override
     public final <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz) throws DataAccessException
     {
@@ -147,6 +149,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         return new ArrayList<Long>();
     }
 
+    @Override
     public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
             throws DataAccessException

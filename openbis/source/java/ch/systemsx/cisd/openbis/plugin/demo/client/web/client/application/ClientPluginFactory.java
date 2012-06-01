@@ -80,6 +80,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
     // IClientPluginFactory
     //
 
+    @Override
     public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
         if (entityKind == EntityKind.SAMPLE)
@@ -89,6 +90,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         return Collections.emptySet();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
@@ -115,6 +117,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         // IViewClientPlugin
         //
 
+        @Override
         public final AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
@@ -156,6 +159,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                 };
         }
 
+        @Override
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
                 final SampleType sampleType, final ActionContext context)
         {
@@ -165,16 +169,19 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
             return new DatabaseModificationAwareWidget(form, form);
         }
 
+        @Override
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new DummyComponent();
         }
 
+        @Override
         public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
         {
             return new DummyComponent();
         }
 
+        @Override
         public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return new AbstractTabItemFactory()

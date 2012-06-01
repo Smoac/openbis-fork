@@ -28,6 +28,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
         super(sessionFactory, databaseInstance, PostRegistrationPE.class);
     }
 
+    @Override
     public void addDataSet(DataPE dataset)
     {
         PostRegistrationPE element = new PostRegistrationPE();
@@ -38,6 +39,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
         template.flush();
     }
 
+    @Override
     public void removeDataSet(DataPE dataSet)
     {
         PostRegistrationPE p = tryFindByDataSet(dataSet);
@@ -65,6 +67,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
         return pr;
     }
 
+    @Override
     public Collection<Long> listDataSetsForPostRegistration()
     {
         final List<PostRegistrationPE> list =

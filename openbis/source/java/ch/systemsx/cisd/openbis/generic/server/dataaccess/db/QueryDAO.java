@@ -47,6 +47,7 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
         super(sessionFactory, databaseInstance, QueryPE.class);
     }
 
+    @Override
     public List<QueryPE> listQueries(QueryType queryType)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
@@ -64,6 +65,7 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
         return list;
     }
 
+    @Override
     public void createQuery(QueryPE query) throws DataAccessException
     {
         assert query != null : "Unspecified query";

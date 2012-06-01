@@ -42,6 +42,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         super(daoFactory, session);
     }
 
+    @Override
     public void define(NewColumnOrFilter newFilter) throws UserFailureException
     {
         filter = new GridCustomFilterPE();
@@ -53,6 +54,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         filter.setRegistrator(findPerson());
     }
 
+    @Override
     public void loadDataByTechId(TechId id)
     {
         try
@@ -65,6 +67,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
 
     }
 
+    @Override
     public void deleteByTechId(TechId groupId) throws UserFailureException
     {
         loadDataByTechId(groupId);
@@ -77,6 +80,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         }
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert filter != null : "Filter not defined";
@@ -89,6 +93,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         }
     }
 
+    @Override
     public void update(IExpressionUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));

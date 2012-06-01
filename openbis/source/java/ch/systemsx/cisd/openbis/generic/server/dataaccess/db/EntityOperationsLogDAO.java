@@ -24,6 +24,7 @@ public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOpera
         super(sessionFactory, databaseInstance, EntityOperationsLogEntryPE.class);
     }
 
+    @Override
     public void addLogEntry(Long registrationId)
     {
         EntityOperationsLogEntryPE logEntry = new EntityOperationsLogEntryPE();
@@ -37,6 +38,7 @@ public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOpera
                 registrationId));
     }
 
+    @Override
     public EntityOperationsLogEntryPE tryFindLogEntry(Long registrationId)
     {
         assert registrationId != null : "Unspecified registration id.";

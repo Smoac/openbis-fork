@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -62,11 +63,12 @@ public class FillAddPersonForm extends AbstractDefaultTestCommand
         this.codes = codes;
     }
 
+    @Override
     public void execute()
     {
         if (singleUser)
         {
-            GWTTestUtil.selectValueInSelectionWidget(PersonSelectionWidget.ID
+            GWTTestUtil.selectValueInSelectionWidget(DropDownList.ID
                     + PersonSelectionWidget.SUFFIX
                     + AddPersonToAuthorizationGroupDialog.createId(authorizationGroup,
                             AddPersonToAuthorizationGroupDialog.ID_SINGLE_PERSON_FIELD),

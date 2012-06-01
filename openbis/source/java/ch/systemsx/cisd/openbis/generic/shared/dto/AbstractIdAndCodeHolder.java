@@ -101,6 +101,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public final int compareTo(final T o)
     {
         return compare(this, o);
@@ -119,6 +120,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
         // Comparator
         //
 
+        @Override
         public final int compare(final IIdAndCodeHolder o1, final IIdAndCodeHolder o2)
         {
             final String thatCode = o2.getCode();

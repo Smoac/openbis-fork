@@ -191,6 +191,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.DATA_SET,

@@ -72,6 +72,7 @@ public class CorePluginRegistrator implements InitializingBean
         }
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         registerPlugins();

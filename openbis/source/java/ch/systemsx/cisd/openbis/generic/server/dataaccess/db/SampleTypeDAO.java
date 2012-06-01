@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -54,12 +55,13 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     // ISampleTypeDAO
     //
 
+    @Override
     public final List<SampleTypePE> listSampleTypes() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<SampleTypePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -69,6 +71,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         return list;
     }
 
+    @Override
     public final SampleTypePE tryFindSampleTypeByExample(final SampleTypePE sampleType)
             throws DataAccessException
     {
@@ -84,6 +87,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         return result;
     }
 
+    @Override
     public final SampleTypePE tryFindSampleTypeByCode(final String code) throws DataAccessException
     {
         return tryFindTypeByCode(code);

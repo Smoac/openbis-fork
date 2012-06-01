@@ -65,6 +65,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         this.permlink = permlink;
     }
 
+    @Override
     public AttachmentHolderKind getAttachmentHolderKind()
     {
         return AttachmentHolderKind.EXPERIMENT;
@@ -95,6 +96,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         this.identifier = experimentIdentifier;
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return properties;
@@ -105,6 +107,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         this.properties = properties;
     }
 
+    @Override
     public Deletion getDeletion()
     {
         return deletion;
@@ -139,6 +142,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
     // IIdentifierHolder
     //
 
+    @Override
     public final String getIdentifier()
     {
         return identifier;
@@ -167,6 +171,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         return getIdentifier().compareTo(o.getIdentifier());
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -177,11 +182,13 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         this.id = id;
     }
 
+    @Override
     public EntityType getEntityType()
     {
         return getExperimentType();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
@@ -192,6 +199,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         this.permId = permId;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

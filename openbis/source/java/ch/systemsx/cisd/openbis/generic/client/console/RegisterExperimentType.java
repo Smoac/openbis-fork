@@ -32,6 +32,7 @@ public class RegisterExperimentType extends AbstractRegisterEntityType<Experimen
     {
         DESCRIPTION("description")
         {
+            @Override
             public void setAttributeFor(ExperimentType experimentType, String value)
             {
                 experimentType.setDescription(value);
@@ -45,11 +46,13 @@ public class RegisterExperimentType extends AbstractRegisterEntityType<Experimen
             this.attributeName = attributeName;
         }
 
+        @Override
         public String getAttributeName()
         {
             return attributeName;
         }
 
+        @Override
         public void setDefaultFor(ExperimentType type)
         {
         }
@@ -72,6 +75,7 @@ public class RegisterExperimentType extends AbstractRegisterEntityType<Experimen
         return attributeSetters;
     }
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

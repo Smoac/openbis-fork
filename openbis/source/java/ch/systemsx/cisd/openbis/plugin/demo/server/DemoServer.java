@@ -78,6 +78,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
+    @Override
     public final IDemoServer createLogger(IInvocationLoggerContext context)
     {
         return new DemoServerLogger(getSessionManager(), context);
@@ -97,6 +98,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
         return getSampleInfo(session, sample);
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -115,12 +117,14 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
         return SampleTranslator.translate(sampleInfo, session.getBaseIndexURL());
     }
 
+    @Override
     public final void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
         throw new NotImplementedException();
     }
 
+    @Override
     public int getNumberOfExperiments(String sessionToken)
     {
         return getDAOFactory().getExperimentDAO().listExperiments().size();

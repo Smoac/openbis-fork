@@ -99,6 +99,7 @@ public final class LoggedUserMenu extends TopMenuItem
         // all tabs will be closed after reset of display settings
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     final IMainPanel tabPanelOrNull = componentProvider.tryGetMainTabPanel();

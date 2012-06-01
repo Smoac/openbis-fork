@@ -154,6 +154,7 @@ public class DataSetListerTest extends AbstractDAOTest
     {
         Collections.sort(dataSets, new Comparator<DataSet>()
             {
+                @Override
                 public int compare(DataSet o1, DataSet o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());

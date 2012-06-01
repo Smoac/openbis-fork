@@ -34,6 +34,7 @@ public class LogoutAction implements IDelegatedAction
         this.viewContext = viewContext;
     }
 
+    @Override
     public void execute()
     {
         DisplaySettings displaySettings =

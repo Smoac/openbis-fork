@@ -78,6 +78,7 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
                 new IChosenEntitiesSetter<TableModelRowWithObject<ExternalData>>()
                     {
 
+                        @Override
                         public void setChosenEntities(List<TableModelRowWithObject<ExternalData>> row)
                         {
                             field.setChosenEntities(TableModelRowWithObject.getObjects(row));

@@ -103,6 +103,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public static class EntityPropertySearchBridge implements FieldBridge
     {
 
+        @Override
         public void set(String name, Object/* EntityPropertyPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
@@ -179,6 +180,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     // IUntypedValueSetter
     //
 
+    @Override
     public final void setUntypedValue(final String valueOrNull,
             final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull)
     {
@@ -254,6 +256,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     // IEntityProperty
     //
 
+    @Override
     public final String tryGetUntypedValue()
     {
         if (getVocabularyTerm() != null)

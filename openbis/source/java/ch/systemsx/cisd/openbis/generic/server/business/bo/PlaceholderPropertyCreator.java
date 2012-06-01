@@ -29,6 +29,7 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
      * Adds placeholders for <var>dynamicProperties</var> to <var>definedProperties</var> if they
      * don't exist yet.
      */
+    @Override
     public void addDynamicPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
             Set<String> dynamicProperties)
     {
@@ -40,6 +41,7 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
      * Adds placeholders for <var>managedProperties</var> to <var>definedProperties</var> if they
      * don't exist yet.
      */
+    @Override
     public void addManagedPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
             Set<String> managedProperties)
     {

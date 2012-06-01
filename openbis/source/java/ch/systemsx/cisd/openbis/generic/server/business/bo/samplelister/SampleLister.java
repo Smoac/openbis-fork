@@ -70,16 +70,19 @@ public class SampleLister implements ISampleLister
         this.referencedEntityDAO = referencedEntityDAO;
     }
 
+    @Override
     public List<Sample> list(final ListOrSearchSampleCriteria criteria)
     {
         return SampleListingWorker.create(criteria, baseIndexURL, dao, referencedEntityDAO).load();
     }
 
+    @Override
     public long getRelationshipTypeID(String code)
     {
         return SampleListingWorker.getRelationId(dao.getQuery(), code);
     }
 
+    @Override
     public List<SampleSkeleton> listSampleBy(IValidator<SampleSkeleton> criteria)
     {
         DataIterator<SampleRecord> sampleSkeletons = dao.getQuery().getSampleSkeletons();
@@ -100,6 +103,7 @@ public class SampleLister implements ISampleLister
         return result;
     }
 
+    @Override
     public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
             IValidator<SampleRelationShipSkeleton> criteria)
     {
@@ -120,6 +124,7 @@ public class SampleLister implements ISampleLister
         return result;
     }
 
+    @Override
     public Map<Long, Set<Long>> getChildToParentsIdsMap(Collection<Long> childrenIds)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
@@ -145,6 +150,7 @@ public class SampleLister implements ISampleLister
         return map;
     }
 
+    @Override
     public Map<Long, Set<Long>> getParentToChildrenIdsMap(Collection<Long> parentIds)
     {
         LongOpenHashSet ids = new LongOpenHashSet();

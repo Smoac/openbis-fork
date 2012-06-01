@@ -51,6 +51,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         super(sessionFactory, databaseInstance, ProjectPE.class);
     }
 
+    @Override
     public List<ProjectPE> listProjects()
     {
         final List<ProjectPE> list = cast(getHibernateTemplate().loadAll(ProjectPE.class));
@@ -62,6 +63,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         return list;
     }
 
+    @Override
     public List<ProjectPE> listProjects(final SpacePE space)
     {
         assert space != null : "Unspecified space.";
@@ -77,6 +79,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         return list;
     }
 
+    @Override
     public ProjectPE tryFindProject(final String databaseInstanceCode, final String spaceCode,
             final String projectCode)
     {
@@ -98,6 +101,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         return (ProjectPE) criteria.uniqueResult();
     }
 
+    @Override
     public void createProject(ProjectPE project)
     {
         assert project != null : "Missing project.";

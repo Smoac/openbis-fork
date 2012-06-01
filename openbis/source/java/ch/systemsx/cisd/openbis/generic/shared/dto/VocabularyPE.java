@@ -223,6 +223,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         getVocabularyTerms().remove(child);
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE)
@@ -266,6 +267,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
+    @Override
     @Transient
     public String getCode()
     {
@@ -339,6 +341,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     // Comparable
     //
 
+    @Override
     public final int compareTo(final VocabularyPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);

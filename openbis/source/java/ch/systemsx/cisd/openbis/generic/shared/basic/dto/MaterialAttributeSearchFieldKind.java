@@ -52,11 +52,13 @@ public enum MaterialAttributeSearchFieldKind implements Serializable, IAttribute
         this.description = description;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
     }
 
+    @Override
     public String getCode()
     {
         return name();

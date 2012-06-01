@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class AuthorizationChecker implements IAuthorizationChecker
 {
 
+    @Override
     public boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole)
     {
         final Set<RoleWithHierarchy> requiredRoles = minimalRole.getRoles();

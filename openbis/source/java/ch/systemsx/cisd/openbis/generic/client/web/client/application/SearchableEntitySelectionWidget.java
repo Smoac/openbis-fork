@@ -91,6 +91,7 @@ final class SearchableEntitySelectionWidget extends
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.EMPTY_ARRAY;

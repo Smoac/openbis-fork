@@ -229,6 +229,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
     // IReturnValueFilter
     //
 
+    @Override
     public final Object applyFilter(final IAuthSession session, final Method method,
             final Object returnValueOrNull)
     {
@@ -283,6 +284,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         // IValidator
         //
 
+        @Override
         public final boolean isValid(final T object)
         {
             return validator.isValid(person, object);

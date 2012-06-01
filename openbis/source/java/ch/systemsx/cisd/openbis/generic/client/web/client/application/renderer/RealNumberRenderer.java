@@ -74,11 +74,13 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         this.realNumberFormatingParameters = realNumberFormatingParameters;
     }
 
+    @Override
     public String render(float value)
     {
         return render("" + value, realNumberFormatingParameters, false);
     }
 
+    @Override
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)

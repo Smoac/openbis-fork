@@ -74,20 +74,24 @@ final class QuerySectionPanel extends DisposableTabContent
                 QueryViewer.create(queryModuleContext, toolbar);
         return new IDisposableComponent()
             {
+                @Override
                 public void dispose()
                 {
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return viewer.get();
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return viewer.getRelevantModifications();
                 }
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     viewer.update(observedModifications);

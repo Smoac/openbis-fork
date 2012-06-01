@@ -176,11 +176,13 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         return observer;
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createCompositeDatabaseModificationObserver().getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createCompositeDatabaseModificationObserver().update(observedModifications);

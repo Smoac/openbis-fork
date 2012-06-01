@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -66,6 +68,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
     {
         return new AbstractDefaultTestCommand()
             {
+                @Override
                 public void execute()
                 {
                     GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, FileFormatTypeGrid.BROWSER_ID
@@ -74,10 +77,10 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
                             (TextToolItem) GWTTestUtil
                                     .getWidgetWithID(FileFormatTypeGrid.ADD_NEW_TYPE_BUTTON_ID);
                     toolItem.fireEvent(Events.Select, new ButtonEvent(toolItem));
-                    GWTTestUtil.getTextFieldWithID(AddTypeDialog.CODE_FIELD_ID).setValue("my-type");
+                    GWTTestUtil.getTextFieldWithID(AbstractRegistrationDialog.CODE_FIELD_ID).setValue("my-type");
                     GWTTestUtil.getTextFieldWithID(AddTypeDialog.DESCRIPTION_FIELD_ID).setValue(
                             "hello");
-                    GWTTestUtil.clickButtonWithID(AddTypeDialog.SAVE_BUTTON_ID);
+                    GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
                 }
             };
     }

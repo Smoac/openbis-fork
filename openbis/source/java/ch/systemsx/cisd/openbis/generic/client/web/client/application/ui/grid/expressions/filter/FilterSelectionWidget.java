@@ -82,6 +82,7 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, GridC
                 callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.GRID_CUSTOM_FILTER);

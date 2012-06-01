@@ -211,6 +211,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         Collections.sort(expectedFiles);
         List<String> files = new ArrayList<String>(Arrays.asList(cacheFolder.list(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(CacheManager.KEY_FILE_TYPE)

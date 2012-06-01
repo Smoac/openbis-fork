@@ -684,6 +684,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         List<VocabularyTermPE> sorted = new ArrayList<VocabularyTermPE>(terms);
         Collections.sort(sorted, new Comparator<VocabularyTermPE>()
             {
+                @Override
                 public int compare(VocabularyTermPE o1, VocabularyTermPE o2)
                 {
                     return o1.getOrdinal().compareTo(o2.getOrdinal());

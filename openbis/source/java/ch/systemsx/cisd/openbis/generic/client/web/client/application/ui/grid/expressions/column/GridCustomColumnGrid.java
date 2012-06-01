@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -114,6 +115,7 @@ public class GridCustomColumnGrid extends TypedTableGrid<GridCustomColumn>
                         viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<GridCustomColumn>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<GridCustomColumn>> selectedItem,
                                         boolean keyPressed)
@@ -284,10 +286,11 @@ public class GridCustomColumnGrid extends TypedTableGrid<GridCustomColumn>
         // we want to fetch all custom columns, not just one page. We will update the whole grid
         // model with it. There should not be that many custom columns.
         resultSetConfig.setOffset(0);
-        resultSetConfig.setLimit(DefaultResultSetConfig.NO_LIMIT);
+        resultSetConfig.setLimit(IResultSetConfig.NO_LIMIT);
         AsyncCallback<TypedTableResultSet<GridCustomColumn>> wrappedCallback =
                 new AsyncCallback<TypedTableResultSet<GridCustomColumn>>()
                     {
+                        @Override
                         public void onSuccess(TypedTableResultSet<GridCustomColumn> result)
                         {
                             List<TableModelRowWithObject<GridCustomColumn>> allCustomColumns =
@@ -318,6 +321,7 @@ public class GridCustomColumnGrid extends TypedTableGrid<GridCustomColumn>
                             result.getResultSet().setList(allModel.cloneWithData(pageResult));
                         }
 
+                        @Override
                         public void onFailure(Throwable caught)
                         {
                             callback.onFailure(caught);

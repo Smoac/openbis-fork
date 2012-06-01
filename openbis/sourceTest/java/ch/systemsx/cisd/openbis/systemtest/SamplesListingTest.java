@@ -71,6 +71,7 @@ public class SamplesListingTest extends SystemTestCase
         List<Sample> samples = asList(resultSet);
         Collections.sort(samples, new Comparator<Sample>()
             {
+                @Override
                 public int compare(Sample s1, Sample s2)
                 {
                     return s1.getIdentifier().compareTo(s2.getIdentifier());

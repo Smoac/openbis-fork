@@ -80,6 +80,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
                         generateCodesCheckbox);
         generateCodesCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
+                @Override
                 public void handleEvent(FieldEvent be)
                 {
                     boolean selected = (Boolean) be.getValue();
@@ -127,6 +128,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,

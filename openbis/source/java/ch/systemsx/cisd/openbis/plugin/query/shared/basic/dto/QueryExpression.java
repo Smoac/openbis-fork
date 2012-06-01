@@ -44,6 +44,7 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         setExpression(expression);
     }
 
+    @Override
     public QueryType getQueryType()
     {
         return queryType;
@@ -59,6 +60,7 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         return queryDatabase == null ? null : queryDatabase.getLabel();
     }
 
+    @Override
     public QueryDatabase getQueryDatabase()
     {
         return queryDatabase;
@@ -69,6 +71,7 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         this.queryDatabase = queryDatabase;
     }
 
+    @Override
     public String getEntityTypeCode()
     {
         return entityTypeCode;

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -101,13 +102,13 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
         final NewSample newSample = super.createObject(lineTokens);
         if (identifierExpectedInFile && newSample.getIdentifier() == null)
         {
-            throw new ParserException("Mandatory column '" + NewSample.IDENTIFIER_COLUMN
+            throw new ParserException("Mandatory column '" + Identifier.IDENTIFIER_COLUMN
                     + "' is missing.");
         }
         if (identifierExpectedInFile == false && newSample.getIdentifier() != null)
         {
             throw new ParserException("Requested automatical generation of codes. Column '"
-                    + NewSample.IDENTIFIER_COLUMN + "' should be removed from the file.");
+                    + Identifier.IDENTIFIER_COLUMN + "' should be removed from the file.");
         }
         if (allowExperiments == false && newSample.getExperimentIdentifier() != null)
         {

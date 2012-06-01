@@ -77,6 +77,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                 // Listener
                 //
 
+                @Override
                 public void handleEvent(final MessageBoxEvent be)
                 {
                     viewContext.getPageController().reload(false);
@@ -104,6 +105,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                     AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
                         {
 
+                            @Override
                             public void onSuccess(Boolean result)
                             {
                                 if (result == false)
@@ -112,6 +114,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                                 }
                             }
 
+                            @Override
                             public void onFailure(Throwable caught)
                             {
                                 cancel();

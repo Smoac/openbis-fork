@@ -42,11 +42,13 @@ public class FileFormatTypeImmutable implements IFileFormatTypeImmutable
         return expType;
     }
 
+    @Override
     public String getCode()
     {
         return getFileFormatType().getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return getFileFormatType().getDescription();

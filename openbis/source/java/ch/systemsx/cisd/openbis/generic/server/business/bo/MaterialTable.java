@@ -68,12 +68,14 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         this.dataChanged = dataChanged;
     }
 
+    @Override
     public final List<MaterialPE> getMaterials()
     {
         assert materials != null : "Materials have not been loaded.";
         return materials;
     }
 
+    @Override
     public void add(List<NewMaterial> newMaterials, MaterialTypePE materialTypePE)
     {
         assert newMaterials != null : "New materials undefined.";
@@ -91,6 +93,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         dataChanged = true;
     }
 
+    @Override
     public void save()
     {
         assert materials != null : "Materials have not been loaded.";
@@ -146,6 +149,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
 
     // -----------------
 
+    @Override
     public void update(List<MaterialUpdateDTO> materialsUpdate)
     {
         setBatchUpdateMode(true);
@@ -207,6 +211,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         return names;
     }
 
+    @Override
     public void deleteByTechIds(List<TechId> materialIds, String reason)
             throws UserFailureException
     {

@@ -47,6 +47,7 @@ public class GridCustomFilterDAO extends AbstractGenericEntityDAO<GridCustomFilt
         super(sessionFactory, databaseInstance, GridCustomFilterPE.class);
     }
 
+    @Override
     public void createFilter(GridCustomFilterPE filter)
     {
         assert filter != null : "Unspecified filter";
@@ -56,6 +57,7 @@ public class GridCustomFilterDAO extends AbstractGenericEntityDAO<GridCustomFilt
         persist(filter);
     }
 
+    @Override
     public List<GridCustomFilterPE> listFilters(String gridId)
     {
         assert gridId != null : "Unspecified grid ID.";

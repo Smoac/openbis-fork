@@ -37,11 +37,13 @@ public class EntityLinkElement extends Element implements IEntityLinkElement
         super.addAttribute(PERMID_ATTR_NAME, permId);
     }
 
+    @Override
     public String getPermId()
     {
         return getAttribute(PERMID_ATTR_NAME);
     }
 
+    @Override
     public EntityLinkElementKind getEntityLinkKind()
     {
         return kind;

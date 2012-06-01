@@ -85,6 +85,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     entityBrowser.dispose();
@@ -99,6 +100,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     entityBrowser.dispose();

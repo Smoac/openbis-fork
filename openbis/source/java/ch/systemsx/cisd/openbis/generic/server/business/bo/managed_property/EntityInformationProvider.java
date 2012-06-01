@@ -54,6 +54,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
         this.daoFactory = daoFactory;
     }
 
+    @Override
     public String getIdentifier(IEntityLinkElement entityLink)
     {
         final EntityKind entityKind =
@@ -93,6 +94,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
                         identifierHolderOrNull = new IIdentifierHolder()
                             {
 
+                                @Override
                                 public String getIdentifier()
                                 {
                                     return new MaterialIdentifier(materialOrNull.getCode(),
@@ -119,6 +121,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return space;
     }
 
+    @Override
     public String getSamplePermId(String spaceCode, String sampleCode)
     {
         SpacePE space = tryGetSpaceByCode(spaceCode);
@@ -126,6 +129,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return (sample != null) ? sample.getPermId() : null;
     }
 
+    @Override
     public String getSamplePermId(String sampleIdentifier)
     {
         SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
@@ -171,6 +175,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return sample;
     }
 
+    @Override
     public List<String> getSampleParentPermIds(String spaceCode, String sampleCode)
     {
         SpacePE space = tryGetSpaceByCode(spaceCode);
@@ -185,11 +190,13 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return getSamplesPermIds(sample.getParents());
     }
 
+    @Override
     public List<String> getSampleParentPermIds(String permId)
     {
         return getSamplesPermIds(getSampleByPermId(permId).getParents());
     }
 
+    @Override
     public String getSamplePropertyValue(String permId, String propertyCode)
     {
         SamplePE sample = getSampleByPermId(permId);

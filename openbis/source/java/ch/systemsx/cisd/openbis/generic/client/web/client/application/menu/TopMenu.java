@@ -80,11 +80,13 @@ public class TopMenu extends LayoutContainer
 
         VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW, GENERAL_IMPORT_MENU, CUSTOM_IMPORT_MENU;
 
+        @Override
         public String getMenuId()
         {
             return ID + "_" + this.name();
         }
 
+        @Override
         public String getMenuText(IMessageProvider messageProvider)
         {
             return messageProvider.getMessage(this.name());

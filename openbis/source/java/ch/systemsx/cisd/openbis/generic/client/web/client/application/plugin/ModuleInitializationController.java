@@ -138,11 +138,13 @@ public class ModuleInitializationController
             this.module = module;
         }
 
+        @Override
         public void onFailure(Throwable caught)
         {
             controller.onInitializationFailure(caught, module);
         }
 
+        @Override
         public void onSuccess(Void result)
         {
             controller.onInitializationSuccess(module);

@@ -115,6 +115,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                     });
         filterSelectionWidget.addPostRefreshCallback(new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateFilterFields();
@@ -196,11 +197,13 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         return null;
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return filterSelectionWidget.getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         filterSelectionWidget.update(observedModifications);
@@ -247,6 +250,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         List<Widget> filterWidgets = new ArrayList<Widget>();
         IDelegatedAction updateApplyButtonAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     updateApplyToolEnabledState();

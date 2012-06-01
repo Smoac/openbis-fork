@@ -80,6 +80,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         return entityTypePE;
     }
 
+    @Override
     public final void save() throws UserFailureException
     {
         assert entityTypePE != null : "Entity type not defined.";
@@ -93,6 +94,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         }
     }
 
+    @Override
     public void define(SampleType entityType)
     {
         SampleTypePE sampleTypePE = new SampleTypePE();
@@ -110,18 +112,21 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         this.entityTypePE = sampleTypePE;
     }
 
+    @Override
     public void define(MaterialType entityType)
     {
         this.entityKind = EntityKind.MATERIAL;
         this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
     }
 
+    @Override
     public void define(ExperimentType entityType)
     {
         this.entityKind = EntityKind.EXPERIMENT;
         this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
     }
 
+    @Override
     public void define(DataSetType entityType)
     {
 
@@ -140,6 +145,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         this.entityTypePE = dataSetTypePE;
     }
 
+    @Override
     public void load(EntityKind kind, String code)
     {
         this.entityKind = kind;
@@ -150,6 +156,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         }
     }
 
+    @Override
     public void delete()
     {
         assert entityKind != null;

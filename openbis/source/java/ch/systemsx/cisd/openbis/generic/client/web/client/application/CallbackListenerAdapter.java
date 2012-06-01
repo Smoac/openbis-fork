@@ -34,11 +34,13 @@ public class CallbackListenerAdapter<T> implements ICallbackListener<T>
     // ICallbackListener
     //
 
+    @Override
     public void finishOnSuccessOf(final AbstractAsyncCallback<T> callback, final T result)
     {
 
     }
 
+    @Override
     public void onFailureOf(final IMessageProvider messageProvider,
             final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable)
@@ -46,10 +48,12 @@ public class CallbackListenerAdapter<T> implements ICallbackListener<T>
 
     }
 
+    @Override
     public void registerCallback(AbstractAsyncCallback<?> callback)
     {
     }
 
+    @Override
     public void ignoreCallback(AbstractAsyncCallback<?> callback)
     {
     }

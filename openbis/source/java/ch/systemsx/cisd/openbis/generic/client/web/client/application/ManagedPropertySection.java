@@ -60,20 +60,24 @@ public class ManagedPropertySection extends DisposableTabContent
     private static final IDisposableComponent DUMMY_CONTENT = new IDisposableComponent()
         {
 
+            @Override
             public void update(Set<DatabaseModificationKind> observedModifications)
             {
             }
 
+            @Override
             public DatabaseModificationKind[] getRelevantModifications()
             {
                 return DatabaseModificationKind.EMPTY_ARRAY;
             }
 
+            @Override
             public Component getComponent()
             {
                 return new ContentPanel();
             }
 
+            @Override
             public void dispose()
             {
             }
@@ -105,11 +109,13 @@ public class ManagedPropertySection extends DisposableTabContent
         setIds(new IDisplayTypeIDGenerator()
             {
 
+                @Override
                 public String createID(String suffix)
                 {
                     return createID() + suffix;
                 }
 
+                @Override
                 public String createID()
                 {
                     return ID_PREFIX + gridIdSuffix;
@@ -163,20 +169,24 @@ public class ManagedPropertySection extends DisposableTabContent
             final Html htmlComponent = extractHtmlComponent();
             return new IDisposableComponent()
                 {
+                    @Override
                     public void update(Set<DatabaseModificationKind> observedModifications)
                     {
                     }
 
+                    @Override
                     public DatabaseModificationKind[] getRelevantModifications()
                     {
                         return DatabaseModificationKind.EMPTY_ARRAY;
                     }
 
+                    @Override
                     public Component getComponent()
                     {
                         return htmlComponent;
                     }
 
+                    @Override
                     public void dispose()
                     {
 
@@ -206,6 +216,7 @@ public class ManagedPropertySection extends DisposableTabContent
             final IManagedPropertyGridInformationProvider gridInfo =
                     new IManagedPropertyGridInformationProvider()
                         {
+                            @Override
                             public String getKey()
                             {
                                 return gridIdSuffix;
@@ -216,6 +227,7 @@ public class ManagedPropertySection extends DisposableTabContent
                     new IOnGridComponentGeneratedAction()
                         {
 
+                            @Override
                             public void execute(IDisposableComponent gridComponent)
                             {
                                 replaceContent(gridComponent);

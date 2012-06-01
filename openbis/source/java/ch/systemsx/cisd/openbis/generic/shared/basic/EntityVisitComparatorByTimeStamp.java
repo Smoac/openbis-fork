@@ -11,6 +11,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
  */
 public class EntityVisitComparatorByTimeStamp implements Comparator<EntityVisit>
 {
+    @Override
     public int compare(EntityVisit o1, EntityVisit o2)
     {
         long t1 = o1.getTimeStamp();

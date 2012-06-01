@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
  * A text area to specify a script.
@@ -33,7 +32,7 @@ public class ScriptField extends MultilineVarcharField
 
     public ScriptField(IMessageProvider messageProvider)
     {
-        super(messageProvider.getMessage(Dict.SCRIPT), true, 20);
+        super(messageProvider.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SCRIPT), true, 20);
         getMessages().setBlankText(BLANK_TEXT_MSG);
         treatTabKeyAsInput();
     }

@@ -44,6 +44,7 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
         super(sessionFactory, databaseInstance, RelationshipTypePE.class);
     }
 
+    @Override
     public RelationshipTypePE tryFindRelationshipTypeByCode(String code)
     {
         assert code != null : "Unspecified relationship type code";

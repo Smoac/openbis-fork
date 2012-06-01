@@ -80,6 +80,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
     // Runnable
     //
 
+    @Override
     public final void run()
     {
         final IndexMode indexMode = context.getIndexMode();

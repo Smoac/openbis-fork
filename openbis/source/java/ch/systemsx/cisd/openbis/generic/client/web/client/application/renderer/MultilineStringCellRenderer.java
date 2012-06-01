@@ -12,6 +12,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 public class MultilineStringCellRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
 
+    @Override
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)

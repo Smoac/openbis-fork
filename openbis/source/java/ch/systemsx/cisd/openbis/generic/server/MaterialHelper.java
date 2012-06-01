@@ -109,6 +109,7 @@ public class MaterialHelper
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
 
+                @Override
                 public void execute(List<NewMaterial> entities)
                 {
                     final IMaterialTable materialTable =
@@ -118,16 +119,19 @@ public class MaterialHelper
                     registeredMaterials.addAll(materialTable.getMaterials());
                 }
 
+                @Override
                 public List<NewMaterial> getAllEntities()
                 {
                     return newMaterials;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "material";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "register";
@@ -160,6 +164,7 @@ public class MaterialHelper
                 session.tryGetPerson());
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
+                @Override
                 public void execute(List<NewMaterial> entities)
                 {
                     List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
@@ -183,16 +188,19 @@ public class MaterialHelper
                     updateMaterials(materialUpdates);
                 }
 
+                @Override
                 public List<NewMaterial> getAllEntities()
                 {
                     return newMaterials;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "material";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "update";

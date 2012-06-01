@@ -218,6 +218,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     {
         callback.addOnFailureAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     sampleIdentifierForUploadOrNull = null;
@@ -225,6 +226,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
             });
         callback.addOnSuccessAction(new IOnSuccessAction<R>()
             {
+                @Override
                 public void execute(R result)
                 {
                     if (StringUtils.isBlank(sampleIdentifierForUploadOrNull) == false)
@@ -306,6 +308,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         parentChooserButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Sample>>()
                     {
+                        @Override
                         public void entitiesChosen(List<TableModelRowWithObject<Sample>> entities)
                         {
                             for (TableModelRowWithObject<Sample> row : entities)
@@ -325,6 +328,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         experimentField.getChooserField().addChosenEntityListener(
                 new IChosenEntitiesListener<TableModelRowWithObject<Experiment>>()
                     {
+                        @Override
                         public void entitiesChosen(
                                 List<TableModelRowWithObject<Experiment>> entities)
                         {

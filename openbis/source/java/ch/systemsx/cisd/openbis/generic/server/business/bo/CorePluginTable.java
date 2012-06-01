@@ -58,12 +58,14 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
         this.masterDataScriptRunner = masterDataScriptRunner;
     }
 
+    @Override
     public List<CorePlugin> listCorePluginsByName(String name)
     {
         List<CorePluginPE> pluginPEs = getCorePluginDAO().listCorePluginsByName(name);
         return CorePluginTranslator.translate(pluginPEs);
     }
 
+    @Override
     public void registerPlugin(CorePlugin plugin, ICorePluginResourceLoader resourceLoader)
     {
         assert plugin != null : "Unspecified plugin.";

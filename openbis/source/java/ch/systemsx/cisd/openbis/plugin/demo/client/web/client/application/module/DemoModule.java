@@ -51,6 +51,7 @@ public class DemoModule implements IModule
         return viewContext;
     }
 
+    @Override
     public List<? extends MenuItem> getMenuItems()
     {
         return Collections.singletonList(new TopMenuItemDemoModuleMenu(getViewContext()));
@@ -58,16 +59,19 @@ public class DemoModule implements IModule
         // return new CustomizedWidgetDemoModuleMenu(getViewContext());
     }
 
+    @Override
     public String getName()
     {
         return viewContext.getMessage(Dict.MODULE_MENU_TITLE);
     }
 
+    @Override
     public void initialize(AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
     }
 
+    @Override
     public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {

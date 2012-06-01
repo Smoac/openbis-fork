@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractEntityDataSetsSection;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleViewer}.
@@ -130,6 +131,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         checkSample.property("Deletion").by(new IValueAssertion<Deletion>()
             {
+                @Override
                 public void assertValue(final Deletion deletion)
                 {
                     assertEquals("Doe", deletion.getRegistrator().getLastName());
@@ -192,11 +194,12 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         // show indirectly connected data sets
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
+                @Override
                 public void execute()
                 {
                     String showOnlyDirectlyConnectedCheckBoxId =
                             GenericSampleViewer.createId(WILDCARD_ID)
-                                    + SampleDataSetsSection.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
+                                    + AbstractEntityDataSetsSection.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
                     GWTTestUtil.clickCheckBoxWithID(showOnlyDirectlyConnectedCheckBoxId);
                 }
             });

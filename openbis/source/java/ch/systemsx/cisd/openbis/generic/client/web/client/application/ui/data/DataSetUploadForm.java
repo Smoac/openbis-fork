@@ -121,6 +121,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
         connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
+                @Override
                 public void handleEvent(FieldEvent be)
                 {
                     updateFieldsVisibility();

@@ -49,6 +49,7 @@ public final class CollectionMatcher<C extends Collection<?>> extends BaseMatche
         this.expected = expected;
     }
 
+    @Override
     public boolean matches(Object item)
     {
         if (expected == item)
@@ -75,6 +76,7 @@ public final class CollectionMatcher<C extends Collection<?>> extends BaseMatche
         return true;
     }
 
+    @Override
     public void describeTo(Description description)
     {
         description.appendValue(expected);

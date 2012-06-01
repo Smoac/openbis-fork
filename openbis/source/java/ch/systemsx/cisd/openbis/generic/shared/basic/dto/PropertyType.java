@@ -66,6 +66,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 
     private String transformation;
 
+    @Override
     public Long getId()
     {
         return id;
@@ -86,6 +87,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
         this.simpleCode = simpleCode;
     }
 
+    @Override
     public String getLabel()
     {
         return label;
@@ -126,6 +128,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
         this.vocabulary = vocabulary;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
@@ -200,6 +203,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
         this.materialType = materialType;
     }
 
+    @Override
     public String getSchema()
     {
         return schema;
@@ -210,6 +214,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
         this.schema = schema;
     }
 
+    @Override
     public String getTransformation()
     {
         return transformation;

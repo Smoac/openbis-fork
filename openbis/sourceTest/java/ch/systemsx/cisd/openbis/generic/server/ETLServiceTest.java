@@ -263,10 +263,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(dataStoreDAO).createOrUpdateDataStore(
                             with(new BaseMatcher<DataStorePE>()
                                 {
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                     }
 
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataStorePE)
@@ -317,10 +319,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(dataStoreDAO).createOrUpdateDataStore(
                             with(new BaseMatcher<DataStorePE>()
                                 {
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                     }
 
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataStorePE)

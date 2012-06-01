@@ -69,6 +69,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     // IFullTextIndexer
     //
 
+    @Override
     public final <T> void doFullTextIndex(final Session hibernateSession, final Class<T> clazz)
             throws DataAccessException
     {
@@ -118,6 +119,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         }
     }
 
+    @Override
     public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
             final List<Long> ids) throws DataAccessException
     {
@@ -158,6 +160,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         }
     }
 
+    @Override
     public <T> void removeFromIndex(final Session hibernateSession, final Class<T> clazz,
             final List<Long> ids) throws DataAccessException
     {

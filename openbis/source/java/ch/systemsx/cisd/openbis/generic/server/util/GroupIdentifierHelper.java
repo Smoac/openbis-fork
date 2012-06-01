@@ -151,17 +151,20 @@ public final class GroupIdentifierHelper
 
         return new IDatabaseInstanceFinder()
             {
+                @Override
                 public DatabaseInstancePE getHomeDatabaseInstance()
                 {
                     return daoFactory.getHomeDatabaseInstance();
                 }
 
+                @Override
                 public DatabaseInstancePE tryFindDatabaseInstanceByCode(
                         final String databaseInstanceCode)
                 {
                     return databaseInstancesByCode.tryGet(databaseInstanceCode);
                 }
 
+                @Override
                 public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
                         final String databaseInstanceUUID)
                 {
@@ -179,11 +182,13 @@ public final class GroupIdentifierHelper
     {
         return new IDatabaseInstanceFinder()
             {
+                @Override
                 public DatabaseInstancePE getHomeDatabaseInstance()
                 {
                     return daoFactory.getHomeDatabaseInstance();
                 }
 
+                @Override
                 public DatabaseInstancePE tryFindDatabaseInstanceByCode(
                         final String databaseInstanceCode)
                 {
@@ -191,6 +196,7 @@ public final class GroupIdentifierHelper
                             databaseInstanceCode);
                 }
 
+                @Override
                 public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
                         final String databaseInstanceUUID)
                 {

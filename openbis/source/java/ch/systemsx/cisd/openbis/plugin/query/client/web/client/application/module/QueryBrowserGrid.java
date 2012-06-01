@@ -70,7 +70,7 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
                 List<TableModelRowWithObject<QueryExpression>> data,
                 AbstractAsyncCallback<Void> callback)
         {
-            super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+            super(viewContext, data, viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;
             this.viewContext = viewContext;
         }
@@ -136,9 +136,10 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
         addButton(addButton);
         final Button editButton =
                 createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_EDIT),
+                        viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<QueryExpression>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<QueryExpression>> selectedItem,
                                         boolean keyPressed)
@@ -152,7 +153,7 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
                             });
         addButton(editButton);
         Button deleteButton =
-                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                createSelectedItemsButton(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_DELETE),
                         new AbstractCreateDialogListener()
                             {
                                 @Override

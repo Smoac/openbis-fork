@@ -63,11 +63,13 @@ public final class NewExperiment extends Identifier<NewExperiment> implements IP
         this.experimentTypeCode = experimentTypeCode;
     }
 
+    @Override
     public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
+    @Override
     public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;

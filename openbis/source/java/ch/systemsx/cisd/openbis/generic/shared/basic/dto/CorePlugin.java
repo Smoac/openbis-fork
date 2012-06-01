@@ -43,6 +43,7 @@ public class CorePlugin implements Comparable<CorePlugin>
         return version;
     }
 
+    @Override
     public int compareTo(CorePlugin other)
     {
         int result = name.compareTo(other.name);

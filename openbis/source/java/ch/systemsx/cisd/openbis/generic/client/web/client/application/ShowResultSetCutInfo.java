@@ -30,6 +30,7 @@ public class ShowResultSetCutInfo<T extends IResultSetHolder<?>> implements IOnS
         this.viewContext = viewContext;
     }
 
+    @Override
     public void execute(T result)
     {
         if (result != null

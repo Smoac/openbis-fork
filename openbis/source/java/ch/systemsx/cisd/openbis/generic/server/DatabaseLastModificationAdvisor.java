@@ -95,6 +95,7 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
             this.state = state;
         }
 
+        @Override
         public final Object invoke(final MethodInvocation methodInvocation) throws Throwable
         {
             long currentTimestamp = new Date().getTime();

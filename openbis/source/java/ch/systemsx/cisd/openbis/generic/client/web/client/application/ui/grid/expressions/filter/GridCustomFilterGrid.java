@@ -110,6 +110,7 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
                         viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<GridCustomFilter>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<GridCustomFilter>> selectedItem,
                                         boolean keyPressed)

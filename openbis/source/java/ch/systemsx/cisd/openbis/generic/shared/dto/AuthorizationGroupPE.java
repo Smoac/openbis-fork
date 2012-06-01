@@ -84,6 +84,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     {
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE, sequenceName = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE)
@@ -110,6 +111,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
         this.databaseInstance = databaseInstance;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
@@ -265,6 +267,7 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
         return builder.toString();
     }
 
+    @Override
     public int compareTo(AuthorizationGroupPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);

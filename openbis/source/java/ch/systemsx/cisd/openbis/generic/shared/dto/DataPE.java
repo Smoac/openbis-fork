@@ -267,6 +267,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.dataStore = dataStorePE;
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
@@ -575,6 +576,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     // AbstractIdAndCodeHolder
     //
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
@@ -584,6 +586,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return id;
     }
 
+    @Override
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
@@ -665,6 +668,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.properties = properties;
     }
 
+    @Override
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getDataSetProperties().clear();
@@ -680,18 +684,21 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         }
     }
 
+    @Override
     public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
         getDataSetProperties().add((DataSetPropertyPE) property);
     }
 
+    @Override
     public void removeProperty(final EntityPropertyPE property)
     {
         getDataSetProperties().remove(property);
         property.setEntity(null);
     }
 
+    @Override
     @Transient
     public Set<DataSetPropertyPE> getProperties()
     {
@@ -701,24 +708,28 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     /**
      * Returns <code>true</code>, if and only if the properties have been initialized.
      */
+    @Override
     @Transient
     public boolean isPropertiesInitialized()
     {
         return HibernateUtils.isInitialized(getDataSetProperties());
     }
 
+    @Override
     @Transient
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
         return getDataSetType();
     }
 
+    @Override
     @Transient
     @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public String getIdentifier()
@@ -726,6 +737,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return getCode();
     }
 
+    @Override
     @Transient
     @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
@@ -782,6 +794,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return getExperiment().getProject().getSpace();
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
     public DeletionPE getDeletion()

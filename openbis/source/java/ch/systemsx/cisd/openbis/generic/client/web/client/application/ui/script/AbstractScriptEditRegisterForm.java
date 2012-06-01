@@ -131,6 +131,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
         scriptField.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     scriptExecution.update(scriptField.getValue());
@@ -165,6 +166,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         return new IValidable()
             {
 
+                @Override
                 public boolean isValid()
                 {
                     return panel.isValid();
@@ -268,6 +270,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         private final static String CALCULATE_DEFINITION_NOT_FOUND_MSG =
                 "Multiline script should contain definition of 'calculate()' function.";
 
+        @Override
         public String validate(Field<?> field, final String fieldValue)
         {
             if (fieldValue.contains(NEWLINE))
@@ -292,6 +295,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     private static class ManagedPropertyScriptValidator implements Validator
     {
 
+        @Override
         public String validate(Field<?> field, String value)
         {
             // TODO Auto-generated method stub

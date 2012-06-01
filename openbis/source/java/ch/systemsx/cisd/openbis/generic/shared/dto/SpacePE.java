@@ -127,6 +127,7 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     // IIdAndCodeHolder
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.SPACE_SEQUENCE, sequenceName = SequenceNames.SPACE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SPACE_SEQUENCE)
@@ -136,6 +137,7 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
         return id;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
@@ -195,6 +197,7 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public final int compareTo(final SpacePE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);

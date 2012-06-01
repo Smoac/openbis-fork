@@ -77,6 +77,7 @@ public class QueryDatabase implements Serializable, Comparable<QueryDatabase>
         return label + " [" + key + "]";
     }
 
+    @Override
     public int compareTo(QueryDatabase o)
     {
         return key.compareTo(o.key);

@@ -38,6 +38,7 @@ public class MasterDataRegistrationService implements IMasterDataRegistrationSer
         this.commonServer = commonServer;
     }
 
+    @Override
     public IMasterDataRegistrationTransaction transaction()
     {
         MasterDataRegistrationTransaction transaction =

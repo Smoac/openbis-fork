@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -38,10 +39,11 @@ public class ShowExperimentEditor extends AbstractDefaultTestCommand
         this.experimentId = experimentId;
     }
 
+    @Override
     public void execute()
     {
         GWTTestUtil.clickButtonWithID(GenericExperimentViewer.createId(experimentId)
-                + GenericExperimentViewer.ID_EDIT_SUFFIX);
+                + AbstractViewer.ID_EDIT_SUFFIX);
     }
 
 }

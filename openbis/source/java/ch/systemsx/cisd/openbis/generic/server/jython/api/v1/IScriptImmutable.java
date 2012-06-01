@@ -25,6 +25,7 @@ public interface IScriptImmutable extends IEntityType
     /**
      * Get the description for this script.
      */
+    @Override
     public String getDescription();
 
     /**

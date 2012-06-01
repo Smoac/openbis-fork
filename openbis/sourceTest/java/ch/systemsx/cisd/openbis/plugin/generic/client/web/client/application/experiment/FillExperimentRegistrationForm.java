@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -73,13 +74,14 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         GWTTestUtil.setTextField(FORM_ID + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE,
                 code);
 
         final ProjectSelectionWidget projectSelector =
-                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
+                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + ProjectSelectionWidget.SUFFIX + FORM_SIMPLE_ID);
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 

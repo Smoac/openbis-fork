@@ -125,16 +125,19 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider =
                 new ICriteriaProvider<ListMaterialDisplayCriteria>()
                     {
+                        @Override
                         public ListMaterialDisplayCriteria tryGetCriteria()
                         {
                             return criteria;
                         }
 
+                        @Override
                         public DatabaseModificationKind[] getRelevantModifications()
                         {
                             return new DatabaseModificationKind[0];
                         }
 
+                        @Override
                         public void update(Set<DatabaseModificationKind> observedModifications,
                                 IDataRefreshCallback postRefreshCallback)
                         {
@@ -237,6 +240,7 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     if (criteriaProvider.tryGetCriteria() != null)
@@ -344,6 +348,7 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     {
         return new IDelegatedActionWithResult<DisplayedAndSelectedMaterials>()
             {
+                @Override
                 public DisplayedAndSelectedMaterials execute()
                 {
                     return new DisplayedAndSelectedMaterials(getSelectedBaseObjects(),

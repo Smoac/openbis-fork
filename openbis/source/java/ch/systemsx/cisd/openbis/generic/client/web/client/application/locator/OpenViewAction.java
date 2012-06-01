@@ -44,6 +44,7 @@ public class OpenViewAction implements IDelegatedAction
         return registry.canResolve(viewLocator) == false;
     }
 
+    @Override
     public void execute()
     {
         openView();

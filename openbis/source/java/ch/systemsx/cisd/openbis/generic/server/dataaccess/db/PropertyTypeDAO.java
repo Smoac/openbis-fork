@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -63,6 +64,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     // IPropertyTypeDAO
     //
 
+    @Override
     public final PropertyTypePE tryFindPropertyTypeByCode(final String code)
             throws DataAccessException
     {
@@ -85,11 +87,12 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return entity;
     }
 
+    @Override
     public List<PropertyTypePE> listAllPropertyTypes()
     {
         final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<PropertyTypePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -99,6 +102,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return list;
     }
 
+    @Override
     public List<PropertyTypePE> listAllPropertyTypesWithRelations()
     {
         final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
@@ -107,7 +111,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("experimentTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("dataSetTypePropertyTypesInternal", FetchMode.JOIN);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<PropertyTypePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -117,6 +121,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return list;
     }
 
+    @Override
     public final List<PropertyTypePE> listPropertyTypes() throws DataAccessException
     {
         final List<PropertyTypePE> list =
@@ -132,6 +137,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return list;
     }
 
+    @Override
     public final List<DataTypePE> listDataTypes() throws DataAccessException
     {
         final List<DataTypePE> list =
@@ -145,6 +151,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return list;
     }
 
+    @Override
     public final DataTypePE getDataTypeByCode(final DataTypeCode code) throws DataAccessException
     {
         assert code != null : "Unspecified entity data type.";
@@ -162,6 +169,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         return entity;
     }
 
+    @Override
     public final void createPropertyType(final PropertyTypePE propertyType)
             throws DataAccessException
     {

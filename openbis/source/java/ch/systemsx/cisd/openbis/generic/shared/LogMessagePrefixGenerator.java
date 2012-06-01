@@ -25,6 +25,7 @@ public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerat
 {
     static final String UNDEFINED = "<UNDEFINED>";
 
+    @Override
     public String createPrefix(Session sessionOrNull)
     {
         if (sessionOrNull == null)
@@ -46,6 +47,7 @@ public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerat
         return createPrefix(userName, groupCode, remoteHost);
     }
 
+    @Override
     public String createPrefix(String user, String remoteHost)
     {
         return createPrefix(user, null, remoteHost);

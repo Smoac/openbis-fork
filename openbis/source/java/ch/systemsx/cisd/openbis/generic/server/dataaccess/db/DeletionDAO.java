@@ -87,6 +87,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     // IDeletionDAO
     //
 
+    @Override
     public final void create(final DeletionPE deletion) throws DataAccessException
     {
         assert deletion != null : "Unspecified deletion";
@@ -101,6 +102,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         }
     }
 
+    @Override
     public void revert(DeletionPE deletion) throws DataAccessException
     {
         operationLog.info(String.format("REVERT: deletion %s.", deletion));
@@ -148,6 +150,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         int updatedRows = (Integer) executeStatelessAction(new StatelessHibernateCallback()
             {
 
+                @Override
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     String query =
@@ -187,6 +190,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         int updatedRows = (Integer) executeStatelessAction(new StatelessHibernateCallback()
             {
 
+                @Override
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     String query =
@@ -201,28 +205,33 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, tableName));
     }
 
+    @Override
     public List<TechId> findTrashedSampleIds(final List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE);
     }
 
+    @Override
     public List<TechId> findTrashedNonComponentSampleIds(final List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
                 Restrictions.isNull(CONTAINER_ID));
     }
 
+    @Override
     public List<TechId> findTrashedComponentSampleIds(final List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
                 Restrictions.isNotNull(CONTAINER_ID));
     }
 
+    @Override
     public List<TechId> findTrashedExperimentIds(final List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.EXPERIMENT);
     }
 
+    @Override
     public List<String> findTrashedDataSetCodes(final List<TechId> deletionIds)
     {
         if (deletionIds.isEmpty())
@@ -233,6 +242,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         final List<String> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -259,6 +269,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -277,6 +288,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return transformNumbers2TechIdList(results);
     }
 
+    @Override
     public int trash(final EntityKind entityKind, final List<TechId> entityIds,
             final DeletionPE deletion) throws DataAccessException
     {
@@ -292,6 +304,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 // HibernateCallback
                 //
 
+                @Override
                 public final Object doInHibernate(final Session session) throws HibernateException,
                         SQLException
                 {
@@ -346,6 +359,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 //
                 // HibernateCallback
                 //
+                @Override
                 public final Object doInHibernate(final Session session) throws HibernateException,
                         SQLException
                 {
@@ -385,6 +399,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 //
                 // HibernateCallback
                 //
+                @Override
                 public final Object doInHibernate(final Session session) throws HibernateException,
                         SQLException
                 {
@@ -411,6 +426,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return updatedRows;
     }
 
+    @Override
     public List<DeletionPE> findAllById(List<Long> ids)
     {
         if (ids.isEmpty())
@@ -449,11 +465,13 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 entityKind.getEntityClass(), ids);
     }
 
+    @Override
     public List<TechId> findTrashedDataSetIds(List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.DATA_SET);
     }
 
+    @Override
     public List<? extends IDeletablePE> listDeletedEntities(EntityKind entityKind,
             List<TechId> entityIds)
     {
@@ -467,6 +485,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 ids);
     }
 
+    @Override
     public List<TechId> listDeletedEntitiesForType(EntityKind entityKind, TechId entityTypeId)
     {
         String typeId = null;

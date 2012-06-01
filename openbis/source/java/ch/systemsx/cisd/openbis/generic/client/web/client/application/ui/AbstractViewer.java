@@ -134,6 +134,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         result.setId(getId() + ID_EDIT_SUFFIX);
         result.addListener(Events.Select, new Listener<ButtonEvent>()
             {
+                @Override
                 public void handleEvent(ButtonEvent be)
                 {
                     showEntityEditor(be.isShiftKey());
@@ -154,6 +155,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         result.setId(getId() + ID_DELETE_SUFFIX);
         result.addListener(Events.Select, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     deleteAction.execute();
@@ -175,6 +177,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         Button result = new Button(viewContext.getMessage(Dict.BUTTON_REVERT_DELETION));
         result.addListener(Events.Select, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     revertAction.execute();
@@ -369,6 +372,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
     }
 
+    @Override
     public void notify(List<IModule> modules)
     {
         moduleSectionManager.initialize(modules);
@@ -410,6 +414,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         IDelegatedAction refreshAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     reloadAllData();

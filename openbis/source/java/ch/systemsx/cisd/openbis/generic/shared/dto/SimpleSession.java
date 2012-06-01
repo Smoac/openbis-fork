@@ -65,16 +65,19 @@ public class SimpleSession implements IAuthSession
         this.userName = userName;
     }
 
+    @Override
     public final String getUserName()
     {
         return userName;
     }
 
+    @Override
     public String tryGetHomeGroupCode()
     {
         return getHomeGroupCode();
     }
 
+    @Override
     public PersonPE tryGetPerson()
     {
         return getPerson();

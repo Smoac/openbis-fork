@@ -63,57 +63,68 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
     //
 
     // NOTE: TableModel is exposed to keep dependencies simple
+    @Override
     public TableModel getTableModel()
     {
         return builder.getTableModel();
     }
 
+    @Override
     public void addHeader(String title)
     {
         builder.addHeader(title);
     }
 
+    @Override
     public void addHeader(String title, String code)
     {
         builder.addHeader(title, code);
     }
 
+    @Override
     public void addHeader(String title, int defaultColumnWidth)
     {
         builder.addHeader(title, defaultColumnWidth);
     }
 
+    @Override
     public IRowBuilderAdaptor addRow()
     {
         final IRowBuilder row = builder.addRow();
         return new IRowBuilderAdaptor()
             {
 
+                @Override
                 public void setCell(String headerTitle, String value)
                 {
                     row.setCell(headerTitle, value);
                 }
 
+                @Override
                 public void setCell(String headerTitle, long value)
                 {
                     row.setCell(headerTitle, value);
                 }
 
+                @Override
                 public void setCell(String headerTitle, double value)
                 {
                     row.setCell(headerTitle, value);
                 }
 
+                @Override
                 public void setCell(String headerTitle, Date value)
                 {
                     row.setCell(headerTitle, value);
                 }
 
+                @Override
                 public void setCell(String headerTitle, IEntityLinkElement value)
                 {
                     row.setCell(headerTitle, asTableCell(value, null));
                 }
 
+                @Override
                 public void setCell(String headerTitle, IEntityLinkElement value, String linkText)
                 {
                     row.setCell(headerTitle, asTableCell(value, linkText));
@@ -135,11 +146,13 @@ public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderA
             };
     }
 
+    @Override
     public void addFullHeader(String... titles)
     {
         builder.addFullHeader(titles);
     }
 
+    @Override
     public void addFullRow(String... values)
     {
         builder.addFullRow(values);

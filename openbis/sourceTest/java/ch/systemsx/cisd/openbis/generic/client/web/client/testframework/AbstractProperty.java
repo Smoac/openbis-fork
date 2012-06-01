@@ -48,6 +48,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
         message = "Property '" + key + "':";
     }
 
+    @Override
     public C by(final IValueAssertion<?> valueAssertion)
     {
         checker.property(key, valueAssertion);
@@ -61,6 +62,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<Object>()
             {
+                @Override
                 public void assertValue(final Object value)
                 {
                     Assert.assertEquals(message, expectedValue, String.valueOf(value));
@@ -75,6 +77,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<Object>()
             {
+                @Override
                 public void assertValue(final Object value)
                 {
                     final String valueAsString = String.valueOf(value);
@@ -94,6 +97,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<Object>()
             {
+                @Override
                 public void assertValue(final Object value)
                 {
                     Assert.assertEquals(message, expectedValue, value);
@@ -109,6 +113,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<ICodeHolder>()
             {
+                @Override
                 public void assertValue(final ICodeHolder code)
                 {
                     Assert.assertEquals(message, expectedCode, code.getCode());
@@ -124,6 +129,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<IDeletionProvider>()
             {
+                @Override
                 public void assertValue(final IDeletionProvider provider)
                 {
                     final Deletion deletion = provider.getDeletion();
@@ -140,6 +146,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<IDeletionProvider>()
             {
+                @Override
                 public void assertValue(final IDeletionProvider provider)
                 {
                     final Deletion deletion = provider.getDeletion();
@@ -156,6 +163,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<IEntityProperty>()
             {
+                @Override
                 public void assertValue(final IEntityProperty value)
                 {
                     Assert.assertEquals(message, expectedValue, value.tryGetAsString());

@@ -33,6 +33,7 @@ public class GroupByMapTest extends AssertJUnit
     {
         return new IGroupKeyExtractor<Integer, Integer>()
             {
+                @Override
                 public Integer getKey(Integer e)
                 {
                     return e;

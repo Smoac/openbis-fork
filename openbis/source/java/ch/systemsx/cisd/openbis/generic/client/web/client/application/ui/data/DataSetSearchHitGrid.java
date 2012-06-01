@@ -132,6 +132,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     {
         return new IOnReportComponentGeneratedAction()
             {
+                @Override
                 public void execute(IDisposableComponent newGridComponent)
                 {
                     final LayoutContainer container = containerHolder.getContainer();
@@ -211,6 +212,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
 
+    @Override
     public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         chosenSearchCriteria = newCriteria;
@@ -252,21 +254,25 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
                     return containerHolder.getDisposableComponent();
                 }
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     getDisposableComponent().update(observedModifications);
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return getDisposableComponent().getRelevantModifications();
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return getDisposableComponent().getComponent();
                 }
 
+                @Override
                 public void dispose()
                 {
                     getDisposableComponent().dispose();

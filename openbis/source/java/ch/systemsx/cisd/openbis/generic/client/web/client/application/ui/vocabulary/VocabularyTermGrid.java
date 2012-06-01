@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CommonGridIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -143,7 +144,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 super.createColumnsDefinition();
         definitions.setGridCellRendererFor(VocabularyTermGridIDs.URL,
                 LinkRenderer.createExternalLinkRenderer());
-        definitions.setGridCellRendererFor(VocabularyTermGridIDs.DESCRIPTION,
+        definitions.setGridCellRendererFor(CommonGridIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         return definitions;
     }
@@ -181,6 +182,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
                             {
 
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> selectedItem,
                                         boolean keyPressed)
@@ -573,7 +575,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(VocabularyTermGridIDs.CODE, VocabularyTermGridIDs.LABEL);
+        return Arrays.asList(CommonGridIDs.CODE, CommonGridIDs.LABEL);
     }
 
     @Override
@@ -778,6 +780,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         dialog.setAcceptAction(new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     deleteAndReplace(termsToBeDeleted, termsToBeReplaced);

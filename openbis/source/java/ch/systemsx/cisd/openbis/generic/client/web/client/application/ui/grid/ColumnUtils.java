@@ -162,6 +162,7 @@ public class ColumnUtils
                 editor = new StringBasedCellEditor(materialChooser);
                 materialChooser.addListener(Events.TriggerClick, new Listener<BaseEvent>()
                     {
+                        @Override
                         public void handleEvent(BaseEvent be)
                         {
                             editor.setAllowBlur(true);
@@ -170,6 +171,7 @@ public class ColumnUtils
                 materialChooser
                         .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Material>>()
                             {
+                                @Override
                                 public void entitiesChosen(
                                         List<TableModelRowWithObject<Material>> entities)
                                 {

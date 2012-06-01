@@ -28,10 +28,12 @@ public interface IDelegatedAction extends ScheduledCommand
 {
     public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
         {
+            @Override
             public void execute()
             {
             }
         };
 
+    @Override
     void execute();
 }

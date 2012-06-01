@@ -60,26 +60,31 @@ public class BasicEntityInformationHolder implements IEntityInformationHolderWit
         this.permId = permId;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return entityKind;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return entityType;
     }
 
+    @Override
     public String getCode()
     {
         return code;
     }
 
+    @Override
     public Long getId()
     {
         return id;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

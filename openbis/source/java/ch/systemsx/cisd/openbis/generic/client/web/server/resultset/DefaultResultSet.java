@@ -48,21 +48,25 @@ public final class DefaultResultSet<K, T> implements IResultSet<K, T>
     // IResult
     //
 
+    @Override
     public final K getResultSetKey()
     {
         return resultSetKey;
     }
 
+    @Override
     public final GridRowModels<T> getList()
     {
         return list;
     }
 
+    @Override
     public final int getTotalLength()
     {
         return totalLength;
     }
 
+    @Override
     public boolean isPartial()
     {
         return partial;

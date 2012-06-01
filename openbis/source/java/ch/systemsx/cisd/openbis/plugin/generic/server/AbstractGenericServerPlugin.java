@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 abstract class AbstractGenericServerPlugin implements IServerPlugin
 {
+    @Override
     public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
         throw new UnsupportedOperationException("No entity type code is associated to "

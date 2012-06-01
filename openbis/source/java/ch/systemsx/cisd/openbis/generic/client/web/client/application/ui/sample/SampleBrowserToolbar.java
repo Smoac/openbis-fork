@@ -94,15 +94,18 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
                 sampleTypeDisplayID);
     }
     
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         if (selectSpaceCombo != null)
@@ -111,6 +114,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         }
     }
 
+    @Override
     public ListSampleDisplayCriteria tryGetCriteria()
     {
         final SampleType selectedType = tryGetSelectedSampleType();
@@ -140,6 +144,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         return selectSampleTypeCombo.tryGetSelectedSampleType();
     }
 
+    @Override
     public List<PropertyType> tryGetPropertyTypes()
     {
         final SampleType selectedType = tryGetSelectedSampleType();
@@ -194,6 +199,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         super.onRender(parent, pos);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -203,6 +209,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback entityTypeRefreshCallback)
     {
@@ -229,6 +236,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
                 || observedModifications.contains(edit(objectKind));
     }
 
+    @Override
     public void setEntityTypes(Set<SampleType> availableEntityTypes)
     {
         // TODO 2009-08-27, Tomasz Pylak: use this info to narrow properties when displaying "all"

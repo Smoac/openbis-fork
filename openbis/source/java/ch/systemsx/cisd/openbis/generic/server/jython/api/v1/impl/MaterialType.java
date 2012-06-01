@@ -28,6 +28,7 @@ public class MaterialType extends MaterialTypeImmutable implements IMaterialType
         super(code);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getMaterialType().setDescription(description);

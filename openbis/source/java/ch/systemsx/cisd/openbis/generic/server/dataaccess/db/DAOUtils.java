@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -53,7 +54,7 @@ final class DAOUtils
                 ((Number) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
         // Undo the rowCount projection
         criteria.setProjection(null);
-        criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.ROOT_ENTITY);
         return count;
     }
 
@@ -71,6 +72,7 @@ final class DAOUtils
     {
         return listByCollection(hibernateTemplate, new IDetachedCriteriaFactory()
             {
+                @Override
                 public DetachedCriteria createCriteria()
                 {
                     return DetachedCriteria.forClass(entityClass);

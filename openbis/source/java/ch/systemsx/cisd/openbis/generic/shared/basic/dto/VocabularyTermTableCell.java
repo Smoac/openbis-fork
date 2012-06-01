@@ -37,6 +37,7 @@ public class VocabularyTermTableCell implements ISerializableComparable
         vocabularyTerm = term;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return getVocabularyTerm().toString().compareTo(o.toString());

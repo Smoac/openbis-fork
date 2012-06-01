@@ -56,6 +56,7 @@ public final class PersonRenderer
     public static final GridCellRenderer<BaseEntityModel<?>> REGISTRATOR_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()
                 {
+                    @Override
                     @SuppressWarnings("unchecked")
                     public Object render(BaseEntityModel<?> model, String property,
                             ColumnData config, int rowIndex, int colIndex,
@@ -75,6 +76,7 @@ public final class PersonRenderer
     public static final GridCellRenderer<BaseEntityModel<?>> MODIFIER_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()
                 {
+                    @Override
                     @SuppressWarnings("unchecked")
                     public Object render(BaseEntityModel<?> model, String property,
                             ColumnData config, int rowIndex, int colIndex,

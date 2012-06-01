@@ -193,6 +193,7 @@ public class SearchTest extends AbstractGWTTestCase
     {
         return new AbstractDefaultTestCommand()
             {
+                @Override
                 public void execute()
                 {
                     GWTTestUtil

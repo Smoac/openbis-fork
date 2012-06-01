@@ -111,6 +111,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                         viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Project>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<Project>> selectedItem,
                                         boolean keyPressed)
@@ -127,6 +128,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                         viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Project>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<Project>> selectedItem,
                                         boolean keyPressed)
@@ -265,7 +267,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                     @Override
                     public String getId()
                     {
-                        return ProjectEditForm.createId(projectId);
+                        return AbstractProjectEditRegisterForm.createId(projectId);
                     }
 
                     @Override

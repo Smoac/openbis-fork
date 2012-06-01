@@ -241,6 +241,7 @@ public class RemoteConsole
         // ICallbackListener
         //
 
+        @Override
         public final void finishOnSuccessOf(final AbstractAsyncCallback<Object> callback,
                 final Object result)
         {
@@ -270,6 +271,7 @@ public class RemoteConsole
             }
         }
 
+        @Override
         public final void onFailureOf(final IMessageProvider messageProvider,
                 final AbstractAsyncCallback<Object> callback, final String failureMessage,
                 final Throwable throwable)
@@ -295,6 +297,7 @@ public class RemoteConsole
                     + failureMessage + " [" + throwable.getClass() + ": " + msg + "]");
         }
 
+        @Override
         public void registerCallback(final AbstractAsyncCallback<?> callback)
         {
             activeCallbacksCounter++;
@@ -309,6 +312,7 @@ public class RemoteConsole
                     + "' (active count: " + activeCallbacksCounter + ")");
         }
 
+        @Override
         public void ignoreCallback(final AbstractAsyncCallback<?> callback)
         {
             activeCallbacksCounter--;

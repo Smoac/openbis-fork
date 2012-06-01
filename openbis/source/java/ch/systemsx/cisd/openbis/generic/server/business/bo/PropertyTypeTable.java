@@ -37,6 +37,7 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
         super(daoFactory, session);
     }
 
+    @Override
     public List<PropertyTypePE> getPropertyTypes()
     {
         if (propertyTypes == null)
@@ -46,16 +47,19 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
         return propertyTypes;
     }
 
+    @Override
     public void load()
     {
         propertyTypes = getPropertyTypeDAO().listAllPropertyTypes();
     }
 
+    @Override
     public void loadWithRelations()
     {
         propertyTypes = getPropertyTypeDAO().listAllPropertyTypesWithRelations();
     }
 
+    @Override
     public final void enrichWithRelations()
     {
         if (propertyTypes == null)

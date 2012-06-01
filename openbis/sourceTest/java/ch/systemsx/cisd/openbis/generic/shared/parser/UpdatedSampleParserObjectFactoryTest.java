@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.parser.DefaultPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
@@ -58,7 +60,7 @@ public final class UpdatedSampleParserObjectFactoryTest
     private final static IPropertyMapper createPropertyMapper()
     {
         final String[] properties = new String[]
-            { UpdatedSample.IDENTIFIER_COLUMN, UpdatedSample.CONTAINER, PROPERTY_1, PROPERTY_2 };
+            { Identifier.IDENTIFIER_COLUMN, NewSample.CONTAINER, PROPERTY_1, PROPERTY_2 };
         final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties, null);
         return propertyMapper;
     }

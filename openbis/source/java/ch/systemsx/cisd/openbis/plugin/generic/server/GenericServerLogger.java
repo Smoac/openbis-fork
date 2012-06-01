@@ -77,6 +77,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -84,6 +85,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
@@ -91,12 +93,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
+    @Override
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         logAccess(sessionToken, "get_data_set_info", "ID(%s)", datasetId);
         return null;
     }
 
+    @Override
     public void registerExperiment(String sessionToken, NewExperiment experiment,
             final Collection<NewAttachment> attachments)
     {
@@ -105,11 +109,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 experiment.getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
     }
 
+    @Override
     public void registerMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials)
     {
         logTracking(sessionToken, "register_materials", getMaterials(newMaterials));
     }
 
+    @Override
     public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
             boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
@@ -117,6 +123,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return 0;
     }
 
+    @Override
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final Integer versionOrNull)
             throws UserFailureException
@@ -126,6 +133,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, Integer versionOrNull)
     {
@@ -134,6 +142,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, Integer versionOrNull)
     {
@@ -142,12 +151,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public List<String> generateCodes(String sessionToken, String prefix, int number)
     {
         logAccess(sessionToken, "generate_codes", "PREFIX(%s) NUMBER(%s)", prefix, number);
         return null;
     }
 
+    @Override
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_experiment",
@@ -157,6 +168,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
@@ -164,6 +176,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_sample",
@@ -173,6 +186,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s) SAMPLE(%s) MODIFIED_PARENTS(%s)",
@@ -181,18 +195,21 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    @Override
     public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
             throws UserFailureException
     {
         logTracking(sessionToken, "register_samples", getSamples(newSamplesWithType));
     }
 
+    @Override
     public void updateSamples(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType)
             throws UserFailureException
     {
         logTracking(sessionToken, "update_samples", getSamples(updatedSamplesWithType));
     }
 
+    @Override
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
     {
         for (NewMaterialsWithTypes materialsWithType : materials)
@@ -203,12 +220,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         }
     }
 
+    @Override
     public void registerOrUpdateSamples(String sessionToken,
             List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
         logTracking(sessionToken, "register_or_update_samples", getSamples(newSamplesWithType));
     }
 
+    @Override
     public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
             throws UserFailureException
     {
@@ -216,6 +235,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 (dataSets.getDataSetType().getCode() + ":" + dataSets.getNewDataSets().size()));
     }
 
+    @Override
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
             throws UserFailureException
     {
@@ -223,6 +243,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 experiments.getExperimentTypeCode(), experiments.getNewExperiments().size());
     }
 
+    @Override
     public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
             throws UserFailureException
     {
@@ -230,6 +251,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
     }
 
+    @Override
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
@@ -240,6 +262,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 getMaterials(newMaterialsWithType));
     }
 
+    @Override
     public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)

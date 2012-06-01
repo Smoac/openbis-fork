@@ -37,16 +37,19 @@ public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> impleme
         super(sessionFactory, databaseInstance, FileFormatTypePE.class);
     }
 
+    @Override
     public FileFormatTypePE tryToFindFileFormatTypeByCode(String code)
     {
         return tryFindTypeByCode(code);
     }
 
+    @Override
     public List<FileFormatTypePE> listFileFormatTypes()
     {
         return listTypes();
     }
 
+    @Override
     public void createOrUpdate(FileFormatTypePE fileFormatType)
     {
         assert fileFormatType != null : "File Format Type is null";

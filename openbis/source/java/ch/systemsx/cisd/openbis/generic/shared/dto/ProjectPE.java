@@ -286,6 +286,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
+    @Override
     public final int compareTo(final ProjectPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
@@ -295,6 +296,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     // IIdHolder
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.PROJECT_SEQUENCE, sequenceName = SequenceNames.PROJECT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.PROJECT_SEQUENCE)
@@ -303,6 +305,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return id;
     }
 
+    @Override
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
@@ -320,6 +323,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return AttachmentHolderKind.PROJECT;
     }
 
+    @Override
     @Transient
     public String getPermId()
     {
@@ -337,6 +341,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return attachments;
     }
 
+    @Override
     @Transient
     public final String getIdentifier()
     {

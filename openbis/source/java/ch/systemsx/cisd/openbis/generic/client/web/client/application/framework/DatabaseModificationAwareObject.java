@@ -46,11 +46,13 @@ public class DatabaseModificationAwareObject<T> implements IDatabaseModification
         return new IDatabaseModificationObserver()
             {
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return DatabaseModificationKind.EMPTY_ARRAY;
                 }
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     // do nothing
@@ -71,11 +73,13 @@ public class DatabaseModificationAwareObject<T> implements IDatabaseModification
         return modificationObserver;
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return modificationObserver.getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         modificationObserver.update(observedModifications);

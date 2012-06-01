@@ -53,6 +53,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     // EntityPropertyPE
     //
 
+    @Override
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePropertyTypePE.class)
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN)
@@ -61,6 +62,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
         return entityTypePropertyType;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE)
@@ -72,6 +74,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     /**
      * Returns the experiment that this property belongs to.
      */
+    @Override
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)

@@ -45,6 +45,7 @@ public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin,
     @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private ISampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         sampleServerPluginRegistry.registerPlugin(this);

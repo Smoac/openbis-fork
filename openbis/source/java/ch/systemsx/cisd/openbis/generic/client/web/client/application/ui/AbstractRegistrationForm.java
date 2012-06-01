@@ -285,11 +285,13 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         // Listener
         //
 
+        @Override
         public final void handleEvent(final FieldEvent be)
         {
             resetInfoBox();
         }
 
+        @Override
         public final void onClick(ClickEvent sender)
         {
             resetInfoBox();

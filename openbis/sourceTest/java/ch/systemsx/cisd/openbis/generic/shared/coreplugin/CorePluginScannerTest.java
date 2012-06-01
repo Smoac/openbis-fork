@@ -105,6 +105,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         File originalDir = new File(originalPath);
         FileUtils.copyDirectory(originalDir, workingDirectory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return false == pathname.getName().equals(".svn");

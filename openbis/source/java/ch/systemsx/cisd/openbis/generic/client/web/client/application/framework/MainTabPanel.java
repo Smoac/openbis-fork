@@ -90,6 +90,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                 DefaultTabItem.createWithUpdater(BLANK_TAB_TITLE, mainComponent,
                         new IDelegatedAction()
                             {
+                                @Override
                                 public void execute()
                                 {
                                     mainComponent.removeAll();
@@ -121,6 +122,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
      * be generated out of given {@link ITabItem}.
      * </p>
      */
+    @Override
     public final void open(final AbstractTabItemFactory tabItemFactory)
     {
         boolean inBackground = tabItemFactory.isInBackground();
@@ -165,6 +167,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     }
 
     /** closes all opened tabs */
+    @Override
     public final void reset()
     {
         for (TabItem openTab : new ArrayList<TabItem>(openTabs.values()))
@@ -313,6 +316,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         {
             return new Listener<ComponentEvent>()
                 {
+                    @Override
                     public final void handleEvent(final ComponentEvent be)
                     {
                         if (be.getType() == AppEvents.CloseViewer)
@@ -327,6 +331,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         {
             return new Listener<TabPanelEvent>()
                 {
+                    @Override
                     public final void handleEvent(final TabPanelEvent be)
                     {
                         if (be.getType().equals(Events.Close))
@@ -341,6 +346,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         {
             return new Listener<TabPanelEvent>()
                 {
+                    @Override
                     public final void handleEvent(final TabPanelEvent be)
                     {
                         if (be.getType().equals(Events.Select))
@@ -355,6 +361,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         {
             return new Listener<TabPanelEvent>()
                 {
+                    @Override
                     public void handleEvent(final TabPanelEvent be)
                     {
                         be.setCancelled(true);

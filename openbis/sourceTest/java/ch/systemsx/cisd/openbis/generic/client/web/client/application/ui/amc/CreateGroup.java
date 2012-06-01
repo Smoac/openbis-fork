@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -47,7 +49,7 @@ public final class CreateGroup extends CheckTableCommand
         GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, SpaceGrid.BROWSER_ID
                 + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(SpaceGrid.ADD_BUTTON_ID);
-        GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
-        GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.getTextFieldWithID(AbstractRegistrationDialog.CODE_FIELD_ID).setValue(groupCode);
+        GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }
 }

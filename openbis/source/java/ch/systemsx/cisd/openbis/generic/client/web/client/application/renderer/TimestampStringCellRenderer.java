@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 public class TimestampStringCellRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
 
+    @Override
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)

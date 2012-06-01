@@ -58,6 +58,7 @@ public class WidgetPicker implements IWidgetHandler<Widget>
     // IWidgetHandler
     //
 
+    @Override
     public final boolean handle(final Widget widgetOrNull)
     {
         final String widgetId = GWTTestUtil.tryToGetWidgetID(widgetOrNull);

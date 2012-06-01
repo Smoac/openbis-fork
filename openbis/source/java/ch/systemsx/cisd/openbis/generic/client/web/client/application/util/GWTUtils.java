@@ -111,6 +111,7 @@ public final class GWTUtils
                 new SimpleDialog(panel, heading, okButtonLabel, messageProvider);
         dialog.setAcceptAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     MessageBox.alert("Error Details", detailedMsg, null);
@@ -131,6 +132,7 @@ public final class GWTUtils
             {
                 private final static int MARGIN = 30;
 
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     comboBox.setMinListWidth(MARGIN
@@ -445,6 +447,7 @@ public final class GWTUtils
     {
         Window.addWindowClosingHandler(new ClosingHandler()
             {
+                @Override
                 public void onWindowClosing(ClosingEvent event)
                 {
                     event.setMessage(msgOrNull);

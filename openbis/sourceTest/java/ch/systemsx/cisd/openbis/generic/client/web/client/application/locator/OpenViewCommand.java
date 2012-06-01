@@ -38,6 +38,7 @@ public class OpenViewCommand extends AbstractDefaultTestCommand
         this.locator = new ViewLocator(urlParams);
     }
 
+    @Override
     public void execute()
     {
         ViewLocatorResolverRegistry registry =

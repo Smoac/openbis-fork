@@ -117,6 +117,7 @@ public final class HibernateSearchContext implements InitializingBean
     // InitializingBean
     //
 
+    @Override
     public final void afterPropertiesSet() throws Exception
     {
         if (getIndexMode() == IndexMode.INDEX_FROM_SCRATCH)

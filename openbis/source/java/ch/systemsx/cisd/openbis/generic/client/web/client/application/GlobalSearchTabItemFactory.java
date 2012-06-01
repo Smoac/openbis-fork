@@ -79,6 +79,7 @@ public class GlobalSearchTabItemFactory
             {
                 private boolean firstCall = true;
 
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     if (firstCall == false)

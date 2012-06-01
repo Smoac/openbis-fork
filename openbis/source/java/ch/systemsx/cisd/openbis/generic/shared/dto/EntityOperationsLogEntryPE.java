@@ -33,6 +33,7 @@ public class EntityOperationsLogEntryPE implements IIdHolder, Serializable
 
     private Long registrationId;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.ENTITY_OPERATIONS_LOG_SEQUENCE, sequenceName = SequenceNames.ENTITY_OPERATIONS_LOG_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ENTITY_OPERATIONS_LOG_SEQUENCE)

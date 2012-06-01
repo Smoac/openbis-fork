@@ -54,6 +54,7 @@ public class XmlField extends MultilineVarcharField
     /** {@link Validator} that checks if a value is a well formed XML document. */
     protected class XMLValidator implements Validator
     {
+        @Override
         public String validate(Field<?> field, final String fieldValue)
         {
             // try to parse the value as an XML file - if it fails then it is not a well-formed XML

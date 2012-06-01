@@ -105,6 +105,7 @@ public final class DataTypeSelectionWidget extends DropDownList<DataTypeModel, D
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.EMPTY_ARRAY;

@@ -41,6 +41,7 @@ public class DemoMaintenanceTask implements IMaintenanceTask
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DemoMaintenanceTask.class);
 
+    @Override
     public void execute()
     {
         IProjectDAO projectDAO = CommonServiceProvider.getDAOFactory().getProjectDAO();
@@ -60,6 +61,7 @@ public class DemoMaintenanceTask implements IMaintenanceTask
         operationLog.info("task executed");
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         operationLog.info("Plugin " + pluginName + " initialized with properties:\n" + properties);

@@ -235,6 +235,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public String getOnlineHelpGenericRootURL()
     {
         return onlineHelpGenericRootURL;
@@ -250,6 +251,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public String getOnlineHelpGenericPageTemplate()
     {
         return onlineHelpGenericPageTemplate;
@@ -265,6 +267,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public String getOnlineHelpSpecificRootURL()
     {
         return onlineHelpSpecificRootURL;
@@ -280,6 +283,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public String getOnlineHelpSpecificPageTemplate()
     {
         return onlineHelpSpecificPageTemplate;
@@ -375,6 +379,7 @@ public abstract class AbstractClientService implements IClientService,
         return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator(),
                 new ICustomColumnsProvider()
                     {
+                        @Override
                         public List<GridCustomColumn> getGridCustomColumn(String sessionToken,
                                 String gridDisplayId)
                         {
@@ -394,6 +399,7 @@ public abstract class AbstractClientService implements IClientService,
                 listEntities(criteria,
                         new IOriginalDataProvider<TableModelRowWithObject<ReportRowModel>>()
                             {
+                                @Override
                                 public List<TableModelRowWithObject<ReportRowModel>> getOriginalData(
                                         int maxSize) throws UserFailureException
                                 {
@@ -402,6 +408,7 @@ public abstract class AbstractClientService implements IClientService,
                                                     .getRows());
                                 }
 
+                                @Override
                                 public List<TableModelColumnHeader> getHeaders()
                                 {
                                     return reportTableModel.getHeader();
@@ -417,6 +424,7 @@ public abstract class AbstractClientService implements IClientService,
     // IClientService
     //
 
+    @Override
     public final ApplicationInfo getApplicationInfo()
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
@@ -467,6 +475,7 @@ public abstract class AbstractClientService implements IClientService,
         return results;
     }
 
+    @Override
     public final List<CustomImport> getCustomImports()
     {
         return extractCustomImportProperties();
@@ -499,6 +508,7 @@ public abstract class AbstractClientService implements IClientService,
         return false;
     }
 
+    @Override
     public final SessionContext tryToGetCurrentSessionContext(boolean anonymous)
     {
         try
@@ -521,6 +531,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public final SessionContext tryToLoginAnonymously()
     {
         try
@@ -537,6 +548,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public final SessionContext tryToLogin(final String userID, final String password)
     {
         try
@@ -580,6 +592,7 @@ public abstract class AbstractClientService implements IClientService,
         return createSessionContext(session);
     }
 
+    @Override
     public void setBaseURL(String baseURL)
     {
         try
@@ -597,6 +610,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public void updateDisplaySettings(DisplaySettings displaySettings)
     {
         try
@@ -614,6 +628,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public DisplaySettings resetDisplaySettings()
     {
         try
@@ -633,6 +648,7 @@ public abstract class AbstractClientService implements IClientService,
         return null;
     }
 
+    @Override
     public void changeUserHomeGroup(TechId groupIdOrNull)
     {
         try
@@ -649,6 +665,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @Override
     public final void logout(DisplaySettings displaySettings, boolean simpleViewMode)
     {
         try

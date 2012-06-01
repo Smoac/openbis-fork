@@ -59,6 +59,7 @@ class SimpleSQLLongArray extends AbstractSQLArray
      * 
      * @return the object array
      */
+    @Override
     public Object getArray()
     {
         return value;
@@ -69,6 +70,7 @@ class SimpleSQLLongArray extends AbstractSQLArray
      * 
      * @return BIGINT
      */
+    @Override
     public int getBaseType()
     {
         return Types.BIGINT;
@@ -79,6 +81,7 @@ class SimpleSQLLongArray extends AbstractSQLArray
      * 
      * @return "int8"
      */
+    @Override
     public String getBaseTypeName()
     {
         return "int8";

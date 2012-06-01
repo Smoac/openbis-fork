@@ -87,6 +87,7 @@ public class TestInitializer
         {
             FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
                 {
+                    @Override
                     public boolean accept(File path)
                     {
                         return false == path.getName().equalsIgnoreCase(".svn");

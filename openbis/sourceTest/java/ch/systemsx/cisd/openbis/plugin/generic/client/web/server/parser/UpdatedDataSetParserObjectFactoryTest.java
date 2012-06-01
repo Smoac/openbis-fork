@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.parser.DefaultPropertyMapper;
 import ch.systemsx.cisd.common.parser.MandatoryPropertyMissingException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 
 /**
@@ -45,7 +47,7 @@ public final class UpdatedDataSetParserObjectFactoryTest
     public void testLineWithCodeColumnSpecifiedButEmpty()
     {
         Tokens tokens = new Tokens();
-        tokens.setToken(UpdatedDataSet.CODE, "");
+        tokens.setToken(Code.CODE, "");
         createObject(tokens);
     }
 
@@ -53,7 +55,7 @@ public final class UpdatedDataSetParserObjectFactoryTest
     public void testLineWithCodeColumnSpecifiedAndNotEmpty()
     {
         Tokens tokens = new Tokens();
-        tokens.setToken(UpdatedDataSet.CODE, "TEST-CODE");
+        tokens.setToken(Code.CODE, "TEST-CODE");
 
         UpdatedDataSet dataset = createObject(tokens);
 
@@ -81,12 +83,12 @@ public final class UpdatedDataSetParserObjectFactoryTest
     public void testLineWithColumnsSpecifiedButEmpty()
     {
         Tokens tokens = new Tokens();
-        tokens.setToken(UpdatedDataSet.CODE, "TEST-CODE");
-        tokens.setToken(UpdatedDataSet.CONTAINER, "");
-        tokens.setToken(UpdatedDataSet.EXPERIMENT, "");
-        tokens.setToken(UpdatedDataSet.FILE_FORMAT, "");
-        tokens.setToken(UpdatedDataSet.PARENTS, "");
-        tokens.setToken(UpdatedDataSet.SAMPLE, "");
+        tokens.setToken(Code.CODE, "TEST-CODE");
+        tokens.setToken(NewDataSet.CONTAINER, "");
+        tokens.setToken(NewDataSet.EXPERIMENT, "");
+        tokens.setToken(NewDataSet.FILE_FORMAT, "");
+        tokens.setToken(NewDataSet.PARENTS, "");
+        tokens.setToken(NewDataSet.SAMPLE, "");
         tokens.setToken("TEST-PROPERTY-1", "");
         tokens.setToken("TEST-PROPERTY-2", "");
 
@@ -116,12 +118,12 @@ public final class UpdatedDataSetParserObjectFactoryTest
     public void testLineWithColumnsSpecifiedAndNotEmpty()
     {
         Tokens tokens = new Tokens();
-        tokens.setToken(UpdatedDataSet.CODE, "TEST-CODE");
-        tokens.setToken(UpdatedDataSet.CONTAINER, "TEST-CONTAINER");
-        tokens.setToken(UpdatedDataSet.EXPERIMENT, "TEST-EXPERIMENT");
-        tokens.setToken(UpdatedDataSet.FILE_FORMAT, "TEST-FORMAT");
-        tokens.setToken(UpdatedDataSet.PARENTS, "TEST-PARENT-1,TEST-PARENT-2");
-        tokens.setToken(UpdatedDataSet.SAMPLE, "TEST-SAMPLE");
+        tokens.setToken(Code.CODE, "TEST-CODE");
+        tokens.setToken(NewDataSet.CONTAINER, "TEST-CONTAINER");
+        tokens.setToken(NewDataSet.EXPERIMENT, "TEST-EXPERIMENT");
+        tokens.setToken(NewDataSet.FILE_FORMAT, "TEST-FORMAT");
+        tokens.setToken(NewDataSet.PARENTS, "TEST-PARENT-1,TEST-PARENT-2");
+        tokens.setToken(NewDataSet.SAMPLE, "TEST-SAMPLE");
         tokens.setToken("TEST-PROPERTY-1", "TEST-VALUE-1");
         tokens.setToken("TEST-PROPERTY-2", "TEST-VALUE-2");
 
@@ -155,12 +157,12 @@ public final class UpdatedDataSetParserObjectFactoryTest
     public void testLineWithColumnsSpecifiedAndMarkedForDeletetion()
     {
         Tokens tokens = new Tokens();
-        tokens.setToken(UpdatedDataSet.CODE, "TEST-CODE");
-        tokens.setToken(UpdatedDataSet.CONTAINER, "--DELETE--");
+        tokens.setToken(Code.CODE, "TEST-CODE");
+        tokens.setToken(NewDataSet.CONTAINER, "--DELETE--");
         // experiment column cannot be marked for deletion
-        tokens.setToken(UpdatedDataSet.FILE_FORMAT, "__DELETE__");
-        tokens.setToken(UpdatedDataSet.PARENTS, "--DELETE--");
-        tokens.setToken(UpdatedDataSet.SAMPLE, "--DELETE--");
+        tokens.setToken(NewDataSet.FILE_FORMAT, "__DELETE__");
+        tokens.setToken(NewDataSet.PARENTS, "--DELETE--");
+        tokens.setToken(NewDataSet.SAMPLE, "--DELETE--");
         tokens.setToken("TEST-PROPERTY-1", "--DELETE--");
         tokens.setToken("TEST-PROPERTY-2", "__DELETE__");
 

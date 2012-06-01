@@ -24,11 +24,13 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -53,7 +55,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     private FillExperimentEditForm(final TechId experimentId)
     {
-        this.formId = GenericExperimentEditForm.createId(experimentId, EntityKind.EXPERIMENT);
+        this.formId = AbstractGenericEntityRegistrationForm.createId(experimentId, EntityKind.EXPERIMENT);
         this.properties = new ArrayList<PropertyField>();
     }
 
@@ -70,9 +72,10 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
         return this;
     }
 
+    @Override
     public final void execute()
     {
-        String simpleId = formId.substring(GenericExperimentEditForm.ID_PREFIX.length());
+        String simpleId = formId.substring(AbstractGenericEntityRegistrationForm.ID_PREFIX.length());
         for (final PropertyField property : properties)
         {
             GWTTestUtil.setPropertyFieldValue(formId, property);
@@ -80,7 +83,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
         if (newProjectOrNull != null)
         {
             final ProjectSelectionWidget projectSelector =
-                    (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
+                    (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                             + ProjectSelectionWidget.SUFFIX + simpleId);
             GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.PROJECT_IDENTIFIER,
                     newProjectOrNull);

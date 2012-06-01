@@ -54,6 +54,7 @@ public class DssLinkTableCell implements ISerializableComparable
         return linkModel;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return toString().compareTo(String.valueOf(o));

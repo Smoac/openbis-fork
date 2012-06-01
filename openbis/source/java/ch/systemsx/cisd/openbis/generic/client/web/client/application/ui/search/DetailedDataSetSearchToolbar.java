@@ -46,6 +46,7 @@ public class DetailedDataSetSearchToolbar extends DetailedSearchToolbar
             IAddProcessingPluginsMenuAction addPluginsAction =
                     new IAddProcessingPluginsMenuAction()
                         {
+                            @Override
                             public void addProcessingPlugins(DataSetProcessingMenu menu)
                             {
                                 add(new SeparatorToolItem());

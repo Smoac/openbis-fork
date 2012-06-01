@@ -42,6 +42,7 @@ public class ManagedUiDescription implements IManagedUiDescription, Serializable
     {
     }
 
+    @Override
     public IManagedOutputWidgetDescription getOutputWidgetDescription()
     {
         return outputWidget;
@@ -52,6 +53,7 @@ public class ManagedUiDescription implements IManagedUiDescription, Serializable
         this.outputWidget = outputWidget;
     }
 
+    @Override
     public IManagedUiAction addAction(String id)
     {
         IManagedUiAction action = new ManagedUiActionDescription(id);
@@ -59,6 +61,7 @@ public class ManagedUiDescription implements IManagedUiDescription, Serializable
         return action;
     }
 
+    @Override
     public ManagedUiTableActionDescription addTableAction(String id)
     {
         ManagedUiTableActionDescription action = new ManagedUiTableActionDescription(id);
@@ -66,11 +69,13 @@ public class ManagedUiDescription implements IManagedUiDescription, Serializable
         return action;
     }
 
+    @Override
     public List<IManagedUiAction> getActions()
     {
         return actions;
     }
 
+    @Override
     public void useTableOutput(ITableModel tableModel)
     {
         ManagedTableWidgetDescription tableWidget = new ManagedTableWidgetDescription();
@@ -84,6 +89,7 @@ public class ManagedUiDescription implements IManagedUiDescription, Serializable
         setOutputWidgetDescription(tableWidget);
     }
 
+    @Override
     public void useHtmlOutput(String htmlText)
     {
         setOutputWidgetDescription(new ManagedHtmlWidgetDescription(htmlText));

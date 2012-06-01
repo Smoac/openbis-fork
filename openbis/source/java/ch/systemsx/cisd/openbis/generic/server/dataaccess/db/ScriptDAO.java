@@ -56,6 +56,7 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
         super(sessionFactory, databaseInstance, ScriptPE.class);
     }
 
+    @Override
     public void createOrUpdate(ScriptPE script)
     {
         assert script != null : "Missing script.";
@@ -69,6 +70,7 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
         }
     }
 
+    @Override
     public ScriptPE tryFindByName(String scriptName)
     {
         assert scriptName != null : "Unspecified script.";
@@ -79,6 +81,7 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
         return (ScriptPE) criteria.uniqueResult();
     }
 
+    @Override
     public List<ScriptPE> listEntities(ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
             throws DataAccessException
     {

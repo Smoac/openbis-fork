@@ -74,6 +74,7 @@ public final class DemoClientService extends AbstractClientService implements ID
     // IDemoClientService
     //
 
+    @Override
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId,
             String baseIndexURL)
     {
@@ -83,6 +84,7 @@ public final class DemoClientService extends AbstractClientService implements ID
         return sampleGenerationDTO;
     }
 
+    @Override
     public final void registerSample(final String sessionKey, final NewSample sample)
     {
 
@@ -97,6 +99,7 @@ public final class DemoClientService extends AbstractClientService implements ID
             }.process(sessionKey, getHttpSession(), sample.getAttachments());
     }
 
+    @Override
     public int getNumberOfExperiments() throws UserFailureException
     {
         final String sessionToken = getSessionToken();

@@ -82,6 +82,7 @@ public class SQLQueryField extends MultilineVarcharField
     protected class SingleSQLQueryValidator implements Validator
     {
 
+        @Override
         public String validate(Field<?> field, final String fieldValue)
         {
             int indexOfSemicolon = fieldValue.trim().indexOf(';');

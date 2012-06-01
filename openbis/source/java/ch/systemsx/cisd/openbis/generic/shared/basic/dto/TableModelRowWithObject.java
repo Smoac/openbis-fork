@@ -75,6 +75,7 @@ public class TableModelRowWithObject<T extends Serializable> extends TableModelR
         return objectOrNull;
     }
 
+    @Override
     public Long getId()
     {
         return id;

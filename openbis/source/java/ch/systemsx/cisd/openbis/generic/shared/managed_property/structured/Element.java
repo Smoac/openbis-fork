@@ -49,11 +49,13 @@ public class Element implements IElement
         this.name = name;
     }
 
+    @Override
     public String getName()
     {
         return name;
     }
 
+    @Override
     public String getAttribute(String key)
     {
         String value = attributes.get(key);
@@ -65,6 +67,7 @@ public class Element implements IElement
         return value;
     }
 
+    @Override
     public String getAttribute(String key, String defaultValue)
     {
         String value = attributes.get(key);
@@ -75,22 +78,26 @@ public class Element implements IElement
         return value;
     }
 
+    @Override
     public String getData()
     {
         return data;
     }
 
+    @Override
     public List<IElement> getChildren()
     {
         return Collections.unmodifiableList(children);
     }
 
+    @Override
     public Map<String, String> getAttributes()
     {
         return Collections.unmodifiableMap(attributes);
     }
 
 
+    @Override
     public IElement setAttributes(Map<String, String> newAttributes)
     {
         assert newAttributes != null : "Setting null attributes is not allowed.";
@@ -104,6 +111,7 @@ public class Element implements IElement
     }
 
 
+    @Override
     public IElement setChildren(List<IElement> newChildren)
     {
         assert newChildren != null : "Setting null children is not allowed.";
@@ -112,12 +120,14 @@ public class Element implements IElement
         return this;
     }
 
+    @Override
     public IElement setData(String data)
     {
         this.data = data;
         return this;
     }
 
+    @Override
     public IElement addChildren(IElement... newChildren)
     {
         for (IElement child : newChildren)
@@ -127,6 +137,7 @@ public class Element implements IElement
         return this;
     }
 
+    @Override
     public IElement addAttribute(String key, String value)
     {
         validateAttribute(key, value);

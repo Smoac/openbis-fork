@@ -88,6 +88,7 @@ public class MaterialBrowserToolbar extends ToolBar implements IDisposableCompon
         add(selectMaterialTypeCombo);
     }
 
+    @Override
     public final ListMaterialDisplayCriteria tryGetCriteria()
     {
         final MaterialType selectedType = selectMaterialTypeCombo.tryGetSelectedMaterialType();
@@ -104,6 +105,7 @@ public class MaterialBrowserToolbar extends ToolBar implements IDisposableCompon
         super.onRender(parent, pos);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -112,6 +114,7 @@ public class MaterialBrowserToolbar extends ToolBar implements IDisposableCompon
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback entityTypeRefreshCallback)
     {
@@ -127,15 +130,18 @@ public class MaterialBrowserToolbar extends ToolBar implements IDisposableCompon
         }
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         if (selectMaterialTypeCombo != null)

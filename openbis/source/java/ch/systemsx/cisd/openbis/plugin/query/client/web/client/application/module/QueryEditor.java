@@ -86,7 +86,7 @@ public class QueryEditor extends Dialog
 
     private static Button createCancelButton(IViewContext<?> viewContext, final Window window)
     {
-        return new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
+        return new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_CANCEL),
                 new SelectionListener<ButtonEvent>()
                     {
                         @Override
@@ -128,6 +128,7 @@ public class QueryEditor extends Dialog
             parameterFields = new ArrayList<IParameterField>();
             final IParameterValuesLoader parameterValuesloader = new IParameterValuesLoader()
                 {
+                    @Override
                     public void loadData(String queryExpression,
                             AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
                     {
@@ -145,7 +146,7 @@ public class QueryEditor extends Dialog
             }
 
             add(form, new BorderLayoutData(LayoutRegion.CENTER));
-            addButton(new Button(viewContext.getMessage(Dict.BUTTON_SUBMIT),
+            addButton(new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SUBMIT),
                     new SelectionListener<ButtonEvent>()
                         {
                             @Override
@@ -215,14 +216,14 @@ public class QueryEditor extends Dialog
         setButtons("");
 
         nameField =
-                AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.NAME), true);
+                AbstractRegistrationDialog.createTextField(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.NAME), true);
         nameField.setMaxLength(200);
         descriptionField =
                 AbstractRegistrationDialog.createTextField(
-                        viewContext.getMessage(Dict.DESCRIPTION), false);
+                        viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DESCRIPTION), false);
         descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
         statementField = createStatementField();
-        isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
+        isPublicField = new CheckBoxField(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.IS_PUBLIC), false);
         queryDatabaseSelectionWidget =
                 new QueryDatabaseSelectionWidget(viewContext,
                         (queryOrNull != null) ? queryOrNull.getQueryDatabase() : null);
@@ -230,6 +231,7 @@ public class QueryEditor extends Dialog
         queryTypeField.addListener(Events.SelectionChange,
                 new Listener<SelectionChangedEvent<SimpleComboValue<QueryType>>>()
                     {
+                        @Override
                         public void handleEvent(
                                 SelectionChangedEvent<SimpleComboValue<QueryType>> be)
                         {
@@ -404,7 +406,7 @@ public class QueryEditor extends Dialog
     private Button createSaveButton(final FormPanel form, final IDelegatedAction refreshAction)
     {
         final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
+                new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SAVE),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -447,6 +449,7 @@ public class QueryEditor extends Dialog
                             new BindingsDialog(viewContext, parameters, queryDatabase,
                                     new QueryExecutor()
                                         {
+                                            @Override
                                             public void execute(
                                                     QueryParameterBindings parameterBindings)
                                             {
@@ -526,11 +529,13 @@ public class QueryEditor extends Dialog
     {
         return new IReportInformationProvider()
             {
+                @Override
                 public String getDownloadURL()
                 {
                     return null;
                 }
 
+                @Override
                 public String getKey()
                 {
                     return Integer.toString(sqlQuery.hashCode());
@@ -542,6 +547,7 @@ public class QueryEditor extends Dialog
     {
         return new IOnReportComponentGeneratedAction()
             {
+                @Override
                 public void execute(final IDisposableComponent reportComponent)
                 {
                     removeAll();

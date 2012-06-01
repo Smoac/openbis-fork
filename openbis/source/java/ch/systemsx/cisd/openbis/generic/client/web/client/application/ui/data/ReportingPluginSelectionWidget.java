@@ -64,6 +64,7 @@ public class ReportingPluginSelectionWidget extends
     {
         return new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     // hide combo box if there are no services
@@ -103,6 +104,7 @@ public class ReportingPluginSelectionWidget extends
                 .listDataStoreServices(DataStoreServiceKind.QUERIES, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0]; // don't update

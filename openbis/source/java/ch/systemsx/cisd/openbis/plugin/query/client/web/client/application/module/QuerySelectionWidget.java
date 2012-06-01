@@ -85,6 +85,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.QUERY);

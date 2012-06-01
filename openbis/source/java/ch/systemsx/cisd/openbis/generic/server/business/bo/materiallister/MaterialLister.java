@@ -109,6 +109,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     // Listing
     //
 
+    @Override
     public List<Material> list(ListMaterialCriteria criteria, boolean withProperties)
     {
         Long2ObjectMap<Material> materialMap = getMaterialsByCriteria(criteria);
@@ -175,6 +176,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         String[] materialCodes =
                 CollectionUtils.collect(identifiers, new Transformer<MaterialIdentifier, String>()
                     {
+                        @Override
                         public String transform(MaterialIdentifier arg0)
                         {
                             return arg0.getCode();
@@ -295,6 +297,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     {
         propertiesEnricher.enrich(resultMap.keySet(), new IEntityPropertiesHolderResolver()
             {
+                @Override
                 public Material get(long id)
                 {
                     return resultMap.get(id);
@@ -312,6 +315,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         return map;
     }
 
+    @Override
     public void enrichWithProperties(List<Material> materials)
     {
         setEmptyProperties(materials);

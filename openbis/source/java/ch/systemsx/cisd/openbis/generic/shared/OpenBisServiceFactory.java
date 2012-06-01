@@ -84,6 +84,7 @@ public class OpenBisServiceFactory
     {
         return new IServicePinger<IETLLIMSService>()
             {
+                @Override
                 public void ping(IETLLIMSService service)
                 {
                     service.getVersion();

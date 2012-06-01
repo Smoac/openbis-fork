@@ -45,6 +45,7 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
     // AbstractPredicate
     //
 
+    @Override
     public void init(IAuthorizationDataProvider provider)
     {
         assert initialized == false : "Already initialized";

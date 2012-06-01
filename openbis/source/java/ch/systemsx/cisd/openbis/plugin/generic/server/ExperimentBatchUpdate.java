@@ -25,22 +25,26 @@ public class ExperimentBatchUpdate implements IBatchOperation<ExperimentBatchUpd
         this.entities = newExperiments;
     }
 
+    @Override
     public void execute(List<ExperimentBatchUpdatesDTO> entitiesToUpdate)
     {
         experimentTable.prepareForUpdate(entitiesToUpdate);
         experimentTable.save();
     }
 
+    @Override
     public List<ExperimentBatchUpdatesDTO> getAllEntities()
     {
         return entities;
     }
 
+    @Override
     public String getEntityName()
     {
         return "experiment";
     }
 
+    @Override
     public String getOperationName()
     {
         return "register";

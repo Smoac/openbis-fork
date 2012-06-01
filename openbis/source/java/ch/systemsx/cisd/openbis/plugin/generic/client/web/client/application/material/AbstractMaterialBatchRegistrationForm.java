@@ -145,6 +145,7 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.MATERIAL,

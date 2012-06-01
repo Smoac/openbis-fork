@@ -41,6 +41,7 @@ public final class InvokeActionMenu extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         GWTTestUtil.selectActionMenu(action);

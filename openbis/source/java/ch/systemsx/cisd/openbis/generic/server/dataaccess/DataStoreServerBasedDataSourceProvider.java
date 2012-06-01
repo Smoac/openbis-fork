@@ -58,6 +58,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         this.daoFactory = daoFactory;
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         init(ExtendedProperties.getSubset(configurer.getResolvedProps(), ROOT_KEY + ".", true));
@@ -79,6 +80,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         }
     }
 
+    @Override
     public DataSource getDataSourceByDataSetCode(String dataSetCode, String technology)
     {
         DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
@@ -89,6 +91,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         return getDataSourceByDataStoreServerCode(dataSet.getDataStore().getCode(), technology);
     }
 
+    @Override
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
         DataSource dataSource =

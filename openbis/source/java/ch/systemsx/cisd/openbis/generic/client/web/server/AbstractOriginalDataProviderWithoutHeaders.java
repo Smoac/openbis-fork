@@ -37,12 +37,14 @@ public abstract class AbstractOriginalDataProviderWithoutHeaders<T> implements
 
     private List<T> originalData;
 
+    @Override
     public List<TableModelColumnHeader> getHeaders()
     {
         // Collections.emptyList() can not be serialized by GWT
         return NO_HEADERS;
     }
 
+    @Override
     public List<T> getOriginalData(int maxSize) throws UserFailureException
     {
         // dummy implementation

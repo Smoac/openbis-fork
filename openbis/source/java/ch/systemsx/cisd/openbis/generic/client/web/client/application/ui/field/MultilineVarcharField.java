@@ -73,6 +73,7 @@ public class MultilineVarcharField extends TextArea
     {
         addListener(Events.OnKeyDown, new Listener<FieldEvent>()
             {
+                @Override
                 public void handleEvent(FieldEvent be)
                 {
                     if (be.getKeyCode() == KeyCodes.KEY_TAB)

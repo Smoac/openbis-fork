@@ -55,22 +55,26 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         super(sessionManager, context);
     }
 
+    @Override
     public String tryToAuthenticateForAllServices(String userID, String userPassword)
     {
         return null;
     }
 
+    @Override
     public boolean isSessionActive(String sessionToken)
     {
         return false;
     }
 
+    @Override
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
     {
         logAccess(sessionToken, "list-role-sets");
         return null;
     }
 
+    @Override
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull)
     {
@@ -78,16 +82,19 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 0;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public List<Sample> listSamplesForExperiment(String sessionToken,
             String experimentIdentifierString)
     {
@@ -96,12 +103,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s)", searchCriteria);
         return null;
     }
 
+    @Override
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions)
     {
@@ -110,12 +119,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLES(%s)", abbreviate(samples));
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType)
     {
@@ -123,6 +134,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
             List<Project> projects, String experimentType)
     {
@@ -130,6 +142,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             List<Project> projects, String experimentType)
     {
@@ -137,6 +150,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded)
     {
@@ -145,30 +159,35 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         logAccess(sessionToken, "get-default-put-data-store-url");
         return null;
     }
 
+    @Override
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         logAccess(sessionToken, "get-data-store-base-url", "DATA_SET(%s)", dataSetCode);
         return null;
     }
 
+    @Override
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list-data-set-types");
         return null;
     }
 
+    @Override
     public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap(String sessionToken)
     {
         logAccess(sessionToken, "get-vocabulary-terms-map");
         return null;
     }
 
+    @Override
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connectionsToGet)
     {
@@ -177,12 +196,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
         logAccess(sessionToken, "get-data-set-meta-data", "DATA_SETS(%s)", abbreviate(dataSetCodes));
         return null;
     }
 
+    @Override
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
             EnumSet<DataSetFetchOption> fetchOptions)
     {
@@ -192,12 +213,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-data-sets", "SEARCH_CRITERIA(%s)", searchCriteria);
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
     {
         logAccess(sessionToken, "list-experiments", "EXPERIMENT_IDENTIFIERS(%s)",
@@ -205,12 +228,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Project> listProjects(String sessionToken)
     {
         logAccess(sessionToken, "list-projects");
         return null;
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
             String sessionToken)
     {
@@ -218,6 +243,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet)
     {
@@ -226,6 +252,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Material> getMaterialByCodes(String sessionToken,
             List<MaterialIdentifier> materialIdentifier)
     {
@@ -235,6 +262,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-materials", "SEARCH_CRITERIA(%s)", searchCriteria);

@@ -87,6 +87,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     // IEntityPropertyTypeDAO
     //
 
+    @Override
     public final List<EntityTypePropertyTypePE> listEntityPropertyTypes(
             final EntityTypePE entityType) throws DataAccessException
     {
@@ -106,6 +107,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return assignments;
     }
 
+    @Override
     public EntityTypePropertyTypePE tryFindAssignment(EntityTypePE entityType,
             PropertyTypePE propertyType)
     {
@@ -120,6 +122,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return etpt;
     }
 
+    @Override
     public final void createEntityPropertyTypeAssignment(
             final EntityTypePropertyTypePE entityPropertyTypeAssignement)
             throws DataAccessException
@@ -139,6 +142,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
+    @Override
     public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException
     {
         assert entityType != null : "Unspecified entity type.";
@@ -156,6 +160,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    @Override
     public void scheduleDynamicPropertiesEvaluation(final EntityTypePropertyTypePE assignment)
             throws DataAccessException
     {
@@ -187,6 +192,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    @Override
     public List<Long> listIdsOfEntitiesWithoutPropertyValue(
             final EntityTypePropertyTypePE assignment) throws DataAccessException
     {
@@ -211,6 +217,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    @Override
     public void createProperties(final EntityPropertyPE property, final List<Long> entityIds)
     {
         assert property != null : "Given property data can not be null.";
@@ -251,6 +258,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         // inserts are performed using stateless session for better memory management
         executeStatelessAction(new StatelessHibernateCallback()
             {
+                @Override
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     final SQLQuery sqlQuery = session.createSQLQuery(sql);
@@ -302,6 +310,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
     }
 
+    @Override
     public void fillTermUsageStatistics(List<VocabularyTermWithStats> termsWithStats,
             VocabularyPE vocabulary)
     {
@@ -337,6 +346,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
+    @Override
     public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode)
     {
         // we have to fetch props.entity, because hibernate search has some problems with reindexing
@@ -356,6 +366,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return properties;
     }
 
+    @Override
     public void updateProperties(List<EntityPropertyPE> properties)
     {
         final HibernateTemplate template = getHibernateTemplate();
@@ -371,6 +382,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
+    @Override
     public void increaseOrdinals(EntityTypePE entityType, Long fromOrdinal, int increment)
     {
         assert entityType != null : "Unspecified entity type.";
@@ -395,6 +407,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
+    @Override
     public Long getMaxOrdinal(EntityTypePE entityType)
     {
         assert entityType != null : "Unspecified entity type.";
@@ -410,6 +423,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return maxOrdinal == null ? 0L : maxOrdinal;
     }
 
+    @Override
     public final void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity)
     {
         assert entity != null : "entity is null";
@@ -418,6 +432,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         getHibernateTemplate().flush();
     }
 
+    @Override
     public int countAssignmentValues(String entityTypeCode, String propertyTypeCode)
     {
         assert entityTypeCode != null : "Unspecified entity type.";
@@ -432,6 +447,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                 toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
     }
 
+    @Override
     public void delete(EntityTypePropertyTypePE assignment)
     {
         HibernateTemplate template = getHibernateTemplate();

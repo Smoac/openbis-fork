@@ -61,6 +61,7 @@ class GridColumnChooserDialog extends Dialog
         columnChooserComponent.sinkEvents(Event.ONDBLCLICK);
         columnChooserComponent.addListener(Events.OnDoubleClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     insertColumnsIntoExpression(expressionField, columnChooser);

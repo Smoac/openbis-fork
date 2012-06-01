@@ -135,6 +135,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("observer", "observer"));
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
+                @Override
                 public void execute()
                 {
                     IViewContext<ICommonClientServiceAsync> viewContext =
@@ -185,6 +186,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Deletion").by(new IValueAssertion<Deletion>()
             {
+                @Override
                 public void assertValue(final Deletion deletion)
                 {
                     assertEquals("Doe", deletion.getRegistrator().getLastName());

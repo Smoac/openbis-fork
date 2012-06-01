@@ -219,6 +219,7 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
     // Comparable
     //
 
+    @Override
     public final int compareTo(final EntityTypePropertyType<T> o)
     {
         assert o != null : "Unspecified entity type property type.";

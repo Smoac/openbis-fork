@@ -69,6 +69,7 @@ public final class AuthorizationGroupSelectionWidget extends
         viewContext.getCommonService().listAuthorizationGroups(callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.AUTHORIZATION_GROUP);

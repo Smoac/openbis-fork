@@ -26,6 +26,7 @@ public class ManagedMultilineTextInputWidgetDescription extends ManagedInputWidg
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     public ManagedInputFieldType getManagedInputFieldType()
     {
         return ManagedInputFieldType.MULTILINE_TEXT;

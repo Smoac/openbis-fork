@@ -62,6 +62,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
     }
 
+    @Override
     public void init(IAuthorizationDataProvider provider)
     {
         newExperimentPredicate.init(provider);

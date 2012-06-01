@@ -177,6 +177,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.PROJECT,
                 new ICellListenerAndLinkGenerator<Experiment>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<Experiment> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -186,6 +187,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                                     specialKeyPressed, href);
                         }
 
+                        @Override
                         public String tryGetLink(Experiment entity,
                                 ISerializableComparable comparableValue)
                         {
@@ -265,6 +267,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     {
         return new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
             {
+                @Override
                 public SelectedAndDisplayedItems execute()
                 {
                     return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
@@ -299,6 +302,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     if (criteriaProvider.tryGetCriteria() != null)
@@ -394,6 +398,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     {
         criteriaProvider.update(observedModifications, new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     // update the browser
@@ -406,6 +411,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     {
         return new IDelegatedActionWithResult<DisplayedAndSelectedExperiments>()
             {
+                @Override
                 public DisplayedAndSelectedExperiments execute()
                 {
                     return new DisplayedAndSelectedExperiments(getSelectedBaseObjects(),

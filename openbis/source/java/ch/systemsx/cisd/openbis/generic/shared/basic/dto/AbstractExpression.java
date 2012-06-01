@@ -49,6 +49,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
     {
     }
 
+    @Override
     public String getName()
     {
         return name;
@@ -59,6 +60,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
         this.name = name;
     }
 
+    @Override
     public String getExpression()
     {
         return expression;
@@ -69,6 +71,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
         this.expression = expression;
     }
 
+    @Override
     public boolean isPublic()
     {
         return isPublic;
@@ -89,6 +92,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
         this.modificationDate = modificationDate;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
@@ -104,6 +108,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
         this.id = id;
     }
 
+    @Override
     public Long getId()
     {
         return id;

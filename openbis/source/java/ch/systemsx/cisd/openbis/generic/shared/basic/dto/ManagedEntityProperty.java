@@ -46,26 +46,31 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     // IManagedProperty
     //
 
+    @Override
     public boolean isOwnTab()
     {
         return ownTab;
     }
 
+    @Override
     public void setOwnTab(boolean ownTab)
     {
         this.ownTab = ownTab;
     }
 
+    @Override
     public IManagedUiDescription getUiDescription()
     {
         return uiDescription;
     }
 
+    @Override
     public String getPropertyTypeCode()
     {
         return entityProperty.getPropertyType().getCode();
     }
     
+    @Override
     public boolean isSpecialValue()
     {
         return ManagedProperty.isSpecialValue(getValue());
@@ -75,11 +80,13 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     // IEntityProperty not delegated methods
     //
 
+    @Override
     public boolean isManaged()
     {
         return true;
     }
 
+    @Override
     public boolean isScriptable()
     {
         return true;
@@ -89,66 +96,79 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     // IEntityProperty delegated methods
     //
 
+    @Override
     public String tryGetAsString()
     {
         return entityProperty.tryGetAsString();
     }
 
+    @Override
     public String tryGetOriginalValue()
     {
         return entityProperty.tryGetOriginalValue();
     }
 
+    @Override
     public Material getMaterial()
     {
         return entityProperty.getMaterial();
     }
 
+    @Override
     public void setMaterial(Material material)
     {
         entityProperty.setMaterial(material);
     }
 
+    @Override
     public VocabularyTerm getVocabularyTerm()
     {
         return entityProperty.getVocabularyTerm();
     }
 
+    @Override
     public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
     {
         entityProperty.setVocabularyTerm(vocabularyTerm);
     }
 
+    @Override
     public String getValue()
     {
         return entityProperty.getValue();
     }
 
+    @Override
     public void setValue(String value)
     {
         entityProperty.setValue(value);
     }
 
+    @Override
     public PropertyType getPropertyType()
     {
         return entityProperty.getPropertyType();
     }
 
+    @Override
     public void setPropertyType(PropertyType propertyType)
     {
         entityProperty.setPropertyType(propertyType);
     }
 
+    @Override
     public void setOrdinal(Long ordinal)
     {
         entityProperty.setOrdinal(ordinal);
     }
 
+    @Override
     public Long getOrdinal()
     {
         return entityProperty.getOrdinal();
     }
 
+    @Override
     public int compareTo(IEntityProperty o)
     {
         return entityProperty.compareTo(o);

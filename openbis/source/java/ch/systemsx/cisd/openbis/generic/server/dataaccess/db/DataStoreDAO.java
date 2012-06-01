@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -50,6 +50,7 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
         super(sessionFactory, databaseInstance);
     }
 
+    @Override
     public void createOrUpdateDataStore(DataStorePE dataStore)
     {
         assert dataStore != null : "Unspecified data store";
@@ -65,6 +66,7 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
         }
     }
 
+    @Override
     public DataStorePE tryToFindDataStoreByCode(String dataStoreCode)
     {
         assert dataStoreCode != null : "Unspecified data store code.";
@@ -74,12 +76,13 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
         return (DataStorePE) criteria.uniqueResult();
     }
 
+    @Override
     public List<DataStorePE> listDataStores()
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<DataStorePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {

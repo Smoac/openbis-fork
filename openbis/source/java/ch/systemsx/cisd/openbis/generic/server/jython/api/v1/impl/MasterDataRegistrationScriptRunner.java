@@ -50,6 +50,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         executeScript(scriptString);
     }
 
+    @Override
     public void executeScript(String jythonScript) throws MasterDataRegistrationException
     {
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);

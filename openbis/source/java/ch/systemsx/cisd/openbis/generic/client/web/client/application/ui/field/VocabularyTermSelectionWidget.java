@@ -169,6 +169,7 @@ public class VocabularyTermSelectionWidget extends
             this.code = code;
         }
 
+        @Override
         public void execute()
         {
             VocabularyTermSelectionWidget.this.typedValueOrNull = code;
@@ -180,6 +181,7 @@ public class VocabularyTermSelectionWidget extends
 
     private abstract class AddNewTermListener implements Listener<BaseEvent>
     {
+        @Override
         public void handleEvent(BaseEvent be)
         {
             if (VocabularyTermSelectionWidget.this.vocabularyOrNull != null && condition())
@@ -338,6 +340,7 @@ public class VocabularyTermSelectionWidget extends
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.VOCABULARY_TERM);

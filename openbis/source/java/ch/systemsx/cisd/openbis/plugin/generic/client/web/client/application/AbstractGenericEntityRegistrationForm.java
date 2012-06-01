@@ -146,11 +146,13 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     // ---------------------------------------------------------------------------------------------
     // IDatabaseModificationObserver
     // ---------------------------------------------------------------------------------------------
+    @Override
     public final void update(Set<DatabaseModificationKind> observedModifications)
     {
         createDatabaseModificationObserver().update(observedModifications);
     }
 
+    @Override
     public final DatabaseModificationKind[] getRelevantModifications()
     {
         return createDatabaseModificationObserver().getRelevantModifications();

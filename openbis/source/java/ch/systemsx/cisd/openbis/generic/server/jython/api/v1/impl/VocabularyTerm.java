@@ -30,11 +30,13 @@ public class VocabularyTerm extends VocabularyTermImmutable implements IVocabula
         getVocabularyTerm().setCode(code);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getVocabularyTerm().setDescription(description);
     }
 
+    @Override
     public void setLabel(String label)
     {
         getVocabularyTerm().setLabel(label);
@@ -48,6 +50,7 @@ public class VocabularyTerm extends VocabularyTermImmutable implements IVocabula
         getVocabularyTerm().setUrl(url);
     }
 
+    @Override
     public void setOrdinal(Long ordinal)
     {
         getVocabularyTerm().setOrdinal(ordinal);

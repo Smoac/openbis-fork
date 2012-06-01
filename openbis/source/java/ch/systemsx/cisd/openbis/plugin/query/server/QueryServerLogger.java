@@ -44,6 +44,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         super(sessionManager, context);
     }
 
+    @Override
     public int initDatabases(String sessionToken)
     {
         logAccess(sessionToken, "init_databases");
@@ -62,12 +63,14 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         return null;
     }
 
+    @Override
     public List<QueryDatabase> listQueryDatabases(String sessionToken)
     {
         logAccess(sessionToken, "list_query_databases");
         return null;
     }
 
+    @Override
     public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
             BasicEntityType entityTypeOrNull)
     {
@@ -76,22 +79,26 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         return null;
     }
 
+    @Override
     public void registerQuery(String sessionToken, NewQuery expression)
     {
         logTracking(sessionToken, "register_query", "EXPRESSION(%s)", expression.getName());
     }
 
+    @Override
     public void deleteQueries(String sessionToken, List<TechId> filterIds)
     {
         logTracking(sessionToken, "delete_queries", "QUERIES(%s)", filterIds.size());
     }
 
+    @Override
     public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         logTracking(sessionToken, "update_query", "ID(%s) QUERY_NAME(%s)", updates.getId(),
                 updates.getName());
     }
 
+    @Override
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings, boolean onlyPerform)
     {
@@ -101,6 +108,7 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
 
     }
 
+    @Override
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings)
     {

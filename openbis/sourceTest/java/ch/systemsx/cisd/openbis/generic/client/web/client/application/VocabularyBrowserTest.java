@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CommonGridIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGridIDs;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Vocabulary Browser</i>.
@@ -79,7 +79,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     private static void expectTermWithCode(CheckTableCommand termsTable, String code)
     {
-        termsTable.expectedColumn(VocabularyTermGridIDs.CODE, code);
+        termsTable.expectedColumn(CommonGridIDs.CODE, code);
     }
 
     public static class ShowVocabularyTerms extends AbstractDefaultTestCommand
@@ -91,6 +91,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
             this.vocabularyCode = vocabularyCode;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public void execute()
         {

@@ -97,11 +97,13 @@ public class DataSetArchivingMenu extends TextToolItem
             return taskKind;
         }
 
+        @Override
         public String getMenuId()
         {
             return this.name();
         }
 
+        @Override
         public String getMenuText(IMessageProvider messageProvider)
         {
             return messageProvider.getMessage(this.name());
@@ -121,6 +123,7 @@ public class DataSetArchivingMenu extends TextToolItem
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     final SelectedAndDisplayedItems selectedAndDisplayedItems =
@@ -168,6 +171,7 @@ public class DataSetArchivingMenu extends TextToolItem
             return computationAction;
         }
 
+        @Override
         public List<ExternalData> getSelectedDataSets()
         {
             List<ExternalData> selectedDataSets = selectedAndDisplayedItems.getSelectedDataSets();
@@ -181,6 +185,7 @@ public class DataSetArchivingMenu extends TextToolItem
     {
         return new IComputationAction()
             {
+                @Override
                 public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
                     DisplayedOrSelectedDatasetCriteria criteria =

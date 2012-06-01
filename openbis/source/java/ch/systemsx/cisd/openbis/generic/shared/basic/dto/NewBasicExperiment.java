@@ -36,11 +36,13 @@ public class NewBasicExperiment extends Identifier<NewBasicExperiment> implement
         setIdentifier(identifier);
     }
 
+    @Override
     public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
+    @Override
     public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;

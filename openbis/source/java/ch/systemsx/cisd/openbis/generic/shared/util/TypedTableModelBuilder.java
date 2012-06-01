@@ -74,30 +74,35 @@ public class TypedTableModelBuilder<T extends Serializable>
             this.column = column;
         }
 
+        @Override
         public IColumnMetaData withTitle(String title)
         {
             column.getHeader().setTitle(title);
             return this;
         }
 
+        @Override
         public IColumnMetaData withDefaultWidth(int width)
         {
             column.getHeader().setDefaultColumnWidth(width);
             return this;
         }
 
+        @Override
         public IColumnMetaData withDataType(DataTypeCode dataType)
         {
             column.getHeader().setDataType(dataType);
             return this;
         }
 
+        @Override
         public IColumnMetaData hideByDefault()
         {
             column.getHeader().setHidden(true);
             return this;
         }
 
+        @Override
         public IColumnMetaData editable()
         {
             column.getHeader().setEditable(true);
@@ -128,11 +133,13 @@ public class TypedTableModelBuilder<T extends Serializable>
             this.groupKey = groupKey;
         }
 
+        @Override
         public List<Column> getColumns()
         {
             return new ArrayList<TypedTableModelBuilder.Column>(cols);
         }
 
+        @Override
         public IColumn column(String id)
         {
             Column column = getOrCreateColumn(id);
@@ -140,17 +147,20 @@ public class TypedTableModelBuilder<T extends Serializable>
             return column;
         }
 
+        @Override
         public IColumnGroup uneditablePropertyColumns()
         {
             uneditablePropertyColumns = true;
             return this;
         }
 
+        @Override
         public void addColumnsForAssignedProperties(EntityType entityType)
         {
             addColumnsForAssignedProperties(groupKey, entityType);
         }
 
+        @Override
         public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType)
         {
             List<? extends EntityTypePropertyType<?>> propertyTypes =
@@ -167,11 +177,13 @@ public class TypedTableModelBuilder<T extends Serializable>
             }
         }
 
+        @Override
         public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes)
         {
             addColumnsForPropertyTypes(groupKey, propertyTypes);
         }
 
+        @Override
         public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes)
         {
             for (PropertyType propertyType : propertyTypes)
@@ -189,11 +201,13 @@ public class TypedTableModelBuilder<T extends Serializable>
             return column;
         }
 
+        @Override
         public void addProperties(Collection<IEntityProperty> properties)
         {
             addProperties(groupKey, properties);
         }
 
+        @Override
         public void addProperties(String idPrefix, Collection<IEntityProperty> properties)
         {
             for (IEntityProperty property : properties)
@@ -278,47 +292,55 @@ public class TypedTableModelBuilder<T extends Serializable>
             return index < values.size() ? values.get(index) : EMPTY_CELL;
         }
 
+        @Override
         public List<Column> getColumns()
         {
             return new ArrayList<TypedTableModelBuilder.Column>(Arrays.asList(this));
         }
 
+        @Override
         public IColumn withTitle(String title)
         {
             header.setTitle(title);
             return this;
         }
 
+        @Override
         public IColumn withDefaultWidth(int width)
         {
             header.setDefaultColumnWidth(width);
             return this;
         }
 
+        @Override
         public IColumn withDataType(DataTypeCode dataType)
         {
             header.setDataType(dataType);
             return this;
         }
 
+        @Override
         public IColumn withEntityKind(EntityKind entityKind)
         {
             header.setEntityKind(entityKind);
             return this;
         }
 
+        @Override
         public IColumn editable()
         {
             header.setEditable(true);
             return this;
         }
 
+        @Override
         public IColumn property(String key, String value)
         {
             header.setProperty(key, value);
             return this;
         }
 
+        @Override
         public void addValue(ISerializableComparable valueOrNull)
         {
             int index = indexProvider.getIndex();
@@ -334,6 +356,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             values.add(index, valueOrNull);
         }
 
+        @Override
         public void addString(String valueOrNull)
         {
             setDataType(DataTypeCode.VARCHAR);
@@ -342,6 +365,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(value);
         }
 
+        @Override
         public void addInteger(Long valueOrNull)
         {
             setDataType(DataTypeCode.INTEGER);
@@ -350,6 +374,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(value);
         }
 
+        @Override
         public void addDouble(Double valueOrNull)
         {
             setDataType(DataTypeCode.REAL);
@@ -358,6 +383,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(value);
         }
 
+        @Override
         public void addDate(Date valueOrNull)
         {
             setDataType(DataTypeCode.TIMESTAMP);
@@ -366,6 +392,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(value);
         }
 
+        @Override
         public void addEntityLink(IEntityInformationHolderWithIdentifier entity, String linkText)
         {
             assert entity != null;
@@ -379,6 +406,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             addValue(cell);
         }
 
+        @Override
         public void addEntityLink(
                 Collection<? extends IEntityInformationHolderWithIdentifier> entities)
         {
@@ -424,11 +452,13 @@ public class TypedTableModelBuilder<T extends Serializable>
             header.setDataType(DataTypeUtils.getCompatibleDataType(header.getDataType(), dataType));
         }
 
+        @Override
         public void addPerson(Person personOrNull)
         {
             addString(SimplePersonRenderer.createPersonName(personOrNull).toString());
         }
 
+        @Override
         public void setVocabulary(Vocabulary vocabularyOrNull)
         {
             header.setVocabulary(vocabularyOrNull);
@@ -454,6 +484,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             List<Column> itemColumns = item.getColumns();
             Collections.sort(itemColumns, new Comparator<Column>()
                 {
+                    @Override
                     public int compare(Column c1, Column c2)
                     {
                         String t1 = StringUtils.trimToEmpty(c1.getHeader().getTitle());
@@ -550,6 +581,7 @@ public class TypedTableModelBuilder<T extends Serializable>
         {
             column = new Column(id, new IIndexProvider()
                 {
+                    @Override
                     public int getIndex()
                     {
                         return rowObjects.size() - 1;

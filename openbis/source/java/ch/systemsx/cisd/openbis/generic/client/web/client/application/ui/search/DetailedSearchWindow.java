@@ -163,6 +163,7 @@ public class DetailedSearchWindow extends Dialog
         {
             widget.addListener(KeyboardEvents.Enter, new Listener<ComponentEvent>()
                 {
+                    @Override
                     public void handleEvent(ComponentEvent ce)
                     {
                         EventType type = ce.getType();

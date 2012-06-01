@@ -26,6 +26,7 @@ public class ManagedTextInputWidgetDescription extends ManagedInputWidgetDescrip
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     public ManagedInputFieldType getManagedInputFieldType()
     {
         return ManagedInputFieldType.TEXT;

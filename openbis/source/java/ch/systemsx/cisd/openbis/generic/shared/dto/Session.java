@@ -69,6 +69,7 @@ public final class Session extends BasicSession implements IAuthSession
     /**
      * Returns the {@link PersonPE} associated to this session or <code>null</code>.
      */
+    @Override
     public final PersonPE tryGetPerson()
     {
         return personOrNull;
@@ -85,6 +86,7 @@ public final class Session extends BasicSession implements IAuthSession
     }
 
     /** Returns home group code or <code>null</code>. */
+    @Override
     public final String tryGetHomeGroupCode()
     {
         final SpacePE homeGroup = tryGetHomeGroup();

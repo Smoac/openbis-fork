@@ -151,10 +151,12 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         {
             viewContext.getService().logout(null, false, new AsyncCallback<Void>()
                 {
+                    @Override
                     public void onSuccess(final Void result)
                     {
                     }
 
+                    @Override
                     public void onFailure(final Throwable caught)
                     {
                         System.out.println("LOGOUT FAILED: " + caught);
@@ -195,6 +197,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         return new AbstractDefaultTestCommand()
             {
+                @Override
                 public void execute()
                 {
                     preprocessingAction.execute();

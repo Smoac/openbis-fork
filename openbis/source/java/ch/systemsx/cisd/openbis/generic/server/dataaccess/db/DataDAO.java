@@ -33,6 +33,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -105,6 +106,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     // IExternalDataDAO
     //
 
+    @Override
     public boolean hasDataSet(SamplePE sample) throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
@@ -115,6 +117,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return count > 0;
     }
 
+    @Override
     public final List<DataPE> listRelatedDataSets(final List<IEntityInformationHolder> entities,
             EntityKind entityKind) throws DataAccessException
     {
@@ -139,6 +142,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final List<DataPE> results = new ArrayList<DataPE>();
         BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
             {
+                @Override
                 public void execute(List<Long> entityIds)
                 {
 
@@ -147,16 +151,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     results.addAll(list);
                 }
 
+                @Override
                 public List<Long> getAllEntities()
                 {
                     return ids;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "dataSet";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "listRelatedDataSets";
@@ -172,6 +179,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return results;
     }
 
+    @Override
     public final List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException
     {
         assert sample != null : "Unspecified sample.";
@@ -193,6 +201,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    @Override
     public final List<DataPE> listExternalData(final DataStorePE dataStore)
             throws DataAccessException
     {
@@ -208,6 +217,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    @Override
     public final List<DataPE> listDataSets(final ExperimentPE experiment)
             throws DataAccessException
     {
@@ -239,6 +249,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         list.addAll(set);
     }
 
+    @Override
     public DataPE tryToFindDataSetByCode(String dataSetCode)
     {
         assert dataSetCode != null : "Unspecified data set code.";
@@ -250,7 +261,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         criteria.add(codeEq);
         criteria.setFetchMode("dataSetType", FetchMode.JOIN);
         criteria.setFetchMode("dataStore", FetchMode.JOIN);
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final DataPE entity = tryFindEntity(list, "data set");
 
@@ -262,6 +273,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return entity;
     }
 
+    @Override
     public List<DeletedDataPE> tryToFindDeletedDataSetsByCodes(Collection<String> dataSetCodes)
     {
         assert dataSetCodes != null : "Unspecified collection";
@@ -274,12 +286,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final List<DeletedDataPE> list =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
                                     DetachedCriteria.forClass(DeletedDataPE.class);
                             criteria.setFetchMode("dataStore", FetchMode.SELECT);
-                            criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+                            criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
                             return criteria;
                         }
                     }, "code", dataSetCodes);
@@ -292,12 +305,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    @Override
     public List<DataPE> tryToFindFullDataSetsByIds(Collection<Long> ids, boolean withPropertyTypes,
             boolean lockForUpdate)
     {
         return tryToFindFullDataSets("id", ids, withPropertyTypes, lockForUpdate);
     }
 
+    @Override
     public List<DataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
             boolean withPropertyTypes, boolean lockForUpdate)
     {
@@ -349,6 +364,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final List<DataPE> list =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -364,7 +380,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                         "dataSetType.dataSetTypePropertyTypesInternal",
                                         FetchMode.JOIN);
                             }
-                            criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+                            criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
                             /**
                              * lockForUpdate parameter is ignored. See LMS-2882 details
@@ -384,6 +400,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    @Override
     public DataPE tryToFindFullDataSetByCode(String dataSetCode, boolean withPropertyTypes,
             boolean lockForUpdate)
     {
@@ -403,7 +420,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         {
             criteria.setFetchMode("dataSetType.dataSetTypePropertyTypesInternal", FetchMode.JOIN);
         }
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
         /**
          * lockForUpdate parameter is ignored. See LMS-2882 details
@@ -422,6 +439,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return entity;
     }
 
+    @Override
     public void updateDataSetStatuses(final List<String> dataSetCodes,
             final DataSetArchivingStatus status)
     {
@@ -456,6 +474,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         // HibernateCallback
                         //
 
+                        @Override
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
@@ -483,6 +502,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     // HibernateCallback
                     //
 
+                    @Override
                     public final Object doInHibernate(final Session session)
                             throws HibernateException, SQLException
                     {
@@ -508,6 +528,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
     }
 
+    @Override
     public void updateDataSetStatuses(final List<String> dataSetCodes,
             final DataSetArchivingStatus status, final boolean presentInArchive)
     {
@@ -542,6 +563,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         // HibernateCallback
                         //
 
+                        @Override
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
@@ -571,6 +593,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     // HibernateCallback
                     //
 
+                    @Override
                     public final Object doInHibernate(final Session session)
                             throws HibernateException, SQLException
                     {
@@ -601,6 +624,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
     }
 
+    @Override
     public void createDataSet(DataPE dataset, PersonPE modifier)
     {
         assert dataset != null : "Unspecified data set.";
@@ -623,6 +647,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
     }
 
+    @Override
     public void updateDataSet(DataPE data, PersonPE modifier)
     {
         assert data != null : "Given external data can not be null.";
@@ -698,6 +723,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         super.delete(entity);
     }
 
+    @Override
     public void delete(final List<TechId> dataIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
@@ -823,21 +849,25 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             this.additionalQueries = additionalQueries;
         }
 
+        @Override
         public List<Long> getAllEntities()
         {
             return allEntityIds;
         }
 
+        @Override
         public String getEntityName()
         {
             return entityType.name();
         }
 
+        @Override
         public String getOperationName()
         {
             return "permanently deleting";
         }
 
+        @Override
         public void execute(final List<Long> batchEntityIds)
         {
             executeStatelessAction(createPermanentDeleteAction(batchEntityIds));
@@ -858,6 +888,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 this.entityIdsToDelete = entityIdsToDelete;
             }
 
+            @Override
             public Object doInStatelessSession(StatelessSession session)
             {
                 final SQLQuery sqlQuerySelectPermIds = session.createSQLQuery(sqlSelectPermIds);
@@ -904,6 +935,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     {
                         private static final long serialVersionUID = 1L;
 
+                        @Override
                         public Object transformTuple(Object[] values, String[] aliases)
                         {
                             DeletedDataSetLocation location = new DeletedDataSetLocation();
@@ -913,6 +945,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                             return location;
                         }
 
+                        @Override
                         public List transformList(List list)
                         {
                             return list;
@@ -958,6 +991,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         IToStringConverter<Object> delegatee = ToStringDefaultConverter
                                 .getInstance();
 
+                        @Override
                         public String toString(Object value)
                         {
                             return value == null ? "" : delegatee.toString(value);
@@ -978,6 +1012,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
     {
@@ -996,6 +1031,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         // HibernateCallback
                         //
 
+                        @Override
                         public final Object doInHibernate(final Session session)
                         {
                             // we could remove this transformation if we choose to pass Long values
@@ -1009,6 +1045,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     // data set relationship helper methods
 
+    @Override
     public List<DataPE> listByCode(Set<String> values)
     {
         if (values == null || values.isEmpty())
@@ -1024,6 +1061,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
+    @Override
     public void updateDataSets(List<DataPE> dataSets, PersonPE modifier)
     {
         assert dataSets != null : "Data sets not defined";
@@ -1056,12 +1094,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
+    @Override
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
     {
         final List<Long> longIds = TechId.asLongs(samples);
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -1079,12 +1119,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return transformNumbers2TechIdList(results);
     }
 
+    @Override
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> experiments)
     {
         final List<Long> longIds = TechId.asLongs(experiments);
         final List<Long> results =
                 DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
                     {
+                        @Override
                         public DetachedCriteria createCriteria()
                         {
                             final DetachedCriteria criteria =
@@ -1107,6 +1149,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return operationLog;
     }
 
+    @Override
     public List<TechId> listContainedDataSets(Collection<TechId> containerIds)
     {
 
@@ -1116,12 +1159,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
             {
 
+                @Override
                 public void execute(List<Long> batchIds)
                 {
                     List<Long> result =
                             DAOUtils.listByCollection(getHibernateTemplate(),
                                     new IDetachedCriteriaFactory()
                                         {
+                                            @Override
                                             public DetachedCriteria createCriteria()
                                             {
                                                 final DetachedCriteria criteria =
@@ -1133,16 +1178,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                     totalResults.addAll(result);
                 }
 
+                @Override
                 public List<Long> getAllEntities()
                 {
                     return longIds;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "dataSet";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "listContainedDataSets";
@@ -1158,6 +1206,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return transformNumbers2TechIdList(totalResults);
     }
 
+    @Override
     public List<TechId> listContainedDataSetsRecursively(Collection<TechId> containersIds)
     {
         LinkedHashSet<TechId> allIds = new LinkedHashSet<TechId>();

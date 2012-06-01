@@ -67,12 +67,14 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
 
     private static class ScriptFactory implements IScriptFactory
     {
+        @Override
         public ScriptPE create()
         {
             return new ScriptPE();
         }
     }
 
+    @Override
     public void deleteByTechId(TechId groupId) throws UserFailureException
     {
         loadDataByTechId(groupId);
@@ -85,6 +87,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         }
     }
 
+    @Override
     public void loadDataByTechId(TechId id)
     {
         try
@@ -96,6 +99,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         }
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert script != null : "Script not defined";
@@ -109,6 +113,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         }
     }
 
+    @Override
     public void define(Script newScript) throws UserFailureException
     {
         assert newScript != null : "Unspecified script.";
@@ -122,6 +127,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setEntityKind(newScript.getEntityKind());
     }
 
+    @Override
     public void update(IScriptUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));

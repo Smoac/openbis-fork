@@ -54,6 +54,7 @@ abstract public class FormPanelListener implements Listener<FormEvent>
         }
     }
 
+    @Override
     public final void handleEvent(final FormEvent be)
     {
         final String msg = be.getResultHtml();

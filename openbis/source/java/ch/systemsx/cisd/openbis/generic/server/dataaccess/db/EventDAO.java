@@ -60,6 +60,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
+    @Override
     public EventPE tryFind(String identifier, EntityType entityType, EventType eventType)
     {
         assert identifier != null : "Unspecified identifier.";
@@ -79,6 +80,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
+    @Override
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
             Date maxDeletionDataOrNull)
     {

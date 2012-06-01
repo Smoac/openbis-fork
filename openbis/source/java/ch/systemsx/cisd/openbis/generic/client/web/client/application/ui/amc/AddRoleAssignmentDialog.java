@@ -112,6 +112,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
 
         radioGroup.addListener(Events.Change, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     GWTUtils.updateVisibleField(personRadio.getValue(), authGroupRadio.getValue(),

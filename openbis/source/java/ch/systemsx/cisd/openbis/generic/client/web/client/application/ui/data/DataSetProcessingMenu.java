@@ -67,11 +67,13 @@ public class DataSetProcessingMenu extends TextToolItem
                         service, null);
         final IActionMenuItem menuItemKind = new IActionMenuItem()
             {
+                @Override
                 public String getMenuText(IMessageProvider messageProvider)
                 {
                     return service.getLabel();
                 }
 
+                @Override
                 public String getMenuId()
                 {
                     return service.getKey();

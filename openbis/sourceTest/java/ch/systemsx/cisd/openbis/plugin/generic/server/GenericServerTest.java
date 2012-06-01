@@ -642,6 +642,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(materialLister));
                     one(materialLister).list(with(new BaseMatcher<ListMaterialCriteria>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 assertTrue(item instanceof ListMaterialCriteria);
@@ -651,6 +652,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                                 return true;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                                 description.appendText(materialTypePE.getCode());
@@ -820,6 +822,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                             with(new BaseMatcher<List<ExperimentBatchUpdatesDTO>>()
                                 {
 
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof List<?>)
@@ -838,6 +841,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                                         }
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
 

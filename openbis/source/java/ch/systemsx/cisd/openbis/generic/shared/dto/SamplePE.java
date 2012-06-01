@@ -288,6 +288,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     // --------------------
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
     public DeletionPE getDeletion()
@@ -502,6 +503,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // IIdAndCodeHolder
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
@@ -511,6 +513,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return id;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
@@ -547,6 +550,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // IRegistratorHolder
     //
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
@@ -622,6 +626,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // Compare
     //
 
+    @Override
     public final int compareTo(final SamplePE o)
     {
         return getSampleIdentifier().compareTo(o.getSampleIdentifier());
@@ -631,6 +636,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // IEntityPropertiesHolder
     //
 
+    @Override
     @Transient
     public Set<SamplePropertyPE> getProperties()
     {
@@ -640,12 +646,14 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     /**
      * Returns <code>true</code>, if and only if the properties have been initialized.
      */
+    @Override
     @Transient
     public boolean isPropertiesInitialized()
     {
         return HibernateUtils.isInitialized(getSampleProperties());
     }
 
+    @Override
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getSampleProperties().clear();
@@ -661,12 +669,14 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         }
     }
 
+    @Override
     public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
         getSampleProperties().add((SamplePropertyPE) property);
     }
 
+    @Override
     public void removeProperty(final EntityPropertyPE property)
     {
         getSampleProperties().remove(property);
@@ -691,6 +701,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // IMatchingEntity
     //
 
+    @Override
     @Transient
     @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public final String getIdentifier()
@@ -698,12 +709,14 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return getSampleIdentifier().toString();
     }
 
+    @Override
     @Transient
     public final EntityTypePE getEntityType()
     {
         return getSampleType();
     }
 
+    @Override
     @Transient
     public final EntityKind getEntityKind()
     {
@@ -726,6 +739,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return attachments;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)

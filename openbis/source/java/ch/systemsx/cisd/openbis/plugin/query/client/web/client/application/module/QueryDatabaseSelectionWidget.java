@@ -79,6 +79,7 @@ public final class QueryDatabaseSelectionWidget extends
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.QUERY);

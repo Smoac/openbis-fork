@@ -142,11 +142,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     // IGenericServer
     //
 
+    @Override
     public SessionContextDTO tryToAuthenticateAsSystem()
     {
         return null;
     }
 
+    @Override
     public List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
@@ -161,40 +163,47 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void registerSpace(final String sessionToken, final String groupCode,
             final String descriptionOrNull)
     {
         logTracking(sessionToken, "register_space", "CODE(%s)", groupCode);
     }
 
+    @Override
     public void updateScript(String sessionToken, IScriptUpdates updates)
     {
         logTracking(sessionToken, "update_script", "SCRIPT(%s)", updates.getId());
     }
 
+    @Override
     public void updateSpace(String sessionToken, ISpaceUpdates updates)
     {
         logTracking(sessionToken, "update_space", "SPACE(%s)", updates);
     }
 
+    @Override
     public List<Person> listPersons(final String sessionToken)
     {
         logAccess(sessionToken, "list_persons");
         return null;
     }
 
+    @Override
     public void registerPerson(final String sessionToken, final String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);
 
     }
 
+    @Override
     public List<RoleAssignment> listRoleAssignments(final String sessionToken)
     {
         logAccess(sessionToken, "list_roles");
         return null;
     }
 
+    @Override
     public void registerSpaceRole(final String sessionToken, final RoleCode roleCode,
             final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
@@ -203,6 +212,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
+    @Override
     public void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
@@ -210,6 +220,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
+    @Override
     public void deleteSpaceRole(final String sessionToken, final RoleCode roleCode,
             final SpaceIdentifier spaceIdentifier, final Grantee grantee)
     {
@@ -218,6 +229,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
+    @Override
     public void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
@@ -225,12 +237,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
+    @Override
     public final List<SampleType> listSampleTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_sample_types");
         return null;
     }
 
+    @Override
     public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
         if (criteria.isIncludeSpace())
@@ -275,6 +289,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
@@ -283,6 +298,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
@@ -291,6 +307,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
             DataSetRelationshipRole role)
     {
@@ -298,6 +315,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText,
             final boolean useWildcardSearchMode, int maxSIze)
@@ -314,6 +332,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 newSample.getSampleType(), newSample.getIdentifier());
     }
 
+    @Override
     public List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier project)
     {
@@ -321,6 +340,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier project)
     {
@@ -329,6 +349,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier project)
     {
@@ -337,6 +358,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier space)
     {
@@ -344,24 +366,28 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Project> listProjects(final String sessionToken)
     {
         logAccess(sessionToken, "list_projects");
         return null;
     }
 
+    @Override
     public List<ExperimentType> listExperimentTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_experiment_types");
         return null;
     }
 
+    @Override
     public List<PropertyType> listPropertyTypes(final String sessionToken, boolean withRelations)
     {
         logAccess(sessionToken, "list_property_types", withRelations ? "WITH_RELATIONS" : "");
         return null;
     }
 
+    @Override
     public List<EntityPropertyHistory> listEntityPropertyHistory(String sessionToken,
             EntityKind entityKind, TechId entityID)
     {
@@ -370,12 +396,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public final List<DataType> listDataTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_data_types");
         return null;
     }
 
+    @Override
     public final List<Script> listScripts(final String sessionToken, ScriptType scriptTypeOrNull,
             EntityKind entityKindOrNull)
     {
@@ -384,12 +412,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_file_format_types");
         return null;
     }
 
+    @Override
     public final List<Vocabulary> listVocabularies(final String sessionToken, boolean withTerms,
             boolean excludeInternal)
     {
@@ -397,6 +427,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
         final String entityTypeFormat = assignment.getEntityKind().name() + "_TYPE(%S)";
@@ -408,6 +439,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void updatePropertyTypeAssignment(String sessionToken,
             NewETPTAssignment assignmentUpdates)
     {
@@ -419,6 +451,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 assignmentUpdates.getSection(), assignmentUpdates.getOrdinal());
     }
 
+    @Override
     public void unassignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -427,6 +460,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 + entityTypeFormat, propertyTypeCode, entityTypeCode);
     }
 
+    @Override
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode)
     {
@@ -436,6 +470,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return 0;
     }
 
+    @Override
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {
@@ -443,22 +478,26 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 propertyType.getCode());
     }
 
+    @Override
     public void updatePropertyType(String sessionToken, IPropertyTypeUpdates updates)
     {
         logTracking(sessionToken, "update_property_type", "PROPERTY_TYPE(%s)", updates);
     }
 
+    @Override
     public final void registerVocabulary(final String sessionToken, final NewVocabulary vocabulary)
     {
         logTracking(sessionToken, "register_vocabulary", "VOCABULARY(%s)", vocabulary.getCode());
     }
 
+    @Override
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates)
     {
         logTracking(sessionToken, "update_vocabulary", "ID(%s) CODE(%s)", updates.getId(),
                 updates.getCode());
     }
 
+    @Override
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<String> vocabularyTerms, Long previousTermOrdinal)
     {
@@ -466,6 +505,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
     }
 
+    @Override
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
     {
@@ -474,11 +514,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 code, label, description, Long.toString(previousTermOrdinal));
     }
 
+    @Override
     public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)
     {
         logTracking(sessionToken, "update_vocabulary_term", "VOCABULARY_TERM(%s)", updates);
     }
 
+    @Override
     public void deleteVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeDeleted, List<VocabularyTermReplacement> termsToBeReplaced)
     {
@@ -487,6 +529,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(termsToBeDeleted), abbreviate(termsToBeReplaced));
     }
 
+    @Override
     public void makeVocabularyTermsOfficial(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> termsToBeOfficial)
     {
@@ -494,6 +537,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 "VOCABULARY_ID(%s) OFFICIAL(%s)", vocabularyId, abbreviate(termsToBeOfficial));
     }
 
+    @Override
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
             String description, String leaderId, Collection<NewAttachment> attachments)
     {
@@ -501,30 +545,35 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 projectIdentifier, abbreviate(attachments));
     }
 
+    @Override
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets", "criteria(%s)", criteria);
         return null;
     }
 
+    @Override
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_samples", "criteria(%s)", criteria);
         return null;
     }
 
+    @Override
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;
     }
 
+    @Override
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         logTracking(sessionToken, "updateDataSet", "DATA_SET(%s)", updates.getDatasetId());
         return null;
     }
 
+    @Override
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities, boolean withDetails)
     {
@@ -532,12 +581,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_material_types");
         return null;
     }
 
+    @Override
     public MaterialType getMaterialType(String sessionToken, String code)
     {
         logAccess(sessionToken, "get_material_type", "CODE(%s)", code);
@@ -552,6 +603,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -561,51 +613,61 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
         logTracking(sessionToken, "register_material_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void updateMaterialType(String sessionToken, EntityType entityType)
     {
         logTracking(sessionToken, "update_material_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
         logTracking(sessionToken, "register_sample_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void updateSampleType(String sessionToken, EntityType entityType)
     {
         logTracking(sessionToken, "update_sample_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
         logTracking(sessionToken, "register_experiment_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void updateExperimentType(String sessionToken, EntityType entityType)
     {
         logTracking(sessionToken, "update_experiment_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void registerFileFormatType(String sessionToken, FileFormatType type)
     {
         logTracking(sessionToken, "register_file_format_type", "CODE(%s)", type.getCode());
     }
 
+    @Override
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         logTracking(sessionToken, "register_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void updateDataSetType(String sessionToken, EntityType entityType)
     {
         logTracking(sessionToken, "update_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
+    @Override
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
     {
@@ -614,6 +676,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(dataSetCodes), reason, forceNotExistingLocations);
     }
 
+    @Override
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
     {
@@ -622,6 +685,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(dataSetCodes), reason, forceNotExistingLocations);
     }
 
+    @Override
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
             DeletionType deletionType)
     {
@@ -629,6 +693,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(sampleIds), reason);
     }
 
+    @Override
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
             DeletionType deletionType)
     {
@@ -636,35 +701,41 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 deletionType, abbreviate(experimentIds), reason);
     }
 
+    @Override
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
         logTracking(sessionToken, "delete_vocabularies", "IDS(%s) REASON(%s)",
                 abbreviate(vocabularyIds), reason);
     }
 
+    @Override
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
         logTracking(sessionToken, "delete_property_types", "IDS(%s) REASON(%s)",
                 abbreviate(propertyTypeIds), reason);
     }
 
+    @Override
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
         logTracking(sessionToken, "delete_projects", "IDS(%s) REASON(%s)", abbreviate(projectIds),
                 reason);
     }
 
+    @Override
     public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", abbreviate(groupIds),
                 reason);
     }
 
+    @Override
     public void deleteScripts(String sessionToken, List<TechId> scriptIds)
     {
         logTracking(sessionToken, "delete_scripts", "IDS(%s)", abbreviate(scriptIds));
     }
 
+    @Override
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -672,6 +743,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, abbreviate(fileNames), reason);
     }
 
+    @Override
     public void deleteSampleAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -679,6 +751,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, abbreviate(fileNames), reason);
     }
 
+    @Override
     public void deleteProjectAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
@@ -686,24 +759,28 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, abbreviate(fileNames), reason);
     }
 
+    @Override
     public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
         logAccess(sessionToken, "list_experiment_attachments", "ID(%s)", experimentId);
         return null;
     }
 
+    @Override
     public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
         logAccess(sessionToken, "list_sample_attachments", "ID(%s)", sampleId);
         return null;
     }
 
+    @Override
     public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
         logAccess(sessionToken, "list_project_attachments", "ID(%s)", projectId);
         return null;
     }
 
+    @Override
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
@@ -712,6 +789,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
     {
@@ -720,23 +798,27 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
         logAccess(sessionToken, "list_vocabulary_terms", "VOCABULARY(%s)", vocabulary.getCode());
         return null;
     }
 
+    @Override
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_data_set_types");
         return null;
     }
 
+    @Override
     public LastModificationState getLastModificationState(String sessionToken)
     {
         return null;
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -744,6 +826,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_sample",
@@ -753,6 +836,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public Experiment getExperimentInfo(final String sessionToken,
             final ExperimentIdentifier identifier)
     {
@@ -760,30 +844,35 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
         logAccess(sessionToken, "get_experiment_info", "ID(%s)", experimentId);
         return null;
     }
 
+    @Override
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "update_experiment", "EXPERIMENT(%s)", updates.getExperimentId());
         return null;
     }
 
+    @Override
     public Project getProjectInfo(String sessionToken, TechId projectId)
     {
         logAccess(sessionToken, "get_project_info", "ID(%s)", projectId);
         return null;
     }
 
+    @Override
     public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier)
     {
         logAccess(sessionToken, "get_project_info", "IDENTIFIER(%s)", projectIdentifier);
         return null;
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, String permId)
     {
@@ -793,6 +882,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier)
     {
@@ -800,18 +890,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public Material getMaterialInfo(String sessionToken, MaterialIdentifier identifier)
     {
         logTracking(sessionToken, "getMaterialInfo", " IDENTIFIER(%S) ", identifier);
         return null;
     }
 
+    @Override
     public Material getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         logAccess(sessionToken, "get_material_info", "ID(%s)", materialId);
         return null;
     }
 
+    @Override
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
@@ -819,12 +912,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public String generateCode(String sessionToken, String prefix)
     {
         logAccess(sessionToken, "generate_code", "PREFIX(%s)", prefix);
         return null;
     }
 
+    @Override
     public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_project", "PROJECT_ID(%s) ATTACHMENTS_ADDED(%s)",
@@ -832,29 +927,34 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes)
     {
         logTracking(sessionToken, "delete_data_set_types", "CODES(%s)",
                 abbreviate(entityTypesCodes));
     }
 
+    @Override
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes)
     {
         logTracking(sessionToken, "delete_experiment_types", "CODES(%s)",
                 abbreviate(entityTypesCodes));
     }
 
+    @Override
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes)
     {
         logTracking(sessionToken, "delete_material_types", "CODES(%s)",
                 abbreviate(entityTypesCodes));
     }
 
+    @Override
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes)
     {
         logTracking(sessionToken, "delete_sample_types", "CODES(%s)", abbreviate(entityTypesCodes));
     }
 
+    @Override
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
             boolean autoGenerate, boolean withExperiments, boolean withSpace,
             BatchOperationKind operationKind)
@@ -866,17 +966,20 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void deleteFileFormatTypes(String sessionToken, List<String> codes)
     {
         logTracking(sessionToken, "delete_file_format_types", "CODES(%s)", abbreviate(codes));
     }
 
+    @Override
     public void updateFileFormatType(String sessionToken, AbstractType type)
     {
         logTracking(sessionToken, "update_file_format_type", "CODE(%s)", type.getCode());
 
     }
 
+    @Override
     public void updateExperimentAttachments(String sessionToken, TechId experimentId,
             Attachment attachment)
     {
@@ -884,6 +987,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 "EXPERIMENT_ID(%s) ATTACHMENT(%s)", experimentId, attachment.getFileName());
     }
 
+    @Override
     public void addExperimentAttachment(String sessionToken, TechId experimentId,
             NewAttachment attachment)
     {
@@ -891,6 +995,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, attachment.getFileName());
     }
 
+    @Override
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
     {
@@ -898,6 +1003,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 projectId, attachment.getFileName());
     }
 
+    @Override
     public void addProjectAttachments(String sessionToken, TechId projectId,
             NewAttachment attachment)
     {
@@ -905,18 +1011,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 projectId, attachment.getFileName());
     }
 
+    @Override
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
         logTracking(sessionToken, "update_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
                 sampleId, attachment.getFileName());
     }
 
+    @Override
     public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
     {
         logTracking(sessionToken, "add_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
                 sampleId, attachment.getFileName());
     }
 
+    @Override
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {
@@ -924,6 +1033,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
@@ -932,6 +1042,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
@@ -939,6 +1050,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 serviceDescription, abbreviate(datasetCodes));
     }
 
+    @Override
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup)
     {
@@ -947,12 +1059,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     }
 
+    @Override
     public void registerScript(String sessionToken, Script script)
     {
         logTracking(sessionToken, "registerScript", "NAME(%s)", script.getName());
 
     }
 
+    @Override
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
             String reason)
     {
@@ -960,18 +1074,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(authGroupIds));
     }
 
+    @Override
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
     {
         logAccess(sessionToken, "listAuthorizatonGroups");
         return null;
     }
 
+    @Override
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
     {
         logTracking(sessionToken, "updateAuthorizationGroup", "TECH_ID(%s)", updates.getId());
         return null;
     }
 
+    @Override
     public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId)
     {
@@ -979,6 +1096,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void addPersonsToAuthorizationGroup(String sessionToken, TechId authorizationGroupId,
             List<String> personsCodes)
     {
@@ -986,6 +1104,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 authorizationGroupId, abbreviate(personsCodes));
     }
 
+    @Override
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
@@ -993,22 +1112,26 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 authorizationGroupId, abbreviate(personsCodes));
     }
 
+    @Override
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
         logAccess(sessionToken, "listFilters", "GRID(%s)", gridId);
         return null;
     }
 
+    @Override
     public void registerFilter(String sessionToken, NewColumnOrFilter filter)
     {
         logTracking(sessionToken, "registerFilter", "FILTER(%s)", filter);
     }
 
+    @Override
     public void deleteFilters(String sessionToken, List<TechId> filterIds)
     {
         logTracking(sessionToken, "deleteFilters", "TECH_IDS(%s)", abbreviate(filterIds));
     }
 
+    @Override
     public void updateFilter(String sessionToken, IExpressionUpdates updates)
     {
         logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(),
@@ -1017,27 +1140,32 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     // -- columns
 
+    @Override
     public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
     {
         logTracking(sessionToken, "registerGridCustomColumn", "COLUMN(%s)", column);
     }
 
+    @Override
     public void deleteGridCustomColumns(String sessionToken, List<TechId> columnIds)
     {
         logTracking(sessionToken, "deleteGridCustomColumns", "TECH_IDS(%s)", abbreviate(columnIds));
     }
 
+    @Override
     public void updateGridCustomColumn(String sessionToken, IExpressionUpdates updates)
     {
         logTracking(sessionToken, "updateGridCustomColumn", "ID(%s) NAME(%s)", updates.getId(),
                 updates.getName());
     }
 
+    @Override
     public void keepSessionAlive(String sessionToken)
     {
         logAccess(Level.DEBUG, sessionToken, "keepSessionAlive", "TOKEN(%s)", sessionToken);
     }
 
+    @Override
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms)
     {
@@ -1045,24 +1173,28 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(terms), vocabularyId);
     }
 
+    @Override
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
     {
         logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)",
                 abbreviate(materialIds), reason);
     }
 
+    @Override
     public int lockDatasets(String sessionToken, List<String> datasetCodes)
     {
         logTracking(sessionToken, "lockDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 
+    @Override
     public int unlockDatasets(String sessionToken, List<String> datasetCodes)
     {
         logTracking(sessionToken, "unlockDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
     }
 
+    @Override
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription, String dataSetCode)
     {
@@ -1073,12 +1205,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         }
     }
 
+    @Override
     public Script getScriptInfo(String sessionToken, TechId scriptId)
     {
         logAccess(sessionToken, "getScriptInfo", "SCRIPT(%s)", scriptId);
         return null;
     }
 
+    @Override
     public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info)
     {
         logAccess(sessionToken, "evaluate", "%s(%s)", info.getEntityKind().name(),
@@ -1086,6 +1220,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             BasicEntityDescription info)
     {
@@ -1094,6 +1229,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public void updateManagedPropertyOnExperiment(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -1102,6 +1238,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 managedProperty.getPropertyTypeCode(), updateAction.getName());
     }
 
+    @Override
     public void updateManagedPropertyOnSample(String sessionToken, TechId sampleId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -1110,6 +1247,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 updateAction.getName());
     }
 
+    @Override
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId dataSetId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -1118,6 +1256,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 updateAction.getName());
     }
 
+    @Override
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId materialId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
@@ -1126,12 +1265,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 managedProperty.getPropertyTypeCode(), updateAction.getName());
     }
 
+    @Override
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         logAccess(sessionToken, "getDefaultPutDataStoreBaseURL");
         return null;
     }
 
+    @Override
     public void updateDataSetProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -1139,6 +1280,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 entityId, abbreviate(modifiedProperties));
     }
 
+    @Override
     public void updateExperimentProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -1146,6 +1288,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 entityId, abbreviate(modifiedProperties));
     }
 
+    @Override
     public void updateSampleProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
     {
@@ -1153,6 +1296,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 entityId, abbreviate(modifiedProperties));
     }
 
+    @Override
     public void updateMaterialProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties)
 
@@ -1161,6 +1305,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 entityId, abbreviate(modifiedProperties));
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken,
             List<ExperimentIdentifier> experimentIdentifiers)
     {
@@ -1169,17 +1314,20 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities)
     {
         logAccess(sessionToken, "listDeletions", "WITH_ENTITIES(%s)", withDeletedEntities);
         return null;
     }
 
+    @Override
     public void revertDeletions(String sessionToken, List<TechId> deletionIds)
     {
         logTracking(sessionToken, "revertDeletions", "ID(%s)", abbreviate(deletionIds));
     }
 
+    @Override
     public void deletePermanently(String sessionToken, List<TechId> deletionIds,
             boolean forceNotExistingLocations)
     {
@@ -1187,6 +1335,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(deletionIds), forceNotExistingLocations);
     }
 
+    @Override
     public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds,
             boolean forceNotExistingLocations)
     {
@@ -1195,12 +1344,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 forceNotExistingLocations);
     }
 
+    @Override
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken)
     {
         logTracking(sessionToken, "listEntityTypePropertyTypes", "");
         return null;
     }
 
+    @Override
     public void registerPlugin(String sessionToken, CorePlugin plugin,
             ICorePluginResourceLoader resourceLoader)
     {
@@ -1208,18 +1359,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 resourceLoader);
     }
 
+    @Override
     public List<DataStore> listDataStores()
     {
         logTracking("internal_call", "listDataStores", "");
         return null;
     }
 
+    @Override
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_materials", "criteria(%s)", criteria);
         return null;
     }
 
+    @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
     {
@@ -1228,6 +1382,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
     public String performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile)
     {

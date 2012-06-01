@@ -38,11 +38,13 @@ public final class ActiveAuthorization implements IAuthorizationComponentFactory
     // IAuthorizationComponentFactory
     //
 
+    @Override
     public final IAccessController createAccessController()
     {
         return new DefaultAccessController(daoFactory);
     }
 
+    @Override
     public final IReturnValueFilter createReturnValueFilter()
     {
         return new DefaultReturnValueFilter(daoFactory);

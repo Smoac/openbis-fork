@@ -156,6 +156,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.registrationDate = registrationDate;
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
@@ -182,6 +183,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.modifier = modifier;
     }
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_SEQUENCE)
@@ -196,6 +198,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.id = id;
     }
 
+    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
@@ -252,6 +255,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.experimentType = experimentType;
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
     public DeletionPE getDeletion()
@@ -280,6 +284,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.properties = properties;
     }
 
+    @Override
     @Transient
     public Set<ExperimentPropertyPE> getProperties()
     {
@@ -289,12 +294,14 @@ public class ExperimentPE extends AttachmentHolderPE implements
     /**
      * Returns <code>true</code>, if and only if the properties have been initialized.
      */
+    @Override
     @Transient
     public boolean isPropertiesInitialized()
     {
         return HibernateUtils.isInitialized(getExperimentProperties());
     }
 
+    @Override
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getExperimentProperties().clear();
@@ -310,12 +317,14 @@ public class ExperimentPE extends AttachmentHolderPE implements
         }
     }
 
+    @Override
     public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
         getExperimentProperties().add((ExperimentPropertyPE) property);
     }
 
+    @Override
     public void removeProperty(final EntityPropertyPE property)
     {
         getExperimentProperties().remove(property);
@@ -422,6 +431,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     // Comparable
     //
 
+    @Override
     public int compareTo(final ExperimentPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
@@ -477,6 +487,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     // IMatchingEntity
     //
 
+    @Override
     @Transient
     @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public final String getIdentifier()
@@ -488,12 +499,14 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return experimentIdentifier.toString();
     }
 
+    @Override
     @Transient
     public final EntityTypePE getEntityType()
     {
         return getExperimentType();
     }
 
+    @Override
     @Transient
     public final EntityKind getEntityKind()
     {
@@ -521,6 +534,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return AttachmentHolderKind.EXPERIMENT;
     }
 
+    @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)

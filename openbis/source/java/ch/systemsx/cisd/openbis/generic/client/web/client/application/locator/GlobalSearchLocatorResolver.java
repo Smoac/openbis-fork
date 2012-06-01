@@ -29,6 +29,7 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
     }
 
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         final SearchableEntity selectedSearchableEntity = getSearchableEntity(locator);

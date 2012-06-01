@@ -43,6 +43,7 @@ public final class CompositeMessageProvider implements IMessageProvider
     // IMessageProvider
     //
 
+    @Override
     public String getName()
     {
         if (name == null)
@@ -61,6 +62,7 @@ public final class CompositeMessageProvider implements IMessageProvider
         return name;
     }
 
+    @Override
     public final boolean containsKey(final String key)
     {
         for (final IMessageProvider messageProvider : messageProviders)
@@ -73,6 +75,7 @@ public final class CompositeMessageProvider implements IMessageProvider
         return false;
     }
 
+    @Override
     public final String getMessage(final String key, final Object... parameters)
     {
         IMessageProvider defaultMessageProvider = tryGetDefaultDictionary(key);

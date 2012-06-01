@@ -74,6 +74,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     // IAttachmentDAO
     //
 
+    @Override
     public final void createAttachment(final AttachmentPE attachment, final AttachmentHolderPE owner)
             throws DataAccessException
     {
@@ -116,6 +117,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         attachment.setVersion(previousVersion + 1);
     }
 
+    @Override
     public final List<AttachmentPE> listAttachments(final AttachmentHolderPE owner)
             throws DataAccessException
     {
@@ -132,6 +134,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return result;
     }
 
+    @Override
     public final AttachmentPE tryFindAttachmentByOwnerAndFileName(final AttachmentHolderPE owner,
             final String fileName) throws DataAccessException
     {
@@ -154,6 +157,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return attachment;
     }
 
+    @Override
     public final AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(
             final AttachmentHolderPE owner, final String fileName, final int version)
             throws DataAccessException
@@ -178,6 +182,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return attachment;
     }
 
+    @Override
     public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
             throws DataAccessException
     {

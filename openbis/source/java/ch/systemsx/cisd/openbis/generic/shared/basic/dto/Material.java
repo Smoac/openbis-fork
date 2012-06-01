@@ -51,6 +51,7 @@ public class Material extends CodeWithRegistration<Material> implements
         this.materialType = experimentType;
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return properties;
@@ -71,6 +72,7 @@ public class Material extends CodeWithRegistration<Material> implements
         this.databaseInstance = databaseInstance;
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -91,11 +93,13 @@ public class Material extends CodeWithRegistration<Material> implements
         this.modificationDate = modificationDate;
     }
 
+    @Override
     public EntityType getEntityType()
     {
         return getMaterialType();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;
@@ -105,6 +109,7 @@ public class Material extends CodeWithRegistration<Material> implements
     // IIdentifierHolder
     //
 
+    @Override
     public String getIdentifier()
     {
         return new MaterialIdentifier(getCode(), getMaterialType().getCode()).print();
@@ -139,6 +144,7 @@ public class Material extends CodeWithRegistration<Material> implements
         return getIdentifier().compareTo(o.getIdentifier());
     }
 
+    @Override
     public String getPermId()
     {
         return getIdentifier();

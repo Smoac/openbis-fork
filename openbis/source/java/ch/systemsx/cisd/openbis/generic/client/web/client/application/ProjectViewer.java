@@ -84,6 +84,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     new ProjectListDeletionConfirmationDialog(viewContext, originalProject,
@@ -197,11 +198,13 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         ProjectGrid.showEntityViewer(originalProject, true, viewContext, inBackground);
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         reloadAllData();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROJECT);

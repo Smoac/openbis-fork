@@ -147,6 +147,7 @@ public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseIn
     // AbstractIdAndCodeHolder
     //
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.DATABASE_INSTANCE_SEQUENCE, sequenceName = SequenceNames.DATABASE_INSTANCE_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATABASE_INSTANCE_SEQUENCE)
@@ -155,6 +156,7 @@ public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseIn
         return id;
     }
 
+    @Override
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)

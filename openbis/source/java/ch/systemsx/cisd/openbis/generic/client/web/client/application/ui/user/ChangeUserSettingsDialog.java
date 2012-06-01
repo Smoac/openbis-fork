@@ -205,6 +205,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         Listener<BaseEvent> listener = new Listener<BaseEvent>()
             {
 
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     layout(true);
@@ -273,6 +274,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
                             viewContext.getMessage(Dict.RESET_USER_SETTINGS_CONFIRMATION_MSG);
                     MessageBox.confirm(title, msg, new Listener<MessageBoxEvent>()
                         {
+                            @Override
                             public void handleEvent(MessageBoxEvent messageEvent)
                             {
                                 if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))

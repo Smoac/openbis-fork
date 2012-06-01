@@ -104,6 +104,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         return new File(indexBase, FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME);
     }
 
+    @Override
     public void start()
     {
         if (operationLog.isInfoEnabled())
@@ -116,6 +117,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         thread.start();
     }
 
+    @Override
     public void clear()
     {
         updaterQueue.clear();
@@ -125,6 +127,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         }
     }
 
+    @Override
     public void scheduleUpdate(IndexUpdateOperation operation)
     {
         if (operationLog.isDebugEnabled())
@@ -141,6 +144,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
      */
     private class FullTextIndexUpdaterRunnable implements Runnable
     {
+        @Override
         public final void run()
         {
             final IndexMode indexMode = context.getIndexMode();

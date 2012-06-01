@@ -44,6 +44,7 @@ public class GridCustomFilterPE extends AbstractGridExpressionPE<GridCustomFilte
 
     private String name;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.FILTER_SEQUENCE, sequenceName = SequenceNames.FILTER_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.FILTER_SEQUENCE)
@@ -100,6 +101,7 @@ public class GridCustomFilterPE extends AbstractGridExpressionPE<GridCustomFilte
         return getName();
     }
 
+    @Override
     public int compareTo(GridCustomFilterPE that)
     {
         final String thatName = that.getName();

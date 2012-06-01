@@ -74,6 +74,7 @@ public class ColumnSettingsDialog extends Dialog
         TabItem columnsTab = createTabItem(columnChooser.getComponent(), Dict.COLUMNS, "");
         columnsTab.addListener(Events.Select, new Listener<TabPanelEvent>()
             {
+                @Override
                 public final void handleEvent(final TabPanelEvent be)
                 {
                     columnChooser.refresh();
@@ -101,6 +102,7 @@ public class ColumnSettingsDialog extends Dialog
 
             onCloseAction = new IDelegatedAction()
                 {
+                    @Override
                     public void execute()
                     {
                         columnDataModelProvider.onClose(columnChooser.getModels());
@@ -113,6 +115,7 @@ public class ColumnSettingsDialog extends Dialog
         {
             onCloseAction = new IDelegatedAction()
                 {
+                    @Override
                     public void execute()
                     {
                         columnDataModelProvider.onClose(columnChooser.getModels());

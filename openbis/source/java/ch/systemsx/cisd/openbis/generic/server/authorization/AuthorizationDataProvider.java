@@ -62,42 +62,50 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         }
     }
 
+    @Override
     public List<SpacePE> listSpaces()
     {
         return daoFactory.getSpaceDAO().listSpaces();
     }
 
+    @Override
     public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
     {
         return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
                 homeDatabaseInstance);
     }
 
+    @Override
     public ExperimentPE tryGetExperimentByPermId(String permId)
     {
         return daoFactory.getExperimentDAO().tryGetByPermID(permId);
     }
 
+    @Override
     public SamplePE tryGetSampleByPermId(String permId)
     {
         return daoFactory.getSampleDAO().tryToFindByPermID(permId);
     }
 
+    @Override
     public DatabaseInstancePE getHomeDatabaseInstance()
     {
         return homeDatabaseInstance;
     }
 
+    @Override
     public DatabaseInstancePE tryFindDatabaseInstanceByCode(String databaseInstanceCode)
     {
         return codeToDbInstanceMap.get(databaseInstanceCode);
     }
 
+    @Override
     public DatabaseInstancePE tryFindDatabaseInstanceByUUID(String databaseInstanceUUID)
     {
         return uuidToDbInstanceMap.get(databaseInstanceUUID);
     }
 
+    @Override
     public ProjectPE tryGetProject(String dataSetCode)
     {
         DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
@@ -110,6 +118,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         }
     }
 
+    @Override
     public DataSetAccessPE tryGetDatasetAccessData(String dataSetCode)
     {
         Set<DataSetAccessPE> results = getDatasetCollectionAccessData(Arrays.asList(dataSetCode));
@@ -118,6 +127,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return results.iterator().next();
     }
 
+    @Override
     public Set<DataSetAccessPE> getDatasetCollectionAccessData(final List<String> dataSetCodes)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
@@ -133,6 +143,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
         BatchOperationExecutor.executeInBatches(new IBatchOperation<String>()
             {
+                @Override
                 public void execute(List<String> entities)
                 {
                     query.setParameterList(DataSetAccessPE.DATA_SET_CODES_PARAMETER_NAME, entities);
@@ -140,16 +151,19 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     fullResults.addAll(results);
                 }
 
+                @Override
                 public List<String> getAllEntities()
                 {
                     return dataSetCodes;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "dataset";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "authorization";
@@ -159,6 +173,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return fullResults;
     }
 
+    @Override
     public Set<SampleAccessPE> getSampleCollectionAccessData(final List<TechId> sampleTechIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
@@ -173,6 +188,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
         BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
             {
+                @Override
                 public void execute(List<TechId> entities)
                 {
                     querySpaceSamples.setParameterList(SampleAccessPE.SAMPLE_IDS_PARAMETER_NAME,
@@ -185,16 +201,19 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     fullResults.addAll(sharedSamples);
                 }
 
+                @Override
                 public List<TechId> getAllEntities()
                 {
                     return sampleTechIds;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "sample";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "authorization";
@@ -204,6 +223,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return fullResults;
     }
 
+    @Override
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(final List<TechId> deletionIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
@@ -219,6 +239,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
         BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
             {
+                @Override
                 public void execute(List<TechId> entities)
                 {
                     query.setParameterList(DataSetAccessPE.DELETION_IDS_PARAMETER_NAME,
@@ -227,16 +248,19 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     fullResults.addAll(results);
                 }
 
+                @Override
                 public List<TechId> getAllEntities()
                 {
                     return deletionIds;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "deletion";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "authorization";
@@ -246,6 +270,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return fullResults;
     }
 
+    @Override
     public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(final List<TechId> deletionIds)
     {
         Session sess = daoFactory.getSessionFactory().getCurrentSession();
@@ -260,6 +285,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
         BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
             {
+                @Override
                 public void execute(List<TechId> entities)
                 {
                     querySpaceSamples.setParameterList(SampleAccessPE.DELETION_IDS_PARAMETER_NAME,
@@ -272,16 +298,19 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     fullResults.addAll(sharedSamples);
                 }
 
+                @Override
                 public List<TechId> getAllEntities()
                 {
                     return deletionIds;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "deletion";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "authorization";
@@ -291,6 +320,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return fullResults;
     }
 
+    @Override
     public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(
             final List<TechId> deletionIds)
     {
@@ -308,6 +338,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
         BatchOperationExecutor.executeInBatches(new IBatchOperation<TechId>()
             {
+                @Override
                 public void execute(List<TechId> entities)
                 {
                     query.setParameterList(ExperimentAccessPE.DELETION_IDS_PARAMETER_NAME,
@@ -316,16 +347,19 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
                     fullResults.addAll(results);
                 }
 
+                @Override
                 public List<TechId> getAllEntities()
                 {
                     return deletionIds;
                 }
 
+                @Override
                 public String getEntityName()
                 {
                     return "deletion";
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return "authorization";
@@ -335,6 +369,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return fullResults;
     }
 
+    @Override
     public SpacePE tryGetSpace(SpaceOwnerKind kind, TechId techId)
     {
         switch (kind)
@@ -355,31 +390,37 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
         return null;
     }
 
+    @Override
     public SamplePE getSample(TechId techId)
     {
         return daoFactory.getSampleDAO().getByTechId(techId);
     }
 
+    @Override
     public SamplePE tryGetSample(PermId id)
     {
         return daoFactory.getSampleDAO().tryToFindByPermID(id.getId());
     }
 
+    @Override
     public GridCustomFilterPE getGridCustomFilter(TechId techId)
     {
         return daoFactory.getGridCustomFilterDAO().getByTechId(techId);
     }
 
+    @Override
     public GridCustomColumnPE getGridCustomColumn(TechId techId)
     {
         return daoFactory.getGridCustomColumnDAO().getByTechId(techId);
     }
 
+    @Override
     public QueryPE getQuery(TechId techId)
     {
         return daoFactory.getQueryDAO().getByTechId(techId);
     }
 
+    @Override
     public List<DeletionPE> getDeletions(List<TechId> deletionIds)
     {
         return daoFactory.getDeletionDAO().findAllById(TechId.asLongs(deletionIds));

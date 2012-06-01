@@ -42,6 +42,7 @@ public class ShowDataSet extends AbstractDefaultTestCommand
         this.code = code;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void execute()
     {
@@ -51,6 +52,6 @@ public class ShowDataSet extends AbstractDefaultTestCommand
                 (Grid<BaseEntityModel<ExternalData>>) widget;
         GridTestUtils.fireSelectRow(table, ExperimentBrowserGridColumnIDs.CODE, code);
         GWTTestUtil.clickButtonWithID(DataSetSearchHitGrid.BROWSER_ID
-                + DataSetSearchHitGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX);
+                + AbstractExternalDataGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX);
     }
 }

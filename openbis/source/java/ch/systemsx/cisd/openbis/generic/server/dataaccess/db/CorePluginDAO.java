@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -59,6 +59,7 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
         }
     }
 
+    @Override
     public void createCorePlugins(List<CorePluginPE> corePlugins)
     {
         HibernateTemplate template = getHibernateTemplate();
@@ -66,11 +67,12 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
         template.flush();
     }
 
+    @Override
     public List<CorePluginPE> listCorePluginsByName(String name)
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("name", name));
-        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         return cast(criteria.list());
     }
 

@@ -43,6 +43,7 @@ public class Login extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         TextField<String> textField =

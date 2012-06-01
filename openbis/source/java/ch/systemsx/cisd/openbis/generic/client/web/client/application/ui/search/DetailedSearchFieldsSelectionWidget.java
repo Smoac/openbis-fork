@@ -311,6 +311,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
         callback.ignore();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE);

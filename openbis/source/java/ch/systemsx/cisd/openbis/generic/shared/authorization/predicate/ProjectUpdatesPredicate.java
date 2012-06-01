@@ -46,6 +46,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
         this.projectTechIdPredicate = new ProjectTechIdPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         spacePredicate.init(provider);

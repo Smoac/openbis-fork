@@ -208,6 +208,7 @@ public final class UploadServiceServlet extends AbstractCommandController
     @Private
     static class SessionFilesSetter implements ISessionFilesSetter
     {
+        @Override
         public boolean addFilesToSession(final HttpSession session,
                 final MultipartHttpServletRequest multipartRequest, String sessionKey)
         {

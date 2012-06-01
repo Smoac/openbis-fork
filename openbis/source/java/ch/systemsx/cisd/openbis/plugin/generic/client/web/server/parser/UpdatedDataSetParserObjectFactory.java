@@ -95,11 +95,11 @@ public final class UpdatedDataSetParserObjectFactory extends
     private DataSetBatchUpdateDetails createBasicBatchUpdateDetails()
     {
         DataSetBatchUpdateDetails details = new DataSetBatchUpdateDetails();
-        details.setExperimentUpdateRequested(isColumnAvailable(UpdatedDataSet.EXPERIMENT));
-        details.setSampleUpdateRequested(isColumnAvailable(UpdatedDataSet.SAMPLE));
-        details.setParentsUpdateRequested(isColumnAvailable(UpdatedDataSet.PARENTS));
-        details.setContainerUpdateRequested(isColumnAvailable(UpdatedDataSet.CONTAINER));
-        details.setFileFormatUpdateRequested(isColumnAvailable(UpdatedDataSet.FILE_FORMAT));
+        details.setExperimentUpdateRequested(isColumnAvailable(NewDataSet.EXPERIMENT));
+        details.setSampleUpdateRequested(isColumnAvailable(NewDataSet.SAMPLE));
+        details.setParentsUpdateRequested(isColumnAvailable(NewDataSet.PARENTS));
+        details.setContainerUpdateRequested(isColumnAvailable(NewDataSet.CONTAINER));
+        details.setFileFormatUpdateRequested(isColumnAvailable(NewDataSet.FILE_FORMAT));
         return details;
     }
 
@@ -141,7 +141,7 @@ public final class UpdatedDataSetParserObjectFactory extends
     {
         if (isDeletionMark(newDataSet.getExperimentIdentifier()))
         {
-            throw new ParserException(UpdatedDataSet.EXPERIMENT
+            throw new ParserException(NewDataSet.EXPERIMENT
                     + " column is required and cannot be marked for deletetion.");
         } else if (isEmpty(newDataSet.getExperimentIdentifier()))
         {

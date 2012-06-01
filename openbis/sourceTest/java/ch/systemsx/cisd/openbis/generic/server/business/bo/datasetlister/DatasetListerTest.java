@@ -183,6 +183,7 @@ public class DatasetListerTest extends AbstractDAOTest
 
         Collections.sort(dataSets, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
@@ -211,6 +212,7 @@ public class DatasetListerTest extends AbstractDAOTest
         List<ExternalData> dataSets = lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
         Collections.sort(dataSets, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
@@ -229,6 +231,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 lister.listByTrackingCriteria(new TrackingDataSetCriteria("CELL_PLATE", 6));
         Collections.sort(dataSets, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
@@ -295,6 +298,7 @@ public class DatasetListerTest extends AbstractDAOTest
 
         Collections.sort(list, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());
@@ -332,6 +336,7 @@ public class DatasetListerTest extends AbstractDAOTest
 
         Collections.sort(list, new Comparator<DataSetShareId>()
             {
+                @Override
                 public int compare(DataSetShareId o1, DataSetShareId o2)
                 {
                     return o1.getDataSetCode().compareTo(o2.getDataSetCode());

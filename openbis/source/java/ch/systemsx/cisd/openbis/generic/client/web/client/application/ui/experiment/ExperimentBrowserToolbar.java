@@ -107,6 +107,7 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         add(selectExperimentTypeCombo);
     }
 
+    @Override
     public final ListExperimentsCriteria tryGetCriteria()
     {
         final ExperimentType selectedType =
@@ -134,6 +135,7 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         super.onRender(parent, pos);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -142,6 +144,7 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback entityTypeRefreshCallback)
     {
@@ -160,15 +163,18 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         }
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         selectExperimentTypeCombo.dispose();

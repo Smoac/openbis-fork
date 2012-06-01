@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -144,6 +145,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
+    @Override
     public IGenericServer createLogger(IInvocationLoggerContext context)
     {
         return new GenericServerLogger(getSessionManager(), context);
@@ -169,12 +171,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
         return commonServer.getSampleInfo(sessionToken, sampleId);
     }
 
+    @Override
     public final void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
@@ -224,11 +228,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
+    @Override
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 
+    @Override
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final Integer versionOrNull)
             throws UserFailureException
@@ -240,6 +246,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 filename, versionOrNull));
     }
 
+    @Override
     public final void registerOrUpdateSamples(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
@@ -287,6 +294,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             this.session = session;
         }
 
+        @Override
         public void execute(List<NewSample> newSamples)
         {
             fillHomeSpace(newSamples, session.tryGetHomeGroupCode());
@@ -328,21 +336,24 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             for (Sample s : existingContainers)
             {
                 existingSamples.addAll(sampleLister.list(new ListOrSearchSampleCriteria(
-                        ListOrSearchSampleCriteria.createForContainer(new TechId(s.getId())))));
+                        ListSampleCriteria.createForContainer(new TechId(s.getId())))));
             }
             return existingSamples;
         }
 
+        @Override
         public List<NewSample> getAllEntities()
         {
             return entities;
         }
 
+        @Override
         public String getEntityName()
         {
             return "sample";
         }
 
+        @Override
         public String getOperationName()
         {
             return "update/register preprocessing";
@@ -350,6 +361,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     }
 
+    @Override
     public final void registerSamples(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
@@ -361,6 +373,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    @Override
     public void updateSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
             throws UserFailureException
     {
@@ -372,6 +385,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    @Override
     public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
             throws UserFailureException
     {
@@ -510,6 +524,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    @Override
     public void registerExperiment(String sessionToken, NewExperiment newExperiment,
             final Collection<NewAttachment> attachments)
     {
@@ -567,6 +582,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    @Override
     public void registerMaterials(String sessionToken,
             final List<NewMaterialsWithTypes> newMaterials)
     {
@@ -586,6 +602,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 materials.getNewEntities());
     }
 
+    @Override
     public int updateMaterials(String sessionToken, final List<NewMaterialsWithTypes> newMaterials,
             final boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
@@ -602,6 +619,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return count;
     }
 
+    @Override
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, Integer versionOrNull)
     {
@@ -612,6 +630,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 versionOrNull));
     }
 
+    @Override
     public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, Integer versionOrNull)
     {
@@ -622,6 +641,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 versionOrNull));
     }
 
+    @Override
     public List<String> generateCodes(String sessionToken, String prefix, int number)
     {
         checkSession(sessionToken);
@@ -633,6 +653,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return result;
     }
 
+    @Override
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
@@ -650,22 +671,26 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return result;
     }
 
+    @Override
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
         return commonServer.updateMaterial(sessionToken, materialId, properties, version);
     }
 
+    @Override
     public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         return commonServer.updateSample(sessionToken, updates);
     }
 
+    @Override
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         return commonServer.updateDataSet(sessionToken, updates);
     }
 
+    @Override
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -685,6 +710,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    @Override
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
             throws UserFailureException
     {
@@ -720,6 +746,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
      * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a
      *            collection of {@link UpdatedBasicExperiment} objects.
      */
+    @Override
     public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
             throws UserFailureException
     {
@@ -807,6 +834,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return materialHelper;
     }
 
+    @Override
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
@@ -818,6 +846,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         registerOrUpdateSamples(sessionToken, newSamplesWithType);
     }
 
+    @Override
     public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
@@ -825,11 +854,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         executeASync(userEmail, new IASyncAction()
             {
+                @Override
                 public String getName()
                 {
                     return "General Batch Import";
                 }
 
+                @Override
                 public boolean doAction(Writer messageWriter)
                 {
                     try

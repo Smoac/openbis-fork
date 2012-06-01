@@ -181,6 +181,7 @@ class ColumnSettingsChooser
         grid.getSelectionModel().addListener(Events.SelectionChange,
                 new Listener<SelectionChangedEvent<ModelData>>()
                     {
+                        @Override
                         public void handleEvent(SelectionChangedEvent<ModelData> se)
                         {
                             if (grid.getSelectionModel().getSelectedItems().size() == 1)
@@ -295,6 +296,7 @@ class ColumnSettingsChooser
             return LinkRenderer.getLinkWidget(title, new ClickHandler()
                 {
 
+                    @Override
                     public void onClick(ClickEvent event)
                     {
                         for (ColumnDataModel m : grid.getStore().getModels())
@@ -315,6 +317,7 @@ class ColumnSettingsChooser
             return LinkRenderer.getLinkWidget(title, new ClickHandler()
                 {
 
+                    @Override
                     public void onClick(ClickEvent event)
                     {
                         int counter = 0;

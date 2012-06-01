@@ -139,6 +139,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         this.registrationDate = registrationDate;
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
@@ -152,6 +153,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         this.registrator = registrator;
     }
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.MATERIAL_SEQUENCE, sequenceName = SequenceNames.MATERIAL_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_SEQUENCE)
@@ -180,6 +182,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         this.materialType = materialType;
     }
 
+    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
@@ -228,6 +231,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     // IEntityPropertiesHolder
     //
 
+    @Override
     @Transient
     public Set<MaterialPropertyPE> getProperties()
     {
@@ -238,12 +242,14 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     /**
      * Returns <code>true</code>, if and only if the properties have been initialized.
      */
+    @Override
     @Transient
     public boolean isPropertiesInitialized()
     {
         return HibernateUtils.isInitialized(getMaterialProperties());
     }
 
+    @Override
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getMaterialProperties().clear();
@@ -259,12 +265,14 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         }
     }
 
+    @Override
     public void addProperty(final EntityPropertyPE property)
     {
         property.setEntity(this);
         getMaterialProperties().add((MaterialPropertyPE) property);
     }
 
+    @Override
     public void removeProperty(final EntityPropertyPE property)
     {
         getMaterialProperties().remove(property);
@@ -333,6 +341,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     // Comparable
     //
 
+    @Override
     public final int compareTo(final MaterialPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
@@ -349,18 +358,21 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return getCode();
     }
 
+    @Override
     @Transient
     public final EntityTypePE getEntityType()
     {
         return getMaterialType();
     }
 
+    @Override
     @Transient
     public final EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;
     }
 
+    @Override
     @Transient
     public String getPermId()
     {

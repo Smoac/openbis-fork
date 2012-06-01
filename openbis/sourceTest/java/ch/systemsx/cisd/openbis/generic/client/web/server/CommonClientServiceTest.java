@@ -447,6 +447,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
         private int counter = INIT_VALUE;
 
+        @Override
         public final String createKey()
         {
             return "" + counter++;
@@ -512,6 +513,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(new CachedResultSetManager<String>(
                             new TokenBasedResultSetKeyGenerator(), new ICustomColumnsProvider()
                                 {
+                                    @Override
                                     public List<GridCustomColumn> getGridCustomColumn(
                                             String sessionToken, String gridDisplayId)
                                     {

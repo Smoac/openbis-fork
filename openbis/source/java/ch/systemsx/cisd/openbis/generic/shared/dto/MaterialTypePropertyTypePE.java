@@ -68,18 +68,21 @@ public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
     // EntityTypePropertyTypePE
     //
 
+    @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = MaterialPropertyPE.class)
     public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
         return getEntityTypeInternal();
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE)

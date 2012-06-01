@@ -29,11 +29,13 @@ public final class NoAuthorization implements IAuthorizationComponentFactory
     // IAuthorizationComponentFactory
     //
 
+    @Override
     public final IAccessController createAccessController()
     {
         return AlwaysStatusOkAccessController.getInstance();
     }
 
+    @Override
     public final IReturnValueFilter createReturnValueFilter()
     {
         return new NoReturnValueFilter();

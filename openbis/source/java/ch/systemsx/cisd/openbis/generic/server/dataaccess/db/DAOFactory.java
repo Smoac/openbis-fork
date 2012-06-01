@@ -159,96 +159,115 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     // IDAOFactory
     //
 
+    @Override
     public final ISampleTypeDAO getSampleTypeDAO()
     {
         return sampleTypeDAO;
     }
 
+    @Override
     public final IHibernateSearchDAO getHibernateSearchDAO()
     {
         return hibernateSearchDAO;
     }
 
+    @Override
     public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(final EntityKind entityKind)
     {
         return entityPropertyTypeDAOs.get(entityKind);
     }
 
+    @Override
     public IEntityPropertyHistoryDAO getEntityPropertyHistoryDAO()
     {
         return entityPropertyHistoryDAO;
     }
 
+    @Override
     public IEntityTypeDAO getEntityTypeDAO(final EntityKind entityKind)
     {
         return entityTypeDAOs.get(entityKind);
     }
 
+    @Override
     public IPropertyTypeDAO getPropertyTypeDAO()
     {
         return propertyTypeDAO;
     }
 
+    @Override
     public final IVocabularyDAO getVocabularyDAO()
     {
         return vocabularyDAO;
     }
 
+    @Override
     public final IVocabularyTermDAO getVocabularyTermDAO()
     {
         return vocabularyTermDAO;
     }
 
+    @Override
     public final IAttachmentDAO getAttachmentDAO()
     {
         return attachmentDAO;
     }
 
+    @Override
     public IDataSetTypeDAO getDataSetTypeDAO()
     {
         return dataSetTypeDAO;
     }
 
+    @Override
     public IFileFormatTypeDAO getFileFormatTypeDAO()
     {
         return fileFormatTypeDAO;
     }
 
+    @Override
     public ILocatorTypeDAO getLocatorTypeDAO()
     {
         return locatorTypeDAO;
     }
 
+    @Override
     public IMaterialDAO getMaterialDAO()
     {
         return materialDAO;
     }
 
+    @Override
     public ICodeSequenceDAO getCodeSequenceDAO()
     {
         return codeSequenceDAO;
     }
 
+    @Override
     public IDataStoreDAO getDataStoreDAO()
     {
         return dataStoreDAO;
     }
 
+    @Override
     public IPermIdDAO getPermIdDAO()
     {
         return permIdDAO;
     }
 
+    @Override
     public IEventDAO getEventDAO()
     {
         return eventDAO;
     }
 
+    @Override
     public IAuthorizationGroupDAO getAuthorizationGroupDAO()
     {
         return authorizationGroupDAO;
     }
 
+    @Override
     public IScriptDAO getScriptDAO()
     {
         return scriptDAO;
@@ -264,16 +283,19 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         return fullTextIndexUpdateScheduler;
     }
 
+    @Override
     public ICorePluginDAO getCorePluginDAO()
     {
         return corePluginDAO;
     }
 
+    @Override
     public IPostRegistrationDAO getPostRegistrationDAO()
     {
         return postRegistrationDAO;
     }
 
+    @Override
     public IEntityOperationsLogDAO getEntityOperationsLogDAO()
     {
         return entityOperationsLogDAO;

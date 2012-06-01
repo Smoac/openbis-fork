@@ -127,6 +127,7 @@ public class DefaultTabItem implements ITabItem
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     disposableComponent.dispose();
@@ -156,21 +157,25 @@ public class DefaultTabItem implements ITabItem
     //
     // ITabItem
     //
+    @Override
     public final Component getComponent()
     {
         return component;
     }
 
+    @Override
     public final TabTitleUpdater getTabTitleUpdater()
     {
         return titleUpdater;
     }
 
+    @Override
     public boolean isCloseConfirmationNeeded()
     {
         return isCloseConfirmationNeeded;
     }
 
+    @Override
     public void onActivate(String linkOrNull)
     {
         if (linkOrNull != null)
@@ -188,6 +193,7 @@ public class DefaultTabItem implements ITabItem
         GWTUtils.updatePageTitle(getTabTitleUpdater().getCurrentTitle());
     }
 
+    @Override
     public void onClose()
     {
         if (disposerActionOrNull != null)

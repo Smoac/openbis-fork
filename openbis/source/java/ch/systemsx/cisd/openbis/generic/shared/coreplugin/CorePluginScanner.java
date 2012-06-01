@@ -91,6 +91,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         }
     }
 
+    @Override
     public String tryLoadToString(CorePlugin plugin, String path)
     {
         File result = new File(getFolderForPlugin(plugin), path);

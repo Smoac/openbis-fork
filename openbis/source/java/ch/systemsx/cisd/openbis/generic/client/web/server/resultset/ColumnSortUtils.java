@@ -44,6 +44,7 @@ class ColumnSortUtils
             this.sortField = sortField;
         }
 
+        @Override
         @SuppressWarnings("rawtypes")
         public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
         {

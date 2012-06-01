@@ -43,6 +43,7 @@ public class RegressionTestCase extends AssertJUnit
     {
         static final INormalizer INSTANCE = new DefaultNormalizer();
 
+        @Override
         public String normalize(String notNormalizedText)
         {
             return JavaCodeNormalizer.normalizeJavaCode(notNormalizedText);

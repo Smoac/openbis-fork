@@ -75,21 +75,25 @@ public class ExperimentChooserField extends ChosenEntitySetter<TableModelRowWith
         chooserField.setFieldLabel(labelField);
         return new ExperimentChooserFieldAdaptor()
             {
+                @Override
                 public Field<?> getField()
                 {
                     return chooserField;
                 }
 
+                @Override
                 public ExperimentChooserField getChooserField()
                 {
                     return chooserField;
                 }
 
+                @Override
                 public ExperimentIdentifier tryToGetValue()
                 {
                     return chooserField.tryGetIdentifier();
                 }
 
+                @Override
                 public void updateOriginalValue()
                 {
                     ExperimentIdentifier valueOrNull = tryToGetValue();
@@ -97,6 +101,7 @@ public class ExperimentChooserField extends ChosenEntitySetter<TableModelRowWith
                     chooserField.setOriginalValue(textValue);
                 }
 
+                @Override
                 public void updateValue(ExperimentIdentifier identifierOrNull)
                 {
                     chooserField.updateValue(identifierOrNull);

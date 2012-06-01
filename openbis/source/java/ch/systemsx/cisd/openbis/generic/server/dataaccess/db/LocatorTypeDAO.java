@@ -34,6 +34,7 @@ public class LocatorTypeDAO extends AbstractTypeDAO<LocatorTypePE> implements IL
         super(sessionFactory, databaseInstance, LocatorTypePE.class);
     }
 
+    @Override
     public LocatorTypePE tryToFindLocatorTypeByCode(String code)
     {
         return tryFindTypeByCode(code, false);

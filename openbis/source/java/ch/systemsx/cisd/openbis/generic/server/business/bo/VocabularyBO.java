@@ -92,6 +92,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     // AbstractVocabularyBusinessObject
     //
 
+    @Override
     public final void define(final NewVocabulary vocabulary) throws UserFailureException
     {
         assert vocabulary != null : "Unspecified vocabulary.";
@@ -130,11 +131,13 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
+    @Override
     public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
     {
         addNewTerms(newTermCodes, previousTermOrdinal, true);
     }
 
+    @Override
     public void addNewUnofficialTerm(String code, String label, String description,
             Long previousTermOrdinal)
     {
@@ -181,6 +184,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial);
     }
 
+    @Override
     public void delete(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
@@ -255,6 +259,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         term.setVocabulary(null);
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
@@ -295,6 +300,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
+    @Override
     public void update(IVocabularyUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
@@ -312,6 +318,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         getVocabularyDAO().validateAndSaveUpdatedEntity(vocabularyPE);
     }
 
+    @Override
     public final VocabularyPE getVocabulary()
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
@@ -323,6 +330,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return vocabularyPE;
     }
 
+    @Override
     public List<VocabularyTermWithStats> countTermsUsageStatistics()
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
@@ -346,6 +354,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return results;
     }
 
+    @Override
     public void load(String vocabularyCode) throws UserFailureException
     {
         tryLoad(vocabularyCode);
@@ -361,6 +370,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
     }
 
+    @Override
     public void loadDataByTechId(TechId vocabularyId)
     {
         try
@@ -372,12 +382,14 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
+    @Override
     public Set<VocabularyTermPE> enrichWithTerms()
     {
         HibernateUtils.initialize(vocabularyPE.getTerms());
         return vocabularyPE.getTerms();
     }
 
+    @Override
     public void deleteByTechId(TechId vocabularyId, String reason) throws UserFailureException
     {
         loadDataByTechId(vocabularyId);
@@ -411,6 +423,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return String.format("%s", vocabularyPE.getCode());
     }
 
+    @Override
     public void updateTerms(List<VocabularyTerm> terms)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;

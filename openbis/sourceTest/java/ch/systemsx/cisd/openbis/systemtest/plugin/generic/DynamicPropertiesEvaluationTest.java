@@ -105,6 +105,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     ListSampleCriteria listCriteria = new ListSampleCriteria();
@@ -151,6 +152,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
@@ -203,6 +205,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     final Date dateAfter = new Date();
@@ -263,6 +266,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final IDelegatedAction assertAction = new IDelegatedAction()
             {
 
+                @Override
                 public void execute()
                 {
                     sleep(SLEEP_TIME);

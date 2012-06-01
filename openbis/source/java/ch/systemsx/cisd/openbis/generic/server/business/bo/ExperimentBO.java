@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -103,6 +104,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return (ExperimentTypePE) experimentType;
     }
 
+    @Override
     public final ExperimentPE getExperiment()
     {
         checkExperimentLoaded();
@@ -120,6 +122,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private static final String PROPERTY_TYPES =
             "experimentType.experimentTypePropertyTypesInternal";
 
+    @Override
     public void loadDataByTechId(TechId experimentId)
     {
         String[] connections =
@@ -133,12 +136,14 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         dataChanged = false;
     }
 
+    @Override
     public final void loadByExperimentIdentifier(final ExperimentIdentifier identifier)
     {
         experiment = getExperimentByIdentifier(identifier);
         dataChanged = false;
     }
 
+    @Override
     public final ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier)
     {
         final ProjectPE project = tryGetProject(identifier);
@@ -174,6 +179,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
+    @Override
     public final void enrichWithProperties()
     {
         if (experiment != null)
@@ -182,6 +188,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
+    @Override
     public final void enrichWithAttachments()
     {
         if (experiment != null)
@@ -190,6 +197,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
+    @Override
     public AttachmentPE getExperimentFileAttachment(final String filename,
             final Integer versionOrNull)
     {
@@ -244,6 +252,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return latest;
     }
 
+    @Override
     public void deleteByTechIds(List<TechId> experimentIds, String reason)
             throws UserFailureException
     {
@@ -277,6 +286,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return String.format("%s [%s]", experiment.getIdentifier(), experiment.getPermId());
     }
 
+    @Override
     public void define(NewExperiment newExperiment)
     {
         assert newExperiment != null : "Unspecified new experiment.";
@@ -295,6 +305,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         dataChanged = true;
     }
 
+    @Override
     public final void addAttachment(final AttachmentPE experimentAttachment)
     {
         assert experiment != null : "no experiment has been loaded";
@@ -307,7 +318,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         if (attachment != null)
         {
-            attachment.setFileName(ExperimentPE.escapeFileName(attachment.getFileName()));
+            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
         }
     }
 
@@ -336,6 +347,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setExperimentType((ExperimentTypePE) experimentType);
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         if (dataChanged)
@@ -395,6 +407,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
+    @Override
     public void update(ExperimentUpdatesDTO updates)
     {
         loadDataByTechId(updates.getExperimentId());
@@ -581,6 +594,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setCode(code);
     }
 
+    @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();

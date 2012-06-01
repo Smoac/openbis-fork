@@ -37,6 +37,7 @@ class RegisterType implements ICommand
         commands.put("MATERIAL", new RegisterMaterialType());
     }
 
+    @Override
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {

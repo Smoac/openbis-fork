@@ -64,6 +64,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     // IPersonDAO
     //
 
+    @Override
     public final void createPerson(final PersonPE person) throws DataAccessException
     {
         assert person != null : "Given person can not be null.";
@@ -83,6 +84,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         }
     }
 
+    @Override
     public final void updatePerson(final PersonPE person) throws DataAccessException
     {
         assert person != null : "Given person can not be null.";
@@ -97,6 +99,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         }
     }
 
+    @Override
     public final PersonPE getPerson(final long id) throws DataAccessException
     {
         final PersonPE person = (PersonPE) getHibernateTemplate().load(ENTITY_CLASS, id);
@@ -107,6 +110,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         return person;
     }
 
+    @Override
     public final PersonPE tryFindPersonByUserId(final String userId) throws DataAccessException
     {
         assert userId != null : "Unspecified user id";
@@ -156,6 +160,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         }
     }
 
+    @Override
     public final PersonPE tryFindPersonByEmail(final String emailAddress)
             throws DataAccessException
     {
@@ -186,6 +191,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         return person;
     }
 
+    @Override
     public final List<PersonPE> listPersons() throws DataAccessException
     {
         final List<PersonPE> list =
@@ -200,6 +206,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         return list;
     }
 
+    @Override
     public final List<PersonPE> listByCodes(Collection<String> userIds) throws DataAccessException
     {
         if (userIds.size() == 0)

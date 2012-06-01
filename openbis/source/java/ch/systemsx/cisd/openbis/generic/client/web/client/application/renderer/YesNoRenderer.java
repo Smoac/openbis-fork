@@ -17,6 +17,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 public final class YesNoRenderer implements GridCellRenderer<ModelData>
 {
 
+    @Override
     public Object render(ModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<ModelData> store, Grid<ModelData> grid)
     {

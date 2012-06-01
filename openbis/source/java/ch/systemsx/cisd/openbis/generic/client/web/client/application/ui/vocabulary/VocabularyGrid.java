@@ -202,6 +202,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                         viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
                                         boolean keyPressed)
@@ -217,6 +218,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
                     {
 
+                        @Override
                         public void invoke(
                                 BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
                                 boolean keyPressed)

@@ -115,6 +115,7 @@ final class RootEntitiesFinder
     {
         return new Comparator<IIdentifierHolder>()
             {
+                @Override
                 public int compare(IIdentifierHolder d1, IIdentifierHolder d2)
                 {
                     return d1.getIdentifier().compareTo(d2.getIdentifier());

@@ -30,6 +30,7 @@ public class HomeLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(final ViewLocator locator) throws UserFailureException
     {
         DispatcherHelper.dispatchNaviEvent(new AbstractTabItemFactory()

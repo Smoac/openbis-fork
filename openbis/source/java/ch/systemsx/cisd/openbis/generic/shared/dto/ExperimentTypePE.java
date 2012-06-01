@@ -53,6 +53,7 @@ public final class ExperimentTypePE extends EntityTypePE
     private Set<ExperimentTypePropertyTypePE> exerimentTypePropertyTypes =
             new HashSet<ExperimentTypePropertyTypePE>();
 
+    @Override
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_TYPE_SEQUENCE)

@@ -54,12 +54,14 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         setToolTip(label);
     }
 
+    @Override
     public String getFilteredColumnId()
     {
         return filteredField.getIdentifier();
     }
 
     /** @return filter with the pattern */
+    @Override
     public GridColumnFilterInfo<T> getFilter()
     {
         String pattern = getRawValue();
@@ -88,16 +90,19 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         return true; // never called
     }
 
+    @Override
     public Widget getWidget()
     {
         return this;
     }
 
+    @Override
     public void setFilteredField(IColumnDefinition<T> filteredField)
     {
         this.filteredField = filteredField;
     }
 
+    @Override
     public IColumnFilterWidget<T> createOrRefresh(List<String> distinctValuesOrNull)
     {
         if (distinctValuesOrNull == null)

@@ -425,6 +425,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         List<IEntityProperty> properties = sample.getProperties();
         Collections.sort(properties, new Comparator<IEntityProperty>()
             {
+                @Override
                 public int compare(IEntityProperty p1, IEntityProperty p2)
                 {
                     return p1.getPropertyType().getCode().compareTo(p2.getPropertyType().getCode());

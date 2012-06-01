@@ -61,6 +61,7 @@ public class DeletionForceOptions extends Composite
         fieldSet.setExpanded(false);
         fieldSet.addListener(Events.Collapse, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     forceNotExistingLocations.setValue(false);

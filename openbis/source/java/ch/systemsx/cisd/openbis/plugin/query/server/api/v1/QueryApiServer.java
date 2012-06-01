@@ -87,11 +87,13 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         this.commonServer = commonServer;
     }
 
+    @Override
     public IQueryApiServer createLogger(IInvocationLoggerContext context)
     {
         return new QueryApiLogger(sessionManager, context);
     }
 
+    @Override
     public String tryToAuthenticateAtQueryServer(String userID, String userPassword)
     {
         SessionContextDTO session = tryToAuthenticate(userID, userPassword);
@@ -102,6 +104,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return session == null ? null : session.getSessionToken();
     }
 
+    @Override
     public List<QueryDescription> listQueries(String sessionToken)
     {
         List<QueryDescription> result = new ArrayList<QueryDescription>();
@@ -128,6 +131,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return result;
     }
 
+    @Override
     public QueryTableModel executeQuery(String sessionToken, long queryID,
             Map<String, String> parameterBindings)
     {
@@ -139,6 +143,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return translate(queryServer.queryDatabase(sessionToken, new TechId(queryID), bindings));
     }
 
+    @Override
     public List<ReportDescription> listTableReportDescriptions(String sessionToken)
     {
         checkSession(sessionToken);
@@ -174,6 +179,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return services;
     }
 
+    @Override
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
@@ -184,6 +190,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
                 dataSetCodes));
     }
 
+    @Override
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
     {
         checkSession(sessionToken);
@@ -211,6 +218,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return services;
     }
 
+    @Override
     public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         checkSession(sessionToken);
@@ -220,11 +228,13 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         return translate(commonServer.createReportFromAggregationService(sessionToken, description, parameters));
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 3;

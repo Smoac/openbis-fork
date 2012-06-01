@@ -88,6 +88,7 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
         }
     }
 
+    @Override
     public void notify(List<IModule> successfullyInitializedModules)
     {
         addModuleItems(successfullyInitializedModules);

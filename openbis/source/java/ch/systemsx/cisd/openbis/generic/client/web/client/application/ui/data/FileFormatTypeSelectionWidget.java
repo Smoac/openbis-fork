@@ -97,6 +97,7 @@ public final class FileFormatTypeSelectionWidget extends
         viewContext.getService().listFileTypes(callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.FILE_FORMAT_TYPE);

@@ -53,6 +53,7 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         this.keyPressed = keyPressed;
     }
 
+    @Override
     public void execute()
     {
         final EntityKind entityKind = entity.getEntityKind();

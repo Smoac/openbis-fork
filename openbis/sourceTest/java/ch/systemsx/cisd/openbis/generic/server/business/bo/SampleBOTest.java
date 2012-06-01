@@ -190,10 +190,12 @@ public final class SampleBOTest extends AbstractBOTest
 
                     BaseMatcher<SamplePE> matcher = new BaseMatcher<SamplePE>()
                         {
+                            @Override
                             public void describeTo(final Description description)
                             {
                             }
 
+                            @Override
                             public boolean matches(final Object item)
                             {
                                 if (item instanceof SamplePE == false)

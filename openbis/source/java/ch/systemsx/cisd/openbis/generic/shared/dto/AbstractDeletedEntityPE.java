@@ -55,6 +55,7 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
 
     private String code;
 
+    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
@@ -69,6 +70,7 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
         this.code = code;
     }
 
+    @Override
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
     public DeletionPE getDeletion()

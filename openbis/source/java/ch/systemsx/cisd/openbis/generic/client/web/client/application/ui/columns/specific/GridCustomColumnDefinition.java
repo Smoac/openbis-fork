@@ -37,32 +37,38 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         this.columnMetadata = columnMetadata;
     }
 
+    @Override
     public int getWidth()
     {
         return 150;
     }
 
+    @Override
     public boolean isHidden()
     {
         return true;
     }
 
+    @Override
     public boolean isNumeric()
     {
         DataTypeCode dataType = columnMetadata.getDataType();
         return dataType == DataTypeCode.INTEGER || dataType == DataTypeCode.REAL;
     }
 
+    @Override
     public boolean isVocabulary()
     {
         return columnMetadata.getDataType() == DataTypeCode.CONTROLLEDVOCABULARY;
     }
 
+    @Override
     public Vocabulary tryGetVocabulary()
     {
         return null;
     }
 
+    @Override
     public boolean isEditable()
     {
         return false;
@@ -73,16 +79,19 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
+    @Override
     public DataTypeCode tryToGetDataType()
     {
         return null;
     }
 
+    @Override
     public String tryGetLink(T entity)
     {
         return null;
     }
 
+    @Override
     public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
         return getPrimitiveValue(rowModel);
@@ -95,22 +104,26 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return value;
     }
 
+    @Override
     public String getValue(GridRowModel<T> rowModel)
     {
         String value = getPrimitiveValue(rowModel).toString();
         return value != null ? value : "";
     }
 
+    @Override
     public String getHeader()
     {
         return columnMetadata.getLabel();
     }
 
+    @Override
     public String getIdentifier()
     {
         return columnMetadata.getCode();
     }
 
+    @Override
     public String tryToGetProperty(String key)
     {
         return null;

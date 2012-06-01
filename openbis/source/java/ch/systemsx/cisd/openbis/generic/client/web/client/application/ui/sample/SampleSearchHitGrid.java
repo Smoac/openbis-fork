@@ -130,6 +130,7 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
         super.addEntityOperationButtons();
     }
 
+    @Override
     public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         ListSampleDisplayCriteria criteriaOrNull = tryGetDisplayCriteria();
@@ -168,6 +169,7 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
         super.listTableRows(resultSetConfig, callback);
     }
 
+    @Override
     public IDelegatedActionWithResult<SelectedAndDisplayedItems> getSelectedAndDisplayedItemsAction()
     {
         throw new UnsupportedOperationException();

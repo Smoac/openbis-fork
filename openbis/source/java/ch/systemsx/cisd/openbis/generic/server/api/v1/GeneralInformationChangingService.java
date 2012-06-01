@@ -63,11 +63,13 @@ public class GeneralInformationChangingService extends
         this.server = server;
     }
 
+    @Override
     public IGeneralInformationChangingService createLogger(IInvocationLoggerContext context)
     {
         return new GeneralInformationChangingServiceLogger(sessionManager, context);
     }
 
+    @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void updateSampleProperties(String sessionToken, long sampleID,
@@ -78,6 +80,7 @@ public class GeneralInformationChangingService extends
         EntityHelper.updateSampleProperties(server, sessionToken, new TechId(sampleID), properties);
     }
 
+    @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
@@ -88,6 +91,7 @@ public class GeneralInformationChangingService extends
                 previousTermOrdinal);
     }
 
+    @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
@@ -99,11 +103,13 @@ public class GeneralInformationChangingService extends
                 term.getLabel(), term.getDescription(), term.getPreviousTermOrdinal());
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 1;

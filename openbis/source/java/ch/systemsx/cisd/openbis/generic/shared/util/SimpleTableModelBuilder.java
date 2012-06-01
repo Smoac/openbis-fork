@@ -157,26 +157,31 @@ public class SimpleTableModelBuilder
         rows.add(new TableModelRow(values));
         return new IRowBuilder()
             {
+                @Override
                 public void setCell(String headerTitle, String value)
                 {
                     setCell(headerTitle, asText(value));
                 }
 
+                @Override
                 public void setCell(String headerTitle, long value)
                 {
                     setCell(headerTitle, asInteger(value));
                 }
 
+                @Override
                 public void setCell(String headerTitle, double value)
                 {
                     setCell(headerTitle, asDouble(value));
                 }
 
+                @Override
                 public void setCell(String headerTitle, Date value)
                 {
                     setCell(headerTitle, asDate(value));
                 }
 
+                @Override
                 public void setCell(String headerTitle, ISerializableComparable value)
                 {
                     Integer index = titleToIndexMap.get(headerTitle);

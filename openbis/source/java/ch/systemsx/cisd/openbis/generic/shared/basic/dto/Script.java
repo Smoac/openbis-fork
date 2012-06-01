@@ -56,6 +56,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
         this.entityKind = entityKind;
     }
 
+    @Override
     public String getScript()
     {
         return script;
@@ -66,6 +67,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
         this.script = script;
     }
 
+    @Override
     public String getName()
     {
         return name;
@@ -76,6 +78,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
         this.name = name;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
@@ -96,6 +99,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
         this.databaseInstance = databaseInstance;
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -117,6 +121,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
         return name;
     }
 
+    @Override
     public int compareTo(final Script o)
     {
         if (o == null)

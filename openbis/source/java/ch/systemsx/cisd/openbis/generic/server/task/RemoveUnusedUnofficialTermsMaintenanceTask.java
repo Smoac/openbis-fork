@@ -54,6 +54,7 @@ public class RemoveUnusedUnofficialTermsMaintenanceTask implements IMaintenanceT
 
     private final double day = 86400000.0;
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         double olderThanDouble =
@@ -64,6 +65,7 @@ public class RemoveUnusedUnofficialTermsMaintenanceTask implements IMaintenanceT
                 + olderThan + " milliseconds) will be removed.");
     }
 
+    @Override
     public void execute()
     {
         ICommonServerForInternalUse server = CommonServiceProvider.getCommonServer();

@@ -162,6 +162,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
                 new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
         Collections.sort(list, new Comparator<GridRowModel<Sample>>()
             {
+                @Override
                 public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
                 {
                     return o1.getOriginalObject().getCode()
@@ -335,6 +336,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
                 new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
         Collections.sort(list, new Comparator<GridRowModel<Sample>>()
             {
+                @Override
                 public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
                 {
                     return o1.getOriginalObject().getCode()

@@ -54,6 +54,7 @@ public class WhiteListBasedRemoteHostValidator implements IRemoteHostValidator
         allowedRemoteHosts.add(remoteHost);
     }
 
+    @Override
     public boolean isValidRemoteHost(String remoteHost)
     {
         return allowedRemoteHosts.contains(remoteHost);

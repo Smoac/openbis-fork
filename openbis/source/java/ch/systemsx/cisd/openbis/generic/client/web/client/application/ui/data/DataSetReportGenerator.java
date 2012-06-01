@@ -77,6 +77,7 @@ public class DataSetReportGenerator
         return new IOnReportComponentGeneratedAction()
             {
 
+                @Override
                 public void execute(final IDisposableComponent reportComponent)
                 {
                     final String reportDate =

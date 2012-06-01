@@ -43,22 +43,26 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
         this.registratorOrNull = registratorOrNull;
     }
 
+    @Override
     public void execute(List<NewSample> batch)
     {
         businessTable.prepareForRegistration(batch, registratorOrNull);
         businessTable.save();
     }
 
+    @Override
     public List<NewSample> getAllEntities()
     {
         return entities;
     }
 
+    @Override
     public String getEntityName()
     {
         return "sample";
     }
 
+    @Override
     public String getOperationName()
     {
         return "registration";

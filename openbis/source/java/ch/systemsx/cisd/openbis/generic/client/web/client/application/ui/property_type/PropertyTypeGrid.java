@@ -109,6 +109,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<PropertyType>>>()
                     {
 
+                        @Override
                         public void invoke(
                                 BaseEntityModel<TableModelRowWithObject<PropertyType>> selectedItem,
                                 boolean keyPressed)

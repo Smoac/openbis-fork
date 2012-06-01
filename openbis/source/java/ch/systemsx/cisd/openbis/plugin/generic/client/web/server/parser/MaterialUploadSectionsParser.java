@@ -142,6 +142,7 @@ public class MaterialUploadSectionsParser
                                 new BisExcelFileLoader<NewMaterial>(
                                         new IParserObjectFactoryFactory<NewMaterial>()
                                             {
+                                                @Override
                                                 public final IParserObjectFactory<NewMaterial> createFactory(
                                                         final IPropertyMapper propertyMapper)
                                                         throws ParserException
@@ -192,6 +193,7 @@ public class MaterialUploadSectionsParser
                                 new BisTabFileLoader<NewMaterial>(
                                         new IParserObjectFactoryFactory<NewMaterial>()
                                             {
+                                                @Override
                                                 public final IParserObjectFactory<NewMaterial> createFactory(
                                                         final IPropertyMapper propertyMapper)
                                                         throws ParserException

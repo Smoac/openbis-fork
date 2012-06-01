@@ -96,6 +96,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
                             {
 
+                                @Override
                                 public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                                         boolean keyPressed)
                                 {

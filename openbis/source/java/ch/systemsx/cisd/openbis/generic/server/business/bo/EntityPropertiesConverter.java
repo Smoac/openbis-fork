@@ -276,6 +276,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     // IEntityPropertiesConverter
     //
 
+    @Override
     public final <T extends EntityPropertyPE> List<T> convertProperties(
             final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
@@ -319,6 +320,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return list;
     }
 
+    @Override
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE)
     {
@@ -330,6 +332,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                         entityTypePE));
     }
 
+    @Override
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache)
     {
@@ -376,6 +379,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
     }
 
+    @Override
     public final String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypPropertyType, String value)
     {
@@ -393,6 +397,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return null;
     }
 
+    @Override
     public final <T extends EntityPropertyPE> T createValidatedProperty(
             PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
             final PersonPE registrator, String validatedValue)
@@ -402,6 +407,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 validatedValue);
     }
 
+    @Override
     public final <T extends EntityPropertyPE> void setPropertyValue(final T entityProperty,
             final PropertyTypePE propertyType, final String validatedValue)
     {
@@ -420,6 +426,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
     }
 
+    @Override
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author)
     {
@@ -448,6 +455,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
      * Update the value of a managed property, assuming the managedProperty already has the updated
      * value.
      */
+    @Override
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
             EntityTypePE entityType, IManagedProperty managedProperty, PersonPE author)
     {
@@ -475,6 +483,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return convertProperties(propsArray, entityTypeCode, registrator, false, false);
     }
 
+    @Override
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
             Set<String> propertiesToUpdate)
@@ -543,6 +552,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         // IKeyExtractor
         //
 
+        @Override
         public final PropertyTypePE getKey(final EntityTypePropertyTypePE e)
         {
             return e.getPropertyType();

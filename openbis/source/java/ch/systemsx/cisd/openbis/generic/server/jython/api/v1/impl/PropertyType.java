@@ -34,6 +34,7 @@ public class PropertyType extends PropertyTypeImmutable implements IPropertyType
         setDescription(StringUtils.EMPTY_STRING);
     }
 
+    @Override
     public void setDescription(String description)
     {
         if (description != null)
@@ -42,37 +43,44 @@ public class PropertyType extends PropertyTypeImmutable implements IPropertyType
         }
     }
 
+    @Override
     public void setLabel(String label)
     {
         getPropertyType().setLabel(label);
     }
 
+    @Override
     public void setMaterialType(IMaterialTypeImmutable materialType)
     {
         MaterialType wrappedMaterialType = ((MaterialTypeImmutable) materialType).getMaterialType();
         getPropertyType().setMaterialType(wrappedMaterialType);
     }
 
+    @Override
     public void setXmlSchema(String schema)
     {
         getPropertyType().setSchema(schema);
     }
 
+    @Override
     public void setTransformation(String xsltTransformation)
     {
         getPropertyType().setTransformation(xsltTransformation);
     }
 
+    @Override
     public void setManagedInternally(boolean isManagedInternally)
     {
         getPropertyType().setManagedInternally(isManagedInternally);
     }
 
+    @Override
     public void setInternalNamespace(boolean isInternalNamespace)
     {
         getPropertyType().setInternalNamespace(isInternalNamespace);
     }
 
+    @Override
     public void setVocabulary(IVocabularyImmutable vocabulary)
     {
         VocabularyImmutable internalVocabulary = (VocabularyImmutable) vocabulary;

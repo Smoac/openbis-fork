@@ -41,6 +41,7 @@ public class SampleRegistrationLocatorResolver extends AbstractViewLocatorResolv
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(final ViewLocator locator) throws UserFailureException
     {
         SampleRegistrationConfig config = new SampleRegistrationConfig();

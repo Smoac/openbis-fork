@@ -56,21 +56,25 @@ public class EntityReference implements Serializable, IEntityInformationHolderWi
         this.permIdOrNull = permIdOrNull;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return kind;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return new BasicEntityType(typeCode);
     }
 
+    @Override
     public Long getId()
     {
         return id;
     }
 
+    @Override
     public String getCode()
     {
         return code;
@@ -82,6 +86,7 @@ public class EntityReference implements Serializable, IEntityInformationHolderWi
         return kind + " " + code + " (" + typeCode + ")";
     }
 
+    @Override
     public String getPermId()
     {
         return permIdOrNull;

@@ -47,11 +47,13 @@ public class ClientServiceExceptionTranslatingAdvisor extends DefaultPointcutAdv
 
     private static class AllClientServiceMethodsPointcut implements Pointcut
     {
+        @Override
         public MethodMatcher getMethodMatcher()
         {
             return MethodMatcher.TRUE;
         }
 
+        @Override
         public ClassFilter getClassFilter()
         {
             return new RootClassFilter(IClientService.class);
@@ -61,6 +63,7 @@ public class ClientServiceExceptionTranslatingAdvisor extends DefaultPointcutAdv
     private static class UserFailureExceptionTranslatingInterceptor implements MethodInterceptor
     {
 
+        @Override
         public Object invoke(MethodInvocation invocation) throws Throwable
         {
             try

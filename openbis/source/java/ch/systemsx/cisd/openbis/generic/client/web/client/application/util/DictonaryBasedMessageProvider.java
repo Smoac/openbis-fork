@@ -42,16 +42,19 @@ public final class DictonaryBasedMessageProvider implements IMessageProvider
     // IMessageProvider
     //
 
+    @Override
     public String getName()
     {
         return dictionaryName;
     }
     
+    @Override
     public final boolean containsKey(final String key)
     {
         return dictionary.keySet().contains(key);
     }
 
+    @Override
     public final String getMessage(final String key, final Object... parameters)
     {
         String message;

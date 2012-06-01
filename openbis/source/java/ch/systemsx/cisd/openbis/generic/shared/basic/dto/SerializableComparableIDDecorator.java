@@ -42,6 +42,7 @@ public class SerializableComparableIDDecorator implements ISerializableComparabl
         return id;
     }
     
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         if (o instanceof SerializableComparableIDDecorator)

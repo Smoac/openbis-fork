@@ -36,11 +36,13 @@ public final class NewMaterial extends Code<NewMaterial> implements IPropertiesB
         setCode(code);
     }
 
+    @Override
     public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
+    @Override
     public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;

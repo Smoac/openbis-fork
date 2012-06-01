@@ -52,18 +52,21 @@ public class QueryModule implements IModule
         this.viewContext = viewContext;
     }
 
+    @Override
     public String getName()
     {
         return viewContext
                 .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_MODULE_MENU_TITLE);
     }
 
+    @Override
     public void initialize(AsyncCallback<Void> callback)
     {
         viewContext.getService().initDatabases(
                 new DatabasesInitializationCallback(viewContext, callback));
     }
 
+    @Override
     public List<? extends MenuItem> getMenuItems()
     {
         if (databases == 0)
@@ -102,6 +105,7 @@ public class QueryModule implements IModule
 
     }
 
+    @Override
     public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {

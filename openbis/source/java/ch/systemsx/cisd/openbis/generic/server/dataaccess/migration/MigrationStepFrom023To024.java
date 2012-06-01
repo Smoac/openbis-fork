@@ -60,6 +60,7 @@ public final class MigrationStepFrom023To024 extends MigrationStepAdapter
                     // ParameterizedRowMapper
                     //
 
+                    @Override
                     public final DatabaseInstance mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {
@@ -75,6 +76,7 @@ public final class MigrationStepFrom023To024 extends MigrationStepAdapter
                     //
                     // ParameterizedRowMapper
                     //
+                    @Override
                     public final ExternalData mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {

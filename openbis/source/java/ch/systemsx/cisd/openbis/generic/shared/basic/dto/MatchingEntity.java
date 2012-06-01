@@ -52,6 +52,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
 
     private String textFragment;
 
+    @Override
     public final EntityKind getEntityKind()
     {
         return entityKind;
@@ -62,6 +63,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         this.entityKind = entityKind;
     }
 
+    @Override
     public final Person getRegistrator()
     {
         return registrator;
@@ -72,6 +74,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         this.registrator = registrator;
     }
 
+    @Override
     public final BasicEntityType getEntityType()
     {
         return entityType;
@@ -122,6 +125,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         this.identifier = identifier;
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -132,6 +136,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         this.id = id;
     }
 
+    @Override
     public String getCode()
     {
         return code;
@@ -142,6 +147,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         this.code = code;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;
@@ -159,26 +165,31 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
             {
                 private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+                @Override
                 public Long getId()
                 {
                     return entity.getId();
                 }
 
+                @Override
                 public String getCode()
                 {
                     return entity.getCode();
                 }
 
+                @Override
                 public BasicEntityType getEntityType()
                 {
                     return entity.getEntityType();
                 }
 
+                @Override
                 public EntityKind getEntityKind()
                 {
                     return entity.getEntityKind();
                 }
 
+                @Override
                 public String getPermId()
                 {
                     return entity.getPermId();

@@ -57,6 +57,7 @@ public final class MaterialTypePE extends EntityTypePE
     // EntityTypePE
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.MATERIAL_TYPE_SEQUENCE, sequenceName = SequenceNames.MATERIAL_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_TYPE_SEQUENCE)

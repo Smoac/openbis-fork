@@ -56,6 +56,7 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
         this(null, null, null, null, null);
     }
 
+    @Override
     public int getWidth()
     {
         return header.getDefaultColumnWidth();
@@ -66,11 +67,13 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
         this.hidden = hidden;
     }
 
+    @Override
     public boolean isHidden()
     {
         return hidden;
     }
 
+    @Override
     public boolean isEditable()
     {
         return header.isEditable();
@@ -81,6 +84,7 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
         return false;
     }
 
+    @Override
     public String tryGetLink(TableModelRowWithObject<T> entity)
     {
         if (linkGeneratorOrNull == null)
@@ -92,18 +96,21 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
         return objectOrNull == null ? null : linkGeneratorOrNull.tryGetLink(objectOrNull, value);
     }
 
+    @Override
     public boolean isNumeric()
     {
         DataTypeCode type = header.getDataType();
         return type == DataTypeCode.INTEGER || type == DataTypeCode.REAL;
     }
 
+    @Override
     public boolean isVocabulary()
     {
         DataTypeCode type = header.getDataType();
         return type == DataTypeCode.CONTROLLEDVOCABULARY;
     }
 
+    @Override
     public Vocabulary tryGetVocabulary()
     {
         return header.tryGetVocabulary();

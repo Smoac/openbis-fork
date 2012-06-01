@@ -90,12 +90,14 @@ public class StatisticsWidget extends ContentPanel implements IDatabaseModificat
         }
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT) };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refresh();

@@ -30,31 +30,37 @@ public class Vocabulary extends VocabularyImmutable implements IVocabulary
         super(code);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getVocabulary().setDescription(description);
     }
 
+    @Override
     public void setManagedInternally(boolean isManagedInternally)
     {
         getVocabulary().setManagedInternally(isManagedInternally);
     }
 
+    @Override
     public void setInternalNamespace(boolean isInternalNamespace)
     {
         getVocabulary().setInternalNamespace(isInternalNamespace);
     }
 
+    @Override
     public void setChosenFromList(boolean isChosenFromList)
     {
         getVocabulary().setChosenFromList(isChosenFromList);
     }
 
+    @Override
     public void setUrlTemplate(String urlTemplate)
     {
         getVocabulary().setURLTemplate(urlTemplate);
     }
 
+    @Override
     public void addTerm(IVocabularyTerm term)
     {
         VocabularyTerm internalTerm = (VocabularyTerm) term;

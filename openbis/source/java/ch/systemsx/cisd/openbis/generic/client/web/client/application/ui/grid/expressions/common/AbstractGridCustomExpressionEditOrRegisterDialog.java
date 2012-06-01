@@ -124,6 +124,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         result.sinkEvents(Event.ONCLICK);
         result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     GridColumnChooserDialog.show(viewContext, columnDataModelProvider, gridId,
@@ -175,21 +176,25 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         return new IExpressionHolder()
             {
 
+                @Override
                 public int getCursorPos()
                 {
                     return expressionField.getCursorPos();
                 }
 
+                @Override
                 public String getValue()
                 {
                     return expressionField.getValue();
                 }
 
+                @Override
                 public void setCursorPos(int position)
                 {
                     expressionField.setCursorPos(position);
                 }
 
+                @Override
                 public void setValue(String value)
                 {
                     expressionField.setValue(value);

@@ -207,6 +207,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     // AsyncCallback
     //
 
+    @Override
     public final void onFailure(final Throwable caught)
     {
         if (isIncompatibleServerException(caught))
@@ -316,10 +317,12 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             });
     }
 
+    @Override
     public final void onSuccess(final T result)
     {
         performSuccessActionOrIgnore(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     doOnSuccess(result);

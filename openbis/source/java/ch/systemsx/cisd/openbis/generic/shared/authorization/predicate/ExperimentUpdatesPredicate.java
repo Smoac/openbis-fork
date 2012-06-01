@@ -44,6 +44,7 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
         this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentTechIdPredicate.init(provider);

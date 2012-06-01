@@ -51,6 +51,7 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
         this.reportSelectionWidget = new ReportingPluginSelectionWidget(viewContext, ownerIdOrNull);
         this.reportGeneratedAction = new IOnReportComponentGeneratedAction()
             {
+                @Override
                 public void execute(IDisposableComponent gridComponent)
                 {
                     replaceContent(gridComponent);
@@ -71,6 +72,7 @@ public abstract class AbstractDataSetsSection extends DisposableTabContent
                     new IAddProcessingPluginsMenuAction()
                         {
 
+                            @Override
                             public void addProcessingPlugins(DataSetProcessingMenu menu)
                             {
                                 getHeader().addTool(new SeparatorToolItem());

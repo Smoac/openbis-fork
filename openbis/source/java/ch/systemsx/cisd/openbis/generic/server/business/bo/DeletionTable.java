@@ -48,11 +48,13 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
         super(daoFactory, session);
     }
 
+    @Override
     public List<Deletion> getDeletions()
     {
         return deletions;
     }
 
+    @Override
     public void load(boolean withEntities)
     {
         final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();

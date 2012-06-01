@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 final class HistoryRowMapper implements ParameterizedRowMapper<PropertyHistory>
 {
 
+    @Override
     public PropertyHistory mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException
     {
         PropertyHistory propertyHistory = new PropertyHistory();

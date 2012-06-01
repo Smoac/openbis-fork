@@ -27,11 +27,13 @@ public class PopupDialogBasedInfoHandler implements IInfoHandler
 {
     public static final IInfoHandler INSTANCE = new PopupDialogBasedInfoHandler();
     
+    @Override
     public void displayInfo(String text)
     {
         MessageBox.info("Info", text, null);
     }
     
+    @Override
     public void displayError(String text)
     {
         MessageBox.alert("Error", text, null);

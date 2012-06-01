@@ -68,6 +68,7 @@ public class DataSetListingTest extends SystemTestCase
         List<ExternalData> dataSets = asList(resultSet);
         Collections.sort(dataSets, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData e1, ExternalData e2)
                 {
                     return e1.getCode().compareTo(e2.getCode());

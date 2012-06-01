@@ -35,6 +35,7 @@ public class CodeSequenceDAO extends AbstractDAO implements ICodeSequenceDAO
         super(sessionFactory, databaseInstance);
     }
 
+    @Override
     public long getNextCodeSequenceId()
     {
         return getNextSequenceId(SequenceNames.CODE_SEQUENCE);

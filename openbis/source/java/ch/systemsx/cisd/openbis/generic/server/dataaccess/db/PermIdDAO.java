@@ -51,6 +51,7 @@ public class PermIdDAO extends AbstractDAO implements IPermIdDAO
         super(sessionFactory, databaseInstance);
     }
 
+    @Override
     public String createPermId()
     {
         long id = getNextSequenceId(SequenceNames.PERM_ID_SEQUENCE);
@@ -58,6 +59,7 @@ public class PermIdDAO extends AbstractDAO implements IPermIdDAO
                 + Long.toString(id);
     }
 
+    @Override
     public IEntityInformationHolderDTO tryToFindByPermId(String permId, EntityKind entityKind)
     {
         assert permId != null : "Unspecified permId";

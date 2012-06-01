@@ -46,6 +46,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewCo
         return new QueryViewContext(originalViewContext);
     }
 
+    @Override
     public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
@@ -53,6 +54,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<QueryViewCo
                 + "' not implemented yet.");
     }
 
+    @Override
     public Set<String> getEntityTypeCodes(EntityKind entityKind)
     {
         return Collections.emptySet();

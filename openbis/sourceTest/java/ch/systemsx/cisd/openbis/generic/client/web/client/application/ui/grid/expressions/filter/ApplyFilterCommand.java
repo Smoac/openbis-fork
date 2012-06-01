@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -41,10 +42,11 @@ public class ApplyFilterCommand extends AbstractDefaultTestCommand
         this.filterName = filterName;
     }
 
+    @Override
     public void execute()
     {
         final ComboBox<FilterModel> filterSelectionWidget =
-                (FilterSelectionWidget) GWTTestUtil.getWidgetWithID(FilterSelectionWidget.ID
+                (FilterSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + FilterSelectionWidget.SUFFIX + gridId);
         GWTUtils.setSelectedItem(filterSelectionWidget, ModelDataPropertyNames.NAME, filterName);
         GWTTestUtil.clickTextToolItemWithID(FilterToolbar.createId(FilterToolbar.APPLY_ID, gridId));

@@ -28,22 +28,26 @@ public class ExperimentBatchRegistration implements IBatchOperation<NewBasicExpe
         this.experimentType = experimentType;
     }
 
+    @Override
     public void execute(List<NewBasicExperiment> entities)
     {
         experimentTable.add(entities, experimentType);
         experimentTable.save();
     }
 
+    @Override
     public List<NewBasicExperiment> getAllEntities()
     {
         return newExperiments;
     }
 
+    @Override
     public String getEntityName()
     {
         return "experiment";
     }
 
+    @Override
     public String getOperationName()
     {
         return "register";

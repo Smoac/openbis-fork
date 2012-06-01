@@ -46,6 +46,7 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
     // IVocabularyTermBO
     //
 
+    @Override
     public void update(IVocabularyTermUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
@@ -72,6 +73,7 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
         getVocabularyTermDAO().validateAndSaveUpdatedEntity(vocabularyTermPE);
     }
 
+    @Override
     public final VocabularyTermPE getVocabularyTerm()
     {
         assert vocabularyTermPE != null : "Vocabulary term not defined.";
@@ -89,6 +91,7 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
         }
     }
 
+    @Override
     public void makeOfficial(List<VocabularyTerm> termsToBeOfficial)
     {
         for (VocabularyTerm term : termsToBeOfficial)

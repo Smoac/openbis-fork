@@ -36,16 +36,19 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     
     private boolean scriptable;
 
+    @Override
     public PropertyType getPropertyType()
     {
         return propertyType;
     }
 
+    @Override
     public void setPropertyType(PropertyType propertyType)
     {
         this.propertyType = propertyType;
     }
 
+    @Override
     public String tryGetAsString()
     {
         if (propertyType == null)
@@ -71,48 +74,58 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         }
     }
 
+    @Override
     public String tryGetOriginalValue()
     {
         return tryGetAsString();
     }
 
+    @Override
     public String getValue()
     {
         return null;
     }
 
+    @Override
     public void setValue(String value)
     {
     }
 
+    @Override
     public Material getMaterial()
     {
         return null;
     }
 
+    @Override
     public void setMaterial(Material material)
     {
     }
 
+    @Override
     public VocabularyTerm getVocabularyTerm()
     {
         return null;
     }
 
+    @Override
     public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
     {
     }
 
+    @Override
     public void setOrdinal(Long ordinal)
     {
         this.ordinal = ordinal;
     }
 
+    @Override
     public Long getOrdinal()
     {
         return ordinal;
     }
 
+    @Override
     public boolean isManaged()
     {
         return false;
@@ -123,6 +136,7 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         this.scriptable = scriptable;
     }
 
+    @Override
     public boolean isScriptable()
     {
         return scriptable;
@@ -142,6 +156,7 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     // Comparable
     //
 
+    @Override
     public int compareTo(IEntityProperty o)
     {
         Long thisOrdinal = this.getOrdinal();

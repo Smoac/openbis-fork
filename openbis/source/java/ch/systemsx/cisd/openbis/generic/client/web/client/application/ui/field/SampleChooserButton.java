@@ -106,16 +106,19 @@ public class SampleChooserButton extends Button implements
         final Field<?> chooserField = new AdapterField(chooserButton);
         return new SampleChooserButtonAdaptor()
             {
+                @Override
                 public Field<?> getField()
                 {
                     return chooserField;
                 }
 
+                @Override
                 public SampleChooserButton getChooserButton()
                 {
                     return chooserButton;
                 }
 
+                @Override
                 public String getValue()
                 {
                     return chooserButton.getValue();
@@ -150,6 +153,7 @@ public class SampleChooserButton extends Button implements
         super(buttonText);
     }
 
+    @Override
     public void setChosenEntities(List<TableModelRowWithObject<Sample>> entities)
     {
         if (entities == null)

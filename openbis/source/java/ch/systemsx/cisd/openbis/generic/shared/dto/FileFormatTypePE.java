@@ -46,6 +46,7 @@ public final class FileFormatTypePE extends AbstractTypePE
 
     private DatabaseInstancePE databaseInstance;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, sequenceName = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE)

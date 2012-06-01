@@ -29,6 +29,7 @@ public class PostRegistrationPE implements IIdHolder, Serializable
 
     private Long id;
 
+    @Override
     @SequenceGenerator(name = SequenceNames.POST_REGISTRATION_DATASET_QUEUE_SEQUENCE, sequenceName = SequenceNames.POST_REGISTRATION_DATASET_QUEUE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.POST_REGISTRATION_DATASET_QUEUE_SEQUENCE)

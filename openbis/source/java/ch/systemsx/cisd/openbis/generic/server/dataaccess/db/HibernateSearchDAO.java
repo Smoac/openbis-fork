@@ -44,6 +44,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
+import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.engine.DocumentBuilder;
@@ -104,6 +105,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // IHibernateSearchDAO
     //
 
+    @Override
     public int getResultSetSizeLimit()
     {
         return hibernateSearchContext.getMaxResults();
@@ -111,6 +113,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     // simple search for MatchingEntities
 
+    @Override
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider,
             final boolean useWildcardSearchMode, final int alreadyFoundEntities, final int maxSize)
@@ -123,6 +126,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final List<MatchingEntity> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
+                        @Override
                         public final List<MatchingEntity> doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
@@ -192,7 +196,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         searchableEntity.getMatchingEntityClass());
 
         // takes data only from Lucene index without hitting DB
-        hibernateQuery.setProjection(FullTextQuery.DOCUMENT_ID, FullTextQuery.DOCUMENT);
+        hibernateQuery.setProjection(ProjectionConstants.DOCUMENT_ID, ProjectionConstants.DOCUMENT);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setFirstResult(0);
         hibernateQuery.setMaxResults(maxResults);
@@ -220,12 +224,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     // detailed search
 
+    @Override
     public List<Long> searchForEntityIds(final DetailedSearchCriteria criteria,
             final EntityKind entityKind, final List<DetailedSearchAssociationCriteria> associations)
     {
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
+                        @Override
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
@@ -256,7 +262,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());
 
-        hibernateQuery.setProjection(FullTextQuery.ID);
+        hibernateQuery.setProjection(ProjectionConstants.ID);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
 
@@ -304,12 +310,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             this.dataProvider = dataProvider;
         }
 
+        @Override
         @SuppressWarnings("rawtypes")
         public List transformList(List collection)
         {
             throw new IllegalStateException("This method should not be called");
         }
 
+        @Override
         public Object transformTuple(Object[] tuple, String[] aliases)
         {
             final int documentId = (Integer) tuple[0];
@@ -464,6 +472,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             // results.
             return new Formatter()
                 {
+                    @Override
                     public String highlightTerm(String text, TokenGroup tokenGroup)
                     {
                         return text; // no highlight at all

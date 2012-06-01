@@ -32,6 +32,7 @@ public interface IDataSetTypeImmutable extends IEntityType
     /**
      * Get the description for this data set type.
      */
+    @Override
     public String getDescription();
 
     /**

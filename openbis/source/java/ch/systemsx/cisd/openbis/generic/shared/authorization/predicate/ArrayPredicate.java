@@ -48,6 +48,7 @@ public final class ArrayPredicate<T> extends AbstractPredicate<T[]>
     // AbstractPredicate
     //
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         predicate.init(provider);

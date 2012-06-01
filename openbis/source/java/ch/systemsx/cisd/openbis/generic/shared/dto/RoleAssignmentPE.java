@@ -162,6 +162,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     // IIdHolder
     //
 
+    @Override
     @SequenceGenerator(name = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, sequenceName = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE)

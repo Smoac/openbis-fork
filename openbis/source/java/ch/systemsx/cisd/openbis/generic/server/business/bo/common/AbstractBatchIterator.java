@@ -49,6 +49,7 @@ abstract public class AbstractBatchIterator<T> implements Iterable<T>
         this.items = items;
     }
 
+    @Override
     public Iterator<T> iterator()
     {
         final Iterator<Long> unprocessedItems = items.iterator();
@@ -56,11 +57,13 @@ abstract public class AbstractBatchIterator<T> implements Iterable<T>
             {
                 private Iterator<T> fetchedResults = null;
 
+                @Override
                 public boolean hasNext()
                 {
                     return fetchNextPortionIfNeeded();
                 }
 
+                @Override
                 public T next()
                 {
                     fetchNextPortionIfNeeded();
@@ -92,6 +95,7 @@ abstract public class AbstractBatchIterator<T> implements Iterable<T>
                     }
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new NotImplementedException();

@@ -41,11 +41,13 @@ public final class LocationValidator implements ConstraintValidator<Location, St
     // Validator
     //
 
+    @Override
     public final void initialize(final Location location)
     {
         relative = location.relative();
     }
 
+    @Override
     public final boolean isValid(final String location, ConstraintValidatorContext constraintContext)
     {
 

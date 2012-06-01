@@ -94,6 +94,7 @@ public class GeneratedImageTableCell implements ISerializableComparable
         parameters.put(name, value);
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return toString().compareTo(String.valueOf(o));

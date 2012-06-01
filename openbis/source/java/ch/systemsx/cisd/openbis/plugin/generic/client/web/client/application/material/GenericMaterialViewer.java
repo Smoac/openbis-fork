@@ -236,11 +236,13 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
 
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createDatabaseModificationObserver().getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createDatabaseModificationObserver().update(observedModifications);
@@ -256,6 +258,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
             AbstractDatabaseModificationObserverWithCallback
     {
 
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
@@ -268,6 +271,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
                         DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
         }
 
+        @Override
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
             reloadMaterialData(new ReloadPropertyGridCallback(viewContext,

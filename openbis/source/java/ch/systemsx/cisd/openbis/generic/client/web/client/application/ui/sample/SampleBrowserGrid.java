@@ -91,10 +91,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     protected static final IDirectlyConnectedController DUMMY_DIRECTLY_CONNECTED_CONTROLLER =
             new IDirectlyConnectedController()
                 {
+                    @Override
                     public void setOnChangeAction(IDelegatedAction onChangeAction)
                     {
                     }
 
+                    @Override
                     public boolean isOnlyDirectlyConnected()
                     {
                         return true;
@@ -313,6 +315,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 };
         }
 
+        @Override
         public List<PropertyType> tryGetPropertyTypes()
         {
             PropertyTypesCriteria propertyTypesCriteria = propertyTypeProvider.tryGetCriteria();
@@ -325,22 +328,26 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
             }
         }
 
+        @Override
         public ListSampleDisplayCriteria tryGetCriteria()
         {
             return criteria;
         }
 
+        @Override
         public void update(Set<DatabaseModificationKind> observedModifications,
                 IDataRefreshCallback dataRefreshCallback)
         {
             propertyTypeProvider.update(observedModifications, dataRefreshCallback);
         }
 
+        @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return propertyTypeProvider.getRelevantModifications();
         }
 
+        @Override
         public void setEntityTypes(Set<SampleType> entityTypes)
         {
             criteria.setAllSampleType(SampleType.createAllSampleType(entityTypes, false));
@@ -367,6 +374,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         this.directlyConnectedController = directlyConnectedController;
         directlyConnectedController.setOnChangeAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     refresh();
@@ -391,6 +399,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,
                 new ICellListenerAndLinkGenerator<Sample>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -401,6 +410,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                     specialKeyPressed, href);
                         }
 
+                        @Override
                         public String tryGetLink(Sample entity,
                                 ISerializableComparable comparableValue)
                         {
@@ -503,6 +513,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                 }
@@ -522,6 +533,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 new HashSet<DatabaseModificationKind>();
         getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
             {
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     refresh();
@@ -601,6 +613,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         return new IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>>()
             {
+                @Override
                 public DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> execute()
                 {
                     TableExportCriteria<TableModelRowWithObject<Sample>> tableExportCriteria =
@@ -670,6 +683,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     if (getCriteriaProvider().tryGetCriteria() != null)

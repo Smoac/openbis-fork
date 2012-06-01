@@ -275,6 +275,7 @@ final class SampleListingWorker extends AbstractLister
             samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
                     new IEntityPropertiesHolderResolver()
                         {
+                            @Override
                             public Sample get(long id)
                             {
                                 return sampleMap.get(id);

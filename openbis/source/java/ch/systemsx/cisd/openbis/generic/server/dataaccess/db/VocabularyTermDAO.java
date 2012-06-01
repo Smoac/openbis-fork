@@ -51,6 +51,7 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
         super(sessionFactory, databaseInstance, VocabularyTermPE.class);
     }
 
+    @Override
     public void increaseVocabularyTermOrdinals(VocabularyPE vocabulary, Long fromOrdinal,
             int increment)
     {

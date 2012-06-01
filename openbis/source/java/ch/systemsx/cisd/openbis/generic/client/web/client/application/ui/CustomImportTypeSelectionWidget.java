@@ -52,6 +52,7 @@ public class CustomImportTypeSelectionWidget extends
                 ModelDataPropertyNames.TOOLTIP));
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[] {};

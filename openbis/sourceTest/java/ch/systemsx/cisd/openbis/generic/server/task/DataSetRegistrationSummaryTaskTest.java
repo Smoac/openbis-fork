@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -123,7 +122,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         context = new Mockery();
         server = context.mock(ICommonServerForInternalUse.class);
         mailClient = context.mock(IMailClient.class);
-        Calendar instance = GregorianCalendar.getInstance();
+        Calendar instance = Calendar.getInstance();
         instance.set(2012, 0, 4, 10, 34, 10); // Wednesday, January 4th, 2012
         nowDate = instance.getTimeInMillis();
         timeProvider = new MockTimeProvider(nowDate, 1000);

@@ -523,11 +523,13 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
             this.expectedFile = expectedFile;
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendValue(expectedFile);
         }
 
+        @Override
         public boolean matches(Object item)
         {
             if (item instanceof File)

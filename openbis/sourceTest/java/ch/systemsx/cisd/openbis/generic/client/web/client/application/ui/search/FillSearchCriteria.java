@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Criterion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.MatchCriteriaRadio;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -90,6 +91,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         return this;
     }
 
+    @Override
     public final void execute()
     {
         assert criteriaDefined : "At least one search criterion should be specified";
@@ -113,7 +115,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         {
             final DetailedSearchFieldsSelectionWidget selector =
                     (DetailedSearchFieldsSelectionWidget) GWTTestUtil
-                            .getWidgetWithID(DetailedSearchFieldsSelectionWidget.ID
+                            .getWidgetWithID(DropDownList.ID
                                     + DetailedSearchFieldsSelectionWidget.SUFFIX
                                     + DetailedSearchCriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i));
             GWTUtils.setSelectedItem(selector, ModelDataPropertyNames.CODE, criteria.get(i)

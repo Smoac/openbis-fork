@@ -76,6 +76,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     @Private
     static class AuthorizationGroupFactory implements IAuthorizationGroupFactory
     {
+        @Override
         public AuthorizationGroupPE create(NewAuthorizationGroup newAuthorizationGroup,
                 PersonPE registrator, DatabaseInstancePE homeDBInstance)
         {
@@ -88,6 +89,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         }
     }
 
+    @Override
     public void define(NewAuthorizationGroup newAuthorizationGroup) throws UserFailureException
     {
         assert newAuthorizationGroup != null : "Undefined new authorization group";
@@ -98,6 +100,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         dataChanged = true;
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert authorizationGroup != null : "Authorization group not loaded.";
@@ -115,6 +118,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         }
     }
 
+    @Override
     public void deleteByTechId(TechId authGroupId, String reason)
     {
         loadByTechId(authGroupId);
@@ -130,6 +134,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
 
     }
 
+    @Override
     public void loadByTechId(TechId techId)
     {
         try
@@ -155,11 +160,13 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         return event;
     }
 
+    @Override
     public AuthorizationGroupPE getAuthorizationGroup()
     {
         return authorizationGroup;
     }
 
+    @Override
     public void update(AuthorizationGroupUpdates updates)
     {
         // TODO 2009-07-31,IA: add last update date check
@@ -168,6 +175,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         dataChanged = true;
     }
 
+    @Override
     public List<String> addPersons(List<String> personsCodes)
     {
         assert authorizationGroup != null : "Not initialized";
@@ -181,6 +189,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         return inexistent;
     }
 
+    @Override
     public void removePersons(List<String> personsCodes)
     {
         assert authorizationGroup != null : "Not initialized";

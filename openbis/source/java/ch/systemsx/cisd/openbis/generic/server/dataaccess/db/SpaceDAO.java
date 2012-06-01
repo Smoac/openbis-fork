@@ -59,6 +59,7 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
     // ISpaceDAO
     //
 
+    @Override
     public final SpacePE tryFindSpaceByCodeAndDatabaseInstance(final String spaceCode,
             final DatabaseInstancePE databaseInstance) throws DataAccessException
     {
@@ -79,6 +80,7 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         return entity;
     }
 
+    @Override
     public final List<SpacePE> listSpaces() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
@@ -92,6 +94,7 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         return list;
     }
 
+    @Override
     public final List<SpacePE> listSpaces(final DatabaseInstancePE databaseInstance)
             throws DataAccessException
     {
@@ -109,6 +112,7 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         return list;
     }
 
+    @Override
     public final void createSpace(final SpacePE space) throws DataAccessException
     {
         assert space != null : "Unspecified space";

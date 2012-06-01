@@ -48,6 +48,7 @@ public final class AlwaysStatusOkAccessController implements IAccessController
     // IAccessController
     //
 
+    @Override
     public final Status isAuthorized(final IAuthSession session, final Method method,
             final Argument<?>[] arguments) throws UserFailureException
     {

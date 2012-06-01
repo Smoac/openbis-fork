@@ -91,9 +91,9 @@ public class ExtendedGridView extends GridView
             List<Node> nodes = extractNodes(td);
             for (Node n : nodes)
             {
-                if (Element.is(n))
+                if (com.google.gwt.dom.client.Element.is(n))
                 {
-                    com.google.gwt.dom.client.Element e = Element.as(n);
+                    com.google.gwt.dom.client.Element e = com.google.gwt.dom.client.Element.as(n);
                     if (e.getTagName().equalsIgnoreCase("img") == false)
                     {
                         e.getStyle().setWidth(0, com.google.gwt.dom.client.Style.Unit.PX);

@@ -51,21 +51,25 @@ public class ManagedProperty implements IManagedProperty
     // IManagedEntityProperty
     //
 
+    @Override
     public boolean isOwnTab()
     {
         return ownTab;
     }
 
+    @Override
     public void setOwnTab(boolean ownTab)
     {
         this.ownTab = ownTab;
     }
 
+    @Override
     public IManagedUiDescription getUiDescription()
     {
         return uiDescription;
     }
 
+    @Override
     public String getPropertyTypeCode()
     {
         return propertyTypeCode;
@@ -76,16 +80,19 @@ public class ManagedProperty implements IManagedProperty
         this.propertyTypeCode = propertyTypeCode;
     }
 
+    @Override
     public String getValue()
     {
         return value;
     }
 
+    @Override
     public boolean isSpecialValue()
     {
         return isSpecialValue(value);
     }
 
+    @Override
     public void setValue(String value)
     {
         this.value = value;

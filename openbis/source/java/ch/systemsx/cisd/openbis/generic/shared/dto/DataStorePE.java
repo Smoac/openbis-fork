@@ -181,6 +181,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     // AbstractIdAndCodeHolder
     //
 
+    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
@@ -190,6 +191,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
         return code;
     }
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_STORE_SEQUENCE, sequenceName = SequenceNames.DATA_STORE_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_STORE_SEQUENCE)

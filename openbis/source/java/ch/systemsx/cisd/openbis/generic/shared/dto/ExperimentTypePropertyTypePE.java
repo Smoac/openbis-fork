@@ -64,12 +64,14 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
     // EntityTypePropertyTypePE
     //
 
+    @Override
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = ExperimentPropertyPE.class)
     public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }
 
+    @Override
     @Transient
     public EntityTypePE getEntityType()
     {
@@ -84,6 +86,7 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
         ((ExperimentTypePE) entityType).addExperimentTypePropertyType(this);
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE)

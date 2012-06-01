@@ -104,6 +104,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 //
                 // IPageController
                 //
+                @Override
                 public final void reload(final boolean logout)
                 {
                     if (logout)
@@ -183,6 +184,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         controllers.add(controller);
     }
 
+    @Override
     public final void onModuleLoad()
     {
         onModuleLoad(WindowUtils.createOpenUrlController());
@@ -372,11 +374,13 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                             new AsyncCallback<Void>()
                                 {
 
+                                    @Override
                                     public void onSuccess(Void result)
                                     {
                                         History.newItem(lastHistoryOrNull);
                                     }
 
+                                    @Override
                                     public void onFailure(Throwable reason)
                                     {
                                         // Do not try to open the last history location
@@ -438,6 +442,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new SampleRegistrationLocatorResolver(context));
     }
 
+    @Override
     public void onValueChange(ValueChangeEvent<String> event)
     {
         UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext).execute();

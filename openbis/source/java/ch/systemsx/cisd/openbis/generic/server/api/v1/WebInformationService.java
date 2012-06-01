@@ -37,16 +37,19 @@ public class WebInformationService implements IWebInformationService
     @Private
     public IRequestContextProvider requestContextProvider;
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public String getSessionToken()
     {
         HttpSession httpSession = requestContextProvider.getHttpServletRequest().getSession(false);

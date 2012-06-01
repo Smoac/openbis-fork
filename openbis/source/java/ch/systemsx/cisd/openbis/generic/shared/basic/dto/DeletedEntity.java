@@ -56,31 +56,37 @@ public class DeletedEntity implements IEntityInformationHolderWithIdentifier
         this.entityKind = entityKind;
     }
 
+    @Override
     public String getIdentifier()
     {
         return identifier;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return entityType;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return entityKind;
     }
 
+    @Override
     public Long getId()
     {
         return id;
     }
 
+    @Override
     public String getCode()
     {
         return code;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

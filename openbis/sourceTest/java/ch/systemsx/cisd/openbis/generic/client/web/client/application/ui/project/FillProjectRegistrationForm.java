@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -52,12 +53,13 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
         GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_code", code);
         GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_description", description);
         final SpaceSelectionWidget groupSelector =
-                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(SpaceSelectionWidget.ID
+                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + SpaceSelectionWidget.SUFFIX
                         + AbstractProjectEditRegisterForm.createId(null));
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupName);

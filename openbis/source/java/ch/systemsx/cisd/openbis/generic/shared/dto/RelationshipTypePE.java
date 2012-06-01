@@ -96,6 +96,7 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
         setSimpleCode(CodeConverter.tryToDatabase(fullCode));
     }
 
+    @Override
     @Transient
     public String getCode()
     {
@@ -153,6 +154,7 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
         this.managedInternally = managedInternally;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.RELATIONSHIP_TYPE_SEQUENCE, sequenceName = SequenceNames.RELATIONSHIP_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.RELATIONSHIP_TYPE_SEQUENCE)

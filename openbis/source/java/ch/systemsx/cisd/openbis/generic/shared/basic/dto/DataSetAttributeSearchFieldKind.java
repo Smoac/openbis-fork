@@ -54,11 +54,13 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
         this.description = description;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
     }
 
+    @Override
     public String getCode()
     {
         return name();

@@ -54,6 +54,7 @@ public class ResultSetWithEntityTypes<T extends IEntityInformationHolder> implem
         this.availableEntityTypes = availableEntityTypes;
     }
 
+    @Override
     public ResultSet<T> getResultSet()
     {
         return resultSet;

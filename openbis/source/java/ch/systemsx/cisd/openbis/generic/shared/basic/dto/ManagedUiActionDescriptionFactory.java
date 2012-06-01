@@ -35,6 +35,7 @@ public class ManagedUiActionDescriptionFactory implements IManagedInputWidgetDes
     {
     }
 
+    @Override
     public IManagedInputWidgetDescription createTextInputField(String label)
     {
         ManagedTextInputWidgetDescription inputField = new ManagedTextInputWidgetDescription();
@@ -42,6 +43,7 @@ public class ManagedUiActionDescriptionFactory implements IManagedInputWidgetDes
         return inputField;
     }
 
+    @Override
     public IManagedInputWidgetDescription createMultilineTextInputField(String label)
     {
         ManagedMultilineTextInputWidgetDescription inputField =
@@ -50,6 +52,7 @@ public class ManagedUiActionDescriptionFactory implements IManagedInputWidgetDes
         return inputField;
     }
 
+    @Override
     public IManagedInputWidgetDescription createComboBoxInputField(String label, String[] values)
     {
         ManagedComboBoxInputWidgetDescription inputField =

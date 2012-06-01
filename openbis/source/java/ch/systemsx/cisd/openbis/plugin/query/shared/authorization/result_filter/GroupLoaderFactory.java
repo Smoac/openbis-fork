@@ -33,6 +33,7 @@ class GroupLoaderFactory implements IGroupLoaderFactory
         this.factory = factory;
     }
 
+    @Override
     public IGroupLoader create(EntityKind kind)
     {
         switch (kind)

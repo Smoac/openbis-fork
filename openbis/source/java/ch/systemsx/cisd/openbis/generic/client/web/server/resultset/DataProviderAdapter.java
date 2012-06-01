@@ -42,6 +42,7 @@ public final class DataProviderAdapter<T extends Serializable> implements
         this.provider = provider;
     }
 
+    @Override
     public List<TableModelRowWithObject<T>> getOriginalData(int maxSize)
             throws UserFailureException
     {
@@ -49,6 +50,7 @@ public final class DataProviderAdapter<T extends Serializable> implements
         return tableModel.getRows();
     }
 
+    @Override
     public List<TableModelColumnHeader> getHeaders()
     {
         return tableModel == null ? Collections.<TableModelColumnHeader> emptyList() : tableModel

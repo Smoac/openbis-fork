@@ -54,6 +54,7 @@ public class SamplePropertyPE extends EntityPropertyPE
     // EntityPropertyPE
     //
 
+    @Override
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePropertyTypePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN)
@@ -62,6 +63,7 @@ public class SamplePropertyPE extends EntityPropertyPE
         return entityTypePropertyType;
     }
 
+    @Override
     @SequenceGenerator(name = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, sequenceName = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_PROPERTY_SEQUENCE)
@@ -73,6 +75,7 @@ public class SamplePropertyPE extends EntityPropertyPE
     /**
      * Returns the sample that this property belongs to.
      */
+    @Override
     @NotNull(message = ValidationMessages.SAMPLE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)

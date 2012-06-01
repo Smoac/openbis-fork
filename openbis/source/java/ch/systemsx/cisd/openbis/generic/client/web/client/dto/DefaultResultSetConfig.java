@@ -81,6 +81,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.cacheConfig = cacheConfig;
     }
 
+    @Override
     public GridFilters<T> getFilters()
     {
         return filters;
@@ -91,6 +92,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.availableColumns = availableColumns;
     }
 
+    @Override
     public Set<String> getIDsOfPresentedColumns()
     {
         return idsOfPresentedColumns;
@@ -128,26 +130,31 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     // IResultSetConfig
     //
 
+    @Override
     public final int getLimit()
     {
         return limit;
     }
 
+    @Override
     public final int getOffset()
     {
         return offset;
     }
 
+    @Override
     public final Set<IColumnDefinition<T>> getAvailableColumns()
     {
         return availableColumns;
     }
 
+    @Override
     public final SortInfo getSortInfo()
     {
         return sortInfo;
     }
 
+    @Override
     public final ResultSetFetchConfig<K> getCacheConfig()
     {
         return cacheConfig;
@@ -163,6 +170,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.gridDisplayIdOrNull = gridDisplayIdOrNull;
     }
 
+    @Override
     public String tryGetGridDisplayId()
     {
         return gridDisplayIdOrNull;
@@ -172,6 +180,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
      * Does this result set return long error messages from errors on custom columns? Defaults to
      * false.
      */
+    @Override
     public boolean isCustomColumnErrorMessageLong()
     {
         return (errorMessageFormatFlags & (1 << ERROR_MESSAGE_FLAG_JYTHON_LONG)) > 0;

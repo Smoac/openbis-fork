@@ -42,6 +42,7 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(final ViewLocator locator) throws UserFailureException
     {
         // opens a predefined query results viewer with optional:

@@ -56,11 +56,13 @@ public final class GenericHttpSessionListener implements HttpSessionListener
 
         private static final long serialVersionUID = 1L;
 
+        @Override
         public void sessionWillPassivate(HttpSessionEvent arg0)
         {
             logSessionEvent("sessionWillPassivate", arg0);
         }
 
+        @Override
         public void sessionDidActivate(HttpSessionEvent arg0)
         {
             logSessionEvent("sessionDidActivate", arg0);
@@ -71,12 +73,14 @@ public final class GenericHttpSessionListener implements HttpSessionListener
     // HttpSessionListener
     //
 
+    @Override
     public final void sessionCreated(final HttpSessionEvent sessionEvent)
     {
         logSessionEvent("sessionCreated", sessionEvent);
         sessionEvent.getSession().setAttribute(LOGGING_ACTIVATION_PARAM, loggingActivationListener);
     }
 
+    @Override
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
         final HttpSession httpSession = sessionEvent.getSession();

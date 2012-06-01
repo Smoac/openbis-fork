@@ -42,6 +42,7 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
         callback.onFailure(null);
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         // If a permlink has been specified, open a viewer on the specified

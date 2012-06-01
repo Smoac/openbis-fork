@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -85,6 +86,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public final void execute()
     {
 
@@ -92,7 +94,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                 code);
 
         final SpaceSelectionWidget groupSelector =
-                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(SpaceSelectionWidget.ID
+                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + SpaceSelectionWidget.SUFFIX + FORM_ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
@@ -107,14 +109,14 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         {
             final SampleChooserField containerField =
                     (SampleChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
-                            + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER);
+                            + AbstractGenericSampleRegisterEditForm.ID_SUFFIX_CONTAINER);
             containerField.setValue(container);
         }
         if (StringUtils.isBlank(experimentIdentifier) == false)
         {
             final ExperimentChooserField expField =
                     (ExperimentChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
-                            + GenericSampleRegistrationForm.ID_SUFFIX_EXPERIMENT);
+                            + AbstractGenericSampleRegisterEditForm.ID_SUFFIX_EXPERIMENT);
             expField.setValue(experimentIdentifier);
         }
         for (final PropertyField property : properties)

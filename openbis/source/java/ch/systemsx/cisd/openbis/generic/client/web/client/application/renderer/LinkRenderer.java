@@ -62,6 +62,7 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
+                @Override
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -98,6 +99,7 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
+                @Override
                 @SuppressWarnings("deprecation")
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
@@ -154,6 +156,7 @@ public class LinkRenderer
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
 
+                @Override
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)

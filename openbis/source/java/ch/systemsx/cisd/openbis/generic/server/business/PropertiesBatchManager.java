@@ -69,6 +69,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
 
     private final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
 
+    @Override
     public void manageProperties(SampleTypePE sampleType, List<NewSample> samples,
             PersonPE registrator)
     {
@@ -78,6 +79,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         managePropertiesBeans(samples, sampleTypePropertyTypes, registrator);
     }
 
+    @Override
     public void manageProperties(ExperimentTypePE experimentType,
             List<? extends NewBasicExperiment> experiments, PersonPE registrator)
     {
@@ -87,6 +89,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         managePropertiesBeans(experiments, entityTypePropertyTypes, registrator);
     }
 
+    @Override
     public void manageProperties(MaterialTypePE materialType, List<NewMaterial> materials,
             PersonPE registrator)
     {
@@ -95,6 +98,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         managePropertiesBeans(materials, entityTypePropertyTypes, registrator);
     }
 
+    @Override
     public void manageProperties(DataSetTypePE dataSetType, List<NewDataSet> dataSets,
             PersonPE registrator)
     {

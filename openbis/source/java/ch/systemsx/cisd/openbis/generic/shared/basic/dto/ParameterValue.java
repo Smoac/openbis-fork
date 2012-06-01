@@ -98,6 +98,7 @@ public class ParameterValue implements Comparable<ParameterValue>, Serializable
     // Comparable
     //
 
+    @Override
     public int compareTo(ParameterValue o)
     {
         return toString().compareTo(o.toString());

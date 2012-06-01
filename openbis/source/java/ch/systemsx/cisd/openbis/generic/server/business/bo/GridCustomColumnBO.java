@@ -48,6 +48,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         super(daoFactory, session);
     }
 
+    @Override
     public void define(NewColumnOrFilter newColumn) throws UserFailureException
     {
         column = new GridCustomColumnPE();
@@ -69,6 +70,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         return CUSTOM_COLUMN_ID_PREFIX + code;
     }
 
+    @Override
     public void loadDataByTechId(TechId id)
     {
         try
@@ -81,6 +83,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
 
     }
 
+    @Override
     public void deleteByTechId(TechId groupId) throws UserFailureException
     {
         loadDataByTechId(groupId);
@@ -93,6 +96,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         }
     }
 
+    @Override
     public void save() throws UserFailureException
     {
         assert column != null : "Column not defined";
@@ -105,6 +109,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         }
     }
 
+    @Override
     public void update(IExpressionUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));

@@ -111,6 +111,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
                         viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Space>>>()
                             {
+                                @Override
                                 public void invoke(
                                         BaseEntityModel<TableModelRowWithObject<Space>> selectedItem,
                                         boolean keyPressed)

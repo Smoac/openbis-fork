@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -81,7 +82,7 @@ public class MaterialTypeModel extends SimplifiedBaseModelData
     private static MaterialTypeModel createTypeInFileModel()
     {
         final MaterialType typeInFile = new MaterialType();
-        typeInFile.setCode(MaterialType.DEFINED_IN_FILE);
+        typeInFile.setCode(EntityType.DEFINED_IN_FILE);
         return new MaterialTypeModel(typeInFile);
     }
 }

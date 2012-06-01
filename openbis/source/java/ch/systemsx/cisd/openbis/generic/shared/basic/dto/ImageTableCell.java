@@ -93,6 +93,7 @@ public class ImageTableCell implements ISerializableComparable
         return maxThumbnailHeight;
     }
 
+    @Override
     public int compareTo(ISerializableComparable o)
     {
         return toString().compareTo(String.valueOf(o));

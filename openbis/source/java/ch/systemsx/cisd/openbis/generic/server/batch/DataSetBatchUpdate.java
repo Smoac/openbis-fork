@@ -38,22 +38,26 @@ public class DataSetBatchUpdate implements IBatchOperation<DataSetBatchUpdatesDT
         this.entities = entities;
     }
 
+    @Override
     public void execute(List<DataSetBatchUpdatesDTO> updates)
     {
         businessTable.update(updates);
         businessTable.save();
     }
 
+    @Override
     public List<DataSetBatchUpdatesDTO> getAllEntities()
     {
         return entities;
     }
 
+    @Override
     public String getEntityName()
     {
         return "data set";
     }
 
+    @Override
     public String getOperationName()
     {
         return "update";

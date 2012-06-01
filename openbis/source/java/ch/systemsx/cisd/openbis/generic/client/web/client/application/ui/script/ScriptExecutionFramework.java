@@ -250,6 +250,7 @@ public class ScriptExecutionFramework
         ClickHandler listener = new ClickHandler()
             {
 
+                @Override
                 public void onClick(final ClickEvent event)
                 {
                     final boolean ifSpecialKeyPressed =

@@ -30,11 +30,13 @@ import net.lemnik.eodsql.TypeMapper;
  */
 public class ByteArrayMapper implements TypeMapper<byte[]>
 {
+    @Override
     public byte[] get(ResultSet results, int column) throws SQLException
     {
         return results.getBytes(column);
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, byte[] obj) throws SQLException
     {
         if (obj != null)
@@ -46,6 +48,7 @@ public class ByteArrayMapper implements TypeMapper<byte[]>
         }
     }
 
+    @Override
     public void set(ResultSet results, int column, byte[] obj) throws SQLException
     {
         results.updateBytes(column, obj);

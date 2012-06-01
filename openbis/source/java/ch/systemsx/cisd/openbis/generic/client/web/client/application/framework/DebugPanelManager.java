@@ -66,6 +66,7 @@ public class DebugPanelManager implements DebugPanelWidget.Listener
     }
 
     // @Override
+    @Override
     public void onShow()
     {
         panelComponent.reset(sm =
@@ -80,6 +81,7 @@ public class DebugPanelManager implements DebugPanelWidget.Listener
     }
 
     // @Override
+    @Override
     public void onReset()
     {
         sys.removeListener(sm);

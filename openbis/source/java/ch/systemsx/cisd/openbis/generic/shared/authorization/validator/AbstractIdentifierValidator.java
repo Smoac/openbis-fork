@@ -35,6 +35,7 @@ abstract class AbstractIdentifierValidator extends AbstractValidator<IIdentifier
         final String spaceCodeOrNull = extractSpaceCodeOrNull(value.getIdentifier());
         return spaceValidator.isValid(person, new ICodeHolder()
             {
+                @Override
                 public String getCode()
                 {
                     return spaceCodeOrNull;

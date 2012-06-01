@@ -96,11 +96,13 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
         viewContext.getService().listVocabularies(false, true, criteria,
                 new AsyncCallback<TypedTableResultSet<Vocabulary>>()
                     {
+                        @Override
                         public void onFailure(Throwable caught)
                         {
                             callback.onFailure(caught);
                         }
 
+                        @Override
                         public void onSuccess(TypedTableResultSet<Vocabulary> result)
                         {
                             List<TableModelRowWithObject<Vocabulary>> rows =
@@ -115,6 +117,7 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
                     });
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

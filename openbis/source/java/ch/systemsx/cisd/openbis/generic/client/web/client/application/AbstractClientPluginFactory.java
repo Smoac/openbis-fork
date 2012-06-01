@@ -49,11 +49,13 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
         return viewContext;
     }
 
+    @Override
     public final IModule tryGetModule()
     {
         return module;
     }
 
+    @Override
     public boolean isEnabled()
     {
         return true;

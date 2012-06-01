@@ -50,6 +50,7 @@ public abstract class AbstractSimplePropertyValueRenderer<T> extends
         return renderNotNull(object);
     }
 
+    @Override
     public Widget getAsWidget(final T object)
     {
         // default widget is a simple HTML span element wrapped around text

@@ -56,6 +56,7 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
         this.id = id;
     }
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.DELETION_SEQUENCE, sequenceName = SequenceNames.DELETION_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DELETION_SEQUENCE)
@@ -111,6 +112,7 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
     // Comparable - registration date based
     //
 
+    @Override
     public final int compareTo(final DeletionPE o)
     {
         return this.getRegistrationDate().compareTo(o.getRegistrationDate());

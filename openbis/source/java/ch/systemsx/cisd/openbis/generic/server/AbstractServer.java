@@ -109,6 +109,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             this.person = person;
         }
 
+        @Override
         public Principal tryToGetPrincipal(String userID)
         {
             Principal result =
@@ -367,16 +368,19 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     // IServer
     //
 
+    @Override
     public final IAuthSession getAuthSession(final String sessionToken) throws UserFailureException
     {
         return new SimpleSession(sessionManager.getSession(sessionToken));
     }
 
+    @Override
     public int getVersion()
     {
         return 1;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public final void logout(final String sessionToken) throws UserFailureException
     {
@@ -389,6 +393,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
+    @Override
     public SessionContextDTO tryToAuthenticateAnonymously()
     {
         if (userForAnonymousLogin == null)
@@ -405,6 +410,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 new AuthenticatedPersonBasedPrincipalProvider(person)));
     }
 
+    @Override
     public final SessionContextDTO tryToAuthenticate(final String user, final String password)
     {
         return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
@@ -579,6 +585,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return result;
     }
 
+    @Override
     public SessionContextDTO tryGetSession(String sessionToken)
     {
         try
@@ -591,6 +598,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
+    @Override
     public boolean isArchivingConfigured(String sessionToken)
     {
         final List<DataStorePE> stores = daoFactory.getDataStoreDAO().listDataStores();
@@ -604,6 +612,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return false;
     }
 
+    @Override
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits)
     {
@@ -648,6 +657,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
+    @Override
     public DisplaySettings getDefaultDisplaySettings(String sessionToken)
     {
         PersonPE systemUser =
@@ -660,6 +670,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return systemUser.getDisplaySettings();
     }
 
+    @Override
     public void changeUserHomeSpace(String sessionToken, TechId groupIdOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -674,18 +685,21 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
+    @Override
     public void setBaseIndexURL(String sessionToken, String baseIndexURL)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         session.setBaseIndexURL(baseIndexURL);
     }
 
+    @Override
     public String getBaseIndexURL(String sessionToken)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         return session.getBaseIndexURL();
     }
 
+    @Override
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
         Session session = getSession(sessionToken);
@@ -708,6 +722,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return result;
     }
 
+    @Override
     public void setSessionUser(String sessionToken, String userID)
     {
         Session session = getSession(sessionToken);
@@ -775,6 +790,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         final IMailClient mailClient = new MailClient(mailClientParameters);
         Runnable task = new Runnable()
             {
+                @Override
                 public void run()
                 {
                     StringWriter writer = new StringWriter();

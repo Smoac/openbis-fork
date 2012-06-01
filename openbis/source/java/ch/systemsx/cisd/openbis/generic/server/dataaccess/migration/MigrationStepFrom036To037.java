@@ -62,6 +62,7 @@ public final class MigrationStepFrom036To037 extends MigrationStepAdapter
     private final static ParameterizedRowMapper<EntityProperty> ENTITY_PROPERTY_ROW_MAPPER =
             new ParameterizedRowMapper<EntityProperty>()
                 {
+                    @Override
                     public final EntityProperty mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {

@@ -61,6 +61,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     // ISlaveServerPlugin
     //
 
+    @Override
     public final SampleParentWithDerivedDTO getSampleInfo(final Session session,
             final SamplePE sample) throws UserFailureException
     {
@@ -74,6 +75,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         return new SampleParentWithDerivedDTO(sample, generated);
     }
 
+    @Override
     public final void registerSamples(final Session session, final List<NewSample> newSamples,
             PersonPE registratorOrNUll) throws UserFailureException
     {
@@ -84,6 +86,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
                 .createSampleTable(session), newSamples, registratorOrNUll));
     }
 
+    @Override
     public void updateSamples(Session session, List<SampleBatchUpdatesDTO> updateSamples)
     {
         assert session != null : "Unspecified session.";

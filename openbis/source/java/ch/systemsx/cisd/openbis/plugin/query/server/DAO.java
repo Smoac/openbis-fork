@@ -88,6 +88,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         afterPropertiesSet();
     }
 
+    @Override
     public TableModel query(String sqlQuery, QueryParameterBindings bindingsOrNull)
     {
         if (sqlQuery.toLowerCase().trim().startsWith("select") == false)
@@ -103,6 +104,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
 
         PreparedStatementCallback callback = new PreparedStatementCallback()
             {
+                @Override
                 public Object doInPreparedStatement(PreparedStatement ps) throws SQLException,
                         DataAccessException
                 {

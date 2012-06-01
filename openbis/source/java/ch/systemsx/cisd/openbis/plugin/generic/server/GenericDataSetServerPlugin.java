@@ -35,6 +35,7 @@ public class GenericDataSetServerPlugin extends AbstractGenericServerPlugin impl
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
     private GenericDataSetTypeSlaveServerPlugin genericDataSetTypeSlaveServerPlugin;
 
+    @Override
     public IDataSetTypeSlaveServerPlugin getSlaveServer()
     {
         return genericDataSetTypeSlaveServerPlugin;

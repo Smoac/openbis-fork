@@ -71,6 +71,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     // IRoleAssignmentDAO
     //
 
+    @Override
     public final List<RoleAssignmentPE> listRoleAssignments()
     {
         // returns roles connected directly or indirectly (through space) to current db instance
@@ -88,6 +89,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         return list;
     }
 
+    @Override
     public final List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person)
     {
         assert person != null : "Unspecified person.";
@@ -103,6 +105,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         return list;
     }
 
+    @Override
     public final void createRoleAssignment(final RoleAssignmentPE roleAssignment)
     {
         assert roleAssignment != null : "Role assignment unspecified";
@@ -117,6 +120,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         }
     }
 
+    @Override
     public final void deleteRoleAssignment(final RoleAssignmentPE roleAssignment)
     {
         assert roleAssignment != null : "Role assignment unspecified";
@@ -152,6 +156,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         }
     }
 
+    @Override
     public final RoleAssignmentPE tryFindSpaceRoleAssignment(final RoleCode role,
             final String space, final Grantee grantee)
     {
@@ -174,6 +179,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
 
     }
 
+    @Override
     public final RoleAssignmentPE tryFindInstanceRoleAssignment(final RoleCode role,
             final Grantee grantee)
     {
@@ -197,6 +203,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
 
     }
 
+    @Override
     public List<RoleAssignmentPE> listRoleAssignmentsByAuthorizationGroup(
             AuthorizationGroupPE authGroup)
     {

@@ -253,11 +253,13 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         }
     }
 
+    @Override
     public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
+    @Override
     public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;

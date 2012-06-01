@@ -282,6 +282,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
                 new ArrayList<IEntityProperty>(propertiesHolder.getProperties());
         Collections.sort(properties, new Comparator<IEntityProperty>()
             {
+                @Override
                 public int compare(IEntityProperty p1, IEntityProperty p2)
                 {
                     return p1.getPropertyType().getCode().compareTo(p2.getPropertyType().getCode());
@@ -367,6 +368,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         Collections.sort(list, new Comparator<PropertyHistory>()
             {
+                @Override
                 public int compare(PropertyHistory o1, PropertyHistory o2)
                 {
                     return o1.toString().compareTo(o2.toString());

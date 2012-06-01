@@ -238,6 +238,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     final String href = LinkExtractor.tryExtract(project);
                     final ClickHandler listener = new ClickHandler()
                         {
+                            @Override
                             public void onClick(ClickEvent event)
                             {
                                 OpenEntityDetailsTabHelper.open(viewContext, project,
@@ -436,21 +437,25 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         GWTUtils.setSelectedItem(tree, ModelDataPropertyNames.CODE, spaceCode);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROJECT);
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshTree();
     }
 
+    @Override
     public Component getComponent()
     {
         return this;
     }
 
+    @Override
     public void dispose()
     {
         if (resultSetKey != null)

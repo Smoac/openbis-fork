@@ -42,6 +42,7 @@ public class CodeWithRegistrationAndModificationDate<T extends CodeWithRegistrat
         this.modificationDate = modificationDate;
     }
 
+    @Override
     public final Person getModifier()
     {
         return modifier;

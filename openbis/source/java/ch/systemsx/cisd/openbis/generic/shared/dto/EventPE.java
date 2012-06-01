@@ -83,6 +83,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.id = id;
     }
 
+    @Override
     @Id
     @SequenceGenerator(name = SequenceNames.EVENT_SEQUENCE, sequenceName = SequenceNames.EVENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EVENT_SEQUENCE)

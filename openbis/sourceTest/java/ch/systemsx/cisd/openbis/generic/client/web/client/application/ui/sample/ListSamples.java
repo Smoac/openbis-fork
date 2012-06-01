@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -46,15 +47,16 @@ public class ListSamples extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @Override
     public void execute()
     {
         final SpaceSelectionWidget groupSelector =
-                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(SpaceSelectionWidget.ID
+                (SpaceSelectionWidget) GWTTestUtil.getWidgetWithID(DropDownList.ID
                         + SpaceSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
 
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(SampleTypeSelectionWidget.ID
+                        .getWidgetWithID(DropDownList.ID
                                 + SampleTypeSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
 
         // if 'all' type was initially selected group selection would trigger an unwanted callback

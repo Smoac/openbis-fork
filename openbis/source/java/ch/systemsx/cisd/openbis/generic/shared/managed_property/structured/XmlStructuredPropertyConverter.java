@@ -60,6 +60,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         this.factory = factory;
     }
 
+    @Override
     public List<IElement> convertToElements(IManagedProperty property)
     {
         return convertStringToElements(property.getValue());
@@ -77,6 +78,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return root.getChildren();
     }
 
+    @Override
     public String convertToString(List<IElement> elements)
     {
         IElement root = createRootElement(elements);

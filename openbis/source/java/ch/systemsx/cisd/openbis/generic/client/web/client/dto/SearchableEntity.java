@@ -59,6 +59,7 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
         return getDescription();
     }
 
+    @Override
     public final int compareTo(final SearchableEntity o)
     {
         assert o != null : "Unspecified searchable entity";
