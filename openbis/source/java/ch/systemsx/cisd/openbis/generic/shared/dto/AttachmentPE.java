@@ -44,7 +44,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Index;
@@ -274,8 +273,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.experimentParent = parent;
     }
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.ATTACHMENT_CONTENT_COLUMN)
     public AttachmentContentPE getAttachmentContent()
