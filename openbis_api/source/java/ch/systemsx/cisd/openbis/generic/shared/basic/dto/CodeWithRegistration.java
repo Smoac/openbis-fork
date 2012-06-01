@@ -39,6 +39,7 @@ public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
     // ICodeProvider
     //
 
+    @Override
     public final String getCode()
     {
         return code;
@@ -48,6 +49,7 @@ public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
     // Comparable
     //
 
+    @Override
     public int compareTo(final T o)
     {
         return Code.CODE_PROVIDER_COMPARATOR.compare(this, o);

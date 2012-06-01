@@ -374,6 +374,7 @@ public final class Sample implements Serializable, IIdentifierHolder
     /**
      * Returns the sample identifier;
      */
+    @Override
     public String getIdentifier()
     {
         return identifier;

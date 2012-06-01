@@ -134,6 +134,7 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
     // Comparable
     //
 
+    @Override
     public int compareTo(final Person o)
     {
         if (o == null)

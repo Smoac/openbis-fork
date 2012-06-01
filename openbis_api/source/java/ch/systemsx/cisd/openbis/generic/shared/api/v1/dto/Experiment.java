@@ -208,6 +208,7 @@ public final class Experiment implements Serializable, IIdentifierHolder
     /**
      * Returns the experiment identifier.
      */
+    @Override
     public String getIdentifier()
     {
         return identifier;

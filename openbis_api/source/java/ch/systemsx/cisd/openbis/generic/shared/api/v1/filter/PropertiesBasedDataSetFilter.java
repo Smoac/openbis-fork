@@ -42,6 +42,7 @@ public class PropertiesBasedDataSetFilter implements IDataSetFilter
         map = properties;
     }
 
+    @Override
     public boolean pass(DataSet dataSet)
     {
         HashMap<String, String> properties = dataSet.getProperties();
@@ -65,6 +66,7 @@ public class PropertiesBasedDataSetFilter implements IDataSetFilter
         List<Entry<String, String>> sortedEntries = new ArrayList<Entry<String, String>>(entrySet);
         Collections.sort(sortedEntries, new Comparator<Entry<String, String>>()
             {
+                @Override
                 public int compare(Entry<String, String> o1, Entry<String, String> o2)
                 {
                     return o1.getKey().compareTo(o2.getKey());

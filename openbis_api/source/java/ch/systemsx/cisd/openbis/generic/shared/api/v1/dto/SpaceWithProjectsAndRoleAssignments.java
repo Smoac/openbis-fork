@@ -67,6 +67,7 @@ public class SpaceWithProjectsAndRoleAssignments implements ICodeHolder, Seriali
     /**
      * Returns the space code.
      */
+    @Override
     public String getCode()
     {
         return code;

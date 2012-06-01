@@ -90,6 +90,7 @@ public final class Project implements Serializable, IIdentifierHolder
         return code;
     }
     
+    @Override
     @JsonIgnore
     public String getIdentifier()
     {

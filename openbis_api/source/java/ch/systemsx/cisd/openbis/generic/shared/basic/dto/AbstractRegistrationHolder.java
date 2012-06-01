@@ -44,6 +44,7 @@ public abstract class AbstractRegistrationHolder implements Serializable, IRegis
         this.registrationDate = registrationDate;
     }
 
+    @Override
     public final Person getRegistrator()
     {
         return registrator;

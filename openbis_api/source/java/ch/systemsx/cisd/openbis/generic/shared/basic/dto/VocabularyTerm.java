@@ -54,6 +54,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     {
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -77,6 +78,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         this.label = label;
     }
 
+    @Override
     public String getLabel()
     {
         return label;
@@ -88,6 +90,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         this.description = description;
     }
 
+    @Override
     public String getDescription()
     {
         return description;
@@ -117,6 +120,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         this.url = url;
     }
 
+    @Override
     public Long getOrdinal()
     {
         return ordinal;

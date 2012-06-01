@@ -130,6 +130,7 @@ public class TechId implements IIdHolder, Serializable
         return results;
     }
 
+    @Override
     public Long getId()
     {
         return id;

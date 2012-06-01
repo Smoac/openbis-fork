@@ -50,6 +50,7 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
     {
     }
 
+    @Override
     public Long getId()
     {
         return id;
@@ -60,6 +61,7 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
         this.id = id;
     }
 
+    @Override
     public final String getDescription()
     {
         return description;
@@ -90,6 +92,7 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
         this.internalNamespace = internalNamespace;
     }
 
+    @Override
     public boolean isChosenFromList()
     {
         return chosenFromList;
@@ -100,6 +103,7 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
         this.chosenFromList = chosenFromList;
     }
 
+    @Override
     public String getURLTemplate()
     {
         return urlTemplate;

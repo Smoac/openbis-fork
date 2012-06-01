@@ -51,6 +51,7 @@ public class Code<T extends Code<T>> implements Serializable, ICodeHolder, Compa
     // ICodeProvider
     //
 
+    @Override
     public final String getCode()
     {
         return code;
@@ -60,6 +61,7 @@ public class Code<T extends Code<T>> implements Serializable, ICodeHolder, Compa
     // Comparable
     //
 
+    @Override
     public final int compareTo(final T o)
     {
         return CODE_PROVIDER_COMPARATOR.compare(this, o);
@@ -128,6 +130,7 @@ public class Code<T extends Code<T>> implements Serializable, ICodeHolder, Compa
         // Comparable
         //
 
+        @Override
         public int compare(final ICodeHolder o1, final ICodeHolder o2)
         {
             assert o1 != null : "Unspecified code provider.";
