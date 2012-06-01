@@ -128,6 +128,7 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
     // DisposableBean
     //
 
+    @Override
     public final void destroy() throws Exception
     {
         closeConnections();

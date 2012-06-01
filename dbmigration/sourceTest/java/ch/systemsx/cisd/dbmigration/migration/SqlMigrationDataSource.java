@@ -30,6 +30,7 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
         this.password = password;
     }
 
+    @Override
     public Connection getConnection() throws SQLException
     {
         if (connection != null && connection.isClosed() || connection == null)
@@ -47,6 +48,7 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
         return connection;
     }
 
+    @Override
     public Connection getConnection(final String username, final String pw) throws SQLException
     {
         if (owner.equals(username) && password.equals(pw))
@@ -56,26 +58,31 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
         throw new SQLException("Forbidden");
     }
 
+    @Override
     public int getLoginTimeout() throws SQLException
     {
         return 0;
     }
 
+    @Override
     public void setLoginTimeout(final int timeout) throws SQLException
     {
         throw new UnsupportedOperationException("setLoginTimeout");
     }
 
+    @Override
     public PrintWriter getLogWriter()
     {
         throw new UnsupportedOperationException("getLogWriter");
     }
 
+    @Override
     public void setLogWriter(final PrintWriter pw) throws SQLException
     {
         throw new UnsupportedOperationException("setLogWriter");
     }
 
+    @Override
     public void destroy() throws SQLException
     {
         if (connection != null)
@@ -92,11 +99,13 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
     }
 
     // NOTE: the following methods are needed because we compile with JDK 6 on Hudson
+    @Override
     public boolean isWrapperFor(Class<?> arg0) throws SQLException
     {
         return false;
     }
 
+    @Override
     public <T> T unwrap(Class<T> arg0) throws SQLException
     {
         return null;

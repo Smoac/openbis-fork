@@ -52,12 +52,14 @@ public final class MigrationStepAdminFrom001To002 implements IMigrationStep
     // IMigrationStep
     //
 
+    @Override
     public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {
         postMigrationPerformed = true;
     }
 
+    @Override
     public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {

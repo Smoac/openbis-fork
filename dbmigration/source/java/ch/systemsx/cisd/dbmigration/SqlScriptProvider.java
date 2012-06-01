@@ -73,11 +73,13 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code>
      * otherwise.
      */
+    @Override
     public boolean isDumpRestore(final String version)
     {
         return getDumprestoreFile(version).exists();
     }
 
+    @Override
     public void markAsDumpRestorable(final String version)
     {
         try
@@ -97,6 +99,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
     /**
      * Returns the folder where all dump files for <var>version</var> reside.
      */
+    @Override
     public File getDumpFolder(final String version)
     {
         return new File(getSpecificScriptFolder(schemaScriptRootFolders.get(schemaScriptRootFolders
@@ -110,6 +113,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetSchemaScript(final String version)
     {
         return tryLoadScript("schema-" + version + SQL_FILE_TYPE, version);
@@ -123,6 +127,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetFunctionScript(final String version)
     {
         return tryLoadScript("function-" + version + SQL_FILE_TYPE, version);
@@ -136,6 +141,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetDomainsScript(final String version)
     {
         return tryLoadScript("domains-" + version + SQL_FILE_TYPE, version);
@@ -149,6 +155,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetGrantsScript(final String version)
     {
         return tryLoadScript("grants-" + version + SQL_FILE_TYPE, version);
@@ -161,6 +168,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetDataScript(final String version)
     {
         return tryLoadScript("data-" + version + SQL_FILE_TYPE, version);
@@ -174,6 +182,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
      * </pre>
      */
+    @Override
     public Script tryGetMigrationScript(final String fromVersion, final String toVersion)
     {
         final String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
@@ -190,6 +199,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * 
      * The function migration will always be called <i>after</i> the regular migration script.
      */
+    @Override
     public Script tryGetFunctionMigrationScript(final String fromVersion, final String toVersion)
     {
         final String scriptName =

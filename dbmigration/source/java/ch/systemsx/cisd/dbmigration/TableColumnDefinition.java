@@ -78,6 +78,7 @@ public final class TableColumnDefinition implements Iterable<TableColumnDefiniti
         connections.add(foreignKeyColumn);
     }
 
+    @Override
     public Iterator<TableColumnDefinition> iterator()
     {
         return connections.iterator();

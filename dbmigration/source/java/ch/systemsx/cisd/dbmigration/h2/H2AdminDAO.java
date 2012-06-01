@@ -89,16 +89,19 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         }
     }
 
+    @Override
     public void createOwner()
     {
         // Creation of the user happens "on the fly" with H2
     }
 
+    @Override
     public void createGroups()
     {
         // Creation of the user happens "on the fly" with H2
     }
 
+    @Override
     public void createDatabase()
     {
         // Creation of databases happens "on the fly" with H2, we only need to create the
@@ -119,6 +122,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         }
     }
 
+    @Override
     public void dropDatabase()
     {
         scriptExecutor.execute(new Script("drop database", DROP_ALL_OBJECTS_SQL), true, null);
@@ -131,6 +135,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         }
     }
 
+    @Override
     public void restoreDatabaseFromDump(File dumpFolder, String version)
     {
         createDatabaseVersionLogsTable();
@@ -169,6 +174,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         }
         String[] csvFiles = dumpFolder.list(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return MassUploadFileType.CSV.isOfType(name)

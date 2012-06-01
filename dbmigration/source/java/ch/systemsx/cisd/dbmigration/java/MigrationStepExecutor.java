@@ -79,6 +79,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         final ParserUtilities.LineSplitter splitter =
                 new ParserUtilities.LineSplitter(content, new ILineFilter()
                     {
+                        @Override
                         public <T> boolean acceptLine(ILine<T> line)
                         {
                             String text = line.getText();
@@ -131,6 +132,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
     // IMigrationStepExecutor
     //
 
+    @Override
     public final void init(final Script migrationScript)
     {
         migrationStep = tryExtractMigrationStep(migrationScript);
@@ -148,6 +150,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         inited = true;
     }
 
+    @Override
     public final void performPreMigration()
     {
         assert inited : "Executor not initialized.";
@@ -157,6 +160,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         }
     }
 
+    @Override
     public final void performPostMigration()
     {
         assert inited : "Executor not initialized.";
@@ -166,6 +170,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         }
     }
 
+    @Override
     public final void finish()
     {
         inited = false;

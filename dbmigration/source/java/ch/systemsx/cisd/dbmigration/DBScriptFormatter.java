@@ -55,6 +55,7 @@ public class DBScriptFormatter
                 "CREATE TABLE "), CREATE_SEQUENCE("Creating sequences", "CREATE SEQUENCE ",
                 new ILineProcessor()
                     {
+                        @Override
                         public String process(String line)
                         {
                             return StringUtils.replace(line, " NO MAXVALUE NO MINVALUE NO CYCLE",
@@ -63,12 +64,14 @@ public class DBScriptFormatter
                     }), PRIMARY_KEY_CONSTRAINTS("Creating primary key constraints",
                 new ILineMatcher()
                     {
+                        @Override
                         public boolean match(String line)
                         {
                             return Pattern.matches("ALTER TABLE .+ PRIMARY KEY.+", line);
                         }
                     }, null), UNIQUE_CONSTRAINTS("Creating unique constraints", new ILineMatcher()
             {
+                @Override
                 public boolean match(String line)
                 {
                     return Pattern.matches("ALTER TABLE .+ UNIQUE.+", line);
@@ -76,12 +79,14 @@ public class DBScriptFormatter
             }, null), FOREIGN_KEY_CONSTRAINTS("Creating foreign key constraints",
                 new ILineMatcher()
                     {
+                        @Override
                         public boolean match(String line)
                         {
                             return Pattern.matches("ALTER TABLE .+ FOREIGN KEY.+", line);
                         }
                     }, null), CHECK_CONSTRAINTS("Creating check constraints", new ILineMatcher()
             {
+                @Override
                 public boolean match(String line)
                 {
                     return Pattern.matches("ALTER TABLE .+ CHECK.+", line);
@@ -89,6 +94,7 @@ public class DBScriptFormatter
             }, null), CREATE_INDEX("Creating indices", "CREATE INDEX "), MISC("Miscellaneous",
                 new ILineMatcher()
                     {
+                        @Override
                         public boolean match(String line)
                         {
                             return true;
@@ -111,6 +117,7 @@ public class DBScriptFormatter
         {
             this(comment, new ILineMatcher()
                 {
+                    @Override
                     public boolean match(String line)
                     {
                         return line.startsWith(prefix);

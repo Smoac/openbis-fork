@@ -77,16 +77,19 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
         setDataSource(dataSource);
     }
 
+    @Override
     public String getDatabaseName()
     {
         return databaseName;
     }
 
+    @Override
     public String getDatabaseURL()
     {
         return databaseURL;
     }
 
+    @Override
     public DatabaseDefinition getDatabaseDefinition()
     {
         DatabaseDefinition databaseDefinition = new DatabaseDefinition();

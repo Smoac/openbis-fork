@@ -78,6 +78,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
             this.lobHandler = lobHandler;
         }
 
+        @Override
         public LogEntry mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             final LogEntry logEntry = new LogEntry();
@@ -119,6 +120,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
         this.lobHandler = lobHandler;
     }
 
+    @Override
     public boolean canConnectToDatabase()
     {
         try
@@ -134,12 +136,14 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
         }
     }
 
+    @Override
     public void createTable(Script script)
     {
         JdbcTemplate template = getJdbcTemplate();
         template.execute(script.getContent());
     }
 
+    @Override
     public LogEntry getLastEntry()
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -154,6 +158,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
      * 
      * @param moduleScript The script of the module to be logged.
      */
+    @Override
     public void logStart(final Script moduleScript)
     {
         JdbcTemplate template = getJdbcTemplate();
@@ -182,6 +187,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
      * 
      * @param moduleScript The script of the successfully applied module.
      */
+    @Override
     public void logSuccess(final Script moduleScript)
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -197,6 +203,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
      * @param moduleScript Script of the failed module.
      * @param runException Exception causing the failure.
      */
+    @Override
     public void logFailure(final Script moduleScript, Throwable runException)
     {
         final StringWriter stringWriter = new StringWriter();

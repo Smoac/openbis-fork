@@ -43,12 +43,14 @@ public final class MigrationStepFrom002To003 implements IMigrationStep
     // IMigrationStep
     //
 
+    @Override
     public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {
         throw new EmptyResultDataAccessException(1);
     }
 
+    @Override
     public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {

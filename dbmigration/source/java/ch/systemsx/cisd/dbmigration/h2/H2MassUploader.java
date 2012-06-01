@@ -111,6 +111,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         }
     }
 
+    @Override
     public void performMassUpload(String tableName, String data)
     {
         try
@@ -132,6 +133,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         }
     }
 
+    @Override
     public void performMassUpload(String tableName, String[] columnNames, String data)
     {
         try
@@ -153,6 +155,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         }
     }
 
+    @Override
     public final void performMassUpload(final File[] massUploadFiles)
     {
         String task = "Get database metadata";
@@ -244,11 +247,13 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
             insertSql.append(')');
             getJdbcTemplate().batchUpdate(insertSql.toString(), new BatchPreparedStatementSetter()
                 {
+                    @Override
                     public int getBatchSize()
                     {
                         return numberOfRows;
                     }
 
+                    @Override
                     public void setValues(final PreparedStatement ps, final int rowNo)
                             throws SQLException
                     {

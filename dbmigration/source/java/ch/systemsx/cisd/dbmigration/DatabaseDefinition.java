@@ -82,6 +82,7 @@ public final class DatabaseDefinition implements Iterable<TableDefinition>
     /**
      * Creates an iterator over all table definitions.
      */
+    @Override
     public Iterator<TableDefinition> iterator()
     {
         return tableDefinitions.values().iterator();

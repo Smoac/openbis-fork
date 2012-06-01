@@ -53,6 +53,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         this.singleStepMode = singleStepMode;
     }
 
+    @Override
     public void execute(final Script sqlScript, final boolean honorSingleStepMode,
             final ISqlScriptExecutionLogger loggerOrNull)
     {

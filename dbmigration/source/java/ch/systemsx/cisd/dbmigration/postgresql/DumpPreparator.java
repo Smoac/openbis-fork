@@ -403,6 +403,7 @@ public class DumpPreparator
                 {
                     File[] files = folder.listFiles(new FileFilter()
                         {
+                            @Override
                             public boolean accept(File pathname)
                             {
                                 if (pathname.isDirectory())

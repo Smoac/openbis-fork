@@ -78,31 +78,37 @@ public class PostgreSQLDAOFactory implements IDAOFactory
                                 .getDatabaseURL());
     }
 
+    @Override
     public IDatabaseAdminDAO getDatabaseDAO()
     {
         return databaseDAO;
     }
 
+    @Override
     public ISqlScriptExecutor getSqlScriptExecutor()
     {
         return sqlScriptExecutor;
     }
 
+    @Override
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO()
     {
         return databaseVersionLogDAO;
     }
 
+    @Override
     public IMassUploader getMassUploader()
     {
         return massUploader;
     }
 
+    @Override
     public IMigrationStepExecutor getMigrationStepExecutor()
     {
         return migrationStepExecutor;
     }
 
+    @Override
     public IMigrationStepExecutor getMigrationStepExecutorAdmin()
     {
         return migrationStepExecutorAdmin;

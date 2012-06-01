@@ -43,6 +43,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     // IDataSourceFactory
     //
 
+    @Override
     public final DataSource createDataSource(final String driver, final String url,
             final String owner, final String password)
     {
@@ -57,16 +58,19 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         return dataSource;
     }
 
+    @Override
     public void setMaxWait(long maxWait)
     {
         this.maxWait = maxWait;
     }
 
+    @Override
     public void setMaxIdle(int maxIdle)
     {
         this.maxIdle = maxIdle;
     }
 
+    @Override
     public void setMaxActive(int maxActive)
     {
         this.maxActive = maxActive;

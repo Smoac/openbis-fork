@@ -73,11 +73,13 @@ public final class TableDefinition implements Iterable<TableColumnDefinition>,
         return columnDefinition;
     }
 
+    @Override
     public Iterator<TableColumnDefinition> iterator()
     {
         return columns.values().iterator();
     }
 
+    @Override
     public int compareTo(TableDefinition tableDefinition)
     {
         return tableName.compareTo(tableDefinition.getTableName());

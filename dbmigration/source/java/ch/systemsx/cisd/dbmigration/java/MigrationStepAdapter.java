@@ -36,11 +36,13 @@ public class MigrationStepAdapter implements IMigrationStep
     // IMigrationStep
     //
 
+    @Override
     public void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {
     }
 
+    @Override
     public void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate,
             DataSource dataSource) throws DataAccessException
     {

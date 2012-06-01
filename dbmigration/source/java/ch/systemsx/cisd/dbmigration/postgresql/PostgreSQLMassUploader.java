@@ -104,11 +104,13 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         return copyManager;
     }
 
+    @Override
     public void performMassUpload(String tableName, String data)
     {
         performMassUpload(tableName, null, data);
     }
 
+    @Override
     public void performMassUpload(String tableName, String[] columnNamesOrNull, String data)
     {
         final StringBuilder copySql = new StringBuilder();
@@ -138,6 +140,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         }
     }
 
+    @Override
     public final void performMassUpload(final File[] massUploadFiles)
     {
         final Set<String> tables = new LinkedHashSet<String>();
