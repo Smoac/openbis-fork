@@ -309,19 +309,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         }
     }
 
-    private List<DataPE> filterDataSets(Collection<DataPE> dataSets, Collection<String> seekenCodes)
-    {
-        List<DataPE> result = new ArrayList<DataPE>();
-        for (DataPE dataSet : dataSets)
-        {
-            if (seekenCodes.contains(dataSet.getCode()))
-            {
-                result.add(dataSet);
-            }
-        }
-        return result;
-    }
-
     protected void updateContainer(DataPE data, String containerCode)
     {
         if (containerCode == null)
