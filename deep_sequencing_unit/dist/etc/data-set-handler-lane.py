@@ -21,6 +21,10 @@ FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
 AFFILIATION= {'FMI': '/links/shared/dsu-dss/dss/customers/fmi/drop-box/','BIOCENTER_BASEL': '/links/shared/dsu-dss/dss/customers/biozentrum/drop-box/'}
 AFFILIATION_PROPERTY_NAME='AFFILIATION'
+INDEX1='BARCODE'
+INDEX2='INDEX2'
+
+DEFAULT_INDEX='NoIndex'
 
 # -------------------------------------------------------------------------------
 
@@ -144,6 +148,8 @@ for f in range(0,len(folders)):
   # Create a data set and set type
   dataSet = transaction.createNewDataSet("FASTQ_GZ")
   dataSet.setMeasuredData(False)
+  dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
+  dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
   dirName = transaction.createNewDirectory(dataSet,folders[f])
 
   # if multiplexed samples then there is more than one folder
@@ -167,19 +173,34 @@ for f in range(0,len(folders)):
       parentPropertyTypes.append(code)
       parentPropertiesMap[code] = property
       try:
-        barcode = parentPropertiesMap['BARCODE']
-        #print(str(barcode))
+        barcode = parentPropertiesMap[INDEX1].tryGetAsString()
+        if barcode == "NOINDEX":
+          barcode = DEFAULT_INDEX
+        else:
+          barcode.split()[-1][:-1]
       except:
-       barcode = "NoIndex"
+       barcode = DEFAULT_INDEX
+      
+      try:
+        index2 = parentPropertiesMap[INDEX2].tryGetAsString()
+        if index2 == "NOINDEX":
+          index2 = DEFAULT_INDEX
+        else:
+          index2.split()[-1][:-1]
+      except:
+        index2 = DEFAULT_INDEX
+
       # just use the first six nucleotides for the naming 
-      strBarcode=str(barcode).split()[-1][:-1]
+      completeBarcode=barcode + "-" + index2
 
     parentPropertyTypes.sort()
-    # BSSE-DSU-1754_C0364ACXX_CTTGTAA_L007_R1_001.fastq.gz
-    nameOfFile = parentCode + "_" + flowCellId + "_" + strBarcode + "_L00" + flowLane +METADATA_FILE_SUFFIX
+    # BSSE-DSU-1754_C0364ACXX_CTTGTAA-AACC_L007_R1_001.fastq.gz
+    nameOfFile = parentCode + "_" + flowCellId + "_" + completeBarcode + "_L00" + flowLane +METADATA_FILE_SUFFIX
 
     if (parentCode == folders[f].split('_')[1]):
-      print("Creating metadata file:" + nameOfFile)
+      dataSet.setPropertyValue(INDEX1, barcode)
+      dataSet.setPropertyValue(INDEX2, index2)
+      #print("Creating metadata file:" + nameOfFile)
       # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
       pathToFile = transaction.createNewFile(dataSet, folders[f], nameOfFile)
       # use this file path to write to this file
