@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.knime.common;
 
-import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.PASSWORD_KEY;
-import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.URL_KEY;
-import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel.USER_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.PASSWORD_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.URL_KEY;
+import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.USER_KEY;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -57,7 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 {
     protected NodeLogger logger;
-    
+
     protected JTextField urlField;
 
     protected JTextField userField;
@@ -95,12 +94,12 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         panel.add(queryPanel, BorderLayout.CENTER);
 
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
         return scrollPane;
     }
-    
-    
+
     @Override
     protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
@@ -119,7 +118,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         settings.addString(PASSWORD_KEY, Util.getEncryptedPassword(passwordField.getPassword()));
         saveAdditionalSettingsTo(settings);
     }
-    
+
     protected void showException(Throwable throwable)
     {
         logger.error("Exception", throwable);
@@ -128,15 +127,15 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     }
 
     protected abstract void defineQueryForm(JPanel queryPanel);
-    
+
     protected abstract void updateQueryForm(IQueryApiFacade facade);
-    
-    protected abstract void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
-            throws NotConfigurableException;
-    
+
+    protected abstract void loadAdditionalSettingsFrom(NodeSettingsRO settings,
+            PortObjectSpec[] specs) throws NotConfigurableException;
+
     protected abstract void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException;
-    
+
     protected IQueryApiFacade createFacade()
     {
         try
@@ -152,7 +151,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
             throw ex;
         }
     }
-    
+
     protected <T extends JComponent> T addField(JPanel panel, String label, T field)
     {
         panel.add(new JLabel(label + ":"), createFirst());
@@ -175,6 +174,5 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         constraints.insets = new Insets(2, 3, 2, 3);
         return constraints;
     }
-    
 
 }

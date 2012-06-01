@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
 
 import org.knime.core.data.url.MIMEType;
 import org.knime.core.data.url.URIContent;
@@ -41,26 +41,33 @@ import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
 
 /**
  * Node model for importing a file/folder from Data Store Server.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
 {
     static final String DATA_SET_CODE_KEY = "data-set-code";
+
     static final String FILE_PATH_KEY = "file-path";
+
     static final String DOWNLOADS_PATH_KEY = "downloads-path";
+
     static final String REUSE_FILE = "reuse-file";
-    
+
     private final IDataSetProvider dataSetProvider;
-    
+
     private String dataSetCode = "";
+
     private String filePath = "";
+
     private String dowloadsPath = "";
+
     private boolean reuseFile;
 
     public DataSetFileImportNodeModel(IDataSetProvider dataSetProvider)
     {
-        super(new PortType[]{}, new PortType[]{new PortType(MIMEURIPortObject.class)});
+        super(new PortType[] {}, new PortType[]
+            { new PortType(MIMEURIPortObject.class) });
         this.dataSetProvider = dataSetProvider;
     }
 
@@ -90,7 +97,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         return new PortObjectSpec[]
             { new MIMEURIPortObjectSpec(type) };
     }
-    
+
     @Override
     protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception
     {
@@ -102,7 +109,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         MIMEType type = createType();
         logger.info("Content MIME type: " + type);
         return new PortObject[]
-                { new MIMEURIPortObject(Arrays.asList(new URIContent(file.toURI())), type) };
+            { new MIMEURIPortObject(Arrays.asList(new URIContent(file.toURI())), type) };
     }
 
     private void downloadTo(File file) throws Exception
@@ -133,11 +140,11 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
             }
         }
     }
-    
+
     private MIMEType createType()
     {
-        String contentType = FileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
+        String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
         return MIMEType.getType(contentType);
     }
-    
+
 }
