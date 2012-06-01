@@ -40,11 +40,13 @@ final class File extends AbstractNode implements IFileBasedFile
                 + file.getAbsolutePath();
     }
 
+    @Override
     public IDirectory tryAsDirectory()
     {
         return null;
     }
 
+    @Override
     public IFile tryAsFile()
     {
         return this;
@@ -54,6 +56,7 @@ final class File extends AbstractNode implements IFileBasedFile
     // IFile
     //
 
+    @Override
     public final byte[] getBinaryContent()
     {
         try
@@ -67,6 +70,7 @@ final class File extends AbstractNode implements IFileBasedFile
         }
     }
 
+    @Override
     public final InputStream getInputStream()
     {
         try
@@ -79,23 +83,27 @@ final class File extends AbstractNode implements IFileBasedFile
         }
     }
 
+    @Override
     public final String getStringContent()
     {
         return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsString(nodeFile);
     }
 
+    @Override
     public final String getExactStringContent()
     {
         return FileOperations.getMonitoredInstanceForCurrentThread().getExactContentAsString(
                 nodeFile);
     }
 
+    @Override
     public final List<String> getStringContentList()
     {
         return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsStringList(
                 nodeFile);
     }
 
+    @Override
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
         assert directory != null && directory.isDirectory();

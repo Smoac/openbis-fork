@@ -38,6 +38,7 @@ public final class NodeComparator
             // Comparator
             //
 
+            @Override
             public final int compare(final INode n1, final INode n2)
             {
                 return n1.getName().compareToIgnoreCase(n2.getName());

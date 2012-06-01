@@ -103,6 +103,7 @@ public final class ExperimentRegistrator implements IStorable
     /**
      * Saves this instance to the specified directory.
      */
+    @Override
     public final void saveTo(final IDirectory directory)
     {
         final IDirectory folder = directory.makeDirectory(EXPERIMENT_REGISTRATOR);

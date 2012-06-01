@@ -146,27 +146,32 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
     }
 
+    @Override
     public final boolean containsOriginalData()
     {
         return containsOriginalData;
     }
 
     /** see {@link HCSImageFormatV1_0#IS_INCOMING_SYMBOLIC_LINK} */
+    @Override
     public final boolean isIncomingSymbolicLink()
     {
         return isIncomingSymbolicLink;
     }
 
+    @Override
     public final Geometry getWellGeometry()
     {
         return wellGeometry;
     }
 
+    @Override
     public final Geometry getPlateGeometry()
     {
         return plateGeometry;
     }
 
+    @Override
     public final int getChannelCount()
     {
         return channelCount;
@@ -256,6 +261,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     // IHCSFormattedData
     //
 
+    @Override
     public final INode tryGetStandardNodeAt(final int channel, final Location wellLocation,
             final Location tileLocation)
     {
@@ -349,11 +355,13 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return new INumberedDirNameProvider()
             {
 
+                @Override
                 public String getName(int channel)
                 {
                     return getChannelName(channel);
                 }
 
+                @Override
                 public INumberedDirNameProvider tryGetSubdirectoryProvider()
                 {
                     return createRowDirNameProvider();
@@ -366,11 +374,13 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return new INumberedDirNameProvider()
             {
 
+                @Override
                 public String getName(int row)
                 {
                     return getPlateRowDirName(row);
                 }
 
+                @Override
                 public INumberedDirNameProvider tryGetSubdirectoryProvider()
                 {
                     return createColumnDirNameProvider();
@@ -383,11 +393,13 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return new INumberedDirNameProvider()
             {
 
+                @Override
                 public String getName(int column)
                 {
                     return getPlateColumnDirName(column);
                 }
 
+                @Override
                 public INumberedDirNameProvider tryGetSubdirectoryProvider()
                 {
                     return null;
@@ -395,6 +407,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
             };
     }
 
+    @Override
     public final NodePath addStandardNode(final File imageRootDirectory,
             final String imageRelativePath, final int channel, final Location wellLocation,
             final Location tileLocation) throws DataStructureException
@@ -517,6 +530,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     // AbstractFormattedData
     //
 
+    @Override
     public final Format getFormat()
     {
         return HCSImageFormatV1_0.HCS_IMAGE_1_0;

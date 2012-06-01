@@ -40,6 +40,7 @@ public final class NoFormattedData extends AbstractFormattedData
     /**
      * Returns {@link UnknownFormatV1_0#UNKNOWN_1_0}.
      */
+    @Override
     public final Format getFormat()
     {
         return UnknownFormatV1_0.UNKNOWN_1_0;

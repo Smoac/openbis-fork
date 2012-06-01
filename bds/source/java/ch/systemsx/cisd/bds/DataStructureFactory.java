@@ -150,6 +150,7 @@ public final class DataStructureFactory
         // InvocationHandler
         //
 
+        @Override
         public final Object invoke(final Object proxy, final Method method, final Object[] args)
                 throws Throwable
 

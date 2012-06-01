@@ -63,6 +63,7 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
     // IDataStructureHandler
     //
 
+    @Override
     public void performCreating()
     {
         for (final IDataStructureHandler handler : handlers)
@@ -71,6 +72,7 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         }
     }
 
+    @Override
     public void assertValid()
     {
         for (final IDataStructureHandler handler : handlers)
@@ -79,6 +81,7 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         }
     }
 
+    @Override
     public void performOpening()
     {
         for (final IDataStructureHandler handler : handlers)
@@ -87,6 +90,7 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         }
     }
 
+    @Override
     public void performClosing()
     {
         for (final IDataStructureHandler handler : handlers)
@@ -99,11 +103,13 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
     // IDataStructure
     //
 
+    @Override
     public final boolean isOpenOrCreated()
     {
         return root != null;
     }
 
+    @Override
     public final void create(List<FormatParameter> parameters)
     {
         this.mode = Mode.READ_WRITE;
@@ -120,11 +126,13 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         }
     }
 
+    @Override
     public final void open(final Mode thatMode)
     {
         open(thatMode, true);
     }
 
+    @Override
     public final void open(final Mode thatMode, boolean validate)
     {
         assert thatMode != null : "Unspecified mode";
@@ -143,6 +151,7 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
         }
     }
 
+    @Override
     public final void close()
     {
         if (mode == Mode.READ_WRITE)

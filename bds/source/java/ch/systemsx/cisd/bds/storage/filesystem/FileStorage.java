@@ -48,11 +48,13 @@ public class FileStorage implements IStorage
     // IStorage
     //
 
+    @Override
     public final boolean isMounted()
     {
         return mounted;
     }
 
+    @Override
     public final IDirectory getRoot()
     {
         if (isMounted() == false)
@@ -62,11 +64,13 @@ public class FileStorage implements IStorage
         return root;
     }
 
+    @Override
     public final void mount()
     {
         mounted = true;
     }
 
+    @Override
     public final void unmount()
     {
         mounted = false;

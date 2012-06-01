@@ -125,11 +125,13 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     // IDataStructureV1_X
     //
 
+    @Override
     public final IDirectory getStandardData()
     {
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
     }
 
+    @Override
     public final IDirectory getOriginalData()
     {
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_ORIGINAL);
@@ -143,6 +145,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
      * @throws DataStructureException if this method has been invoked before the format has been
      *             set.
      */
+    @Override
     public final IFormattedData getFormattedData() throws DataStructureException
     {
         if (format == null)
@@ -157,6 +160,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Sets the data format of this structure.
      */
+    @Override
     public final void setFormat(final Format format)
     {
         assert format != null : "Unspecified format.";
@@ -176,43 +180,51 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         formatParameters.addParameter(formatParameter);
     }
 
+    @Override
     public final void setAnnotations(final IAnnotations annotations)
     {
         this.annotations = annotations;
     }
 
+    @Override
     public ExperimentIdentifier getExperimentIdentifier()
     {
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
     }
 
+    @Override
     public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : "Unspecified experiment identifier";
         experimentIdentifier.saveTo(getMetaDataDirectory());
     }
 
+    @Override
     public final ExperimentRegistrationTimestamp getExperimentRegistratorTimestamp()
     {
         return ExperimentRegistrationTimestamp.loadFrom(getMetaDataDirectory());
     }
 
+    @Override
     public final void setExperimentRegistrationTimestamp(final ExperimentRegistrationTimestamp date)
     {
         date.saveTo(getMetaDataDirectory());
     }
 
+    @Override
     public final ExperimentRegistrator getExperimentRegistrator()
     {
         return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
     }
 
+    @Override
     public final void setExperimentRegistrator(final ExperimentRegistrator registrator)
     {
         assert registrator != null : "Unspecified experiment registrator.";
         registrator.saveTo(getMetaDataDirectory());
     }
 
+    @Override
     public Sample getSample()
     {
         return Sample.loadFrom(getMetaDataDirectory());
@@ -221,17 +233,20 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Sets the measurement entity. Overwrites an already set or loaded value.
      */
+    @Override
     public void setSample(final Sample sample)
     {
         assert sample != null : "Unspecified sample.";
         sample.saveTo(getMetaDataDirectory());
     }
 
+    @Override
     public final void addReference(final Reference reference)
     {
         mappingFileHandler.addReference(reference);
     }
 
+    @Override
     public final Set<Reference> getStandardOriginalMapping()
     {
         return mappingFileHandler.getReferences();
@@ -240,6 +255,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Sets given <var>dataSet</var> in metadata directory.
      */
+    @Override
     public final void setDataSet(final DataSet dataSet)
     {
         assert dataSet != null : "Unspecified data set.";
@@ -252,6 +268,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
      * @throws DataStructureException if the data set hasn't be loaded nor hasn't be set by
      *             {@link #setDataSet(DataSet)}.
      */
+    @Override
     public final DataSet getDataSet()
     {
         return DataSet.loadFrom(getMetaDataDirectory());
@@ -328,6 +345,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         }
     }
 
+    @Override
     public Version getVersion()
     {
         return VERSION;

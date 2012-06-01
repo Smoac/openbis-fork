@@ -52,6 +52,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
      * @throws DataStructureException if trying to use this method with data structure of version
      *             1.0.
      */
+    @Override
     public final SampleWithOwner getSampleWithOwner()
     {
         final Sample sample = getSample();
@@ -72,6 +73,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
      * @throws DataStructureException if trying to use this method with data structure of version
      *             1.0.
      */
+    @Override
     public final ExperimentIdentifierWithUUID getExperimentIdentifierWithUUID()
     {
         final ExperimentIdentifier experimentIdentifier = getExperimentIdentifier();

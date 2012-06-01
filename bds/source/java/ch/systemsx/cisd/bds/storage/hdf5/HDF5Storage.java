@@ -38,21 +38,25 @@ public class HDF5Storage implements IStorage
     // IStorage
     //
 
+    @Override
     public final boolean isMounted()
     {
         throw new NotImplementedException();
     }
 
+    @Override
     public final IDirectory getRoot()
     {
         throw new NotImplementedException();
     }
 
+    @Override
     public final void mount()
     {
         throw new NotImplementedException();
     }
 
+    @Override
     public final void unmount()
     {
         throw new NotImplementedException();

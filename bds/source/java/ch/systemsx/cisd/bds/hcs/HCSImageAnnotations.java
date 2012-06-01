@@ -62,6 +62,7 @@ public final class HCSImageAnnotations implements IAnnotations
     // IAnnotations
     //
 
+    @Override
     public final void assertValid(final IFormattedData formattedData) throws DataStructureException
     {
         final Format format = formattedData.getFormat();
@@ -82,6 +83,7 @@ public final class HCSImageAnnotations implements IAnnotations
         }
     }
 
+    @Override
     public final void saveTo(final IDirectory directory)
     {
         for (final Channel channel : channels)

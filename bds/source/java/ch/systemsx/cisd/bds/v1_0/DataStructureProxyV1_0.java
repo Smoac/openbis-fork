@@ -66,30 +66,35 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
 
     // Write methods
 
+    @Override
     public final void addReference(final Reference reference)
     {
         checkAccess();
         dataStructure.addReference(reference);
     }
 
+    @Override
     public final void setAnnotations(final IAnnotations imageAnnotations)
     {
         checkAccess();
         dataStructure.setAnnotations(imageAnnotations);
     }
 
+    @Override
     public final void setDataSet(final DataSet dataSet)
     {
         checkAccess();
         dataStructure.setDataSet(dataSet);
     }
 
+    @Override
     public final void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
         checkAccess();
         dataStructure.setExperimentIdentifier(experimentIdentifier);
     }
 
+    @Override
     public final void setExperimentRegistrationTimestamp(
             final ExperimentRegistrationTimestamp experimentRegistrationTimestamp)
     {
@@ -97,18 +102,21 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
         dataStructure.setExperimentRegistrationTimestamp(experimentRegistrationTimestamp);
     }
 
+    @Override
     public final void setExperimentRegistrator(final ExperimentRegistrator experimentRegistrator)
     {
         checkAccess();
         dataStructure.setExperimentRegistrator(experimentRegistrator);
     }
 
+    @Override
     public final void setFormat(final Format format)
     {
         checkAccess();
         dataStructure.setFormat(format);
     }
 
+    @Override
     public final void setSample(final Sample sample)
     {
         checkAccess();
@@ -117,28 +125,33 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
 
     // IDataStructure methods
 
+    @Override
     public final void open(final Mode thatMode)
     {
         open(thatMode, true);
     }
 
+    @Override
     public void open(Mode thatMode, boolean validate)
     {
         dataStructure.open(thatMode, validate);
         this.mode = thatMode;
     }
 
+    @Override
     public final void close()
     {
         dataStructure.close();
     }
 
+    @Override
     public final void create(List<FormatParameter> formatParameters)
     {
         mode = Mode.READ_WRITE;
         dataStructure.create(formatParameters);
     }
 
+    @Override
     public final boolean isOpenOrCreated()
     {
         return dataStructure.isOpenOrCreated();
@@ -146,31 +159,37 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
 
     // Read methods
 
+    @Override
     public final DataSet getDataSet()
     {
         return dataStructure.getDataSet();
     }
 
+    @Override
     public final ExperimentIdentifier getExperimentIdentifier()
     {
         return dataStructure.getExperimentIdentifier();
     }
 
+    @Override
     public final ExperimentRegistrator getExperimentRegistrator()
     {
         return dataStructure.getExperimentRegistrator();
     }
 
+    @Override
     public final ExperimentRegistrationTimestamp getExperimentRegistratorTimestamp()
     {
         return dataStructure.getExperimentRegistratorTimestamp();
     }
 
+    @Override
     public final IFormattedData getFormattedData() throws DataStructureException
     {
         return dataStructure.getFormattedData();
     }
 
+    @Override
     public final IDirectory getOriginalData()
     {
         final IDirectory originalData = dataStructure.getOriginalData();
@@ -178,6 +197,7 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
                 : originalData;
     }
 
+    @Override
     public final IDirectory getStandardData()
     {
         final IDirectory standardData = dataStructure.getStandardData();
@@ -185,11 +205,13 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
                 : standardData;
     }
 
+    @Override
     public final Sample getSample()
     {
         return dataStructure.getSample();
     }
 
+    @Override
     public final Set<Reference> getStandardOriginalMapping()
     {
         final Set<Reference> set = dataStructure.getStandardOriginalMapping();
@@ -200,6 +222,7 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
         return set;
     }
 
+    @Override
     public final Version getVersion()
     {
         return dataStructure.getVersion();

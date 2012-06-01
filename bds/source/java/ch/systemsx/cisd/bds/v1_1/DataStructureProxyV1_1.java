@@ -43,11 +43,13 @@ public final class DataStructureProxyV1_1 extends DataStructureProxyV1_0 impleme
     // IDataStructureV1_1
     //
 
+    @Override
     public final ExperimentIdentifierWithUUID getExperimentIdentifierWithUUID()
     {
         return getDataStructure().getExperimentIdentifierWithUUID();
     }
 
+    @Override
     public final SampleWithOwner getSampleWithOwner()
     {
         return getDataStructure().getSampleWithOwner();

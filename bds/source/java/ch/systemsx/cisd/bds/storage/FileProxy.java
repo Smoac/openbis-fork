@@ -42,26 +42,31 @@ public class FileProxy extends NodeProxy implements IFile
     // IFile
     //
 
+    @Override
     public byte[] getBinaryContent()
     {
         return getFile().getBinaryContent();
     }
 
+    @Override
     public String getExactStringContent()
     {
         return getFile().getExactStringContent();
     }
 
+    @Override
     public InputStream getInputStream()
     {
         return getFile().getInputStream();
     }
 
+    @Override
     public String getStringContent()
     {
         return getFile().getStringContent();
     }
 
+    @Override
     public List<String> getStringContentList()
     {
         return getFile().getStringContentList();

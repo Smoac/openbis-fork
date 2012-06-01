@@ -163,16 +163,19 @@ final class ReadOnlyDirectory extends DirectoryProxy
         // Iterator
         //
 
+        @Override
         public final boolean hasNext()
         {
             return delegate.hasNext();
         }
 
+        @Override
         public final INode next()
         {
             return ReadOnlyNode.tryCreateReadOnlyNode(delegate.next());
         }
 
+        @Override
         public final void remove()
         {
             ReadOnlyNode.denyAccess();

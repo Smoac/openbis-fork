@@ -136,6 +136,7 @@ public final class ChecksumHandler implements IDataStructureHandler
     // IDataStructureHandler
     //
 
+    @Override
     public final void assertValid() throws DataStructureException
     {
         final String checksumFile = DataStructureV1_0.DIR_ORIGINAL;
@@ -159,6 +160,7 @@ public final class ChecksumHandler implements IDataStructureHandler
         }
     }
 
+    @Override
     public final void performClosing()
     {
         final StringWriter writer = new StringWriter();
@@ -167,10 +169,12 @@ public final class ChecksumHandler implements IDataStructureHandler
         checksumDirectory.addKeyValuePair(DataStructureV1_0.DIR_ORIGINAL, writer.toString());
     }
 
+    @Override
     public final void performOpening()
     {
     }
 
+    @Override
     public final void performCreating()
     {
     }
@@ -242,6 +246,7 @@ public final class ChecksumHandler implements IDataStructureHandler
         // IToStringConverter
         //
 
+        @Override
         public final String toString(final Checksum checksum)
         {
             return checksum.checksum + SEPARATOR + checksum.path;
@@ -251,6 +256,7 @@ public final class ChecksumHandler implements IDataStructureHandler
         // IFromStringConverter
         //
 
+        @Override
         public final Checksum fromString(final String value)
         {
             final int index = value.indexOf(SEPARATOR);

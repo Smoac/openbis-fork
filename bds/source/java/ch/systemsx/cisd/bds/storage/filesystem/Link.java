@@ -49,16 +49,19 @@ final class Link implements IFileBasedLink
     }
 
     /** Sets the parent of this {@link INode}. */
+    @Override
     public final void setParent(final IDirectory parentOrNull)
     {
         parent = parentOrNull;
     }
 
+    @Override
     public IDirectory tryAsDirectory()
     {
         return (reference instanceof IDirectory) ? (IDirectory) reference : null;
     }
 
+    @Override
     public IFile tryAsFile()
     {
         return (reference instanceof IFile) ? (IFile) reference : null;
@@ -68,36 +71,43 @@ final class Link implements IFileBasedLink
     // ILink
     //
 
+    @Override
     public final String getName()
     {
         return name;
     }
 
+    @Override
     public String getPath()
     {
         return parent.getPath() + "/" + getPath();
     }
 
+    @Override
     public final IDirectory tryGetParent()
     {
         return parent;
     }
 
+    @Override
     public final INode getReference()
     {
         return reference;
     }
 
+    @Override
     public final void extractTo(final File directory)
     {
         reference.extractTo(directory);
     }
 
+    @Override
     public final void moveTo(final File directory)
     {
         reference.moveTo(directory);
     }
 
+    @Override
     public final boolean isValid()
     {
         if (reference.isValid() == false)
@@ -112,6 +122,7 @@ final class Link implements IFileBasedLink
         return true;
     }
 
+    @Override
     public File getNodeFile()
     {
         return reference.getNodeFile();

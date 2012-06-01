@@ -69,11 +69,13 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return name;
     }
 
+    @Override
     public IDirectory tryAsDirectory()
     {
         return this;
     }
 
+    @Override
     public IFile tryAsFile()
     {
         return null;
@@ -83,6 +85,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
     // IDirectory
     //
 
+    @Override
     public final INode tryGetNode(final String name)
     {
         assert name != null : "Given name can not be null.";
@@ -98,6 +101,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         }
     }
 
+    @Override
     public final IDirectory makeDirectory(final String name)
     {
         assert name != null : "Given name can not be null.";
@@ -120,6 +124,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return NodeFactory.internalCreateDirectoryNode(dir);
     }
 
+    @Override
     public final IFile addKeyValuePair(final String key, final String value)
     {
         assert key != null : "Given key can not be null.";
@@ -132,6 +137,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return NodeFactory.internalCreateFileNode(file);
     }
 
+    @Override
     public final INode addFile(final java.io.File file, final String name, final boolean move)
     {
         checkFile(file);
@@ -169,6 +175,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return NodeFactory.internalCreateNode(newFile);
     }
 
+    @Override
     public final ILink tryAddLink(final String name, final INode node)
     {
         assert node != null : "Node can not be null.";
@@ -184,6 +191,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return null;
     }
 
+    @Override
     public final Iterator<INode> iterator()
     {
         return new Iterator<INode>()
@@ -198,17 +206,20 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
                 // Iterator
                 //
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
                 }
 
+                @Override
                 public INode next()
                 {
                     return index >= files.size() ? null : NodeFactory.internalCreateNode(files
                             .get(index++));
                 }
 
+                @Override
                 public boolean hasNext()
                 {
                     return index < files.size();
@@ -216,6 +227,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
             };
     }
 
+    @Override
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
         assert directory != null : "Directory could not be null";
@@ -232,6 +244,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         }
     }
 
+    @Override
     public final void removeNode(final INode node)
     {
         assert node != null : "Node could not be null";
@@ -256,6 +269,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         }
     }
 
+    @Override
     public List<IFile> listFiles(String[] extensionsOrNull, boolean recursive)
     {
         final List<java.io.File> files =
@@ -269,6 +283,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         return Collections.unmodifiableList(nodes);
     }
 
+    @Override
     public List<IDirectory> listDirectories(boolean recursive)
     {
         final List<java.io.File> files =

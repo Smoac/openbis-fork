@@ -120,6 +120,7 @@ public class Geometry implements IStorable
     // IStorable
     //
 
+    @Override
     public final void saveTo(final IDirectory directory)
     {
         assert directory != null : "Given directory can not be null.";

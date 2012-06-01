@@ -66,6 +66,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
     /**
      * Saves this instance to the specified directory.
      */
+    @Override
     public final void saveTo(final IDirectory directory)
     {
         directory.addKeyValuePair(EXPERIMENT_REGISTRATION_TIMESTAMP, getFormattedDate());

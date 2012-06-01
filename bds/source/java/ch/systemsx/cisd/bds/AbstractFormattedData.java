@@ -69,6 +69,7 @@ public abstract class AbstractFormattedData implements IFormattedData
     // IFormattedData
     //
 
+    @Override
     public final IFormatParameters getFormatParameters()
     {
         return formatParameters;

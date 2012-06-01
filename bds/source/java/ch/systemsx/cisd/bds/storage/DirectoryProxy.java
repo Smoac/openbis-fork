@@ -43,46 +43,55 @@ public class DirectoryProxy extends NodeProxy implements IDirectory
     // IDirectory
     //
 
+    @Override
     public INode addFile(final File file, final String nameOrNull, final boolean move)
     {
         return getDirectory().addFile(file, nameOrNull, move);
     }
 
+    @Override
     public IFile addKeyValuePair(final String key, final String value)
     {
         return getDirectory().addKeyValuePair(key, value);
     }
 
+    @Override
     public Iterator<INode> iterator()
     {
         return getDirectory().iterator();
     }
 
+    @Override
     public List<IDirectory> listDirectories(final boolean recursive)
     {
         return getDirectory().listDirectories(recursive);
     }
 
+    @Override
     public List<IFile> listFiles(final String[] extensionsOrNull, final boolean recursive)
     {
         return getDirectory().listFiles(extensionsOrNull, recursive);
     }
 
+    @Override
     public IDirectory makeDirectory(final String name)
     {
         return getDirectory().makeDirectory(name);
     }
 
+    @Override
     public void removeNode(final INode node)
     {
         getDirectory().removeNode(node);
     }
 
+    @Override
     public ILink tryAddLink(final String name, final INode node)
     {
         return getDirectory().tryAddLink(name, node);
     }
 
+    @Override
     public INode tryGetNode(final String name)
     {
         return getDirectory().tryGetNode(name);

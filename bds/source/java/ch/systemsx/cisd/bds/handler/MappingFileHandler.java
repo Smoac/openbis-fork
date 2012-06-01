@@ -139,6 +139,7 @@ public final class MappingFileHandler implements IDataStructureHandler
     // IDataStructureHandler
     //
 
+    @Override
     public final void assertValid() throws DataStructureException
     {
         final String errMsg = "Node '%s' not found in directory '%s'";
@@ -158,16 +159,19 @@ public final class MappingFileHandler implements IDataStructureHandler
         }
     }
 
+    @Override
     public final void performClosing()
     {
         mappingDirectory.addKeyValuePair(MAPPING_FILE, createMappingFile());
     }
 
+    @Override
     public final void performOpening()
     {
         loadStandardOriginalMapping();
     }
 
+    @Override
     public final void performCreating()
     {
     }
@@ -187,6 +191,7 @@ public final class MappingFileHandler implements IDataStructureHandler
         // IToStringConverter
         //
 
+        @Override
         public final String toString(final Reference reference)
         {
             builder.setLength(0);

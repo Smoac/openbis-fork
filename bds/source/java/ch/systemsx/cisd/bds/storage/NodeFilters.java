@@ -37,6 +37,7 @@ public final class NodeFilters
             // INodeFilter
             //
 
+            @Override
             public final boolean accept(final INode node)
             {
                 return true;
@@ -85,6 +86,7 @@ public final class NodeFilters
         // INodeFilter
         //
 
+        @Override
         public final boolean accept(final INode node)
         {
             assert node != null : "Given node can not be null.";

@@ -80,6 +80,7 @@ public final class Channel implements IStorable, Comparable<Channel>
     // IStorable
     //
 
+    @Override
     public final void saveTo(final IDirectory directory)
     {
         final IDirectory channelDirectory = directory.makeDirectory(CHANNEL + counter);
@@ -121,6 +122,7 @@ public final class Channel implements IStorable, Comparable<Channel>
     // Comparable
     //
 
+    @Override
     public final int compareTo(final Channel o)
     {
         assert o != null : "Unspecified Channel.";

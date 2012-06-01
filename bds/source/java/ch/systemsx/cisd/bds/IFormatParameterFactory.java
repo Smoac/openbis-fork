@@ -36,6 +36,7 @@ public interface IFormatParameterFactory
                     // IFormatParameterFactory
                     //
 
+                    @Override
                     public final FormatParameter createFormatParameter(final INode node)
                     {
                         if (node instanceof IFile)
@@ -47,6 +48,7 @@ public interface IFormatParameterFactory
                         return null;
                     }
 
+                    @Override
                     public final FormatParameter createFormatParameter(final String name,
                             final String value)
                     {

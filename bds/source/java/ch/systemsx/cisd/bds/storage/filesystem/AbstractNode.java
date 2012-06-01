@@ -124,6 +124,7 @@ abstract class AbstractNode implements IFileBasedNode
     // IFileBasedNode
     //
 
+    @Override
     public java.io.File getNodeFile()
     {
         return nodeFile;
@@ -133,27 +134,32 @@ abstract class AbstractNode implements IFileBasedNode
     // INode
     //
 
+    @Override
     public final String getName()
     {
         return nodeFile.getName();
     }
 
+    @Override
     public String getPath()
     {
         return nodeFile.getAbsolutePath();
     }
 
+    @Override
     public final IDirectory tryGetParent()
     {
         File dir = nodeFile.getParentFile();
         return dir == null ? null : NodeFactory.internalCreateDirectoryNode(dir);
     }
 
+    @Override
     public final void moveTo(final File directory)
     {
         moveFileToDirectory(nodeFile, directory, null);
     }
 
+    @Override
     public boolean isValid()
     {
         return FileOperations.getMonitoredInstanceForCurrentThread().canRead(nodeFile);

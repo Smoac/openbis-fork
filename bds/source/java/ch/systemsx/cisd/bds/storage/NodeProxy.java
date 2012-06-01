@@ -38,41 +38,49 @@ public class NodeProxy implements INode
     // INode
     //
 
+    @Override
     public void extractTo(final File directory)
     {
         delegate.extractTo(directory);
     }
 
+    @Override
     public String getName()
     {
         return delegate.getName();
     }
 
+    @Override
     public String getPath()
     {
         return delegate.getPath();
     }
 
+    @Override
     public boolean isValid()
     {
         return delegate.isValid();
     }
 
+    @Override
     public void moveTo(final File directory)
     {
         delegate.moveTo(directory);
     }
 
+    @Override
     public IDirectory tryAsDirectory()
     {
         return delegate.tryAsDirectory();
     }
 
+    @Override
     public IFile tryAsFile()
     {
         return delegate.tryAsFile();
     }
 
+    @Override
     public IDirectory tryGetParent()
     {
         return delegate.tryGetParent();
