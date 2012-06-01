@@ -51,6 +51,7 @@ public class SimilarBeginningFluorescenceCandidateCondition implements IBetterCa
         this.maxAvgDiff = maxAvgDiff;
     }
 
+    @Override
     public boolean isBetter(ParentCandidate candidate)
     {
         final int childId = candidate.getChild().getId();

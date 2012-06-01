@@ -901,6 +901,7 @@ public class GenerationDetection
     {
         return new ISmoothFluorescenceDeviationsProvider()
             {
+                @Override
                 public Double[] getSFDs(int cellId)
                 {
                     return cellSmoothFDeviationByIdAndFrame.get(cellId);
@@ -924,17 +925,20 @@ public class GenerationDetection
     {
         return new IParentInformationProvider()
             {
+                @Override
                 public ParentCandidate[] getParentCandidates(Cell cell)
                 {
                     // not null - initialized at startup
                     return parentCandidatesByChildId.get(cell.getId());
                 }
 
+                @Override
                 public int getAlternatives(Cell cell)
                 {
                     return getParentCandidates(cell).length - 1;
                 }
 
+                @Override
                 public int getParentCellId(Cell cell)
                 {
                     final ParentCandidate[] candidates = getParentCandidates(cell);
@@ -947,6 +951,7 @@ public class GenerationDetection
                     }
                 }
 
+                @Override
                 public String parentInformation(Cell cell)
                 {
                     final StringBuilder sb = new StringBuilder();

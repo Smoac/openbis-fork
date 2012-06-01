@@ -108,6 +108,7 @@ public class ParentCandidate implements Comparable<ParentCandidate>
     //
 
     // simple comparator - closer is better
+    @Override
     public int compareTo(ParentCandidate o)
     {
         return this.getDistanceSq().compareTo(o.getDistanceSq());

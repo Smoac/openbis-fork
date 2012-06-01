@@ -61,6 +61,7 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
         this.maxFrameHeightDiffExceptions = maxFrameHeightDiffExceptions;
     }
 
+    @Override
     public boolean isBetter(ParentCandidate candidate)
     {
         final int childId = candidate.getChild().getId();

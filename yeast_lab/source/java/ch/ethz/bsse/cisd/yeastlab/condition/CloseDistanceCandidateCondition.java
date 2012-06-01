@@ -28,6 +28,7 @@ import ch.ethz.bsse.cisd.yeastlab.model.ParentCandidate;
 public class CloseDistanceCandidateCondition implements IBetterCandidateCondition
 {
 
+    @Override
     public boolean isBetter(ParentCandidate candidate)
     {
         final double closeDistance =
