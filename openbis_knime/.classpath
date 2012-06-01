@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="/libraries/knime/org.knime.core.data.urltype.jar"/>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/dss/dss_client.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
