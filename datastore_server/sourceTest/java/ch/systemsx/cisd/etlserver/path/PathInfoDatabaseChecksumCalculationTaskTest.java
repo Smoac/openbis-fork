@@ -58,6 +58,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
             private long previousTime;
             private long currentTime = 1000;
             
+            @Override
             public long getTimeInMilliseconds()
             {
                 long nextTime = previousTime + currentTime;

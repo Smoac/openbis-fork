@@ -114,26 +114,31 @@ public class DSSFileSystemViewTest extends AssertJUnit
                     will(returnValue(new AbstractFtpFile(normalizedPath)
                         {
                             
+                            @Override
                             public boolean isFile()
                             {
                                 return false;
                             }
                             
+                            @Override
                             public boolean isDirectory()
                             {
                                 return true;
                             }
                             
+                            @Override
                             public long getSize()
                             {
                                 return 0;
                             }
                             
+                            @Override
                             public long getLastModified()
                             {
                                 return 0;
                             }
                             
+                            @Override
                             public InputStream createInputStream(long offset) throws IOException
                             {
                                 return null;

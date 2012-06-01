@@ -23,6 +23,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
  */
 public class PathInfoDatabaseVersionHolder implements IDatabaseVersionHolder
 {
+    @Override
     public String getDatabaseVersion()
     {
         return "005"; // S131

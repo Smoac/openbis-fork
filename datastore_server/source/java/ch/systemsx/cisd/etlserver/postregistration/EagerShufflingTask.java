@@ -143,11 +143,13 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         stopOnNoShareFound = PropertyUtils.getBoolean(properties, STOP_ON_NO_SHARE_FOUND_KEY, false);
     }
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         if (container)
@@ -169,6 +171,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             this.dataSetCode = dataSetCode;
         }
 
+        @Override
         public ICleanupTask createCleanupTask()
         {
             List<Share> shares =
@@ -190,6 +193,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
         }
         
+        @Override
         public void execute()
         {
             if (shareWithMostFreeOrNull != null)
@@ -234,6 +238,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             this.newShareId = newShareId;
         }
 
+        @Override
         public void cleanup(ISimpleLogger logger)
         {
             IShareIdManager shareIdManager = ServiceProvider.getShareIdManager();

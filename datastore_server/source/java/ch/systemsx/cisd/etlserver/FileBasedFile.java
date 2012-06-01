@@ -57,11 +57,13 @@ public class FileBasedFile implements IFile
         this.hardLinkCopierOrNull = hardLinkCopierOrNull;
     }
 
+    @Override
     public void copyFrom(final File sourceFile)
     {
         copy(sourceFile, file);
     }
 
+    @Override
     public void copyTo(final File destinationFile)
     {
         copy(file, destinationFile);
@@ -136,6 +138,7 @@ public class FileBasedFile implements IFile
 
     }
 
+    @Override
     public void delete()
     {
         if (FileOperations.getMonitoredInstanceForCurrentThread().removeRecursivelyQueueing(file))
@@ -145,11 +148,13 @@ public class FileBasedFile implements IFile
         }
     }
 
+    @Override
     public String getAbsolutePath()
     {
         return file.getAbsolutePath();
     }
 
+    @Override
     public byte[] read()
     {
         try
@@ -161,6 +166,7 @@ public class FileBasedFile implements IFile
         }
     }
 
+    @Override
     public void write(final byte[] data)
     {
         try
@@ -172,6 +178,7 @@ public class FileBasedFile implements IFile
         }
     }
 
+    @Override
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         final String response = FileUtilities.checkDirectoryFullyAccessible(file, "");
@@ -181,6 +188,7 @@ public class FileBasedFile implements IFile
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;

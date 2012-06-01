@@ -87,6 +87,7 @@ class UploadingCommand implements IDataSetCommand
             this.zipFile = zipFile;
         }
 
+        @Override
         public void start(File file, long fileSize, Long fileIdOrNull)
         {
             if (operationLog.isInfoEnabled())
@@ -95,10 +96,12 @@ class UploadingCommand implements IDataSetCommand
             }
         }
 
+        @Override
         public void reportProgress(int percentage, long numberOfBytes)
         {
         }
 
+        @Override
         public void finished(boolean successful)
         {
             if (successful)
@@ -116,12 +119,14 @@ class UploadingCommand implements IDataSetCommand
             }
         }
 
+        @Override
         public void exceptionOccured(Throwable throwable)
         {
             notificationLog.error("An error occured during uploading of zip file " + zipFile + ".",
                     throwable);
         }
 
+        @Override
         public void warningOccured(String warningMessage)
         {
             operationLog.warn(warningMessage);
@@ -307,6 +312,7 @@ class UploadingCommand implements IDataSetCommand
         tokenGenerator = new TokenGenerator();
     }
 
+    @Override
     public List<String> getDataSetCodes()
     {
         List<String> result = new ArrayList<String>();
@@ -317,6 +323,7 @@ class UploadingCommand implements IDataSetCommand
         return result;
     }
 
+    @Override
     public void execute(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
@@ -592,6 +599,7 @@ class UploadingCommand implements IDataSetCommand
                 .sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
     }
 
+    @Override
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();

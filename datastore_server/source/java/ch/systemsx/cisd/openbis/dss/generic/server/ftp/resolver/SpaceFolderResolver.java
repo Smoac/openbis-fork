@@ -39,11 +39,13 @@ public class SpaceFolderResolver implements IFtpPathResolver
      * @return <code>true</code> for all paths containing single folder, <code>false</code> for all
      *         other paths.
      */
+    @Override
     public boolean canResolve(String path)
     {
         return false == removeStartingSlash(path).contains(FtpConstants.FILE_SEPARATOR);
     }
 
+    @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         return new AbstractFtpFolder(path)

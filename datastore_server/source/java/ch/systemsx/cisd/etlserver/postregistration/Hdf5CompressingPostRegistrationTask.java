@@ -100,11 +100,13 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
     /**
      * do not allow concurrent maintenance tasks to run if they alter the data store contents.
      */
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         if (container)
@@ -134,6 +136,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             // empty by design
         }
 
+        @Override
         public void execute()
         {
 
@@ -336,6 +339,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return true;
         }
 
+        @Override
         public ICleanupTask createCleanupTask()
         {
             return new Hdf5CompressingCleanupTask(dataSetCode);
@@ -476,6 +480,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             this.dataSetCode = dataSetCode;
         }
 
+        @Override
         public void cleanup(ISimpleLogger logger)
         {
             DataSet dataSet =

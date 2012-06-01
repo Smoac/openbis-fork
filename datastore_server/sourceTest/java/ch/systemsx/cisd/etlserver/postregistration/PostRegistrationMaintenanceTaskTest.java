@@ -78,6 +78,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             this.name = name;
         }
 
+        @Override
         public void cleanup(ISimpleLogger logger)
         {
             cleanupInvocations.add(name);
@@ -97,11 +98,13 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             assertNotNull("No task found for '" + taskName + "'.", task);
         }
 
+        @Override
         public boolean requiresDataStoreLock()
         {
             return task.requiresDataStoreLock();
         }
 
+        @Override
         public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
         {
             return task.createExecutor(dataSetCode, container);

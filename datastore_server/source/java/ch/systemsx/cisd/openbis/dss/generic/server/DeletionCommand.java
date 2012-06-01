@@ -52,6 +52,7 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
         super(dataSets);
     }
 
+    @Override
     public void execute(final IHierarchicalContentProvider contentProvider,
             final IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
@@ -64,6 +65,7 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
         {
             executor.submit(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         try
@@ -86,6 +88,7 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
         return new Log4jSimpleLogger(operationLog);
     }
 
+    @Override
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();

@@ -68,6 +68,7 @@ public class StandardShareFinder implements IShareFinder
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
     }
 
+    @Override
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
         List<CandidateShare> candidates = new ArrayList<CandidateShare>();
@@ -177,6 +178,7 @@ public class StandardShareFinder implements IShareFinder
         }
 
 
+        @Override
         public int compareTo(CandidateShare otherCandidate)
         {
             int incomingToExtensionComparison = compareIncomingToExtension(otherCandidate);

@@ -103,6 +103,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
+                @Override
                 public IDataSetCommandExecutor create(File store, File queueDir)
                 {
                     return new DataSetCommandExecutor(store, queueDir);
@@ -147,6 +148,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.cifexAdminPasswordOrNull = cifexAdminPasswordOrNull;
     }
 
+    @Override
     public void afterPropertiesSet()
     {
         String prefix = "Property 'storeRoot' ";
@@ -180,6 +182,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         migrateStore();
     }
 
+    @Override
     public void initialize()
     {
         commandExecutor.start();
@@ -208,6 +211,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             }
             File[] stores = storeRoot.listFiles(new FilenameFilter()
                 {
+                    @Override
                     public boolean accept(File dir, String name)
                     {
                         return UuidUtil.isValidUUID(name);
@@ -225,11 +229,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
     }
 
+    @Override
     public IDataStoreService createLogger(IInvocationLoggerContext context)
     {
         return new DataStoreServiceLogger(operationLog, context);
     }
 
+    @Override
     public int getVersion(String sessionToken)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
@@ -237,12 +243,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return IDataStoreService.VERSION;
     }
 
+    @Override
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException
     {
         return getKnownDataSets(sessionToken, dataSets, false);
     }
 
+    @Override
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException
@@ -272,6 +280,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return knownLocations;
     }
 
+    @Override
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
@@ -301,6 +310,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new CIFEXRPCServiceFactory(cifexURL);
     }
 
+    @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
             String serviceKey, List<DatasetDescription> datasets)
     {
@@ -326,6 +336,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
     }
 
+    @Override
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
             String userEmailOrNull)
@@ -341,6 +352,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 userSessionToken, pluginDescription, mailClientParameters);
     }
 
+    @Override
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull)
     {
@@ -350,6 +362,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
+    @Override
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull, boolean removeFromDataStore)
     {
@@ -360,17 +373,20 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
     }
 
+    @Override
     public IArchiverPlugin getArchiverPlugin()
     {
         ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
     }
 
+    @Override
     public IDataSetDirectoryProvider getDataSetDirectoryProvider()
     {
         return new DataSetDirectoryProvider(storeRoot, getShareIdManager());
     }
 
+    @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters)
     {
@@ -419,6 +435,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             this.removeFromDataStore = removeFromDataStore;
         }
 
+        @Override
         public ProcessingStatus process(List<DatasetDescription> datasets,
                 DataSetProcessingContext context)
         {
@@ -440,6 +457,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             this.archiverTask = archiverTask;
         }
 
+        @Override
         public ProcessingStatus process(List<DatasetDescription> datasets,
                 DataSetProcessingContext context)
         {
@@ -454,6 +472,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 context.getHierarchicalContentProvider());
     }
 
+    @Override
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet)
     {
@@ -465,11 +484,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return task.createLink(dataSet);
     }
 
+    @Override
     public IDataSetDeleter getDataSetDeleter()
     {
         return commandExecutor;
     }
 
+    @Override
     public String putDataSet(String sessionToken, String dropboxName,
             CustomImportFile customImportFile)
     {

@@ -51,6 +51,7 @@ public abstract class AbstractFtpFile implements FtpFile
      * exceptions are being propagated to the surrounding Apache FTP classes. Apache FTP swallows
      * exceptions without logging and thereby hinders error analysis.
      */
+    @Override
     public final List<FtpFile> listFiles()
     {
         try
@@ -68,46 +69,55 @@ public abstract class AbstractFtpFile implements FtpFile
      */
     public abstract List<FtpFile> unsafeListFiles() throws RuntimeException;
 
+    @Override
     public boolean doesExist()
     {
         return true;
     }
 
+    @Override
     public String getAbsolutePath()
     {
         return absolutePath;
     }
 
+    @Override
     public String getName()
     {
         return new File(absolutePath).getName();
     }
 
+    @Override
     public String getOwnerName()
     {
         return FtpConstants.FTP_USER_NAME;
     }
 
+    @Override
     public String getGroupName()
     {
         return FtpConstants.FTP_USER_GROUP_NAME;
     }
 
+    @Override
     public boolean isHidden()
     {
         return false;
     }
 
+    @Override
     public boolean isReadable()
     {
         return true;
     }
 
+    @Override
     public boolean isRemovable()
     {
         return false;
     }
 
+    @Override
     public boolean isWritable()
     {
         return false;
@@ -117,31 +127,37 @@ public abstract class AbstractFtpFile implements FtpFile
     // Unsupported operations
     // =================================
 
+    @Override
     public OutputStream createOutputStream(long arg0) throws IOException
     {
         return null;
     }
 
+    @Override
     public boolean delete()
     {
         return false;
     }
 
+    @Override
     public boolean mkdir()
     {
         return false;
     }
 
+    @Override
     public boolean move(FtpFile arg0)
     {
         return false;
     }
 
+    @Override
     public boolean setLastModified(long arg0)
     {
         return false;
     }
 
+    @Override
     public int getLinkCount()
     {
         return 0;

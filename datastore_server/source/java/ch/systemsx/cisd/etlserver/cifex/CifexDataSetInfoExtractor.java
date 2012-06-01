@@ -59,6 +59,7 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         dataSetPropertiesFileNameOrNull = properties.getProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

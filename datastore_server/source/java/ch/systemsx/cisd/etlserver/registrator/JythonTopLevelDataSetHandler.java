@@ -609,6 +609,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     /**
      * V1 registration framework -- any file can go into faulty paths.
      */
+    @Override
     public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
     {
         return false;

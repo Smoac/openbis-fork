@@ -50,6 +50,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     {
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -71,6 +72,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     {
         return new IHierarchicalContentNodeVisitor()
             {
+                @Override
                 public void visit(IHierarchicalContentNode node)
                 {
                     String relativePath = node.getRelativePath();

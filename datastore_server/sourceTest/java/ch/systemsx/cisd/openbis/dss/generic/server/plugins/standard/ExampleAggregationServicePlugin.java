@@ -43,6 +43,7 @@ public class ExampleAggregationServicePlugin extends AbstractAggregationServiceR
         super(properties, storeRoot);
     }
 
+    @Override
     public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();

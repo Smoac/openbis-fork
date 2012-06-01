@@ -33,12 +33,14 @@ public class ExperimentImmutable implements IExperimentImmutable
         this.experiment = experiment;
     }
 
+    @Override
     public String getExperimentIdentifier()
     {
         String identifier = experiment.getIdentifier();
         return identifier == null ? null : identifier.toUpperCase();
     }
 
+    @Override
     public boolean isExistingExperiment()
     {
         return true;
@@ -60,11 +62,13 @@ public class ExperimentImmutable implements IExperimentImmutable
         return experiment;
     }
 
+    @Override
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(experiment, propertyCode);
     }
 
+    @Override
     public String getExperimentType()
     {
         if (experiment.getExperimentType() != null)

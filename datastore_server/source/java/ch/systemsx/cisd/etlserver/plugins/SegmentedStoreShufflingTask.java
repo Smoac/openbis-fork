@@ -64,10 +64,12 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         {
             private static final int N = 3;
 
+            @Override
             public void init(ISimpleLogger logger)
             {
             }
 
+            @Override
             public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
                     IEncapsulatedOpenBISService service, IDataSetMover dataSetMover,
                     ISimpleLogger logger)
@@ -156,6 +158,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         operationLogger = logger;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         dataStoreCode =
@@ -201,6 +204,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         }
     }
 
+    @Override
     public void execute()
     {
         operationLog.info("Starting segmented store shuffling.");
@@ -244,6 +248,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
     /**
      * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
      */
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;

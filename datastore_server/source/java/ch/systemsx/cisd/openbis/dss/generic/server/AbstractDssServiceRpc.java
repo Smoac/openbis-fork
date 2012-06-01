@@ -19,12 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -43,9 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger<T>
 {
-    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            AbstractDssServiceRpc.class);
-
     private final IEncapsulatedOpenBISService openBISService;
 
     @Autowired

@@ -94,6 +94,7 @@ abstract public class AbstractDelegatingDataSetInfoExtractor implements IDataSet
     // delegation
     //
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

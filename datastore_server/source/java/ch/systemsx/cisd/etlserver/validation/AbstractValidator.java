@@ -38,6 +38,7 @@ abstract class AbstractValidator implements IValidator
         this.emptyValueSynonyms = emptyValueSynonyms;
     }
     
+    @Override
     public final void assertValid(String value)
     {
         if (allowEmptyValues)

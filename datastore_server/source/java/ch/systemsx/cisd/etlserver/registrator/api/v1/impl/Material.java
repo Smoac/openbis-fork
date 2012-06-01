@@ -53,6 +53,7 @@ public class Material extends MaterialImmutable implements IMaterial
         super(buildMaterialWithCodeAndType(code, type), false);
     }
 
+    @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         EntityHelper.createOrUpdateProperty(getMaterial(), propertyCode, propertyValue);

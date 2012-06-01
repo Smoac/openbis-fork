@@ -69,6 +69,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
                                 * MILLIS_PER_MINUTE);
     }
 
+    @Override
     public Status checkDatasetAccess(String sessionToken, List<String> datasetCodes)
     {
         final Status cachedStatus = tryGetCached(sessionToken, datasetCodes);
@@ -105,6 +106,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         }
     }
 
+    @Override
     public Status checkDatasetAccess(String sessionToken, String datasetCode)
     {
         final Status cachedStatus = tryGetCached(sessionToken, datasetCode);
@@ -138,6 +140,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         }
     }
 
+    @Override
     public Status checkSpaceWriteable(String sessionToken, SpaceIdentifier spaceId)
     {
         if (operationLog.isInfoEnabled())
@@ -158,6 +161,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         }
     }
 
+    @Override
     public Status checkInstanceAdminAuthorization(String sessionToken)
     {
         if (operationLog.isInfoEnabled())
@@ -178,6 +182,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         }
     }
 
+    @Override
     public Status checkSpacePowerUserAuthorization(String sessionToken)
     {
         if (operationLog.isInfoEnabled())

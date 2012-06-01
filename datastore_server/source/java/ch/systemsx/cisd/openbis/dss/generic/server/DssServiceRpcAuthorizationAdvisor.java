@@ -198,6 +198,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
          * Get the session token and any guarded parameters and invoke the guards on those
          * parameters.
          */
+        @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
         {
             final Object[] args = methodInvocation.getArguments();

@@ -52,6 +52,7 @@ public class MoveFileCommand extends AbstractTransactionalCommand
         this.dstFileName = dstFileName;
     }
 
+    @Override
     public void execute()
     {
         File src = getSrc();
@@ -76,6 +77,7 @@ public class MoveFileCommand extends AbstractTransactionalCommand
         return new File(srcParentDirAbsolutePath, srcFileName);
     }
 
+    @Override
     public void rollback()
     {
         // The src is the original location, dst is the location we moved it to. We want to undo the

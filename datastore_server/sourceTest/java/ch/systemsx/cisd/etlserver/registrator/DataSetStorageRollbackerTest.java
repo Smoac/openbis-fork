@@ -155,6 +155,7 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         /**
          * V1 Rollbacker test -- any file can go into faulty paths.
          */
+        @Override
         public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
         {
             return false;

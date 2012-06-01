@@ -72,6 +72,7 @@ abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCa
         container.runReaderClient(new IHDF5ReaderClient()
             {
 
+                @Override
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     FileToHDF5DuplicationVerifier verifier =

@@ -172,7 +172,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
-            DelegatingStorageProcessorWithDropbox.createDelegateStorageProcessor(new Properties());
+            AbstractDelegatingStorageProcessor.createDelegateStorageProcessor(new Properties());
         } catch (ConfigurationFailureException e)
         {
             assertEquals(expectedErrorMsg, e.getMessage());

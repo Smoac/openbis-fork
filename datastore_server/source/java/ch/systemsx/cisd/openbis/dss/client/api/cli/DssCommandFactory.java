@@ -31,6 +31,7 @@ public class DssCommandFactory extends AbstractCommandFactory
         LS, GET, HELP, PUT, TESTVALID, TESTEXTRACT,
     }
 
+    @Override
     public ICommand tryCommandForName(String name)
     {
         ICommand helpCommandOrNull = tryHelpCommandForName(name);
@@ -77,11 +78,13 @@ public class DssCommandFactory extends AbstractCommandFactory
         return result;
     }
 
+    @Override
     public ICommand getHelpCommand()
     {
         return getHelpCommand(PROGRAM_CALL_STRING);
     }
 
+    @Override
     public List<String> getKnownCommands()
     {
         String[] commands =

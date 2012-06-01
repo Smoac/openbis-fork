@@ -94,12 +94,14 @@ public class UploadingCommandTest extends AssertJUnit
                     private DefaultFileBasedHierarchicalContentFactory hierarchicalContentFactory =
                             new DefaultFileBasedHierarchicalContentFactory();
 
+                    @Override
                     public IHierarchicalContent asContent(File datasetDirectory)
                     {
                         return hierarchicalContentFactory.asHierarchicalContent(datasetDirectory,
                                 IDelegatedAction.DO_NOTHING);
                     }
 
+                    @Override
                     public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
                     {
                         return getContent(datasetLocation.getDataSetLocation());
@@ -110,11 +112,13 @@ public class UploadingCommandTest extends AssertJUnit
                         return asContent(new File(new File(STORE, SHARE_ID), location));
                     }
 
+                    @Override
                     public IHierarchicalContent asContent(ExternalData dataSet)
                     {
                         return getContent(dataSet.getCode());
                     }
 
+                    @Override
                     public IHierarchicalContent asContent(String dataSetCode)
                             throws IllegalArgumentException
                     {
@@ -124,21 +128,25 @@ public class UploadingCommandTest extends AssertJUnit
 
     private static final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
     {
+        @Override
         public File getStoreRoot()
         {
             return STORE;
         }
 
+        @Override
         public File getDataSetDirectory(IDatasetLocation dataSet)
         {
             return new File(new File(getStoreRoot(), SHARE_ID), dataSet.getDataSetLocation());
         }
 
+        @Override
         public File getDataSetDirectory(String shareId, String location)
         {
             return new File(new File(getStoreRoot(), SHARE_ID), location);
         }
 
+        @Override
         public IShareIdManager getShareIdManager()
         {
             return null;
@@ -367,6 +375,7 @@ public class UploadingCommandTest extends AssertJUnit
                     one(uploader).addProgressListener(with(any(IProgressListener.class)));
                     will(new CustomAction("store listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0] = (IProgressListener) invocation.getParameter(0);
@@ -379,6 +388,7 @@ public class UploadingCommandTest extends AssertJUnit
                             "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0].finished(true);
@@ -423,6 +433,7 @@ public class UploadingCommandTest extends AssertJUnit
                     one(uploader).addProgressListener(with(any(IProgressListener.class)));
                     will(new CustomAction("store listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0] = (IProgressListener) invocation.getParameter(0);
@@ -435,6 +446,7 @@ public class UploadingCommandTest extends AssertJUnit
                             "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0].finished(true);
@@ -519,6 +531,7 @@ public class UploadingCommandTest extends AssertJUnit
                     one(uploader).addProgressListener(with(any(IProgressListener.class)));
                     will(new CustomAction("store listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0] = (IProgressListener) invocation.getParameter(0);
@@ -531,6 +544,7 @@ public class UploadingCommandTest extends AssertJUnit
                             "id:user", null);
                     will(new CustomAction("report 'abort' to listener")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 listener[0].finished(false);

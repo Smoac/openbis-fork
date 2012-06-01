@@ -34,6 +34,7 @@ final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
         this.cifexURL = cifexURL;
     }
 
+    @Override
     public ICIFEXComponent createCIFEXComponent()
     {
         if (cifexComponent == null)

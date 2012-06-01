@@ -48,6 +48,7 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
         this.transpose = PropertyUtils.getBoolean(properties, TRANSPOSE_KEY, false);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         assureOnlyOneDataSetSelected(datasets);

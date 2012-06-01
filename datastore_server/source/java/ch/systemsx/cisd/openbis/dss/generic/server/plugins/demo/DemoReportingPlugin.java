@@ -53,6 +53,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         super(properties, storeRoot);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -84,6 +85,7 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
         return new IHierarchicalContentNodeVisitor()
             {
 
+                @Override
                 public void visit(IHierarchicalContentNode node)
                 {
                     if (false == node.isDirectory())

@@ -57,17 +57,20 @@ public abstract class AbstractTableModelReportingPlugin extends AbstractDatastor
         super(properties, storeRoot);
     }
 
+    @Override
     public ReportingPluginType getReportingPluginType()
     {
         return ReportingPluginType.TABLE_MODEL;
     }
 
+    @Override
     public LinkModel createLink(DatasetDescription dataset)
     {
         throw new IllegalArgumentException(
                 "The method createLink is not supported by TABLE_MODEL tasks");
     }
 
+    @Override
     public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
     {
         throw new IllegalArgumentException(

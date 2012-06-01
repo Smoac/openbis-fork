@@ -108,6 +108,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             return mailSent;
         }
 
+        @Override
         public void sendMessage(String subject, String content, String replyToOrNull,
                 From fromOrNull, String... recipients) throws EnvironmentFailureException
         {
@@ -115,6 +116,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             mailSent = true;
         }
 
+        @Override
         public void sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
                 EMailAddress fromOrNull, EMailAddress... recipients)
                 throws EnvironmentFailureException
@@ -123,6 +125,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             mailSent = true;
         }
 
+        @Override
         @SuppressWarnings("deprecation")
         public void sendMessageWithAttachment(String subject, String content, String filename,
                 DataHandler attachmentContent, String replyToOrNull, From fromOrNull,
@@ -133,6 +136,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             mailSent = true;
         }
 
+        @Override
         public void sendEmailMessageWithAttachment(String subject, String content, String filename,
                 DataHandler attachmentContent, EMailAddress replyToOrNull, EMailAddress fromOrNull,
                 EMailAddress... recipients) throws EnvironmentFailureException
@@ -142,6 +146,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             mailSent = true;
         }
 
+        @Override
         public void sendTestEmail()
         {
             mailClient.sendTestEmail();
@@ -149,6 +154,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     }
 
+    @Override
     public void execute(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
@@ -232,6 +238,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
                 getDataSetCodes(getDataSetCodes()));
     }
 
+    @Override
     public String getDescription()
     {
         return getDescription(getShortDescription(""));

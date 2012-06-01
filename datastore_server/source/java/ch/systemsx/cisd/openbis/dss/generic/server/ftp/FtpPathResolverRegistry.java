@@ -77,6 +77,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         return null;
     }
 
+    @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
         IFtpPathResolver resolver = tryFindResolver(path);
@@ -100,101 +101,121 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     {
         return new FtpFile()
             {
+                @Override
                 public String getAbsolutePath()
                 {
                     return path;
                 }
     
+                @Override
                 public String getName()
                 {
                     return FilenameUtils.getName(path);
                 }
     
+                @Override
                 public boolean isHidden()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean isDirectory()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean isFile()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean doesExist()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean isReadable()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean isWritable()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean isRemovable()
                 {
                     return false;
                 }
     
+                @Override
                 public String getOwnerName()
                 {
                     return "UNKNOWN";
                 }
     
+                @Override
                 public String getGroupName()
                 {
                     return "UNKNOWN";
                 }
     
+                @Override
                 public int getLinkCount()
                 {
                     return 0;
                 }
     
+                @Override
                 public long getLastModified()
                 {
                     return 0;
                 }
     
+                @Override
                 public boolean setLastModified(long time)
                 {
                     return false;
                 }
     
+                @Override
                 public long getSize()
                 {
                     return 0;
                 }
     
+                @Override
                 public boolean mkdir()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean delete()
                 {
                     return false;
                 }
     
+                @Override
                 public boolean move(FtpFile destination)
                 {
                     return false;
                 }
     
+                @Override
                 public List<FtpFile> listFiles()
                 {
                     return Collections.emptyList();
                 }
     
+                @Override
                 public OutputStream createOutputStream(long offset) throws IOException
                 {
                     if (errorMsgOrNull != null)
@@ -207,6 +228,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                     }
                 }
     
+                @Override
                 public InputStream createInputStream(long offset) throws IOException
                 {
                     if (errorMsgOrNull != null)

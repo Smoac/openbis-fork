@@ -129,21 +129,25 @@ public class CsvFileReaderHelper
         public static final ICsvFileReaderConfiguration INSTANCE =
                 new DefaultCsvFileReaderConfiguration();
 
+        @Override
         public char getColumnDelimiter()
         {
             return ';';
         }
 
+        @Override
         public char getCommentDelimiter()
         {
             return '#';
         }
 
+        @Override
         public boolean isIgnoreComments()
         {
             return true;
         }
 
+        @Override
         public boolean isSkipEmptyRecords()
         {
             return true;

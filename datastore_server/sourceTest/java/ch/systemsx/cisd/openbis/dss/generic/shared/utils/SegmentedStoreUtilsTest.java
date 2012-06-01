@@ -239,6 +239,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2,

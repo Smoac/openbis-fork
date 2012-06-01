@@ -72,11 +72,13 @@ final class NamedDataStrategy implements IDataStoreStrategy
     // IDataStoreStrategy
     //
 
+    @Override
     public final DataStoreStrategyKey getKey()
     {
         return key;
     }
 
+    @Override
     public final File getBaseDirectory(final File baseDirectory,
             final DataSetInformation dataSetInfo, final DataSetType dataSetType)
     {
@@ -87,6 +89,7 @@ final class NamedDataStrategy implements IDataStoreStrategy
                 .createDataSetTypeDirectory(dataSetType));
     }
 
+    @Override
     public final File getTargetPath(final File baseDirectory, final File incomingDataSetPath)
     {
         assertBaseDirectory(baseDirectory);

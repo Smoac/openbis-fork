@@ -43,6 +43,7 @@ abstract public class AbstractCommand<T extends GlobalArguments> implements ICom
     /**
      * Print usage information about the command.
      */
+    @Override
     public void printUsage(PrintStream out)
     {
         out.println(getUsagePrefixString() + " [options] " + getRequiredArgumentsString());

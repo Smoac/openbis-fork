@@ -129,6 +129,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Create a new transaction that atomically performs file operations and registers entities.
      */
+    @Override
     public IDataSetRegistrationTransaction transaction()
     {
         return transaction(incomingDataSetFile.getLogicalIncomingFile(),
@@ -138,6 +139,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Create a new transaction that atomically performs file operations and registers entities.
      */
+    @Override
     public IDataSetRegistrationTransaction transaction(File dataSetFile)
     {
         return transaction(dataSetFile, getDataSetRegistrationDetailsFactory());
@@ -232,6 +234,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
     }
 
+    @Override
     public File moveIncomingToError(String dataSetTypeCodeOrNull)
     {
         DataSetStorageRollbacker rollbacker =
@@ -265,11 +268,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didCommitTransaction(this, transaction);
     }
 
+    @Override
     public void executePreRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
         registrator.didPreRegistration(this, persistentMapHolder);
     }
 
+    @Override
     public void executePostRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
     {
         registrator.didPostRegistration(this, persistentMapHolder);

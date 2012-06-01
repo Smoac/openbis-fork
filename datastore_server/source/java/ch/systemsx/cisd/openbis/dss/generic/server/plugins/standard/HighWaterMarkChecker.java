@@ -27,6 +27,7 @@ public class HighWaterMarkChecker implements IStatusChecker, Serializable
         this.highWaterMarkPath = archiveHighWaterMarkPath;
     }
 
+    @Override
     public Status check(int numberOfItems)
     {
         HighwaterMarkWatcher w = new HighwaterMarkWatcher(highWaterMark * numberOfItems);

@@ -46,6 +46,7 @@ public class TaskExecutor
 
     private static final FilenameFilter FILTER = new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.endsWith(FILE_TYPE);

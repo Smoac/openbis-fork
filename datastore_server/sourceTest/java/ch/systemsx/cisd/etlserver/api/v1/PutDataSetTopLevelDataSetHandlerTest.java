@@ -259,6 +259,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                     one(registrator).handle(with(dataSet), with(dataSetInfoMatcher),
                             with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         // We can check file content only here because after
@@ -272,6 +273,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                                         return true;
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                     }

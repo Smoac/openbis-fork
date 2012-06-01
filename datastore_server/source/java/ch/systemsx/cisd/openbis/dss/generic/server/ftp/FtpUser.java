@@ -43,26 +43,31 @@ public class FtpUser implements User
         this.sessionToken = sessionToken;
     }
 
+    @Override
     public boolean getEnabled()
     {
         return true;
     }
 
+    @Override
     public String getHomeDirectory()
     {
         return "/";
     }
 
+    @Override
     public int getMaxIdleTime()
     {
         return SECONDS_PER_HOUR;
     }
 
+    @Override
     public String getName()
     {
         return name;
     }
 
+    @Override
     public String getPassword()
     {
         throw new UnsupportedOperationException();
@@ -73,17 +78,20 @@ public class FtpUser implements User
         return sessionToken;
     }
 
+    @Override
     public AuthorizationRequest authorize(AuthorizationRequest request)
     {
         // authorization is implemented by not showing the users datasets they cannot see.
         return request;
     }
 
+    @Override
     public List<Authority> getAuthorities()
     {
         return Collections.emptyList();
     }
 
+    @Override
     public List<Authority> getAuthorities(Class<? extends Authority> arg0)
     {
         return Collections.emptyList();

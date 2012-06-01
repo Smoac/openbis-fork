@@ -48,6 +48,7 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
             this.checkingResults = checkingResults;
         }
 
+        @Override
         public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
         {
             recordedDataSet = dataSet;

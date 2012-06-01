@@ -73,11 +73,13 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         this.urlPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
     }
 
+    @Override
     public void setWriter(final PrintWriter writer)
     {
         this.writer = writer;
     }
 
+    @Override
     public void printHeader()
     {
         final Template template = HEADER_TEMPLATE.createFreshCopy();
@@ -92,16 +94,19 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         writer.println(template.createText());
     }
 
+    @Override
     public void printLinkToParentDirectory(final String aRelativePath)
     {
         printRow("..", aRelativePath, "");
     }
 
+    @Override
     public void printDirectory(final String name, final String aRelativePath)
     {
         printRow(name, aRelativePath, "");
     }
 
+    @Override
     public void printFile(final String name, final String aRelativePath, final long size)
     {
         printRow(name, aRelativePath, renderFileSize(size));
@@ -133,6 +138,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         return FileUtils.byteCountToDisplaySize(size);
     }
 
+    @Override
     public void printFooter()
     {
         final Template template = FOOTER_TEMPLATE.createFreshCopy();

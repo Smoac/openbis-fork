@@ -129,16 +129,19 @@ public class ShareIdManager implements IShareIdManager
         map.put(dataSetCode, guardedShareId);
     }
 
+    @Override
     public boolean isKnown(String dataSetCode)
     {
         return getDataSetCodeToShareIdMap().containsKey(dataSetCode);
     }
 
+    @Override
     public String getShareId(String dataSetCode)
     {
         return getGuardedShareId(dataSetCode).getShareId();
     }
 
+    @Override
     public void setShareId(String dataSetCode, String shareId)
     {
         Map<String, GuardedShareID> map = getDataSetCodeToShareIdMap();
@@ -154,6 +157,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    @Override
     public void lock(String dataSetCode)
     {
         synchronized (lockedDataSets)
@@ -177,6 +181,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    @Override
     public void lock(List<String> dataSetCodes)
     {
         synchronized (lockedDataSets)
@@ -215,6 +220,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    @Override
     public void await(String dataSetCode)
     {
         Map<String, GuardedShareID> map = getDataSetCodeToShareIdMap();
@@ -251,6 +257,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    @Override
     public void releaseLock(String dataSetCode)
     {
         synchronized (lockedDataSets)
@@ -274,6 +281,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    @Override
     public void releaseLocks()
     {
         synchronized (lockedDataSets)

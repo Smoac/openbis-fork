@@ -47,6 +47,7 @@ public class CompositeCommandFactory extends AbstractCommandFactory
         }
     }
 
+    @Override
     public List<String> getKnownCommands()
     {
         ArrayList<String> commands = new ArrayList<String>();
@@ -57,11 +58,13 @@ public class CompositeCommandFactory extends AbstractCommandFactory
         return commands;
     }
 
+    @Override
     public ICommand getHelpCommand()
     {
         return new CommandHelp(this, programCallString);
     }
 
+    @Override
     public ICommand tryCommandForName(String name)
     {
         for (ICommandFactory factory : factories)

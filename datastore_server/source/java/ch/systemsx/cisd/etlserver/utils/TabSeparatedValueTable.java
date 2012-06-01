@@ -51,6 +51,7 @@ public class TabSeparatedValueTable
             this.ignoreHashedLines = ignoreHashedLines;
             
         }
+        @Override
         public boolean hasNext()
         {
             if (currentLine == null)
@@ -60,6 +61,7 @@ public class TabSeparatedValueTable
             return currentLine != null;
         }
 
+        @Override
         public String next()
         {
             if (currentLine == null)
@@ -80,6 +82,7 @@ public class TabSeparatedValueTable
             return currentLineNumber;
         }
         
+        @Override
         public void remove()
         {
             throw new UnsupportedOperationException();

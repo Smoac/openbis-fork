@@ -61,12 +61,14 @@ class CommandLs extends AbstractDssCommand<DataSetArguments>
         super(new DataSetArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new CommandLsExecutor(arguments, this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "ls";

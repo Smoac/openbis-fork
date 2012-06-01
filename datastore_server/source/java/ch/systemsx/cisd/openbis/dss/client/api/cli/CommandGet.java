@@ -69,16 +69,19 @@ class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
             this.targetDir = targetDir;
         }
 
+        @Override
         public void willDownload(FileInfoDssDTO fileInfo)
         {
             System.out.println("downloading " + getPathForFileInfo(fileInfo));
         }
 
+        @Override
         public void willCreateDirectory(FileInfoDssDTO fileInfo)
         {
             System.out.println("mkdir " + getPathForFileInfo(fileInfo));
         }
 
+        @Override
         public void didFinish()
         {
             System.out.println("Finished.");
@@ -161,12 +164,14 @@ class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
         super(new CommandGetArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new CommandGetExecutor(arguments, this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "get";

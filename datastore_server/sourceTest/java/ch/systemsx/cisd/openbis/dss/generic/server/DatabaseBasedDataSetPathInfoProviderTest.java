@@ -436,6 +436,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
     {
         Collections.sort(list, new Comparator<DataSetPathInfo>()
             {
+                @Override
                 public int compare(DataSetPathInfo i1, DataSetPathInfo i2)
                 {
                     return i1.getRelativePath().compareTo(i2.getRelativePath());

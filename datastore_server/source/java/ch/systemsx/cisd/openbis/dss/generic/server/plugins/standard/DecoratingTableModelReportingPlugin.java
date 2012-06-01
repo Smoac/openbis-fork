@@ -99,6 +99,7 @@ public class DecoratingTableModelReportingPlugin extends AbstractTableModelRepor
         }
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

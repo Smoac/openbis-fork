@@ -48,6 +48,7 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
         super(properties, storeRoot);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();

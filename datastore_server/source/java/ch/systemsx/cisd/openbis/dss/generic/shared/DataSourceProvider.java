@@ -121,6 +121,7 @@ public class DataSourceProvider implements IDataSourceProvider
      * Returns data source configured with given name or throws {@link IllegalArgumentException} if
      * not configured.
      */
+    @Override
     public DataSource getDataSource(String name) throws IllegalArgumentException
     {
         DataSource result = dataSources.get(name);
@@ -138,6 +139,7 @@ public class DataSourceProvider implements IDataSourceProvider
      * Extracts data source name ({@link #DATA_SOURCE_KEY}) from properties and returns requested
      * data source. See also {@link #getDataSource(String)}.
      */
+    @Override
     public DataSource getDataSource(Properties properties)
     {
         return getDataSource(extractDataSourceName(properties));

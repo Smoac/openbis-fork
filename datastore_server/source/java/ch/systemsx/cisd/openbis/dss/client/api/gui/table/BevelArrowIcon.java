@@ -113,6 +113,7 @@ public class BevelArrowIcon implements Icon
      * @param x .
      * @param y .
      */
+    @Override
     public void paintIcon(final Component c, final Graphics g, final int x, final int y)
     {
         switch (this.direction)
@@ -131,6 +132,7 @@ public class BevelArrowIcon implements Icon
      * 
      * @return the icon width.
      */
+    @Override
     public int getIconWidth()
     {
         return this.size;
@@ -141,6 +143,7 @@ public class BevelArrowIcon implements Icon
      * 
      * @return the icon height.
      */
+    @Override
     public int getIconHeight()
     {
         return this.size;

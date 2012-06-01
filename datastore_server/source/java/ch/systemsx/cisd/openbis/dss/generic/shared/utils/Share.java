@@ -40,6 +40,7 @@ public final class Share
     public static final Comparator<SimpleDataSetInformationDTO> DATA_SET_SIZE_COMPARATOR =
             new Comparator<SimpleDataSetInformationDTO>()
                 {
+                    @Override
                     public int compare(SimpleDataSetInformationDTO o1,
                             SimpleDataSetInformationDTO o2)
                     {

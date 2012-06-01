@@ -68,6 +68,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     // AbstractStorageProcessor
     //
 
+    @Override
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
@@ -157,6 +158,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
          * returns the only file or directory which is expected to be found inside original
          * directory
          */
+        @Override
         public File tryGetProprietaryData()
         {
             File originalDir = getOriginalDirectory(storedDataDirectory);

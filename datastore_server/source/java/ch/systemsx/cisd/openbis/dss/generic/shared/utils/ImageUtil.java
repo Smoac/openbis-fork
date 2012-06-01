@@ -94,6 +94,7 @@ public class ImageUtil
     {
         private final static int MAX_READ_AHEAD = 30000000;
 
+        @Override
         public BufferedImage load(IRandomAccessFile handle, ImageID imageID)
         {
             handle.mark(MAX_READ_AHEAD);
@@ -121,6 +122,7 @@ public class ImageUtil
             }
         }
 
+        @Override
         public Dimension readDimension(IRandomAccessFile handle, ImageID imageID)
         {
             handle.mark(MAX_READ_AHEAD);
@@ -237,6 +239,7 @@ public class ImageUtil
             this.fileType = fileType;
         }
 
+        @Override
         public BufferedImage load(IRandomAccessFile handle, ImageID imageID)
         {
             if (imageID.equals(ImageID.NULL))
@@ -256,6 +259,7 @@ public class ImageUtil
             }
         }
 
+        @Override
         public Dimension readDimension(IRandomAccessFile handle, ImageID imageID)
         {
             if (imageID.equals(ImageID.NULL))

@@ -32,29 +32,35 @@ public class NullStorageProcessorTransaction implements IStorageProcessorTransac
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
             File incomingDataSetDirectory)
     {
     }
 
+    @Override
     public void commit()
     {
     }
 
+    @Override
     public UnstoreDataAction rollback(Throwable exception)
     {
         return null;
     }
 
+    @Override
     public File getStoredDataDirectory()
     {
         return null;
     }
 
+    @Override
     public void setStoredDataDirectory(File folder)
     {
     }
 
+    @Override
     public File tryGetProprietaryData()
     {
         return null;

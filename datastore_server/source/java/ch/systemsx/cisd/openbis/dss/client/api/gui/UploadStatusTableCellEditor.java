@@ -47,6 +47,7 @@ public class UploadStatusTableCellEditor extends AbstractCellEditor implements T
         button.setOpaque(true);
         button.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     fireEditingStopped();
@@ -54,6 +55,7 @@ public class UploadStatusTableCellEditor extends AbstractCellEditor implements T
             });
     }
 
+    @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
             int row, int column)
     {
@@ -69,6 +71,7 @@ public class UploadStatusTableCellEditor extends AbstractCellEditor implements T
         return button;
     }
 
+    @Override
     public Object getCellEditorValue()
     {
         return tableModel.getSelectedNewDataSetOrNull();

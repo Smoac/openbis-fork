@@ -40,11 +40,13 @@ public class ProjectImmutable implements IProjectImmutable
         this.isExistingProject = isExistingProject;
     }
 
+    @Override
     public String getProjectIdentifier()
     {
         return project.getIdentifier();
     }
 
+    @Override
     public boolean isExistingProject()
     {
         return isExistingProject;
@@ -66,6 +68,7 @@ public class ProjectImmutable implements IProjectImmutable
         return project;
     }
 
+    @Override
     public String getDescription()
     {
         return project.getDescription();

@@ -61,6 +61,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
         this.timeoutInMillis = timeoutInMillis;
     }
 
+    @Override
     public Collection<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
     {
@@ -78,6 +79,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
         return nameServer.getSupportedInterfaces();
     }
 
+    @Override
     public <T extends IRpcService> T getService(RpcServiceInterfaceVersionDTO ifaceVersion,
             Class<T> ifaceClazz, String serverURL, boolean getServerCertificateFromServer)
             throws IncompatibleAPIVersionsException
@@ -181,6 +183,7 @@ class ServiceProxyBuilder<T extends IRpcService>
             this.service = service;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
             try

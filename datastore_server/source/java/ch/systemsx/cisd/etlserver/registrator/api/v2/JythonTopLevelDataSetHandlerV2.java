@@ -201,6 +201,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
                 new IDelegatedActionWithResult<Boolean>()
                     {
+                        @Override
                         public Boolean execute(boolean didOperationSucceed)
                         {
                             if (!didOperationSucceed
@@ -296,6 +297,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
             {
+                @Override
                 public void didRollbackStorageAlgorithmRunner(
                         DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex,
                         ErrorType errorType)
@@ -320,6 +322,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 new DataSetRegistrationPersistentMap.IHolder()
                     {
 
+                        @Override
                         public DataSetRegistrationPersistentMap getPersistentMap()
                         {
                             return recoveryState.getPersistentMap();
@@ -480,12 +483,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             return internalInterpreter;
         }
 
+        @Override
         public void executePreRegistration(
                 DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
         {
             throw new NotImplementedException("Recovery cannot execute pre-registration hook.");
         }
 
+        @Override
         public void executePostRegistration(
                 DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
         {

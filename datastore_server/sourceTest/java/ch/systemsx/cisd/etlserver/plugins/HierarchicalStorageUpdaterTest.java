@@ -53,6 +53,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
     private final static FileFilter ignoreSVNFiles = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return pathname.getName().equals(".svn") == false;

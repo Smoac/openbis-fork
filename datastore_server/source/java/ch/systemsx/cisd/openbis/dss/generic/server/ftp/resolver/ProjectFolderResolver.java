@@ -44,12 +44,14 @@ public class ProjectFolderResolver implements IFtpPathResolver
      * @return <code>true</code> for all paths containing 2 levels of nested folders,
      *         <code>false</code> for all other paths.
      */
+    @Override
     public boolean canResolve(String path)
     {
         int nestedLevels = StringUtils.countMatches(path, FtpConstants.FILE_SEPARATOR);
         return nestedLevels == 2;
     }
 
+    @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         return new AbstractFtpFolder(path)

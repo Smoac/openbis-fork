@@ -103,11 +103,13 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         this.computeChecksum = computeChecksum;
     }
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return false;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         service = ServiceProvider.getOpenBISService();
@@ -122,6 +124,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
     }
 
+    @Override
     public void execute()
     {
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
@@ -131,15 +134,18 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         }
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(final String dataSetCode, boolean container)
     {
         return new IPostRegistrationTaskExecutor()
             {
+                @Override
                 public ICleanupTask createCleanupTask()
                 {
                     return new NoCleanupTask();
                 }
 
+                @Override
                 public void execute()
                 {
                     ExternalData dataSet = service.tryGetDataSet(dataSetCode);

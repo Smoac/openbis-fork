@@ -253,11 +253,13 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         final IDatasetLocation dataSetLocation = new IDatasetLocation()
             {
 
+                @Override
                 public String getDataSetCode()
                 {
                     return code;
                 }
 
+                @Override
                 public String getDataSetLocation()
                 {
                     return location;
@@ -315,28 +317,33 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     private static class DummyHierarchicalContent implements IHierarchicalContent
     {
 
+        @Override
         public IHierarchicalContentNode getRootNode()
         {
             return null;
         }
 
+        @Override
         public IHierarchicalContentNode getNode(String relativePath)
                 throws IllegalArgumentException
         {
             return null;
         }
 
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
         {
             return null;
         }
 
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
                 String fileNamePattern)
         {
             return null;
         }
 
+        @Override
         public void close()
         {
 

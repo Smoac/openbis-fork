@@ -121,6 +121,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         // creates data with more than only one dataset
         IDelegatedAction createTwoDataSetsDelegate = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     createData();
@@ -224,6 +225,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_CREATE_DATA_SET_CODE;
         testCase.exceptionAcceptor = new IPredicate<Exception>()
             {
+                @Override
                 public boolean execute(Exception arg)
                 {
                     PyException pyException = (PyException) arg;
@@ -257,6 +259,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.shouldThrowExceptionDuringRegistration = true;
         testCase.exceptionAcceptor = new IPredicate<Exception>()
             {
+                @Override
                 public boolean execute(Exception arg)
                 {
                     System.out.println(arg);
@@ -1583,6 +1586,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         return new CustomAction("foo")
             {
+                @Override
                 public Object invoke(Invocation invocation) throws Throwable
                 {
                     assertEquals("[]",
@@ -1597,6 +1601,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     {
         return new CustomAction("foo")
             {
+                @Override
                 public Object invoke(Invocation invocation) throws Throwable
                 {
                     assertNotSame(0, handler.getGlobalState().getPreCommitDir().list().length);

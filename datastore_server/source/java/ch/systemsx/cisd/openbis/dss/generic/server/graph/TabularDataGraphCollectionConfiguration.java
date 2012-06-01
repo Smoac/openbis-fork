@@ -304,21 +304,25 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         return null;
     }
 
+    @Override
     public char getColumnDelimiter()
     {
         return columnDelimiter;
     }
 
+    @Override
     public boolean isIgnoreComments()
     {
         return ignoreComments;
     }
 
+    @Override
     public char getCommentDelimiter()
     {
         return comment;
     }
 
+    @Override
     public boolean isSkipEmptyRecords()
     {
         return true;

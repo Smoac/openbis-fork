@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
@@ -47,6 +51,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal>
         implements IDssServiceRpcGenericInternal
 {
+    /**
+     * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
+     * for our purpose.
+     */
+    @SuppressWarnings("hiding")
+    protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DssServiceRpcGeneric.class);
+
     private final PutDataSetService putService;
 
     /**
@@ -61,14 +73,16 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, null, shareIdManager, contentProvider, new PutDataSetService(openBISService,
+        this(openBISService, null, shareIdManager, contentProvider, new PutDataSetService(
+                openBISService,
                 operationLog));
     }
 
     /**
      * A constructor for testing.
      */
-    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IStreamRepository streamRepository,
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+            IStreamRepository streamRepository,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
             PutDataSetService service)
     {
@@ -77,11 +91,13 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
 
+    @Override
     public IDssServiceRpcGenericInternal createLogger(IInvocationLoggerContext context)
     {
         return new DssServiceRpcGenericLogger(context);
     }
 
+    @Override
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IllegalArgumentException
     {
@@ -118,6 +134,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         }
     }
 
+    @Override
     public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -139,7 +156,9 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         }
     }
 
-    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode, String path)
+    @Override
+    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
+            String path)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
@@ -152,17 +171,20 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         return content.getNode(startPath.startsWith("/") ? startPath.substring(1) : startPath);
     }
 
+    @Override
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         return putService.putDataSet(sessionToken, newDataSet, inputStream);
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 4;
@@ -188,6 +210,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         factory.appendFileInfos(list, isRecursive);
     }
 
+    @Override
     public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -195,6 +218,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                 fileOrFolder.getPath());
     }
 
+    @Override
     public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -202,6 +226,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         return addToRepositoryAndReturnDownloadUrl(stream, fileOrFolder.getPath());
     }
 
+    @Override
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -216,6 +241,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         putService.setStoreDirectory(aFile);
     }
 
+    @Override
     public String getPathToDataSet(String sessionToken, String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
@@ -253,6 +279,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         return usersPath.getPath();
     }
 
+    @Override
     public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
             throws IOExceptionUnchecked, IllegalArgumentException
     {

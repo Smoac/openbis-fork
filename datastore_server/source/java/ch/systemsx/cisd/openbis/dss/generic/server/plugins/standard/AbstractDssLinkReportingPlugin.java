@@ -48,6 +48,7 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
         super(properties, storeRoot);
     }
 
+    @Override
     public ReportingPluginType getReportingPluginType()
     {
         return ReportingPluginType.DSS_LINK;
@@ -56,6 +57,7 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
     /**
      * Generate a report using containing links to each of the data sets.
      */
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
@@ -71,6 +73,7 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
         return builder.getTableModel();
     }
 
+    @Override
     public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
     {
         throw new IllegalArgumentException(

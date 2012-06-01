@@ -47,6 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetPropertiesPanel.Observer;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
@@ -62,6 +63,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 {
     private class AsynchronousValidator implements Runnable
     {
+        @Override
         public void run()
         {
             while (true)
@@ -88,6 +90,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     {
         private ValidatedFile file = null;
 
+        @Override
         public void run()
         {
             while (true)
@@ -183,7 +186,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         this.mainWindow = mainWindow;
 
         // Initialize the fields in the gui
-        ownerIdLabel = new JLabel("Owner:", JLabel.TRAILING);
+        ownerIdLabel = new JLabel("Owner:", SwingConstants.TRAILING);
         samplePanel = new SamplePickerPanel(mainWindow, clientModel);
         dataSetPanel = new DataSetPickerPanel(mainWindow, clientModel);
         experimentPicker = new ExperimentPickerPanel(mainWindow, clientModel);
@@ -203,7 +206,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
         dataSetFileValidateButton = new JButton("Validate");
-        dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
+        dataSetFileLabel = new JLabel("File:", SwingConstants.TRAILING);
 
         validationErrors = new ErrorsPanel(mainWindow);
 
@@ -310,6 +313,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetFileComboBox.addItemListener(new ItemListener()
             {
 
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     if (null == newDataSetInfo)
@@ -340,6 +344,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetFileButton.setToolTipText("The file to upload.");
         dataSetFileButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if (null == newDataSetInfo)
@@ -364,6 +369,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetFileValidateButton.setToolTipText("File will be refreshed and revalidated");
         dataSetFileValidateButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if (null == newDataSetInfo
@@ -385,6 +391,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         samplePanel.addActionListener(new ActionListener()
             {
 
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setOwnerId(samplePanel.getText());
@@ -394,11 +401,13 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         samplePanel.addFocusListener(new FocusListener()
             {
 
+                @Override
                 public void focusLost(FocusEvent e)
                 {
                     setOwnerId(samplePanel.getText());
                 }
 
+                @Override
                 public void focusGained(FocusEvent e)
                 {
                     // Do nothing
@@ -409,6 +418,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         experimentPicker.setToolTipText("Experiment identifier");
         experimentPicker.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setOwnerId(experimentPicker.getText());
@@ -417,11 +427,13 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             });
         experimentPicker.addFocusListener(new FocusListener()
             {
+                @Override
                 public void focusLost(FocusEvent e)
                 {
                     setOwnerId(experimentPicker.getText());
                 }
 
+                @Override
                 public void focusGained(FocusEvent e)
                 {
                     // Do nothing
@@ -433,6 +445,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetPanel.addActionListener(new ActionListener()
             {
 
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setOwnerId(dataSetPanel.getText());
@@ -442,11 +455,13 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetPanel.addFocusListener(new FocusListener()
             {
 
+                @Override
                 public void focusLost(FocusEvent e)
                 {
                     setOwnerId(dataSetPanel.getText());
                 }
 
+                @Override
                 public void focusGained(FocusEvent e)
                 {
                     // Do nothing
@@ -456,6 +471,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         ownerComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         ownerComboBox.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     DataSetOwnerType type = (DataSetOwnerType) ownerComboBox.getSelectedItem();
@@ -472,7 +488,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         addRow(2, ownerIdLabel, ownerIdPanel, ownerComboBox);
 
         // The data set type row
-        JLabel label = new JLabel("Data Set Type:", JLabel.TRAILING);
+        JLabel label = new JLabel("Data Set Type:", SwingConstants.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         dataSetTypeComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -483,6 +499,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         }
         dataSetTypeComboBox.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     setDataSetType((String) e.getItem());
@@ -764,6 +781,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         component.setToolTipText(label.getToolTipText());
     }
 
+    @Override
     public void update()
     {
         validationQueue.add(Boolean.TRUE);

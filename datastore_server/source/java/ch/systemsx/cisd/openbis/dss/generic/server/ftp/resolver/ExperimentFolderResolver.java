@@ -50,12 +50,14 @@ public class ExperimentFolderResolver implements IFtpPathResolver
      * @return <code>true</code> for all paths containing 3 levels of nested folders,
      *         <code>false</code> for all other paths.
      */
+    @Override
     public boolean canResolve(String path)
     {
         int nestedLevels = StringUtils.countMatches(path, FtpConstants.FILE_SEPARATOR);
         return nestedLevels == 3;
     }
 
+    @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         return new AbstractFtpFolder(path)

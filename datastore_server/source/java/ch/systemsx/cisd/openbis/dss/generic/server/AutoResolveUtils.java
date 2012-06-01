@@ -162,6 +162,7 @@ public class AutoResolveUtils
     {
         FileFilter filter = new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return acceptFile(pattern, pathname);

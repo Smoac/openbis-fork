@@ -60,6 +60,7 @@ public class SegmentedStoreUtils
 {
     private static final IFreeSpaceProvider DUMMY_FREE_SPACE_PROVIDER = new IFreeSpaceProvider()
         {
+            @Override
             public long freeSpaceKb(HostAwareFile path) throws IOException
             {
                 return Long.MAX_VALUE;
@@ -72,6 +73,7 @@ public class SegmentedStoreUtils
 
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
+            @Override
             public int compare(Share o1, Share o2)
             {
                 return o1.getShareId().compareTo(o2.getShareId());
@@ -80,6 +82,7 @@ public class SegmentedStoreUtils
 
     private static final FileFilter FILTER_ON_SHARES = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 if (pathname.isDirectory() == false)

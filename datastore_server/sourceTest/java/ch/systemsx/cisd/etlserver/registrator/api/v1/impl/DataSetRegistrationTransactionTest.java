@@ -399,6 +399,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     {
         File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
@@ -576,27 +577,32 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             instance = this;
         }
 
+        @Override
         public File getStoreRootDirectory()
         {
             calledGetStoreRootDirectoryCount++;
             return storeRootDirectory;
         }
 
+        @Override
         public void setStoreRootDirectory(File storeRootDirectory)
         {
             this.storeRootDirectory = storeRootDirectory;
         }
 
+        @Override
         public StorageFormat getStorageFormat()
         {
             return StorageFormat.PROPRIETARY;
         }
 
+        @Override
         public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
         {
             return UnstoreDataAction.LEAVE_UNTOUCHED;
         }
 
+        @Override
         public IStorageProcessorTransaction createTransaction(
                 StorageProcessorTransactionParameters parameters)
         {
@@ -609,6 +615,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
                     private File storedFolder;
 
+                    @Override
                     public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
                             File incomingDataSetDirectory)
                     {
@@ -630,26 +637,31 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         storedFolder = rootDir;
                     }
 
+                    @Override
                     public UnstoreDataAction rollback(Throwable exception)
                     {
                         return null;
                     }
 
+                    @Override
                     public File getStoredDataDirectory()
                     {
                         return storedFolder;
                     }
 
+                    @Override
                     public void setStoredDataDirectory(File folder)
                     {
                         storedFolder = folder;
                     }
 
+                    @Override
                     public void commit()
                     {
                         calledCommitCount++;
                     }
 
+                    @Override
                     public File tryGetProprietaryData()
                     {
                         return null;
@@ -688,6 +700,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         /**
          * Factory method that creates a new registration details object.
          */
+        @Override
         public DataSetRegistrationDetails<DataSetInformation> createDataSetRegistrationDetails()
         {
             DataSetRegistrationDetails<DataSetInformation> registrationDetails =
@@ -708,6 +721,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             return dataSetInfo;
         }
 
+        @Override
         public DataSet<DataSetInformation> createDataSet(
                 DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
         {
@@ -717,6 +731,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         /**
          * V1 test -- any file can go into faulty paths.
          */
+        @Override
         public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
         {
             return false;

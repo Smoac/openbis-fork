@@ -80,6 +80,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         contentProvider = new IHierarchicalContentProvider()
             {
 
+                @Override
                 public IHierarchicalContent asContent(String dataSetCode)
                 {
                     File dataSetFolder = new File(STORE_ROOT, dataSetCode);
@@ -87,16 +88,19 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                             dataSetFolder, IDelegatedAction.DO_NOTHING);
                 }
 
+                @Override
                 public IHierarchicalContent asContent(File datasetDirectory)
                 {
                     return null;
                 }
 
+                @Override
                 public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
                 {
                     return null;
                 }
 
+                @Override
                 public IHierarchicalContent asContent(ExternalData dataSet)
                 {
                     return null;
@@ -162,6 +166,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         SectionProperties[] sectionProperties = sectionPropertiesMatcher.recordedObject();
         Arrays.sort(sectionProperties, new Comparator<SectionProperties>()
             {
+                @Override
                 public int compare(SectionProperties sp1, SectionProperties sp2)
                 {
                     return sp1.getKey().compareTo(sp2.getKey());

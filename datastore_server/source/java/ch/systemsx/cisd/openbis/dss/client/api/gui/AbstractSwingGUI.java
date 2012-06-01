@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -71,7 +72,7 @@ public abstract class AbstractSwingGUI
 
         // create the window frame
         windowFrame = new JFrame(getTitle());
-        windowFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        windowFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         // add callbacks to close the app properly
         shutdownHook = new Thread()
@@ -96,6 +97,7 @@ public abstract class AbstractSwingGUI
         addWindowCloseHook();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
             {
+                @Override
                 public void uncaughtException(Thread thread, Throwable throwable)
                 {
                     final String message =
@@ -236,6 +238,7 @@ public abstract class AbstractSwingGUI
         {
             SwingUtilities.invokeLater(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         JOptionPane.showMessageDialog(parentFrame,

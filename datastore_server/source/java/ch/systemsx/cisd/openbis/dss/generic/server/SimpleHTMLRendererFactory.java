@@ -24,16 +24,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
  */
 public class SimpleHTMLRendererFactory implements IRendererFactory
 {
+    @Override
     public String getContentType()
     {
         return "text/html";
     }
 
+    @Override
     public IDirectoryRenderer createDirectoryRenderer(RenderingContext context)
     {
         return new SimpleHTMLDirectoryRenderer(context);
     }
 
+    @Override
     public IErrorRenderer createErrorRenderer()
     {
         return new HTMLErrorRenderer();

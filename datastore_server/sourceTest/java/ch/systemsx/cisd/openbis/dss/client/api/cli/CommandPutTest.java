@@ -94,12 +94,14 @@ public class CommandPutTest extends AbstractFileSystemTestCase
                             new BaseMatcher<NewDataSetDTO>()
                                 {
 
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         assertEquals(newDataSetDTO.toString(), item.toString());
                                         return true;
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                     }

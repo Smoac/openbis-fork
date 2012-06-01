@@ -37,11 +37,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 public class RootFolderResolver implements IFtpPathResolver
 {
 
+    @Override
     public boolean canResolve(String path)
     {
         return FtpConstants.ROOT_DIRECTORY.equals(path);
     }
 
+    @Override
     public FtpFile resolve(String path, final FtpPathResolverContext resolverContext)
     {
         return new AbstractFtpFolder(path)

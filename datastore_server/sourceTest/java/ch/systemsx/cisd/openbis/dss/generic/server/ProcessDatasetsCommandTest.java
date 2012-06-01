@@ -211,6 +211,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
     {
         return new BaseMatcher<DataSetProcessingContext>()
             {
+                @Override
                 public boolean matches(Object item)
                 {
                     DataSetProcessingContext processingContext = (DataSetProcessingContext) item;
@@ -224,6 +225,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                     return true;
                 }
 
+                @Override
                 public void describeTo(Description description)
                 {
                 }

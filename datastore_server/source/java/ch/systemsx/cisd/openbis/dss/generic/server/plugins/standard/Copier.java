@@ -78,6 +78,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         return originalHostFile;
     }
 
+    @Override
     public Status handle(File originalData, DataSetInformation dataSetInformation,
             Map<String, String> parameterBindings)
     {
@@ -169,6 +170,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         }
     }
 
+    @Override
     public void undoLastOperation()
     {
     }

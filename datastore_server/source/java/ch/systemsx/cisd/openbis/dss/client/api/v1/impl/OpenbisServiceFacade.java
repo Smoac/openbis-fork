@@ -189,29 +189,34 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     // ISimpleOpenbisServiceFacade
     //
 
+    @Override
     public List<Project> listProjects()
     {
         return service.listProjects(sessionToken);
     }
 
+    @Override
     public List<SpaceWithProjectsAndRoleAssignments> getSpacesWithProjects()
             throws EnvironmentFailureException
     {
         return service.listSpacesWithProjectsAndRoleAssignments(sessionToken, null);
     }
 
+    @Override
     public List<Experiment> getExperiments(List<String> experimentIdentifiers)
             throws EnvironmentFailureException
     {
         return service.listExperiments(sessionToken, experimentIdentifiers);
     }
 
+    @Override
     public List<Experiment> listExperimentsForProjects(List<String> projectIdentifiers)
             throws EnvironmentFailureException
     {
         return service.listExperiments(sessionToken, getProjects(projectIdentifiers), null);
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingSamplesForProjects(List<String> projectIdentifiers)
             throws EnvironmentFailureException
     {
@@ -219,6 +224,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                 null);
     }
 
+    @Override
     public List<Experiment> listExperimentsHavingDataSetsForProjects(List<String> projectIdentifiers)
             throws EnvironmentFailureException
     {
@@ -238,12 +244,14 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return projects;
     }
 
+    @Override
     public List<Sample> getSamples(final List<String> sampleIdentifiers)
             throws EnvironmentFailureException
     {
         return getSamples(sampleIdentifiers, null);
     }
 
+    @Override
     public List<Sample> getSamples(final List<String> sampleIdentifiers,
             final EnumSet<SampleFetchOption> fetchOptions)
     {
@@ -260,6 +268,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
+                        @Override
                         public boolean isPresent(Sample element)
                         {
                             String identifier = element.getIdentifier();
@@ -269,12 +278,14 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return filteredSamples;
     }
 
+    @Override
     public List<Sample> listSamplesForExperiments(final List<String> experimentIdentifiers)
             throws EnvironmentFailureException
     {
         return listSamplesForExperiments(experimentIdentifiers, null);
     }
 
+    @Override
     public List<Sample> listSamplesForExperiments(final List<String> experimentIdentifiers,
             final EnumSet<SampleFetchOption> fetchOptions)
     {
@@ -286,6 +297,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
                     {
+                        @Override
                         public boolean isPresent(Sample element)
                         {
                             String identifier = element.getExperimentIdentifierOrNull();
@@ -295,11 +307,13 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return filteredSamples;
     }
 
+    @Override
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers)
     {
         return listSamplesForProjects(projectIdentifiers, null);
     }
 
+    @Override
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
             EnumSet<SampleFetchOption> fetchOptions)
     {
@@ -316,12 +330,14 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return samples;
     }
 
+    @Override
     public DataSet getDataSet(String dataSetCode) throws EnvironmentFailureException
     {
         List<DataSet> dataSets = getDataSets(Collections.singletonList(dataSetCode));
         return (dataSets.size() > 0) ? dataSets.get(0) : null;
     }
 
+    @Override
     public List<DataSet> getDataSets(List<String> dataSetCodes) throws EnvironmentFailureException
     {
         enforceNotEmpty("Dataset codes", dataSetCodes);
@@ -336,6 +352,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
     }
 
+    @Override
     public List<DataSet> listDataSetsForExperiments(final List<String> experimentIdentifiers)
             throws EnvironmentFailureException
     {
@@ -349,6 +366,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                         .filter(dataSets,
                                 new CollectionUtils.ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet>()
                                     {
+                                        @Override
                                         public boolean isPresent(
                                                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet)
                                         {
@@ -360,6 +378,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertDataSets(filteredDataSets);
     }
 
+    @Override
     public List<DataSet> listDataSetsForSamples(final List<String> sampleIdentifiers)
             throws EnvironmentFailureException
     {
@@ -371,6 +390,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                         .filter(dataSets,
                                 new CollectionUtils.ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet>()
                                     {
+                                        @Override
                                         public boolean isPresent(
                                                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet)
                                         {
@@ -382,6 +402,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertDataSets(filteredDataSets);
     }
 
+    @Override
     public List<DataSetType> listDataSetTypes()
     {
         return service.listDataSetTypes(sessionToken);
@@ -392,6 +413,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return RetryProxyFactory.createProxy(dssComponent.getDataSet(code));
     }
 
+    @Override
     public DataSet putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws EnvironmentFailureException
     {
@@ -399,23 +421,27 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return new DataSet(this, dssComponent, null, dataSetDss);
     }
 
+    @Override
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return dssComponent.validateDataSet(newDataset, dataSetFile);
     }
 
+    @Override
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return dssComponent.extractMetadata(newDataset, dataSetFile);
     }
 
+    @Override
     public void checkSession() throws InvalidSessionException
     {
         dssComponent.checkSession();
     }
 
+    @Override
     public synchronized void logout()
     {
         service.logout(sessionToken);
@@ -495,22 +521,26 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     //
     // IOpenbisServiceFacade
     //
+    @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
         return service.searchForSamples(sessionToken, searchCriteria);
     }
 
+    @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions)
     {
         return service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
     }
 
+    @Override
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria)
     {
         return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
     }
 
+    @Override
     public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet)
     {
         return convertDataSets(service.listDataSets(sessionToken, samples, connectionsToGet));
@@ -529,6 +559,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertedDataSets;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal)
@@ -537,17 +568,20 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                 description, previousTermOrdinal);
     }
 
+    @Override
     public void addAdHocVocabularyTerm(Long vocabularyId, NewVocabularyTerm term)
     {
         changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, term);
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap()
     {
         return service.getVocabularyTermsMap(sessionToken);
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies()
     {
         return service.listVocabularies(sessionToken);

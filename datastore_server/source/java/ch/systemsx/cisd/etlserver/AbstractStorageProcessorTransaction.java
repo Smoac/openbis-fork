@@ -71,6 +71,7 @@ public abstract class AbstractStorageProcessorTransaction implements IStoragePro
         this.rootDirectory = parameters.getRootDir();
     }
 
+    @Override
     public final void storeData(final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetOverride)
     {
@@ -80,6 +81,7 @@ public abstract class AbstractStorageProcessorTransaction implements IStoragePro
         state = TransactionState.STORED;
     }
 
+    @Override
     public final void commit()
     {
         ensureState("commit", TransactionState.STORED);
@@ -87,6 +89,7 @@ public abstract class AbstractStorageProcessorTransaction implements IStoragePro
         state = TransactionState.COMMITTED;
     }
 
+    @Override
     public final UnstoreDataAction rollback(Throwable ex)
     {
         ensureState("rollback", TransactionState.INITIAL, TransactionState.STORED);
@@ -98,11 +101,13 @@ public abstract class AbstractStorageProcessorTransaction implements IStoragePro
 
     }
 
+    @Override
     public final File getStoredDataDirectory()
     {
         return storedDataDirectory;
     }
 
+    @Override
     public final void setStoredDataDirectory(File dir)
     {
         storedDataDirectory = dir;

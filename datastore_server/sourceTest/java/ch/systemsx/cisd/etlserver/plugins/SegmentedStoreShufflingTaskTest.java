@@ -86,11 +86,13 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
             this.properties = properties;
         }
 
+        @Override
         public void init(ISimpleLogger l)
         {
             initialized = true;
         }
 
+        @Override
         public void shuffleDataSets(List<Share> sources, List<Share> targets,
                 IEncapsulatedOpenBISService openBisService, IDataSetMover mover,
                 ISimpleLogger simpleLogger)

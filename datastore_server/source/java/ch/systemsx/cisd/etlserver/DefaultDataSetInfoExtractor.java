@@ -308,6 +308,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     // ICodeExtractor
     //
 
+    @Override
     public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws EnvironmentFailureException,
             UserFailureException

@@ -59,6 +59,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     private static final Comparator<IHierarchicalContentNode> NODE_COMPARATOR =
             new Comparator<IHierarchicalContentNode>()
                 {
+                    @Override
                     public int compare(IHierarchicalContentNode n1, IHierarchicalContentNode n2)
                     {
                         return n1.getName().compareTo(n2.getName());

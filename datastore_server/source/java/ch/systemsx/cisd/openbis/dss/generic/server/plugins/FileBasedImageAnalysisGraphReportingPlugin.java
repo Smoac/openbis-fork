@@ -72,6 +72,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
                 TabularDataGraphCollectionConfiguration.getConfiguration(propertiesFilePath);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

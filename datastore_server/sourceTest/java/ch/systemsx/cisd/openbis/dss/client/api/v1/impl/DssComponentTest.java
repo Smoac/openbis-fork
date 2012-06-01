@@ -576,36 +576,42 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             }
         }
 
+        @Override
         public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
                 throws IOExceptionUnchecked, IllegalArgumentException
         {
             return fileInputStream;
         }
 
+        @Override
         public String getDownloadUrlForFileForDataSet(String sessionToken,
                 DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException
         {
             return url.toString();
         }
 
+        @Override
         public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
                 throws IOExceptionUnchecked, IllegalArgumentException
         {
             return fileInputStream;
         }
 
+        @Override
         public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
                 String path) throws IOExceptionUnchecked, IllegalArgumentException
         {
             return url.toString();
         }
 
+        @Override
         public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
                 throws IOExceptionUnchecked, IllegalArgumentException
         {
             return fileInfos;
         }
 
+        @Override
         public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
                 String path, boolean isRecursive) throws IOExceptionUnchecked,
                 IllegalArgumentException
@@ -613,22 +619,26 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return fileInfos;
         }
 
+        @Override
         public String putDataSet(String sessionToken, NewDataSetDTO newDataset,
                 InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException
         {
             return null;
         }
 
+        @Override
         public int getMajorVersion()
         {
             return 1;
         }
 
+        @Override
         public int getMinorVersion()
         {
             return 0;
         }
 
+        @Override
         public String getPathToDataSet(String sessionToken, String dataSetCode,
                 String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
                 IllegalArgumentException
@@ -636,11 +646,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             throw new IllegalArgumentException("Unimplemented in v1.0");
         }
 
+        @Override
         public IDssServiceRpcGeneric createLogger(IInvocationLoggerContext context)
         {
             return null;
         }
 
+        @Override
         public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
                 throws IOExceptionUnchecked, IllegalArgumentException
         {

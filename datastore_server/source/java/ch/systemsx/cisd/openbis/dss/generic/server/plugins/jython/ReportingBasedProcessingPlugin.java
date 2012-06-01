@@ -107,6 +107,7 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
                 PropertyUtils.getProperty(properties, ATTACHMENT_NAME, DEFAULT_ATTACHMENT_NAME);
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {

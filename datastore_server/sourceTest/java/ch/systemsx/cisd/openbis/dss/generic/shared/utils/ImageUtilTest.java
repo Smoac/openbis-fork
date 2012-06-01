@@ -44,67 +44,80 @@ public class ImageUtilTest extends AssertJUnit
     {
         final MockRandomAccessFile is = new MockRandomAccessFile();
 
+        @Override
         public boolean exists()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public InputStream getInputStream()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getName()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getRelativePath()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getParentRelativePath()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean isDirectory()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public long getLastModified()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public long getFileLength() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public long getChecksumCRC32() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {
             return is;
         }
 
+        @Override
         public File tryGetFile()
         {
             return null;

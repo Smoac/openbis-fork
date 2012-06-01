@@ -32,6 +32,7 @@ public class Space extends SpaceImmutable implements ISpace
         getSpace().getRegistrator().setUserId(spaceAdminUserIdOrNull);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getSpace().setDescription(description);

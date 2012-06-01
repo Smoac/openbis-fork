@@ -82,11 +82,13 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
 
     private TaskExecutor executor;
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return needsLockOnDataStore;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         //
@@ -154,6 +156,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         ignoreBeforeDate = new Date(0);
     }
 
+    @Override
     public void execute()
     {
         executor.cleanup();
@@ -219,6 +222,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         }
         Collections.sort(filteredList, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());

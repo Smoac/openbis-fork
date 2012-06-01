@@ -70,6 +70,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
         this.hierarchicalContentProvider = contentProvider;
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
@@ -92,6 +93,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
     {
         ITableModelCreator generator = new ITableModelCreator()
             {
+                @Override
                 public void create(ISimpleTableModelBuilderAdaptor builder)
                 {
                     operationLog.info("Report for the following datasets has been requested: "

@@ -72,11 +72,13 @@ public abstract class AbstractStorageProcessor implements IStorageProcessorTrans
     // IStorageProcessorTransactional
     //
 
+    @Override
     public final File getStoreRootDirectory()
     {
         return storeRootDir;
     }
 
+    @Override
     public final void setStoreRootDirectory(final File storeRootDirectory)
     {
         this.storeRootDir = storeRootDirectory;
@@ -85,6 +87,7 @@ public abstract class AbstractStorageProcessor implements IStorageProcessorTrans
     /**
      * @see IStorageProcessorTransactional#getStorageFormat()
      */
+    @Override
     public StorageFormat getStorageFormat()
     {
         return StorageFormat.PROPRIETARY;
@@ -107,6 +110,7 @@ public abstract class AbstractStorageProcessor implements IStorageProcessorTrans
         return false;
     }
 
+    @Override
     public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
     {
         return moveUnregisteredDatasetsToErrorDir ? UnstoreDataAction.MOVE_TO_ERROR

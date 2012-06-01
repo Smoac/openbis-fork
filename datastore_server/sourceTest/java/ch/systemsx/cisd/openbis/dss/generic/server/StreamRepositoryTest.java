@@ -41,6 +41,7 @@ public class StreamRepositoryTest extends AssertJUnit
             {
                 private int id;
 
+                @Override
                 public String createUniqueID()
                 {
                     return Integer.toString(id++);
@@ -50,6 +51,7 @@ public class StreamRepositoryTest extends AssertJUnit
             {
                 private long time;
 
+                @Override
                 public long getTimeInMilliseconds()
                 {
                     long result = time;

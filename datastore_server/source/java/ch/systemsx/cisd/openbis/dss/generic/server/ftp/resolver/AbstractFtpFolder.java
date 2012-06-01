@@ -32,26 +32,31 @@ public abstract class AbstractFtpFolder extends AbstractFtpFile
         super(absolutePath);
     }
 
+    @Override
     public boolean isDirectory()
     {
         return true;
     }
 
+    @Override
     public boolean isFile()
     {
         return false;
     }
 
+    @Override
     public InputStream createInputStream(long arg0) throws IOException
     {
         return null;
     }
 
+    @Override
     public long getSize()
     {
         return 0;
     }
 
+    @Override
     public long getLastModified()
     {
         return System.currentTimeMillis();

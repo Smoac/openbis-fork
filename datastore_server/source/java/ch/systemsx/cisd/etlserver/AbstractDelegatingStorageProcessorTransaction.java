@@ -41,6 +41,7 @@ public abstract class AbstractDelegatingStorageProcessorTransaction extends
         this.nestedTransaction = transaction;
     }
 
+    @Override
     public File tryGetProprietaryData()
     {
         return nestedTransaction.tryGetProprietaryData();

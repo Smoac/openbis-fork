@@ -158,6 +158,7 @@ public class OpenBISAuthenticationInterceptorTest
         return new BaseMatcher<DataStoreServerInfo>()
             {
 
+                @Override
                 public boolean matches(Object o)
                 {
                     if (o instanceof DataStoreServerInfo)
@@ -174,6 +175,7 @@ public class OpenBISAuthenticationInterceptorTest
                     return false;
                 }
 
+                @Override
                 public void describeTo(Description description)
                 {
                 }

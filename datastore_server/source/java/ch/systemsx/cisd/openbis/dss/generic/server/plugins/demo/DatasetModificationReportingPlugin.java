@@ -45,6 +45,7 @@ public class DatasetModificationReportingPlugin extends AbstractTableModelReport
         super(properties, storeRoot);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();

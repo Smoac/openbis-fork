@@ -27,6 +27,7 @@ public final class SshCommandExecutorFactory implements Serializable,
 {
     private static final long serialVersionUID = 1L;
 
+    @Override
     public ISshCommandExecutor create(File sshExecutableOrNull, String host)
     {
         return new SshCommandExecutor(sshExecutableOrNull, host);

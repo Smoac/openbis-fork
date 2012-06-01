@@ -61,16 +61,19 @@ public final class FileInfoDssDownloader
         this(dataSetDss, fileInfos, outputDir, new FileInfoDssDownloaderListener()
             {
 
+                @Override
                 public void willCreateDirectory(FileInfoDssDTO fileInfo)
                 {
 
                 }
 
+                @Override
                 public void willDownload(FileInfoDssDTO fileInfo)
                 {
 
                 }
 
+                @Override
                 public void didFinish()
                 {
 

@@ -134,6 +134,7 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
 
         button.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     AddVocabularyTermDialog dialog =
@@ -179,6 +180,7 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
     {
         comboBox.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     itemListener.itemStateChanged(new ItemEvent(e.getItemSelectable(), e.getID(),
@@ -193,6 +195,7 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
         comboBox.setToolTipText(text);
     }
 
+    @Override
     public void update(@SuppressWarnings("hiding") Vocabulary vocabulary, String code)
     {
         String selectedCode =

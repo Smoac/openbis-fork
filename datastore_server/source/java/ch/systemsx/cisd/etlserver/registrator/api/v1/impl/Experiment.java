@@ -48,11 +48,13 @@ class Experiment extends ExperimentImmutable implements IExperiment
         return false;
     }
 
+    @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
     }
 
+    @Override
     public void setExperimentType(String experimentType)
     {
         ExperimentType type = new ExperimentType();

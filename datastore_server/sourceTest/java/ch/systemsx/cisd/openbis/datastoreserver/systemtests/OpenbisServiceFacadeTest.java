@@ -58,6 +58,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     private static final Comparator<FileInfoDssDTO> FILE_INFO_COMPARATOR =
             new Comparator<FileInfoDssDTO>()
                 {
+                    @Override
                     public int compare(FileInfoDssDTO f1, FileInfoDssDTO f2)
                     {
                         return f1.getPathInDataSet().compareTo(f2.getPathInDataSet());
@@ -253,6 +254,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         List<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
+                @Override
                 public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
                 {
                     return d2.getDataSetCode().compareTo(d1.getDataSetCode());
@@ -267,6 +269,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         List<DataSet> dataSets = serviceFacade.searchForDataSets(sc);
         Collections.sort(dataSets, new Comparator<DataSet>()
             {
+                @Override
                 public int compare(DataSet o1, DataSet o2)
                 {
                     // sort decreasing

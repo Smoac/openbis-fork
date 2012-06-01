@@ -169,22 +169,26 @@ public class DssComponent implements IDssComponent
         }
     }
 
+    @Override
     public String getSessionToken()
     {
         return state.getSessionToken();
     }
 
+    @Override
     public void checkSession() throws InvalidSessionException
     {
         state.checkSession();
     }
 
+    @Override
     public IDataSetDss getDataSet(String code) throws EnvironmentFailureException,
             IllegalStateException
     {
         return state.getDataSet(code);
     }
 
+    @Override
     public void logout()
     {
         // logout and transition to the unauthenticated state
@@ -209,18 +213,21 @@ public class DssComponent implements IDssComponent
                         state.getSessionToken());
     }
 
+    @Override
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.putDataSet(newDataset, dataSetFile);
     }
 
+    @Override
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.validateDataSet(newDataset, dataSetFile);
     }
 
+    @Override
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
@@ -245,28 +252,33 @@ abstract class AbstractDssComponentState implements IDssComponent
         this.service = service;
     }
 
+    @Override
     public void checkSession() throws IllegalStateException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public IDataSetDss getDataSet(String code) throws IllegalStateException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
@@ -286,6 +298,7 @@ abstract class AbstractDssComponentState implements IDssComponent
     /**
      * Package visible method used to transfer context information between states.
      */
+    @Override
     public abstract String getSessionToken();
 }
 
@@ -327,6 +340,7 @@ class UnauthenticatedState extends AbstractDssComponentState
             throw new AuthorizationFailureException("Login or Password invalid");
     }
 
+    @Override
     public void logout()
     {
         return;
@@ -371,6 +385,7 @@ class AuthenticatedState extends AbstractDssComponentState
         }
     }
 
+    @Override
     public void logout()
     {
         service.logout(getSessionToken());

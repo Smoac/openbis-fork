@@ -43,6 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -135,7 +136,7 @@ public class DataSetPropertiesPanel extends JPanel
     private void addFormFieldForPropertyType(int row, int col, final PropertyType propertyType)
     {
         String labelString = getLabelStringForPropertyType(propertyType);
-        JLabel label = new JLabel(labelString + ":", JLabel.TRAILING);
+        JLabel label = new JLabel(labelString + ":", SwingConstants.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
         label.setToolTipText(propertyType.getDescription());
         if (propertyType.isMandatory())
@@ -168,15 +169,18 @@ public class DataSetPropertiesPanel extends JPanel
 
         class FieldListener implements ActionListener, FocusListener
         {
+            @Override
             public void focusGained(FocusEvent e)
             {
             }
 
+            @Override
             public void focusLost(FocusEvent e)
             {
                 handleEvent();
             }
 
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 handleEvent();
@@ -211,6 +215,7 @@ public class DataSetPropertiesPanel extends JPanel
 
         comboBox.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     setPropertyValue(propertyType, ((VocabularyTerm) e.getItem()).getCode());
@@ -227,6 +232,7 @@ public class DataSetPropertiesPanel extends JPanel
 
         checkBox.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setPropertyValue(propertyType,

@@ -59,6 +59,7 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
         IParserObjectFactoryFactory<SampleDataSetPair> factoryFactory =
                 new IParserObjectFactoryFactory<SampleDataSetPair>()
                     {
+                        @Override
                         public final IParserObjectFactory<SampleDataSetPair> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {

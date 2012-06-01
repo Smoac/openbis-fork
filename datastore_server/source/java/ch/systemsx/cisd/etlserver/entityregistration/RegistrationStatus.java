@@ -35,16 +35,19 @@ class RegistrationError extends AbstractRegistrationStatus
         this.error = error;
     }
 
+    @Override
     public boolean isError()
     {
         return true;
     }
 
+    @Override
     public Throwable getError()
     {
         return error;
     }
 
+    @Override
     public String getMessage()
     {
         return error.getMessage();
@@ -57,11 +60,13 @@ class RegistrationSuccess extends AbstractRegistrationStatus
     {
     }
 
+    @Override
     public boolean isError()
     {
         return false;
     }
 
+    @Override
     public Throwable getError()
     {
         assert false : "getError() should not be called on a success object";
@@ -69,6 +74,7 @@ class RegistrationSuccess extends AbstractRegistrationStatus
         return null;
     }
 
+    @Override
     public String getMessage()
     {
         return "Success";

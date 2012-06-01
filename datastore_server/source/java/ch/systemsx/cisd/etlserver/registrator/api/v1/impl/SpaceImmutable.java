@@ -41,16 +41,19 @@ public class SpaceImmutable implements ISpaceImmutable
 
     }
 
+    @Override
     public String getSpaceCode()
     {
         return space.getCode();
     }
 
+    @Override
     public String getDescription()
     {
         return space.getDescription();
     }
 
+    @Override
     public boolean isExistingSpace()
     {
         return isExistingSpace;

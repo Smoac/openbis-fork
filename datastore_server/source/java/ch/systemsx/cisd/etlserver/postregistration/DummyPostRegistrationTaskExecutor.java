@@ -25,10 +25,12 @@ public class DummyPostRegistrationTaskExecutor implements IPostRegistrationTaskE
 {
     public static final IPostRegistrationTaskExecutor INSTANCE = new DummyPostRegistrationTaskExecutor();
     
+    @Override
     public void execute()
     {
     }
     
+    @Override
     public ICleanupTask createCleanupTask()
     {
         return new NoCleanupTask();

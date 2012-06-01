@@ -50,18 +50,21 @@ public class EmailSender implements IEmailSender
 
     // builder
 
+    @Override
     public IEmailSender withSubject(String aSubject)
     {
         this.subject = aSubject;
         return this;
     }
 
+    @Override
     public IEmailSender withBody(String aBodyText)
     {
         this.bodyText = aBodyText;
         return this;
     }
 
+    @Override
     public IEmailSender withAttachedFile(String filePath, String attachmentName)
     {
         if (attachmentName == null)
@@ -77,6 +80,7 @@ public class EmailSender implements IEmailSender
         return this;
     }
 
+    @Override
     public IEmailSender withAttachedText(String text, String attachmentName)
     {
         if (attachmentName == null)
@@ -102,6 +106,7 @@ public class EmailSender implements IEmailSender
 
     // sender
 
+    @Override
     public void send()
     {
         try

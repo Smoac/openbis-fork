@@ -45,6 +45,7 @@ public class CommandHelp extends AbstractCommand<CommandHelp.CommandHelpArgument
         this.programCallString = programCallString;
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
@@ -66,6 +67,7 @@ public class CommandHelp extends AbstractCommand<CommandHelp.CommandHelpArgument
         return ResultCode.OK;
     }
 
+    @Override
     public String getName()
     {
         return "help";

@@ -39,6 +39,7 @@ public class SpeedOptimizedShareFinder implements IShareFinder
         simpleFinder = new SimpleShareFinder(properties);
     }
 
+    @Override
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
         Share share = tryToFindExtensionShare(dataSet, shares, SpeedChecker.MATCHING_CHECKER);

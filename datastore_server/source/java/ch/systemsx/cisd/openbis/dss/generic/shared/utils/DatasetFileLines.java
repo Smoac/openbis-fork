@@ -107,6 +107,7 @@ public class DatasetFileLines implements ITabularData
     /**
      * Returns the headers as defined in the file.
      */
+    @Override
     public String[] getHeaderLabels()
     {
         return headerTokens;
@@ -116,11 +117,13 @@ public class DatasetFileLines implements ITabularData
      * Returns the normalized headers. Normalization is done by
      * {@link CodeNormalizer#normalize(String)}.
      */
+    @Override
     public String[] getHeaderCodes()
     {
         return headerCodes;
     }
 
+    @Override
     public List<String[]> getDataLines()
     {
         return dataLines;

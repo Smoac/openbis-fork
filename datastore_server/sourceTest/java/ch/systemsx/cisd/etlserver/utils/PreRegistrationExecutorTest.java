@@ -54,6 +54,7 @@ public class PreRegistrationExecutorTest extends AbstractFileSystemTestCase
         String[] contents = workingDirectory.list(new FilenameFilter()
             {
 
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return "data-set-code".equals(name);

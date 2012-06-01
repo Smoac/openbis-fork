@@ -46,11 +46,13 @@ public class OpenBISAuthenticationAdvisor extends DefaultPointcutAdvisor
         return new Pointcut()
             {
 
+                @Override
                 public MethodMatcher getMethodMatcher()
                 {
                     return new AnnotationMethodMatcher(ManagedAuthentication.class);
                 }
 
+                @Override
                 public ClassFilter getClassFilter()
                 {
                     return new RootClassFilter(IEncapsulatedOpenBISService.class);

@@ -65,7 +65,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IInitializable;
-import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
@@ -309,10 +308,10 @@ public class DataStoreServer
                         IRpcServiceNameServer.PREFFERED_URL_SUFFIX,
                         rpcNameServer.getMajorVersion(), rpcNameServer.getMinorVersion());
         RpcServiceInterfaceVersionDTO v1Interface =
-                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
+                new RpcServiceInterfaceVersionDTO(IDssServiceRpcGeneric.DSS_SERVICE_NAME,
                         rpcV1Suffix, service.getMajorVersion(), service.getMinorVersion());
         RpcServiceInterfaceVersionDTO jsonV1Interface =
-                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
+                new RpcServiceInterfaceVersionDTO(IDssServiceRpcGeneric.DSS_SERVICE_NAME,
                         jsonRpcV1Suffix, service.getMajorVersion(), service.getMinorVersion());
 
         rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
@@ -390,7 +389,7 @@ public class DataStoreServer
         if (configParams.isUseSSL())
         {
             final SslContextFactory sslContextFactory = new SslContextFactory();
-            sslContextFactory.setKeyStore(configParams.getKeystorePath());
+            sslContextFactory.setKeyStorePath(configParams.getKeystorePath());
             sslContextFactory.setKeyStorePassword(configParams.getKeystorePassword());
             sslContextFactory.setKeyManagerPassword(configParams.getKeystoreKeyPassword());
             final SslConnector socketConnector =

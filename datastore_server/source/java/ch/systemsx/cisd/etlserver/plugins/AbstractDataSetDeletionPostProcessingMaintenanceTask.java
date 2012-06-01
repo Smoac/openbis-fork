@@ -62,6 +62,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         openBISService = ServiceProvider.getOpenBISService();
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         int delayInMinutes = PropertyUtils.getInt(properties, DELAY_AFTER_DELETION, 0);
@@ -69,6 +70,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         delayAfterDeletion = delayInMinutes * DateUtils.MILLIS_PER_MINUTE;
     }
 
+    @Override
     public void execute()
     {
         if (operationLog.isDebugEnabled())

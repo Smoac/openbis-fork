@@ -47,16 +47,19 @@ public class ConfigProvider implements IConfigProvider
         this.properties = properties;
     }
 
+    @Override
     public File getStoreRoot()
     {
         return DssPropertyParametersUtil.getStoreRootDir(properties);
     }
 
+    @Override
     public String getDataStoreCode()
     {
         return DssPropertyParametersUtil.getDataStoreCode(properties);
     }
 
+    @Override
     public String getOpenBisServerUrl()
     {
         return DssPropertyParametersUtil.getOpenBisServerUrl(properties);

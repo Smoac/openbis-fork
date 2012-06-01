@@ -95,6 +95,7 @@ public class AddVocabularyTermDialog extends JDialog
         JButton addButton = new JButton("Add");
         addButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     clientModel.addUnofficialVocabularyTerm(vocabulary, codeField.getText(),
@@ -108,6 +109,7 @@ public class AddVocabularyTermDialog extends JDialog
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     AddVocabularyTermDialog.this.dispose();
@@ -135,16 +137,19 @@ public class AddVocabularyTermDialog extends JDialog
         labelField.requestFocus();
         labelField.addKeyListener(new KeyListener()
             {
+                @Override
                 public void keyPressed(KeyEvent arg0)
                 {
                     handleEvent();
                 }
 
+                @Override
                 public void keyReleased(KeyEvent arg0)
                 {
                     handleEvent();
                 }
 
+                @Override
                 public void keyTyped(KeyEvent arg0)
                 {
                     handleEvent();

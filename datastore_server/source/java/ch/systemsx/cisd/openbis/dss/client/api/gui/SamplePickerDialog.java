@@ -127,6 +127,7 @@ public class SamplePickerDialog extends AbstractEntityPickerDialog implements
 
         theOptionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
+                @Override
                 public void propertyChange(PropertyChangeEvent evt)
                 {
                     if (false == evt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
@@ -198,16 +199,19 @@ public class SamplePickerDialog extends AbstractEntityPickerDialog implements
         textField.setEditable(true);
         textField.getDocument().addDocumentListener(new DocumentListener()
             {
+                @Override
                 public void removeUpdate(DocumentEvent e)
                 {
                     updateTreeSelection();
                 }
 
+                @Override
                 public void insertUpdate(DocumentEvent e)
                 {
                     updateTreeSelection();
                 }
 
+                @Override
                 public void changedUpdate(DocumentEvent e)
                 {
                     updateTreeSelection();
@@ -261,6 +265,7 @@ public class SamplePickerDialog extends AbstractEntityPickerDialog implements
         }
     }
 
+    @Override
     public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException
     {
         // if top level, then finish
@@ -303,6 +308,7 @@ public class SamplePickerDialog extends AbstractEntityPickerDialog implements
         return samples;
     }
 
+    @Override
     public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException
     {
         DefaultMutableTreeNode node =

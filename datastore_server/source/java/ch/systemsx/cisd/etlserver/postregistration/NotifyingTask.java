@@ -103,11 +103,13 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         }
     }
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return false;
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
@@ -142,11 +144,13 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             this.logger = logger;
         }
 
+        @Override
         public ICleanupTask createCleanupTask()
         {
             return new NoCleanupTask();
         }
 
+        @Override
         public void execute()
         {
             if (typeMatches())

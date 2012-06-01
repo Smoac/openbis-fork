@@ -103,6 +103,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
     /**
      * authenticate when the session has expired.
      */
+    @Override
     public synchronized Object invoke(MethodInvocation invocation) throws Throwable
     {
         checkSessionToken();

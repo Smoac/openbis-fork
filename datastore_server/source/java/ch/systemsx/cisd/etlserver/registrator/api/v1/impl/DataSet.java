@@ -104,16 +104,19 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
 
     }
 
+    @Override
     public String getDataSetCode()
     {
         return registrationDetails.getDataSetInformation().getDataSetCode();
     }
 
+    @Override
     public IExperimentImmutable getExperiment()
     {
         return experiment;
     }
 
+    @Override
     public void setExperiment(IExperimentImmutable experiment)
     {
         this.experiment = experiment;
@@ -122,11 +125,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         setExperiment(experimentToSet);
     }
 
+    @Override
     public ISampleImmutable getSample()
     {
         return sampleOrNull;
     }
 
+    @Override
     public void setSample(ISampleImmutable sampleOrNull)
     {
         this.sampleOrNull = sampleOrNull;
@@ -156,41 +161,49 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         }
     }
 
+    @Override
     public String getFileFormatType()
     {
         return registrationDetails.getFileFormatType().getCode();
     }
 
+    @Override
     public void setFileFormatType(String fileFormatTypeCode)
     {
         registrationDetails.setFileFormatType(new FileFormatType(fileFormatTypeCode));
     }
 
+    @Override
     public boolean isMeasuredData()
     {
         return registrationDetails.isMeasuredData();
     }
 
+    @Override
     public void setMeasuredData(boolean measuredData)
     {
         registrationDetails.setMeasuredData(measuredData);
     }
 
+    @Override
     public int getSpeedHint()
     {
         return registrationDetails.getDataSetInformation().getSpeedHint();
     }
 
+    @Override
     public void setSpeedHint(int speedHint)
     {
         registrationDetails.getDataSetInformation().setSpeedHint(speedHint);
     }
 
+    @Override
     public String getDataSetType()
     {
         return registrationDetails.getDataSetType().getCode();
     }
 
+    @Override
     public DataSetType getDataSetTypeWithPropertyTypes()
     {
         String dataSetTypeCode = getDataSetType();
@@ -203,6 +216,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return getDataSetTypeWithPropertyTypes(dataSetTypeCode);
     }
 
+    @Override
     public void setDataSetType(String dataSetTypeCode)
     {
         registrationDetails.setDataSetType(dataSetTypeCode);
@@ -217,11 +231,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         registrationDetails.getDataSetInformation().setExperimentIdentifier(experimentId);
     }
 
+    @Override
     public String getPropertyValue(String propertyCode)
     {
         return registrationDetails.getPropertyValue(propertyCode);
     }
 
+    @Override
     public List<String> getAllPropertyCodes()
     {
         List<NewProperty> properties =
@@ -235,33 +251,39 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return codes;
     }
 
+    @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         registrationDetails.setPropertyValue(propertyCode, propertyValue);
     }
 
+    @Override
     public void setParentDatasets(List<String> parentDatasetCodes)
     {
         DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
         dataSetInformation.setParentDataSetCodes(parentDatasetCodes);
     }
 
+    @Override
     public List<String> getParentDatasets()
     {
         return registrationDetails.getDataSetInformation().getParentDataSetCodes();
     }
 
+    @Override
     public boolean isContainerDataSet()
     {
         return registrationDetails.getDataSetInformation().isContainerDataSet();
     }
 
+    @Override
     public List<String> getContainedDataSetCodes()
     {
         return Collections.unmodifiableList(registrationDetails.getDataSetInformation()
                 .getContainedDataSetCodes());
     }
 
+    @Override
     public void setContainedDataSetCodes(List<String> containedDataSetCodes)
     {
         ArrayList<String> newContainedDataSetCodes =
@@ -272,6 +294,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
 
     }
 
+    @Override
     public List<IDataSetImmutable> getChildrenDataSets()
     {
         throw new UnsupportedOperationException("The operation is not supported for data "
@@ -279,11 +302,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     }
 
     //the dataset cannot be contained before it is created
+    @Override
     public boolean isContainedDataSet()
     {
         return false;
     }
 
+    @Override
     public String getContainerDataSet()
     {
         return null;

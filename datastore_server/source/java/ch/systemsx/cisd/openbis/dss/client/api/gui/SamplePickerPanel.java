@@ -36,6 +36,7 @@ public class SamplePickerPanel extends AbstractEntityPickerPanel
         dialog = new SamplePickerDialog(mainWindow, clientModel);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         String sampleId = dialog.pickSample();

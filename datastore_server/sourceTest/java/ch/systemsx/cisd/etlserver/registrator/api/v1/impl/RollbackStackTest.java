@@ -293,11 +293,13 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
             this.predecessor = predecessor;
         }
 
+        @Override
         public void execute()
         {
             status = TrackingCommandStatus.EXECUTED;
         }
 
+        @Override
         public void rollback()
         {
             status = TrackingCommandStatus.ROLLEDBACK;

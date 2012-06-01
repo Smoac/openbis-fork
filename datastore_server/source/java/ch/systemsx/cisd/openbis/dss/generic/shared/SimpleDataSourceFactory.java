@@ -30,6 +30,7 @@ import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 public class SimpleDataSourceFactory implements IDataSourceFactory
 {
 
+    @Override
     public DataSource create(Properties dbProps)
     {
         SimpleDatabaseConfigurationContext context =

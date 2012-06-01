@@ -100,6 +100,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
             }
         }
 
+        @Override
         public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
         {
             ShareFinder.recordedDataSet = dataSet;
@@ -581,67 +582,80 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
             children.add(node);
         }
 
+        @Override
         public String getName()
         {
             return name;
         }
 
+        @Override
         public String getRelativePath()
         {
             return relativePath;
         }
 
+        @Override
         public String getParentRelativePath()
         {
             return parent == null ? null : parent.getRelativePath();
         }
 
+        @Override
         public boolean exists()
         {
             return true;
         }
 
+        @Override
         public boolean isDirectory()
         {
             return directory;
         }
 
+        @Override
         public long getLastModified()
         {
             return 0;
         }
 
+        @Override
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
             return children;
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public File tryGetFile()
         {
             return null;
         }
 
+        @Override
         public long getFileLength() throws UnsupportedOperationException
         {
             return size;
         }
 
+        @Override
         public long getChecksumCRC32() throws UnsupportedOperationException
         {
             return checksum;
         }
 
+        @Override
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public InputStream getInputStream() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {
@@ -695,28 +709,33 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
             }
         }
 
+        @Override
         public IHierarchicalContentNode getRootNode()
         {
             return root;
         }
 
+        @Override
         public IHierarchicalContentNode getNode(String relativePath)
                 throws IllegalArgumentException
         {
             return nodes.get(relativePath);
         }
 
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
                 String fileNamePattern)
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void close()
         {
         }

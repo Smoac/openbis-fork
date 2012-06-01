@@ -54,6 +54,7 @@ class RegExBasedValidator extends AbstractValidator implements IColumnHeaderVali
         }
     }
 
+    @Override
     public Result validateHeader(String header)
     {
         if (pattern.matcher(header).matches())

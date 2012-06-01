@@ -32,6 +32,7 @@ public abstract class AbstractShareFinder implements IShareFinder
     /**
      * Tries to find a share fulfilling speed hint contract.
      */
+    @Override
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
         SpeedChecker[] values = SpeedChecker.values();

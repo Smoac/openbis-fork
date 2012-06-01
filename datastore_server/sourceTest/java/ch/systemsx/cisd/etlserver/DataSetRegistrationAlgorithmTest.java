@@ -331,6 +331,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         final Action storeDataAction = new CustomAction("StoreData")
             {
 
+                @Override
                 public Object invoke(Invocation invocation) throws Throwable
                 {
                     fileOperations.move(incomingDataSetFile, storedDataSetFile);

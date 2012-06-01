@@ -38,6 +38,7 @@ public class NewFileCommand extends AbstractTransactionalCommand
 
     }
 
+    @Override
     public void execute()
     {
         File src = new File(fileAbsolutePath);
@@ -46,6 +47,7 @@ public class NewFileCommand extends AbstractTransactionalCommand
         fileOperations.createNewFile(src);
     }
 
+    @Override
     public void rollback()
     {
         File src = new File(fileAbsolutePath);

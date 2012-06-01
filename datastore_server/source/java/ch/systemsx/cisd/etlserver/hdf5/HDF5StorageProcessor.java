@@ -54,6 +54,7 @@ public class HDF5StorageProcessor extends AbstractStorageProcessor
         isDataCompressed = PropertyUtils.getBoolean(properties, COMPRESS_DATA_PROPERTY, false);
     }
 
+    @Override
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
@@ -144,6 +145,7 @@ public class HDF5StorageProcessor extends AbstractStorageProcessor
             fileBeingProcessed = null;
         }
 
+        @Override
         public File tryGetProprietaryData()
         {
             return null;

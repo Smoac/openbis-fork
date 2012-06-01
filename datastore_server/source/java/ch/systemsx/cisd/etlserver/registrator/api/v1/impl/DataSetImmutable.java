@@ -46,16 +46,19 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         this.dataSet = dataSet;
     }
 
+    @Override
     public String getDataSetCode()
     {
         return dataSet.getCode();
     }
 
+    @Override
     public IExperimentImmutable getExperiment()
     {
         return new ExperimentImmutable(dataSet.getExperiment());
     }
 
+    @Override
     public ISampleImmutable getSample()
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = dataSet.getSample();
@@ -68,6 +71,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         }
     }
 
+    @Override
     public String getFileFormatType()
     {
         if (isContainerDataSet())
@@ -79,11 +83,13 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         }
     }
 
+    @Override
     public boolean isMeasuredData()
     {
         return dataSet.isDerived() == false;
     }
 
+    @Override
     public int getSpeedHint()
     {
         if (isContainerDataSet())
@@ -95,21 +101,25 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         }
     }
 
+    @Override
     public String getDataSetType()
     {
         return dataSet.getDataSetType().getCode();
     }
 
+    @Override
     public DataSetType getDataSetTypeWithPropertyTypes()
     {
         return getDataSetTypeWithPropertyTypes(getDataSetType());
     }
 
+    @Override
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(dataSet, propertyCode);
     }
 
+    @Override
     public List<String> getAllPropertyCodes()
     {
         List<IEntityProperty> properties = dataSet.getProperties();
@@ -121,21 +131,25 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         return codes;
     }
 
+    @Override
     public List<String> getParentDatasets()
     {
         return Code.extractCodes(dataSet.getParents());
     }
 
+    @Override
     public boolean isContainerDataSet()
     {
         return dataSet.isContainer();
     }
 
+    @Override
     public boolean isContainedDataSet()
     {
         return dataSet.tryGetContainer() != null;
     }
 
+    @Override
     public String getContainerDataSet()
     {
         ContainerDataSet container = dataSet.tryGetContainer();
@@ -148,6 +162,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         }
     }
 
+    @Override
     public List<String> getContainedDataSetCodes()
     {
         if (isContainerDataSet())
@@ -159,6 +174,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         }
     }
 
+    @Override
     public List<IDataSetImmutable> getChildrenDataSets()
     {
         List<IDataSetImmutable> result = new ArrayList<IDataSetImmutable>();

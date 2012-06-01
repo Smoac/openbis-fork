@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 public class DataSetFileDTOPredicate extends
 AbstractDataSetAccessPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
 {
+    @Override
     public List<String> getDataSetCodes(DataSetFileDTO argument)
     {
         return Arrays.asList(argument.getDataSetCode());

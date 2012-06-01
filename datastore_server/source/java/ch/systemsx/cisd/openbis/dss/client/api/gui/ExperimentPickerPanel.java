@@ -36,6 +36,7 @@ public class ExperimentPickerPanel extends AbstractEntityPickerPanel
         dialog = new ExperimentPickerDialog(mainWindow, clientModel);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         String experimentId = dialog.pickExperiment();

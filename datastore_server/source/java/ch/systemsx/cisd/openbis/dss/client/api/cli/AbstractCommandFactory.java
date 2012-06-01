@@ -59,6 +59,7 @@ abstract public class AbstractCommandFactory implements ICommandFactory
      * 
      * @param parentCommandFactoryOrNull A command factory, or null if this one has no parent.
      */
+    @Override
     public void setParentCommandFactory(ICommandFactory parentCommandFactoryOrNull)
     {
         this.parentCommandFactoryOrNull = parentCommandFactoryOrNull;

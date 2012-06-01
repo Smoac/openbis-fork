@@ -141,6 +141,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             return dataSetsToBeDeletedFromArchive;
         }
         
+        @Override
         public DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
                 ArchiverTaskContext context)
         {
@@ -166,6 +167,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             return result;
         }
 
+        @Override
         public DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
                 ArchiverTaskContext context)
         {
@@ -190,6 +192,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             return result;
         }
 
+        @Override
         public DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
         {
             for (IDatasetLocation datasetLocation : datasets)
@@ -199,12 +202,14 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             return null;
         }
 
+        @Override
         public BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
                 ArchiverTaskContext context)
         {
             return isInSet(dataSetsSynchronizedWithArchive, dataset);
         }
 
+        @Override
         public BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
         {
             return isInSet(dataSetsInArchive, dataset);

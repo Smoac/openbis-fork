@@ -34,41 +34,49 @@ public class ProxyShareIdManager implements IShareIdManager
         this.shareIdManager = shareIdManager;
     }
 
+    @Override
     public boolean isKnown(String dataSetCode)
     {
         return shareIdManager.isKnown(dataSetCode);
     }
 
+    @Override
     public String getShareId(String dataSetCode)
     {
         return shareIdManager.getShareId(dataSetCode);
     }
 
+    @Override
     public void setShareId(String dataSetCode, String shareId)
     {
         shareIdManager.setShareId(dataSetCode, shareId);
     }
 
+    @Override
     public void lock(String dataSetCode)
     {
         shareIdManager.lock(dataSetCode);
     }
 
+    @Override
     public void lock(List<String> dataSetCodes)
     {
         shareIdManager.lock(dataSetCodes);
     }
 
+    @Override
     public void await(String dataSetCode)
     {
         shareIdManager.await(dataSetCode);
     }
 
+    @Override
     public void releaseLock(String dataSetCode)
     {
         shareIdManager.releaseLock(dataSetCode);
     }
 
+    @Override
     public void releaseLocks()
     {
         shareIdManager.releaseLocks();

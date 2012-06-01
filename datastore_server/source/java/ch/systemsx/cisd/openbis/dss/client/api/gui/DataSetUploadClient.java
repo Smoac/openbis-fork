@@ -209,6 +209,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         addButton.setToolTipText("Add a new data set");
         addButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     tableModel.addNewDataSet();
@@ -220,6 +221,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         removeButton.setToolTipText("Remove the selected data set");
         removeButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     tableModel.removeSelectedDataSet();
@@ -231,6 +233,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         uploadAllButton.setToolTipText("Attach the data set to a sample.");
         uploadAllButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     clientModel.queueUploadOfDataSet(clientModel.getNewDataSetInfos());
@@ -265,6 +268,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         fileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
             {
 
+                @Override
                 public void valueChanged(ListSelectionEvent e)
                 {
                     // Notify the table model

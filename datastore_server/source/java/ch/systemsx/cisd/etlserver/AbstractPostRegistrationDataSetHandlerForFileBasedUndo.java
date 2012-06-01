@@ -71,6 +71,7 @@ public abstract class AbstractPostRegistrationDataSetHandlerForFileBasedUndo imp
     /**
      * Deletes all files added by {@link #addFileForUndo(File)}.
      */
+    @Override
     public void undoLastOperation()
     {
         if (operationLog.isInfoEnabled())

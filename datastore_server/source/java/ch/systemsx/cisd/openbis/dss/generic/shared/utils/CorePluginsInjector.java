@@ -238,6 +238,7 @@ public class CorePluginsInjector
                 {
                     File[] pluginFolders = file.listFiles(new FilenameFilter()
                         {
+                            @Override
                             public boolean accept(File dir, String name)
                             {
                                 return name.startsWith(".") == false;
@@ -315,6 +316,7 @@ public class CorePluginsInjector
         }
         File[] scripts = definingFolder.listFiles(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return name.equals(PLUGIN_PROPERTIES_FILE_NAME) == false;

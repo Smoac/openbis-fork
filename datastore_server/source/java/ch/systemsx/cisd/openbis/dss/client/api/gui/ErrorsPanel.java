@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 
@@ -80,9 +81,9 @@ public class ErrorsPanel extends JPanel
                 .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.add(errorsAreaScroll, VALIDATION_ERRORS_CARD);
-        this.add(new JLabel("Validating, please wait...", WAIT_ICON, JLabel.LEFT),
+        this.add(new JLabel("Validating, please wait...", WAIT_ICON, SwingConstants.LEFT),
                 VALIDATION_WAIT_CARD);
-        this.add(new JLabel("Validated successfully.", OK_ICON, JLabel.LEFT),
+        this.add(new JLabel("Validated successfully.", OK_ICON, SwingConstants.LEFT),
                 VALIDATION_SUCCESS_CARD);
     }
 
@@ -111,7 +112,7 @@ public class ErrorsPanel extends JPanel
         {
             JPanel line = new JPanel(new FlowLayout(FlowLayout.LEFT));
             String truncateErrorMessage = truncateErrorMessage(error);
-            JLabel label = new JLabel(truncateErrorMessage, WRONG_ICON, JLabel.LEFT);
+            JLabel label = new JLabel(truncateErrorMessage, WRONG_ICON, SwingConstants.LEFT);
             line.add(label);
             if (truncateErrorMessage.length() < error.length())
             {
@@ -119,6 +120,7 @@ public class ErrorsPanel extends JPanel
                 button.setPreferredSize(new Dimension(25, label.getPreferredSize().height));
                 button.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             errorMessageDialog.showErrorMessage(error);

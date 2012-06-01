@@ -68,6 +68,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
      * 
      * @return Instance_AAA/Group_BBB/Project_CCC...</code>
      */
+    @Override
     public String createHierarchicalPath(SimpleDataSetInformationDTO data)
     {
         ExtendedProperties props = new ExtendedProperties();
@@ -89,6 +90,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     /**
      * Creates a {@link Set} of data set paths located inside <code>root</code>.
      */
+    @Override
     public Set<String> extractPaths(File root)
     {
         HashSet<String> set = new HashSet<String>();

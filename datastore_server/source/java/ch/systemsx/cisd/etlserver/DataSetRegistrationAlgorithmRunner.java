@@ -36,6 +36,7 @@ public class DataSetRegistrationAlgorithmRunner
     public static final class NoOpDelegate implements IDataSetRegistrationAlgorithmRunnerDelegate
     {
 
+        @Override
         public void didNotIdentifyDataSet()
         {
         }

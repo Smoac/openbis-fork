@@ -38,6 +38,7 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
 
     public static final String VERSION_HOLDER_CLASS_KEY = "version-holder-class";
 
+    @Override
     public DataSource create(Properties dbProps)
     {
         DatabaseConfigurationContext context =

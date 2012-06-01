@@ -64,6 +64,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         this.root = dataSetDir;
     }
 
+    @Override
     public IHierarchicalContentNode getRootNode()
     {
         if (rootNode == null)
@@ -74,6 +75,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return rootNode;
     }
 
+    @Override
     public IHierarchicalContentNode getNode(String relativePath)
     {
         if (StringUtils.isBlank(relativePath))
@@ -103,6 +105,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String relativePathPattern)
     {
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
@@ -115,6 +118,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return result;
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
             final String fileNamePattern)
     {
@@ -128,6 +132,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return result;
     }
 
+    @Override
     public void close()
     {
         onCloseAction.execute();
@@ -193,21 +198,25 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             this.pathInfo = pathInfo;
         }
 
+        @Override
         public String getName()
         {
             return pathInfo.getFileName();
         }
 
+        @Override
         public boolean exists()
         {
             return true;
         }
 
+        @Override
         public boolean isDirectory()
         {
             return pathInfo.isDirectory();
         }
 
+        @Override
         public long getLastModified()
         {
             return pathInfo.getLastModified().getTime();
@@ -249,6 +258,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             return IOUtilities.getChecksumCRC32(getInputStream());
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             File result = doGetFile();
@@ -261,6 +271,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             }
         }
 
+        @Override
         public File tryGetFile()
         {
             File result = doGetFile();
@@ -351,11 +362,13 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return new IFileContentProvider()
             {
 
+                @Override
                 public IRandomAccessFile getReadOnlyRandomAccessFile()
                 {
                     return new RandomAccessFileImpl(existingFile, "r");
                 }
 
+                @Override
                 public InputStream getInputStream()
                 {
                     try
@@ -375,11 +388,13 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         return new IFileContentProvider()
             {
 
+                @Override
                 public IRandomAccessFile getReadOnlyRandomAccessFile()
                 {
                     return node.getFileContent();
                 }
 
+                @Override
                 public InputStream getInputStream()
                 {
                     return node.getInputStream();

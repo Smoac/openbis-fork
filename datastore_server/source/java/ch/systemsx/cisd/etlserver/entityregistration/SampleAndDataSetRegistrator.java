@@ -215,6 +215,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         logInfo(message);
     }
 
+    @Override
     public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
     {
         syncDataToDataSetProperties(data);

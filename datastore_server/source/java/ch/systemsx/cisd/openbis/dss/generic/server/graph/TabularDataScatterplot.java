@@ -54,6 +54,7 @@ public class TabularDataScatterplot extends
 
         boolean success = tryIterateOverFileLinesUsing(new ILineProcessor()
             {
+                @Override
                 public void processLine(String xString, String yString, int index)
                 {
                     double x = parseDouble(xString);

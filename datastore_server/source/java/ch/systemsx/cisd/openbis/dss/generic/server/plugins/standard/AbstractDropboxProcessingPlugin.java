@@ -86,6 +86,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         sendingDetailedEMail = PropertyUtils.getBoolean(properties, SEND_DETAILED_EMAIL_KEY, false);
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

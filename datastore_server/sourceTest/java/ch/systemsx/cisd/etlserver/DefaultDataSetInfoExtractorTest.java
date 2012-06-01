@@ -168,7 +168,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
 
         String localGroupCode = "localGroup";
         String fileName =
-                localGroupCode + DefaultDataSetInfoExtractor.DEFAULT_ENTITY_SEPARATOR
+                localGroupCode + AbstractDataSetInfoExtractor.DEFAULT_ENTITY_SEPARATOR
                         + "sampleCode";
         final DataSetInformation dsInfo = extractDatasetInfo(properties, fileName);
 

@@ -63,6 +63,7 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
             this.checkingResults = checkingResults;
         }
 
+        @Override
         public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
         {
             recordedDataSet = dataSet;

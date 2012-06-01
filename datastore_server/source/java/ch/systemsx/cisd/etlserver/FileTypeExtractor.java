@@ -110,6 +110,7 @@ public class FileTypeExtractor implements IFileFormatTypeExtractor
         return result;
     }
 
+    @Override
     public final FileFormatType getFileFormatType(final File incomingDataSetPath)
     {
         String fileType;

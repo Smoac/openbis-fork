@@ -84,17 +84,20 @@ public class Sample extends SampleImmutable implements ISample
         getSample().setPermId(permId);
     }
 
+    @Override
     public void setExperiment(IExperimentImmutable experiment)
     {
         ExperimentImmutable exp = (ExperimentImmutable) experiment;
         getSample().setExperiment(exp.getExperiment());
     }
 
+    @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         EntityHelper.createOrUpdateProperty(getSample(), propertyCode, propertyValue);
     }
 
+    @Override
     public void setSampleType(String type)
     {
         SampleType sampleType = new SampleType();
@@ -103,6 +106,7 @@ public class Sample extends SampleImmutable implements ISample
         getSample().setSampleType(sampleType);
     }
 
+    @Override
     public void setContainer(ISampleImmutable container)
     {
         SampleImmutable containerImpl = (SampleImmutable) container;

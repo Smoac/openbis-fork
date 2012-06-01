@@ -57,6 +57,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     /**
      * Serializes data for recovery information
      */
+    @Override
     public <T extends DataSetInformation> void checkpointPrecommittedState(TechId registrationId,
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -70,6 +71,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         checkpointState(runner, recoveryState, RecoveryStage.PRECOMMIT);
     }
 
+    @Override
     public <T extends DataSetInformation> void checkpointPrecommittedStateAfterPostRegistrationHook(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -83,6 +85,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         checkpointState(runner, recoveryState, RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED);
     }
 
+    @Override
     public <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -115,6 +118,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         operationLog.info("Store recovery checkpoint with markerfile " + processingMarkerFile);
     }
 
+    @Override
     public <T extends DataSetInformation> void removeCheckpoint(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -130,6 +134,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     /**
      * @return processing marker file for a given incoming file.
      */
+    @Override
     public File getProcessingMarkerFile(File incoming)
     {
         return new File(recoveryMarkerFilesDir, incoming.getName() + PROCESSING_MARKER);
@@ -144,11 +149,13 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return new File(dropboxRecoveryStateDir, incomingFileName + PRECOMMIT_SERIALIZED);
     }
 
+    @Override
     public DataSetStorageRecoveryInfo getRecoveryFileFromMarker(File markerFile)
     {
         return DataSetStorageRecoveryInfo.loadFromFile(markerFile);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends DataSetInformation> AbstractRecoveryState<T> extractRecoveryCheckpoint(
             File markerFile)
@@ -158,6 +165,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
                 DataSetStoragePrecommitRecoveryState.class);
     }
 
+    @Override
     public <T extends DataSetInformation> void registrationCompleted(
             DataSetStorageAlgorithmRunner<T> runner)
     {
@@ -177,6 +185,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         FileUtilities.delete(recoveryState);
     }
 
+    @Override
     public boolean canRecoverFromError(Throwable ex)
     {
         if (ex instanceof UserFailureException)
@@ -186,31 +195,37 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         return true;
     }
 
+    @Override
     public void setDropboxRecoveryStateDir(File dropboxRecoveryStateDir)
     {
         this.dropboxRecoveryStateDir = dropboxRecoveryStateDir;
     }
 
+    @Override
     public void setRecoveryMarkerFilesDir(File recoveryMarkerFileDir)
     {
         this.recoveryMarkerFilesDir = recoveryMarkerFileDir;
     }
 
+    @Override
     public void setMaximumRertyCount(int maxRetryCount)
     {
         this.maxRetryCount = maxRetryCount;
     }
 
+    @Override
     public int getMaximumRertyCount()
     {
         return this.maxRetryCount;
     }
 
+    @Override
     public int getRetryPeriodInSeconds()
     {
         return retryPeriodInSeconds;
     }
 
+    @Override
     public void setRetryPeriodInSeconds(int retryPeriodInSeconds)
     {
         this.retryPeriodInSeconds = retryPeriodInSeconds;

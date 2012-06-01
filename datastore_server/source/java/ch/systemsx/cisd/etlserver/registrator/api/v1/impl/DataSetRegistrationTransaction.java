@@ -104,6 +104,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         File[] rollbackQueue1Files = rollBackStackParentFolder.listFiles(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
@@ -231,16 +232,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         getStateAsLiveState().setUserId(userIdOrNull);
     }
 
+    @Override
     public IDataSet createNewDataSet()
     {
         return getStateAsLiveState().createNewDataSet();
     }
 
+    @Override
     public IDataSet createNewDataSet(String dataSetType)
     {
         return getStateAsLiveState().createNewDataSet(dataSetType);
     }
 
+    @Override
     public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
     {
         return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode);
@@ -257,16 +261,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(factory, dataSetType, null);
     }
 
+    @Override
     public IDataSetImmutable getDataSet(String dataSetCode)
     {
         return getStateAsLiveState().getDataSet(dataSetCode);
     }
 
+    @Override
     public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
     {
         return getStateAsLiveState().getDataSetForUpdate(dataSetCode);
     }
 
+    @Override
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
         SampleIdentifier sampleIdentifier =
@@ -276,21 +283,25 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
     }
 
+    @Override
     public ISample getSampleForUpdate(String sampleIdentifierString)
     {
         return getStateAsLiveState().getSampleForUpdate(sampleIdentifierString);
     }
 
+    @Override
     public IExperiment getExperimentForUpdate(String experimentIdentifierString)
     {
         return getStateAsLiveState().getExperimentForUpdate(experimentIdentifierString);
     }
 
+    @Override
     public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
     {
         return getStateAsLiveState().createNewSample(sampleIdentifierString, sampleTypeCode);
     }
 
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         ExperimentIdentifier experimentIdentifier =
@@ -300,6 +311,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
     }
 
+    @Override
     public IExperiment createNewExperiment(String experimentIdentifierString,
             String experimentTypeCode)
     {
@@ -307,11 +319,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 experimentTypeCode);
     }
 
+    @Override
     public IProject createNewProject(String projectIdentifier)
     {
         return getStateAsLiveState().createNewProject(projectIdentifier);
     }
 
+    @Override
     public IProjectImmutable getProject(String projectIdentifierString)
     {
         ProjectIdentifier projectIdentifier =
@@ -321,11 +335,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
     }
 
+    @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
         return getStateAsLiveState().createNewSpace(spaceCode, spaceAdminUserIdOrNull);
     }
 
+    @Override
     public ISpaceImmutable getSpace(String spaceCode)
     {
         SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
@@ -334,6 +350,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == spaceOrNull) ? null : new SpaceImmutable(spaceOrNull);
     }
 
+    @Override
     public IMaterialImmutable getMaterial(String materialCode, String materialType)
     {
         MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, materialType);
@@ -342,31 +359,37 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == materialOrNull) ? null : new MaterialImmutable(materialOrNull);
     }
 
+    @Override
     public IMaterial createNewMaterial(String materialCode, String materialType)
     {
         return getStateAsLiveState().createNewMaterial(materialCode, materialType);
     }
 
+    @Override
     public String moveFile(String src, IDataSet dst)
     {
         return getStateAsLiveState().moveFile(src, dst);
     }
 
+    @Override
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
         return getStateAsLiveState().moveFile(src, dst, dstInDataset);
     }
 
+    @Override
     public String createNewDirectory(IDataSet dst, String dirName)
     {
         return getStateAsLiveState().createNewDirectory(dst, dirName);
     }
 
+    @Override
     public String createNewFile(IDataSet dst, String fileName)
     {
         return getStateAsLiveState().createNewFile(dst, fileName);
     }
 
+    @Override
     public String createNewFile(IDataSet dst, String dstInDataset, String fileName)
     {
         return getStateAsLiveState().createNewFile(dst, dstInDataset, fileName);
@@ -381,6 +404,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      * Marked as deprecated, to prevent using this method directly. Instead it should only be used
      * implicitly as an implementation of the persistent map holder interface.
      */
+    @Override
     @Deprecated
     public DataSetRegistrationPersistentMap getPersistentMap()
     {
@@ -481,6 +505,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      * the DataSetRegistrationService to register not just the data sets, but perform any creation
      * or updates of Experiments and Samples as well.
      */
+    @Override
     public void registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
@@ -544,11 +569,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         }
     }
 
+    @Override
     public ISearchService getSearchService()
     {
         return new SearchService(openBisService);
     }
 
+    @Override
     public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)
             throws IllegalArgumentException
     {
@@ -568,6 +595,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         }
     }
 
+    @Override
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
     {
         return registrationService.getRegistratorContext();

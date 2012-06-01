@@ -79,6 +79,7 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
         return hierarchicalContentProvider;
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {

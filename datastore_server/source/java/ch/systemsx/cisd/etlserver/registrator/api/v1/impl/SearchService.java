@@ -55,6 +55,7 @@ class SearchService implements ISearchService
         this.openBisService = openBisService;
     }
 
+    @Override
     public List<IExperimentImmutable> listExperiments(String projectIdentifierString)
     {
         ProjectIdentifier projectIdentifier =
@@ -70,12 +71,14 @@ class SearchService implements ISearchService
         return experiments;
     }
 
+    @Override
     public List<IDataSetImmutable> searchForDataSets(String property, String value,
             String typeOrNull)
     {
         return searchForDataSets(property, value, typeOrNull, false);
     }
 
+    @Override
     public List<IDataSetImmutable> searchForDataSets(String property, String value,
             String typeOrNull, boolean escape)
     {
@@ -90,11 +93,13 @@ class SearchService implements ISearchService
         return searchForDataSets(sc);
     }
 
+    @Override
     public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull)
     {
         return searchForSamples(property, value, typeOrNull, false);
     }
 
+    @Override
     public List<ISampleImmutable> searchForSamples(String property, String value,
             String typeOrNull, boolean escape)
     {
@@ -109,6 +114,7 @@ class SearchService implements ISearchService
         return searchForSamples(sc);
     }
 
+    @Override
     public List<IDataSetImmutable> searchForDataSets(SearchCriteria searchCriteria)
     {
         List<ExternalData> serverDataSets = openBisService.searchForDataSets(searchCriteria);
@@ -121,6 +127,7 @@ class SearchService implements ISearchService
         return dataSets;
     }
 
+    @Override
     public List<ISampleImmutable> searchForSamples(SearchCriteria searchCriteria)
     {
         List<Sample> serverSamples = openBisService.searchForSamples(searchCriteria);
@@ -132,6 +139,7 @@ class SearchService implements ISearchService
         return samples;
     }
 
+    @Override
     public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection)
     {
         final Set<String> identifiers = new HashSet<String>(identifierCollection.getIdentifiers());
@@ -146,6 +154,7 @@ class SearchService implements ISearchService
                                 new ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material>()
                                     {
 
+                                        @Override
                                         public boolean isPresent(Material element)
                                         {
                                             return identifiers.contains(element.getIdentifier());

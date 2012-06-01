@@ -239,12 +239,14 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         super(new CommandPutArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new CommandPutExecutor(arguments, this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "put";

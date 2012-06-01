@@ -68,6 +68,7 @@ class UniqueGroupValidatorFactory implements IValidatorFactory
         return "Illegal group: " + g;
     }
 
+    @Override
     public IValidator createValidator(String header)
     {
         return new UniqueGroupValidator(regex, groups);

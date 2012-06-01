@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -128,11 +127,13 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             this.expectedData = externalData;
         }
 
+        @Override
         public void describeTo(final Description description)
         {
             description.appendValue(expectedData);
         }
 
+        @Override
         public boolean matches(final Object item)
         {
             if (item instanceof NewExternalData == false)
@@ -177,6 +178,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             this.codeExtractor = codeExtractor;
         }
 
+        @Override
         public DataSetInformation getDataSetInformation(final File incomingDataSetPath,
                 IEncapsulatedOpenBISService openbisService) throws UserFailureException,
                 EnvironmentFailureException

@@ -39,6 +39,7 @@ public class PluginTaskProvider<P>
                 new TableMap<String, AbstractPluginTaskFactory<P>>(Arrays.asList(factories),
                         new IKeyExtractor<String, AbstractPluginTaskFactory<P>>()
                             {
+                                @Override
                                 public String getKey(AbstractPluginTaskFactory<P> factory)
                                 {
                                     return factory.getPluginDescription().getKey();

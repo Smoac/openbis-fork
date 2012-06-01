@@ -58,6 +58,7 @@ public class MailService implements IMailService
         this.defaultBodyText = defaultBodyText;
     }
 
+    @Override
     public IEmailSender createEmailSender()
     {
         return new EmailSender(senderService, defaultSubject, defaultBodyText);
@@ -70,11 +71,13 @@ public class MailService implements IMailService
         return new IEmailSenderService()
             {
 
+                @Override
                 public void trySendEmail(String subject, String bodyText)
                 {
                     mailClient.sendEmailMessage(subject, bodyText, null, null, recipient);
                 }
 
+                @Override
                 public void trySendEmailWithTextAttachment(String subject, String bodyText,
                         String attachmentFileName, String attachmentText) throws IOException
                 {
@@ -83,6 +86,7 @@ public class MailService implements IMailService
                             attachmentFileName, new DataHandler(dataSource), null, null, recipient);
                 }
 
+                @Override
                 public void trySendEmailWithFileAttachment(String subject, String bodyText,
                         String attachmentFileName, String attachmentFilePath)
                         throws FileNotFoundException, IOException

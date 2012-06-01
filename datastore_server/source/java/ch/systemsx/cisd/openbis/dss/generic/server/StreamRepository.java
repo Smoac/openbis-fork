@@ -55,6 +55,7 @@ public class StreamRepository implements IStreamRepository
     {
         private final TokenGenerator tokenGenerator = new TokenGenerator();
 
+        @Override
         public String createUniqueID()
         {
             return tokenGenerator.getNewToken(System.currentTimeMillis());
@@ -85,6 +86,7 @@ public class StreamRepository implements IStreamRepository
         this.timeProvider = timeProvider;
     }
 
+    @Override
     public synchronized String addStream(InputStream inputStream, String path)
     {
         removeStaleInputStreams();
@@ -94,6 +96,7 @@ public class StreamRepository implements IStreamRepository
         return id;
     }
 
+    @Override
     public synchronized InputStreamWithPath getStream(String inputStreamID)
     {
         removeStaleInputStreams();

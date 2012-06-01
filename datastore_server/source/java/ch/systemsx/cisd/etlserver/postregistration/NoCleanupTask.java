@@ -27,6 +27,7 @@ public class NoCleanupTask implements ICleanupTask
 {
     private static final long serialVersionUID = 1L;
 
+    @Override
     public void cleanup(ISimpleLogger logger)
     {
     }

@@ -85,6 +85,7 @@ public class CacheTest extends AssertJUnit
             {
                 private int index;
                 
+                @Override
                 public long getTimeInMilliseconds()
                 {
                     return timestamps[Math.min(index++, timestamps.length - 1)];

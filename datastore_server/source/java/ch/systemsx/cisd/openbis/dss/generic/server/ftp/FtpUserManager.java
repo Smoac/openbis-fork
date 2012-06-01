@@ -49,6 +49,7 @@ public class FtpUserManager implements UserManager
         this.service = service;
     }
 
+    @Override
     public User authenticate(Authentication authentication) throws AuthenticationFailedException
     {
         if (authentication instanceof UsernamePasswordAuthentication)
@@ -68,36 +69,43 @@ public class FtpUserManager implements UserManager
         throw new AuthenticationFailedException();
     }
 
+    @Override
     public void delete(String arg0) throws FtpException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean doesExist(String arg0) throws FtpException
     {
         return false;
     }
 
+    @Override
     public String getAdminName() throws FtpException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String[] getAllUserNames() throws FtpException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public User getUserByName(String userName) throws FtpException
     {
         return new FtpUser(userName, null);
     }
 
+    @Override
     public boolean isAdmin(String arg0) throws FtpException
     {
         return false;
     }
 
+    @Override
     public void save(User arg0) throws FtpException
     {
         throw new UnsupportedOperationException();

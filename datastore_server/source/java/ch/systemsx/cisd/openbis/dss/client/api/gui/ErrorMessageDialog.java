@@ -97,6 +97,7 @@ public class ErrorMessageDialog extends JDialog
         popup.add(menuItem);
         menuItem.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     errorArea.copy();
@@ -105,6 +106,7 @@ public class ErrorMessageDialog extends JDialog
 
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
+                @Override
                 public void propertyChange(PropertyChangeEvent evt)
                 {
 

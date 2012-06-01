@@ -73,11 +73,13 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     // IDataStoreStrategy
     //
 
+    @Override
     public final DataStoreStrategyKey getKey()
     {
         return DataStoreStrategyKey.IDENTIFIED;
     }
 
+    @Override
     public final File getBaseDirectory(final File storeRoot, final DataSetInformation dataSetInfo,
             final DataSetType dataSetType)
     {
@@ -98,6 +100,7 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
         return baseDirectory;
     }
 
+    @Override
     public final File getTargetPath(final File baseDirectory, final File incomingDataSetPath)
             throws IllegalStateException
     {

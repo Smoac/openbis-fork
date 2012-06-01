@@ -157,11 +157,13 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         this.service = service;
     }
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         freeSpaceProvider = setUpFreeSpaceProvider(properties);
@@ -241,6 +243,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         return result;
     }
 
+    @Override
     public void execute()
     {
         if (operationLog.isDebugEnabled())
@@ -423,6 +426,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     private final class ExperimentDataSetsInfoComparator implements
             Comparator<ExperimentDataSetsInfo>
     {
+        @Override
         public int compare(ExperimentDataSetsInfo i1, ExperimentDataSetsInfo i2)
         {
             Date d1 = i1.getLastModificationDate();

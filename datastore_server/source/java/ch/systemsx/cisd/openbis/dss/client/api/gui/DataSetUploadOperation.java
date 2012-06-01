@@ -59,6 +59,7 @@ final class DataSetUploadOperation implements Runnable
         this.newDataSetInfo = newDataSetInfo;
     }
 
+    @Override
     public void run()
     {
         try
@@ -94,7 +95,7 @@ final class DataSetUploadOperation implements Runnable
             }
             if (actualTh instanceof FileExistsException == false)
             {
-                DataSetUploadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
+                AbstractSwingGUI.notifyUserOfThrowable(tableModel.getMainWindow(),
                         newDataSetInfo.getNewDataSetBuilder().getFile().getAbsolutePath(),
                         "Uploading", actualTh, null);
             }

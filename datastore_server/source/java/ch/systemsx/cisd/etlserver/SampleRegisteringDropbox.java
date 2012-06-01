@@ -86,6 +86,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
                 true);
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(File file)
     {
         File marker = new File(file.getParent(), createErrorMarkerFileName(file));
@@ -209,6 +210,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
             return new SampleCodeGenerator()
                 {
 
+                    @Override
                     public List<String> generateCodes(int size)
                     {
                         return service.generateCodes(samplePrefix, size);

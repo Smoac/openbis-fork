@@ -62,11 +62,13 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
     /**
      * do not allow concurrent maintenance tasks to run if they alter the data store contents.
      */
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         if (container)
@@ -89,6 +91,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         /**
          * archives the dataset for the specified dataset code.
          */
+        @Override
         public void execute()
         {
 
@@ -152,6 +155,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             notificationLog.error(message);
         }
 
+        @Override
         public ICleanupTask createCleanupTask()
         {
             return new ArchivingCleanupTask(dataSetCode);
@@ -196,6 +200,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
             this.dataSetCode = dataSetCode;
         }
 
+        @Override
         public void cleanup(ISimpleLogger logger)
         {
             IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();

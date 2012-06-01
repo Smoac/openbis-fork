@@ -86,6 +86,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
+                @Override
                 public void propertyChange(PropertyChangeEvent evt)
                 {
                     if (evt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
@@ -164,6 +165,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         filterField.setEditable(true);
         filterField.getDocument().addDocumentListener(new DocumentListener()
             {
+                @Override
                 public void removeUpdate(DocumentEvent e)
                 {
                     SortableFilterableTableModel model =
@@ -171,6 +173,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
                     model.filter(filterField.getText());
                 }
 
+                @Override
                 public void insertUpdate(DocumentEvent e)
                 {
                     SortableFilterableTableModel model =
@@ -178,6 +181,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
                     model.filter(filterField.getText());
                 }
 
+                @Override
                 public void changedUpdate(DocumentEvent e)
                 {
                     SortableFilterableTableModel model =

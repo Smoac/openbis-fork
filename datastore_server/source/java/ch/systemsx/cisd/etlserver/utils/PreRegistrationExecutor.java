@@ -61,6 +61,7 @@ public class PreRegistrationExecutor extends AbstractPreOrPostRegistrationExecut
         operationLog.info(getExecutorAdjectivalDescription() + " script: " + script);
     }
 
+    @Override
     public boolean execute(final String dataSetCode, final String dataSetAbsolutePathInDropbox)
     {
         return callScript(operationLog, machineLog, scriptPath, dataSetCode,

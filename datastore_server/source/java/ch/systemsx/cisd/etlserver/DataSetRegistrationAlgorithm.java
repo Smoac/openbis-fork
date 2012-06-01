@@ -370,6 +370,7 @@ public class DataSetRegistrationAlgorithm
             dataSetInformation = state.dataSetInformation;
         }
 
+        @Override
         public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
         {
             openBisService.registerDataSet(dataSetInformation, data);

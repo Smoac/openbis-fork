@@ -30,6 +30,7 @@ public abstract class AbstractTopLevelDataSetRegistrator implements ITopLevelDat
         this.globalState = globalState;
     }
 
+    @Override
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return globalState;

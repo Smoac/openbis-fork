@@ -223,12 +223,14 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
         super(new CommandTestValidArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new CommandTestValidExecutor(arguments, this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "testvalid";
@@ -273,39 +275,46 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
         IDssComponent component = new IDssComponent()
             {
 
+                @Override
                 public void checkSession() throws InvalidSessionException
                 {
 
                 }
 
+                @Override
                 public String getSessionToken() throws IllegalStateException
                 {
                     return null;
                 }
 
+                @Override
                 public IDataSetDss getDataSet(String code) throws IllegalStateException,
                         EnvironmentFailureException
                 {
                     return null;
                 }
 
+                @Override
                 public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
                         throws IllegalStateException, EnvironmentFailureException
                 {
                     return null;
                 }
 
+                @Override
                 public void logout()
                 {
 
                 }
 
+                @Override
                 public List<ValidationError> validateDataSet(NewDataSetDTO newDataset,
                         File dataSetFile) throws IllegalStateException, EnvironmentFailureException
                 {
                     return new ArrayList<ValidationError>();
                 }
 
+                @Override
                 public Map<String, String> extractMetadata(NewDataSetDTO newDataset,
                         File dataSetFile) throws IllegalStateException, EnvironmentFailureException
                 {

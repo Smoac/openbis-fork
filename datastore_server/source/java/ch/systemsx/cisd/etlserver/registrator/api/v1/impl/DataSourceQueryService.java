@@ -45,6 +45,7 @@ public class DataSourceQueryService implements IDataSourceQueryService
         return ServiceProvider.getDataSourceProvider();
     }
 
+    @Override
     public DataSet<Map<String, Object>> select(String dataSourceName, String query,
             Object... parameters)
     {
@@ -59,6 +60,7 @@ public class DataSourceQueryService implements IDataSourceQueryService
         }
     }
 
+    @Override
     public DataSet<Map<String, Object>> select(String dataSourceName, String query)
             throws IllegalArgumentException
     {

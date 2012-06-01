@@ -100,6 +100,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private Map<String /* data set type */, LinkSourceDescriptor> linkSourceDescriptors;
 
+    @Override
     public void setUp(String pluginName, Properties pluginProperties)
     {
         LogInitializer.init();
@@ -122,6 +123,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                 + ", hierarchy root = " + hierarchyRootFileName);
     }
 
+    @Override
     public void execute()
     {
         rebuildHierarchy();
@@ -130,6 +132,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     /**
      * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
      */
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;

@@ -48,6 +48,7 @@ public class SortableFilterableTableModel extends AbstractTableModel
             this.reverse = reverse;
         }
 
+        @Override
         public int compare(String[] o1, String[] o2)
         {
             if (reverse)
@@ -85,6 +86,7 @@ public class SortableFilterableTableModel extends AbstractTableModel
         return headers[col];
     }
 
+    @Override
     public int getRowCount()
     {
         if (viewData != null)
@@ -96,6 +98,7 @@ public class SortableFilterableTableModel extends AbstractTableModel
         }
     }
 
+    @Override
     public int getColumnCount()
     {
         return headers.length;
@@ -137,6 +140,7 @@ public class SortableFilterableTableModel extends AbstractTableModel
         fireTableDataChanged();
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         if (viewData != null)

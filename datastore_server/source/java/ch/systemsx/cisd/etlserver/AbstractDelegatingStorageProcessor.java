@@ -91,27 +91,32 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     // delegation
     //
 
+    @Override
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters transactionParameters)
     {
         return delegate.createTransaction(transactionParameters);
     }
 
+    @Override
     public StorageFormat getStorageFormat()
     {
         return delegate.getStorageFormat();
     }
 
+    @Override
     public File getStoreRootDirectory()
     {
         return delegate.getStoreRootDirectory();
     }
 
+    @Override
     public void setStoreRootDirectory(File storeRootDirectory)
     {
         delegate.setStoreRootDirectory(storeRootDirectory);
     }
 
+    @Override
     public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
     {
         return delegate.getDefaultUnstoreDataAction(exception);

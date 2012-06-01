@@ -70,6 +70,7 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private boolean removeFromDataStore;
 
+    @Override
     public void execute()
     {
         operationLog.info("start");
@@ -86,6 +87,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         operationLog.info("end");
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         openBISService = ServiceProvider.getOpenBISService();

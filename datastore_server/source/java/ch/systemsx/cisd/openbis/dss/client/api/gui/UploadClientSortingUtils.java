@@ -35,6 +35,7 @@ public class UploadClientSortingUtils
     {
         CollectionUtils.sort(samples, new IKeyExtractor<String, Sample>()
             {
+                @Override
                 public String getKey(Sample sample)
                 {
                     return sample.getIdentifier();
@@ -46,6 +47,7 @@ public class UploadClientSortingUtils
     {
         CollectionUtils.sort(samples, new IKeyExtractor<String, Experiment>()
             {
+                @Override
                 public String getKey(Experiment experiment)
                 {
                     return experiment.getIdentifier();
@@ -57,6 +59,7 @@ public class UploadClientSortingUtils
     {
         CollectionUtils.sort(dataSets, new IKeyExtractor<String, DataSet>()
             {
+                @Override
                 public String getKey(DataSet dataSet)
                 {
                     return dataSet.getCode();

@@ -222,12 +222,14 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * @return <code>true</code> for paths containing at least 4 nested directory levels.
      */
+    @Override
     public boolean canResolve(String path)
     {
         int nestedLevels = StringUtils.countMatches(path, FtpConstants.FILE_SEPARATOR);
         return nestedLevels >= 4;
     }
 
+    @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         String experimentId = extractExperimentIdFromPath(path);
@@ -413,6 +415,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * @see IExperimentChildrenLister
      */
+    @Override
     public List<FtpFile> listExperimentChildrenPaths(Experiment experiment,
             final String parentPath, FtpPathResolverContext context)
     {
@@ -624,6 +627,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             {
                 private final Pattern compiledPattern = Pattern.compile(fileFilterPattern);
 
+                @Override
                 public boolean accept(IHierarchicalContentNode node)
                 {
                     if (node.isDirectory())

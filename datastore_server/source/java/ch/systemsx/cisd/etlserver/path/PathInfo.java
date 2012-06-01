@@ -76,6 +76,7 @@ final class PathInfo
         }
         Collections.sort(childInfos, new Comparator<PathInfo>()
             {
+                @Override
                 public int compare(PathInfo p1, PathInfo p2)
                 {
                     return p1.getFileName().compareTo(p2.getFileName());

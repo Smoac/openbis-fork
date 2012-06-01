@@ -81,22 +81,26 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             this.root = root;
         }
 
+        @Override
         public IHierarchicalContent asContent(ExternalData dataSet)
         {
             return asContent((IDatasetLocation) dataSet.tryGetAsDataSet());
         }
 
+        @Override
         public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
         {
             String dataSetCode = datasetLocation.getDataSetCode();
             return asContent(dataSetCode);
         }
 
+        @Override
         public IHierarchicalContent asContent(String dataSetCode)
         {
             return asContent(new File(root, dataSetCode));
         }
 
+        @Override
         public IHierarchicalContent asContent(File datasetDirectory)
         {
             return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
@@ -153,6 +157,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private ITimeProvider timeProvider = new ITimeProvider()
         {
+            @Override
             public long getTimeInMilliseconds()
             {
                 return 0;

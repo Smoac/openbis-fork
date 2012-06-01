@@ -43,6 +43,7 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
      * @param unit the unit (<code>null</code> not permitted).
      * @return A tick unit that is larger than the supplied unit.
      */
+    @Override
     public TickUnit getLargerTickUnit(TickUnit unit)
     {
         double x = unit.getSize();
@@ -56,6 +57,7 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
      * @param unit the unit (<code>null</code> not permitted).
      * @return A unit from the collection.
      */
+    @Override
     public TickUnit getCeilingTickUnit(TickUnit unit)
     {
         return getLargerTickUnit(unit);
@@ -67,6 +69,7 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
      * @param size the size.
      * @return A unit from the collection.
      */
+    @Override
     public TickUnit getCeilingTickUnit(double size)
     {
         final double numberOfDigits = Math.log(size) / LOG_10_VALUE;

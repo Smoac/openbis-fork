@@ -62,11 +62,13 @@ public class JythonBasedAggregationServiceReportingPlugin extends
         this.scriptRunnerFactory = scriptRunnerFactory;
     }
 
+    @Override
     public TableModel createAggregationReport(final Map<String, Object> parameters,
             final DataSetProcessingContext context)
     {
         ITableModelCreator generator = new ITableModelCreator()
             {
+                @Override
                 public void create(ISimpleTableModelBuilderAdaptor builder)
                 {
                     operationLog.info("Aggregation report for the following parameters "

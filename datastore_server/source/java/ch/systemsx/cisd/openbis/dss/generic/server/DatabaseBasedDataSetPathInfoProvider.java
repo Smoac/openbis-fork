@@ -118,11 +118,13 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         this.dao = dao;
     }
 
+    @Override
     public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode,
             final String regularExpression)
     {
         return new Loader(dataSetCode, new ILoader()
             {
+                @Override
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
                     String likeExpressionOrNull =
@@ -141,10 +143,12 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }).getInfos();
     }
 
+    @Override
     public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode)
     {
         return new Loader(dataSetCode, new ILoader()
             {
+                @Override
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
                     return getDao().listDataSetFiles(dataSetId);
@@ -152,6 +156,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }).getRoot();
     }
 
+    @Override
     public ISingleDataSetPathInfoProvider tryGetSingleDataSetPathInfoProvider(String dataSetCode)
     {
         final Long dataSetId = getDao().tryToGetDataSetId(dataSetCode);
@@ -174,6 +179,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             this.dao = dao;
         }
 
+        @Override
         public DataSetPathInfo getRootPathInfo()
         {
             DataSetFileRecord record = dao.getDataSetRootFile(dataSetId);
@@ -186,6 +192,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }
         }
 
+        @Override
         public DataSetPathInfo tryGetPathInfoByRelativePath(String relativePath)
         {
             final String normalizedRelativePath = relativePath.replaceAll("/+", "/");
@@ -200,12 +207,14 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             }
         }
 
+        @Override
         public List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent)
         {
             List<DataSetFileRecord> records = dao.listChildrenByParentId(dataSetId, parent.getId());
             return asPathInfos(records);
         }
 
+        @Override
         public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
         {
             String likeExpressionOrNull =
@@ -225,6 +234,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             return asPathInfos(records);
         }
 
+        @Override
         public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
                 String fileNamePattern)
         {

@@ -69,6 +69,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
             this.freeSpaceValues = freeSpaceValues;
         }
 
+        @Override
         public long freeSpaceKb(HostAwareFile path) throws IOException
         {
             shares.add(path.getFile().getName());

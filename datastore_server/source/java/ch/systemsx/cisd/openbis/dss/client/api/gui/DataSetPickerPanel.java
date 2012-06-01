@@ -36,6 +36,7 @@ public class DataSetPickerPanel extends AbstractEntityPickerPanel
         dialog = new DataSetPickerDialog(mainWindow, clientModel);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         String dataSetId = dialog.pickDataSet();

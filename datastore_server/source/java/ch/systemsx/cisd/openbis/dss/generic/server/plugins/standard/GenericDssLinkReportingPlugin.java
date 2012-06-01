@@ -105,6 +105,7 @@ public class GenericDssLinkReportingPlugin extends AbstractDssLinkReportingPlugi
         return linkModel;
     }
 
+    @Override
     public LinkModel createLink(DatasetDescription dataSet)
     {
         return getDataSetLinkModel(dataSet);

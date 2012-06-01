@@ -43,28 +43,33 @@ public class CifexTypeExtractor implements ITypeExtractor
         simpleTypeExtractor = new SimpleTypeExtractor(properties);
     }
 
+    @Override
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
         return new DataSetType(CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath)
                 .getDataSetType());
     }
 
+    @Override
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         return new FileFormatType(CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath)
                 .getFileType());
     }
 
+    @Override
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
         return simpleTypeExtractor.getLocatorType(incomingDataSetPath);
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return simpleTypeExtractor.getProcessorType(incomingDataSetPath);
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return simpleTypeExtractor.isMeasuredData(incomingDataSetPath);

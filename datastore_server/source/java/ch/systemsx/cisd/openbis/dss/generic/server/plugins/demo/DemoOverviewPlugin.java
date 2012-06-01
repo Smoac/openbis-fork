@@ -54,6 +54,7 @@ public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
         label = PropertyUtils.getProperty(properties, LABEL_PROPERTY_KEY, "(no label)");
     }
 
+    @Override
     public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
             IHierarchicalContent datasetRoot, ImageResolutionKind resolution)
     {

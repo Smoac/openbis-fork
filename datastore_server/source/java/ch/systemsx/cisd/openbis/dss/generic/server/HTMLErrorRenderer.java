@@ -27,11 +27,13 @@ public class HTMLErrorRenderer implements IErrorRenderer
 {
     private PrintWriter writer;
 
+    @Override
     public void setWriter(PrintWriter writer)
     {
         this.writer = writer;
     }
 
+    @Override
     public void printErrorMessage(String errorMessage)
     {
         writer.println("<html><body><h1>Error</h1>");

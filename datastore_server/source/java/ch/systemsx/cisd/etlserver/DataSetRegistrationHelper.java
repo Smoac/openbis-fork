@@ -187,6 +187,7 @@ public abstract class DataSetRegistrationHelper implements
         }
     }
 
+    @Override
     public void rollback(DataSetRegistrationAlgorithm algo, Throwable ex)
     {
         rollback(ex);

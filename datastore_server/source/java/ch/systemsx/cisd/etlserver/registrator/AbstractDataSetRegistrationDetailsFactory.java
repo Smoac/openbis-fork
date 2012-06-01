@@ -50,6 +50,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     /**
      * Factory method that creates a new registration details object.
      */
+    @Override
     public DataSetRegistrationDetails<T> createDataSetRegistrationDetails()
     {
         DataSetRegistrationDetails<T> registrationDetails = new DataSetRegistrationDetails<T>();
@@ -69,6 +70,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         return registrationDetails;
     }
 
+    @Override
     public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
             File stagingFile)
     {

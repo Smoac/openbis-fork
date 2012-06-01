@@ -146,6 +146,7 @@ public class RollbackStack implements IRollbackStack
     /**
      * Push the command onto the stack and execute it.
      */
+    @Override
     public void pushAndExecuteCommand(ITransactionalCommand cmd)
     {
         // Push is simple -- just put the new command onto the live stack
@@ -232,6 +233,7 @@ public class RollbackStack implements IRollbackStack
     {
         rollbackAll(new IRollbackStackDelegate()
             {
+                @Override
                 public void willContinueRollbackAll(RollbackStack stack)
                 {
                     // Don't do anything
@@ -291,6 +293,7 @@ public class RollbackStack implements IRollbackStack
             { queue1File, queue2File };
     }
 
+    @Override
     public void setLockedState(boolean lockedState)
     {
         if (!lockedState && isLockedState())
@@ -302,6 +305,7 @@ public class RollbackStack implements IRollbackStack
         }
     }
 
+    @Override
     public boolean isLockedState()
     {
         return lockedMarkerFile.exists();
@@ -349,6 +353,7 @@ public class RollbackStack implements IRollbackStack
             this.order = order;
         }
 
+        @Override
         public int compareTo(StackElement o)
         {
             // The order should be the reverse of the step order (later steps should come first in

@@ -29,6 +29,7 @@ class Project extends ProjectImmutable implements IProject
         getProject().setIdentifier(projectIdentifier);
     }
 
+    @Override
     public void setDescription(String description)
     {
         getProject().setDescription(description);

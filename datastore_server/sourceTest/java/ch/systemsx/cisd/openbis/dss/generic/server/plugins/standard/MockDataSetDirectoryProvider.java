@@ -42,21 +42,25 @@ public final class MockDataSetDirectoryProvider implements IDataSetDirectoryProv
         this.shareIdManager = shareIdManager;
     }
 
+    @Override
     public File getStoreRoot()
     {
         return store;
     }
 
+    @Override
     public File getDataSetDirectory(IDatasetLocation dataSet)
     {
         return new File(new File(getStoreRoot(), shareID), dataSet.getDataSetLocation());
     }
 
+    @Override
     public File getDataSetDirectory(String shareId, String location)
     {
         return new File(new File(getStoreRoot(), shareID), location);
     }
 
+    @Override
     public IShareIdManager getShareIdManager()
     {
         return shareIdManager;

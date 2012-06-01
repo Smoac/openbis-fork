@@ -68,6 +68,7 @@ public class FtpFileImpl extends AbstractFtpFile
         this.childrenFilter = childrenFilter;
     }
 
+    @Override
     public InputStream createInputStream(long offset) throws IOException
     {
         try
@@ -92,11 +93,13 @@ public class FtpFileImpl extends AbstractFtpFile
         }
     }
 
+    @Override
     public long getLastModified()
     {
         return lastModified;
     }
 
+    @Override
     public long getSize()
     {
         if (isFile())
@@ -106,11 +109,13 @@ public class FtpFileImpl extends AbstractFtpFile
         return 0;
     }
 
+    @Override
     public boolean isDirectory()
     {
         return isDirectory;
     }
 
+    @Override
     public boolean isFile()
     {
         return isDirectory() == false;

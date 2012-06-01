@@ -154,26 +154,31 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         // IProcedureAndDataTypeExtractor
         //
 
+        @Override
         public final FileFormatType getFileFormatType(final File incomingDataSetPath)
         {
             return new FileFormatType(FILE_FORMAT_TYPE);
         }
 
+        @Override
         public final LocatorType getLocatorType(final File incomingDataSetPath)
         {
             return new LocatorType(LOCATOR_TYPE);
         }
 
+        @Override
         public final DataSetType getDataSetType(final File incomingDataSetPath)
         {
             return new DataSetType(DATA_SET_TYPE);
         }
 
+        @Override
         public String getProcessorType(File incomingDataSetPath)
         {
             return "da";
         }
 
+        @Override
         public boolean isMeasuredData(File incomingDataSetPath)
         {
             return true;

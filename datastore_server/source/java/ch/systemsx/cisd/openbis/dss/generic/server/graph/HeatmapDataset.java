@@ -54,77 +54,92 @@ public class HeatmapDataset implements XYZDataset
     }
 
     // XYZDataset
+    @Override
     public Number getZ(int series, int item)
     {
         return wrappedDataset.getZ(series, item);
     }
 
+    @Override
     public double getZValue(int series, int item)
     {
         return wrappedDataset.getZValue(series, item);
     }
 
+    @Override
     public DomainOrder getDomainOrder()
     {
         return wrappedDataset.getDomainOrder();
     }
 
+    @Override
     public int getItemCount(int series)
     {
         return wrappedDataset.getItemCount(series);
     }
 
+    @Override
     public Number getX(int series, int item)
     {
         return wrappedDataset.getX(series, item);
     }
 
+    @Override
     public double getXValue(int series, int item)
     {
         return wrappedDataset.getXValue(series, item);
     }
 
+    @Override
     public Number getY(int series, int item)
     {
         return wrappedDataset.getY(series, item);
     }
 
+    @Override
     public double getYValue(int series, int item)
     {
         return wrappedDataset.getYValue(series, item);
     }
 
+    @Override
     public int getSeriesCount()
     {
         return wrappedDataset.getSeriesCount();
     }
 
     // The JFreeChart interface does not use generics
+    @Override
     public Comparable<?> getSeriesKey(int series)
     {
         return wrappedDataset.getSeriesKey(series);
     }
 
+    @Override
     public int indexOf(@SuppressWarnings("rawtypes") Comparable seriesKey)
     {
         return wrappedDataset.indexOf(seriesKey);
     }
 
+    @Override
     public void addChangeListener(DatasetChangeListener arg0)
     {
         wrappedDataset.addChangeListener(arg0);
     }
 
+    @Override
     public DatasetGroup getGroup()
     {
         return wrappedDataset.getGroup();
     }
 
+    @Override
     public void removeChangeListener(DatasetChangeListener arg0)
     {
         wrappedDataset.removeChangeListener(arg0);
     }
 
+    @Override
     public void setGroup(DatasetGroup arg0)
     {
         wrappedDataset.setGroup(arg0);

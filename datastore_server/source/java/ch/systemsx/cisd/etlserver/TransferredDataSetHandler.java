@@ -113,6 +113,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
         private boolean didNotIdentifyDataSet = false;
 
+        @Override
         public void didNotIdentifyDataSet()
         {
             didNotIdentifyDataSet = true;
@@ -186,6 +187,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     /**
      * Returns the lock one needs to hold before one interrupts a data set registration.
      */
+    @Override
     public Lock getRegistrationLock()
     {
         return registrationLock;
@@ -195,6 +197,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     // IPathHandler
     //
 
+    @Override
     public final void handle(final File file)
     {
         if (stopped)
@@ -204,6 +207,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         dataSetHandler.handleDataSet(file);
     }
 
+    @Override
     public void handle(File file, DataSetInformation callerDataSetInformation,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
@@ -228,12 +232,14 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(final File dataSet)
     {
         final DataSetRegistrationHelper registrationHelper = createRegistrationHelper(dataSet);
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(final File dataSet,
             DataSetInformation dataSetInformation,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
@@ -245,6 +251,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         return new DataSetRegistrationAlgorithmRunner(registrationHelper).runAlgorithm();
     }
 
+    @Override
     public boolean isStopped()
     {
         return stopped;
@@ -254,12 +261,14 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     // ISelfTestable
     //
 
+    @Override
     public final void check() throws ConfigurationFailureException, EnvironmentFailureException
     {
         new TopLevelDataSetChecker(operationLog, storeRootDirectoryHolder, fileOperations)
                 .runCheck();
     }
 
+    @Override
     public boolean isRemote()
     {
         return true;
@@ -543,6 +552,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
         }
     }
 
+    @Override
     public File getStoreRootDir()
     {
         return getGlobalState().getStoreRootDir();
@@ -551,6 +561,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     /**
      * Any path can be added to faulty paths as far as we are concerned.
      */
+    @Override
     public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
     {
         return false;

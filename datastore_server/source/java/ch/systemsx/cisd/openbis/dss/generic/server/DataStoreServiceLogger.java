@@ -76,11 +76,13 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 invocationStatusMessage, loggerContext.getElapsedTime()));
     }
 
+    @Override
     public void initialize()
     {
         log("initialize", "");
     }
 
+    @Override
     public int getVersion(String sessionToken)
     {
         log("getVersion", "SESSION(%s)", sessionToken);
@@ -92,6 +94,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         log("send", "", message);
     }
 
+    @Override
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSetLocations)
             throws InvalidAuthenticationException
@@ -100,6 +103,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    @Override
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSetLocations, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException
@@ -115,6 +119,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         log("deleteDataSets", "DATA_SETS(%s)", dataSets);
     }
 
+    @Override
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
@@ -127,6 +132,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 .toString().trim());
     }
 
+    @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
             String serviceKey, List<DatasetDescription> datasets)
     {
@@ -135,6 +141,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    @Override
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
             String userEmailOrNull)
@@ -144,6 +151,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 userSessionToken, serviceKey, datasets.size(), parameterBindings, userEmailOrNull);
     }
 
+    @Override
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull)
     {
@@ -151,6 +159,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 userEmailOrNull);
     }
 
+    @Override
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull, boolean removeFromDataStore)
     {
@@ -158,6 +167,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 datasets.size(), userEmailOrNull, removeFromDataStore);
     }
 
+    @Override
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet)
     {
@@ -165,6 +175,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters)
     {
@@ -173,6 +184,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    @Override
     public String putDataSet(String sessionToken, String dropboxName,
             CustomImportFile customImportFile)
     {

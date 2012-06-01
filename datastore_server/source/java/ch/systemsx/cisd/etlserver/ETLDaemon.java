@@ -476,6 +476,7 @@ public final class ETLDaemon
                         parameters.getQuietPeriodMillis(), ignoredErrorCountBeforeNotification);
         return new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     assert pathname.getParentFile().getAbsolutePath()
@@ -493,6 +494,7 @@ public final class ETLDaemon
     {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -584,21 +586,25 @@ public final class ETLDaemon
         return new IDirectoryScanningHandler()
             {
 
+                @Override
                 public void init(IScannedStore scannedStore)
                 {
                     // do nothing
                 }
 
+                @Override
                 public void beforeHandle(IScannedStore scannedStore)
                 {
                     // do nothing
                 }
 
+                @Override
                 public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem)
                 {
                     return Status.OK;
                 }
 
+                @Override
                 public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem)
                 {
                     return HandleInstruction.PROCESS;
@@ -745,6 +751,7 @@ public final class ETLDaemon
     {
         exitHandler = new IExitHandler()
             {
+                @Override
                 public void exit(int exitCode)
                 {
                     throw new AssertionError("Unexpected exit: " + exitCode);

@@ -165,6 +165,7 @@ public class RmiConversationTest extends SystemTestCase
             this.server = new ServiceConversationServer();
         }
         
+        @Override
         public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
                 String typeId)
         {
@@ -173,11 +174,13 @@ public class RmiConversationTest extends SystemTestCase
             return this.server.startConversation(typeId, "test-client-id");
         }
 
+        @Override
         public void send(ServiceMessage message)
         {
             server.getIncomingMessageTransport().send(message);
         }
 
+        @Override
         public String echo(String input, Integer delayInMillis)
         {
             return echo(input, delayInMillis);
@@ -201,6 +204,7 @@ public class RmiConversationTest extends SystemTestCase
             return input;  
         }
         
+        @Override
         public String echoWithoutProgress(String input, Integer delayInMillis)
         {
             return echoWithoutProgress(input, delayInMillis, null);
@@ -217,6 +221,7 @@ public class RmiConversationTest extends SystemTestCase
             return input;
         }
 
+        @Override
         public String echoWithStore(String input)
         {
             return echoWithStore(input, null);
@@ -233,6 +238,7 @@ public class RmiConversationTest extends SystemTestCase
             return input;
         }
         
+        @Override
         public String echoWithStoreAndProcessingException(String input)
         {
             return echoWithStoreAndProcessingException(input, null);
@@ -250,6 +256,7 @@ public class RmiConversationTest extends SystemTestCase
             throw new NullPointerException("Exception");
         }
         
+        @Override
         public boolean exists(String code) {
             return exists(code, null);
         }
@@ -277,6 +284,7 @@ public class RmiConversationTest extends SystemTestCase
     
     public static class ClientBean implements ConversationalRmiClient {
 
+        @Override
         public void send(ServiceMessage message)
         {
             cont.process(message);

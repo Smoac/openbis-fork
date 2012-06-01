@@ -28,23 +28,27 @@ import org.apache.commons.io.FileUtils;
 public class PlainTextRendererFactory implements IRendererFactory
 {
 
+    @Override
     public IDirectoryRenderer createDirectoryRenderer(RenderingContext context)
     {
         return new PlainTextDirectoryRenderer();
     }
 
+    @Override
     public IErrorRenderer createErrorRenderer()
     {
         return new IErrorRenderer()
             {
                 private PrintWriter writer;
 
+                @Override
                 public void printErrorMessage(String errorMessage)
                 {
                     writer.println("Error:");
                     writer.println(errorMessage);
                 }
 
+                @Override
                 public void setWriter(PrintWriter writer)
                 {
                     this.writer = writer;
@@ -52,6 +56,7 @@ public class PlainTextRendererFactory implements IRendererFactory
             };
     }
 
+    @Override
     public String getContentType()
     {
         return "text";
@@ -61,29 +66,35 @@ public class PlainTextRendererFactory implements IRendererFactory
     {
         private PrintWriter writer;
 
+        @Override
         public void printDirectory(String name, String relativePath)
         {
             writer.print(name + "\n");
         }
 
+        @Override
         public void printFile(String name, String relativePath, long size)
         {
             writer.format("%s\t%s\n", name, FileUtils.byteCountToDisplaySize(size));
         }
 
+        @Override
         public void printFooter()
         {
         }
 
+        @Override
         public void printHeader()
         {
             writer.println("Directory content:");
         }
 
+        @Override
         public void printLinkToParentDirectory(String relativePath)
         {
         }
 
+        @Override
         public void setWriter(PrintWriter writer)
         {
             this.writer = writer;

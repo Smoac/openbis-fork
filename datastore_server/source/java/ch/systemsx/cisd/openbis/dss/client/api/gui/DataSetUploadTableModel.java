@@ -124,6 +124,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
      */
     private class NewDataSetInfoComparator implements Comparator<NewDataSetInfo>
     {
+        @Override
         public int compare(NewDataSetInfo info1, NewDataSetInfo info2)
         {
             int result = 0;
@@ -197,11 +198,13 @@ public class DataSetUploadTableModel extends AbstractTableModel
         selectNewDataSetInfo(selectedDataSet);
     }
 
+    @Override
     public int getColumnCount()
     {
         return 5;
     }
 
+    @Override
     public int getRowCount()
     {
         return newDataSetInfos.size();
@@ -236,6 +239,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         return name;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         NewDataSetInfo newDataSetInfo = newDataSetInfos.get(rowIndex);

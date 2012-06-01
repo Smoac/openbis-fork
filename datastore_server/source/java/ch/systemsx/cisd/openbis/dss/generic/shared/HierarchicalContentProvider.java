@@ -74,6 +74,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         this.hierarchicalContentFactory = hierarchicalContentFactory;
     }
 
+    @Override
     public IHierarchicalContent asContent(String dataSetCode)
     {
         ExternalData externalData = openbisService.tryGetDataSet(dataSetCode);
@@ -86,6 +87,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return asContent(externalData);
     }
 
+    @Override
     public IHierarchicalContent asContent(ExternalData externalData)
     {
         if (externalData.isContainer())
@@ -126,6 +128,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         }
     }
 
+    @Override
     public IHierarchicalContent asContent(final IDatasetLocation datasetLocation)
     {
         // NOTE: remember to call IHierarchicalContent.close() to unlock the data set when finished
@@ -134,6 +137,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);
         IDelegatedAction onCloseAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     directoryProvider.getShareIdManager().releaseLock(
@@ -143,6 +147,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return asContent(dataSetDirectory, onCloseAction);
     }
 
+    @Override
     public IHierarchicalContent asContent(File dataSetDirectory)
     {
         return getHierarchicalContentFactory().asHierarchicalContent(dataSetDirectory,

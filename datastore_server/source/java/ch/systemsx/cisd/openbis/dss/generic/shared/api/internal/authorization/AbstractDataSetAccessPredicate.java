@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public abstract class AbstractDataSetAccessPredicate<T, D> implements IAuthorizationGuardPredicate<T, D>
 {
 
+    @Override
     public Status evaluate(T receiver, String sessionToken, D argument) throws UserFailureException
     {
         List<String> dataSetCodes = getDataSetCodes(argument);

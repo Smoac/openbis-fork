@@ -42,16 +42,19 @@ public abstract class AbstractAggregationServiceReportingPlugin extends Abstract
         super(properties, storeRoot);
     }
 
+    @Override
     public ReportingPluginType getReportingPluginType()
     {
         return ReportingPluginType.AGGREGATION_TABLE_MODEL;
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         throw createException();
     }
 
+    @Override
     public LinkModel createLink(DatasetDescription dataset)
     {
         throw createException();

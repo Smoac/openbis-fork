@@ -38,16 +38,19 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         super(null, context);
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 0;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -55,6 +58,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -62,6 +66,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -69,6 +74,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -77,6 +83,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -85,6 +92,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
     
 
+    @Override
     public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode, String path)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -92,6 +100,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public String putDataSet(String sessionToken, NewDataSetDTO newDataset, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -99,6 +108,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public String getPathToDataSet(String sessionToken, String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
@@ -108,6 +118,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public void setStoreDirectory(File aFile)
     {
     }
@@ -116,6 +127,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     {
     }
 
+    @Override
     public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
             throws IOExceptionUnchecked, IllegalArgumentException
     {

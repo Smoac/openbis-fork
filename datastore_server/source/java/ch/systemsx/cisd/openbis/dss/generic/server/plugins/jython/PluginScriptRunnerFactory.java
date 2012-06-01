@@ -73,6 +73,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
      * Factory method for creating an IAggregationServiceReportingPluginScriptRunner for a given
      * processing context.
      */
+    @Override
     public IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(
             DataSetProcessingContext context)
     {
@@ -93,6 +94,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     /**
      * Factory method for creating an IReportingPluginScriptRunner for a given processing context.
      */
+    @Override
     public IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
@@ -108,6 +110,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     /**
      * Factory method for creating an IProcessingPluginScriptRunner for a given processing context.
      */
+    @Override
     public IProcessingPluginScriptRunner createProcessingPluginRunner(
             DataSetProcessingContext context)
     {
@@ -186,6 +189,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             this.contentProvider = contentProvider;
         }
 
+        @Override
         public IHierarchicalContent getContent(String dataSetCode)
         {
             IHierarchicalContent content = contents.get(dataSetCode);
@@ -225,12 +229,14 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             }
         }
 
+        @Override
         public void aggregate(Map<String, Object> parameters,
                 ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException
         {
             evaluator.evalFunction(FUNCTION_NAME, parameters, tableBuilder);
         }
 
+        @Override
         public void closeContentResources()
         {
             contentProvider.closeContents();
@@ -253,6 +259,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             }
         }
         
+        @Override
         public void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
         {
             evaluator.evalFunction(DESCRIBE_FUNCTION_NAME, dataSets, tableBuilder);
@@ -275,6 +282,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             }
         }
 
+        @Override
         public Status process(IDataSet dataSet)
         {
             try
@@ -290,6 +298,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     }
 
+    @Override
     public String getScriptPath()
     {
         return scriptPath;

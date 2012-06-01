@@ -598,6 +598,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                             with(dataSetInfoMatcher), with(registratorMatcher));
                     will(new CustomAction("Call registrator")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 List<DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator> recordedObjects =

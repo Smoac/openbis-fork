@@ -71,26 +71,31 @@ public class SimpleTypeExtractor implements ITypeExtractor
     // IProcedureAndDataTypeExtractor
     //
 
+    @Override
     public final FileFormatType getFileFormatType(final File incomingDataSetPath)
     {
         return fileFormatType;
     }
 
+    @Override
     public final LocatorType getLocatorType(final File incomingDataSetPath)
     {
         return locatorType;
     }
 
+    @Override
     public final DataSetType getDataSetType(final File incomingDataSetPath)
     {
         return dataSetType;
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return processorType;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return measured;

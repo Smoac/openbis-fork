@@ -234,6 +234,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
     {
 
+        @Override
         public void didRegisterDataSets(List<DataSetInformation> dataSetInformations)
         {
         }
@@ -285,6 +286,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return state;
     }
 
+    @Override
     public Lock getRegistrationLock()
     {
         return state.registrationLock;
@@ -312,6 +314,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Setup necessary for data set handling is done, then the handleDataSet method (a subclass
      * responsibility) is invoked.
      */
+    @Override
     public final void handle(final File incomingDataSetFileOrIsFinishedFile)
     {
         if (stopped)
@@ -340,6 +343,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
                 {
+                    @Override
                     public Boolean execute(boolean didOperationSucceed)
                     {
                         if (hasRecoveryMarkerFile(incomingDataSetFile))
@@ -411,6 +415,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * The handleDataSet method (a subclass responsibility) is invoked.
      */
+    @Override
     public final void handle(File incomingDataSetFile, DataSetInformation callerDataSetInformation,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
@@ -556,11 +561,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         rollbacker.doRollback(service.getDssRegistrationLog());
     }
 
+    @Override
     public boolean isStopped()
     {
         return stopped;
     }
 
+    @Override
     public boolean isRemote()
     {
         return true;
@@ -569,6 +576,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     //
     // ISelfTestable
     //
+    @Override
     public final void check() throws ConfigurationFailureException, EnvironmentFailureException
     {
         new TopLevelDataSetChecker(operationLog, state.storageProcessor, state.fileOperations)
@@ -655,7 +663,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             ITopLevelDataSetRegistratorDelegate delegate)
     {
         @SuppressWarnings(
-            { "unchecked" })
+            { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),

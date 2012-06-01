@@ -58,6 +58,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
         static IFreeSpaceProvider mock;
 
+        @Override
         public long freeSpaceKb(HostAwareFile path) throws IOException
         {
             return mock.freeSpaceKb(path);

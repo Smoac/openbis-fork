@@ -46,11 +46,13 @@ public class FilterableMutableTreeNode extends DefaultMutableTreeNode
             this.pattern = pattern;
         }
 
+        @Override
         public boolean hasMoreElements()
         {
             return next != null;
         }
 
+        @Override
         public Object nextElement()
         {
             if (next == null)

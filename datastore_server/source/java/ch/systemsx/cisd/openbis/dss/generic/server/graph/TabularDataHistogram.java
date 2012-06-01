@@ -55,6 +55,7 @@ public class TabularDataHistogram extends
 
         boolean success = tryIterateOverFileLinesUsing(new ILineProcessor()
             {
+                @Override
                 public void processLine(String xString, String yString, int index)
                 {
                     // The x and y should have the same value, since a histogram requires only one

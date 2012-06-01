@@ -45,6 +45,7 @@ public class SampleImmutable implements ISampleImmutable
         this.existingSample = existingSample;
     }
 
+    @Override
     public IExperimentImmutable getExperiment()
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
@@ -52,6 +53,7 @@ public class SampleImmutable implements ISampleImmutable
         return (null != experiment) ? new ExperimentImmutable(experiment) : null;
     }
 
+    @Override
     public String getSampleIdentifier()
     {
         String identifier = sample.getIdentifier();
@@ -63,6 +65,7 @@ public class SampleImmutable implements ISampleImmutable
         return sample;
     }
 
+    @Override
     public boolean isExistingSample()
     {
         return existingSample;
@@ -79,11 +82,13 @@ public class SampleImmutable implements ISampleImmutable
         }
     }
 
+    @Override
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(sample, propertyCode);
     }
 
+    @Override
     public String getSampleType()
     {
         if (sample.getSampleType() != null)
@@ -93,16 +98,19 @@ public class SampleImmutable implements ISampleImmutable
         return null;
     }
 
+    @Override
     public String getSpace()
     {
         return sample.getSpace().getCode();
     }
 
+    @Override
     public String getCode()
     {
         return sample.getCode();
     }
 
+    @Override
     public List<ISampleImmutable> getContainedSamples()
     {
         List<ISampleImmutable> result = new ArrayList<ISampleImmutable>();

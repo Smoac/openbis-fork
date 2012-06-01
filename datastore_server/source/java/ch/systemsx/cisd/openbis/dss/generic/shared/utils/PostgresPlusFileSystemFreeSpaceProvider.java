@@ -92,6 +92,7 @@ public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvid
         this.fileSystemFreeSpaceProvider = fileSystemFreeSpaceProvider;
     }
 
+    @Override
     public long freeSpaceKb(HostAwareFile path) throws IOException
     {
         long dataSourceFreeSpace = calculateDataSourceFreeSpace() / 1024L;

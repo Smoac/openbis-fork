@@ -33,27 +33,32 @@ public class DssSessionAuthorizationHolder
 
     private static IDssSessionAuthorizer authorizer = new IDssSessionAuthorizer()
         {
+            @Override
             public Status checkDatasetAccess(String sessionToken,
                     List<String> datasetCodes)
             {
                 return Status.createError("Data set authorizer not set.");
             }
 
+            @Override
             public Status checkDatasetAccess(String sessionToken, String datasetCode)
             {
                 return Status.createError("Data set authorizer not set.");
             }
 
+            @Override
             public Status checkSpaceWriteable(String sessionToken, SpaceIdentifier spaceId)
             {
                 return Status.createError("Data set authorizer not set.");
             }
 
+            @Override
             public Status checkInstanceAdminAuthorization(String sessionToken)
             {
                 return Status.createError("Data set authorizer not set.");
             }
 
+            @Override
             public Status checkSpacePowerUserAuthorization(String sessionToken)
             {
                 return Status.createError("Data set authorizer not set.");

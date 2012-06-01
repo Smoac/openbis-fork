@@ -106,6 +106,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
      * 
      * @throws IOException
      */
+    @Override
     public void generateImage() throws IOException
     {
         generateImage(configuration.getImageWidth(), configuration.getImageHeight());
@@ -119,6 +120,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
      * @param imageHeight The desired height of the image
      * @throws IOException
      */
+    @Override
     public void generateImage(int imageWidth, int imageHeight) throws IOException
     {
         JFreeChart chart = createChart(imageWidth, imageHeight);

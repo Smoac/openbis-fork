@@ -45,35 +45,41 @@ public class DataSetDss implements IDataSetDss
         this.parent = parent;
     }
 
+    @Override
     public String getCode()
     {
         return code;
     }
 
+    @Override
     public InputStream getFile(String path) throws IllegalArgumentException,
             InvalidSessionException
     {
         return parent.getFile(this, path);
     }
 
+    @Override
     public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.listFiles(this, startPath, isRecursive);
     }
 
+    @Override
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
     }
 
+    @Override
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir, null);
     }
 
+    @Override
     public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
             String pathInDataSet) throws IllegalArgumentException, InvalidSessionException
     {

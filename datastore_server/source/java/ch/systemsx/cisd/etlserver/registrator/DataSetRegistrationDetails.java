@@ -47,26 +47,31 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
         measuredData = true;
     }
 
+    @Override
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         return fileFormatType;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return measuredData;
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return processorType;
     }
 
+    @Override
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
         return getDataSetType();
     }
 
+    @Override
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
         return getLocatorType();

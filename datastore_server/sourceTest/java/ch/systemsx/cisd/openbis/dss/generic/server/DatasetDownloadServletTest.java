@@ -255,7 +255,7 @@ public class DatasetDownloadServletTest
                     one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
-                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+                    one(request).getParameter(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -595,10 +595,10 @@ public class DatasetDownloadServletTest
             {
                 {
                     Map<String, Boolean> accessMap = new HashMap<String, Boolean>();
-                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
+                    checkAndSetAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             accessMap);
 
-                    one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_SESSION_KEY);
+                    one(httpSession).getAttribute(AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY);
                     Map<String, ExternalData> map = new HashMap<String, ExternalData>();
                     map.put(externalData.getCode(), externalData);
                     will(Expectations.returnValue(map));
@@ -631,7 +631,7 @@ public class DatasetDownloadServletTest
         exp.one(request).getParameter(Utils.SESSION_ID_PARAM);
         exp.will(Expectations.returnValue(null));
 
-        exp.allowing(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+        exp.allowing(request).getParameter(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
         exp.will(Expectations.returnValue("html"));
 
         exp.one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -645,7 +645,7 @@ public class DatasetDownloadServletTest
 
         // For the logging of problem requests
         Vector<String> parameterNames = new Vector<String>();
-        parameterNames.add(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+        parameterNames.add(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
         exp.allowing(request).getParameterNames();
         exp.will(Expectations.returnValue(parameterNames.elements()));
     }
@@ -658,7 +658,7 @@ public class DatasetDownloadServletTest
                     one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
-                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+                    one(request).getParameter(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
                     will(returnValue("thumbnail" + width + "x" + height));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -733,17 +733,17 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    getSessionAttribute(this, DatasetDownloadServlet.DATA_SET_SESSION_KEY,
+                    getSessionAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY,
                             new HashMap<String, ExternalDataPE>());
 
                     Map<String, Boolean> map = new HashMap<String, Boolean>();
-                    checkAndSetAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
+                    checkAndSetAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             map);
 
                     one(openbisService).checkDataSetAccess(EXAMPLE_SESSION_ID,
                             EXAMPLE_DATA_SET_CODE);
 
-                    getSessionAttribute(this, DatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
+                    getSessionAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
                             map);
                 }
             });

@@ -130,11 +130,13 @@ final class StandardProcessor implements IProcessor
     // IProcessor
     //
 
+    @Override
     public final StorageFormat getRequiredInputDataFormat()
     {
         return inputDataFormat;
     }
 
+    @Override
     public final void initiateProcessing(final ProcessingInstructionDTO instruction,
             final DataSetInformation dataSetInformation, final File dataSet)
     {

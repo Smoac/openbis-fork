@@ -95,12 +95,14 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                 SimpleShuffling.class));
     }
 
+    @Override
     public void init(ISimpleLogger logger)
     {
         taskExecutor.cleanup();
         logger.log(LogLevel.INFO, "Simple shuffling strategy initialized");
     }
 
+    @Override
     public void shuffleDataSets(List<Share> sourceShares, List<Share> targetShares,
             IEncapsulatedOpenBISService service, IDataSetMover dataSetMover, ISimpleLogger logger)
     {
@@ -194,6 +196,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         }
         Collections.sort(shareStates, new Comparator<ShareAndFreeSpace>()
             {
+                @Override
                 public int compare(ShareAndFreeSpace o1, ShareAndFreeSpace o2)
                 {
                     long s1 = o1.getFreeSpace();

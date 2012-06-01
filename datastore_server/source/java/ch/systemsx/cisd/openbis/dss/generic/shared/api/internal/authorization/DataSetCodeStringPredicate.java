@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class DataSetCodeStringPredicate extends AbstractDataSetAccessPredicate<IDssServiceRpcGenericInternal, String>
 {
+    @Override
     public List<String> getDataSetCodes(String argument)
     {
         return Arrays.asList(argument);

@@ -69,6 +69,7 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
         preRegistrationError = getAction(ErrorType.PRE_REGISTRATION_ERROR, properties);
            }
 
+    @Override
     public UnstoreDataAction computeUndoAction(ErrorType errorType, Throwable failureOrNull)
     {
         UnstoreDataAction action = null;

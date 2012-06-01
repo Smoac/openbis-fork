@@ -80,7 +80,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
     {
         Properties properties = new Properties();
         properties.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "a.*");
-        properties.setProperty(StringValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
+        properties.setProperty(AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
         StringValidatorFactory factory = new StringValidatorFactory(properties);
         IValidator validator = factory.createValidator("blabla");
         
@@ -106,8 +106,8 @@ public class StringValidatorFactoryTest extends AssertJUnit
     {
         Properties properties = new Properties();
         properties.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "a.*");
-        properties.setProperty(StringValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
-        properties.setProperty(StringValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-");
+        properties.setProperty(AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
+        properties.setProperty(AbstractValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-");
         StringValidatorFactory factory = new StringValidatorFactory(properties);
         IValidator validator = factory.createValidator("blabla");
         

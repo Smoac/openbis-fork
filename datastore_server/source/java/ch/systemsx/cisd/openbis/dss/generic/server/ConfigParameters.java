@@ -187,6 +187,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         return DssPropertyParametersUtil.getDssInternalTempDir(properties);
     }
 
+    @Override
     public void addServletsProperties(String keyPrefix, SectionProperties[] servletsProperties)
     {
         for (SectionProperties sectionProperties : servletsProperties)
@@ -197,6 +198,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         }
     }
 
+    @Override
     public void addServletProperties(String propertiesName, Properties servletProperties)
     {
         String servletClass =

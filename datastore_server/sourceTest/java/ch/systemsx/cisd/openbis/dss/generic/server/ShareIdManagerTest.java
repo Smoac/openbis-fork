@@ -146,6 +146,7 @@ public class ShareIdManagerTest extends AssertJUnit
         final MessageChannel ch = new MessageChannel(2000);
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     manager.lock(DS1);
@@ -183,6 +184,7 @@ public class ShareIdManagerTest extends AssertJUnit
         final MessageChannel ch1 = new MessageChannel();
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     manager.lock(DS1);
@@ -223,6 +225,7 @@ public class ShareIdManagerTest extends AssertJUnit
         final MessageChannel ch4 = new MessageChannel();
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     manager.lock(DS1);
@@ -235,6 +238,7 @@ public class ShareIdManagerTest extends AssertJUnit
         final MessageChannel ch2 = new MessageChannel();
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     ch3.assertNextMessage("locked");

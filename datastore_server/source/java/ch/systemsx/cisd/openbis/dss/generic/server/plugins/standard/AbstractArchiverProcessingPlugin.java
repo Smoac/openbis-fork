@@ -138,6 +138,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      */
     abstract protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset);
 
+    @Override
     public ProcessingStatus archive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
@@ -273,6 +274,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         dataSetDeleter.scheduleDeletionOfDataSets(datasets);
     }
 
+    @Override
     public ProcessingStatus unarchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
@@ -325,6 +327,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses;
     }
 
+    @Override
     public ProcessingStatus deleteFromArchive(List<DatasetLocation> datasets)
     {
         DatasetProcessingStatuses status = doDeleteFromArchive(datasets);
@@ -473,6 +476,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             statusUpdater = new IDataSetStatusUpdater()
                 {
+                    @Override
                     public void update(List<String> codes, DataSetArchivingStatus status,
                             boolean present)
                     {
@@ -571,6 +575,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             this.shares = shares;
         }
 
+        @Override
         public void prepareForUnarchiving(DatasetDescription dataSet)
         {
             SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);

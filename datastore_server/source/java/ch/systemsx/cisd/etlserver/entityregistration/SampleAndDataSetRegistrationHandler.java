@@ -168,11 +168,13 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 userFinishedMarkerFile, operationLog);
     }
 
+    @Override
     public void initializeMailClient(IMailClient mailClient)
     {
         globalState.initializeMailClient(mailClient);
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(File file)
     {
         File fileToRegister = file;

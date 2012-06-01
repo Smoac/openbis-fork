@@ -93,6 +93,7 @@ public class QueueingDataSetStatusUpdaterService
         updater = createDataSetStatusUpdater();
         thread = new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -155,6 +156,7 @@ public class QueueingDataSetStatusUpdaterService
     {
         return new IDataSetStatusUpdater()
             {
+                @Override
                 public void updateDataSetStatuses(List<String> dataSetCodes,
                         DataSetArchivingStatus newStatus, boolean presentInArchive)
                 {

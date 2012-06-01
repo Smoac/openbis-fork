@@ -68,6 +68,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
         this.timeProvider = timeProvider;
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
@@ -75,6 +76,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
 
+    @Override
     public void execute()
     {
         List<PathEntryDTO> entries = dao.listDataSetFilesWithUnkownChecksum();

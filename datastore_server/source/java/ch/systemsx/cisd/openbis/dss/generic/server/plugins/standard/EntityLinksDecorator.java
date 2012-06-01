@@ -69,6 +69,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                 final String materialType = getMaterialType(properties);
                 return new IEntityTableCellTranslation()
                     {
+                        @Override
                         public ISerializableComparable translation(ISerializableComparable value)
                         {
                             String materialCode = value.toString();
@@ -79,6 +80,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                             return entityTableCell;
                         }
 
+                        @Override
                         public EntityKind getEntityKind()
                         {
                             return EntityKind.MATERIAL;
@@ -110,6 +112,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                 return new IEntityTableCellTranslation()
                     {
                         
+                        @Override
                         public ISerializableComparable translation(ISerializableComparable value)
                         {
                             String identifier =
@@ -121,6 +124,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                             return entityTableCell;
                         }
                         
+                        @Override
                         public EntityKind getEntityKind()
                         {
                             return EntityKind.SAMPLE;
@@ -174,6 +178,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
         return factory;
     }
 
+    @Override
     public TableModel transform(TableModel tableModel)
     {
         class TranslationAndIndex

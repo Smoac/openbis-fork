@@ -292,6 +292,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                             with(delegateMatcher));
                     will(new CustomAction("Notify the delegate")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 List<DataSetInformation> dataSetInfos =

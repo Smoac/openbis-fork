@@ -62,9 +62,6 @@ public class PathEntryDTO
         this.lastModifiedDate = lastModifiedDate;
     }
     
-    private PathEntryDTO() {
-        
-    }
     //
     // For unit tests.
     //

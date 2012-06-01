@@ -147,6 +147,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Copies specified dataset's data to destination specified in constructor. The path at the
      * destination is defined by the original location of the data set.
      */
+    @Override
     public Status copyToDestination(File originalData, DatasetDescription dataset)
     {
         try
@@ -175,6 +176,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Retrieves specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
+    @Override
     public Status retrieveFromDestination(File originalData, DatasetDescription dataset)
     {
         try
@@ -197,15 +199,18 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Deletes specified datases's data from the destination specified in constructor. The path at
      * the destination is defined by original location of the data set.
      */
+    @Override
     public Status deleteFromDestination(IDatasetLocation dataset)
     {
         return delete(dataset, new IDeleteAction()
             {
+                @Override
                 public String getName()
                 {
                     return "delete";
                 }
 
+                @Override
                 public void delete(File dataSetFolder, String dataSetCode)
                 {
                     executor.deleteFolder(dataSetFolder);
@@ -213,15 +218,18 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             });
     }
 
+    @Override
     public Status markAsDeleted(IDatasetLocation dataset)
     {
         return delete(dataset, new IDeleteAction()
             {
+                @Override
                 public String getName()
                 {
                     return "mark as deleted";
                 }
 
+                @Override
                 public void delete(File dataSetFolder, String dataSetCode)
                 {
                     File deletedFolder =
@@ -259,6 +267,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Checks if specified dataset's data are present and synchronized in the destination specified
      * in constructor. The path at the destination is defined by original location of the data set.
      */
+    @Override
     public BooleanStatus isSynchronizedWithDestination(File originalData, DatasetDescription dataset)
     {
         try
@@ -281,6 +290,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
      * Checks if specified dataset's data are present in the destination specified in constructor.
      * The path at the destination is defined by original location of the data set.
      */
+    @Override
     public BooleanStatus isPresentInDestination(DatasetDescription dataset)
     {
         try

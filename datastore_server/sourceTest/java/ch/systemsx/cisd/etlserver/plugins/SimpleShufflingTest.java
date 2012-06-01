@@ -78,6 +78,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
             list.add(valueInKb);
         }
 
+        @Override
         public long freeSpaceKb(HostAwareFile path) throws IOException
         {
             File file = path.getFile();

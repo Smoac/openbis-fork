@@ -80,6 +80,7 @@ public abstract class AbstractEntityPickerDialog extends JDialog
         button.setText("Refresh");
         button.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     button.setEnabled(false);
@@ -102,6 +103,7 @@ public abstract class AbstractEntityPickerDialog extends JDialog
                     // update UI
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 setDialogData();

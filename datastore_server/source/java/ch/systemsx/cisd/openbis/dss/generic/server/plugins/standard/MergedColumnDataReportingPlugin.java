@@ -61,6 +61,7 @@ public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportin
                 (rowIdColumnHeaderOrNull == null) ? "id" : rowIdColumnHeaderOrNull;
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

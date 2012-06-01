@@ -852,6 +852,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             return new CustomAction("makeSystemUnavailable")
                 {
+                    @Override
                     public Object invoke(Invocation invocation) throws Throwable
                     {
                         makeFileSystemUnavailable(workingDirectory);
@@ -864,6 +865,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             return new CustomAction("makeSystemAvailable")
                 {
+                    @Override
                     public Object invoke(Invocation invocation) throws Throwable
                     {
                         makeFileSystemAvailable(workingDirectory);
