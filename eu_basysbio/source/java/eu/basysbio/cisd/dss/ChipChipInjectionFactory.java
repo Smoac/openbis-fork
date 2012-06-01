@@ -175,6 +175,7 @@ enum ChipChipInjectionFactory implements IInjectionFactory<ChipChipData>
         this.columnNumber = columnNumber;
     }
 
+    @Override
     public IColumnInjection<ChipChipData> tryToCreate(List<Column> columns)
     {
         int colIndex = columnNumber - 1;

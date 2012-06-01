@@ -133,6 +133,7 @@ enum TimeSeriesInjectionFactory implements IInjectionFactory<TimeSeriesValue>
         pattern = Pattern.compile(columnHeaderPattern);
     }
 
+    @Override
     public IColumnInjection<TimeSeriesValue> tryToCreate(List<Column> columns)
     {
         int colIndex = columnNumber - 1;

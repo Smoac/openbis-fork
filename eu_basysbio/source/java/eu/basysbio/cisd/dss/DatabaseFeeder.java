@@ -54,6 +54,7 @@ class DatabaseFeeder implements IDatabaseFeeder
 
     private final class DataSetProviderForTimeSeriesData implements IDataSetProvider
     {
+        @Override
         public List<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
         {
             return dao.listDataSetsByTimeSeriesDataColumnHeader(dataColumnHeader);
@@ -62,6 +63,7 @@ class DatabaseFeeder implements IDatabaseFeeder
 
     private final class DataSetProviderForChipChipData implements IDataSetProvider
     {
+        @Override
         public List<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
         {
             return dao.listDataSetsByChipChipDataColumnHeader(dataColumnHeader);
@@ -88,17 +90,20 @@ class DatabaseFeeder implements IDatabaseFeeder
         valueGroupIdGenerator = new ValueGroupIdGenerator(dao);
     }
 
+    @Override
     public void resetValueGroupIDGenerator()
     {
         valueGroupIdGenerator.clear();
     }
 
+    @Override
     public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
             String nameOfReaderSource)
     {
         feedDatabase(dataSetInformation, reader, nameOfReaderSource, null);
     }
 
+    @Override
     public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
             String nameOfReaderSource, String biIdOrNull)
     {

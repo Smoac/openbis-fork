@@ -246,6 +246,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                     one(dao).insertTimeSeriesValues(with(DATA_SET_SPECIAL_ID), with("ID"),
                             with(new BaseMatcher<List<TimeSeriesValue>>()
                                 {
+                                    @Override
                                     @SuppressWarnings("unchecked")
                                     public boolean matches(Object item)
                                     {
@@ -258,6 +259,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                                         return true;
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                     }

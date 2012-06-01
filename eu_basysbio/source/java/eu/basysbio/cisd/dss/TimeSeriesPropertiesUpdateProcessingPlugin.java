@@ -48,6 +48,7 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

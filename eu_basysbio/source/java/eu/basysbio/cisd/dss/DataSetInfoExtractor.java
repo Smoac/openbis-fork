@@ -62,6 +62,7 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
                 properties));
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

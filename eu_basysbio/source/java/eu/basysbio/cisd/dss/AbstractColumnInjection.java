@@ -26,6 +26,7 @@ abstract class AbstractColumnInjection<T extends AbstractDataValue> implements I
         this.column = column;
     }
     
+    @Override
     public void inject(T dataValue, int rowIndex)
     {
         String value = column.getValues().get(rowIndex);

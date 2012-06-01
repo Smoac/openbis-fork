@@ -30,11 +30,13 @@ import net.lemnik.eodsql.TypeMapper;
  */
 public class StringArrayMapper implements TypeMapper<String[]>
 {
+    @Override
     public String[] get(ResultSet results, int column) throws SQLException
     {
         return (String[]) results.getArray(column).getArray();
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, String[] obj) throws SQLException
     {
         if (obj != null)
@@ -46,6 +48,7 @@ public class StringArrayMapper implements TypeMapper<String[]>
         }
     }
 
+    @Override
     public void set(ResultSet results, int column, String[] obj) throws SQLException
     {
         results.updateArray(column, new SimpleSQLStringArray(obj));

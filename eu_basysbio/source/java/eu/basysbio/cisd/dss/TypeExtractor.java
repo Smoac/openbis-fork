@@ -44,6 +44,7 @@ public class TypeExtractor implements ITypeExtractor
         extractor = new SimpleTypeExtractor(properties);
     }
 
+    @Override
     public final DataSetType getDataSetType(File incomingDataSetPath)
     {
         if (incomingDataSetPath.isDirectory() == false)
@@ -53,6 +54,7 @@ public class TypeExtractor implements ITypeExtractor
         }
         String[] files = incomingDataSetPath.list(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(DATA_TYPE);
@@ -68,21 +70,25 @@ public class TypeExtractor implements ITypeExtractor
         return dataSetType;
     }
 
+    @Override
     public final FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         return extractor.getFileFormatType(incomingDataSetPath);
     }
 
+    @Override
     public final LocatorType getLocatorType(File incomingDataSetPath)
     {
         return extractor.getLocatorType(incomingDataSetPath);
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return extractor.getProcessorType(incomingDataSetPath);
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return extractor.isMeasuredData(incomingDataSetPath);

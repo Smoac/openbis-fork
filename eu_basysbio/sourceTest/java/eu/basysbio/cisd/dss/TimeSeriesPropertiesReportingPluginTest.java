@@ -64,6 +64,7 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
         List<TableModelRow> rows = table.getRows();
         Collections.sort(rows, new Comparator<TableModelRow>()
             {
+                @Override
                 public int compare(TableModelRow r1, TableModelRow r2)
                 {
                     return r1.getValues().toString().compareTo(r2.getValues().toString());

@@ -124,26 +124,31 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 
     private final class DummyStorageProcessor implements IStorageProcessorTransactional
     {
+        @Override
         public File getStoreRootDirectory()
         {
             return null;
         }
 
+        @Override
         public void setStoreRootDirectory(File storeRootDirectory)
         {
         }
 
+        @Override
         public IStorageProcessorTransaction createTransaction(
                 StorageProcessorTransactionParameters parameters)
         {
             return new NullStorageProcessorTransaction();
         }
 
+        @Override
         public StorageFormat getStorageFormat()
         {
             return null;
         }
 
+        @Override
         public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
         {
             return null;

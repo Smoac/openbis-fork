@@ -44,6 +44,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractTableModelRepor
         super(properties, storeRoot);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         List<String> headers = new ArrayList<String>();

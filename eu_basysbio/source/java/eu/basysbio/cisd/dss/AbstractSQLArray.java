@@ -38,6 +38,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public Object getArray(Map<String, Class<?>> map) throws SQLException,
             UnsupportedOperationException
     {
@@ -47,6 +48,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public Object getArray(long index, int count) throws SQLException,
             UnsupportedOperationException
     {
@@ -56,6 +58,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public Object getArray(long index, int count, Map<String, Class<?>> map) throws SQLException,
             UnsupportedOperationException
     {
@@ -65,6 +68,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public ResultSet getResultSet() throws SQLException, UnsupportedOperationException
     {
         throw new UnsupportedOperationException();
@@ -73,6 +77,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public ResultSet getResultSet(Map<String, Class<?>> map) throws SQLException,
             UnsupportedOperationException
     {
@@ -82,6 +87,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public ResultSet getResultSet(long index, int count) throws SQLException,
             UnsupportedOperationException
     {
@@ -91,6 +97,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public ResultSet getResultSet(long index, int count, Map<String, Class<?>> map)
             throws SQLException, UnsupportedOperationException
     {

@@ -41,6 +41,7 @@ class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
                         TimeSeriesDataSetUploaderParameters.IGNORE_EMPTY_LINES_KEY, true);
     }
 
+    @Override
     public List<NewProperty> extractDataSetProperties(File incomingDataSetPath)
     {
         return HeaderUtils.extractHeaderProps(incomingDataSetPath, ignoreEmptyLines, false,

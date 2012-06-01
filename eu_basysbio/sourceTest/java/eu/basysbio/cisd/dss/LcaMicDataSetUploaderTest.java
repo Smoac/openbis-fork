@@ -57,6 +57,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
             this.content = content;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             try
@@ -70,6 +71,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
             return true;
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendText(content);

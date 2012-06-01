@@ -80,6 +80,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                         HierarchicalStorageUpdater.STOREROOT_DIR_KEY));
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         dataSource = DBUtils.createDBContext(properties).getDataSource();
@@ -89,12 +90,14 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                         "main-thread.storage-processor.processor.", true), dataSource, service);
     }
 
+    @Override
     public void execute()
     {
         Set<String> knownDataSets = getKnownDataSets();
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
+                @Override
                 public int compare(SimpleDataSetInformationDTO o1, SimpleDataSetInformationDTO o2)
                 {
                     return o1.getDataSetCode().compareTo(o2.getDataSetCode());
