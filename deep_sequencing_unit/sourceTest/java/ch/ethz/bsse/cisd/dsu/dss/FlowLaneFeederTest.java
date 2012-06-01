@@ -339,6 +339,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                 {
                     allowing(service).updateSample(with(new BaseMatcher<SampleUpdatesDTO>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof SampleUpdatesDTO)
@@ -379,6 +380,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                             }
@@ -586,6 +588,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                     one(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
                         {
 
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof ListSampleCriteria)
@@ -597,6 +600,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                                 description.appendText("Flow cell with ID "

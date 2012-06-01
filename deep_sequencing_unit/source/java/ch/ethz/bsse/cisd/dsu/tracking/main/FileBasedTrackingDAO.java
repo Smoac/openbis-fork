@@ -52,6 +52,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
         this.filePath = filePath;
     }
 
+    @Override
     public void saveTrackingState(TrackingStateDTO state)
     {
         List<String> lines = new ArrayList<String>();
@@ -68,6 +69,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
         return StringUtils.join(sampleIds, SEPARATOR);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public TrackingStateDTO getTrackingState()
     {

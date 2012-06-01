@@ -66,6 +66,7 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
         pattern = Pattern.compile(".*<Software.*Version=('|\")(.*)('|\").*");
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

@@ -88,6 +88,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         return result;
     }
 
+    @Override
     public List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities)
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipient =

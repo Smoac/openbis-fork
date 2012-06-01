@@ -90,6 +90,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
         File[] files = childDirectory.listFiles(new FileFilter()
             {
+                @Override
                 public boolean accept(File file)
                 {
                     return file.isDirectory() && file.getName().startsWith(summaryFilePath);
@@ -106,6 +107,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {

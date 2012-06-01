@@ -41,6 +41,7 @@ public class FlowLaneDataSetInfoExtractor implements IDataSetInfoExtractor
         dataSetInfoExtractor = new DefaultDataSetInfoExtractor(properties);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException
