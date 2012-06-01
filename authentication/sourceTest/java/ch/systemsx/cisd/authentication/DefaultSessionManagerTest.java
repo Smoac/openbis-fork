@@ -48,9 +48,8 @@ public class DefaultSessionManagerTest
     private static final String REMOTE_HOST = "remote-host";
 
     /** Kind of dummy <code>Principal</code> to point out that the login was successful. */
-    private static final Principal principal =
-            new Principal("bla", StringUtils.EMPTY, StringUtils.EMPTY,
-                    StringUtils.EMPTY, true);
+    private static final Principal principal = new Principal("bla", StringUtils.EMPTY,
+            StringUtils.EMPTY, StringUtils.EMPTY, true);
 
     private static final int SESSION_EXPIRATION_PERIOD_MINUTES = 1;
 
@@ -96,7 +95,7 @@ public class DefaultSessionManagerTest
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
@@ -328,7 +327,7 @@ public class DefaultSessionManagerTest
     {
         final String user = "u1";
         final Principal sessionPrincipal =
-            new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, true);
+                new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, true);
         prepareRemoteHostSessionFactoryAndPrefixGenerator(user, sessionPrincipal);
         context.checking(new Expectations()
             {
