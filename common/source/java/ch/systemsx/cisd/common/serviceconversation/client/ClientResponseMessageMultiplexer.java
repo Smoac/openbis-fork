@@ -47,6 +47,7 @@ class ClientResponseMessageMultiplexer
     {
         return new IServiceMessageTransport()
             {
+                @Override
                 public void send(ServiceMessage message)
                 {
                     final String conversationId = message.getConversationId();

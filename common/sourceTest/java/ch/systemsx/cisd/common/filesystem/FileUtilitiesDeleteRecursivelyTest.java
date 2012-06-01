@@ -129,6 +129,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
         createStructure();
         FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return false;
@@ -148,6 +149,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
                 // FileFilter
                 //
 
+                @Override
                 public final boolean accept(final File pathname)
                 {
                     return pathname.getAbsolutePath().equals(workingDirectory.getAbsolutePath()) == false;
@@ -169,12 +171,14 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
                 // FileFilter
                 //
 
+                @Override
                 public final boolean accept(final File pathname)
                 {
                     return pathname.getAbsolutePath().equals(workingDirectory.getAbsolutePath()) == false;
                 }
             }, null, new IActivityObserver()
             {
+                @Override
                 public void update()
                 {
                     counter.incrementAndGet();
@@ -192,6 +196,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
         createStructure();
         FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.isFile();
@@ -231,6 +236,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
         createStructure();
         FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.getName().equals("file1a")
@@ -251,6 +257,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
         createStructure();
         FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.getName().equals("dir1");

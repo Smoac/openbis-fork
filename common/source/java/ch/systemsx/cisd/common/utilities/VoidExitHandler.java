@@ -34,6 +34,7 @@ public final class VoidExitHandler implements IExitHandler
     // IExitHandler
     //
 
+    @Override
     public final void exit(final int exitCode)
     {
     }

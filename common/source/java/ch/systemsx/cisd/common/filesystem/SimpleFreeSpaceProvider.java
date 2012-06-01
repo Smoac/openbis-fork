@@ -33,6 +33,7 @@ public final class SimpleFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
+    @Override
     public final long freeSpaceKb(final HostAwareFile path) throws IOException
     {
         final String canonicalPath = FileUtilities.getCanonicalPath(path.getFile());

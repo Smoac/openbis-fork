@@ -114,6 +114,7 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
         List<IHierarchicalContentNode> nodes = node.getChildNodes();
         Collections.sort(nodes, new Comparator<IHierarchicalContentNode>()
             {
+                @Override
                 public int compare(IHierarchicalContentNode n1, IHierarchicalContentNode n2)
                 {
                     return n1.getName().compareTo(n2.getName());

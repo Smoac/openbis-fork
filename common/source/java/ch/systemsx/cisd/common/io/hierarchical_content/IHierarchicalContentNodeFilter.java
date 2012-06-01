@@ -31,6 +31,7 @@ public interface IHierarchicalContentNodeFilter
     public static final IHierarchicalContentNodeFilter MATCH_ALL =
             new IHierarchicalContentNodeFilter()
                 {
+                    @Override
                     public boolean accept(IHierarchicalContentNode node)
                     {
                         return true;

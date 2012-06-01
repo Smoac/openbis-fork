@@ -43,6 +43,7 @@ public final class AlwaysAboveFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
+    @Override
     public final long freeSpaceKb(final HostAwareFile path)
     {
         return Long.MAX_VALUE;

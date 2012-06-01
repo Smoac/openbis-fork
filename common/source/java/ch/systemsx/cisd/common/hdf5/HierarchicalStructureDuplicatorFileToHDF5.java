@@ -56,6 +56,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5
             this.rootPath = rootPath;
         }
 
+        @Override
         public void runWithSimpleWriter(IHDF5ContainerWriter writer)
         {
             HierarchicalStructureDuplicatorFileToHDF5.makeDuplicate(file, rootPath, writer);

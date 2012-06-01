@@ -42,6 +42,7 @@ public class LoggingPathRemoverDecorator implements IFileRemover
         this.failuresOnly = failuresOnly;
     }
 
+    @Override
     public boolean removeRecursively(File fileToRemove)
     {
         final boolean ok = delegate.removeRecursively(fileToRemove);

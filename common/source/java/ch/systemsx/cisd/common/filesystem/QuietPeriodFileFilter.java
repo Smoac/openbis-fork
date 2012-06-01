@@ -154,6 +154,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                         ignoredErrorCountBeforeNotification);
     }
 
+    @Override
     public boolean accept(final StoreItem item)
     {
         final long now = timeProvider.getTimeInMilliseconds();

@@ -30,6 +30,7 @@ public final class MockLogger implements ISimpleLogger
     private final StringBuilder builder = new StringBuilder();
     private final MessageChannel messageChannel = new MessageChannel();
     
+    @Override
     public void log(LogLevel level, String message)
     {
         builder.append(level).append(": ").append(message).append('\n');

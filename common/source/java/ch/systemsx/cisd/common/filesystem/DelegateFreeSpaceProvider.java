@@ -45,6 +45,7 @@ public class DelegateFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
+    @Override
     public long freeSpaceKb(final HostAwareFile path) throws IOException
     {
         return freeSpaceProvider.freeSpaceKb(path);

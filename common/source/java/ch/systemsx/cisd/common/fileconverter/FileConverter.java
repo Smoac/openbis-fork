@@ -58,6 +58,7 @@ public class FileConverter
     {
         return FileUtilities.listFiles(directory, new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return conversionStrategy.tryCheckConvert(pathname) != null;

@@ -335,6 +335,7 @@ public class MixColors
         final float[] intensities = new float[numberOfImages];
         return new ColorMergingAlgorithm()
             {
+                @Override
                 public Color merge(Color[] colors, int x, int y, BufferedImage[] images)
                 {
                     if (isGrayscale)

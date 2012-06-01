@@ -40,6 +40,7 @@ public class RecordingActivityObserverSensor implements IActivityObserver, IActi
     // IActivityObserver
     //
 
+    @Override
     public void update()
     {
         lastActivityMillis = System.currentTimeMillis();
@@ -49,11 +50,13 @@ public class RecordingActivityObserverSensor implements IActivityObserver, IActi
     // IActivitySensor
     //
     
+    @Override
     public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
     {
         return lastActivityMillis;
     }
 
+    @Override
     public boolean hasActivityMoreRecentThan(long thresholdMillis)
     {
         return (System.currentTimeMillis() - lastActivityMillis) < thresholdMillis;

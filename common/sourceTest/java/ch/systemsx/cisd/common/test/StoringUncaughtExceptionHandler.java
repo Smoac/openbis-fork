@@ -37,6 +37,7 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
 
     private String threadName;
 
+    @Override
     public void uncaughtException(Thread t, Throwable th)
     {
         if (throwable == null) // Only store the first throwable

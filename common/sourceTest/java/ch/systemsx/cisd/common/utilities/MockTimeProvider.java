@@ -40,6 +40,7 @@ public class MockTimeProvider implements ITimeProvider
         this.timeStep = timeStep;
     }
     
+    @Override
     public long getTimeInMilliseconds()
     {
         long result = time;

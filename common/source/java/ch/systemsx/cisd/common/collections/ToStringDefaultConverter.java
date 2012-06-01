@@ -43,6 +43,7 @@ public final class ToStringDefaultConverter implements IToStringConverter<Object
     // IToStringConverter
     //
 
+    @Override
     public final String toString(final Object value)
     {
         return String.valueOf(value);

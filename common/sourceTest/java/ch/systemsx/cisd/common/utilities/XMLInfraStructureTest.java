@@ -95,6 +95,7 @@ public class XMLInfraStructureTest extends AssertJUnit
         contentHandler = new MockContentHandler();
         entityResolver = new EntityResolver()
             {
+                @Override
                 public InputSource resolveEntity(String publicId, String systemId)
                         throws SAXException, IOException
                 {

@@ -41,6 +41,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
         List<Integer> items = createTaskItems(itemsNum);
         ITaskExecutor<Integer> taskExecutor = new ITaskExecutor<Integer>()
             {
+                @Override
                 public Status execute(Integer item)
                 {
                     if (executed[item])
@@ -67,6 +68,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
 
         public boolean executedToManyTimes = false; // this is shared among treads
 
+        @Override
         public Status execute(Integer item)
         {
             Integer counter = executionCounter.get();
@@ -106,6 +108,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
         items.add(0); // item 0 occurs twice
         ITaskExecutor<Integer> taskExecutor = new ITaskExecutor<Integer>()
             {
+                @Override
                 public Status execute(Integer item)
                 {
                     work(item, 10);
@@ -136,6 +139,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
             {
                 int tryNumber = 1;
 
+                @Override
                 public Status execute(Integer item)
                 {
                     assertEquals(mainThreadId, getCurrentThreadId());

@@ -94,6 +94,7 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
     // IDirectoryImmutableCopier
     //
 
+    @Override
     public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
             String targetNameOrNull)
     {
@@ -101,6 +102,7 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
                 CopyModeExisting.ERROR);
     }
 
+    @Override
     public Status copyDirectoryImmutably(final File sourceDirectory,
             final File destinationDirectory, final String targetNameOrNull,
             final CopyModeExisting mode)
@@ -114,6 +116,7 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
         }
         final IInactivityObserver observer = new IInactivityObserver()
             {
+                @Override
                 public void update(long inactiveSinceMillis, String descriptionOfInactivity)
                 {
                     machineLog.error(descriptionOfInactivity + ", terminating rsync");

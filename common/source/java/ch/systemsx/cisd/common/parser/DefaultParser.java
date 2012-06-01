@@ -61,6 +61,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
         return factory.createObject(tokens);
     }
 
+    @Override
     public final List<E> parse(final Iterator<ILine<T>> lineIterator, final ILineFilter lineFilter,
             final int headerLength) throws ParsingException
     {
@@ -109,6 +110,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
         return true;
     }
 
+    @Override
     public final Iterator<E> parseIteratively(final Iterator<ILine<T>> lineIterator,
             final ILineFilter lineFilter, final int headerLength) throws ParsingException
     {
@@ -117,6 +119,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
             {
                 ILine<T> currentLine = null;
 
+                @Override
                 public boolean hasNext()
                 {
                     boolean hasNext = lineIterator.hasNext();
@@ -137,6 +140,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
                     return hasNext;
                 }
 
+                @Override
                 public E next()
                 {
                     if (currentLine == null && hasNext() == false)
@@ -156,6 +160,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
                     }
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
@@ -164,6 +169,7 @@ public class DefaultParser<E, T> implements IParser<E, T>
             };
     }
 
+    @Override
     public final void setObjectFactory(final IParserObjectFactory<E> factory)
     {
         this.factory = factory;

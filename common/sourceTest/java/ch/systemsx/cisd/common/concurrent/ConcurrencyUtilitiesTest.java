@@ -79,16 +79,19 @@ public class ConcurrencyUtilitiesTest
     {
         logSettings = new ILogSettings()
             {
+                @Override
                 public LogLevel getLogLevelForError()
                 {
                     return level;
                 }
 
+                @Override
                 public AssertingLogger getLogger()
                 {
                     return logger;
                 }
 
+                @Override
                 public String getOperationName()
                 {
                     return name;
@@ -104,6 +107,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     return valueProvided;
@@ -124,6 +128,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     return valueProvided;
@@ -146,6 +151,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     return valueProvided;
@@ -165,6 +171,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -192,6 +199,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -235,6 +243,7 @@ public class ConcurrencyUtilitiesTest
                 }, 0L, 10L);
             final Future<String> future = eservice.submit(new Callable<String>()
                 {
+                    @Override
                     public String call() throws Exception
                     {
                         try
@@ -269,6 +278,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -300,6 +310,7 @@ public class ConcurrencyUtilitiesTest
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -340,6 +351,7 @@ public class ConcurrencyUtilitiesTest
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -374,6 +386,7 @@ public class ConcurrencyUtilitiesTest
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     try
@@ -429,6 +442,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     throw new TaggedException();
@@ -452,6 +466,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     throw new TaggedException(msg);
@@ -479,6 +494,7 @@ public class ConcurrencyUtilitiesTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
+                @Override
                 public String call() throws Exception
                 {
                     throw new TaggedException(msg);

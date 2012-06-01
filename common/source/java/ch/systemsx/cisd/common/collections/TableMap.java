@@ -234,22 +234,26 @@ public class TableMap<K, E> implements Iterable<E>
     /**
      * Creates an iterator of the rows in the order they have been added. Removing is not supported.
      */
+    @Override
     public final Iterator<E> iterator()
     {
         return new Iterator<E>()
             {
                 private Iterator<Map.Entry<K, E>> iterator = map.entrySet().iterator();
 
+                @Override
                 public boolean hasNext()
                 {
                     return iterator.hasNext();
                 }
 
+                @Override
                 public E next()
                 {
                     return iterator.next().getValue();
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException("Can not remove an element.");

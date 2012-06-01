@@ -64,6 +64,7 @@ public final class DateConverter implements Converter<Date>
      * is <code>null</code>.
      * </p>
      */
+    @Override
     public final Date convert(String value)
     {
         if (value == null)
@@ -79,6 +80,7 @@ public final class DateConverter implements Converter<Date>
         }
     }
 
+    @Override
     public final Date getDefaultValue()
     {
         return new Date();

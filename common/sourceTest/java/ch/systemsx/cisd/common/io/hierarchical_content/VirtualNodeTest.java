@@ -494,6 +494,7 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
         prepareAllNodesNotExist();
         expectResouceUnavailableException(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     virtualNode.getFile();
@@ -511,6 +512,7 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
         prepareAllNodesNotExist();
         expectResouceUnavailableException(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     virtualNode.getFileContent();
@@ -528,6 +530,7 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
         prepareAllNodesNotExist();
         expectResouceUnavailableException(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     virtualNode.getInputStream();

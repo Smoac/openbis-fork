@@ -90,6 +90,7 @@ public final class TabFileLoaderTest
         // IParserObjectFactoryFactory
         //
 
+        @Override
         public final IParserObjectFactory<ABC> createFactory(final IPropertyMapper propertyMapper)
                 throws ParserException
         {
@@ -100,6 +101,7 @@ public final class TabFileLoaderTest
                     // IParserObjectFactory
                     //
 
+                    @Override
                     public final ABC createObject(final String[] lineTokens) throws ParserException
                     {
                         ABC abc = new ABC();

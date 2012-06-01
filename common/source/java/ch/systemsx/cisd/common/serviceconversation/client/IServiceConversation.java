@@ -36,6 +36,7 @@ public interface IServiceConversation extends IServiceMessenger, Closeable
     /**
      * Closes this messenger. Do not call any other method after this call.
      */
+    @Override
     public void close();
 
     /**

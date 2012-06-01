@@ -56,6 +56,7 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     // ISequenceNameMapper
     //
 
+    @Override
     public final String getSequencerForTable(final String tableName)
     {
         final String tableNameInLowerCase = tableName.toLowerCase();

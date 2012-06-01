@@ -84,6 +84,7 @@ class ParallelizedWorker<T> implements Runnable
         this.stopOnFirstFailure = stopOnFirstFailure;
     }
 
+    @Override
     public void run()
     {
         try

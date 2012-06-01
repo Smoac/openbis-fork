@@ -134,6 +134,7 @@ public class DefaultLineTokenizer implements ILineTokenizer<String>
     // ILineTokenizer
     //
 
+    @Override
     public final void init()
     {
         StrTokenizer strTokenizer = new StrTokenizer();
@@ -146,11 +147,13 @@ public class DefaultLineTokenizer implements ILineTokenizer<String>
         this.tokenizer = strTokenizer;
     }
 
+    @Override
     public final String[] tokenize(String line)
     {
         return tokenizer.reset(line).getTokenArray();
     }
 
+    @Override
     public final void destroy()
     {
         tokenizer = null;

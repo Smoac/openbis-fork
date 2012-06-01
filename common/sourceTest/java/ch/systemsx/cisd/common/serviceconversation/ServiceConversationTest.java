@@ -78,6 +78,7 @@ public class ServiceConversationTest
         {
             server.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
                 {
+                    @Override
                     public void send(ServiceMessage message)
                     {
                         int attempt = 0;
@@ -99,6 +100,7 @@ public class ServiceConversationTest
 
         }
 
+        @Override
         public void send(ServiceMessage message)
         {
             // Send all messages twice to test detection of duplicate messages.
@@ -106,6 +108,7 @@ public class ServiceConversationTest
             server.getIncomingMessageTransport().send(message);
         }
 
+        @Override
         public ServiceConversationDTO startConversation(String typeId)
         {
             return server.startConversation(typeId, "dummyClient");
@@ -168,6 +171,7 @@ public class ServiceConversationTest
 
     private static class SingleEchoService implements IService
     {
+        @Override
         public void run(IServiceMessenger messenger)
         {
             messenger.send(messenger.receive(String.class));
@@ -177,21 +181,25 @@ public class ServiceConversationTest
         {
             return new IServiceFactory()
                 {
+                    @Override
                     public IService create()
                     {
                         return new SingleEchoService();
                     }
 
+                    @Override
                     public int getClientTimeoutMillis()
                     {
                         return 100;
                     }
 
+                    @Override
                     public String getServiceTypeId()
                     {
                         return "singleEcho";
                     }
 
+                    @Override
                     public boolean interruptServiceOnClientException()
                     {
                         return true;
@@ -373,6 +381,7 @@ public class ServiceConversationTest
                 new LinkedBlockingQueue<ServiceMessage>();
         conversations.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
             {
+                @Override
                 public void send(ServiceMessage message)
                 {
                     messageQueue.add(message);
@@ -449,6 +458,7 @@ public class ServiceConversationTest
         final ServiceConversationServer conversations = new ServiceConversationServer(config());
         conversations.addClientResponseTransport("dummyClient", new IServiceMessageTransport()
             {
+                @Override
                 public void send(ServiceMessage message)
                 {
                 }
@@ -462,21 +472,25 @@ public class ServiceConversationTest
         final ServiceConversationServer conversations = new ServiceConversationServer(config());
         conversations.addServiceType(new IServiceFactory()
             {
+                @Override
                 public IService create()
                 {
                     return new EchoService();
                 }
 
+                @Override
                 public int getClientTimeoutMillis()
                 {
                     return 100;
                 }
 
+                @Override
                 public String getServiceTypeId()
                 {
                     return "echo";
                 }
 
+                @Override
                 public boolean interruptServiceOnClientException()
                 {
                     return true;
@@ -487,6 +501,7 @@ public class ServiceConversationTest
 
     private static class ExceptionThrowingService implements IService
     {
+        @Override
         public void run(IServiceMessenger messenger)
         {
             throw new RuntimeException("Don't like you!");
@@ -496,21 +511,25 @@ public class ServiceConversationTest
         {
             return new IServiceFactory()
                 {
+                    @Override
                     public IService create()
                     {
                         return new ExceptionThrowingService();
                     }
 
+                    @Override
                     public int getClientTimeoutMillis()
                     {
                         return 100;
                     }
 
+                    @Override
                     public String getServiceTypeId()
                     {
                         return "throwException";
                     }
                     
+                    @Override
                     public boolean interruptServiceOnClientException()
                     {
                         return true;
@@ -559,6 +578,7 @@ public class ServiceConversationTest
 
     private static class EventuallyExceptionThrowingService implements IService
     {
+        @Override
         public void run(IServiceMessenger messenger)
         {
             messenger.send("OK1");
@@ -573,21 +593,25 @@ public class ServiceConversationTest
         {
             return new IServiceFactory()
                 {
+                    @Override
                     public IService create()
                     {
                         return new EventuallyExceptionThrowingService();
                     }
 
+                    @Override
                     public int getClientTimeoutMillis()
                     {
                         return 100;
                     }
 
+                    @Override
                     public String getServiceTypeId()
                     {
                         return "throwException";
                     }
 
+                    @Override
                     public boolean interruptServiceOnClientException()
                     {
                         return true;
@@ -620,6 +644,7 @@ public class ServiceConversationTest
 
     private static class DelayedService implements IService
     {
+        @Override
         public void run(IServiceMessenger messenger)
         {
             try
@@ -635,21 +660,25 @@ public class ServiceConversationTest
         {
             return new IServiceFactory()
                 {
+                    @Override
                     public IService create()
                     {
                         return new DelayedService();
                     }
 
+                    @Override
                     public int getClientTimeoutMillis()
                     {
                         return 50;
                     }
 
+                    @Override
                     public String getServiceTypeId()
                     {
                         return "delayed";
                     }
                     
+                    @Override
                     public boolean interruptServiceOnClientException()
                     {
                         return true;

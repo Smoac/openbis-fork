@@ -82,6 +82,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
     // IActivitySensor
     //
 
+    @Override
     public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
     {
         currentResult = getTargetTimeOfLastActivityMoreRecentThan(thresholdMillis);
@@ -125,6 +126,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
         return timeOfLastReportedActivity;
     }
 
+    @Override
     public boolean hasActivityMoreRecentThan(long thresholdMillis)
     {
         final long now = System.currentTimeMillis();
@@ -135,6 +137,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
     // IDescribingActivitySensor
     //
     
+    @Override
     public String describeInactivity(long now)
     {
         if (currentResult.isError())

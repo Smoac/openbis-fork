@@ -32,6 +32,7 @@ public final class FromStringIdentityConverter implements IFromStringConverter<S
         // This is a singleton.
     }
 
+    @Override
     public String fromString(String value)
     {
         return value;

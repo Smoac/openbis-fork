@@ -52,6 +52,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runWriterClient(false, new IHDF5WriterClient()
             {
+                @Override
                 public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeToHDF5Container("/test-bytes", new ByteArrayInputStream(byteArray),
@@ -61,6 +62,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runReaderClient(new IHDF5ReaderClient()
             {
+                @Override
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     final ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -81,6 +83,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runWriterClient(false, new IHDF5WriterClient()
             {
+                @Override
                 public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeToHDF5Container("/test-bytes", new ByteArrayInputStream(byteArray),
@@ -90,6 +93,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runReaderClient(new IHDF5ReaderClient()
             {
+                @Override
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     final ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -110,6 +114,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runWriterClient(true, new IHDF5WriterClient()
             {
+                @Override
                 public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeToHDF5Container("/test-bytes", new ByteArrayInputStream(byteArray),
@@ -119,6 +124,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runReaderClient(new IHDF5ReaderClient()
             {
+                @Override
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     final ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -139,6 +145,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
         HDF5Container hdf5ContentUncompressed = new HDF5Container(hdf5FileUncompressed);
         hdf5ContentUncompressed.runWriterClient(false, new IHDF5WriterClient()
             {
+                @Override
                 public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeToHDF5Container("/test-bytes", new ByteArrayInputStream(byteArray),
@@ -150,6 +157,7 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
         HDF5Container hdf5ContentCompressed = new HDF5Container(hdf5FileCompressed);
         hdf5ContentCompressed.runWriterClient(true, new IHDF5WriterClient()
             {
+                @Override
                 public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeToHDF5Container("/test-bytes", new ByteArrayInputStream(byteArray),

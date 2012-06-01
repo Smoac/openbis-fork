@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
 
 class EchoService implements IService
 {
+    @Override
     public void run(IServiceMessenger messenger)
     {
         try
@@ -47,21 +48,25 @@ class EchoService implements IService
     {
         return new IServiceFactory()
             {
+                @Override
                 public IService create()
                 {
                     return new EchoService();
                 }
 
+                @Override
                 public int getClientTimeoutMillis()
                 {
                     return timeoutMillis;
                 }
 
+                @Override
                 public String getServiceTypeId()
                 {
                     return "echo";
                 }
 
+                @Override
                 public boolean interruptServiceOnClientException()
                 {
                     return true;

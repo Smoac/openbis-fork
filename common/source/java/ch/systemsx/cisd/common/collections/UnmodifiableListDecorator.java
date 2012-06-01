@@ -44,31 +44,37 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
         {
             iter = list.listIterator(startIndex);
         }
+        @Override
         public boolean hasNext()
         {
             return iter.hasNext();
         }
 
+        @Override
         public boolean hasPrevious()
         {
             return iter.hasPrevious();
         }
 
+        @Override
         public E next()
         {
             return iter.next();
         }
 
+        @Override
         public int nextIndex()
         {
             return iter.nextIndex();
         }
 
+        @Override
         public E previous()
         {
             return iter.previous();
         }
 
+        @Override
         public int previousIndex()
         {
             return iter.previousIndex();
@@ -78,16 +84,19 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
         // Not supported
         //
 
+        @Override
         public void add(E o)
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void remove()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void set(E o)
         {
             throw new UnsupportedOperationException();
@@ -109,31 +118,37 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
         return getList();
     }
 
+    @Override
     public E get(int index)
     {
         return getList().get(index);
     }
 
+    @Override
     public int indexOf(Object o)
     {
         return getList().indexOf(o);
     }
 
+    @Override
     public int lastIndexOf(Object o)
     {
         return getList().lastIndexOf(o);
     }
 
+    @Override
     public ListIterator<E> listIterator()
     {
         return new UnmodifiableListIterator<E>(getList(), 0);
     }
 
+    @Override
     public ListIterator<E> listIterator(int index)
     {
         return new UnmodifiableListIterator<E>(getList(), index);
     }
 
+    @Override
     public List<E> subList(int fromIndex, int toIndex)
     {
         return new UnmodifiableListDecorator<E>(getList().subList(fromIndex, toIndex));
@@ -143,21 +158,25 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
     // Not supported
     //
 
+    @Override
     public void add(int index, E element)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends E> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public E remove(int index)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public E set(int index, E element)
     {
         throw new UnsupportedOperationException();

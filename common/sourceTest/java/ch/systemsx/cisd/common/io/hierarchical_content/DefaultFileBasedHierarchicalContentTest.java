@@ -596,36 +596,43 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         return new IHierarchicalContentNode()
             {
 
+                @Override
                 public boolean isDirectory()
                 {
                     return file.isDirectory();
                 }
 
+                @Override
                 public String getRelativePath()
                 {
                     return FileUtilities.getRelativeFilePath(root, file);
                 }
 
+                @Override
                 public String getParentRelativePath()
                 {
                     return FileUtilities.getParentRelativePath(getRelativePath());
                 }
 
+                @Override
                 public String getName()
                 {
                     return file.getName();
                 }
 
+                @Override
                 public File getFile() throws UnsupportedOperationException
                 {
                     return file;
                 }
                 
+                @Override
                 public File tryGetFile()
                 {
                     return file;
                 }
 
+                @Override
                 public List<IHierarchicalContentNode> getChildNodes()
                         throws UnsupportedOperationException
                 {
@@ -642,32 +649,38 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                     return result;
                 }
 
+                @Override
                 public boolean exists()
                 {
                     return file.exists();
                 }
 
+                @Override
                 public long getLastModified()
                 {
                     return file.lastModified();
                 }
 
+                @Override
                 public long getFileLength() throws UnsupportedOperationException
                 {
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }
 
+                @Override
                 public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                         IOExceptionUnchecked
                 {
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }
 
+                @Override
                 public long getChecksumCRC32() throws UnsupportedOperationException
                 {
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }
 
+                @Override
                 public InputStream getInputStream() throws UnsupportedOperationException,
                         IOExceptionUnchecked
                 {

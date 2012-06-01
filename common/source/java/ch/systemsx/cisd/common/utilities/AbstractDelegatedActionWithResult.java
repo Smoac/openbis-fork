@@ -42,6 +42,7 @@ public class AbstractDelegatedActionWithResult<T> implements IDelegatedActionWit
     /**
      * The default implementation is to defer to {@link #execute()}.
      */
+    @Override
     public T execute(boolean didOperationSucceed)
     {
         return execute();

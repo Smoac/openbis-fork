@@ -39,27 +39,32 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
         this.archiveReader = HDF5ArchiverFactory.openForReading(hdf5Container);
     }
 
+    @Override
     public void close()
     {
         archiveReader.close();
     }
 
+    @Override
     public boolean exists(String objectPath)
     {
         return archiveReader.exists(objectPath);
     }
 
+    @Override
     public ArchiveEntry tryGetEntry(String path)
     {
         return archiveReader.tryGetResolvedEntry(path, true);
     }
 
+    @Override
     public List<ArchiveEntry> getGroupMembers(String groupPath)
     {
         return archiveReader.list(groupPath, ListParameters.build().nonRecursive()
                 .resolveSymbolicLinks().get());
     }
 
+    @Override
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
     {
         archiveReader.extractFile(objectPath, ostream);

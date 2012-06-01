@@ -391,16 +391,19 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     // ITimerTaskStatusProvider
     //
 
+    @Override
     public boolean hasErrors()
     {
         return errorLog.size() > 0;
     }
 
+    @Override
     public boolean hasPerformedMeaningfulWork()
     {
         return didSomeWork;
     }
 
+    @Override
     public String tryGetErrorLog()
     {
         if (hasErrors())

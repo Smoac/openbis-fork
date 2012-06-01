@@ -158,12 +158,14 @@ public abstract class FileWatcher extends TimerTask
         // FileWatcherCondition
         //
 
+        @Override
         public final void saveInitialState(File fileToWatch)
         {
             // This returns <code>0L</code> if the file does not exist!
             lastModified = fileToWatch.lastModified();
         }
 
+        @Override
         public final boolean stateChanged(File fileToWatch)
         {
             long current = fileToWatch.lastModified();

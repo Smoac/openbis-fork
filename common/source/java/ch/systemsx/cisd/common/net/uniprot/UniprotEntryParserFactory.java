@@ -50,6 +50,7 @@ final class UniprotEntryParserFactory implements IParserObjectFactory<UniprotEnt
         }
     }
 
+    @Override
     public UniprotEntry createObject(String[] lineTokens) throws ParserException
     {
         assert lineTokens.length == columns.length;

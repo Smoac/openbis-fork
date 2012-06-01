@@ -532,6 +532,7 @@ public final class RsyncCopierTest
                 // Runnable
                 //
 
+                @Override
                 public final void run()
                 {
                     final long sleepMillis = 20;

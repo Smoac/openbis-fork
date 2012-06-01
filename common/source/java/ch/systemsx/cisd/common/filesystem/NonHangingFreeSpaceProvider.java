@@ -83,6 +83,7 @@ public final class NonHangingFreeSpaceProvider extends DelegateFreeSpaceProvider
         // Callable
         //
 
+        @Override
         public final Long call() throws Exception
         {
             return freeSpaceProvider.freeSpaceKb(path);

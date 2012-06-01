@@ -41,6 +41,7 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
 {
     private static class ReflectionStringCapitalizerVisitor implements ReflectionFieldVisitor
     {
+        @Override
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
             return value.toUpperCase();

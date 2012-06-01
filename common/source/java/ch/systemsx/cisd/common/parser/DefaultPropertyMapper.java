@@ -61,6 +61,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
                         // IKeyExtractor
                         //
 
+                        @Override
                         public final String getKey(final IPropertyModel e)
                         {
                             return e.getCode().toLowerCase();
@@ -101,16 +102,19 @@ public class DefaultPropertyMapper implements IPropertyMapper
     // IPropertyMapper
     //
 
+    @Override
     public final boolean containsPropertyCode(final String propertyCode)
     {
         return propertyModels.tryGet(propertyCode.toLowerCase()) != null;
     }
 
+    @Override
     public final Set<String> getAllPropertyCodes()
     {
         return new TreeSet<String>(propertyModels.keySet());
     }
 
+    @Override
     public final IPropertyModel getPropertyModel(final String propertyCode)
             throws IllegalArgumentException
     {
@@ -122,6 +126,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
         return propertyModels.tryGet(propertyCode.toLowerCase());
     }
 
+    @Override
     public String tryGetPropertyDefault(final String propertyCode)
     {
         return defaults.get(propertyCode);

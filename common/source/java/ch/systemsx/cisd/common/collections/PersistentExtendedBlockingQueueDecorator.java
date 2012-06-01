@@ -49,6 +49,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
     // Closeable
     //
 
+    @Override
     public void close()
     {
         persister.close();
@@ -58,6 +59,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
     // ISynchronizable
     //
 
+    @Override
     public void synchronize()
     {
         persister.sync();
@@ -67,61 +69,73 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
     // IExtendedBlockingQueue
     //
 
+    @Override
     public boolean contains(Object o)
     {
         return delegate.contains(o);
     }
 
+    @Override
     public boolean containsAll(Collection<?> c)
     {
         return delegate.containsAll(c);
     }
 
+    @Override
     public boolean isEmpty()
     {
         return delegate.isEmpty();
     }
 
+    @Override
     public int size()
     {
         return delegate.size();
     }
 
+    @Override
     public int remainingCapacity()
     {
         return delegate.remainingCapacity();
     }
 
+    @Override
     public Object[] toArray()
     {
         return delegate.toArray();
     }
 
+    @Override
     public <T> T[] toArray(T[] a)
     {
         return delegate.toArray(a);
     }
 
+    @Override
     public E element()
     {
         return delegate.element();
     }
 
+    @Override
     public E peek()
     {
         return delegate.peek();
     }
 
+    @Override
     public E peekWait() throws InterruptedException
     {
         return delegate.peekWait();
     }
 
+    @Override
     public E peekWait(long timeout, TimeUnit unit) throws InterruptedException
     {
         return delegate.peekWait(timeout, unit);
     }
 
+    @Override
     public E poll()
     {
         persister.check();
@@ -133,6 +147,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return elementOrNull;
     }
 
+    @Override
     public E remove()
     {
         persister.check();
@@ -141,6 +156,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return element;
     }
 
+    @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException
     {
         persister.check();
@@ -152,6 +168,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return elementOrNull;
     }
 
+    @Override
     public E take() throws InterruptedException
     {
         persister.check();
@@ -160,6 +177,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return element;
     }
 
+    @Override
     public boolean add(E o)
     {
         persister.check();
@@ -171,6 +189,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public boolean offer(E o)
     {
         persister.check();
@@ -182,6 +201,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException
     {
         persister.check();
@@ -193,6 +213,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public void put(E o) throws InterruptedException
     {
         persister.check();
@@ -200,6 +221,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         persister.addToTail(o);
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> c)
     {
         persister.check();
@@ -211,6 +233,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public boolean remove(Object o)
     {
         persister.check();
@@ -222,6 +245,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public boolean removeAll(Collection<?> c)
     {
         persister.check();
@@ -233,6 +257,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public boolean retainAll(Collection<?> c)
     {
         persister.check();
@@ -244,6 +269,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return ok;
     }
 
+    @Override
     public int drainTo(Collection<? super E> c, int maxElements)
     {
         persister.check();
@@ -255,6 +281,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return elementsDrained;
     }
 
+    @Override
     public int drainTo(Collection<? super E> c)
     {
         persister.check();
@@ -266,6 +293,7 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         return elementsDrained;
     }
 
+    @Override
     public void clear()
     {
         persister.check();
@@ -273,22 +301,26 @@ public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> im
         persister.persist();
     }
 
+    @Override
     public Iterator<E> iterator()
     {
         return new Iterator<E>()
             {
                 private final Iterator<E> delegateIterator = delegate.iterator();
 
+                @Override
                 public boolean hasNext()
                 {
                     return delegateIterator.hasNext();
                 }
 
+                @Override
                 public E next()
                 {
                     return delegateIterator.next();
                 }
 
+                @Override
                 public void remove()
                 {
                     persister.check();

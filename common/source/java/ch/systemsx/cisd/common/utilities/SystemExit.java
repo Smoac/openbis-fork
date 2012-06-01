@@ -37,6 +37,7 @@ public class SystemExit implements IExitHandler
     {
     }
 
+    @Override
     public void exit(final int exitCode) throws SystemExitException
     {
         if (throwException)

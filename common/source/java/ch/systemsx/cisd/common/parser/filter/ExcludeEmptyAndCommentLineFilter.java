@@ -38,6 +38,7 @@ public final class ExcludeEmptyAndCommentLineFilter implements ILineFilter
     // ILineFilter
     //
 
+    @Override
     public final <T> boolean acceptLine(ILine<T> line)
     {
         assert line != null : "Unspecified line";

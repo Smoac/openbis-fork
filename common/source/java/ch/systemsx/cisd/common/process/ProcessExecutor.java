@@ -289,6 +289,7 @@ class ProcessExecutor
         // NamedCallable
         //
 
+        @Override
         public final ProcessResult call() throws Exception
         {
             try
@@ -298,6 +299,7 @@ class ProcessExecutor
                 final AtomicBoolean processRunning = new AtomicBoolean(true);
                 final Future<?> ioFuture = executor.submit(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             try
@@ -348,6 +350,7 @@ class ProcessExecutor
             }
         }
 
+        @Override
         public String getCallableName()
         {
             return callingThreadName + "::run-P" + processNumber + "-{"
@@ -384,6 +387,7 @@ class ProcessExecutor
         // NamedCallable
         //
 
+        @Override
         public final ProcessResult call() throws Exception
         {
             try
@@ -437,6 +441,7 @@ class ProcessExecutor
             }
         }
 
+        @Override
         public String getCallableName()
         {
             return callingThreadName + "::run-P" + processNumber + "-{"
@@ -463,6 +468,7 @@ class ProcessExecutor
         // NamedCallable
         //
 
+        @Override
         public final ProcessResult call()
         {
             final ProcessRecord processRecord = processWrapper.getAndSet(null);
@@ -496,6 +502,7 @@ class ProcessExecutor
             }
         }
 
+        @Override
         public final String getCallableName()
         {
             return callingThreadName + "::kill-P" + processNumber + "-{"
@@ -508,6 +515,7 @@ class ProcessExecutor
      */
     private class BinaryProcessIOHandler implements IProcessIOHandler
     {
+        @Override
         public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
                 InputStream stderr) throws IOException
         {
@@ -535,6 +543,7 @@ class ProcessExecutor
      */
     private class TextProcessIOHandler implements IProcessIOHandler
     {
+        @Override
         public void handle(AtomicBoolean processRunning, OutputStream stdin, InputStream stdout,
                 InputStream stderr) throws IOException
         {
@@ -597,6 +606,7 @@ class ProcessExecutor
             {
                 private final boolean stopOnInterruption = true;
 
+                @Override
                 public boolean terminate()
                 {
                     ExecutionResult<ProcessResult> executionResult =
@@ -604,12 +614,14 @@ class ProcessExecutor
                     return (executionResult.tryGetResult() != null);
                 }
 
+                @Override
                 public ProcessResult getResult()
                 {
                     return getProcessResult(stopOnInterruption, runnerFuture,
                             millisToWaitForCompletion);
                 }
 
+                @Override
                 public ProcessResult getResult(
                         @SuppressWarnings("hiding") final long millisToWaitForCompletion)
                 {

@@ -188,6 +188,7 @@ public final class HighwaterMarkWatcherTest
                             // CustomAction
                             //
 
+                            @Override
                             public final Object invoke(final Invocation invocation)
                                     throws Throwable
                             {

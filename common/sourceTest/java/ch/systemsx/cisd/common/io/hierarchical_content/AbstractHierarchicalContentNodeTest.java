@@ -54,6 +54,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
 
         assertUnsupportedDirectoryOperationOnAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     fileNode.getChildNodes();
@@ -77,6 +78,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
 
         assertUnsupportedFileOperationOnAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     dirNode.getFileLength();
@@ -84,6 +86,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
             });
         assertUnsupportedFileOperationOnAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     dirNode.getChecksumCRC32();
@@ -91,6 +94,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
             });
         assertUnsupportedFileOperationOnAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     dirNode.getFileContent();
@@ -98,6 +102,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
             });
         assertUnsupportedFileOperationOnAction(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     dirNode.getInputStream();
@@ -136,6 +141,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
         return new AbstractHierarchicalContentNode()
             {
 
+                @Override
                 public boolean isDirectory()
                 {
                     return true;
@@ -147,21 +153,25 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
                 public String getName()
                 {
                     return null;
                 }
 
+                @Override
                 public File getFile() throws UnsupportedOperationException
                 {
                     return null;
                 }
 
+                @Override
                 public boolean exists()
                 {
                     return false;
                 }
 
+                @Override
                 public long getLastModified()
                 {
                     return 0;
@@ -197,6 +207,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
                 public File tryGetFile()
                 {
                     return null;
@@ -209,6 +220,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
         return new AbstractHierarchicalContentNode()
             {
 
+                @Override
                 public boolean isDirectory()
                 {
                     return false;
@@ -220,21 +232,25 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
                 public String getName()
                 {
                     return null;
                 }
 
+                @Override
                 public File getFile() throws UnsupportedOperationException
                 {
                     return null;
                 }
 
+                @Override
                 public boolean exists()
                 {
                     return false;
                 }
 
+                @Override
                 public long getLastModified()
                 {
                     return 0;
@@ -270,6 +286,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
                 public File tryGetFile()
                 {
                     return null;

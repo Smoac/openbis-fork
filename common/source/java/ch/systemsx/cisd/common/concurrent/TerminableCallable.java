@@ -293,6 +293,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     {
         return new TerminableCallable<V>(new ICallable<V>()
             {
+                @Override
                 public V call(IStoppableExecutor<V> stoppableExecutor) throws Exception
                 {
                     return stoppableExecutor.execute(delegate);
@@ -355,6 +356,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
         return (causeOrNull != null) ? causeOrNull : new InterruptedException();
     }
 
+    @Override
     public V call() throws InterruptedException, CanceledException
     {
         if (threadGuard.startGuard() == false)
@@ -369,6 +371,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
             {
                 result = delegate.call(new IStoppableExecutor<V>()
                     {
+                        @Override
                         public V execute(Callable<V> callable) throws Exception
                         {
                             threadGuard.allowStopping();
@@ -381,6 +384,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
                             }
                         }
 
+                        @Override
                         public void execute(Runnable runnable) throws Exception
                         {
                             threadGuard.allowStopping();
@@ -418,6 +422,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     {
         return new NamedRunnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -429,6 +434,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
                     }
                 }
 
+                @Override
                 public String getRunnableName()
                 {
                     return getCallableName();
@@ -436,6 +442,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
             };
     }
 
+    @Override
     public String getCallableName()
     {
         return nameOrNull;
@@ -514,6 +521,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
      *         successfully in due time, or <code>false</code>, if a timeout has occurred.
      * @throws InterruptedExceptionUnchecked If the current thread is interrupted.
      */
+    @Override
     public boolean terminate() throws InterruptedExceptionUnchecked
     {
         return terminate(timeoutTerminateMillis);

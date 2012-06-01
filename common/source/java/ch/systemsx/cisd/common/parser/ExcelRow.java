@@ -32,6 +32,7 @@ public class ExcelRow implements ILine<Row>
         this.row = row;
     }
 
+    @Override
     public String getText()
     {
         if (text == null)
@@ -41,11 +42,13 @@ public class ExcelRow implements ILine<Row>
         return text;
     }
 
+    @Override
     public int getNumber()
     {
         return row.getRowNum();
     }
 
+    @Override
     public Row getObject()
     {
         return row;

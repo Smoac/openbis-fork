@@ -355,6 +355,7 @@ public final class CollectionUtils
     {
         Collections.sort(list, new Comparator<E>()
             {
+                @Override
                 public int compare(E o1, E o2)
                 {
                     C key1 = sortCriteriaKeyExtractor.getKey(o1);

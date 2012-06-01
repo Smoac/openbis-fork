@@ -96,6 +96,7 @@ public final class FileUtilities
      */
     public static final FileFilter ACCEPT_ALL_FILTER = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return true;
@@ -771,6 +772,7 @@ public final class FileUtilities
             this.path = path;
         }
 
+        @Override
         public String describeInactivity(long now)
         {
             return "No delete activity of path " + path.getPath() + " for "
@@ -1118,6 +1120,7 @@ public final class FileUtilities
             {
                 return directory.listFiles(new FileFilter()
                     {
+                        @Override
                         public boolean accept(final File pathname)
                         {
                             return pathname.isDirectory();
@@ -1314,6 +1317,7 @@ public final class FileUtilities
         final String uniqueFilePath =
                 StringUtilities.createUniqueString(filePath, new IUniquenessChecker()
                     {
+                        @Override
                         public boolean isUnique(String str)
                         {
                             return new File(str).exists() == false;
@@ -1562,6 +1566,7 @@ public final class FileUtilities
             return false;
         }
 
+        @Override
         public boolean accept(File file)
         {
             if (observerOrNull != null)
@@ -1591,6 +1596,7 @@ public final class FileUtilities
             this.observerOrNull = observerOrNull;
         }
 
+        @Override
         public boolean accept(File pathname)
         {
             if (observerOrNull != null)
@@ -1621,6 +1627,7 @@ public final class FileUtilities
             this.filter2 = filter2;
         }
 
+        @Override
         public boolean accept(File pathname)
         {
             if (observerOrNull != null)
@@ -1646,6 +1653,7 @@ public final class FileUtilities
             this.observerOrNull = observerOrNull;
         }
 
+        @Override
         public boolean accept(File pathname)
         {
             if (observerOrNull != null)

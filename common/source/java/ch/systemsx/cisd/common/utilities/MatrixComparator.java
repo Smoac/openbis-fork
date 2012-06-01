@@ -46,6 +46,7 @@ public final class MatrixComparator implements Comparator<String>, Serializable
         this.letterFirst = letterFirst;
     }
 
+    @Override
     public final int compare(String o1, String o2)
     {
         final String[] s1 = StringUtilities.splitMatrixCoordinate(o1);

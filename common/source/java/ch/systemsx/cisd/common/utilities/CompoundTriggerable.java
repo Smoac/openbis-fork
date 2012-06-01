@@ -35,6 +35,7 @@ public final class CompoundTriggerable implements ITriggerable
     // ITriggerable
     //
 
+    @Override
     public final void trigger()
     {
         for (final ITriggerable triggerable : triggerables)

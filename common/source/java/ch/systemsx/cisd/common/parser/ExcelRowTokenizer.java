@@ -28,10 +28,12 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  */
 public class ExcelRowTokenizer implements ILineTokenizer<Row>
 {
+    @Override
     public void init()
     {
     }
 
+    @Override
     public String[] tokenize(Row row) throws ParserException
     {
         return tokenizeRow(row);
@@ -113,6 +115,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
         return col + row;
     }
 
+    @Override
     public void destroy()
     {
     }

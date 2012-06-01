@@ -36,6 +36,7 @@ public final class NonEmptyLineFilter implements ILineFilter
     // ILineFilter
     //
 
+    @Override
     public final <T> boolean acceptLine(ILine<T> line)
     {
         return StringUtils.isNotBlank(line.getText());

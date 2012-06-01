@@ -27,6 +27,7 @@ import org.aopalliance.intercept.MethodInvocation;
 public class RetryInterceptor implements MethodInterceptor
 {
 
+    @Override
     public Object invoke(final MethodInvocation invocation) throws Throwable
     {
         Method method = invocation.getMethod();

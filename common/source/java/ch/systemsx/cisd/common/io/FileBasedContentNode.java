@@ -60,6 +60,7 @@ public class FileBasedContentNode implements IHierarchicalContentNode
     /**
      * Returns <code>true</code> if the wrapped file exists.
      */
+    @Override
     public boolean exists()
     {
         return file.exists();
@@ -68,6 +69,7 @@ public class FileBasedContentNode implements IHierarchicalContentNode
     /**
      * Returns a new instance of {@link FileInputStream} for the wrapped file.
      */
+    @Override
     public InputStream getInputStream()
     {
         try
@@ -79,51 +81,61 @@ public class FileBasedContentNode implements IHierarchicalContentNode
         }
     }
 
+    @Override
     public String getName()
     {
         return file.getName();
     }
 
+    @Override
     public String getRelativePath()
     {
         return file.getPath();
     }
 
+    @Override
     public String getParentRelativePath()
     {
         return file.getParent();
     }
 
+    @Override
     public boolean isDirectory()
     {
         return file.isDirectory();
     }
 
+    @Override
     public long getLastModified()
     {
         return file.lastModified();
     }
 
+    @Override
     public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public File getFile() throws UnsupportedOperationException
     {
         return file;
     }
 
+    @Override
     public File tryGetFile()
     {
         return file;
     }
 
+    @Override
     public long getFileLength() throws UnsupportedOperationException
     {
         return file.length();
     }
 
+    @Override
     public long getChecksumCRC32() throws UnsupportedOperationException
     {
         try
@@ -135,6 +147,7 @@ public class FileBasedContentNode implements IHierarchicalContentNode
         }
     }
 
+    @Override
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
             IOExceptionUnchecked
     {

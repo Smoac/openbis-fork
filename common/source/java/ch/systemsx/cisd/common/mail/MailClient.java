@@ -146,6 +146,7 @@ public final class MailClient extends Authenticator implements IMailClient
         return properties;
     }
 
+    @Override
     public void sendTestEmail()
     {
         if (testAddress != null)
@@ -257,12 +258,14 @@ public final class MailClient extends Authenticator implements IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
+    @Override
     public final void sendMessage(final String subject, final String content,
             final String replyToOrNull, final From fromOrNull, final String... recipients)
             throws EnvironmentFailureException
     {
         IMessagePreparer messagePreparer = new IMessagePreparer()
             {
+                @Override
                 public void prepareMessage(MimeMessage msg) throws MessagingException
                 {
                     msg.setText(content);
@@ -272,12 +275,14 @@ public final class MailClient extends Authenticator implements IMailClient
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
+    @Override
     public void sendEmailMessage(final String subject, final String content,
             final EMailAddress replyToOrNull, final EMailAddress fromOrNull,
             EMailAddress... recipients) throws EnvironmentFailureException
     {
         IMessagePreparer messagePreparer = new IMessagePreparer()
             {
+                @Override
                 public void prepareMessage(MimeMessage msg) throws MessagingException
                 {
                     msg.setText(content);
@@ -293,6 +298,7 @@ public final class MailClient extends Authenticator implements IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
+    @Override
     public final void sendMessageWithAttachment(final String subject, final String content,
             final String filename, final DataHandler attachmentContent, final String replyTo,
             final From fromOrNull, final String... recipients) throws EnvironmentFailureException
@@ -300,6 +306,7 @@ public final class MailClient extends Authenticator implements IMailClient
         IMessagePreparer messagePreparer = new IMessagePreparer()
             {
 
+                @Override
                 public void prepareMessage(MimeMessage msg) throws MessagingException
                 {
                     // Create a MIME message with 2 parts: text + attachments
@@ -323,6 +330,7 @@ public final class MailClient extends Authenticator implements IMailClient
                 createInternetAddress(fromOrNull), createInternetAddresses(recipients));
     }
 
+    @Override
     public void sendEmailMessageWithAttachment(final String subject, final String content,
             final String filename, final DataHandler attachmentContent,
             final EMailAddress replyToOrNull, final EMailAddress fromOrNull,
@@ -331,6 +339,7 @@ public final class MailClient extends Authenticator implements IMailClient
         IMessagePreparer messagePreparer = new IMessagePreparer()
             {
 
+                @Override
                 public void prepareMessage(MimeMessage msg) throws MessagingException
                 {
                     // Create a MIME message with 2 parts: text + attachments

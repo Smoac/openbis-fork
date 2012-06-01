@@ -41,11 +41,13 @@ class VirtualHierarchicalContent implements IHierarchicalContent
 
     final static IVirtualNodeMergerFactory DEFAULT_MERGER_FACTORY = new IVirtualNodeMergerFactory()
         {
+            @Override
             public IVirtualNodeMerger createNodeMerger()
             {
                 return new VirtualNodeMerger(this);
             }
 
+            @Override
             public IVirtualNodeListMerger createNodeListMerger()
             {
                 return new VirtualNodeListMerger(this);
@@ -75,12 +77,14 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         this(DEFAULT_MERGER_FACTORY, components);
     }
 
+    @Override
     public IHierarchicalContentNode getRootNode()
     {
         if (rootNode == null)
         {
             rootNode = mergeNodes(new INodeProvider()
                 {
+                    @Override
                     public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
                     {
                         return content.getRootNode();
@@ -90,11 +94,13 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         return rootNode;
     }
 
+    @Override
     public IHierarchicalContentNode getNode(final String relativePath)
             throws IllegalArgumentException
     {
         return mergeNodes(new INodeProvider()
             {
+                @Override
                 public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
                 {
                     try
@@ -108,10 +114,12 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             });
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String relativePathPattern)
     {
         return mergeNodeLists(new INodeListProvider()
             {
+                @Override
                 public List<IHierarchicalContentNode> getNodeList(IHierarchicalContent content)
                 {
                     return content.listMatchingNodes(relativePathPattern);
@@ -119,11 +127,13 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             });
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
             final String fileNamePattern)
     {
         return mergeNodeLists(new INodeListProvider()
             {
+                @Override
                 public List<IHierarchicalContentNode> getNodeList(IHierarchicalContent content)
                 {
                     return content.listMatchingNodes(startingPath, fileNamePattern);
@@ -131,6 +141,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             });
     }
 
+    @Override
     public void close()
     {
         for (IHierarchicalContent component : components)
@@ -262,11 +273,13 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             this.factory = factory;
         }
 
+        @Override
         public void addNode(IHierarchicalContentNode node)
         {
             nodes.addFirst(node);
         }
 
+        @Override
         public IHierarchicalContentNode createMergedNode()
         {
             return new VirtualNode(factory, nodes);
@@ -289,6 +302,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             this.nodeMergerFactory = nodeMergerFactory;
         }
 
+        @Override
         public void addNodes(List<IHierarchicalContentNode> nodes)
         {
             for (IHierarchicalContentNode node : nodes)
@@ -304,6 +318,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             }
         }
 
+        @Override
         public List<IHierarchicalContentNode> createMergedNodeList()
         {
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
@@ -359,21 +374,25 @@ class VirtualHierarchicalContent implements IHierarchicalContent
                     "Resource is currently unavailable. It might be in an archive.");
         }
 
+        @Override
         public String getName()
         {
             return lastNode().getName();
         }
 
+        @Override
         public String getRelativePath()
         {
             return lastNode().getRelativePath();
         }
 
+        @Override
         public String getParentRelativePath()
         {
             return lastNode().getParentRelativePath();
         }
 
+        @Override
         public boolean exists()
         {
             // the node exists if at least one node exists
@@ -387,17 +406,20 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             return false;
         }
 
+        @Override
         public boolean isDirectory()
         {
             // NOTE: we don't support files and directories with the same name
             return lastNode().isDirectory();
         }
 
+        @Override
         public long getLastModified()
         {
             return lastNode().getLastModified();
         }
 
+        @Override
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
             IVirtualNodeListMerger listMerger = nodeMergerFactory.createNodeListMerger();
@@ -408,16 +430,19 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             return listMerger.createMergedNodeList();
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             return lastExistingNode().getFile();
         }
 
+        @Override
         public File tryGetFile()
         {
             return lastExistingNode().tryGetFile();
         }
 
+        @Override
         public long getFileLength() throws UnsupportedOperationException
         {
             if (isDirectory())
@@ -437,17 +462,20 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             }
         }
 
+        @Override
         public long getChecksumCRC32() throws UnsupportedOperationException
         {
             return lastExistingNode().getChecksumCRC32();
         }
 
+        @Override
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {
             return lastExistingNode().getFileContent();
         }
 
+        @Override
         public InputStream getInputStream() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {

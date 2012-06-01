@@ -54,6 +54,7 @@ public final class HeaderLineFilter implements ILineFilter
     // LineFilter
     //
 
+    @Override
     public final <T> boolean acceptLine(ILine<T> line)
     {
         if (ExcludeEmptyAndCommentLineFilter.INSTANCE.acceptLine(line) == false

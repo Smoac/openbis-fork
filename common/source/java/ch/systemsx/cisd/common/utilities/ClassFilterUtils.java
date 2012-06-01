@@ -51,6 +51,7 @@ public final class ClassFilterUtils
         // IClassFilter
         //
 
+        @Override
         public final boolean accept(final Class<?> clazz)
         {
             return true;

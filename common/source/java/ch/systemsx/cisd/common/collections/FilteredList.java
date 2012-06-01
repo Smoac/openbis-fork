@@ -91,36 +91,43 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
     // List
     //
 
+    @Override
     public E get(final int index)
     {
         return getList().get(index);
     }
 
+    @Override
     public int indexOf(final Object object)
     {
         return getList().indexOf(object);
     }
 
+    @Override
     public int lastIndexOf(final Object object)
     {
         return getList().lastIndexOf(object);
     }
 
+    @Override
     public E remove(final int index)
     {
         return getList().remove(index);
     }
 
+    @Override
     public ListIterator<E> listIterator()
     {
         return getList().listIterator();
     }
 
+    @Override
     public ListIterator<E> listIterator(final int i)
     {
         return getList().listIterator(i);
     }
 
+    @Override
     public E set(final int index, final E object)
     {
         if (isValid(object))
@@ -130,11 +137,13 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         return null;
     }
 
+    @Override
     public List<E> subList(final int fromIndex, final int toIndex)
     {
         return new FilteredList<E>(getList().subList(fromIndex, toIndex), validator);
     }
 
+    @Override
     public void add(final int index, final E object)
     {
         if (isValid(object))
@@ -143,6 +152,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         }
     }
 
+    @Override
     public boolean addAll(final int index, final Collection<? extends E> collection)
     {
         return getList().addAll(index, filterCollection(collection, validator));

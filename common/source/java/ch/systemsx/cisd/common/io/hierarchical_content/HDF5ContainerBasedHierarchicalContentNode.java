@@ -181,6 +181,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             this.entry = entry;
         }
 
+        @Override
         public String getName()
         {
             return entry.getName();
@@ -192,27 +193,32 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             return containerNode.getRelativePath() + entry.getPath();
         }
 
+        @Override
         public boolean exists()
         {
             return true;
         }
 
+        @Override
         public boolean isDirectory()
         {
             return true;
         }
 
+        @Override
         public long getLastModified()
         {
             return entry.getLastModified() < 0 ? file.lastModified()
                     : entry.getLastModified() * 1000;
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException("This is not a normal directory node.");
         }
 
+        @Override
         public File tryGetFile()
         {
             return null;
@@ -270,6 +276,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             this.entry = entry;
         }
 
+        @Override
         public String getName()
         {
             return entry.getName();
@@ -281,27 +288,32 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             return containerNode.getRelativePath() + entry.getPath();
         }
 
+        @Override
         public boolean exists()
         {
             return entry.isRegularFile();
         }
 
+        @Override
         public boolean isDirectory()
         {
             return false;
         }
 
+        @Override
         public long getLastModified()
         {
             return entry.getLastModified() < 0 ? file.lastModified()
                     : entry.getLastModified() * 1000;
         }
 
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException("This is not a normal file node.");
         }
 
+        @Override
         public File tryGetFile()
         {
             return null;
@@ -393,6 +405,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             return new AdapterIInputStreamToInputStream(getReadOnlyRandomAccessFile());
         }
 
+        @Override
         public void close()
         {
             for (HDF5DataSetRandomAccessFile raFile : randomAccessFiles)

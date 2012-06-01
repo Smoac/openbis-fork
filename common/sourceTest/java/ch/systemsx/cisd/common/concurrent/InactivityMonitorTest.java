@@ -65,12 +65,14 @@ public class InactivityMonitorTest
             this.delta = DELTA;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             final long actual = (Long) item;
             return System.currentTimeMillis() - actual < delta;
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendValue("now");
@@ -89,12 +91,14 @@ public class InactivityMonitorTest
             this.delta = DELTA;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             final long actual = (Long) item;
             return Math.abs(value - actual) < delta;
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendValue("Close enough to " + value);
@@ -111,6 +115,7 @@ public class InactivityMonitorTest
             this.lagTimeMillis = lagTimeMillis;
         }
 
+        @Override
         public Object invoke(Invocation invocation) throws Throwable
         {
             return (System.currentTimeMillis() - lagTimeMillis);

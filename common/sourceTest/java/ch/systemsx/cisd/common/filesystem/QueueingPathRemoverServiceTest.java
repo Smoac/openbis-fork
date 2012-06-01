@@ -55,6 +55,7 @@ public class QueueingPathRemoverServiceTest
 
     private static final FilenameFilter SHREDDER_FILTER = new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.startsWith(QueueingPathRemoverService.SHREDDER_PREFIX);

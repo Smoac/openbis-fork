@@ -61,6 +61,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         this.root = file;
     }
 
+    @Override
     public IHierarchicalContentNode getRootNode()
     {
         if (rootNode == null)
@@ -70,6 +71,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         return rootNode;
     }
 
+    @Override
     public IHierarchicalContentNode getNode(String relativePath)
     {
         if (StringUtils.isBlank(relativePath))
@@ -114,6 +116,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         return hierarchicalContentFactory.asHierarchicalContentNode(this, file);
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String relativePathPattern)
     {
         final IHierarchicalContentNode startingNode = getRootNode();
@@ -121,6 +124,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         final IHierarchicalContentNodeFilter relativePathFilter =
                 new IHierarchicalContentNodeFilter()
                     {
+                        @Override
                         public boolean accept(IHierarchicalContentNode node)
                         {
                             return compiledPattern.matcher(node.getRelativePath()).matches();
@@ -132,6 +136,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         return result;
     }
 
+    @Override
     public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
             final String fileNamePattern)
     {
@@ -139,6 +144,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         final Pattern compiledPattern = Pattern.compile(fileNamePattern);
         final IHierarchicalContentNodeFilter fileNameFilter = new IHierarchicalContentNodeFilter()
             {
+                @Override
                 public boolean accept(IHierarchicalContentNode node)
                 {
                     return compiledPattern.matcher(node.getName()).matches();
@@ -150,6 +156,7 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         return result;
     }
 
+    @Override
     public void close()
     {
         onCloseAction.execute();

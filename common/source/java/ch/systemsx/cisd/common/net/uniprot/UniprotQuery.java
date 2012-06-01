@@ -174,6 +174,7 @@ public final class UniprotQuery
             final TabFileLoader<UniprotEntry> parser =
                     new TabFileLoader<UniprotEntry>(new IParserObjectFactoryFactory<UniprotEntry>()
                         {
+                            @Override
                             public IParserObjectFactory<UniprotEntry> createFactory(
                                     IPropertyMapper propertyMapper) throws ParserException
                             {
@@ -184,6 +185,7 @@ public final class UniprotQuery
                 {
                     boolean hasIterated = false;
 
+                    @Override
                     public Iterator<UniprotEntry> iterator()
                     {
                         try
@@ -200,6 +202,7 @@ public final class UniprotQuery
                                     final Iterator<UniprotEntry> delegate = parser.iterate(
                                             method.getResponseBodyAsStream(), defauts);
 
+                                    @Override
                                     public boolean hasNext()
                                     {
                                         final boolean hasNext = delegate.hasNext();
@@ -210,6 +213,7 @@ public final class UniprotQuery
                                         return hasNext;
                                     }
 
+                                    @Override
                                     public UniprotEntry next()
                                     {
                                         try
@@ -222,6 +226,7 @@ public final class UniprotQuery
                                         }
                                     }
 
+                                    @Override
                                     public void remove()
                                     {
                                         method.releaseConnection();

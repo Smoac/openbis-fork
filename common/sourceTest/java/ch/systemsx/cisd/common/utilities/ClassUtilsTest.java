@@ -252,6 +252,7 @@ public final class ClassUtilsTest
                 // IClassFilter
                 //
 
+                @Override
                 public final boolean accept(final Class<?> clazz)
                 {
                     return clazz.equals(SuiteSlave.class) == false;
@@ -285,17 +286,20 @@ public final class ClassUtilsTest
         // Appendable
         //
 
+        @Override
         public Appendable append(final char c) throws IOException
         {
             return null;
         }
 
+        @Override
         public Appendable append(final CharSequence csq, final int start, final int end)
                 throws IOException
         {
             return null;
         }
 
+        @Override
         public Appendable append(final CharSequence csq) throws IOException
         {
             return null;

@@ -34,6 +34,7 @@ import com.twmacinta.util.MD5InputStream;
  */
 public final class MD5ChecksumCalculator implements IChecksumCalculator
 {
+    @Override
     public String calculateChecksum(InputStream inputStream) throws IOException
     {
         return doCalculation(inputStream, 4096);

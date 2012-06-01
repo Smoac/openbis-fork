@@ -94,6 +94,7 @@ public final class ParserUtilities
             return (lineFilterOrNull == null) ? AlwaysAcceptLineFilter.INSTANCE : lineFilterOrNull;
         }
 
+        @Override
         public void close()
         {
             lineIterator.close();

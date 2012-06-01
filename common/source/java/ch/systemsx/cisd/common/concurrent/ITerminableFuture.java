@@ -66,6 +66,7 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * @return <code>true</code> if and only if the task of the future has terminated successfully
      *         or never been started.
      */
+    @Override
     public boolean terminate() throws InterruptedExceptionUnchecked;
 
     /**

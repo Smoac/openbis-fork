@@ -28,6 +28,7 @@ public class PostgreSQLSequencerHandler implements ISequencerHandler
     // ISequencerProvider
     //
 
+    @Override
     public final String getNextValueScript(final String sequencer)
     {
         assert sequencer != null : "Given sequencer can not be null.";

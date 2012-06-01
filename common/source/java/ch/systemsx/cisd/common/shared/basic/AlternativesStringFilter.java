@@ -72,6 +72,7 @@ public class AlternativesStringFilter
 
         abstract boolean doMatch(String value);
 
+        @Override
         public boolean matches(String value)
         {
             return doMatch(value);
@@ -147,6 +148,7 @@ public class AlternativesStringFilter
     {
         LT("<")
         {
+            @Override
             public boolean matches(double value, double filterValue)
             {
                 return value < filterValue;
@@ -154,6 +156,7 @@ public class AlternativesStringFilter
         },
         GT(">")
         {
+            @Override
             public boolean matches(double value, double filterValue)
             {
                 return value > filterValue;
@@ -161,6 +164,7 @@ public class AlternativesStringFilter
         },
         LE("<=")
         {
+            @Override
             public boolean matches(double value, double filterValue)
             {
                 return value <= filterValue;
@@ -168,6 +172,7 @@ public class AlternativesStringFilter
         },
         GE(">=")
         {
+            @Override
             public boolean matches(double value, double filterValue)
             {
                 return value >= filterValue;
@@ -175,6 +180,7 @@ public class AlternativesStringFilter
         },
         EQ("=")
         {
+            @Override
             public boolean matches(double value, double filterValue)
             {
                 return value == filterValue;
@@ -223,6 +229,7 @@ public class AlternativesStringFilter
             return comparison.matches(value, filterValue);
         }
 
+        @Override
         public boolean matches(String value)
         {
             try
@@ -245,6 +252,7 @@ public class AlternativesStringFilter
             this.delegate = delegate;
         }
 
+        @Override
         public boolean matches(String value)
         {
             return delegate.matches(value) == false;
@@ -263,6 +271,7 @@ public class AlternativesStringFilter
             this.m2 = m2;
         }
 
+        @Override
         public boolean matches(String value)
         {
             return m1.matches(value) && m2.matches(value);

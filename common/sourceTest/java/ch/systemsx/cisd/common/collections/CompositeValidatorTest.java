@@ -65,6 +65,7 @@ public final class CompositeValidatorTest
                 // Validator
                 //
 
+                @Override
                 public final boolean isValid(final Object object)
                 {
                     return object instanceof String;
@@ -77,6 +78,7 @@ public final class CompositeValidatorTest
                 // Validator
                 //
 
+                @Override
                 public final boolean isValid(final Object object)
                 {
                     return object instanceof Long;

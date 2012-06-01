@@ -125,6 +125,7 @@ public final class CollectionUtilsTest
         IKeyExtractor<Integer, String> lengthExtractor = new IKeyExtractor<Integer, String>()
             {
 
+                @Override
                 public Integer getKey(String e)
                 {
                     return e.length();

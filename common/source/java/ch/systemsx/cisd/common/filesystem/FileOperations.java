@@ -154,31 +154,37 @@ public class FileOperations implements IFileOperations, Serializable
 
     // java.io.File
 
+    @Override
     public boolean exists(File file)
     {
         return file.exists();
     }
 
+    @Override
     public boolean delete(File file)
     {
         return file.delete();
     }
 
+    @Override
     public boolean rename(File source, File destination)
     {
         return source.renameTo(destination);
     }
 
+    @Override
     public boolean canRead(File file)
     {
         return file.canRead();
     }
 
+    @Override
     public boolean canWrite(File file)
     {
         return file.canWrite();
     }
 
+    @Override
     public boolean createNewFile(File file) throws IOExceptionUnchecked
     {
         try
@@ -190,6 +196,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public File createTempFile(String prefix, String suffix, File directory)
             throws IOExceptionUnchecked
     {
@@ -202,6 +209,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public File createTempFile(String prefix, String suffix) throws IOExceptionUnchecked
     {
         try
@@ -213,6 +221,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public File getCanonicalFile(File file) throws IOExceptionUnchecked
     {
         try
@@ -224,6 +233,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public String getCanonicalPath(File file) throws IOExceptionUnchecked
     {
         try
@@ -235,71 +245,85 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public boolean isDirectory(File file)
     {
         return file.isDirectory();
     }
 
+    @Override
     public boolean isFile(File file)
     {
         return file.isFile();
     }
 
+    @Override
     public boolean isHidden(File file)
     {
         return file.isHidden();
     }
 
+    @Override
     public long lastModified(File file)
     {
         return file.lastModified();
     }
 
+    @Override
     public long length(File file)
     {
         return file.length();
     }
 
+    @Override
     public String[] list(File file)
     {
         return file.list();
     }
 
+    @Override
     public String[] list(File file, FilenameFilter filter)
     {
         return file.list(filter);
     }
 
+    @Override
     public File[] listFiles(File file)
     {
         return file.listFiles();
     }
 
+    @Override
     public File[] listFiles(File file, FilenameFilter filter)
     {
         return file.listFiles(filter);
     }
 
+    @Override
     public File[] listFiles(File file, FileFilter filter)
     {
         return file.listFiles(filter);
     }
 
+    @Override
     public boolean mkdir(File file)
     {
         return file.mkdir();
     }
 
+    @Override
     public boolean mkdirs(File file)
     {
         return file.mkdirs();
     }
 
+    @Override
     public boolean setLastModified(File file, long time)
     {
         return file.setLastModified(time);
     }
 
+    @Override
     public boolean setReadOnly(File file)
     {
         return file.setReadOnly();
@@ -307,26 +331,31 @@ public class FileOperations implements IFileOperations, Serializable
 
     // Advanced
 
+    @Override
     public List<File> listDirectories(File directory, boolean recursive)
     {
         return FileUtilities.listDirectories(directory, recursive, observerOrNull);
     }
 
+    @Override
     public List<File> listFiles(File directory, String[] extensionsOrNull, boolean recursive)
     {
         return FileUtilities.listFiles(directory, extensionsOrNull, recursive, observerOrNull);
     }
 
+    @Override
     public List<File> listFilesAndDirectories(File directory, boolean recursive)
     {
         return FileUtilities.listFilesAndDirectories(directory, recursive, observerOrNull);
     }
 
+    @Override
     public long lastChanged(File path) throws UnknownLastChangedException
     {
         return FileUtilities.lastChanged(path, false, 0L, observerOrNull);
     }
 
+    @Override
     public long lastChanged(File path, boolean subDirectoriesOnly, long stopWhenFindYounger)
             throws UnknownLastChangedException
     {
@@ -334,6 +363,7 @@ public class FileOperations implements IFileOperations, Serializable
                 observerOrNull);
     }
 
+    @Override
     public long lastChangedRelative(File path, boolean subDirectoriesOnly,
             long stopWhenFindYoungerRelative) throws UnknownLastChangedException
     {
@@ -341,36 +371,43 @@ public class FileOperations implements IFileOperations, Serializable
                 stopWhenFindYoungerRelative, observerOrNull);
     }
 
+    @Override
     public String checkPathFullyAccessible(File path, String kindOfPath)
     {
         return FileUtilities.checkPathFullyAccessible(path, kindOfPath);
     }
 
+    @Override
     public String checkPathReadAccessible(File path, String kindOfPath)
     {
         return FileUtilities.checkPathReadAccessible(path, kindOfPath);
     }
 
+    @Override
     public String checkDirectoryFullyAccessible(File directory, String kindOfDirectory)
     {
         return FileUtilities.checkDirectoryFullyAccessible(directory, kindOfDirectory);
     }
 
+    @Override
     public String checkDirectoryReadAccessible(File directory, String kindOfDirectory)
     {
         return FileUtilities.checkDirectoryReadAccessible(directory, kindOfDirectory);
     }
 
+    @Override
     public String checkFileFullyAccessible(File file, String kindOfFile)
     {
         return FileUtilities.checkFileFullyAccessible(file, kindOfFile);
     }
 
+    @Override
     public String checkFileReadAccessible(File file, String kindOfFile)
     {
         return FileUtilities.checkFileReadAccessible(file, kindOfFile);
     }
 
+    @Override
     public void touch(File file) throws IOExceptionUnchecked
     {
         try
@@ -382,6 +419,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void deleteRecursively(File fileToRemove) throws IOExceptionUnchecked
     {
         final boolean deleteOK =
@@ -393,16 +431,19 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public boolean removeRecursively(File fileToRemove)
     {
         return FileUtilities.deleteRecursively(fileToRemove, null, observerOrNull);
     }
 
+    @Override
     public boolean removeRecursivelyQueueing(File fileToRemove)
     {
         return QueueingPathRemoverService.removeRecursively(fileToRemove);
     }
 
+    @Override
     public void move(File source, File destination) throws IOExceptionUnchecked
     {
         if (destination.getParentFile() != null)
@@ -424,6 +465,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void moveToDirectory(File source, File destinationDirectory) throws IOExceptionUnchecked
     {
         final File target = new File(destinationDirectory, source.getName());
@@ -436,6 +478,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyDirectory(File srcDir, File destDir)
     {
         try
@@ -447,6 +490,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyDirectoryToDirectory(File srcDir, File destDir) throws IOExceptionUnchecked
     {
         try
@@ -458,6 +502,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyFile(File srcFile, File destFile) throws IOExceptionUnchecked
     {
         try
@@ -469,6 +514,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyFileToDirectory(File srcFile, File destDir) throws IOExceptionUnchecked
     {
         try
@@ -480,6 +526,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copy(File source, File destination) throws IOExceptionUnchecked
     {
         try
@@ -491,6 +538,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyToDirectory(File source, File destDir) throws IOExceptionUnchecked
     {
         try
@@ -502,6 +550,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public void copyToDirectoryAs(File source, File destDir, String newName)
             throws IOExceptionUnchecked
     {
@@ -515,6 +564,7 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public byte[] getContentAsByteArray(File file) throws IOExceptionUnchecked
     {
         java.io.InputStream inputStream = null;
@@ -531,26 +581,31 @@ public class FileOperations implements IFileOperations, Serializable
         }
     }
 
+    @Override
     public String getContentAsString(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadToString(file);
     }
 
+    @Override
     public String getExactContentAsString(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadExactToString(file);
     }
 
+    @Override
     public List<String> getContentAsStringList(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadToStringList(file);
     }
 
+    @Override
     public InputStream getInputStream(File file) throws IOExceptionUnchecked
     {
         return new AdapterIInputStreamToInputStream(getIInputStream(file));
     }
 
+    @Override
     public IInputStream getIInputStream(File file) throws IOExceptionUnchecked
     {
         try
@@ -577,11 +632,13 @@ public class FileOperations implements IFileOperations, Serializable
         return new AdapterInputStreamToIInputStream(new FileInputStream(file));
     }
 
+    @Override
     public OutputStream getOutputStream(File file) throws IOExceptionUnchecked
     {
         return new AdapterIOutputStreamToOutputStream(getIOutputStream(file));
     }
 
+    @Override
     public IOutputStream getIOutputStream(File file) throws IOExceptionUnchecked
     {
         try
@@ -608,11 +665,13 @@ public class FileOperations implements IFileOperations, Serializable
         return new AdapterOutputStreamToIOutputStream(new FileOutputStream(file));
     }
 
+    @Override
     public void writeToFile(File file, String content) throws IOExceptionUnchecked
     {
         FileUtilities.writeToFile(file, content);
     }
 
+    @Override
     public long freeSpaceKb(String path) throws IOExceptionUnchecked
     {
         try

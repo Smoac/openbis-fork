@@ -31,6 +31,7 @@ public class AssertingLogger implements ISimpleLogger
 {
     private final List<LogRecord> records = new ArrayList<LogRecord>();
 
+    @Override
     public void log(final LogLevel level, final String message)
     {
         records.add(new LogRecord(level, message));

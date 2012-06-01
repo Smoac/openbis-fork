@@ -26,16 +26,19 @@ import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 public class DummyTimerTaskListener implements ITimerTaskListener
 {
     /** Does nothing. */
+    @Override
     public void startRunning()
     {
     }
     
     /** Does nothing. */
+    @Override
     public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
     {
     }
 
     /** Does nothing. */
+    @Override
     public void canceling()
     {
     }

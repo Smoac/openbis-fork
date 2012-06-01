@@ -98,6 +98,7 @@ public class TabFileLoader<T>
     {
         this.factory = new IParserObjectFactoryFactory<T>()
             {
+                @Override
                 public IParserObjectFactory<T> createFactory(IPropertyMapper propertyMapper)
                         throws ParserException
                 {
@@ -369,16 +370,19 @@ public class TabFileLoader<T>
         {
             return new Iterator<T>()
                 {
+                    @Override
                     public boolean hasNext()
                     {
                         return false;
                     }
 
+                    @Override
                     public T next()
                     {
                         throw new NoSuchElementException();
                     }
 
+                    @Override
                     public void remove()
                     {
                         throw new UnsupportedOperationException();
@@ -457,11 +461,13 @@ public class TabFileLoader<T>
             {
                 private ILine<String> firstLineOrNull = firstContentLineOrNull;
 
+                @Override
                 public boolean hasNext()
                 {
                     return firstLineOrNull != null || lineIterator.hasNext();
                 }
 
+                @Override
                 public ILine<String> next()
                 {
                     return trim(nextUntrimmed());
@@ -512,6 +518,7 @@ public class TabFileLoader<T>
                     }
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new NotImplementedException();
@@ -609,16 +616,19 @@ public class TabFileLoader<T>
         // Iterator
         //
 
+        @Override
         public final void remove()
         {
             lineIterator.remove();
         }
 
+        @Override
         public final ILine<String> next()
         {
             return new Line(++lineNumber, lineIterator.nextLine());
         }
 
+        @Override
         public final boolean hasNext()
         {
             return lineIterator.hasNext();

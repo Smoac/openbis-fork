@@ -39,6 +39,7 @@ public final class ValidatorUtils
             // IValidator
             //
 
+            @Override
             public final boolean isValid(final Object object)
             {
                 return object != null;
@@ -55,6 +56,7 @@ public final class ValidatorUtils
             // IValidator
             //
 
+            @Override
             public final boolean isValid(final Object object)
             {
                 return true;

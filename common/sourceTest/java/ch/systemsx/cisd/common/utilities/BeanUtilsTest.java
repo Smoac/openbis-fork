@@ -975,6 +975,7 @@ public final class BeanUtilsTest
     {
         private String foo;
 
+        @Override
         public String getFoo()
         {
             return foo;

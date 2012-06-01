@@ -95,11 +95,13 @@ public final class BeanUtils
     private static class EmptyAnnotationMap implements AnnotationMap
     {
 
+        @Override
         public String getAnnotatedEntity()
         {
             return "GENERIC";
         }
 
+        @Override
         public <T extends Annotation> T getAnnotation(final Class<T> annotationClazz)
         {
             return null;
@@ -122,11 +124,13 @@ public final class BeanUtils
             this.setterMethod = setterMethod;
         }
 
+        @Override
         public String getAnnotatedEntity()
         {
             return setterMethod.toGenericString();
         }
 
+        @Override
         public <T extends Annotation> T getAnnotation(final Class<T> annotationClazz)
         {
             return setterMethod.getAnnotation(annotationClazz);

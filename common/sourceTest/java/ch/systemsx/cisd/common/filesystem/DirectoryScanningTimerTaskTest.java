@@ -54,6 +54,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final static FileFilter ALWAYS_FALSE_FILE_FILTER = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return false;
@@ -65,6 +66,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final static FileFilter EXCEPTION_THROWING_FILE_FILTER = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 throw new RuntimeException(EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
@@ -90,12 +92,14 @@ public class DirectoryScanningTimerTaskTest
         // IPathHandler
         //
 
+        @Override
         public void handle(final File path)
         {
             handledPaths.add(path);
             path.delete();
         }
 
+        @Override
         public boolean isStopped()
         {
             return false;
@@ -226,11 +230,13 @@ public class DirectoryScanningTimerTaskTest
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER,
                         new IPathHandler()
                             {
+                                @Override
                                 public void handle(File path)
                                 {
                                     throw new AssertionError("Shouldn't have been called");
                                 }
 
+                                @Override
                                 public boolean isStopped()
                                 {
                                     return true;
@@ -256,12 +262,14 @@ public class DirectoryScanningTimerTaskTest
                             {
                                 boolean stop = false;
 
+                                @Override
                                 public void handle(File path)
                                 {
                                     counter.incrementAndGet();
                                     stop = true;
                                 }
 
+                                @Override
                                 public boolean isStopped()
                                 {
                                     return stop;

@@ -90,6 +90,7 @@ public class TiffCompressionStrategy implements IFileConversionStrategy
         }
     }
 
+    @Override
     public File tryCheckConvert(File inFile)
     {
         final String ext = FilenameUtils.getExtension(inFile.getName()).toLowerCase();
@@ -102,11 +103,13 @@ public class TiffCompressionStrategy implements IFileConversionStrategy
         }
     }
 
+    @Override
     public boolean deleteOriginalFile()
     {
         return false;
     }
 
+    @Override
     public IFileConversionMethod getConverter()
     {
         return method;

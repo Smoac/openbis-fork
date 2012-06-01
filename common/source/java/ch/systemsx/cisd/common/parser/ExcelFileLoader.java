@@ -85,6 +85,7 @@ public class ExcelFileLoader<T>
     {
         this.factory = new IParserObjectFactoryFactory<T>()
             {
+                @Override
                 public IParserObjectFactory<T> createFactory(IPropertyMapper propertyMapper)
                         throws ParserException
                 {
@@ -251,11 +252,13 @@ public class ExcelFileLoader<T>
             {
                 private ILine<Row> firstLineOrNull = firstContentLineOrNull;
 
+                @Override
                 public boolean hasNext()
                 {
                     return firstLineOrNull != null || lineIterator.hasNext();
                 }
 
+                @Override
                 public ILine<Row> next()
                 {
                     return nextLine();
@@ -274,6 +277,7 @@ public class ExcelFileLoader<T>
                     }
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new NotImplementedException();
@@ -342,11 +346,13 @@ public class ExcelFileLoader<T>
             }
         }
 
+        @Override
         public final void remove()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public final ILine<Row> next()
         {
             try
@@ -359,6 +365,7 @@ public class ExcelFileLoader<T>
             }
         }
 
+        @Override
         public final boolean hasNext()
         {
             return current <= end;

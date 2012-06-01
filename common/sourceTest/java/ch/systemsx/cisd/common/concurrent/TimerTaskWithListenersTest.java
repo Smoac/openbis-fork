@@ -74,16 +74,19 @@ public class TimerTaskWithListenersTest
             this.recorder = recorder;
         }
         
+        @Override
         public void canceling()
         {
             recorder.add(name + ".canceling");
         }
 
+        @Override
         public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
         {
             recorder.add(name + ".finishRunning");
         }
 
+        @Override
         public void startRunning()
         {
             recorder.add(name + ".startRunning");

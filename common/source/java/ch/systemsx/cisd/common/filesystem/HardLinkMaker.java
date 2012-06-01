@@ -127,12 +127,14 @@ public class HardLinkMaker implements IFileImmutableCopier
     // IFileImutableCopier
     //
 
+    @Override
     public Status copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull)
     {
         return copyFileImmutably(source, destinationDirectory, nameOrNull, CopyModeExisting.ERROR);
     }
 
+    @Override
     public Status copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull, final CopyModeExisting mode)
     {
@@ -156,6 +158,7 @@ public class HardLinkMaker implements IFileImmutableCopier
         final List<String> cmd = createLnCmdLine(source, destFile);
         final Callable<Status> processTask = new Callable<Status>()
             {
+                @Override
                 public final Status call()
                 {
                     final ProcessResult result =

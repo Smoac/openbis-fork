@@ -37,6 +37,7 @@ abstract class AbstractTiffCpImageFileConverter extends AbstractExecutableFileCo
         return "tiffcp";
     }
 
+    @Override
     public boolean isAvailable()
     {
         return getExecutablePath().startsWith("? ") == false;

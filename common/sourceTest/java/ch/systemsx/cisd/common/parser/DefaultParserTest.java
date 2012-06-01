@@ -201,16 +201,19 @@ public final class DefaultParserTest
 
                 private int lineNumber;
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
                 }
 
+                @Override
                 public ILine<String> next()
                 {
                     return new Line(++lineNumber, iterator.next());
                 }
 
+                @Override
                 public boolean hasNext()
                 {
                     return iterator.hasNext();

@@ -74,6 +74,7 @@ public abstract class AbstractTiffCompressionMethod extends InPlaceCompressionMe
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;

@@ -50,16 +50,19 @@ final class MappedProperty implements IPropertyModel
     // IPropertyModel
     //
 
+    @Override
     public final String getFormat()
     {
         return format;
     }
 
+    @Override
     public final int getColumn()
     {
         return column;
     }
 
+    @Override
     public final String getCode()
     {
         return name;

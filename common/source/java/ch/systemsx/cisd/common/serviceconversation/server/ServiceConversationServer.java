@@ -67,6 +67,7 @@ public class ServiceConversationServer
 
     private final IServiceMessageTransport incomingTransport = new IServiceMessageTransport()
         {
+            @Override
             public void send(ServiceMessage message)
             {
                 final String conversationId = message.getConversationId();
@@ -222,6 +223,7 @@ public class ServiceConversationServer
             final ITerminableFuture<Void> controller =
                     ConcurrencyUtilities.submit(executor, new INamedCallable<Void>()
                         {
+                            @Override
                             public Void call(IStoppableExecutor<Void> stoppableExecutor)
                                     throws Exception
                             {
@@ -257,6 +259,7 @@ public class ServiceConversationServer
                                 return null;
                             }
 
+                            @Override
                             public String getCallableName()
                             {
                                 return serviceConversationId + " (" + typeId + ")";

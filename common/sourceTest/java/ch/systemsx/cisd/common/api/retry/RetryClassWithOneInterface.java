@@ -24,11 +24,13 @@ public class RetryClassWithOneInterface implements RetryClassInterfaceTestWithAn
 
     private RetryClassMethod method;
 
+    @Override
     public void testWithRetryAnnotation()
     {
         method.call();
     }
 
+    @Override
     public void testWithoutRetryAnnotation()
     {
         method.call();
@@ -39,6 +41,7 @@ public class RetryClassWithOneInterface implements RetryClassInterfaceTestWithAn
         return method;
     }
 
+    @Override
     public void setMethod(RetryClassMethod method)
     {
         this.method = method;

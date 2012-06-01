@@ -75,6 +75,7 @@ public class TerminableCallableTest
             this.finishLatchOrNull = finishLatchOrNull;
         }
 
+        @Override
         public Object call(IStoppableExecutor<Object> executorForStoppableCode) throws Exception
         {
             launchLatch.countDown();
@@ -102,6 +103,7 @@ public class TerminableCallableTest
                 {
                     executorForStoppableCode.execute(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 milestoneLatch.countDown();
@@ -121,6 +123,7 @@ public class TerminableCallableTest
             return null;
         }
 
+        @Override
         public void cleanUp(FinishCause myCause)
         {
             ++cleanUpCount;
@@ -165,6 +168,7 @@ public class TerminableCallableTest
         final AtomicReference<Throwable> uncaughtException = new AtomicReference<Throwable>(null);
         t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
         {
+            @Override
             public void uncaughtException(Thread t2, Throwable e)
             {
                 uncaughtException.set(e);

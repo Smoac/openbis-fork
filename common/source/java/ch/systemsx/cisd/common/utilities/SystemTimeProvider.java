@@ -34,6 +34,7 @@ public class SystemTimeProvider implements ITimeProvider, Serializable
     {
     }
     
+    @Override
     public long getTimeInMilliseconds()
     {
         return System.currentTimeMillis();

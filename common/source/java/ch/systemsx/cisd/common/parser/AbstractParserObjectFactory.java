@@ -244,6 +244,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     // IParserObjectFactory
     //
 
+    @Override
     public E createObject(final String[] lineTokens) throws ParserException
     {
         assert lineTokens != null : "Unspecified line tokens";

@@ -514,6 +514,7 @@ public class ProcessExecutionHelperTest
         final AtomicReference<ProcessResult> result = new AtomicReference<ProcessResult>(null);
         final Runnable resultGetter = new Runnable()
             {
+                @Override
                 public void run()
                 {
                     result.set(handler.getResult());

@@ -72,6 +72,7 @@ abstract class AbstractImageMagickConvertImageFileConverter extends
         return versionString;
     }
 
+    @Override
     public boolean isAvailable()
     {
         if (imageMagickVersionOrNull == null)

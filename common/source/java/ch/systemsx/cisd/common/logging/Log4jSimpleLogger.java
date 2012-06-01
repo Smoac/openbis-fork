@@ -81,6 +81,7 @@ public class Log4jSimpleLogger implements ISimpleLogger
     // ISimpleLogger
     //
 
+    @Override
     public void log(final LogLevel level, final String message)
     {
         if (log4jOverridePriorityOrNull != null)

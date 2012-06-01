@@ -149,6 +149,7 @@ public class SqlUnitTestRunner
         }
         File[] testCases = testScriptsFolder.listFiles(new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     String name = pathname.getName();
@@ -215,6 +216,7 @@ public class SqlUnitTestRunner
     {
         File[] testScripts = testCaseFolder.listFiles(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return getNumber(name) >= 0;
@@ -222,6 +224,7 @@ public class SqlUnitTestRunner
             });
         Arrays.sort(testScripts, new Comparator<File>()
             {
+                @Override
                 public int compare(File f1, File f2)
                 {
                     return getNumber(f1.getName()) - getNumber(f2.getName());

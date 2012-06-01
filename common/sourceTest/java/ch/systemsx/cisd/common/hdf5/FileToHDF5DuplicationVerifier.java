@@ -57,6 +57,7 @@ public class FileToHDF5DuplicationVerifier extends AssertJUnit
             this.container = container;
         }
 
+        @Override
         public void runWithSimpleReader(IHDF5ContainerReader reader)
         {
             new FileToHDF5DuplicationVerifier(sourceFolderOrFile, container, reader)

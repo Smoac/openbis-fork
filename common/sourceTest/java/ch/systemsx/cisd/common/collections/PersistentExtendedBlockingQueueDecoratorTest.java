@@ -258,6 +258,7 @@ public class PersistentExtendedBlockingQueueDecoratorTest
         final MessageChannel messageChannel = new MessageChannel(20000);
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try

@@ -39,6 +39,7 @@ public class PropertiesFileMergerTest extends AbstractFileSystemTestCase
     {
         Integer exitCode;
 
+        @Override
         public void exit(int code)
         {
             this.exitCode = code;

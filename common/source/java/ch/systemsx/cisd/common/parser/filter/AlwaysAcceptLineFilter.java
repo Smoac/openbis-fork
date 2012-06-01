@@ -35,6 +35,7 @@ public final class AlwaysAcceptLineFilter implements ILineFilter
     // ILineFilter
     //
 
+    @Override
     public final <T> boolean acceptLine(ILine<T> line)
     {
         return true;

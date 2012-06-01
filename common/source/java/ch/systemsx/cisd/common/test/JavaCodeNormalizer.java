@@ -52,6 +52,7 @@ public class JavaCodeNormalizer
             this.firstLine = firstLine;
         }
         
+        @Override
         public IState next(PrintWriter writer, String trimmedLine)
         {
             if (trimmedLine.length() == 0 || trimmedLine.startsWith("//"))
@@ -87,6 +88,7 @@ public class JavaCodeNormalizer
     {
         static final IState INSTANCE = new Comment();
         
+        @Override
         public IState next(PrintWriter writer, String trimmedLine)
         {
             return trimmedLine.endsWith("*/") ? Code.FIRST_LINE : this;

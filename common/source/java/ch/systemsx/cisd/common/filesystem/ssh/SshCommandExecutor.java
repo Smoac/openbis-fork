@@ -91,6 +91,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         return result.getOutput().size() == 0;
     }
 
+    @Override
     public final BooleanStatus exists(final String pathString, final long timeOutMillis)
     {
         final String cmd = mkCheckFileExistsCommand(pathString);
@@ -105,6 +106,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         }
     }
 
+    @Override
     public BooleanStatus checkDirectoryAccessible(final String pathString, final long timeOutMillis)
     {
         final String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
@@ -142,11 +144,13 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         }
     }
 
+    @Override
     public ProcessResult executeCommandRemotely(final String localCmd, final long timeOutMillis)
     {
         return executeCommandRemotely(localCmd, timeOutMillis, true);
     }
 
+    @Override
     public ProcessResult executeCommandRemotely(final String localCmd, final long timeOutMillis,
             final boolean logResult)
     {
@@ -170,6 +174,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
 
                 private static final long serialVersionUID = 1L;
 
+                @Override
                 public List<String> createSshCommand(final String cmd, final String host)
                 {
                     return SshCommandExecutor.createSshCommand(cmd, sshExecutable, host);

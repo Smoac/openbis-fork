@@ -35,6 +35,7 @@ public class TableMapTest
 
     final IKeyExtractor<Integer, String> integerExtractor = new IKeyExtractor<Integer, String>()
         {
+            @Override
             public Integer getKey(String e)
             {
                 final int i = e.indexOf(':');

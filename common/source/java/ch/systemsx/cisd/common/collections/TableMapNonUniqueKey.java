@@ -103,6 +103,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
         assert uniqueValueViolationStrategy != null : "Unspecified unique value violation strategy.";
         this.extractor = new IMultiKeyExtractor<K, E>()
             {
+                @Override
                 public Collection<K> getKey(E e)
                 {
                     return Collections.singleton(extractor.getKey(e));
@@ -211,6 +212,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      * <li>Order of the addition of the value for the value's key</li>
      * </ol>
      */
+    @Override
     public final Iterator<E> iterator()
     {
         return new Iterator<E>()
@@ -224,6 +226,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
                     return (setIterator != null) && setIterator.hasNext();
                 }
 
+                @Override
                 public boolean hasNext()
                 {
                     if (setHasNext() == false)
@@ -236,6 +239,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
                     return setHasNext();
                 }
 
+                @Override
                 public E next()
                 {
                     if (hasNext() == false)
@@ -245,6 +249,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
                     return setIterator.next();
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException("Can not remove an element.");

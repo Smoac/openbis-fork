@@ -28,6 +28,7 @@ public class StaticRetryConfiguration implements RetryConfiguration
 
     private float waitingTimeBetweenRetriesIncreasingFactor;
 
+    @Override
     public int getMaximumNumberOfRetries()
     {
         return maximumNumberOfRetries;
@@ -38,6 +39,7 @@ public class StaticRetryConfiguration implements RetryConfiguration
         this.maximumNumberOfRetries = maximumNumberOfRetries;
     }
 
+    @Override
     public int getWaitingTimeBetweenRetries()
     {
         return waitingTimeBetweenRetries;
@@ -48,6 +50,7 @@ public class StaticRetryConfiguration implements RetryConfiguration
         this.waitingTimeBetweenRetries = waitingTimeBetweenRetries;
     }
 
+    @Override
     public float getWaitingTimeBetweenRetriesIncreasingFactor()
     {
         return waitingTimeBetweenRetriesIncreasingFactor;

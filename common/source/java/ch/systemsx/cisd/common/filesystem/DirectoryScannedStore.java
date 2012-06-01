@@ -51,26 +51,31 @@ public final class DirectoryScannedStore implements IScannedStore
     //
     
     
+    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return asFile(item).getPath();
     }
 
+    @Override
     public final File asFile(final StoreItem item)
     {
         return StoreItem.asFile(directory, item);
     }
 
+    @Override
     public StoreItem asStoreItem(String locationDescription)
     {
         return new StoreItem(FilenameUtils.getName(locationDescription));
     }
 
+    @Override
     public final boolean existsOrError(final StoreItem item)
     {
         return asFile(item).exists();
     }
 
+    @Override
     public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)
     {
         final File[] files = FileUtilities.tryListFiles(directory, null, loggerOrNull);
@@ -84,6 +89,7 @@ public final class DirectoryScannedStore implements IScannedStore
         }
     }
 
+    @Override
     public StoreItem[] tryFilterReadyToProcess(StoreItem[] items, ISimpleLogger loggerOrNull)
     {
         StoreItem currentItem = null;

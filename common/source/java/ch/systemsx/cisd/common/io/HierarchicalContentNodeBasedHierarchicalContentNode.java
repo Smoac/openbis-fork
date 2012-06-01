@@ -36,69 +36,82 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
 
     private static final IHierarchicalContentNode DUMMY = new IHierarchicalContentNode()
         {
+            @Override
             public boolean isDirectory()
             {
                 return false;
             }
 
+            @Override
             public String getRelativePath()
             {
                 return null;
             }
 
+            @Override
             public String getParentRelativePath()
             {
                 return null;
             }
 
+            @Override
             public String getName()
             {
                 return null;
             }
 
+            @Override
             public long getLastModified()
             {
                 return 0;
             }
 
+            @Override
             public InputStream getInputStream() throws UnsupportedOperationException,
                     IOExceptionUnchecked
             {
                 return null;
             }
 
+            @Override
             public long getFileLength() throws UnsupportedOperationException
             {
                 return 0;
             }
 
+            @Override
             public long getChecksumCRC32() throws UnsupportedOperationException
             {
                 return 0;
             }
 
+            @Override
             public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                     IOExceptionUnchecked
             {
                 return null;
             }
 
+            @Override
             public File getFile() throws UnsupportedOperationException
             {
                 throw new UnsupportedOperationException();
             }
             
+            @Override
             public File tryGetFile()
             {
                 return null;
             }
 
+            @Override
             public List<IHierarchicalContentNode> getChildNodes()
                     throws UnsupportedOperationException
             {
                 throw new UnsupportedOperationException();
             }
 
+            @Override
             public boolean exists()
             {
                 return false;
@@ -113,11 +126,13 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
         this.content = content;
     }
 
+    @Override
     public boolean exists()
     {
         return getContent().exists();
     }
 
+    @Override
     public InputStream getInputStream()
     {
         return getContent().getInputStream();
@@ -132,56 +147,67 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
         return content;
     }
 
+    @Override
     public String getName()
     {
         return getContent().getName();
     }
 
+    @Override
     public String getRelativePath()
     {
         return getContent().getRelativePath();
     }
 
+    @Override
     public String getParentRelativePath()
     {
         return getContent().getParentRelativePath();
     }
 
+    @Override
     public boolean isDirectory()
     {
         return getContent().isDirectory();
     }
 
+    @Override
     public long getLastModified()
     {
         return getContent().getLastModified();
     }
 
+    @Override
     public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
     {
         return getContent().getChildNodes();
     }
 
+    @Override
     public File getFile() throws UnsupportedOperationException
     {
         return getContent().getFile();
     }
 
+    @Override
     public File tryGetFile()
     {
         return getContent().tryGetFile();
     }
 
+    @Override
     public long getFileLength() throws UnsupportedOperationException
     {
         return getContent().getFileLength();
     }
 
+    @Override
     public long getChecksumCRC32() throws UnsupportedOperationException
     {
         return getContent().getChecksumCRC32();
     }
 
+    @Override
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
             IOExceptionUnchecked
     {

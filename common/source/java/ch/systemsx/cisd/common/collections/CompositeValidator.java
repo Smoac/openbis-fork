@@ -54,6 +54,7 @@ public final class CompositeValidator<T> implements IValidator<T>
     // IValidator
     //
 
+    @Override
     public final boolean isValid(final T t)
     {
         for (final IValidator<T> validator : validators)

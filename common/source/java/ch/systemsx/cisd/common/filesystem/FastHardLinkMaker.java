@@ -35,6 +35,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
 
     private final static IFileImmutableCopier nativeCopier = new IFileImmutableCopier()
         {
+            @Override
             public Status copyFileImmutably(File source, File destinationDirectory,
                     String nameOrNull)
             {
@@ -42,6 +43,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                         CopyModeExisting.ERROR);
             }
 
+            @Override
             public Status copyFileImmutably(File source, File destinationDirectory,
                     String nameOrNull, CopyModeExisting mode)
             {
@@ -132,12 +134,14 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                         .timing(timingParameters).get();
     }
 
+    @Override
     public Status copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull)
     {
         return monitoringProxy.copyFileImmutably(source, destinationDirectory, nameOrNull);
     }
 
+    @Override
     public Status copyFileImmutably(File source, File destinationDirectory, String nameOrNull,
             CopyModeExisting mode)
     {

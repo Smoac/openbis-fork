@@ -43,6 +43,7 @@ public class ToStringIdentityConverter implements IToStringConverter<String>
     // IToStringConverter
     //
 
+    @Override
     public String toString(String value)
     {
         return value;

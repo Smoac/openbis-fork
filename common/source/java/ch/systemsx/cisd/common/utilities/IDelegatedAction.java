@@ -27,6 +27,7 @@ public interface IDelegatedAction
 {
     public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
         {
+            @Override
             public void execute()
             {
             }

@@ -44,6 +44,7 @@ public class CompoundTerminable implements ITerminable
     // ITerminable
     //
 
+    @Override
     public boolean terminate()
     {
         boolean ok = true;

@@ -36,6 +36,7 @@ public final class RegExValidator implements IValidator<String>
     // Validator
     //
 
+    @Override
     public final boolean isValid(final String text)
     {
         return regEx.matcher(text).matches();

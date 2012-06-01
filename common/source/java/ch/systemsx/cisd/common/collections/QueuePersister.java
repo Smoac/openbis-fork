@@ -275,6 +275,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
     //
     // IQueuePersister
     //
+    @Override
     public void persist()
     {
         synchronized (queueFile)
@@ -335,6 +336,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         }
     }
 
+    @Override
     public void addToTail(E elem)
     {
         synchronized (queueFile)
@@ -388,6 +390,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         }
     }
 
+    @Override
     public void removeFromHead(E elem) throws IOExceptionUnchecked
     {
         synchronized (queueFile)
@@ -429,6 +432,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         }
     }
 
+    @Override
     public void check() throws IllegalStateException
     {
         synchronized (queueFile)
@@ -447,6 +451,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         }
     }
 
+    @Override
     public void close()
     {
         synchronized (queueFile)
@@ -461,6 +466,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         }
     }
 
+    @Override
     public void sync()
     {
         synchronized (queueFile)
@@ -698,6 +704,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
         // IQueuePersister
         //
 
+        @Override
         public void persist()
         {
             primPersist(recordSize);
@@ -766,6 +773,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
             }
         }
 
+        @Override
         public void addToTail(E elem)
         {
             synchronized (queueFile)
@@ -796,6 +804,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
             }
         }
 
+        @Override
         public void removeFromHead(E elem)
         {
             synchronized (queueFile)
@@ -821,6 +830,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
             }
         }
 
+        @Override
         public void check() throws IllegalStateException
         {
             synchronized (queueFile)
@@ -838,6 +848,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
             }
         }
 
+        @Override
         public void close()
         {
             synchronized (queueFile)
@@ -852,6 +863,7 @@ public class QueuePersister<E> implements IQueuePersister<E>
             }
         }
 
+        @Override
         public void sync()
         {
             synchronized (queueFile)

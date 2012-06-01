@@ -50,6 +50,7 @@ public class DemoEchoClient
         server.connect();
         Thread incomingMessagesPollingThread = new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     while (true)

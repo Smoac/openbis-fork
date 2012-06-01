@@ -62,6 +62,7 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
         this.file = file;
     }
 
+    @Override
     public String getName()
     {
         return file.getName();
@@ -73,26 +74,31 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
         return FileUtilities.getRelativeFilePath(root.getRootNode().getFile(), file);
     }
 
+    @Override
     public File getFile()
     {
         return file;
     }
 
+    @Override
     public File tryGetFile()
     {
         return file;
     }
 
+    @Override
     public boolean exists()
     {
         return file.exists();
     }
 
+    @Override
     public boolean isDirectory()
     {
         return file.isDirectory();
     }
 
+    @Override
     public long getLastModified()
     {
         return file.lastModified();

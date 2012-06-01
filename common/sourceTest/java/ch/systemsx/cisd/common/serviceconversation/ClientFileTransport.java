@@ -61,6 +61,7 @@ public class ClientFileTransport extends FileTransport implements IRemoteService
     // IRemoteServiceConversationServer
     //
 
+    @Override
     public ServiceConversationDTO startConversation(String conversationTypeId)
     {
         final File file =

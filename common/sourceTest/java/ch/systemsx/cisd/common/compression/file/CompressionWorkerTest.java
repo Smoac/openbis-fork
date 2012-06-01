@@ -263,6 +263,7 @@ public final class CompressionWorkerTest
                         {
                             will(new CustomAction("Interrupt Thread")
                                 {
+                                    @Override
                                     public Object invoke(Invocation invocation) throws Throwable
                                     {
                                         Thread.currentThread().interrupt();
@@ -305,6 +306,7 @@ public final class CompressionWorkerTest
                         {
                             will(new CustomAction("Throws Exception")
                                 {
+                                    @Override
                                     public Object invoke(Invocation invocation) throws Throwable
                                     {
                                         throw ex;

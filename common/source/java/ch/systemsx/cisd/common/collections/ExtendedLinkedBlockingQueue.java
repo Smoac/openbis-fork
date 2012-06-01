@@ -48,6 +48,7 @@ public class ExtendedLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> imple
     
     private static final long PEEK_INTERVAL_MILLIS = 100L;
 
+    @Override
     public E peekWait() throws InterruptedException
     {
         while (true)
@@ -61,6 +62,7 @@ public class ExtendedLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> imple
         }
     }
 
+    @Override
     public E peekWait(long timeout, TimeUnit unit) throws InterruptedException
     {
         final long timeoutMillis = TimeUnit.MILLISECONDS.convert(timeout, unit);

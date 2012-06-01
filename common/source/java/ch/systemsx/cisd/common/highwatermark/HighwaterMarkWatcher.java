@@ -189,6 +189,7 @@ public final class HighwaterMarkWatcher implements Runnable
                                 // Callable
                                 //
 
+                                @Override
                                 public final Long call() throws Exception
                                 {
                                     try
@@ -220,6 +221,7 @@ public final class HighwaterMarkWatcher implements Runnable
     // Runnable
     //
 
+    @Override
     public final synchronized void run()
     {
         assert path != null : "Unspecified path";
@@ -352,6 +354,7 @@ public final class HighwaterMarkWatcher implements Runnable
         // ChangeListener
         //
 
+        @Override
         public final void stateChanged(final ChangeEvent e)
         {
             final HighwaterMarkEvent event = (HighwaterMarkEvent) e;

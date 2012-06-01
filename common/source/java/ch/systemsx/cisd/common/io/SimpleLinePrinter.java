@@ -41,6 +41,7 @@ public class SimpleLinePrinter implements ILinePrinter
     /**
      * Prints the text with a new line on the wrapped writer.
      */
+    @Override
     public void println(String text)
     {
         printWriter.println(text);

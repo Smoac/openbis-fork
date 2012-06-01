@@ -119,6 +119,7 @@ public class StringUtilitiesTest
                 StringUtilities.createUniqueString(PATTERN_PREFIX, new IUniquenessChecker()
                     {
 
+                        @Override
                         public boolean isUnique(String str)
                         {
                             return false == existing.contains(str);

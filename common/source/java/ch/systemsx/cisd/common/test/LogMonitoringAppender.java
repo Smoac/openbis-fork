@@ -137,6 +137,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
                         // IToStringConverter
                         //
 
+                        @Override
                         public final String toString(final PatternCounter value)
                         {
                             return value.pattern.pattern();
@@ -201,10 +202,12 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         }
     }
 
+    @Override
     public final void close()
     {
     }
 
+    @Override
     public final boolean requiresLayout()
     {
         return false;

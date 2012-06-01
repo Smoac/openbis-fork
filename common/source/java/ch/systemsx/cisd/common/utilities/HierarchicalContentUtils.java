@@ -39,6 +39,7 @@ public class HierarchicalContentUtils
     static final Comparator<IHierarchicalContentNode> DEFAULT_NODE_COMPARATOR =
             new Comparator<IHierarchicalContentNode>()
                 {
+                    @Override
                     public int compare(IHierarchicalContentNode node1,
                             IHierarchicalContentNode node2)
                     {

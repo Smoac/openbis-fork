@@ -151,12 +151,14 @@ public class MonitoringProxyTest
             assertTrue(name, THREAD_NAME_PATTERN.matcher(name).matches());
         }
 
+        @Override
         public void idle(boolean hang)
         {
             checkThreadName();
             hang(hang);
         }
 
+        @Override
         public void busyUpdatingActivity()
         {
             checkThreadName();
@@ -169,6 +171,7 @@ public class MonitoringProxyTest
             }
         }
 
+        @Override
         public void busyUpdatingActivity(IMonitorCommunicator communicator)
         {
             checkThreadName();
@@ -185,6 +188,7 @@ public class MonitoringProxyTest
             }
         }
 
+        @Override
         public boolean getBoolean(boolean hang)
         {
             checkThreadName();
@@ -192,6 +196,7 @@ public class MonitoringProxyTest
             return THE_BOOLEAN;
         }
 
+        @Override
         public int getInteger(boolean hang)
         {
             checkThreadName();
@@ -199,6 +204,7 @@ public class MonitoringProxyTest
             return THE_INTEGER;
         }
 
+        @Override
         public String getString(boolean hang)
         {
             checkThreadName();
@@ -206,6 +212,7 @@ public class MonitoringProxyTest
             return THE_STRING;
         }
 
+        @Override
         public Status getStatus(boolean hang)
         {
             checkThreadName();
@@ -213,6 +220,7 @@ public class MonitoringProxyTest
             return THE_STATUS;
         }
 
+        @Override
         public Status getSpecialStatus(boolean hang)
         {
             checkThreadName();
@@ -220,6 +228,7 @@ public class MonitoringProxyTest
             return THE_STATUS;
         }
 
+        @Override
         public void throwSignalException() throws SignalException
         {
             checkThreadName();
@@ -228,6 +237,7 @@ public class MonitoringProxyTest
 
         int invocationCount1 = 0;
 
+        @Override
         public void worksOnSecondInvocation() throws RetryItException
         {
             checkThreadName();
@@ -241,16 +251,19 @@ public class MonitoringProxyTest
 
         AtomicInteger invocationsCancelled = new AtomicInteger();
 
+        @Override
         public int getInvocationsCancelled()
         {
             return invocationsCancelled.get();
         }
 
+        @Override
         public void resetInvocationsCancelled()
         {
             invocationsCancelled.set(0);
         }
 
+        @Override
         public void worksOnSecondInvocation(IMonitorCommunicator communicator)
                 throws RetryItException
         {
@@ -272,6 +285,7 @@ public class MonitoringProxyTest
 
         int invocationCount3 = 0;
 
+        @Override
         public void worksOnThirdInvocation() throws RetryItException
         {
             checkThreadName();
@@ -543,6 +557,7 @@ public class MonitoringProxyTest
                         .exceptionClassSuitableForRetrying(RetryItException.class)
                         .invocationLog(new IMonitoringProxyLogger()
                             {
+                                @Override
                                 public void log(Method method, ExecutionResult<Object> result,
                                         boolean willRetry)
                                 {

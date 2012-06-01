@@ -64,6 +64,7 @@ public class RecordingMatcher<T> extends BaseMatcher<T>
         return objects;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public boolean matches(Object item)
     {
@@ -71,6 +72,7 @@ public class RecordingMatcher<T> extends BaseMatcher<T>
         return true;
     }
 
+    @Override
     public void describeTo(Description description)
     {
         description.appendText("<recording matcher>");

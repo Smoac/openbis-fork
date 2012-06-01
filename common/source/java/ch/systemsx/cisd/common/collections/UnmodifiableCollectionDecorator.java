@@ -43,11 +43,13 @@ public class UnmodifiableCollectionDecorator<E> implements Collection<E>
         return collection;
     }
 
+    @Override
     public boolean contains(Object o)
     {
         return collection.contains(o);
     }
 
+    @Override
     public boolean containsAll(Collection<?> c)
     {
         return collection.containsAll(c);
@@ -71,42 +73,50 @@ public class UnmodifiableCollectionDecorator<E> implements Collection<E>
         return collection.toString();
     }
 
+    @Override
     public boolean isEmpty()
     {
         return collection.isEmpty();
     }
 
+    @Override
     public int size()
     {
         return collection.size();
     }
 
+    @Override
     public Object[] toArray()
     {
         return collection.toArray();
     }
 
+    @Override
     public <T> T[] toArray(T[] a)
     {
         return collection.toArray(a);
     }
 
+    @Override
     public Iterator<E> iterator()
     {
         return new Iterator<E>()
             {
                 Iterator<E> i = collection.iterator();
 
+                @Override
                 public boolean hasNext()
                 {
                     return i.hasNext();
                 }
 
+                @Override
                 public E next()
                 {
                     return i.next();
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
@@ -118,31 +128,37 @@ public class UnmodifiableCollectionDecorator<E> implements Collection<E>
     // Not supported
     //
 
+    @Override
     public boolean add(E o)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void clear()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean remove(Object o)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean removeAll(Collection<?> c)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean retainAll(Collection<?> c)
     {
         throw new UnsupportedOperationException();

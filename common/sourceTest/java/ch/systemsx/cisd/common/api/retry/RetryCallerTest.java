@@ -127,6 +127,7 @@ public class RetryCallerTest
                         oneOf(runnable).run();
                         will(new CustomAction("Check waiting time and throw exception")
                             {
+                                @Override
                                 public Object invoke(Invocation invocation) throws Throwable
                                 {
                                     Assert.assertTrue(System.currentTimeMillis() >= startTime

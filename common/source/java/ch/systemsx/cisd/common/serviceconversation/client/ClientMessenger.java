@@ -73,11 +73,13 @@ class ClientMessenger implements IServiceConversation
         responseMessageMultiplexer.addConversation(serviceConversationId,
                 new IServiceMessageTransportWithControl()
                     {
+                        @Override
                         public void send(ServiceMessage message)
                         {
                             ClientMessenger.this.responseMessageQueue.send(message);
                         }
 
+                        @Override
                         public void sendException(ServiceMessage message)
                         {
                             ClientMessenger.this.serviceExceptionSignaled.set(true);
@@ -86,6 +88,7 @@ class ClientMessenger implements IServiceConversation
                     });
     }
 
+    @Override
     public void send(Serializable message)
     {
         checkServiceException();
@@ -112,16 +115,19 @@ class ClientMessenger implements IServiceConversation
         }
     }
 
+    @Override
     public void terminate()
     {
         transportToService.send(ServiceMessage.terminate(serviceConversationId));
     }
 
+    @Override
     public int getServerWorkQueueSizeAtStartup()
     {
         return serverWorkQueueSizeAtStartup;
     }
 
+    @Override
     public <T extends Serializable> T receive(Class<T> messageClass)
     {
         try
@@ -133,6 +139,7 @@ class ClientMessenger implements IServiceConversation
         }
     }
 
+    @Override
     public <T extends Serializable> T tryReceive(Class<T> messageClass, int timeoutMillis)
     {
         try
@@ -193,11 +200,13 @@ class ClientMessenger implements IServiceConversation
         return outgoingMessageIdx++;
     }
 
+    @Override
     public String getId()
     {
         return serviceConversationId;
     }
 
+    @Override
     public void close()
     {
         responseMessageMultiplexer.removeConversation(serviceConversationId);

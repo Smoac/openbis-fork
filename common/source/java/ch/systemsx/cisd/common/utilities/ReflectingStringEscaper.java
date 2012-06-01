@@ -183,6 +183,7 @@ class ReflectingStringEscaperRestricted<T> extends ReflectingStringEscaperImpl<T
     private class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
     {
 
+        @Override
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
             // Only change the value if the name of the field is in the list provided
@@ -229,6 +230,7 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
             unescapedProperties = new HashSet<String>();
         }
 
+        @Override
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
             if (null == fieldOrNull)

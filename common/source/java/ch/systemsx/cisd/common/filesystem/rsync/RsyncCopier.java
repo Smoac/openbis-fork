@@ -227,16 +227,19 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     // IPathCopier
     //
 
+    @Override
     public final Status copy(final File sourcePath, final File destinationDirectory)
     {
         return copy(sourcePath, null, destinationDirectory, null, null, null, false);
     }
 
+    @Override
     public final Status copyContent(final File sourcePath, final File destinationDirectory)
     {
         return copy(sourcePath, null, destinationDirectory, null, null, null, true);
     }
 
+    @Override
     public final Status copyFromRemote(final File sourcePath, final String sourceHost,
             final File destinationDirectory, String rsyncModuleNameOrNull,
             String rsyncPasswordFileOrNull)
@@ -245,6 +248,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 rsyncPasswordFileOrNull, false);
     }
 
+    @Override
     public Status copyContentFromRemote(File sourcePath, String sourceHost,
             File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull)
     {
@@ -252,6 +256,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 rsyncPasswordFileOrNull, true);
     }
 
+    @Override
     public final Status copyToRemote(final File sourcePath, final File destinationDirectory,
             final String destinationHost, String rsyncModuleNameOrNull,
             String rsyncPasswordFileOrNull)
@@ -260,6 +265,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 rsyncPasswordFileOrNull, false);
     }
 
+    @Override
     public Status copyContentToRemote(File sourcePath, File destinationDirectory,
             String destinationHostOrNull, String rsyncModuleNameOrNull,
             String rsyncPasswordFileOrNull)
@@ -272,6 +278,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     // IDirectoryImmutableCopier
     //
 
+    @Override
     public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
             String targetNameOrNull)
     {
@@ -279,6 +286,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 CopyModeExisting.ERROR);
     }
 
+    @Override
     public Status copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
             String targetNameOrNull, CopyModeExisting mode)
     {
@@ -317,6 +325,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
      * the method will return immediately. If many copy processes has been launched, only the last
      * one will be terminated. No more copy operations can be started from that point.
      */
+    @Override
     synchronized public final boolean terminate()
     {
         final ITerminable copyProcess = rsyncTerminator.get();
@@ -357,6 +366,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
      * 
      * @throws ConfigurationFailureException If the check fails.
      */
+    @Override
     public final void check()
     {
         if (machineLog.isDebugEnabled())
@@ -397,11 +407,13 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;
     }
 
+    @Override
     public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
             String rsyncPasswordFileOrNull, long millisToWaitForCompletion)
     {
@@ -428,6 +440,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return wrappedCmd;
     }
 
+    @Override
     public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull,
             long millisToWaitForCompletion)
     {

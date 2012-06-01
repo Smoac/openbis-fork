@@ -21,7 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -76,16 +75,16 @@ public class MaintenanceTaskParameters
         {
             if (StringUtils.isBlank(timeOrNull))
             {
-                return GregorianCalendar.getInstance().getTime();
+                return Calendar.getInstance().getTime();
             }
             DateFormat format = new SimpleDateFormat(TIME_FORMAT);
             Date parsedDate = format.parse(timeOrNull);
-            Calendar rightHourAndMinutes1970 = GregorianCalendar.getInstance();
+            Calendar rightHourAndMinutes1970 = Calendar.getInstance();
             rightHourAndMinutes1970.setTime(parsedDate);
-            Calendar result = GregorianCalendar.getInstance();
+            Calendar result = Calendar.getInstance();
             result.set(Calendar.HOUR_OF_DAY, rightHourAndMinutes1970.get(Calendar.HOUR_OF_DAY));
             result.set(Calendar.MINUTE, rightHourAndMinutes1970.get(Calendar.MINUTE));
-            Calendar now = GregorianCalendar.getInstance();
+            Calendar now = Calendar.getInstance();
             if (now.after(result))
             {
                 result.add(Calendar.DAY_OF_MONTH, 1);

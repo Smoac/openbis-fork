@@ -113,6 +113,7 @@ class ReflectingStringUnescaperUnrestricted<T> extends ReflectingStringUnescaper
 
     private static class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
     {
+        @Override
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
             if (null == fieldOrNull)

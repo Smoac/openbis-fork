@@ -75,6 +75,7 @@ public final class LogInvocationHandler implements InvocationHandler
         this.onlyIfAnnotated = onlyIfAnnotated;
     }
 
+    @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args)
             throws Throwable
     {

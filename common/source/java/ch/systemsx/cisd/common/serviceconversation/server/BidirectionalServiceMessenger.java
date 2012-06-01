@@ -64,6 +64,7 @@ class BidirectionalServiceMessenger
     {
         return new IServiceMessenger()
             {
+                @Override
                 public <T extends Serializable> T receive(Class<T> messageClass)
                 {
                     final T payload =
@@ -78,6 +79,7 @@ class BidirectionalServiceMessenger
                     return payload;
                 }
 
+                @Override
                 @SuppressWarnings("unchecked")
                 public <T extends Serializable> T tryReceive(Class<T> messageClass,
                         int timeoutMillis)
@@ -109,6 +111,7 @@ class BidirectionalServiceMessenger
                     return (T) payload;
                 }
 
+                @Override
                 public void send(Serializable message)
                 {
                     if (interrupted.get())
@@ -119,6 +122,7 @@ class BidirectionalServiceMessenger
                             nextOutgoingMessageIndex(), false, message));
                 }
 
+                @Override
                 public String getId()
                 {
                     return conversationId;

@@ -97,6 +97,7 @@ class FileConversionTaskExecutor implements ITaskExecutor<File>
         this.conversionStrategy = conversionStrategy;
     }
 
+    @Override
     public Status execute(File fileToConvert)
     {
         final File convertedFile = conversionStrategy.tryCheckConvert(fileToConvert);

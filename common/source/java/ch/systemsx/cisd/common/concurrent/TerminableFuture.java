@@ -41,6 +41,7 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         this.delegateTerminableCallable = delegateTerminableCallable;
     }
 
+    @Override
     public boolean cancel(boolean mayInterruptIfRunning)
     {
         final boolean canceled = delegateTerminableCallable.cancel(mayInterruptIfRunning);
@@ -48,53 +49,63 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         return canceled;
     }
 
+    @Override
     public V get() throws InterruptedException, ExecutionException
     {
         return delegateFuture.get();
     }
 
+    @Override
     public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
             TimeoutException
     {
         return delegateFuture.get(timeout, unit);
     }
 
+    @Override
     public boolean isCancelled()
     {
         return delegateTerminableCallable.isCancelled();
     }
 
+    @Override
     public boolean isDone()
     {
         return delegateFuture.isDone();
     }
 
+    @Override
     public boolean isRunning()
     {
         return delegateTerminableCallable.isRunning();
     }
 
+    @Override
     public boolean hasStarted()
     {
         return delegateTerminableCallable.hasStarted();
     }
 
+    @Override
     public boolean waitForFinished(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         return delegateTerminableCallable.waitForFinished(timeoutMillis);
     }
 
+    @Override
     public boolean hasFinished()
     {
         return delegateTerminableCallable.hasFinished();
     }
 
+    @Override
     public boolean terminate()
     {
         cancel(false);
         return delegateTerminableCallable.terminate();
     }
 
+    @Override
     public final boolean terminate(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         cancel(false);

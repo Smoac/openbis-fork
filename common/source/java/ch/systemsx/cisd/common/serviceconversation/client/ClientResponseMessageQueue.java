@@ -40,6 +40,7 @@ class ClientResponseMessageQueue implements IServiceMessageTransport
         return messageQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
     }
     
+    @Override
     public void send(ServiceMessage message)
     {
         if (message.getMessageIdx() <= messageIdxLastSeen)

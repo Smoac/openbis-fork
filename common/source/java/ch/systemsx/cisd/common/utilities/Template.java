@@ -83,6 +83,7 @@ public class Template
             this.plainText = plainText;
         }
 
+        @Override
         public void appendTo(StringBuilder builder)
         {
             builder.append(plainText);
@@ -101,6 +102,7 @@ public class Template
             this.variableName = variablePlaceHolder;
         }
 
+        @Override
         public void appendTo(StringBuilder builder)
         {
             builder.append(isBound() ? value : createPlaceholder(variableName));

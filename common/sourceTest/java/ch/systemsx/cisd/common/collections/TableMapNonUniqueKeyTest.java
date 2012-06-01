@@ -38,6 +38,7 @@ public class TableMapNonUniqueKeyTest
 
     final IMultiKeyExtractor<Integer, String> integerExtractor = new IMultiKeyExtractor<Integer, String>()
         {
+            @Override
             public Collection<Integer> getKey(String e)
             {
                 final int i = e.indexOf(':');

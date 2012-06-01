@@ -40,10 +40,12 @@ public class MaintenanceTaskUtilsTest extends AssertJUnit
     {
         private static final AtomicInteger numberActive = new AtomicInteger(0);
 
+        @Override
         public void setUp(String pluginName, Properties properties)
         {
         }
 
+        @Override
         public void execute()
         {
             if (numberActive.incrementAndGet() > 1)
@@ -68,6 +70,7 @@ public class MaintenanceTaskUtilsTest extends AssertJUnit
         /**
          * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
          */
+        @Override
         public boolean requiresDataStoreLock()
         {
             return true;

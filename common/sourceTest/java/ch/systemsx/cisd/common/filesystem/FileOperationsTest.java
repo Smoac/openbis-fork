@@ -61,51 +61,60 @@ public class FileOperationsTest extends AbstractFileSystemTestCase
             ConcurrencyUtilities.sleep(hangMillis);
         }
 
+        @Override
         public int available() throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
+        @Override
         public void close() throws IOExceptionUnchecked
         {
             hang();
         }
 
+        @Override
         public void mark(int readlimit)
         {
             hang();
         }
 
+        @Override
         public boolean markSupported()
         {
             hang();
             return false;
         }
 
+        @Override
         public int read() throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
+        @Override
         public int read(byte[] b) throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
+        @Override
         public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
+        @Override
         public void reset() throws IOExceptionUnchecked
         {
             hang();
         }
 
+        @Override
         public long skip(long n) throws IOExceptionUnchecked
         {
             hang();

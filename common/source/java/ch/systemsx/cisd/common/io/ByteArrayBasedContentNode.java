@@ -58,6 +58,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     /**
      * Returns always <code>true</code>.
      */
+    @Override
     public boolean exists()
     {
         return true;
@@ -66,56 +67,67 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     /**
      * Returns an instance of {@link ByteArrayInputStream}.
      */
+    @Override
     public InputStream getInputStream()
     {
         return new ByteArrayInputStream(byteArray);
     }
 
+    @Override
     public String getName()
     {
         return nameOrNull;
     }
 
+    @Override
     public String getRelativePath()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getParentRelativePath()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isDirectory()
     {
         return false;
     }
 
+    @Override
     public long getLastModified()
     {
         return lastModified;
     }
 
+    @Override
     public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public File getFile() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException();
     }
     
+    @Override
     public File tryGetFile()
     {
         return null;
     }
 
+    @Override
     public long getFileLength() throws UnsupportedOperationException
     {
         return byteArray.length;
     }
 
+    @Override
     public long getChecksumCRC32() throws UnsupportedOperationException
     {
         if (checksum == null)
@@ -125,6 +137,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
         return checksum;
     }
 
+    @Override
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
             IOExceptionUnchecked
     {

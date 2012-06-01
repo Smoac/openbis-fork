@@ -58,6 +58,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
 
     private String relativePath; // lazily initialized and cached
 
+    @Override
     public final String getRelativePath()
     {
         if (relativePath == null)
@@ -83,36 +84,42 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
         }
     }
 
+    @Override
     public final List<IHierarchicalContentNode> getChildNodes()
     {
         requireDirectory();
         return doGetChildNodes();
     }
 
+    @Override
     public final long getFileLength() throws UnsupportedOperationException
     {
         failOnDirectory();
         return doGetFileLength();
     }
 
+    @Override
     public long getChecksumCRC32() throws UnsupportedOperationException
     {
         failOnDirectory();
         return doGetChecksumCRC32();
     }
     
+    @Override
     public final IRandomAccessFile getFileContent()
     {
         failOnDirectory();
         return doGetFileContent();
     }
 
+    @Override
     public final InputStream getInputStream()
     {
         failOnDirectory();
         return doGetInputStream();
     }
 
+    @Override
     public final String getParentRelativePath()
     {
         return FileUtilities.getParentRelativePath(getRelativePath());

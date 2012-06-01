@@ -81,6 +81,7 @@ class CompressionWorker implements Runnable
         this.activeWorkers = activeWorkers;
     }
 
+    @Override
     public void run()
     {
         try

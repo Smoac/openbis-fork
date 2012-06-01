@@ -172,6 +172,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     // IDirectoryScanningHandler
     //
 
+    @Override
     public void init(IScannedStore scannedStore)
     {
         final Iterator<StoreItem> it = faultyPaths.iterator();
@@ -191,11 +192,13 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         }
     }
 
+    @Override
     public final void beforeHandle(IScannedStore scannedStore)
     {
         checkForFaultyPathsFileChanged(scannedStore);
     }
 
+    @Override
     public final HandleInstruction mayHandle(final IScannedStore scannedStore,
             final StoreItem storeItem)
     {
@@ -211,6 +214,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         }
     }
 
+    @Override
     public final Status finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
         // if the external provided predicate says we should not add it to faulty paths, we won't

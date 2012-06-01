@@ -73,6 +73,7 @@ public class Tiff2PngConversionStrategy implements IFileConversionStrategy
     // IFileConversionStrategy
     //
 
+    @Override
     public File tryCheckConvert(File inFile)
     {
         final String ext = FilenameUtils.getExtension(inFile.getName()).toLowerCase();
@@ -86,11 +87,13 @@ public class Tiff2PngConversionStrategy implements IFileConversionStrategy
         }
     }
 
+    @Override
     public boolean deleteOriginalFile()
     {
         return deleteOriginalFile;
     }
 
+    @Override
     public IFileConversionMethod getConverter()
     {
         return method;

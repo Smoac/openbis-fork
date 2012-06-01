@@ -48,6 +48,7 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
         this.strategy = compress ? COMPRESSED_STRATEGY : ArchivingStrategy.DEFAULT;
     }
 
+    @Override
     public void archiveToHDF5Container(String rootPath, File path) throws IOExceptionUnchecked
     {
         if (path.isFile())
@@ -59,6 +60,7 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
         }
     }
 
+    @Override
     public void writeToHDF5Container(String objectPath, InputStream istream, long size)
             throws IOExceptionUnchecked
     {
@@ -68,6 +70,7 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
     /**
      * @see ch.systemsx.cisd.hdf5.IHDF5SimpleReader#close()
      */
+    @Override
     public void close()
     {
         archiver.close();

@@ -90,6 +90,7 @@ class FileTransport implements IServiceMessageTransport
     {
         final File[] messages = WD.listFiles(new FilenameFilter()
             {
+                @Override
                 public boolean accept(File dir, String name)
                 {
                     return name.startsWith(prefix);
@@ -98,6 +99,7 @@ class FileTransport implements IServiceMessageTransport
         // Sort from oldest to newest message so that the oldest message gets processed first.
         Arrays.sort(messages, 0, messages.length, new Comparator<File>()
             {
+                @Override
                 public int compare(File o1, File o2)
                 {
                     return (int) (o1.lastModified() - o2.lastModified());
@@ -133,6 +135,7 @@ class FileTransport implements IServiceMessageTransport
     // IServiceMessageTransport
     //
 
+    @Override
     public void send(ServiceMessage message)
     {
         final File msgFile =

@@ -138,6 +138,7 @@ public class MonitoringProxy<T>
             this.objectToProxyFor = objectToProxyFor;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 
         {
@@ -202,6 +203,7 @@ public class MonitoringProxy<T>
     private class MonitoringInvocationHandler implements InvocationHandler
     {
 
+        @Override
         public Object invoke(final Object myProxy, final Method method, final Object[] args)
                 throws Throwable
         {
@@ -287,6 +289,7 @@ public class MonitoringProxy<T>
 
                 final Future<Object> future = executor.submit(new NamedCallable<Object>()
                     {
+                        @Override
                         public Object call() throws Exception
                         {
                             communicator.setMonitoredThread();
@@ -308,6 +311,7 @@ public class MonitoringProxy<T>
                             }
                         }
 
+                        @Override
                         public String getCallableName()
                         {
                             if (nameOrNull != null)
@@ -322,16 +326,19 @@ public class MonitoringProxy<T>
                 final ILogSettings logSettingsOrNull =
                         (loggerOrNull == null) ? null : new ILogSettings()
                             {
+                                @Override
                                 public LogLevel getLogLevelForError()
                                 {
                                     return LogLevel.ERROR;
                                 }
 
+                                @Override
                                 public ISimpleLogger getLogger()
                                 {
                                     return loggerOrNull;
                                 }
 
+                                @Override
                                 public String getOperationName()
                                 {
                                     if (nameOrNull != null)
@@ -348,6 +355,7 @@ public class MonitoringProxy<T>
                                 true, logSettingsOrNull,
                                 new ConcurrencyUtilities.ICancellationNotifier()
                                     {
+                                        @Override
                                         public void willCancel()
                                         {
                                             communicator.cancel(false);
@@ -460,10 +468,12 @@ public class MonitoringProxy<T>
      */
     public static final IMonitorCommunicator MONITOR_COMMUNICATOR = new IMonitorCommunicator()
         {
+            @Override
             public void update()
             {
             }
 
+            @Override
             public boolean isCancelled()
             {
                 return false;
@@ -497,22 +507,26 @@ public class MonitoringProxy<T>
             monitoredThreadOrNull = null;
         }
 
+        @Override
         public boolean isCancelled()
         {
             return cancelled.get();
         }
 
+        @Override
         public void update()
         {
             lastActivityAt.set(System.currentTimeMillis());
         }
 
+        @Override
         public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
         {
             return sensorOrNull != null ? Math.max(lastActivityAt.get(), sensorOrNull
                     .getLastActivityMillisMoreRecentThan(thresholdMillis)) : lastActivityAt.get();
         }
 
+        @Override
         public boolean hasActivityMoreRecentThan(long thresholdMillis)
         {
             return sensorOrNull != null ? sensorOrNull.hasActivityMoreRecentThan(thresholdMillis)

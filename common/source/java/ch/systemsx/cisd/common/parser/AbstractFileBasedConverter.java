@@ -52,6 +52,7 @@ public abstract class AbstractFileBasedConverter<T> implements Converter<T>
     // Converter
     //
 
+    @Override
     public final T convert(final String valueOrNull)
     {
         if (isIncludeFile(valueOrNull))

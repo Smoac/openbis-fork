@@ -79,10 +79,12 @@ public class GUIAppender extends AppenderSkeleton
         textArea.append(logMessage);
     }
 
+    @Override
     public void close()
     {
     }
 
+    @Override
     public boolean requiresLayout()
     {
         return true;

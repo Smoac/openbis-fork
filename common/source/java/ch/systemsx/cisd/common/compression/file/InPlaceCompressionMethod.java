@@ -115,8 +115,10 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
      * Perform any check necessary to see whether the external program that has been found is
      * suitable for the compression task (e.g. program version).
      */
+    @Override
     public abstract void check() throws EnvironmentFailureException, ConfigurationFailureException;
 
+    @Override
     public boolean accept(File pathname)
     {
         if (pathname.isFile() == false)
@@ -134,6 +136,7 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
         return false;
     }
 
+    @Override
     public Status compress(File fileToCompress)
     {
         assert fileToCompress != null;

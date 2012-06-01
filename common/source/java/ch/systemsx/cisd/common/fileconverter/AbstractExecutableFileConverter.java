@@ -71,11 +71,13 @@ abstract class AbstractExecutableFileConverter implements IFileConversionMethod
     /**
      * Returns <code>false</code>.
      */
+    @Override
     public boolean isRemote()
     {
         return false;
     }
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         if (executable == null)
@@ -85,6 +87,7 @@ abstract class AbstractExecutableFileConverter implements IFileConversionMethod
         }
     }
 
+    @Override
     public boolean convert(File inFile, File outFile)
     {
         final ProcessResult processResult = runExecutable(getCommandLine(inFile, outFile));

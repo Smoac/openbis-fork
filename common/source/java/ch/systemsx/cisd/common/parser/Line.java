@@ -34,16 +34,19 @@ public final class Line implements ILine<String>
         this.text = text;
     }
 
+    @Override
     public final String getText()
     {
         return text;
     }
 
+    @Override
     public final int getNumber()
     {
         return number;
     }
 
+    @Override
     public String getObject()
     {
         return text;

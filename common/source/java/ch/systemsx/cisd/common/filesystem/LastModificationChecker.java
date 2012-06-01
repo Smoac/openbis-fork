@@ -33,6 +33,7 @@ public class LastModificationChecker implements ILastModificationChecker
         this.parentDir = parentDir;
     }
 
+    @Override
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
@@ -47,6 +48,7 @@ public class LastModificationChecker implements ILastModificationChecker
         }
     }
 
+    @Override
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {

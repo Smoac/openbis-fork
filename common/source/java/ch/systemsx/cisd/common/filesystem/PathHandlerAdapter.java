@@ -49,6 +49,7 @@ public class PathHandlerAdapter implements IStoreHandler
     // IStoreHandler
     //
 
+    @Override
     public final boolean handle(final StoreItem item)
     {
         final File file = asFile(item);
@@ -56,6 +57,7 @@ public class PathHandlerAdapter implements IStoreHandler
         return file.exists() == false;
     }
 
+    @Override
     public boolean isStopped()
     {
         return pathHandler.isStopped();

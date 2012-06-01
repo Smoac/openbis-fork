@@ -28,6 +28,7 @@ public class OracleSequencerHandler implements ISequencerHandler
     // ISequencerProvider
     //
 
+    @Override
     public String getNextValueScript(String sequencer)
     {
         assert sequencer != null : "Given sequencer can not be null.";

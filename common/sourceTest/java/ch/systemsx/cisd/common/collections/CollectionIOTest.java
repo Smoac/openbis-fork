@@ -72,6 +72,7 @@ public final class CollectionIOTest extends AbstractFileSystemTestCase
         final List<String> list = Arrays.asList("Hund", "Katze", "Maus");
         assert CollectionIO.writeIterable(file, list, new IToStringConverter<String>()
             {
+                @Override
                 public String toString(String value)
                 {
                     return value.toUpperCase();
@@ -185,6 +186,7 @@ public final class CollectionIOTest extends AbstractFileSystemTestCase
         final List<Float> list = new ArrayList<Float>();
         assert CollectionIO.readCollection(file, list, new IFromStringConverter<Float>()
             {
+                @Override
                 public Float fromString(String value)
                 {
                     return Float.valueOf(value);

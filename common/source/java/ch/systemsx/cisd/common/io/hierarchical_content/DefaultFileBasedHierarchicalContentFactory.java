@@ -33,17 +33,20 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 public class DefaultFileBasedHierarchicalContentFactory implements IHierarchicalContentFactory
 {
 
+    @Override
     public IHierarchicalContent asVirtualHierarchicalContent(
             List<IHierarchicalContent> components)
     {
         return new VirtualHierarchicalContent(components);
     }
 
+    @Override
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction)
     {
         return new DefaultFileBasedHierarchicalContent(this, file, onCloseAction);
     }
 
+    @Override
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file)
     {
