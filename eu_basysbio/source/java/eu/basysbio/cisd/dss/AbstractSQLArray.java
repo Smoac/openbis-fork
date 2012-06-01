@@ -107,6 +107,7 @@ abstract class AbstractSQLArray implements Array
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public void free() throws SQLException
     {
         throw new UnsupportedOperationException();
