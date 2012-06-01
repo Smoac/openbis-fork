@@ -45,10 +45,12 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     static final String DISABLED_TECHNOLOGIES_VARNAME = "DISABLED_TECHNOLOGIES";
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
+    @Override
     public void initialize(PanelActionConfiguration configuration)
     {
     }
 
+    @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
         boolean isFirstTimeInstallation = GlobalInstallationContext.isFirstTimeInstallation;

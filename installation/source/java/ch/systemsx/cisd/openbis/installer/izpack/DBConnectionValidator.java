@@ -44,11 +44,13 @@ public class DBConnectionValidator implements DataValidator
 
     private String errorMessage;
 
+    @Override
     public boolean getDefaultAnswer()
     {
         return true;
     }
 
+    @Override
     public String getErrorMessageId()
     {
         if (errorMessage != null)
@@ -60,11 +62,13 @@ public class DBConnectionValidator implements DataValidator
         }
     }
 
+    @Override
     public String getWarningMessageId()
     {
         return getErrorMessageId();
     }
 
+    @Override
     public Status validateData(AutomatedInstallData data)
     {
         if (testConnectionOK(POSTGRES_USER, NO_PASSWORD))

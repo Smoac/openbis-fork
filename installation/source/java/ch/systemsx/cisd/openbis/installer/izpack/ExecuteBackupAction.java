@@ -33,6 +33,7 @@ public class ExecuteBackupAction extends AbstractScriptExecutor implements Panel
      */
     private static final String CREATE_BACKUP_SCRIPT = "backup-installation.sh";
 
+    @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         String script = getAdminScript(data, CREATE_BACKUP_SCRIPT);
@@ -40,6 +41,7 @@ public class ExecuteBackupAction extends AbstractScriptExecutor implements Panel
         executeAdminScript(null, script, backupFolder);
     }
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

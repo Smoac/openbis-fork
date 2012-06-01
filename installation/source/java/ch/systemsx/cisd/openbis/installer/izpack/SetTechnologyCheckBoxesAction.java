@@ -54,11 +54,13 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             this.technologyName = technologyName;
         }
 
+        @Override
         public String getTechnologyName()
         {
             return technologyName;
         }
 
+        @Override
         public boolean isTechnologyEnabled(File installDir)
         {
             String technologies =
@@ -87,10 +89,12 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
         technologyCheckers.put(checker.getTechnologyName(), checker);
     }
 
+    @Override
     public void initialize(PanelActionConfiguration configuration)
     {
     }
     
+    @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)

@@ -52,6 +52,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
      */
     private static final String RESTORE_CONFIG_FROM_BACKUP_SCRIPT = "restore-config-from-backup.sh";
 
+    @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         if (GlobalInstallationContext.isFirstTimeInstallation)
@@ -136,6 +137,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         executeAdminScript(customEnvironment, script);
     }
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

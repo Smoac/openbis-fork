@@ -38,6 +38,7 @@ public class OpenGettingStartedPageAction implements PanelAction
 
     private final static String INTRO_PAGE = "getting-started-with-openBIS.html";
 
+    @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         if (GlobalInstallationContext.isUpdateInstallation)
@@ -70,6 +71,7 @@ public class OpenGettingStartedPageAction implements PanelAction
     }
 
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

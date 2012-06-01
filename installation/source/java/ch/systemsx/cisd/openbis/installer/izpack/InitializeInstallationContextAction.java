@@ -30,6 +30,7 @@ public class InitializeInstallationContextAction implements PanelAction
 {
     private static final String ROOT_USERNAME = "root";
 
+    @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
 
@@ -55,6 +56,7 @@ public class InitializeInstallationContextAction implements PanelAction
         }
     }
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

@@ -36,6 +36,7 @@ public class SetHostnameVariableAction implements PanelAction
     private static final String HOSTNAME_VARNAME = "HOSTNAME";
     private static final String SERVER_INSTALLATION_TYPE = "server";
 
+    @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         String installationType = data.getVariable(INSTALLATION_TYPE_VARNAME);
@@ -49,6 +50,7 @@ public class SetHostnameVariableAction implements PanelAction
     }
 
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

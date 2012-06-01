@@ -39,6 +39,7 @@ public class PrepareInstallationBackupAction implements PanelAction
     private File installDir;
     private File backupDir;
 
+    @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         if (GlobalInstallationContext.isUpdateInstallation)
@@ -50,6 +51,7 @@ public class PrepareInstallationBackupAction implements PanelAction
         }
     }
 
+    @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }

@@ -33,10 +33,12 @@ public class KeystoreAction implements PanelAction
     private static final String DEFAULT_PASSWORD = "changeit";
     private static final String DEFAULT_KEY_PASSWORD = "changeit";
 
+    @Override
     public void initialize(PanelActionConfiguration configuration)
     {
     }
     
+    @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
         data.setVariable(GlobalInstallationContext.KEY_STORE_PASSWORD_VARNAME,

@@ -31,21 +31,25 @@ import com.izforge.izpack.api.installer.DataValidator;
 public class PostgresToolsPathValidator implements DataValidator
 {
 
+    @Override
     public boolean getDefaultAnswer()
     {
         return true;
     }
 
+    @Override
     public String getErrorMessageId()
     {
         return "'psql' and 'pg_dump' must be available on the specified path.";
     }
 
+    @Override
     public String getWarningMessageId()
     {
         return getErrorMessageId();
     }
 
+    @Override
     public Status validateData(AutomatedInstallData data)
     {
         String selectedPath = data.getVariable(POSTGRES_BIN_VARNAME);
