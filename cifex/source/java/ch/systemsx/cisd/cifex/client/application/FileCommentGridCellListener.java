@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_COMMENT_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  */
 public class FileCommentGridCellListener implements Listener<GridEvent<AbstractFileGridModel>>
 {
+    @Override
     public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
         Grid<AbstractFileGridModel> grid = be.getGrid();

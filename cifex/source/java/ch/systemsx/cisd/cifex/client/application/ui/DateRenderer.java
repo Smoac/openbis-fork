@@ -48,6 +48,7 @@ public final class DateRenderer implements GridCellRenderer<BaseModelData>
         this.fullDateTime = fullDateTime;
     }
 
+    @Override
     public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {

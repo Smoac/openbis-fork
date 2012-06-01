@@ -16,7 +16,28 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_COMMENT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_EXPIRATION_DATE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_EXPIRATION_DATE_TOOLTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_FILE_RETENTION_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_MAX_FILECOUNT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_MAX_FILESIZE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_PASSWD_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_PASSWD_MISMATCH_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_REPEAT_PASSWD_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_ADMIN_TAG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_REGULAR_TAG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_TEMP_TAG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_STATUS_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_USER_RETENTION_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_USER_EXTERNAL_AUTHENTICATION_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_USER_NOTIFY_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_EMAIL_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FULLNAME_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.USER_ACTIVE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.USER_ID_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Date;
 
@@ -30,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -37,7 +59,6 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -49,9 +70,9 @@ import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>Form</code> extension as base class to edit or create an user.
@@ -528,6 +549,7 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_MAX_FILESIZE_LABEL));
         textField.setValidator(new Validator()
             {
+                @Override
                 public String validate(Field<?> field, String value)
                 {
                     if (value == null)
@@ -570,6 +592,7 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_MAX_FILECOUNT_LABEL));
         textField.setValidator(new Validator()
             {
+                @Override
                 public String validate(Field<?> field, String value)
                 {
                     if (value == null)
@@ -612,6 +635,7 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_FILE_RETENTION_LABEL));
         textField.setValidator(new Validator()
             {
+                @Override
                 public String validate(Field<?> field, String value)
                 {
                     if (value == null)
@@ -645,6 +669,7 @@ public abstract class UserWidget extends LayoutContainer
         final TextField<String> textField = createTextField(msg(CREATE_USER_USER_RETENTION_LABEL));
         textField.setValidator(new Validator()
             {
+                @Override
                 public String validate(Field<?> field, String value)
                 {
                     if (value == null)
@@ -788,6 +813,7 @@ public abstract class UserWidget extends LayoutContainer
         {
             statusField.addListener(Events.Select, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         if (isTemporaryStatus())

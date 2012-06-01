@@ -26,6 +26,7 @@ public interface IDelegatedAction
 {
     IDelegatedAction EMPTY_ACTION = new IDelegatedAction()
         {
+            @Override
             public void execute()
             {
                 // do nothing

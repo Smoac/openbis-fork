@@ -88,6 +88,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     // IFileDAO
     //
 
+    @Override
     public void createSharingLink(long fileID, long userID) throws DataAccessException
     {
         getSimpleJdbcTemplate().update(
@@ -96,6 +97,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     }
 
+    @Override
     public boolean deleteSharingLink(long fileID, String userCode) throws DataAccessException
     {
         final int affectedRows =
@@ -106,6 +108,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     }
 
+    @Override
     public final void createFile(final FileDTO file) throws DataAccessException
     {
         assert file != null : "Given file cannot be null.";
@@ -125,6 +128,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     /**
      * Updates all fields from <var>file</var> in the database.
      */
+    @Override
     public void updateFile(final FileDTO file) throws DataAccessException
     {
         assert file != null;
@@ -145,6 +149,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
      * Updates the <var>name</var>, the <var>comment</var> and the <var>expirationDate</var> of the
      * file with given <var>id</var>.
      */
+    @Override
     public void updateFileUserEdit(final long id, final String name, String commentOrNull,
             final Date expirationDate) throws DataAccessException
     {
@@ -160,6 +165,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     /**
      * Updates the <var>file</var> in the database with the current upload progress.
      */
+    @Override
     public void updateFileUploadProgress(final long id, final long size, final int crc32,
             final Date expirationDate) throws DataAccessException
     {
@@ -169,6 +175,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 + " where id = ?", size, crc32, expirationDate, id);
     }
 
+    @Override
     public boolean deleteFile(final long id) throws DataAccessException
     {
         final int affectedRows =
@@ -176,6 +183,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         return affectedRows > 0;
     }
 
+    @Override
     public List<FileDTO> listFiles() throws DataAccessException
     {
         final List<FileDTO> list =
@@ -192,6 +200,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         return list;
     }
 
+    @Override
     public final FileDTO tryGetFile(final long id) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -212,6 +221,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         }
     }
 
+    @Override
     public Date getFileRegistrationDate(long fileId) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -219,6 +229,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 Date.class, fileId);
     }
 
+    @Override
     public final List<FileDTO> getExpiredFiles()
     {
         final List<FileDTO> list =
@@ -229,6 +240,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     }
 
+    @Override
     public final List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException
     {
         final List<FileDTO> list =
@@ -242,6 +254,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         return list;
     }
 
+    @Override
     public final List<FileDTO> listDirectlyAndIndirectlyOwnedFiles(final long userId)
             throws DataAccessException
     {
@@ -270,6 +283,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
      * size. If there are multiple files which are candidates, a random one is provided. If there is
      * no candidate, <code>null</code> is returned.
      */
+    @Override
     public FileDTO tryGetResumeCandidate(final long userId, final String fileName,
             final long completeSize)
     {
@@ -328,6 +342,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         // ParameterizedRowMapper
         //
 
+        @Override
         public final FileDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
         {
             return fillSimpleFileFromResultSet(rs);
@@ -351,6 +366,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         // ParameterizedRowMapper
         //
 
+        @Override
         public final FileDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
         {
             return fillFileWithOwnerFromResultSet(rs);
@@ -360,6 +376,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     private static final class SharingUserRowMapper implements ParameterizedRowMapper<UserDTO>
     {
+        @Override
         public final UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
         {
             UserDTO sharingUser = new UserDTO();

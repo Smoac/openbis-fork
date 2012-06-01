@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class DeleteQuotaGroupOnDeleteUserTrigger extends AbstractUserTrigger
 {
 
+    @Override
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
         final long quotaGroupId = (Long) oldRow[quotaGroupIdIndex];

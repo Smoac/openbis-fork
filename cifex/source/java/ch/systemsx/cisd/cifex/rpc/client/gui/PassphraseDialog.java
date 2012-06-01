@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -128,7 +129,7 @@ public final class PassphraseDialog
         dialog.getContentPane().add(panel);
 
         final JLabel messageLabel =
-                new JLabel("<html><center>" + message + "</center></html>", JLabel.CENTER);
+                new JLabel("<html><center>" + message + "</center></html>", SwingConstants.CENTER);
 
         final JPanel passphrasePanel = new JPanel();
         final JLabel passphraseLabel = new JLabel("Passphrase");
@@ -145,6 +146,7 @@ public final class PassphraseDialog
         // Make pressing "Cancel" button react.
         cancelButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     cancelled.set(true);
@@ -185,6 +187,7 @@ public final class PassphraseDialog
             // Make pressing "Enter" in passphrase field react
             passphraseField.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if (canCloseRegularly(passphraseField, allowEmptyPassphrase))
@@ -196,6 +199,7 @@ public final class PassphraseDialog
             // Make pressing "Enter" in passphraseRepeatedField field react
             passphraseRepeatedField.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if (canCloseRegularly(parentComponent, passphraseField,
@@ -209,6 +213,7 @@ public final class PassphraseDialog
             // Make pressing "OK" button react.
             okButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if (canCloseRegularly(parentComponent, passphraseField,
@@ -225,6 +230,7 @@ public final class PassphraseDialog
             buttonPanel.add(clearPassphraseButton);
             clearPassphraseButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         passphraseField.setText("");
@@ -254,6 +260,7 @@ public final class PassphraseDialog
             // Make pressing "OK" button react.
             okButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if (canCloseRegularly(passphraseField, allowEmptyPassphrase))
@@ -267,6 +274,7 @@ public final class PassphraseDialog
             // Make pressing "Enter" in passphrase field react
             passphraseField.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if (canCloseRegularly(passphraseField, allowEmptyPassphrase))
@@ -306,6 +314,7 @@ public final class PassphraseDialog
         // Make ESC cancel the dialog.
         dialog.getRootPane().registerKeyboardAction(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     cancelled.set(true);
@@ -337,6 +346,7 @@ public final class PassphraseDialog
     {
         return new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final String passphrase =
@@ -362,6 +372,7 @@ public final class PassphraseDialog
     {
         return new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final String passphrase =
@@ -385,6 +396,7 @@ public final class PassphraseDialog
     {
         return new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     try
@@ -413,11 +425,13 @@ public final class PassphraseDialog
     {
         return new DocumentListener()
             {
+                @Override
                 public void removeUpdate(DocumentEvent e)
                 {
                     updateOKButtonState();
                 }
 
+                @Override
                 public void insertUpdate(DocumentEvent e)
                 {
                     updateOKButtonState();
@@ -428,6 +442,7 @@ public final class PassphraseDialog
                     okButton.setEnabled(passphraseField.getPassword().length > 0);
                 }
 
+                @Override
                 public void changedUpdate(DocumentEvent e)
                 {
                     // Not interesting.
@@ -439,31 +454,38 @@ public final class PassphraseDialog
     {
         return new WindowListener()
             {
+                @Override
                 public void windowOpened(WindowEvent e)
                 {
                 }
 
+                @Override
                 public void windowIconified(WindowEvent e)
                 {
                 }
 
+                @Override
                 public void windowDeiconified(WindowEvent e)
                 {
                 }
 
+                @Override
                 public void windowDeactivated(WindowEvent e)
                 {
                 }
 
+                @Override
                 public void windowClosing(WindowEvent e)
                 {
                     cancelled.set(true);
                 }
 
+                @Override
                 public void windowClosed(WindowEvent e)
                 {
                 }
 
+                @Override
                 public void windowActivated(WindowEvent e)
                 {
                 }

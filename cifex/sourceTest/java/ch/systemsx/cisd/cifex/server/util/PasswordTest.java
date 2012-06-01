@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.server.util;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 

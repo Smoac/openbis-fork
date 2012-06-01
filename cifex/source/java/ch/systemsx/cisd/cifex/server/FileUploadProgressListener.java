@@ -100,7 +100,7 @@ final class FileUploadProgressListener extends ThresholdProgressListener
     {
         final FileUploadFeedbackProvider feedbackProvider =
                 (FileUploadFeedbackProvider) httpSession
-                        .getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
+                        .getAttribute(AbstractCIFEXService.UPLOAD_FEEDBACK_QUEUE);
         assert feedbackProvider != null : "Provider must not be null.";
         feedbackProvider.set(createFileUploadFeedback(bytesRead, contentLength, items));
     }

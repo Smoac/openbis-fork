@@ -36,9 +36,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
 import org.bouncycastle.bcpg.ArmoredInputStream;
+import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPCompressedData;
-import org.bouncycastle.openpgp.PGPEncryptedData;
 import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
 import org.bouncycastle.openpgp.PGPEncryptedDataList;
 import org.bouncycastle.openpgp.PGPException;
@@ -101,6 +101,7 @@ public class OpenPGPSymmetricKeyEncryption
             FileUtilities.checkInputFile(inFile);
             FileUtilities.checkOutputFile(outFile, new IFileOverwriteStrategy()
                 {
+                    @Override
                     public boolean overwriteAllowed(File outputFile)
                     {
                         return overwriteOutFile;
@@ -138,7 +139,7 @@ public class OpenPGPSymmetricKeyEncryption
             FileNotFoundException
     {
         final PGPEncryptedDataGenerator encryptedDataGenerator =
-                new PGPEncryptedDataGenerator(PGPEncryptedData.AES_128, true, new SecureRandom(),
+                new PGPEncryptedDataGenerator(SymmetricKeyAlgorithmTags.AES_128, true, new SecureRandom(),
                         "BC");
         encryptedDataGenerator.addMethod(passPhrase.toCharArray());
 
@@ -222,6 +223,7 @@ public class OpenPGPSymmetricKeyEncryption
     {
         return decrypt(inFile, outFileNameOrNull, passPhrase, new IFileOverwriteStrategy()
             {
+                @Override
                 public boolean overwriteAllowed(File outputFile)
                 {
                     return overwriteOutFile;

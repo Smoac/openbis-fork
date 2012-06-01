@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_TEMP_USER_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>UserWidget</code> extension suitable for user creation.
@@ -108,6 +110,7 @@ public class CreateUserWidget extends UserWidget
             }
         }
 
+        @Override
         public final void onSuccess(final UserInfoDTO result)
         {
             context.getPageController().refreshMainPage();

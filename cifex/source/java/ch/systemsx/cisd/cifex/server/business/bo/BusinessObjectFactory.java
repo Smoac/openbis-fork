@@ -45,6 +45,7 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         this.timeProvider = timeProvider;
     }
 
+    @Override
     public IUserBO createUserBO()
     {
         return new UserBO(daoFactory, businessContext, timeProvider);

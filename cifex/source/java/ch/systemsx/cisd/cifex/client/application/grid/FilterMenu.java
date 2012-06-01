@@ -62,6 +62,7 @@ class FilterMenu extends SplitButton
     {
         columnModel.addListener(Events.HiddenChange, new Listener<ColumnModelEvent>()
             {
+                @Override
                 public void handleEvent(ColumnModelEvent be)
                 {
                     ColumnConfig column = be.getColumnModel().getColumn(be.getColIndex());

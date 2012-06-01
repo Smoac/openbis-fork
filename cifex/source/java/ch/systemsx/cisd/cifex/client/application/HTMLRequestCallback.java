@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_FAILURE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.http.client.Request;
@@ -51,6 +53,7 @@ public final class HTMLRequestCallback implements RequestCallback
         this(title, DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT);
     }
 
+    @Override
     public final void onResponseReceived(final Request request, final Response response)
     {
         final DefaultLayoutDialog layoutDialog =
@@ -60,6 +63,7 @@ public final class HTMLRequestCallback implements RequestCallback
         layoutDialog.show();
     }
 
+    @Override
     public void onError(final Request request, final Throwable exception)
     {
         showErrorMessage(exception);

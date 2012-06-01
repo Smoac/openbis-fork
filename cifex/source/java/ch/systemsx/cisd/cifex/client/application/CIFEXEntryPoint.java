@@ -83,6 +83,7 @@ public final class CIFEXEntryPoint implements EntryPoint
     @SuppressWarnings("unused")
     private final Layout junk = new AnchorLayout();
 
+    @Override
     public final void onModuleLoad()
     {
 
@@ -100,6 +101,7 @@ public final class CIFEXEntryPoint implements EntryPoint
                 // AsyncCallbackAdapter
                 //
 
+                @Override
                 public final void onSuccess(final Configuration result)
                 {
                     viewContext.getModel().setConfiguration(result);
@@ -110,12 +112,14 @@ public final class CIFEXEntryPoint implements EntryPoint
                             // AsyncCallback
                             //
 
+                            @Override
                             public final void onSuccess(final CurrentUserInfoDTO currentUser)
                             {
                                 PageControllerHelper.activatePageBasedOnCurrentContext(viewContext,
                                         currentUser);
                             }
 
+                            @Override
                             public final void onFailure(final Throwable caught)
                             {
                                 if (caught instanceof InvalidSessionException)

@@ -93,12 +93,14 @@ class UserManager extends AbstractManager implements IUserManager
     // IUserManager
     //
 
+    @Override
     @Transactional
     public final boolean isDatabaseEmpty()
     {
         return daoFactory.getUserDAO().getNumberOfUsers() == 0;
     }
 
+    @Override
     @Transactional
     public final UserDTO tryFindUserByCode(final String code)
     {
@@ -109,6 +111,7 @@ class UserManager extends AbstractManager implements IUserManager
         return userOrNull;
     }
 
+    @Override
     public UserDTO getUser(final long id)
     {
         try
@@ -122,6 +125,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     public List<UserDTO> findUserByEmail(final String email)
     {
         assert email != null : "Given Email Address is null";
@@ -135,6 +139,7 @@ class UserManager extends AbstractManager implements IUserManager
         return users;
     }
 
+    @Override
     @Transactional
     public final UserDTO createUser(final UserDTO user, UserDTO registratorOrNull)
             throws UserFailureException
@@ -163,6 +168,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public UserDTO createUserAndSendEmail(final UserDTO user, final String password,
             final UserDTO registrator, final String comment, final String basicURL)
@@ -228,6 +234,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public final List<UserDTO> listUsers()
     {
@@ -239,6 +246,7 @@ class UserManager extends AbstractManager implements IUserManager
         return users;
     }
 
+    @Override
     @Transactional
     public void deleteExpiredUsers(final IUserActionLog logOrNull)
     {
@@ -287,6 +295,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public final void deleteUser(final long id, final UserDTO requestUser,
             final IUserActionLog logOrNull) throws IllegalArgumentException
@@ -325,6 +334,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public final UserDTO updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
             final UserDTO requestUserOrNull, final IUserActionLog logOrNull)
@@ -333,6 +343,7 @@ class UserManager extends AbstractManager implements IUserManager
         return updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull, logOrNull);
     }
 
+    @Override
     @Transactional
     public final UserDTO updateUser(final UserDTO oldUserToUpdateOrNull,
             final UserDTO userToUpdate, final Password passwordOrNull,
@@ -366,6 +377,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public final List<UserDTO> listUsersRegisteredBy(final long userId)
     {
@@ -378,6 +390,7 @@ class UserManager extends AbstractManager implements IUserManager
         return usersRegisteredBy;
     }
 
+    @Override
     @Transactional
     public List<UserDTO> listUsersFileSharedWith(final long fileId) throws UserFailureException
     {
@@ -386,6 +399,7 @@ class UserManager extends AbstractManager implements IUserManager
         return userDAO.listUsersFileSharedWith(fileId);
     }
 
+    @Override
     @Transactional
     public void refreshQuotaInformation(UserDTO user)
     {
@@ -431,12 +445,14 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Override
     @Transactional
     public boolean hasUserFilesForDownload(UserDTO user)
     {
         return daoFactory.getUserDAO().hasUserFilesForDownload(user.getID());
     }
 
+    @Override
     @Transactional
     public void changeUserCode(final String before, final String after) throws UserFailureException
     {
@@ -469,6 +485,7 @@ class UserManager extends AbstractManager implements IUserManager
         userDAO.changeUserCode(before, after);
     }
 
+    @Override
     @Transactional
     public Collection<UserDTO> getUsers(List<String> userCodesOrNull,
             List<String> emailAddressesOrNull, final IUserActionLog logOrNull)

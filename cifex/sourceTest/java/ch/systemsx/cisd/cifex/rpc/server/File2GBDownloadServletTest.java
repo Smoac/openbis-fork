@@ -33,7 +33,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient;
-import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
+import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
+import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -146,7 +147,7 @@ public class File2GBDownloadServletTest extends AssertJUnit
 
         createServlet().doGet(request, response);
 
-        Template template = File2GBDownloadServlet.JNLP_TEMPLATE.createFreshCopy();
+        Template template = AbstractFileUploadDownloadServlet.JNLP_TEMPLATE.createFreshCopy();
         template.bind("title", "CIFEX File Downloader");
         template.bind("description", "CIFEX File Downloader");
         template.bind("base-URL", BASE_URL + "/");
@@ -166,7 +167,7 @@ public class File2GBDownloadServletTest extends AssertJUnit
                     one(request).getSession(false);
                     will(returnValue(httpSession));
 
-                    one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                    one(httpSession).getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_USER_NAME);
                     will(returnValue(user));
 
                     allowing(request).getScheme();

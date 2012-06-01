@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.common;
 
 import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.utilities.PasswordHasher;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 

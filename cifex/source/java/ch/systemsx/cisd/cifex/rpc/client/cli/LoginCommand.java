@@ -78,6 +78,7 @@ public final class LoginCommand extends AbstractCommand
         return instance;
     }
 
+    @Override
     public final int execute(final String[] arguments) throws UserFailureException,
             EnvironmentFailureException
     {

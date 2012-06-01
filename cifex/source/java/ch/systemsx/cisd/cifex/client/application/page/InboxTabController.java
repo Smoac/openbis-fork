@@ -21,8 +21,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 

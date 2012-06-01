@@ -53,6 +53,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         this.timeProvider = timeProvider;
     }
 
+    @Override
     public void defineForCreate(UserDTO user, UserDTO requestUserOrNull, boolean forceTemporaryUser)
     {
         assert user != null : "Given user can not be null.";
@@ -75,6 +76,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         createUser = true;
     }
 
+    @Override
     public void defineForUpdate(UserDTO oldUserToUpdateOrNull, UserDTO userToUpdate,
             Password passwordOrNull, UserDTO requestUserOrNull)
     {
@@ -191,6 +193,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         }
     }
 
+    @Override
     public void save()
     {
         if (dataChanged)
@@ -206,6 +209,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         }
     }
 
+    @Override
     public UserDTO getOldUser() throws IllegalStateException
     {
         if (dataChanged == false || createUser)
@@ -215,6 +219,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         return existingUser;
     }
 
+    @Override
     public UserDTO getUser() throws IllegalStateException
     {
         return userDTO;

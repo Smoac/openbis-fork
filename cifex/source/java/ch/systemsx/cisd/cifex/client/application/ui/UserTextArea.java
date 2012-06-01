@@ -21,9 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * @author Basil Neff

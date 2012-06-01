@@ -45,6 +45,7 @@ public final class FileSizeRenderer implements GridCellRenderer<BaseModelData>
         this.treatZeroAsNull = treatZeroAsNull;
     }
 
+    @Override
     public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {

@@ -83,6 +83,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
         IFileDownloader downloader = new IFileDownloader()
             {
                 // This method can return false only if error occurred
+                @Override
                 public boolean download(FileInfoDTO fileInfo, File file,
                         IMonitorCommunicator communcator)
                 {
@@ -90,6 +91,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     return true;
                 }
 
+                @Override
                 public FileInfoDTO getFileInfo(long fileID)
                 {
                     return service.getFileInfo(sessionID, fileID);
@@ -104,23 +106,27 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     /**
      * Adds a listener for progress events.
      */
+    @Override
     public void addProgressListener(IProgressListener listener)
     {
         listeners.add(listener);
     }
 
+    @Override
     public File download(final long fileID, final File directoryToDownloadOrNull,
             final String fileNameOrNull)
     {
         return download(fileID, directoryToDownloadOrNull, fileNameOrNull, false);
     }
 
+    @Override
     public File download(final long fileID, final File directoryToDownloadOrNull,
             final String fileNameOrNull, final boolean overwriteOutFile)
     {
         return download(fileID, directoryToDownloadOrNull, fileNameOrNull,
                 new IFileOverwriteStrategy()
                     {
+                        @Override
                         public boolean overwriteAllowed(File outputFile)
                         {
                             return overwriteOutFile;
@@ -128,6 +134,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     });
     }
 
+    @Override
     public File download(final long fileID, final File directoryToDownloadOrNull,
             final String fileNameOrNull, final IFileOverwriteStrategy fileOverwriteStrategy)
     {
@@ -179,6 +186,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
+                                    @Override
                                     public void update(long bytesWritten, int crc32Value)
                                     {
                                         if (isCancelled() || communicator.isCancelled())
@@ -194,6 +202,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                                             lastUpdated = now;
                                         }
                                     }
+                                    @Override
                                     public void exceptionThrown(IOException e)
                                     {
                                     }

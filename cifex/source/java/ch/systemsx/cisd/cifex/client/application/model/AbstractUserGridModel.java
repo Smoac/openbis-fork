@@ -16,7 +16,21 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_ADMIN_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_REGULAR_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_ROLE_TEMP_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERSFILES_ACTIONS_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_CREATOR_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_EMAIL_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FILECOUNT_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FILESIZE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FULLNAME_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_QUOTACOUNT_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_QUOTASIZE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_STATUS_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.USER_ACTIVE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.USER_ID_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +40,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.ui.EmailLinkRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileCountRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.EmailLinkRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserDescriptionRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;

@@ -88,6 +88,7 @@ class BusinessContext implements IBusinessContext
 
     private final Set<String> allowedIPsForSetSessionUser = new HashSet<String>();
     
+    @Override
     public int getSessionTimeoutMin()
     {
         return sessionTimeoutMin;
@@ -98,6 +99,7 @@ class BusinessContext implements IBusinessContext
         this.sessionTimeoutMin = sessionTimeoutMin;
     }
     
+    @Override
     public int getTriggerPermits()
     {
         return triggerPermits;
@@ -108,6 +110,7 @@ class BusinessContext implements IBusinessContext
         this.triggerPermits = triggerPermits;
     }
 
+    @Override
     public final IUserSessionInvalidator getUserSessionInvalidator()
     {
         return userHttpSessionHolder;
@@ -121,6 +124,7 @@ class BusinessContext implements IBusinessContext
     /**
      * Returns the logger of user behavior for pure HTTP sessions.
      */
+    @Override
     public IUserActionLog getUserActionLogHttp()
     {
         return userActionLogHttp;
@@ -137,6 +141,7 @@ class BusinessContext implements IBusinessContext
     /**
      * Returns the logger of user behavior for RPC sessions.
      */
+    @Override
     public IUserActionLog getUserActionLogRpc()
     {
         return userActionLogRpc;
@@ -150,6 +155,7 @@ class BusinessContext implements IBusinessContext
         this.userActionLogRpc = userActionLog;
     }
 
+    @Override
     public final int getFileRetention()
     {
         return fileRetention;
@@ -165,11 +171,13 @@ class BusinessContext implements IBusinessContext
         this.maxFileRetention = maxFileRetention;
     }
 
+    @Override
     public int getMaxFileRetention()
     {
         return maxFileRetention;
     }
 
+    @Override
     public final File getFileStore()
     {
         return fileStore;
@@ -180,6 +188,7 @@ class BusinessContext implements IBusinessContext
         this.fileStore = fileStore;
     }
 
+    @Override
     public final int getUserRetention()
     {
         return userRetention;
@@ -195,6 +204,7 @@ class BusinessContext implements IBusinessContext
         this.maxUserRetention = maxUserRetention;
     }
 
+    @Override
     public int getMaxUserRetention()
     {
         return maxUserRetention;
@@ -205,6 +215,7 @@ class BusinessContext implements IBusinessContext
         this.maxFileSizePerQuotaGroupInMB = maxFileSizePerQuotaGroupInMB;
     }
 
+    @Override
     public Long getMaxFileSizePerQuotaGroupInMB()
     {
         return maxFileSizePerQuotaGroupInMB;
@@ -215,11 +226,13 @@ class BusinessContext implements IBusinessContext
         this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
     }
 
+    @Override
     public Integer getMaxFileCountPerQuotaGroup()
     {
         return maxFileCountPerQuotaGroup;
     }
 
+    @Override
     public boolean isNewExternallyAuthenticatedUserStartActive()
     {
         return newExternallyAuthenticatedUserStartActive;
@@ -231,6 +244,7 @@ class BusinessContext implements IBusinessContext
         this.newExternallyAuthenticatedUserStartActive = newExternallyAuthenticateUserStartActive;
     }
 
+    @Override
     public final IMailClient getMailClient()
     {
         return mailClient;
@@ -241,6 +255,7 @@ class BusinessContext implements IBusinessContext
         this.mailClient = mailClient;
     }
 
+    @Override
     public final PasswordGenerator getPasswordGenerator()
     {
         return passwordGenerator;
@@ -251,6 +266,7 @@ class BusinessContext implements IBusinessContext
         this.passwordGenerator = passwordGenerator;
     }
 
+    @Override
     public final String getSystemVersion()
     {
         return systemVersion;
@@ -261,6 +277,7 @@ class BusinessContext implements IBusinessContext
         this.overrideURL = overrideURL;
     }
 
+    @Override
     public final String getOverrideURL()
     {
         return overrideURL;
@@ -271,6 +288,7 @@ class BusinessContext implements IBusinessContext
         this.systemVersion = systemVersion;
     }
 
+    @Override
     public final Set<String> getAllowedIPsForSetSessionUser()
     {
         return allowedIPsForSetSessionUser;

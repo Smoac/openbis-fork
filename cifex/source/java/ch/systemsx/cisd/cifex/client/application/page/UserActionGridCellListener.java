@@ -16,7 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DELETE_USER_CONFIRM_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DELETE_USER_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.RENAME_USER_CONFIRM_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.RENAME_USER_CONFIRM_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.RENAME_USER_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_USER_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.VALIDATION_INVALID_USER_CODE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.VALIDATION_INVALID_USER_CODE_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -31,14 +40,16 @@ import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.EditUserDialog;
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.
@@ -68,8 +79,8 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
 
     private final static String getUserDescription(final UserGridModel model)
     {
-        final String fullName = model.get(UserGridModel.FULL_NAME);
-        final String userCode = model.get(UserGridModel.USER_CODE);
+        final String fullName = model.get(AbstractUserGridModel.FULL_NAME);
+        final String userCode = model.get(AbstractUserGridModel.USER_CODE);
         if (StringUtils.isBlank(fullName))
         {
             return userCode;
@@ -97,6 +108,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
             this.userGrid = userGrid;
         }
 
+        @Override
         public void handleEvent(MessageBoxEvent be)
         {
             if (be.getButtonClicked().getItemId().equals(Dialog.YES))
@@ -126,6 +138,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
 
         }
 
+        @Override
         public void onSuccess(final Void result)
         {
 
@@ -166,6 +179,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final UserInfoDTO resultOrNull)
         {
             if (resultOrNull == null)
@@ -195,12 +209,14 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final Void dummy)
         {
             grid.removeItem(id);
         }
     }
 
+    @Override
     public void handleEvent(GridEvent<UserGridModel> be)
     {
         final Grid<UserGridModel> grid = userGridWidget.getGrid();
@@ -208,11 +224,11 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         final int colIndex = be.getColIndex();
         final Event e = be.getEvent();
 
-        if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
+        if (grid.getColumnModel().getDataIndex(colIndex).equals(AbstractUserGridModel.ACTION))
         {
             final UserGridModel model = grid.getStore().getAt(rowIndex);
-            final long userId = model.get(UserGridModel.ID);
-            final String userCode = model.get(UserGridModel.USER_CODE);
+            final long userId = model.get(AbstractDataGridModel.ID);
+            final String userCode = model.get(AbstractUserGridModel.USER_CODE);
             final String userDescription = getUserDescription(model);
             final EventTarget element = e.getEventTarget();
             if (element == null)
@@ -230,6 +246,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                         userDescription), new Listener<MessageBoxEvent>()
                     {
 
+                        @Override
                         public void handleEvent(MessageBoxEvent messageEvent)
                         {
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
@@ -259,6 +276,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                         new Listener<MessageBoxEvent>()
                             {
 
+                                @Override
                                 public void handleEvent(MessageBoxEvent messageEvent)
                                 {
                                     String userCodeAfterRenaming = messageEvent.getValue();

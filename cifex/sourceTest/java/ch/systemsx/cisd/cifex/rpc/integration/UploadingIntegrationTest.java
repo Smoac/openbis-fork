@@ -228,6 +228,7 @@ public class UploadingIntegrationTest extends AssertJUnit
             this.resume = resume;
         }
 
+        @Override
         public Object invoke(Invocation invocation) throws Throwable
         {
             try
@@ -773,6 +774,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                             with(equal(LARGE_FILE_SIZE * 1024L)), with(any(InputStream.class)));
                     will(new CustomAction("copy file")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 try
@@ -801,6 +803,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reportProgress(0, 0L);
                     will(new CustomAction("cancel")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 uploader.cancel();
@@ -872,6 +875,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reportProgress(0, 0);
                     will(new CustomAction("cancel")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 uploader.cancel();
@@ -938,6 +942,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         return new BaseMatcher<Collection<FileDTO>>()
             {
+                @Override
                 @SuppressWarnings("unchecked")
                 public boolean matches(Object item)
                 {
@@ -945,6 +950,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     return col.size() == 1 && col.iterator().next().equals(fileDTO);
                 }
 
+                @Override
                 public void describeTo(Description description)
                 {
                     description.appendText("single unchanged fileDTO");

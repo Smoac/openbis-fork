@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.cifex.server.util;
 
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link FileUploadFeedbackProvider}.
@@ -107,6 +109,7 @@ public class FileUploadFeedbackProviderTest
         final FileUploadFeedback feedbackSet = new FileUploadFeedback();
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -133,6 +136,7 @@ public class FileUploadFeedbackProviderTest
         final Message message = new Message(Message.Type.INFO, "Message from other thread");
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -158,6 +162,7 @@ public class FileUploadFeedbackProviderTest
         provider.take(); // empty the queue
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try

@@ -44,6 +44,7 @@ final class UploadTableModel extends AbstractTableModel
         this.timeProvider = timeProvider;
         uploader.addProgressListener(new IProgressListener()
             {
+                @Override
                 public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                     currentFileToBeUploaded = tryToFind(file);
@@ -51,6 +52,7 @@ final class UploadTableModel extends AbstractTableModel
                     fireChanged(null);
                 }
 
+                @Override
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                     if (percentage == 100)
@@ -67,6 +69,7 @@ final class UploadTableModel extends AbstractTableModel
                     fireChanged(null);
                 }
 
+                @Override
                 public void finished(boolean successful)
                 {
                     if (currentFileToBeUploaded != null)
@@ -82,11 +85,13 @@ final class UploadTableModel extends AbstractTableModel
                     }
                 }
 
+                @Override
                 public void exceptionOccured(Throwable throwable)
                 {
                     fireChanged(FileItemStatus.STALLED);
                 }
 
+                @Override
                 public void warningOccured(String warningMessage)
                 {
                     fireChanged(FileItemStatus.STALLED);
@@ -173,16 +178,19 @@ final class UploadTableModel extends AbstractTableModel
     // TableModel
     //
     
+    @Override
     public int getRowCount()
     {
         return fileItems.size();
     }
 
+    @Override
     public int getColumnCount()
     {
         return 2;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         FileItem fileItem = fileItems.get(rowIndex);

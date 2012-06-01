@@ -36,6 +36,7 @@ final class UploadTableCellRenderer implements TableCellRenderer
 
     private JLabel cell = new JLabel();
 
+    @Override
     public Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected,
             boolean hasFocus, int row, int columnIndex)
     {

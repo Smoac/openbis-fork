@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_INVALID_DATA_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_FILE_EXPIRATION_DATE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_COMMENT_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_NAME_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Date;
 

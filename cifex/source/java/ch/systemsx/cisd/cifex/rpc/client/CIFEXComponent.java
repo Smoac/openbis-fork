@@ -37,50 +37,59 @@ public class CIFEXComponent implements ICIFEXComponent
         this.service = service;
     }
 
+    @Override
     public ICIFEXDownloader createDownloader(final String sessionID)
     {
         return Downloader.create(service, sessionID);
     }
 
+    @Override
     public ICIFEXUploader createUploader(final String sessionID)
     {
         return new Uploader(service, sessionID);
     }
 
+    @Override
     public void deleteFile(final String sessionID, final long fileId)
             throws InvalidSessionException, UserFailureException
     {
         service.deleteFile(sessionID, fileId);
     }
 
+    @Override
     public FileInfoDTO[] listDownloadFiles(final String sessionID) throws InvalidSessionException,
             EnvironmentFailureException
     {
         return service.listDownloadFiles(sessionID);
     }
 
+    @Override
     public FileInfoDTO[] listOwnedFiles(final String sessionID) throws InvalidSessionException,
             EnvironmentFailureException
     {
         return service.listOwnedFiles(sessionID);
     }
 
+    @Override
     public String login(final String user, final String password)
             throws AuthorizationFailureException
     {
         return service.login(user, password);
     }
 
+    @Override
     public void logout(final String sessionID)
     {
         service.logout(sessionID);
     }
 
+    @Override
     public void setSessionUser(String sessionID, String newSessionUser)
     {
         service.setSessionUser(sessionID, newSessionUser);
     }
 
+    @Override
     public void checkSession(final String sessionID) throws InvalidSessionException
     {
         service.checkSession(sessionID);

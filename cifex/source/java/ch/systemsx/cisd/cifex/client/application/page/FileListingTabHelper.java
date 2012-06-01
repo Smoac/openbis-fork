@@ -16,7 +16,17 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_EMPTY_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_LOADING_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_WEBSTART_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_WEBSTART_PROS_INFO;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LAUNCH_JWS_APPLICATION_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_EMPTY_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_LOADING_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +129,7 @@ class FileListingTabHelper
         context.getCifexService().listDownloadFiles(
                 new AbstractAsyncCallback<List<FileInfoDTO>>(context)
                     {
+                        @Override
                         public void onSuccess(List<FileInfoDTO> result)
                         {
                             grid.getView().setEmptyText(msg(DOWNLOAD_FILES_EMPTY_MSG));
@@ -188,6 +199,7 @@ class FileListingTabHelper
         context.getCifexService().listOwnedFiles(
                 new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
                     {
+                        @Override
                         public void onSuccess(List<OwnerFileInfoDTO> result)
                         {
                             grid.getView().setEmptyText(msg(LIST_FILES_SHARED_EMPTY_MSG));

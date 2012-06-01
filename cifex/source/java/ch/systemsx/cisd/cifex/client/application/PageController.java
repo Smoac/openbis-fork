@@ -84,6 +84,7 @@ final class PageController implements IPageController, IHistoryController
     //
     // IPageController
     //
+    @Override
     public final void showLoginPage()
     {
         clearRootPanel();
@@ -97,6 +98,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(loginPage);
     }
 
+    @Override
     public final void showAdminPage()
     {
         showMainPage();
@@ -104,6 +106,7 @@ final class PageController implements IPageController, IHistoryController
         setCurrentPage(Page.ADMIN_PAGE);
     }
 
+    @Override
     public final void showInboxPage()
     {
         showMainPage();
@@ -111,6 +114,7 @@ final class PageController implements IPageController, IHistoryController
         setCurrentPage(Page.INBOX_PAGE);
     }
 
+    @Override
     public final void showSharePage()
     {
         showMainPage();
@@ -118,6 +122,7 @@ final class PageController implements IPageController, IHistoryController
         setCurrentPage(Page.SHARE_PAGE);
     }
 
+    @Override
     public final void showInvitePage()
     {
         showMainPage();
@@ -125,18 +130,21 @@ final class PageController implements IPageController, IHistoryController
         setCurrentPage(Page.INVITE_PAGE);
     }
 
+    @Override
     public final void showHelpPage()
     {
         HelpDialogController helpDialog = new HelpDialogController(viewContext);
         helpDialog.getDialog().show();
     }
 
+    @Override
     public final void showEditCurrentUserPage()
     {
         SettingsDialogController settingsDialog = new SettingsDialogController(viewContext);
         settingsDialog.getDialog().show();
     }
 
+    @Override
     public final void refreshMainPage()
     {
         clearRootPanel();
@@ -146,6 +154,7 @@ final class PageController implements IPageController, IHistoryController
     /**
      * Creates the given Page to the root panel. If the page is not known, it creates the main page.
      */
+    @Override
     public final void showPage(final Page page)
     {
         if (page == Page.ADMIN_PAGE)
@@ -173,11 +182,13 @@ final class PageController implements IPageController, IHistoryController
     // IHistoryController
     //
 
+    @Override
     public final Page getCurrentPage()
     {
         return currentPage;
     }
 
+    @Override
     public final Page getPreviousPage()
     {
         return previousPage;
@@ -188,6 +199,7 @@ final class PageController implements IPageController, IHistoryController
      * current page to the previous page. If the given page is the same as the current page,
      * everything stays as it is.
      */
+    @Override
     public final void setCurrentPage(final Page page)
     {
         if (previousPage == null)

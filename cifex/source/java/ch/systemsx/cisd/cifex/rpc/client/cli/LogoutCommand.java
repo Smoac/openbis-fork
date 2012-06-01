@@ -50,6 +50,7 @@ public final class LogoutCommand extends AbstractCommand
         return instance;
     }
 
+    @Override
     public final int execute(String[] arguments) throws UserFailureException,
             EnvironmentFailureException
     {

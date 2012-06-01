@@ -16,7 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_EMPTY_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_LOADING_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_EMPTY_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_GRID_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_LOADING_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,8 +37,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -137,6 +143,7 @@ class AdminTabController extends AbstractMainPageTabController
             this.userGrid = userGrid;
         }
 
+        @Override
         public final void onSuccess(final List<UserInfoDTO> result)
         {
             userGrid.getGrid().getView().setEmptyText(msg(LIST_USERS_EMPTY_MSG));
@@ -167,6 +174,7 @@ class AdminTabController extends AbstractMainPageTabController
             this.filesGrid = filesGrid;
         }
 
+        @Override
         public final void onSuccess(final List<OwnerFileInfoDTO> result)
         {
             filesGrid.getGrid().getView().setEmptyText(msg(LIST_FILES_EMPTY_MSG));

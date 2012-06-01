@@ -23,9 +23,9 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>Renderer</code> implementation that create an email anchor element with inner text being
@@ -46,6 +46,7 @@ public final class UserDescriptionRenderer implements
         // Can not be instantiated.
     }
 
+    @Override
     public Object render(ModelData model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<ModelData> store,
             Grid<ModelData> grid)
@@ -71,6 +72,7 @@ public final class UserDescriptionRenderer implements
         }
     }
 
+    @Override
     public GridCellRenderer<ModelData> getPlainTextRenderer()
     {
         return PlainUserDescriptionRenderer.PLAIN_USER_DESCRIPTION_RENDERER;

@@ -42,6 +42,7 @@ public final class EmailLinkRenderer implements IGridCellRendererNonPlainText<Ab
         // Can not be instantiated.
     }
 
+    @Override
     public Object render(AbstractUserGridModel model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<AbstractUserGridModel> store,
             Grid<AbstractUserGridModel> grid)
@@ -54,6 +55,7 @@ public final class EmailLinkRenderer implements IGridCellRendererNonPlainText<Ab
         return DOMUtils.createEmailAnchor(value, null);
     }
 
+    @Override
     public GridCellRenderer<AbstractUserGridModel> getPlainTextRenderer()
     {
         return null;

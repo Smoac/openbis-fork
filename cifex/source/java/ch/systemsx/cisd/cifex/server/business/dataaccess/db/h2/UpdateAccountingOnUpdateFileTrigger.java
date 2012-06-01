@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class UpdateAccountingOnUpdateFileTrigger extends AbstractFileTrigger
 {
 
+    @Override
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
         final long oldUserId = (Long) oldRow[userIdIndex];

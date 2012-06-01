@@ -52,6 +52,7 @@ public class ComputeCRC32Checksum extends AbstractCommand
         return instance;
     }
 
+    @Override
     public int execute(String[] arguments) throws UserFailureException, EnvironmentFailureException
     {
         final MinimalParameters parameters = new MinimalParameters(arguments, NAME, "filename [...]");

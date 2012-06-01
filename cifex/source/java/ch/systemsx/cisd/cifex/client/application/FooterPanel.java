@@ -17,8 +17,16 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import static ch.systemsx.cisd.cifex.client.application.WidgetFactory.getLinkWidget;
-import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.SUPPORT_EMAIL;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.info;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_CONTACT_SUPPORT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_DISCLAIMER_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_DISCLAIMER_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_FAQ_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_FAQ_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_FAILURE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -81,6 +89,7 @@ final class FooterPanel extends HorizontalPanel
     {
         return getLinkWidget(msg(HELP_DISCLAIMER_LABEL), new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     try
@@ -100,6 +109,7 @@ final class FooterPanel extends HorizontalPanel
     {
         return getLinkWidget(msg(HELP_FAQ_LABEL), new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     try

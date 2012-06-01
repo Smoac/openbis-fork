@@ -107,6 +107,7 @@ public class DecryptCommand extends AbstractCommand
         return passphrase;
     }
 
+    @Override
     public int execute(String[] arguments) throws UserFailureException, EnvironmentFailureException
     {
         final Parameters parameters = new Parameters(arguments);

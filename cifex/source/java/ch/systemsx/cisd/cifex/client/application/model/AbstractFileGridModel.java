@@ -16,7 +16,20 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_COMMENT_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_COMPLETESIZE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_CONTENTTYPE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_CRC32CHECKSUM_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_EXPIRATIONDATE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_ISCOMPLETE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_NAME_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_OWNER_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_REGISTRATIONDATE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHAREDWITH_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SIZE_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_UPLOADER_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERSFILES_ACTIONS_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Arrays;
 import java.util.List;

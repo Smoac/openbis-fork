@@ -46,6 +46,7 @@ class ColumnMenu extends SplitButton
     {
         columnModel.addListener(Events.HiddenChange, new Listener<ColumnModelEvent>()
             {
+                @Override
                 public void handleEvent(ColumnModelEvent be)
                 {
                     if (be.getColIndex() == colIndex)

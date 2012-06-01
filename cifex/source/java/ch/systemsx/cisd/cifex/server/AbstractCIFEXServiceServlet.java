@@ -119,7 +119,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
             throw new InvalidSessionException(
                     "You are not logged in or your session expired. Please log in.");
         }
-        return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+        return (UserDTO) session.getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_USER_NAME);
     }
 
     /**

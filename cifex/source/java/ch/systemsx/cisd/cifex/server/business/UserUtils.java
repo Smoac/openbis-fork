@@ -54,6 +54,7 @@ public class UserUtils
     {
         return new TableMap<String, UserDTO>(users, new IKeyExtractor<String, UserDTO>()
             {
+                @Override
                 public String getKey(final UserDTO user)
                 {
                     return user.getUserCode();
@@ -67,6 +68,7 @@ public class UserUtils
         return new TableMapNonUniqueKey<String, UserDTO>(users,
                 new IMultiKeyExtractor<String, UserDTO>()
                     {
+                        @Override
                         public Collection<String> getKey(final UserDTO user)
                         {
                             if (user.getEmailAlias() == null)

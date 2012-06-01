@@ -214,6 +214,7 @@ public class PGPLiteralDataGenerator implements Closeable
      * 
      * @throws IOException
      */
+    @Override
     public void close() throws IOException
     {
         if (pkOut != null)

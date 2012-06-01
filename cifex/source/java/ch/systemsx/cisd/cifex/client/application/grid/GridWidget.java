@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.grid;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.GRID_COLUMNS_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.GRID_FILTERS_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -93,6 +95,7 @@ public class GridWidget<M extends IModelDataWithID>
     {
         IDelegatedAction onFilterAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     refreshStore();
@@ -248,6 +251,7 @@ public class GridWidget<M extends IModelDataWithID>
             super.bind(pagingLoader);
             pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         syncSize();

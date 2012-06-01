@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class UpdateQuotaGroupIdOnInsertUpdateUserTrigger extends AbstractUserTrigger
 {
 
+    @Override
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
         final Long quotaGroupId = (Long) newRow[quotaGroupIdIndex];

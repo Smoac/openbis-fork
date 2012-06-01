@@ -178,6 +178,7 @@ public final class MainPageTabPanel extends TabPanel
         tabItem.add(tabController.getWidget());
         tabItem.addListener(Events.Select, new Listener<TabPanelEvent>()
             {
+                @Override
                 public void handleEvent(TabPanelEvent be)
                 {
                     context.getPageController().setCurrentPage(tabController.getPageIdentifier());

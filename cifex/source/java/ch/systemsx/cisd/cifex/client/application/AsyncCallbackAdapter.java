@@ -43,10 +43,12 @@ public class AsyncCallbackAdapter implements AsyncCallback<Void>
     // AsyncCallback
     //
 
+    @Override
     public void onFailure(Throwable caught)
     {
     }
 
+    @Override
     public void onSuccess(Void result)
     {
     }

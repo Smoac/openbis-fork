@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DIALOG_CLOSE_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_USER_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

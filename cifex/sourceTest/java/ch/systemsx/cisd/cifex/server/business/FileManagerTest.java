@@ -66,7 +66,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 {
 
     private static final int DEFAULT_FILE_RETENTION = 5;
-    
+
     private static final int MAX_USER_RETENTION = 15;
 
     private static final long DEFAULT_FILE_ID = 1L;
@@ -551,6 +551,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             this.exact = exact;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             final EMailAddress email = (EMailAddress) item;
@@ -578,6 +579,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             }
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendText(exact ? "the email '" + emailAddress + "'"
@@ -599,6 +601,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             this.exact = exact;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             final EMailAddress[] emails = (EMailAddress[]) item;
@@ -638,6 +641,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             return true;
         }
 
+        @Override
         public void describeTo(Description description)
         {
             description.appendText(exact ? "emails '" + Arrays.toString(emailAddresses) + "'"

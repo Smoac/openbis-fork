@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.db.SQLStateUtils;
 public class UpdateAccountingOnUpdateUserTrigger extends AbstractUserTrigger
 {
 
+    @Override
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
         final String newUserCode = (String) newRow[userCodeIndex];

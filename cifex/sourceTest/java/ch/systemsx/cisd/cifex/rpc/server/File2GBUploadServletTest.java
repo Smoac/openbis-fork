@@ -33,7 +33,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
-import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
+import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
+import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -146,7 +147,7 @@ public class File2GBUploadServletTest extends AssertJUnit
 
         createServlet().doGet(request, response);
 
-        Template template = File2GBUploadServlet.JNLP_TEMPLATE.createFreshCopy();
+        Template template = AbstractFileUploadDownloadServlet.JNLP_TEMPLATE.createFreshCopy();
         template.bind("base-URL", BASE_URL + "/");
         template.bind("main-class", FileUploadClient.class.getName());
         template.bind("service-URL", BASE_URL + "/cifex/rpc-service");
@@ -167,7 +168,7 @@ public class File2GBUploadServletTest extends AssertJUnit
                     one(request).getSession(false);
                     will(returnValue(httpSession));
 
-                    one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                    one(httpSession).getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_USER_NAME);
                     will(returnValue(user));
 
                     allowing(request).getScheme();

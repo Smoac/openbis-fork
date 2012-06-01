@@ -72,6 +72,7 @@ public final class UserHttpSessionListener implements HttpSessionListener
     // HttpSessionListener
     //
 
+    @Override
     public final void sessionCreated(final HttpSessionEvent sessionEvent)
     {
         final HttpSession session = sessionEvent.getSession();
@@ -82,6 +83,7 @@ public final class UserHttpSessionListener implements HttpSessionListener
         getUserHttpSessionHolder(session).addUserSession(session);
     }
 
+    @Override
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
         final HttpSession session = sessionEvent.getSession();

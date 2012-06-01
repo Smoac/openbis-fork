@@ -16,7 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILE_FEEDBACK_FILE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILE_FEEDBACK_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILE_FEEDBACK_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILE_FEEDBACK_PROGRESS_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILE_FEEDBACK_TIME_REMAINING_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -101,6 +107,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
         submitButton.enable();
     }
 
+    @Override
     public final void onSuccess(final FileUploadFeedback result)
     {
         final FileUploadFeedback feedback = result;
@@ -113,6 +120,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
             }
             WidgetUtils.showMessage(message, new Listener<MessageBoxEvent>()
                 {
+                    @Override
                     public void handleEvent(MessageBoxEvent be)
                     {
                         finish(Message.Type.ERROR.equals(message.getType()));

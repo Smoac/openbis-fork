@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILES_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_PERMANENT_USER_INFO;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_TEMPORARY_USER_INFO;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.List;
 
@@ -27,10 +30,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
@@ -120,6 +123,7 @@ class ShareTabController extends AbstractMainPageTabController
             this.explanationWidget = explanationWidget;
         }
 
+        @Override
         public void triggerUpdate()
         {
             context.getCifexService().refreshQuotaInformationOfCurrentUser(
@@ -138,6 +142,7 @@ class ShareTabController extends AbstractMainPageTabController
             this.explanationWidget = explanationWidget;
         }
 
+        @Override
         public final void onSuccess(final UserInfoDTO result)
         {
             if (result != null)

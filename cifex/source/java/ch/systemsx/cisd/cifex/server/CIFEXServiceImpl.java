@@ -93,6 +93,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
     }
 
+    @Override
     public final Boolean showSwitchToExternalOption(final UserInfoDTO user)
     {
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
@@ -147,6 +148,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     // ICifexService
     //
 
+    @Override
     public Boolean keepSessionAlive()
     {
         try
@@ -169,6 +171,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public final CurrentUserInfoDTO tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {
@@ -195,6 +198,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public final Configuration getConfiguration() throws InvalidSessionException
     {
         final Configuration configuration =
@@ -203,6 +207,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return configuration;
     }
 
+    @Override
     public final CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException
     {
         final UserDTO userOrNull = privGetCurrentUser();
@@ -217,6 +222,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return currentUser;
     }
 
+    @Override
     public UserInfoDTO refreshQuotaInformationOfCurrentUser() throws InvalidSessionException
     {
         final IUserManager userManager = domainModel.getUserManager();
@@ -225,6 +231,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(UserInfoDTO.class, currentUser);
     }
 
+    @Override
     public final UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
             final String plainPassword) throws EnvironmentFailureException,
             InvalidSessionException, InsufficientPrivilegesException
@@ -311,6 +318,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         to.setUserFullName(from.getUserFullName());
     }
 
+    @Override
     public final List<UserInfoDTO> listUsers() throws InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -319,6 +327,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
+    @Override
     public UserInfoDTO createUser(final UserInfoDTO user, final String password,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
@@ -431,6 +440,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public FileInfoDTO getFile(long fileId) throws InvalidSessionException,
             InsufficientPrivilegesException, IllegalArgumentException
     {
@@ -445,6 +455,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(FileInfoDTO.class, fileDTO);
     }
 
+    @Override
     public List<OwnerFileInfoDTO> listFiles() throws InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -453,6 +464,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(OwnerFileInfoDTO.class, files, null);
     }
 
+    @Override
     public final List<FileInfoDTO> listDownloadFiles() throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
@@ -460,6 +472,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(FileInfoDTO.class, files, null);
     }
 
+    @Override
     public final List<OwnerFileInfoDTO> listOwnedFiles() throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
@@ -467,6 +480,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(OwnerFileInfoDTO.class, files, null);
     }
 
+    @Override
     public void deleteUser(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, UserNotFoundException
     {
@@ -481,6 +495,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public void deleteFile(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
@@ -507,6 +522,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public final void registerFilenamesForUpload(final String[] filenamesForUpload)
             throws InvalidSessionException
     {
@@ -519,6 +535,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         feedbackProvider.set(new FileUploadFeedback());
     }
 
+    @Override
     public final FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException
     {
         privGetCurrentUser();
@@ -540,6 +557,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     /**
      * Update the fields of the user in the database.
      */
+    @Override
     public UserInfoDTO updateUser(final UserInfoDTO user, final String plainPassword,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
@@ -597,6 +615,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     /**
      * Changes the user code from <var>before</var> to <var>after</var>.
      */
+    @Override
     public final void changeUserCode(final String before, final String after)
             throws InvalidSessionException, InsufficientPrivilegesException,
             EnvironmentFailureException
@@ -714,6 +733,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 + describeUser(requestUser) + ".");
     }
 
+    @Override
     public UserInfoDTO getUser(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -723,6 +743,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }
 
+    @Override
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
@@ -731,6 +752,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }
 
+    @Override
     public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
             throws InvalidSessionException
     {
@@ -746,6 +768,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(UserInfoDTO.class, users.iterator().next());
     }
 
+    @Override
     public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException
     {
         privGetCurrentUser();
@@ -755,6 +778,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users);
     }
 
+    @Override
     public List<UserInfoDTO> listUsersOwnedBy(final long userId) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -771,6 +795,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
+    @Override
     public Date updateFileUserData(long fileId, String name, String commentOrNull,
             Date expirationDate) throws InvalidSessionException, InsufficientPrivilegesException
     {
@@ -797,6 +822,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    @Override
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
             throws InvalidSessionException, InsufficientPrivilegesException
     {
@@ -815,6 +841,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
+    @Override
     public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
             UserFailureException

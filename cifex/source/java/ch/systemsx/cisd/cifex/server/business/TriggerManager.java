@@ -96,21 +96,25 @@ class TriggerManager implements ITriggerManager
             this.triggerUser = triggerUser;
         }
 
+        @Override
         public List<ITriggerRequest> getAllPendingRequests()
         {
             return getPendingRequests(null, null);
         }
 
+        @Override
         public List<ITriggerRequest> getAllPendingRequests(String fileNameWildCard)
         {
             return getPendingRequests(null, fileNameWildCard);
         }
 
+        @Override
         public List<ITriggerRequest> getPendingRequests()
         {
             return getPendingRequests(requestUser.getID(), null);
         }
 
+        @Override
         public List<ITriggerRequest> getPendingRequests(String fileNameWildCard)
         {
             return getPendingRequests(requestUser.getID(), fileNameWildCard);
@@ -142,18 +146,21 @@ class TriggerManager implements ITriggerManager
             return requests;
         }
 
+        @Override
         public void upload(File fileToUpload, String[] recipients)
         {
             upload(fileToUpload, recipients, "Upload by trigger "
                     + trigger.getClass().getSimpleName());
         }
 
+        @Override
         public void upload(File fileToUpload, String[] recipients, String comment)
         {
             upload(fileToUpload, FilenameUtilities.getMimeType(fileToUpload.getName()), recipients,
                     comment);
         }
 
+        @Override
         public void upload(File fileToUpload, String mimeType, String[] recipients, String comment)
         {
             final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
@@ -162,12 +169,14 @@ class TriggerManager implements ITriggerManager
                     comment, mimeType, uploadedFile, crc32Value, recipients, url, userActionLog);
         }
 
+        @Override
         public void sendMessage(String subject, String content, String replyTo, From fromOrNull,
                 String... recipients) throws EnvironmentFailureException
         {
             mailClient.sendMessage(subject, content, replyTo, null, recipients);
         }
 
+        @Override
         @SuppressWarnings("deprecation")
         public void sendMessageWithAttachment(final String subject, final String content,
                 final String filename, final DataHandler attachmentContent,
@@ -178,6 +187,7 @@ class TriggerManager implements ITriggerManager
                     replyToOrNull, fromOrNull, recipients);
         }
 
+        @Override
         public void sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
                 EMailAddress fromOrNull, EMailAddress... recipients)
                 throws EnvironmentFailureException
@@ -185,6 +195,7 @@ class TriggerManager implements ITriggerManager
             mailClient.sendEmailMessage(subject, content, replyToOrNull, fromOrNull, recipients);
         }
 
+        @Override
         public void sendEmailMessageWithAttachment(String subject, String content, String filename,
                 DataHandler attachmentContent, EMailAddress replyToOrNull, EMailAddress fromOrNull,
                 EMailAddress... recipients) throws EnvironmentFailureException
@@ -193,6 +204,7 @@ class TriggerManager implements ITriggerManager
                     attachmentContent, replyToOrNull, fromOrNull, recipients);
         }
 
+        @Override
         public void sendTestEmail()
         {
             mailClient.sendTestEmail();
@@ -245,31 +257,37 @@ class TriggerManager implements ITriggerManager
             this.toBeDeletedOrNull = toBeDeletedOrNull;
         }
 
+        @Override
         public String getComment()
         {
             return fileDTO.getComment();
         }
 
+        @Override
         public File getFile()
         {
             return file;
         }
 
+        @Override
         public String getFileName()
         {
             return fileDTO.getName();
         }
 
+        @Override
         public String getUploadingUserEmail()
         {
             return fileDTO.getOwner().getEmail();
         }
 
+        @Override
         public String getUploadingUserId()
         {
             return fileDTO.getOwner().getUserCode();
         }
 
+        @Override
         public String getUploadingUserFullName()
         {
             return fileDTO.getOwner().getUserFullName();
@@ -280,6 +298,7 @@ class TriggerManager implements ITriggerManager
             return fileDTO.getID();
         }
 
+        @Override
         public void dismiss()
         {
             dismiss = true;
@@ -309,11 +328,13 @@ class TriggerManager implements ITriggerManager
             return dismiss;
         }
 
+        @Override
         public Date getRequestTime()
         {
             return timeOfRequest;
         }
 
+        @Override
         public Date getExpirationTime()
         {
             return timeOfExpiration;
@@ -547,6 +568,7 @@ class TriggerManager implements ITriggerManager
         return triggers;
     }
 
+    @Override
     public boolean handle(final UserDTO triggerUser, final FileDTO fileDTO,
             final IFileManager fileManager)
     {
@@ -573,6 +595,7 @@ class TriggerManager implements ITriggerManager
             }
             triggerExecutor.execute(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         int permitsHeld = 0;
@@ -617,6 +640,7 @@ class TriggerManager implements ITriggerManager
         }
     }
 
+    @Override
     public boolean isTriggerUser(UserDTO user)
     {
         return triggerMap.containsKey(user.getUserCode());

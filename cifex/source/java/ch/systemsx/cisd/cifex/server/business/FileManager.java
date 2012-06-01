@@ -36,8 +36,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -79,8 +79,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -180,11 +180,13 @@ final class FileManager extends AbstractManager implements IFileManager
     // IFileManager
     //
 
+    @Override
     public final List<FileDTO> listDownloadFiles(final long userId)
     {
         return daoFactory.getFileDAO().listDownloadFiles(userId);
     }
 
+    @Override
     @Transactional
     public final List<FileDTO> listOwnedFiles(final long userId)
     {
@@ -201,6 +203,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return list;
     }
 
+    @Override
     @Transactional
     public final void deleteExpiredFiles(final IUserActionLog logOrNull)
     {
@@ -252,11 +255,13 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     public final FileInformation getFileInformation(final long fileId)
     {
         return getFileInformation(fileId, true);
     }
 
+    @Override
     public final FileInformation getFileInformationFilestoreUnimportant(final long fileId)
     {
         return getFileInformation(fileId, false);
@@ -295,6 +300,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return new FileInformation(fileId, fileDTOOrNull, realFile);
     }
 
+    @Override
     public final FileContent getFileContent(final FileDTO fileDTO)
     {
         final File realFile = getRealFile(fileDTO);
@@ -310,6 +316,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     public File getRealFile(final FileDTO fileDTO)
     {
         final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
@@ -321,6 +328,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return realFile;
     }
 
+    @Override
     public final boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO)
     {
         if (isControlling(userDTO, fileDTO))
@@ -331,6 +339,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return containsUser(userDTO, sharingUsers);
     }
 
+    @Override
     public boolean isControlling(final UserDTO userDTO, final FileDTO fileDTO)
     {
         // Admins are in control of all files.
@@ -353,6 +362,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return false;
     }
 
+    @Override
     @Transactional
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String comment,
             final String contentTypeOrNull, final InputStream inputStream)
@@ -404,6 +414,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String comment,
             final String contentTypeOrNull, final long fileSize, final InputStream inputStream)
     {
@@ -424,6 +435,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
+                                    @Override
                                     public void update(long bytesWritten, int crc32Value)
                                     {
                                         final long now = System.currentTimeMillis();
@@ -437,6 +449,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                         }
                                     }
 
+                                    @Override
                                     public void exceptionThrown(IOException e)
                                     {
                                     }
@@ -476,6 +489,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     public final void resumeSaveFile(final UserDTO user, final FileDTO fileDTO, final File file,
             final String comment, final long startPos, final InputStream inputStream)
             throws IllegalArgumentException
@@ -510,6 +524,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
+                                    @Override
                                     public void update(long bytesWritten, int crc32Value)
                                     {
                                         final long now = System.currentTimeMillis();
@@ -523,6 +538,7 @@ final class FileManager extends AbstractManager implements IFileManager
                                         }
                                     }
 
+                                    @Override
                                     public void exceptionThrown(IOException e)
                                     {
                                     }
@@ -561,6 +577,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     @Transactional
     public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
             String comment, String contentTypeOrNull, File file, int crc32Value,
@@ -591,6 +608,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return fileDTO;
     }
 
+    @Override
     public PreCreatedFileDTO createFile(final UserDTO user,
             final FilePreregistrationDTO fileInfoDTO, final String comment)
     {
@@ -608,6 +626,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return new PreCreatedFileDTO(fileInStore, fileInDB);
     }
 
+    @Override
     public File createFile(final UserDTO user, final String fileName)
     {
         final File folder = createFolderFor(user);
@@ -662,6 +681,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return fileDTO;
     }
 
+    @Override
     public void throwExceptionOnFileDoesNotExist(final String fileName)
     {
         final String msg =
@@ -670,17 +690,20 @@ final class FileManager extends AbstractManager implements IFileManager
         throw new UserFailureException(msg);
     }
 
+    @Override
     public void updateUploadProgress(FileDTO fileDTO, UserDTO requestUser)
     {
         daoFactory.getFileDAO().updateFileUploadProgress(fileDTO.getID(), fileDTO.getSize(),
                 fileDTO.getCrc32Value(), calculateNewExpirationDate(fileDTO, requestUser));
     }
 
+    @Override
     public FileDTO tryGetUploadResumeCandidate(long userId, String fileName, long completeSize)
     {
         return daoFactory.getFileDAO().tryGetResumeCandidate(userId, fileName, completeSize);
     }
 
+    @Override
     @Transactional
     public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
@@ -990,6 +1013,7 @@ final class FileManager extends AbstractManager implements IFileManager
             // Ensure we use a unique user code, based on the email address.
             user.setUserCode(StringUtilities.createUniqueString(email, new IUniquenessChecker()
                 {
+                    @Override
                     public boolean isUnique(String code)
                     {
                         return daoFactory.getUserDAO().hasUserCode(code) == false;
@@ -1008,6 +1032,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     @Transactional
     public final List<FileDTO> listFiles() throws UserFailureException
     {
@@ -1034,6 +1059,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return code;
     }
 
+    @Override
     @Transactional
     public void deleteFile(final FileDTO fileDTO)
     {
@@ -1043,6 +1069,7 @@ final class FileManager extends AbstractManager implements IFileManager
         deleteFromFileSystem(fileDTO.getPath());
     }
 
+    @Override
     public Date updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate, final UserDTO requestUser)
     {
@@ -1051,6 +1078,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return newExpirationDate;
     }
 
+    @Override
     public FileDTO getFile(final long fileId) throws IllegalArgumentException
     {
         final FileDTO fileOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
@@ -1083,6 +1111,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return extendUntilEndOfDay(newExpirationDate);
     }
 
+    @Override
     public void updateFile(final FileDTO file, UserDTO requestUser)
     {
         checkAndFixFileExpiration(file, requestUser);
@@ -1129,6 +1158,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Override
     public void deleteSharingLink(final long fileId, final String userCode)
     {
         daoFactory.getFileDAO().deleteSharingLink(fileId, userCode);

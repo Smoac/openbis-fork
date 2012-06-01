@@ -28,7 +28,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
@@ -122,7 +121,7 @@ abstract public class AbstractCIFEXService
         if (httpSessionOrNull != null)
         {
             return (Session) httpSessionOrNull
-                    .getAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION);
+                    .getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_RPC_SESSION);
         } else
         {
             return null;

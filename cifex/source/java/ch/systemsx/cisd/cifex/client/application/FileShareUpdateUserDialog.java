@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILE_SUBMIT_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,9 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * The dialog for editing file sharing used for the "Edit Sharing" action in the file grid.

@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.START_PAGE_WELCOME_NOTE;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.info;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LOGIN_FAILED_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_WARNING_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -95,6 +98,7 @@ public class LoginPanelAutofill extends VerticalPanel
 
         formPanel.addSubmitHandler(new SubmitHandler()
             {
+                @Override
                 public void onSubmit(SubmitEvent event)
                 {
                     // Disable button until we have had a chance to validate the input.
@@ -105,6 +109,7 @@ public class LoginPanelAutofill extends VerticalPanel
         // Called when the dummy POST operation returns.
         formPanel.addSubmitCompleteHandler(new SubmitCompleteHandler()
             {
+                @Override
                 public void onSubmitComplete(SubmitCompleteEvent event)
                 {
                     if (isUserInputValid() == false)
@@ -206,6 +211,7 @@ public class LoginPanelAutofill extends VerticalPanel
             getButtonElement().setDisabled(false);
         }
 
+        @Override
         public final void onSuccess(final CurrentUserInfoDTO result)
         {
             if (result != null)

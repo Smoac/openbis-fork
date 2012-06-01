@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -156,6 +157,7 @@ public class FileDownloadClient extends AbstractSwingGUI
     {
         return new IDecryptionChecker()
             {
+                @Override
                 public boolean willDecrypt()
                 {
                     return willDecrypt.isSelected();
@@ -212,6 +214,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         fileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
             {
 
+                @Override
                 public void valueChanged(ListSelectionEvent e)
                 {
                     // Notify the table model
@@ -282,6 +285,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         decryptButton.setToolTipText("Decrypt files after downloading");
         decryptButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final PassphraseAndFileDeletion newPassphraseAndFileDeletionOrNull =
@@ -301,7 +305,7 @@ public class FileDownloadClient extends AbstractSwingGUI
             });
 
         // Download directory panel
-        JLabel label = new JLabel("Save To", JLabel.TRAILING);
+        JLabel label = new JLabel("Save To", SwingConstants.TRAILING);
         label.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
         directoryButton = new JButton("");
         directoryButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -309,6 +313,7 @@ public class FileDownloadClient extends AbstractSwingGUI
                 .setToolTipText("Click button to select a directory in which to save the downloaded files.");
         directoryButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final File newDirOrNull =

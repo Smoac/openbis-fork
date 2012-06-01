@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FILESHARING_SHAREFLAG_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_STATUS_COLUMN_HEADER;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +31,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * The model for the file sharing user grid.
@@ -74,12 +76,12 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
             {
                 final FileShareUserGridModel m = storeOrNull.getAt(i);
                 final Boolean checkedUser = m.get(FileShareUserGridModel.SHARE_FILE);
-                final String userCode = m.get(FileShareUserGridModel.USER_CODE);
+                final String userCode = m.get(AbstractUserGridModel.USER_CODE);
                 if (userCode != null)
                 {
                     checkStatusMap.put(ID_PREFIX + userCode, checkedUser);
                 }
-                checkStatusMap.put((String) m.get(FileShareUserGridModel.USER_EMAIL), checkedUser);
+                checkStatusMap.put((String) m.get(AbstractUserGridModel.USER_EMAIL), checkedUser);
             }
         }
 
@@ -100,6 +102,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         return result;
     }
 
+    @Override
     public long getID()
     {
         return get(ID);
@@ -126,6 +129,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         columnConfig.setFixed(true);
         columnConfig.setRenderer(new GridCellRenderer<FileShareUserGridModel>()
             {
+                @Override
                 public Object render(FileShareUserGridModel model, String property,
                         ColumnData config, int rowIndex, int colIndex,
                         ListStore<FileShareUserGridModel> store, Grid<FileShareUserGridModel> grid)

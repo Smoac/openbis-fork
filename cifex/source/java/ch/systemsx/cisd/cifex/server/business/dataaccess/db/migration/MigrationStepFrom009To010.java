@@ -68,6 +68,7 @@ public class MigrationStepFrom009To010 implements IMigrationStep
     private final class IdQuotaGroupIdRowMapper implements
             ParameterizedRowMapper<IdQuotaGroupIdHolder>
     {
+        @Override
         public IdQuotaGroupIdHolder mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             return new IdQuotaGroupIdHolder(rs.getLong("id"), rs.getLong("quota_group_id"));
@@ -77,6 +78,7 @@ public class MigrationStepFrom009To010 implements IMigrationStep
     private final class IdFileRententionRowMapper implements
             ParameterizedRowMapper<IdFileRentionHolder>
     {
+        @Override
         public IdFileRentionHolder mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             // Conversion from minutes to hours.
@@ -99,11 +101,13 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         isPostgreSQL = DatabaseEngine.POSTGRESQL.getCode().equals(context.getDatabaseEngineCode());
     }
 
+    @Override
     public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {
     }
 
+    @Override
     public void performPostMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {

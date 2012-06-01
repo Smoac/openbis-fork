@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_FILE_DIALOG_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Date;
 

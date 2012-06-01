@@ -20,7 +20,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cifex.rpc.client.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -36,6 +35,7 @@ public class TransmissionSpeedCalculatorTest extends AssertJUnit
     {
         private long timeInMillisecs = 0;
 
+        @Override
         public long getTimeInMilliseconds()
         {
             long time = timeInMillisecs;

@@ -67,6 +67,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         super("true".equals(testingFlag) ? new IRequestContextProvider()
             {
 
+                @Override
                 public HttpServletRequest getHttpServletRequest()
                 {
                     return new MockHttpServletRequest();
@@ -91,7 +92,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         {
             final UserDTO userDTOOrNull =
                     (UserDTO) httpSession
-                            .getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                            .getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_USER_NAME);
             if (userDTOOrNull != null)
             {
                 return userDTOOrNull.getUserCode();
@@ -122,6 +123,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logCreateUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -208,6 +210,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
                 && (StringUtils.isBlank(string1OrNull) && StringUtils.isBlank(string2OrNull)) == false;
     }
 
+    @Override
     public void logUpdateUser(final UserDTO oldUser, final UserDTO newUser, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -219,6 +222,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDeleteUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -229,6 +233,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logExpireUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -265,6 +270,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     // Files
     //
 
+    @Override
     public void logUploadFileStart(String filename, FileDTO fileOrNull, long startPosition)
     {
         if (trackingLog.isInfoEnabled())
@@ -283,6 +289,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logUploadFileFinished(String filename, FileDTO fileOrNull, boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -293,6 +300,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logShareFiles(final Collection<FileDTO> files,
             final Collection<UserDTO> usersToShareWith,
             final Collection<String> emailsOfUsersToShareWith,
@@ -319,6 +327,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logShareFilesAuthorizationFailure(Collection<FileDTO> files,
             Collection<String> recipientsToShareWith)
     {
@@ -380,6 +389,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         return getDescription(files, new Descriptor<FileDTO>()
             {
+                @Override
                 public String getDescription(final FileDTO file)
                 {
                     return getFileDescription(file, null);
@@ -391,6 +401,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         return getDescription(users, new Descriptor<UserDTO>()
             {
+                @Override
                 public String getDescription(final UserDTO user)
                 {
                     return user.getUserCode();
@@ -402,6 +413,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         return getDescription(users, new Descriptor<String>()
             {
+                @Override
                 public String getDescription(final String str)
                 {
                     return str;
@@ -409,6 +421,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             });
     }
 
+    @Override
     public void logDeleteFile(final FileDTO file, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -419,6 +432,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logExpireFile(final FileDTO file, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -428,6 +442,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logEditFile(long fileId, String newName, Date fileExpirationDateOrNull,
             boolean success)
     {
@@ -440,6 +455,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDownloadFileStart(FileDTO file, long startPosition)
     {
         if (accessLog.isInfoEnabled())
@@ -457,6 +473,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDownloadFileFinished(FileDTO file, boolean success)
     {
         if (accessLog.isInfoEnabled())
@@ -467,6 +484,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDownloadFileFailedNotAuthorized(FileDTO file)
     {
         if (accessLog.isInfoEnabled())
@@ -477,6 +495,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDownloadFileFailedNotFound(FileDTO file)
     {
         if (accessLog.isInfoEnabled())
@@ -486,6 +505,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logDeleteSharingLink(final long fileId, final String userCode, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -497,6 +517,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     }
 
+    @Override
     public void logChangeUserCode(final String before, final String after, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
@@ -508,6 +529,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     }
 
+    @Override
     public void logSwitchToExternalAuthentication(final String userCode, final boolean success)
     {
         if (accessLog.isInfoEnabled())
@@ -518,6 +540,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    @Override
     public void logLogout(Session session, LogoutReason reason)
     {
         if (authenticationLog.isInfoEnabled())

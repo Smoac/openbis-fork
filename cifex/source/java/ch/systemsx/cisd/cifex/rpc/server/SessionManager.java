@@ -23,12 +23,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.IActionLog.LogoutReason;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
@@ -162,7 +163,7 @@ public class SessionManager
         {
             final HttpSession httpSession =
                     requestContextProviderOrNull.getHttpServletRequest().getSession();
-            httpSession.setAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION, session);
+            httpSession.setAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_RPC_SESSION, session);
         }
     }
 

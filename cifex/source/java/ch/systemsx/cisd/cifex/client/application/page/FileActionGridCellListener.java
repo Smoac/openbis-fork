@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DELETE_FILE_CONFIRM_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DELETE_FILE_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.Date;
 import java.util.List;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.application.FileShareUpdateUserDialog;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -95,6 +98,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final Void result)
         {
             assert adminView == false;
@@ -126,6 +130,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final Void result)
         {
             assert adminView;
@@ -157,6 +162,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             this.grid = grid;
         }
 
+        @Override
         public final void onSuccess(final List<UserInfoDTO> result)
         {
             final FileShareUpdateUserDialog dialog =
@@ -167,13 +173,14 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         }
     }
 
+    @Override
     public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
         Grid<AbstractFileGridModel> grid = myFileGridWidget.getGrid();
         int rowIndex = be.getRowIndex();
         int colindex = be.getColIndex();
         final ModelData record = grid.getStore().getAt(rowIndex);
-        final long id = record.get(AbstractFileGridModel.ID);
+        final long id = record.get(AbstractDataGridModel.ID);
         final String name = record.get(AbstractFileGridModel.NAME);
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.ACTION))
@@ -191,6 +198,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                         name), new Listener<MessageBoxEvent>()
                     {
 
+                        @Override
                         public void handleEvent(MessageBoxEvent messageEvent)
                         {
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
@@ -241,6 +249,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final FileInfoDTO resultOrNull)
         {
             new EditFileDialog(getViewContext(), resultOrNull,
@@ -251,6 +260,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         {
             return new AbstractAsyncCallback<Date>(getViewContext())
                 {
+                    @Override
                     public void onSuccess(Date result)
                     {
                         callback.onSuccess(null);

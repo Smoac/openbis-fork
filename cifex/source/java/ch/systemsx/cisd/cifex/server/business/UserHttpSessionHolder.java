@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.rpc.server.SessionManager;
-import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
+import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -82,6 +82,7 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
     // IUserSessionInvalidator
     //
 
+    @Override
     public final synchronized void invalidateSessionWithUser(final UserDTO userDTO)
     {
         assert userDTO != null : "Unspecified user";
@@ -93,7 +94,7 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
             try
             {
                 final UserDTO user =
-                        (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                        (UserDTO) httpSession.getAttribute(AbstractCIFEXService.SESSION_ATTRIBUTE_USER_NAME);
                 if (user != null && user.getID().equals(userDTO.getID()))
                 {
                     // This unbinds all the attributes as well. So do not do clever cleaning here.

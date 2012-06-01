@@ -56,6 +56,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     public static class UserRowMapper implements ParameterizedRowMapper<UserDTO>
     {
 
+        @Override
         public UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
         {
             final UserDTO user = fillUserFromResultSet(rs);
@@ -145,6 +146,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             this.user = user;
         }
 
+        @Override
         public UserDTO mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             user.setMaxFileRetention(rs.getInt("file_retention"));
@@ -184,12 +186,14 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return getNextValueOf("USER_ID_SEQ");
     }
 
+    @Override
     public int getNumberOfUsers() throws DataAccessException
     {
         final JdbcTemplate template = getJdbcTemplate();
         return template.queryForInt("select count(*) from users");
     }
 
+    @Override
     public boolean isMainUserOfQuotaGroup(UserDTO user) throws DataAccessException
     {
         final long id = user.getID();
@@ -200,6 +204,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 quotaGroupId, id, id) == 0;
     }
 
+    @Override
     public List<UserDTO> listUsers() throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -209,6 +214,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
+    @Override
     public List<UserDTO> listUsersById(long... userIds) throws DataAccessException
     {
         if (supportsAnyOperator)
@@ -236,6 +242,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public List<UserDTO> listUsersByCode(String... userCodes) throws DataAccessException
     {
         if (supportsAnyOperator)
@@ -263,6 +270,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public List<UserDTO> listUsersByEmail(String... emailAddresses) throws DataAccessException
     {
         if (supportsAnyOperator)
@@ -297,6 +305,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return getSimpleJdbcTemplate().getJdbcOperations().query(sql, args, argTypes, rowMapper);
     }
 
+    @Override
     public List<UserDTO> listUsersRegisteredBy(final long userId) throws DataAccessException
     {
         final UserDTO registrator = getUserById(userId);
@@ -339,11 +348,13 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public void fillInRegistrators(final List<UserDTO> users)
     {
         fillInRegistrators(users, users);
     }
 
+    @Override
     public UserDTO tryFindUserByCode(final String userCode) throws DataAccessException
     {
         assert StringUtils.isNotBlank(userCode) : "No code specified!";
@@ -362,6 +373,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public UserDTO getUserById(final long id) throws DataAccessException
     {
         final UserDTO user = primGetUserById(id);
@@ -378,6 +390,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return user;
     }
 
+    @Override
     public String tryFindUserCodeById(final long id) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -393,6 +406,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public boolean hasUserCode(final String code) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -402,6 +416,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return count > 0;
     }
 
+    @Override
     public List<UserDTO> findUserByEmail(final String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
@@ -417,6 +432,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     /**
      * Doesn't fill registrator and quota fields in UserDTO.
      */
+    @Override
     public List<UserDTO> listExpiredUsers() throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -429,6 +445,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     /**
      * Doesn't fill registrator and quota fields in UserDTO.
      */
+    @Override
     public List<UserDTO> listUsersFileSharedWith(final long fileId) throws DataAccessException
     {
 
@@ -442,18 +459,21 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
+    @Override
     public void refreshQuotaInformation(UserDTO user) throws DataAccessException
     {
         getSimpleJdbcTemplate().query("select * from quota_groups where id = ?",
                 new QuotaRowMapper(user), user.getQuotaGroupId());
     }
 
+    @Override
     public boolean hasUserFilesForDownload(long id)
     {
         return getSimpleJdbcTemplate().queryForList(
                 "select id from file_shares where user_id = ? limit 1", id).isEmpty() == false;
     }
 
+    @Override
     public void createUser(final UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
@@ -508,6 +528,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    @Override
     public boolean deleteUser(final UserDTO user, final Long requestUserIdOrNull)
     {
         assert user != null;
@@ -529,6 +550,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return affectedRows > 0;
     }
 
+    @Override
     public void updateUser(final UserDTO user)
     {
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
@@ -594,6 +616,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         user.setQuotaGroupId(quotaGroupId);
     }
 
+    @Override
     public void changeUserCode(final String before, final String after)
     {
         getSimpleJdbcTemplate().update("update users set user_code = ? where user_code = ? ",

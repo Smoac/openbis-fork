@@ -170,11 +170,13 @@ abstract class AbstractCommand implements ICommand
 
                 long size;
 
+                @Override
                 public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                     size = fileSize;
                 }
 
+                @Override
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                     if (noProgressFeedback == false)
@@ -184,18 +186,21 @@ abstract class AbstractCommand implements ICommand
                     }
                 }
 
+                @Override
                 public void finished(boolean successful)
                 {
                     size = 0L;
                     System.out.println();
                 }
 
+                @Override
                 public void warningOccured(String warningMessage)
                 {
                     System.out.println();
                     System.err.println(warningMessage);
                 }
 
+                @Override
                 public void exceptionOccured(Throwable throwable)
                 {
                     // Reporting handled in CIFEXClient
@@ -207,6 +212,7 @@ abstract class AbstractCommand implements ICommand
     // ICommand
     //
 
+    @Override
     public final String getName()
     {
         return name;

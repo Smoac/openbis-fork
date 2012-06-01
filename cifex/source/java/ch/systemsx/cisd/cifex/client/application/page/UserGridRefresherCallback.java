@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.client.application.page;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -46,6 +46,7 @@ public final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
     // AbstractAsyncCallback
     //
 
+    @Override
     public final void onSuccess(final Void object)
     {
         final ViewContext viewContext = getViewContext();
@@ -77,6 +78,7 @@ public final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onSuccess(final List<UserInfoDTO> res)
         {
             userGrid.setDataAndRefresh(UserGridModel.convert(getViewContext(), res));

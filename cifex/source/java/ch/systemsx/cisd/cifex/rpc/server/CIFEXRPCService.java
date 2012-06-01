@@ -163,11 +163,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Version
     //
 
+    @Override
     public int getVersion()
     {
         return VERSION;
     }
 
+    @Override
     public int getMinClientVersion()
     {
         return MIN_CLIENT_VERSION;
@@ -177,6 +179,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Session
     //
 
+    @Override
     public void checkSession(String sessionID) throws InvalidSessionException
     {
         try
@@ -198,6 +201,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public String login(final String userCode, final String plainPassword)
             throws AuthorizationFailureException, EnvironmentFailureException
     {
@@ -214,6 +218,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return createSession(user, getURLForEmail());
     }
 
+    @Override
     public void logout(String sessionID) throws InvalidSessionException
     {
         try
@@ -237,6 +242,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return HttpUtils.getURLForEmail(request, domainModel.getBusinessContext());
     }
 
+    @Override
     public String createSession(UserDTO user, String url)
     {
         return sessionManager.createSession(user, url).getSessionID();
@@ -246,6 +252,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Info
     //
 
+    @Override
     public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException
     {
         final Session session = sessionManager.getSession(sessionID);
@@ -254,6 +261,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return BeanUtils.createBeanArray(FileInfoDTO.class, files);
     }
 
+    @Override
     public FileInfoDTO[] listOwnedFiles(String sessionID) throws InvalidSessionException,
             EnvironmentFailureException
     {
@@ -263,6 +271,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return BeanUtils.createBeanArray(FileInfoDTO.class, files);
     }
 
+    @Override
     public FileInfoDTO getFileInfo(String sessionID, long fileID) throws InvalidSessionException,
             IOExceptionUnchecked
     {
@@ -293,6 +302,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Upload
     //
 
+    @Override
     public long upload(String sessionID, FilePreregistrationDTO file, String comment,
             InputStream contentStream) throws InvalidSessionException
     {
@@ -319,6 +329,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public void resumeUpload(String sessionID, long fileId, long startPosition, String comment,
             InputStream contentStream) throws InvalidSessionException
     {
@@ -378,6 +389,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public FileInfoDTO tryGetUploadResumeCandidate(String sessionID,
             FilePreregistrationDTO fileSpecs)
     {
@@ -395,6 +407,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 .getID(), fileName, fileSpecs.getFileSize()));
     }
 
+    @Override
     public void shareFiles(String sessionID, List<Long> fileIDs, String recipients)
     {
         assert sessionID != null;
@@ -477,6 +490,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public void deleteFile(String sessionID, long fileId) throws InvalidSessionException
     {
         assert sessionID != null;
@@ -511,6 +525,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public InputStream download(final String sessionID, long fileID, long startPosition)
             throws InvalidSessionException, IOExceptionUnchecked
     {
@@ -542,11 +557,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                     new ResumingAndChecksummingInputStream(fileInfo.getFile(), Long.MAX_VALUE,
                             new ISimpleChecksummingProgressListener()
                                 {
+                                    @Override
                                     public void update(long bytesRead, int crc32Value)
                                     {
                                         userActionLog.logDownloadFileFinished(finalFile, true);
                                     }
 
+                                    @Override
                                     public void exceptionThrown(IOException e)
                                     {
                                         operationLog.error("[" + sessionID
@@ -569,6 +586,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
+    @Override
     public void setSessionUser(String sessionID, String userCode)
     {
         boolean success = false;

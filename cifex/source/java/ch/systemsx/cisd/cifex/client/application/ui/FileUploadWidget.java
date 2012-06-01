@@ -16,7 +16,22 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_COMMENT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LAUNCH_JWS_APPLICATION_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_BROWSER_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_DUPLICATES_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_DUPLICATES_MSGBOX_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_FILE_FIELD_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_LAUNCH_WEBSTART_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RESET_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_SUBMIT_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PANEL_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PROS_INFO;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,10 +56,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -64,10 +79,10 @@ import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -298,6 +313,7 @@ public final class FileUploadWidget extends LayoutContainer
         context.getCifexService().findUserByEmail(email,
                 new AbstractAsyncCallback<List<UserInfoDTO>>(context)
                     {
+                        @Override
                         public void onSuccess(List<UserInfoDTO> users)
                         {
                             final UserInfoDTO requestUser = context.getModel().getUser();
@@ -330,6 +346,7 @@ public final class FileUploadWidget extends LayoutContainer
         context.getCifexService().tryFindUserByUserCodeOrCreate(userCode,
                 new AbstractAsyncCallback<UserInfoDTO>(context)
                     {
+                        @Override
                         public void onSuccess(UserInfoDTO result)
                         {
                             UserInfoDTO existingUser = result;
@@ -448,6 +465,7 @@ public final class FileUploadWidget extends LayoutContainer
             final String msg = msg(UPLOAD_FILES_DUPLICATES_MSG);
             MessageBox.confirm(title, msg, new Listener<MessageBoxEvent>()
                 {
+                    @Override
                     public void handleEvent(MessageBoxEvent messageEvent)
                     {
                         if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
@@ -468,6 +486,7 @@ public final class FileUploadWidget extends LayoutContainer
                 filenames.toArray(StringUtils.EMPTY_STRING_ARRAY),
                 new AbstractAsyncCallback<Void>(context)
                     {
+                        @Override
                         public final void onSuccess(final Void result)
                         {
                             formPanel.submit();

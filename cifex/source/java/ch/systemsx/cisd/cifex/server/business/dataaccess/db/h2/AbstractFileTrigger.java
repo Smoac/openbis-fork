@@ -37,6 +37,7 @@ abstract class AbstractFileTrigger implements Trigger
 
     protected int completeSizeIndex = -1;
 
+    @Override
     public void init(Connection conn, String schemaName, String triggerName, String tableName,
             boolean before, int type) throws SQLException
     {

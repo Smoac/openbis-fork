@@ -41,6 +41,7 @@ public class LinkRenderer implements IGridCellRendererNonPlainText<BaseModelData
     {
     }
 
+    @Override
     public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {
@@ -52,6 +53,7 @@ public class LinkRenderer implements IGridCellRendererNonPlainText<BaseModelData
         return DOMUtils.createAnchor(value.toString());
     }
 
+    @Override
     public GridCellRenderer<BaseModelData> getPlainTextRenderer()
     {
         return null;

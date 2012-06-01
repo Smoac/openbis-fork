@@ -55,6 +55,7 @@ public class InitializeCommand extends AbstractCommand
         return instance;
     }
 
+    @Override
     public int execute(String[] arguments) throws UserFailureException, EnvironmentFailureException
     {
         try

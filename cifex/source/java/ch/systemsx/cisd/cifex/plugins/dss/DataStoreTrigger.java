@@ -77,6 +77,7 @@ public class DataStoreTrigger implements ITrigger
         }
     }
 
+    @Override
     public void handle(ITriggerRequest request, ITriggerConsole console)
     {
         if (propertiesFileNameOrNull != null

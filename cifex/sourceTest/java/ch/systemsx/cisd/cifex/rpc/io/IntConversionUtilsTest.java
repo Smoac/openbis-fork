@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.cifex.rpc.io;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * Test cases for {@link IntConversionUtils}

@@ -52,11 +52,13 @@ public class DAOFactory implements IDAOFactory
         fileDAO = new FileDAO(dataSource, sequencerHandler, supportsAnyOperator);
     }
 
+    @Override
     public final IUserDAO getUserDAO()
     {
         return userDAO;
     }
 
+    @Override
     public IFileDAO getFileDAO()
     {
         return fileDAO;

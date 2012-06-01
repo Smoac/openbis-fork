@@ -82,6 +82,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         IFileUploader rawFileUploader = new IFileUploader()
             {
                 // This method can return false only if error occurred
+                @Override
                 public boolean uploadFile(File file, String overrideNameOrNull, String comment,
                         Set<Long> fileIds, MonitoringProxy.IMonitorCommunicator communicator)
                         throws IOException
@@ -90,6 +91,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     return true;
                 }
 
+                @Override
                 public void shareFiles(List<Long> fileIds, String recipientsOrNull)
                 {
                     service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
@@ -105,6 +107,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     /**
      * Adds a listener for progress events.
      */
+    @Override
     public void addProgressListener(final IProgressListener uploadListener)
     {
         listeners.add(uploadListener);
@@ -117,6 +120,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
      *            form <code>id:<i>user ID</i></code>. Can be an empty string.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
+    @Override
     public void upload(List<FileWithOverrideName> filesWithOverrideName, String recipientsOrNull,
             String comment)
     {
@@ -183,6 +187,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
+                                    @Override
                                     public void update(long bytesRead, int crc32Value)
                                     {
                                         if (isCancelled() || communicator.isCancelled())
@@ -198,6 +203,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                                             lastUpdated = now;
                                         }
                                     }
+                                    @Override
                                     public void exceptionThrown(IOException e)
                                     {
                                     }

@@ -23,11 +23,12 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>GridCellListener</code> implementation for the {@link FileInfoDTO} table.
@@ -41,6 +42,7 @@ public final class FileDownloadGridCellListener implements Listener<GridEvent<Mo
     {
     }
 
+    @Override
     public void handleEvent(GridEvent<ModelData> be)
     {
         Grid<ModelData> grid = be.getGrid();
@@ -58,7 +60,7 @@ public final class FileDownloadGridCellListener implements Listener<GridEvent<Mo
             if (StringUtils.isBlank(targetId) == false)
             {
                 ModelData record = grid.getStore().getAt(rowIndex);
-                final long id = record.get(AbstractFileGridModel.ID);
+                final long id = record.get(AbstractDataGridModel.ID);
                 final String url = FileDownloadHelper.createDownloadUrl(id);
                 WindowUtils.openNewDependentWindow(url);
             }

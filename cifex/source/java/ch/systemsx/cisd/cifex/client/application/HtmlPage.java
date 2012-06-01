@@ -68,11 +68,13 @@ public class HtmlPage extends HTML
     private final class HelpRequestCallback implements RequestCallback
     {
 
+        @Override
         public final void onError(final Request request, final Throwable ex)
         {
             displayException(ex);
         }
 
+        @Override
         public final void onResponseReceived(final Request request, final Response response)
         {
             displayHelp(response.getText());

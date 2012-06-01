@@ -16,7 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FILESHARING_EXISTING_GRID_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_USERS_FILESHARING_NEW_GRID_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILE_ADDUSER_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILE_ADDUSER_EMAIL_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILE_ADDUSER_PANEL_TITEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.SHARE_FILE_DIALOG_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_USER_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -232,6 +240,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                         viewContext.getCifexService().tryFindUserByUserCodeOrCreate(userCode,
                                 new AbstractAsyncCallback<UserInfoDTO>(viewContext)
                                     {
+                                        @Override
                                         public void onSuccess(UserInfoDTO result)
                                         {
                                             UserInfoDTO user = result;
@@ -262,6 +271,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                         viewContext.getCifexService().findUserByEmail(emailOrCode,
                                 new AbstractAsyncCallback<List<UserInfoDTO>>(viewContext)
                                     {
+                                        @Override
                                         public void onSuccess(List<UserInfoDTO> users)
                                         {
                                             final UserInfoDTO requestUser =

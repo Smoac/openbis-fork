@@ -89,7 +89,7 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
         }
         final FileUploadFeedbackProvider feedbackProvider =
                 (FileUploadFeedbackProvider) request.getSession().getAttribute(
-                        CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
+                        AbstractCIFEXService.UPLOAD_FEEDBACK_QUEUE);
         try
         {
             final String[] filenamesToUpload =

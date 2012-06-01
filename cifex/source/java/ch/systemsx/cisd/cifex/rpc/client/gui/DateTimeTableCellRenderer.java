@@ -58,6 +58,7 @@ public class DateTimeTableCellRenderer implements TableCellRenderer
         timeFormatter = DateFormat.getTimeInstance(DateFormat.MEDIUM);
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column)
     {

@@ -23,8 +23,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * Takes care of rendering a comment field.
@@ -43,6 +43,7 @@ public final class CommentRenderer implements IGridCellRendererNonPlainText<Abst
         // Can not be instantiated.
     }
 
+    @Override
     public Object render(AbstractFileGridModel model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<AbstractFileGridModel> store,
             Grid<AbstractFileGridModel> grid)
@@ -57,6 +58,7 @@ public final class CommentRenderer implements IGridCellRendererNonPlainText<Abst
                 false);
     }
 
+    @Override
     public GridCellRenderer<AbstractFileGridModel> getPlainTextRenderer()
     {
         return null;

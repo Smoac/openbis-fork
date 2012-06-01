@@ -16,8 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.HEADER_WEBPAGE_LINK;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.SUPPORT_EMAIL;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.info;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_CONTACT_SUPPORT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_DISCLAIMER_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_FAQ_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_LINK_TOOLTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_MANUAL_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_TOOLS_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.google.gwt.user.client.DOM;

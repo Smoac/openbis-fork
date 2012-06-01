@@ -77,6 +77,7 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
     // ICommand
     //
 
+    @Override
     public final int execute(final String[] args) throws UserFailureException,
             EnvironmentFailureException
     {

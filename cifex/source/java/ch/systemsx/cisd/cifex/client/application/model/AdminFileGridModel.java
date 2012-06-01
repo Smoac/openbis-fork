@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.ACTION_DELETE_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.ACTION_EDITSHARING_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.ACTION_EDIT_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +93,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         return result;
     }
 
+    @Override
     public long getID()
     {
         return get(ID);

@@ -39,6 +39,7 @@ abstract class AbstractUserTrigger implements Trigger
 
     protected int quotaGroupIdIndex = -1;
 
+    @Override
     public void init(Connection conn, String schemaName, String triggerName, String tableName,
             boolean before, int type) throws SQLException
     {

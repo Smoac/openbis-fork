@@ -96,6 +96,7 @@ public final class PageControllerHelper
                     final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
                         {
 
+                            @Override
                             public void onSuccess(Boolean result)
                             {
                                 if (result == false)
@@ -104,6 +105,7 @@ public final class PageControllerHelper
                                 }
                             }
 
+                            @Override
                             public void onFailure(Throwable caught)
                             {
                                 cancel();

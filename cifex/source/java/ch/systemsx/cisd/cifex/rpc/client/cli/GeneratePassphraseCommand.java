@@ -67,6 +67,7 @@ public class GeneratePassphraseCommand extends AbstractCommand
         super(NAME);
     }
 
+    @Override
     public int execute(String[] arguments) throws UserFailureException, EnvironmentFailureException
     {
         final Parameters parameters = new Parameters(arguments);

@@ -231,6 +231,7 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     class FileDownloadInfoComparator implements Comparator<FileDownloadInfo>
     {
+        @Override
         public int compare(FileDownloadInfo info1, FileDownloadInfo info2)
         {
             int result = 0;
@@ -319,6 +320,7 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         downloader.addProgressListener(new IProgressListener()
             {
+                @Override
                 public void start(File file, String operationname, long fileSize, Long fileIdOrNull)
                 {
                     currentlyDownloadingFile = tryToFindDownloadInfoForFile(fileIdOrNull);
@@ -329,6 +331,7 @@ public class FileDownloadClientModel extends AbstractTableModel
                     }
                 }
 
+                @Override
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                     if (currentlyDownloadingFile != null)
@@ -338,6 +341,7 @@ public class FileDownloadClientModel extends AbstractTableModel
                     }
                 }
 
+                @Override
                 public void finished(boolean successful)
                 {
                     if (currentlyDownloadingFile != null)
@@ -365,10 +369,12 @@ public class FileDownloadClientModel extends AbstractTableModel
                     }
                 }
 
+                @Override
                 public void exceptionOccured(Throwable throwable)
                 {
                 }
 
+                @Override
                 public void warningOccured(String warningMessage)
                 {
                     currentlyDownloadingFile.setStatus(FileDownloadInfo.Status.STALLED);
@@ -435,11 +441,13 @@ public class FileDownloadClientModel extends AbstractTableModel
         fireTableDataChanged();
     }
 
+    @Override
     public int getColumnCount()
     {
         return 6;
     }
 
+    @Override
     public int getRowCount()
     {
         return fileDownloadInfos.size();
@@ -477,6 +485,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         return name;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         FileDownloadInfo fileDownloadInfo = fileDownloadInfos.get(rowIndex);

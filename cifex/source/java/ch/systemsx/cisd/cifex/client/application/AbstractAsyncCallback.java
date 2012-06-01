@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EXCEPTION_INVOCATION_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EXCEPTION_STATUS_CODE0;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_FAILURE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -66,6 +70,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     // AsyncCallback
     //
 
+    @Override
     public void onFailure(final Throwable caught)
     {
         final String msg;
@@ -98,6 +103,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         // go to login page after message box is closed if the problem is caused by invalid session
                 new Listener<MessageBoxEvent>()
                     {
+                        @Override
                         public void handleEvent(MessageBoxEvent be)
                         {
                             if (caught instanceof InvalidSessionException)

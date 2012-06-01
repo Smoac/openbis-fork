@@ -65,6 +65,7 @@ final class FileDownloadOperation implements Runnable
                 deleteEncryptedFileAfterSuccessfulDecryption;
     }
 
+    @Override
     public void run()
     {
         try
@@ -95,7 +96,7 @@ final class FileDownloadOperation implements Runnable
                 } catch (Throwable th)
                 {
                     tableModel.fireChanged(Status.COMPLETED_DOWNLOAD);
-                    FileDownloadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
+                    AbstractSwingGUI.notifyUserOfThrowable(tableModel.getMainWindow(),
                             fileDownloadInfo.getFileInfoDTO().getName(), "Decrypting", th, null);
                 }
             }
@@ -107,7 +108,7 @@ final class FileDownloadOperation implements Runnable
                             .unwrapIfNecessary((Exception) th);
             if (actualTh instanceof FileExistsException == false)
             {
-                FileDownloadClient.notifyUserOfThrowable(tableModel.getMainWindow(),
+                AbstractSwingGUI.notifyUserOfThrowable(tableModel.getMainWindow(),
                         fileDownloadInfo.getFileInfoDTO().getName(), "Downloading", th, null);
             }
         } finally
@@ -187,6 +188,7 @@ final class FileDownloadOperation implements Runnable
     {
         return new IFileOverwriteStrategy()
             {
+                @Override
                 public boolean overwriteAllowed(File outputFile)
                 {
                     final int answer =
@@ -211,6 +213,7 @@ final class FileDownloadOperation implements Runnable
     {
         return new IFileOverwriteStrategy()
             {
+                @Override
                 public boolean overwriteAllowed(File outputFile)
                 {
                     final long outputFileLength = outputFile.length();

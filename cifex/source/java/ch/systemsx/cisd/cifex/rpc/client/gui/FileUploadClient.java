@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
@@ -160,14 +161,17 @@ public class FileUploadClient extends AbstractSwingGUI
     {
         return new IProgressListener()
             {
+                @Override
                 public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                 }
 
+                @Override
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                 }
 
+                @Override
                 public void finished(boolean successful)
                 {
                     // The check for doDeleteEncryptedFilesAfterSuccessfulUpload() shouldn't be
@@ -187,10 +191,12 @@ public class FileUploadClient extends AbstractSwingGUI
                     }
                 }
 
+                @Override
                 public void exceptionOccured(Throwable throwable)
                 {
                 }
 
+                @Override
                 public void warningOccured(String warningMessage)
                 {
                 }
@@ -201,6 +207,7 @@ public class FileUploadClient extends AbstractSwingGUI
     {
         return new IProgressListener()
             {
+                @Override
                 public void finished(boolean successful)
                 {
                     setEnableStateOfButtons(true);
@@ -219,18 +226,22 @@ public class FileUploadClient extends AbstractSwingGUI
                     }
                 }
 
+                @Override
                 public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                 }
 
+                @Override
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                 }
 
+                @Override
                 public void exceptionOccured(Throwable throwable)
                 {
                 }
 
+                @Override
                 public void warningOccured(String warningMessage)
                 {
                 }
@@ -304,7 +315,7 @@ public class FileUploadClient extends AbstractSwingGUI
 
         JLabel label;
         // Recipients label and input
-        label = new JLabel("Recipients", JLabel.TRAILING);
+        label = new JLabel("Recipients", SwingConstants.TRAILING);
         recipientsTextArea = new JTextArea();
         recipientsTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 3));
         label.setLabelFor(recipientsTextArea);
@@ -312,7 +323,7 @@ public class FileUploadClient extends AbstractSwingGUI
         panel.add(new JScrollPane(recipientsTextArea));
 
         // Comment label and input
-        label = new JLabel("Comment", JLabel.TRAILING);
+        label = new JLabel("Comment", SwingConstants.TRAILING);
         commentTextArea = new JTextArea();
         commentTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 3));
         label.setLabelFor(commentTextArea);
@@ -320,7 +331,7 @@ public class FileUploadClient extends AbstractSwingGUI
         panel.add(new JScrollPane(commentTextArea));
 
         // Files label and table
-        label = new JLabel("Files", JLabel.TRAILING);
+        label = new JLabel("Files", SwingConstants.TRAILING);
         final JTable table = new JTable(tableModel)
             {
                 private static final long serialVersionUID = 1L;
@@ -367,6 +378,7 @@ public class FileUploadClient extends AbstractSwingGUI
         encryptButton.setToolTipText("Encrypt files before uploading");
         encryptButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final PassphraseAndFileDeletion newPassphraseAndFileDeletionOrNull =
@@ -386,6 +398,7 @@ public class FileUploadClient extends AbstractSwingGUI
         addButton = new JButton("Add File\u2026");
         addButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     chooseAndAddFile();
@@ -410,6 +423,7 @@ public class FileUploadClient extends AbstractSwingGUI
         cancelButton.setEnabled(false);
         cancelButton.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     cancel();
@@ -429,11 +443,13 @@ public class FileUploadClient extends AbstractSwingGUI
         final JButton button = new JButton("Upload");
         button.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setEnableStateOfButtons(false);
                     new Thread(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 final List<FileWithOverrideName> files =
@@ -461,6 +477,7 @@ public class FileUploadClient extends AbstractSwingGUI
         button.setEnabled(false);
         fileListModel.addTableModelListener(new TableModelListener()
             {
+                @Override
                 public void tableChanged(TableModelEvent e)
                 {
                     if (e.getType() != TableModelEvent.UPDATE)
@@ -489,6 +506,7 @@ public class FileUploadClient extends AbstractSwingGUI
         final JMenuItem menuItem = new JMenuItem(REMOVE_FROM_TABLE_MENU_ITEM);
         menuItem.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final JMenuItem item = (JMenuItem) e.getSource();

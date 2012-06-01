@@ -16,8 +16,21 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.*;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.HEADER_WEBPAGE_LINK;
+import static ch.systemsx.cisd.cifex.client.application.utils.InfoDictionary.info;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_DISCLAIMER_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_DISCLAIMER_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_FAQ_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_FAQ_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_LINK_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.HELP_LINK_TOOLTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LOGOUT_LINK_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LOGOUT_LINK_TOOLTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.PROFILE_LINK_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.PROFILE_LINK_TOOPTIP;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UNKNOWN_FAILURE_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -46,8 +59,8 @@ import ch.systemsx.cisd.cifex.client.application.WidgetFactory;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -183,6 +196,7 @@ public final class MainPage extends Viewport
         Anchor html = clickableHTMLWidget(msg(PROFILE_LINK_LABEL), msg(PROFILE_LINK_TOOPTIP));
         html.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     context.getPageController().showEditCurrentUserPage();
@@ -197,6 +211,7 @@ public final class MainPage extends Viewport
 
         html.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     context.logoutAndShowLoginPage();
@@ -210,6 +225,7 @@ public final class MainPage extends Viewport
         Anchor html = clickableHTMLWidget(msg(HELP_LINK_LABEL), msg(HELP_LINK_TOOLTIP));
         html.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     context.getPageController().showHelpPage();
@@ -224,6 +240,7 @@ public final class MainPage extends Viewport
         Anchor html = clickableHTMLWidget(msg(HELP_FAQ_LABEL), msg(HELP_FAQ_TITLE));
         html.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     try
@@ -246,6 +263,7 @@ public final class MainPage extends Viewport
         Anchor html = clickableHTMLWidget(msg(HELP_DISCLAIMER_LABEL), msg(HELP_DISCLAIMER_TITLE));
         html.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     try

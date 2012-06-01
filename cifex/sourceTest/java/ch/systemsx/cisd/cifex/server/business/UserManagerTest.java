@@ -605,6 +605,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).createUser(user1);
                     will(new CustomAction("set technical user id")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 ((UserDTO) invocation.getParameter(0)).setID(1L);
@@ -616,6 +617,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).createUser(user2);
                     will(new CustomAction("set technical user id")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 ((UserDTO) invocation.getParameter(0)).setID(2L);
@@ -627,6 +629,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).createUser(user3);
                     will(new CustomAction("set technical user id")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 ((UserDTO) invocation.getParameter(0)).setID(3L);

@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.*;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_INVALID_DATA_MSG;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.EDIT_USER_UPDATE_BUTTON_LABEL;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.MESSAGE_BOX_ERROR_TITLE;
+import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>UserWidget</code> extension suitable for user editing.
@@ -117,6 +120,7 @@ public class EditUserWidget extends UserWidget
             }
         }
 
+        @Override
         public final void onSuccess(final UserInfoDTO result)
         {
             if (buttonOrNull != null)

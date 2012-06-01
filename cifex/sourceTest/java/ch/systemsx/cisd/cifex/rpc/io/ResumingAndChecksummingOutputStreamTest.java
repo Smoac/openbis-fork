@@ -61,11 +61,13 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long size, int crc32Value)
                                 {
                                     assertEquals(1, size);
                                     assertEquals((int) crc32.getValue(), crc32Value);
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -90,11 +92,13 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long size, int crc32Value)
                                 {
                                     assertEquals(content.length, size);
                                     assertEquals((int) crc32.getValue(), crc32Value);
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -123,12 +127,14 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     assertEquals(chunkSize * (count[0] + 1), bytesWritten);
                                     assertEquals(crc32[count[0]].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -160,6 +166,7 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     if (count[0] < 2)
@@ -172,6 +179,7 @@ public class ResumingAndChecksummingOutputStreamTest
                                     assertEquals(crc32[count[0]].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -204,6 +212,7 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     assertEquals(0, count[0]);
@@ -211,6 +220,7 @@ public class ResumingAndChecksummingOutputStreamTest
                                     assertEquals(crc32[0].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -221,6 +231,7 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     if (count[0] < 2)
@@ -233,6 +244,7 @@ public class ResumingAndChecksummingOutputStreamTest
                                     assertEquals(crc32[count[0]].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -264,12 +276,14 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     assertEquals(chunkSize * (count[0] + 1), bytesWritten);
                                     assertEquals(crc32[count[0]].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -283,6 +297,7 @@ public class ResumingAndChecksummingOutputStreamTest
                 new ResumingAndChecksummingOutputStream(f, chunkSize,
                         new ISimpleChecksummingProgressListener()
                             {
+                                @Override
                                 public void update(long bytesWritten, int crc32Value)
                                 {
                                     if (count[0] < 2)
@@ -295,6 +310,7 @@ public class ResumingAndChecksummingOutputStreamTest
                                     assertEquals(crc32[count[0]].getValue(), crc32Value);
                                     ++count[0];
                                 }
+                                @Override
                                 public void exceptionThrown(IOException e)
                                 {
                                 }
@@ -325,6 +341,7 @@ public class ResumingAndChecksummingOutputStreamTest
         new ResumingAndChecksummingOutputStream(f, chunkSize,
                 new ISimpleChecksummingProgressListener()
                     {
+                        @Override
                         public void update(long bytesWritten, int crc32Value)
                         {
                             if (count[0] < 2)
@@ -337,6 +354,7 @@ public class ResumingAndChecksummingOutputStreamTest
                             assertEquals(crc32[count[0]].getValue(), crc32Value);
                             ++count[0];
                         }
+                        @Override
                         public void exceptionThrown(IOException e)
                         {
                         }

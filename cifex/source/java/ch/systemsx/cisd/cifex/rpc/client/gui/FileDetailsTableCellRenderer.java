@@ -57,6 +57,7 @@ public class FileDetailsTableCellRenderer implements TableCellRenderer
         panel.setOpaque(true);
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column)
     {

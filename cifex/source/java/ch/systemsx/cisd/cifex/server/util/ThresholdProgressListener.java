@@ -50,6 +50,7 @@ public abstract class ThresholdProgressListener implements ProgressListener
     // ProgressListener
     //
 
+    @Override
     public final void update(final long bytesRead, final long contentLength, final int items)
     {
         final long result = bytesRead / threshold;

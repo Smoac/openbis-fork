@@ -22,6 +22,8 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,8 +31,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import ch.systemsx.cisd.cifex.client.application.page.MainPage;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * The login page.
@@ -51,7 +53,7 @@ final class LoginPage extends VerticalPanel
         // WORKAROUND: avoid having a horizontal scrollbar on the login page in Safari by setting
         // the height to 97% rather than 100%
         setHeight("97%");
-        setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
         // panel.
@@ -73,7 +75,7 @@ final class LoginPage extends VerticalPanel
         add(northPanel);
         add(loginPanel);
         add(footerPanel);
-        this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
+        this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
     }
 
     private final LoginPanelAutofill createLoginPanelAutofill()

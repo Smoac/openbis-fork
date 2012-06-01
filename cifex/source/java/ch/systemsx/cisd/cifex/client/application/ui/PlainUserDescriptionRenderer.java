@@ -22,9 +22,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A <code>Renderer</code> implementation that create a user description, which is either the full
@@ -44,6 +44,7 @@ public final class PlainUserDescriptionRenderer implements GridCellRenderer<Mode
         // Can not be instantiated.
     }
     
+    @Override
     public Object render(ModelData model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<ModelData> store,
             Grid<ModelData> grid)

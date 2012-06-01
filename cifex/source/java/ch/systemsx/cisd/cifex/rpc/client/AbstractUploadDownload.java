@@ -103,6 +103,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     /**
      * Returns <code>true</code> if the operation (upload or download) is still in progress.
      */
+    @Override
     public boolean isInProgress()
     {
         return inProgress.get();
@@ -111,6 +112,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     /**
      * Cancels the operation (upload or download).
      */
+    @Override
     public void cancel()
     {
         getProxyForOperation().cancelCurrentOperations();
@@ -224,6 +226,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
             this.reportFinalException = reportFinalException;
         }
 
+        @Override
         public void log(Method method, ExecutionResult<Object> result, boolean willRetry)
         {
             // We log only exceptional invocations here, the regular progress logging is done in the

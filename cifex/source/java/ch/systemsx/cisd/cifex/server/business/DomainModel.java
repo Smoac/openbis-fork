@@ -271,6 +271,7 @@ public final class DomainModel implements IDomainModel
     /**
      * Returns the one and only one instance of {@link IUserManager}.
      */
+    @Override
     public final IUserManager getUserManager()
     {
         if (userManager == null)
@@ -285,6 +286,7 @@ public final class DomainModel implements IDomainModel
     /**
      * Returns the one and only one instance of {@link IFileManager}.
      */
+    @Override
     public final IFileManager getFileManager()
     {
         if (fileManager == null)
@@ -311,6 +313,7 @@ public final class DomainModel implements IDomainModel
     /**
      * Returns the one and only instance of {@link IMailClient}.
      */
+    @Override
     public final IMailClient getMailClient()
     {
         return businessContext.getMailClient();
@@ -319,6 +322,7 @@ public final class DomainModel implements IDomainModel
     /**
      * Returns the business context (server configuration).
      */
+    @Override
     public final IBusinessContext getBusinessContext()
     {
         return businessContext;
@@ -327,6 +331,7 @@ public final class DomainModel implements IDomainModel
     /**
      * Returns the {@link PasswordGenerator}.
      */
+    @Override
     public final PasswordGenerator getPasswordGenerator()
     {
         return businessContext.getPasswordGenerator();
