@@ -66,7 +66,7 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
      * event.
      */
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public void handleEvent(GridEvent be)
     {
         ICellListener<T> listener = getCellListener(be);

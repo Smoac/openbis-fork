@@ -433,7 +433,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
      * methods.
      * </p>
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private static final <T> List<T> cast(final List list)
     {
         return list;

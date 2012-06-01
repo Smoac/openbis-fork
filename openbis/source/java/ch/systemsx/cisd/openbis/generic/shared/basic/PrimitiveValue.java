@@ -88,7 +88,7 @@ public class PrimitiveValue implements IsSerializable, Serializable, Comparable<
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public int compareTo(PrimitiveValue o)
     {
         Integer thisTypeOrdinal = getComparableDataTypeOrdinal();

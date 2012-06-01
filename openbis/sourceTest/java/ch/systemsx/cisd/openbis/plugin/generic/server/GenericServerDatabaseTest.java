@@ -48,13 +48,9 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 {
     private static final String REUSE_EXPERIMENT_PERMID = "200811050940555-1032";
 
-    private static final String WELLS_EXPERIMENT_PERMID = "200811050937246-1036";
-
     private static final String TEST_EXPERIMENT_PERMID = "200902091255058-1035";
 
     private static final String REUSE_EXPERIMENT_SAMPLE_PERMID = "200811050929940-1018";
-
-    private static final String WELLS_EXPERIMENT_SAMPLE_PERMID = "200902091250077-1051";
 
     private static final String TEST_EXPERIMENT_SAMPLE_PERMID = "200902091225616-1027";
 

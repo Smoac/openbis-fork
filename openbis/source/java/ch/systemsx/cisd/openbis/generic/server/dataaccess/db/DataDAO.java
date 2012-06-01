@@ -703,14 +703,15 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public void delete(DataPE entity) throws DataAccessException
     {
         assert entity != null : "entity unspecified";
+
+        // FIXME: Pawel Glyzewski shouldn't be deleted by cascade?
         // Remove children & components and flush changes before deletion.
         // Otherwise constraint violation exception will be thrown.
-        List<DataPE> children = new ArrayList<DataPE>(entity.getChildren());
-        for (DataPE child : children)
-        {
-            // FIXME: Pawel Glyzewski shouldn't be deleted by cascade?
-            // child.removeParent(entity);
-        }
+        // List<DataPE> children = new ArrayList<DataPE>(entity.getChildren());
+        // for (DataPE child : children)
+        // {
+        // child.removeParent(entity);
+        // }
         if (entity.isContainer())
         {
             List<DataPE> components = new ArrayList<DataPE>(entity.getContainedDataSets());
@@ -945,6 +946,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                             return location;
                         }
 
+                        @SuppressWarnings("rawtypes")
                         @Override
                         public List transformList(List list)
                         {

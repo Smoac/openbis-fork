@@ -82,8 +82,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /*
-     * private static Map<Class<?>, ClassValidator<?>> validators =
-     * new HashMap<Class<?>, ClassValidator<?>>();
+     * private static Map<Class<?>, ClassValidator<?>> validators = new HashMap<Class<?>,
+     * ClassValidator<?>>();
      */
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link Validator}.
@@ -131,8 +131,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected static final <T> List<T> cast(@SuppressWarnings("rawtypes")
-    final List list)
+    protected static final <T> List<T> cast(final List list)
     {
         return list;
     }

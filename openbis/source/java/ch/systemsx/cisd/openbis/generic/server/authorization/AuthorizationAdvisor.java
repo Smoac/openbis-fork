@@ -121,8 +121,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
             }
         }
 
-        @SuppressWarnings(
-            { "unchecked", "rawtypes" })
+        @SuppressWarnings("unchecked")
         private final static Argument<?> toArgument(final Parameter<AuthorizationGuard> parameter,
                 final Object[] args)
         {

@@ -332,7 +332,6 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
-        final List<TechId> containedIds = TechId.createList(5, 6);
         final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
         context.checking(new Expectations()
             {
@@ -356,7 +355,6 @@ public final class TrashBOTest extends AbstractBOTest
     public final void testTrashUnavailableDataSets()
     {
         final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
-        final List<TechId> containedIds = TechId.createList(5, 6);
         final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
         context.checking(new Expectations()
             {

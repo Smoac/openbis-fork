@@ -150,7 +150,7 @@ public final class DefaultReturnValueFilterTest
         assertNull(proceeded);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     @Test
     public final void testProceedWithList()
     {
