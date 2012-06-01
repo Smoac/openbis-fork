@@ -84,6 +84,14 @@ public class DssRegistrationLogger
     }
 
     /**
+     * Logs class and message of exception.
+     */
+    public void log(Throwable ex, String message)
+    {
+        log(message+": " + ex.toString());
+    }
+
+    /**
      * Logs a message, truncating the content if it exceeds the length limit.
      */
     public void logTruncatingIfNecessary(String message)

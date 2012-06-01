@@ -450,6 +450,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     /**
      * Delegate method called by the {@link DataSetStorageAlgorithmRunner}.
      */
+    @Override
     public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
             Throwable ex, ErrorType errorType)
     {
@@ -459,25 +460,22 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         IDataSetStorageRecoveryManager storageRecoveryManager =
                 registrationService.getRegistratorContext().getGlobalState()
                         .getStorageRecoveryManager();
-        boolean canRecover =
-                useAutoRecovery
-                        && (errorType == ErrorType.OPENBIS_REGISTRATION_FAILURE || errorType == ErrorType.STORAGE_CONFIRMATION_ERROR)
-                        && storageRecoveryManager.canRecoverFromError(ex);
-        if (useAutoRecovery && canRecover)
-        {
-            registrationService.registerNonFatalError(ex);
-            state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
-        } else
-        {
+        
             if (useAutoRecovery)
             {
                 storageRecoveryManager.removeCheckpoint(algorithm);
             }
             rollback();
             registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
-        }
     }
 
+    @Override
+    public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    {
+        registrationService.registerNonFatalError(ex);
+        state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
+    }
+    
     /**
      * Delegate method called by the {@link DataSetStorageAlgorithmRunner}. This implementation asks
      * the DataSetRegistrationService to register not just the data sets, but perform any creation

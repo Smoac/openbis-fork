@@ -478,6 +478,53 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         return recoveryMarkerFile;
     }
 
+    @Test
+    public void testRecoveryFailureAtStorage()
+    {
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new StorageErrorExpectations(atomicatOperationDetails));
+
+        handleAndMakeRecoverableImmediately(testCase);
+        
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration", "post_metadata_registration");
+
+        assertRecoveryFile(testCase.recoveryRertyCount, RecoveryInfoDateConstraint.ORIGINAL,
+                testCase.recoveryLastTry);
+        assertOriginalMarkerFileExists();
+
+        makeFileSystemAvailable(workingDirectory);
+        
+        // this recovery should succeed
+        handler.handle(markerFile);
+
+        assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
+                "sub_data_set_1", 0);
+        
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        //
+        // // item in store
+        //
+        //
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
+    }
+    
     // INFO: test with recovery from error in storage confirmed
     @Test
     public void testRecoveryFailureAtStorageConfirmed()
@@ -524,7 +571,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         //
         //
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
-
     }
 
     @DataProvider(name = "multipleCheckpointsDataProvider")
@@ -671,6 +717,27 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
     }
 
+    class StorageErrorExpectations extends AbstractExpectations
+    {
+        public StorageErrorExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndMakeFileSystemUnavailable();
+            
+            // the recovery should happen here
+
+            setStorageConfirmed(false);
+        }
+    }
+
+    
     class BasicRecoveryTestExpectations extends AbstractExpectations
     {
         final RecoveryTestCase testCase;
@@ -832,6 +899,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             will(returnValue(new Long(1)));
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
             will(returnValue(new AtomicEntityOperationResult()));
+        }
+
+        protected void registerDataSetsAndMakeFileSystemUnavailable()
+        {
+            one(openBisService).drawANewUniqueID();
+            will(returnValue(new Long(1)));
+            one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+            will(doAll(makeFileSystemUnavailableAction(), returnValue(new AtomicEntityOperationResult())));
         }
 
         /**

@@ -30,8 +30,6 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcess
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
-import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
-import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -56,6 +54,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
          */
         public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
                 Throwable ex, ErrorType errorType);
+
+        public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex);
     }
 
     /**
@@ -233,8 +233,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             if (shouldUseAutoRecovery())
             {
-                rollbackAfterStorageConfirmation(ex);
+                rollbackDelegate.markReadyForRecovery(this, ex);
             }
+            dssRegistrationLog.log(ex, "Error during storage confirmation");
             return false;
             // There is nothing we can do without recovery
         }
@@ -263,6 +264,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             postPreRegistrationHooks.executePreRegistration(persistentMapHolder);
         } catch (Throwable throwable)
         {
+            dssRegistrationLog.log(throwable, "Error in execution of pre registration hooks");
+
             rollbackDuringPreRegistration(throwable);
             return false;
         }
@@ -317,7 +320,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        return storeAfterRegistration();
+        return cleanPrecommitAndConfirmStorage();
 
         // confirm storage in AS
 
@@ -364,7 +367,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * Execute the post-registration part of the storage process
      */
-    public boolean storeAfterRegistration()
+    public boolean cleanPrecommitAndConfirmStorage()
     {
 
         cleanPrecommitDirectory();
@@ -442,13 +445,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 ErrorType.POST_REGISTRATION_ERROR);
     }
 
-    private void rollbackAfterStorageConfirmation(Throwable ex)
-    {
-        operationLog.error("Failed to confirm storage in as", ex);
-        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
-                ErrorType.STORAGE_CONFIRMATION_ERROR);
-    }
-
     /**
      * Committed => Stored
      */
@@ -465,6 +461,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Data has been moved to the final store.");
         } catch (final Throwable throwable)
         {
+            rollbackDelegate.markReadyForRecovery(this, throwable);
+
+            dssRegistrationLog.log(throwable, "Error while storing committed datasets.");
             // Something has gone really wrong
             operationLog.error("Error while storing committed datasets", throwable);
             return false;
@@ -506,9 +505,17 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         } catch (final Throwable throwable)
         {
+            dssRegistrationLog.log(throwable, "Error in commit of storage processors.");
             // Something has gone really wrong
             operationLog.error("Error while committing storage processors", throwable);
-            rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
+
+            if (shouldUseAutoRecovery())
+            {
+                rollbackDelegate.markReadyForRecovery(this, throwable);
+            } else
+            {
+                rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
+            }
             return false;
         }
         return true;
@@ -524,7 +531,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         } catch (final Throwable throwable)
         {
-            rollbackDuringMetadataRegistration(throwable);
+            dssRegistrationLog.log("Error in registrating data in application server");
+            if (shouldUseAutoRecovery() && storageRecoveryManager.canRecoverFromError(throwable))
+            {
+                rollbackDelegate.markReadyForRecovery(this, throwable);
+            } else
+            {
+                rollbackDuringMetadataRegistration(throwable);
+            }
             return false;
         }
 

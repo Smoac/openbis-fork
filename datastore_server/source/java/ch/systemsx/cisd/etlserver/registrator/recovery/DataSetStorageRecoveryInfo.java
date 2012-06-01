@@ -35,25 +35,23 @@ public class DataSetStorageRecoveryInfo implements Serializable
         /**
          * After precommit, before the registration in as
          */
-        PRECOMMIT,
+        PRECOMMIT("Precommit"),
 
         /**
          * After the registration has succeeded and post-registration hook executed
          */
-        POST_REGISTRATION_HOOK_EXECUTED,
+        POST_REGISTRATION_HOOK_EXECUTED("After post-registration"),
         /**
          * All files have been moved to the store, but application server has not been informed yet
          */
-        STORAGE_COMPLETED,
-        /**
-         * Storage has been confirmed in the application server
-         */
-        STORAGE_CONFIRMED,
-        /**
-         * The post-storage hooks have completed - that is not a real recovery checkpoint as there
-         * is nothing to do afterwards!
-         */
-        POST_STORAGE_HOOK_COMPLETED;
+        STORAGE_COMPLETED("Storage completed");
+
+        private String description;
+
+        private RecoveryStage(String description)
+        {
+            this.description = description;
+        }
 
         /**
          * @return true if this stage is before or equal other
@@ -69,6 +67,12 @@ public class DataSetStorageRecoveryInfo implements Serializable
         public boolean before(RecoveryStage other)
         {
             return this.ordinal() < other.ordinal();
+        }
+
+        @Override
+        public String toString()
+        {
+            return description;
         }
     }
 

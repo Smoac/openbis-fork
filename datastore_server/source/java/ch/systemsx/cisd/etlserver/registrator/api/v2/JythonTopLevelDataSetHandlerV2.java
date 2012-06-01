@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
@@ -190,16 +188,15 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         if (false == retryPeriodHasPassed(recoveryInfo))
         {
-            String message =
-                    "Found recovery information for " + incomingFileOriginal
-                            + ". The recovery won't happen as the retry period has not yet passed";
-            operationLog.info(message);
-
             return;
         }
 
         operationLog.info("Will recover from broken registration. Found marker file "
                 + recoveryMarkerFile + " and " + recoveryFile);
+
+        final DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
+
+        logger.log("Starting recovery at checkpoint " + recoveryInfo.getRecoveryStage());
 
         IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
                 new IDelegatedActionWithResult<Boolean>()
@@ -223,8 +220,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                                 state.getFileOperations().move(recoveryMarkerFile,
                                         errorRecoveryMarkerFile);
 
-                                DssRegistrationLogger logger =
-                                        recoveryState.getRegistrationLogger(state);
                                 logger.log("Recovery failed. Giving up.");
                                 logger.registerFailure();
 
@@ -292,12 +287,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
     {
 
-        DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
-
-        logger.log("The registration has been disturbed. Will try to recover...");
-
-        // rollback delegate
-        final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
+        final DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
 
         // keeps track of whether we should keep or delete the recovery files.
         // we can delete if succesfully recovered, or rolledback.
@@ -310,7 +300,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex,
                         ErrorType errorType)
                 {
-                    encounteredErrors.add(ex);
+                    // do nothing. recovery takes care of everything
+                }
+
+                @Override
+                public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm,
+                        Throwable ex)
+                {
+                    // don't have to do nothing.
                 }
             };
 
@@ -414,7 +411,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
                 if (success)
                 {
-                    success = runner.storeAfterRegistration();
+                    success = runner.cleanPrecommitAndConfirmStorage();
                 }
                 if (success)
                 {
@@ -436,11 +433,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 throw (Error) error;
             }
 
-            System.err.println("Caught an error! " + error);
-            error.printStackTrace();
             // in this case we should ignore, and run the recovery again after some time
-            encounteredErrors.add(error);
-            logger.log("Error in recovery: " + error);
+            logger.log(error, "Uncaught error during recovery");
         }
 
         cleanAfterwardsAction.execute(registrationSuccessful);
