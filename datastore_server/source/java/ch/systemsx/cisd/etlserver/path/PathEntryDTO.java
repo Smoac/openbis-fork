@@ -29,25 +29,38 @@ public class PathEntryDTO
 {
     @ResultColumn("id")
     private long id;
+
     @ResultColumn("dase_id")
-    private  Long dataSetId;
+    private Long dataSetId;
+
     @ResultColumn("parent_id")
-    private  Long parentId;
+    private Long parentId;
+
     @ResultColumn("relative_path")
-    private  String relativePath;
+    private String relativePath;
+
     @ResultColumn("file_name")
-    private  String fileName;
+    private String fileName;
+
     @ResultColumn("size_in_bytes")
-    private  Long sizeInBytes;
+    private Long sizeInBytes;
+
     @ResultColumn("checksum_crc32")
-    private  Integer checksumCRC32;
-    
+    private Integer checksumCRC32;
+
     @ResultColumn("is_directory")
     private Boolean directory;
+
     @ResultColumn("last_modified")
-    private  Date lastModifiedDate;
+    private Date lastModifiedDate;
+
     @ResultColumn("data_set_code")
     private String dataSetCode;
+
+    @SuppressWarnings("unused")
+    private PathEntryDTO()
+    {
+    }
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
             long sizeInBytes, Long checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
@@ -61,7 +74,7 @@ public class PathEntryDTO
         this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }
-    
+
     //
     // For unit tests.
     //
@@ -73,12 +86,11 @@ public class PathEntryDTO
         int result = 1;
         result = prime * result + (int) (dataSetId ^ (dataSetId >>> 32));
         result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
-        result =
-                prime * result + ((lastModifiedDate == null) ? 0 : lastModifiedDate.hashCode());
+        result = prime * result + ((lastModifiedDate == null) ? 0 : lastModifiedDate.hashCode());
         result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
         result = prime * result + ((relativePath == null) ? 0 : relativePath.hashCode());
         result = prime * result + (int) (sizeInBytes ^ (sizeInBytes >>> 32));
-        result = prime * result + (checksumCRC32 == null ? 0 : checksumCRC32); 
+        result = prime * result + (checksumCRC32 == null ? 0 : checksumCRC32);
         return result;
     }
 
@@ -119,16 +131,18 @@ public class PathEntryDTO
         } else if (!relativePath.equals(other.relativePath))
             return false;
 
-        if (equals(sizeInBytes, other.sizeInBytes) == false) {
+        if (equals(sizeInBytes, other.sizeInBytes) == false)
+        {
             return false;
         }
-        if (equals(checksumCRC32, other.checksumCRC32) == false) {
+        if (equals(checksumCRC32, other.checksumCRC32) == false)
+        {
             return false;
         }
-        
+
         return true;
     }
-    
+
     private boolean equals(Long n1OrNull, Long n2OrNull)
     {
         return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
@@ -138,7 +152,7 @@ public class PathEntryDTO
     {
         return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
     }
-    
+
     @Override
     public String toString()
     {
@@ -207,7 +221,7 @@ public class PathEntryDTO
     {
         this.sizeInBytes = sizeInBytes;
     }
-    
+
     public Integer getChecksumCRC32()
     {
         return checksumCRC32;
