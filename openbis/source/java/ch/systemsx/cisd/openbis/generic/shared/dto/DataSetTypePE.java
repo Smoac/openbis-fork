@@ -83,8 +83,7 @@ public class DataSetTypePE extends EntityTypePE
         getDataSetTypePropertyTypesInternal().add(child);
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal", orphanRemoval = true)
     private Set<DataSetTypePropertyTypePE> getDataSetTypePropertyTypesInternal()
     {
         return dataSetTypePropertyTypes;
@@ -163,7 +162,8 @@ public class DataSetTypePE extends EntityTypePE
     }
 
     /**
-     * Returns <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     * Returns <code>true</code> if data sets of this type require special user rights and an
+     * additional confirmation to be deleted.
      */
     @Column(name = ColumnNames.DELETION_DISALLOW)
     public boolean isDeletionDisallow()
@@ -172,7 +172,8 @@ public class DataSetTypePE extends EntityTypePE
     }
 
     /**
-     * Set to <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     * Set to <code>true</code> if data sets of this type require special user rights and an
+     * additional confirmation to be deleted.
      */
     public void setDeletionDisallow(boolean deletionDisallow)
     {
