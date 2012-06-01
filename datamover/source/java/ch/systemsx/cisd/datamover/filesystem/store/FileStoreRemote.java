@@ -190,11 +190,13 @@ public class FileStoreRemote extends AbstractFileStore
     // FileStore
     //
 
+    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
+    @Override
     public final Status delete(final StoreItem item)
     {
         final String pathString = toUnixPathString(item);
@@ -211,18 +213,21 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
+    @Override
     public final BooleanStatus exists(final StoreItem item)
     {
         final String pathString = toUnixPathString(item);
         return sshCommandExecutor.exists(pathString, QUICK_SSH_TIMEOUT_MILLIS);
     }
 
+    @Override
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
+    @Override
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
@@ -309,6 +314,7 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
+    @Override
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
@@ -322,6 +328,7 @@ public class FileStoreRemote extends AbstractFileStore
     }
 
     // outgoing and self-test
+    @Override
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         final BooleanStatus status =
@@ -349,6 +356,7 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return true;
@@ -472,11 +480,13 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
+    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return getHost() + ":" + getChildFile(item).getPath();
     }
 
+    @Override
     public StoreItem asStoreItem(String locationDescription)
     {
         final int beginIndex = locationDescription.indexOf(':');
@@ -493,6 +503,7 @@ public class FileStoreRemote extends AbstractFileStore
         return host;
     }
 
+    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final String simpleCmd = mkListByOldestModifiedCommand(toUnixPathString(null));
@@ -519,6 +530,7 @@ public class FileStoreRemote extends AbstractFileStore
         return items;
     }
 
+    @Override
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
     {
         return highwaterMarkWatcher;

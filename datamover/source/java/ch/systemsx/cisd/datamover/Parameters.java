@@ -40,6 +40,7 @@ import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -619,6 +620,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The name of the <code>rsync</code> executable to use for copy operations.
      */
+    @Override
     public final String getRsyncExecutable()
     {
         return rsyncExecutable;
@@ -628,6 +630,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * @return The name of the <code>rsync</code> executable on the incoming host to use for copy
      *         operations.
      */
+    @Override
     public final String getIncomingRsyncExecutable()
     {
         return incomingRsyncExecutable;
@@ -637,6 +640,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * @return The name of the <code>rsync</code> executable on the outgoing host to use for copy
      *         operations.
      */
+    @Override
     public final String getOutgoingRsyncExecutable()
     {
         return outgoingRsyncExecutable;
@@ -646,6 +650,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * @return <code>true</code>, if rsync is called in such a way to files that already exist are
      *         overwritten rather than appended to.
      */
+    @Override
     public final boolean isRsyncOverwrite()
     {
         return rsyncOverwrite;
@@ -654,6 +659,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return Extra parameters to be added to the end of the <code>rsync</code> command line.
      */
+    @Override
     public String[] getExtraRsyncParameters()
     {
         if (extraRsyncParameters == null)
@@ -673,6 +679,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The name of the <code>ln</code> executable to use for hard link creation.
      */
+    @Override
     public final String getLnExecutable()
     {
         return lnExecutable;
@@ -681,6 +688,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The name of the <code>ssh</code> executable to use for creating tunnels.
      */
+    @Override
     public final String getSshExecutable()
     {
         return sshExecutable;
@@ -698,6 +706,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The interval to wait between two checks for activity (in milliseconds).
      */
+    @Override
     public final long getCheckIntervalMillis()
     {
         return checkIntervalMillis;
@@ -717,6 +726,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      *         milliseconds). This setting is used when deciding whether a copy operation of a file
      *         or directory is "stalled".
      */
+    @Override
     public final long getInactivityPeriodMillis()
     {
         return inactivityPeriodMillis;
@@ -727,6 +737,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      *         milliseconds). This setting is used when deciding whether a file or directory is
      *         ready to be moved to the remote side.
      */
+    @Override
     public final long getQuietPeriodMillis()
     {
         return quietPeriodMillis;
@@ -736,6 +747,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * @return The time interval to wait after a failure has occurred before the operation is
      *         retried.
      */
+    @Override
     public final long getIntervalToWaitAfterFailure()
     {
         return intervalToWaitAfterFailureMillis;
@@ -745,6 +757,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * @return The number of times a failed operation is retried (note that this means that the
      *         total number that the operation is tried is one more).
      */
+    @Override
     public final int getMaximalNumberOfRetries()
     {
         return maximalNumberOfRetries;
@@ -997,7 +1010,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final String getDefaultMetaVariable()
         {
-            return "[HOST" + HostAwareFileWithHighwaterMark.HOST_FILE_SEP + "]DIR["
+            return "[HOST" + HostAwareFile.HOST_FILE_SEP + "]DIR["
                     + DIRECTORY_HIGHWATERMARK_SEP + "KB]";
         }
 
@@ -1016,14 +1029,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             String host = null;
             String strHighwaterMark = null;
             final File file;
-            final int hostFileIndex = value.indexOf(HostAwareFileWithHighwaterMark.HOST_FILE_SEP);
+            final int hostFileIndex = value.indexOf(HostAwareFile.HOST_FILE_SEP);
             final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
             String rsyncModuleOrNull = null;
             if (hostFileIndex > -1 && fileHWMIndex > -1)
             {
                 host = value.substring(0, hostFileIndex);
                 final int rsyncModuleIndex =
-                        value.indexOf(HostAwareFileWithHighwaterMark.HOST_FILE_SEP,
+                        value.indexOf(HostAwareFile.HOST_FILE_SEP,
                                 hostFileIndex + 1);
                 if (rsyncModuleIndex > -1)
                 {

@@ -150,6 +150,7 @@ public final class RemotePathMover implements IStoreMover
                 new InactivityMonitor(new RemoteStoreCopyActivitySensor(destinationStore, item),
                         new IInactivityObserver()
                             {
+                                @Override
                                 public void update(long inactiveSinceMillis,
                                         String descriptionOfInactivity)
                                 {
@@ -336,6 +337,7 @@ public final class RemotePathMover implements IStoreMover
     // IStoreHandler
     //
 
+    @Override
     public final MoveStatus move(final StoreItem item)
     {
         if (isDeletionInProgress(item))
@@ -421,6 +423,7 @@ public final class RemotePathMover implements IStoreMover
         return MoveStatus.COPY_FAILED;
     }
 
+    @Override
     public boolean isStopped()
     {
         return stopped;

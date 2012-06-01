@@ -60,35 +60,40 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         super(file, description, factory, skipAccessibilityTest);
         this.localImpl = new FileStoreLocal(file, description, factory, skipAccessibilityTest);
         this.localImplMonitored =
-                MonitoringProxy.create(IFileStore.class, localImpl).timing(
-                        TimingParameters.create(lastChangedTimeoutMillis)).get();
+                MonitoringProxy.create(IFileStore.class, localImpl)
+                        .timing(TimingParameters.create(lastChangedTimeoutMillis)).get();
     }
 
     //
     // FileStore
     //
 
+    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
+    @Override
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
+    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return localImpl.getLocationDescription(item);
     }
 
+    @Override
     public StoreItem asStoreItem(String locationDescription)
     {
         return localImpl.asStoreItem(locationDescription);
     }
 
+    @Override
     public final Status delete(final StoreItem item)
     {
         try
@@ -101,6 +106,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         }
     }
 
+    @Override
     public final BooleanStatus exists(final StoreItem item)
     {
         try
@@ -118,6 +124,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         }
     }
 
+    @Override
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
@@ -130,6 +137,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         }
     }
 
+    @Override
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
@@ -149,6 +157,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         }
     }
 
+    @Override
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         try
@@ -174,6 +183,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
 
         String storedMessage = null;
 
+        @Override
         public void log(LogLevel level, String message)
         {
             this.storedLevel = level;
@@ -182,7 +192,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
 
     }
 
-    @SuppressWarnings("null")
+    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final StoringLogger storingLoggerOrNull =
@@ -204,11 +214,13 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         return itemsOrNull;
     }
 
+    @Override
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
     {
         return localImpl.getHighwaterMarkWatcher();
     }
 
+    @Override
     public boolean isRemote()
     {
         return true;

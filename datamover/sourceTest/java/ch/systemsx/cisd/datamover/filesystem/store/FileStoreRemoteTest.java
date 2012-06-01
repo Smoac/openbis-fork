@@ -118,6 +118,7 @@ public final class FileStoreRemoteTest
             {
                 private static final long serialVersionUID = 1L;
 
+                @Override
                 public List<String> createSshCommand(String command, String host)
                 {
                     return Arrays.asList("bash", "-c", command);

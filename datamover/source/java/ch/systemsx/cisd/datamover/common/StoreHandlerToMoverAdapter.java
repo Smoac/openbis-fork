@@ -35,11 +35,13 @@ public class StoreHandlerToMoverAdapter implements IStoreHandler
         this.mover = mover;
     }
 
+    @Override
     public boolean isStopped()
     {
         return mover.isStopped();
     }
 
+    @Override
     public boolean handle(StoreItem item)
     {
         return mover.move(item) == MoveStatus.MOVE_OK;

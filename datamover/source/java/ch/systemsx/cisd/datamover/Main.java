@@ -64,6 +64,7 @@ public final class Main
                     // UncaughtExceptionHandler
                     //
 
+                    @Override
                     public final void uncaughtException(final Thread t, final Throwable e)
                     {
                         notificationLog.error("An exception has occurred [thread: '" + t.getName()

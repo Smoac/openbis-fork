@@ -83,29 +83,34 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         return highwaterMarkWatcher;
     }
 
+    @Override
     public final Status delete(final StoreItem item)
     {
         return remover.remove(getChildFile(item));
     }
 
+    @Override
     public final BooleanStatus exists(final StoreItem item)
     {
         boolean exists = getChildFile(item).exists();
         return BooleanStatus.createFromBoolean(exists);
     }
 
+    @Override
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
         return lastModificationChecker.lastChanged(item, stopWhenFindYounger);
     }
 
+    @Override
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return lastModificationChecker.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
+    @Override
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         if (skipAccessibilityTest)
@@ -136,11 +141,13 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;
     }
 
+    @Override
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
@@ -156,11 +163,13 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         }
     }
 
+    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return this;
     }
 
+    @Override
     public final boolean createNewFile(final StoreItem item)
     {
         try
@@ -175,22 +184,26 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         }
     }
 
+    @Override
     public final File tryMoveLocal(final StoreItem sourceItem, final File destinationDir,
             final String newFilePrefix)
     {
         return mover.tryMove(getChildFile(sourceItem), destinationDir, newFilePrefix);
     }
 
+    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
     }
 
+    @Override
     public StoreItem asStoreItem(String locationDescription)
     {
         return new StoreItem(FilenameUtils.getName(locationDescription));
     }
 
+    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final File[] files = FileUtilities.tryListFiles(getPath(), loggerOrNull);
@@ -204,6 +217,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         }
     }
 
+    @Override
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
     {
         return highwaterMarkWatcher;

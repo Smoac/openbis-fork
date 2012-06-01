@@ -62,22 +62,26 @@ final class FileScannedStore implements IScannedStore
     // IScannedStore
     //
 
+    @Override
     public final boolean existsOrError(final StoreItem item)
     {
         final BooleanStatus status = fileStore.exists(item);
         return status.isError() || status.getResult() == true;
     }
 
+    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return fileStore.getLocationDescription(item);
     }
 
+    @Override
     public StoreItem asStoreItem(String locationDescription)
     {
         return fileStore.asStoreItem(locationDescription);
     }
 
+    @Override
     public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)
     {
         // Older items will be handled before newer items. This becomes important when doing online
@@ -90,6 +94,7 @@ final class FileScannedStore implements IScannedStore
         return items;
     }
 
+    @Override
     public final StoreItem[] tryFilterReadyToProcess(final StoreItem[] items,
             ISimpleLogger loggerOrNull)
     {
@@ -131,6 +136,7 @@ final class FileScannedStore implements IScannedStore
         return fileStore.toString();
     }
 
+    @Override
     public File asFile(StoreItem item) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException("This operation is unsupported in this implementation");

@@ -37,6 +37,7 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
     /**
      * Returns <code>true</code> if the file store is accessible only remote from this server.
      */
+    @Override
     public boolean isRemote();
     
     /**
@@ -69,9 +70,11 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
     public BooleanStatus exists(StoreItem item);
 
     /** @see ILastModificationChecker#lastChanged(StoreItem, long) */
+    @Override
     public StatusWithResult<Long> lastChanged(StoreItem item, long stopWhenFindYounger);
 
     /** @see ILastModificationChecker#lastChangedRelative(StoreItem, long) */
+    @Override
     public StatusWithResult<Long> lastChangedRelative(StoreItem item,
             long stopWhenFindYoungerRelative);
 

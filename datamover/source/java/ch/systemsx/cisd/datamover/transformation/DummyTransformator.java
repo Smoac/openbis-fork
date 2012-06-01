@@ -40,6 +40,7 @@ public class DummyTransformator implements ITransformator
         operationLog.info("Dummy transformator created with properties: " + properties);
     }
 
+    @Override
     public Status transform(File path)
     {
         operationLog.info("Dummy transformation of '" + path.getAbsolutePath() + "'");

@@ -147,6 +147,7 @@ public class DataCompletedFilter implements IStoreItemFilter
     // IStoreItemFilter
     //
 
+    @Override
     public final boolean accept(final StoreItem item)
     {
         final List<String> commandLine = createCommand(item);

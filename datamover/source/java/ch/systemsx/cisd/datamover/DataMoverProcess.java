@@ -97,6 +97,7 @@ class DataMoverProcess implements ITerminable, ITriggerable
     // ITerminable
     //
 
+    @Override
     public boolean terminate()
     {
         if (operationLog.isDebugEnabled())
@@ -116,6 +117,7 @@ class DataMoverProcess implements ITerminable, ITriggerable
     // ITriggerable
     //
 
+    @Override
     public final void trigger()
     {
         recover();

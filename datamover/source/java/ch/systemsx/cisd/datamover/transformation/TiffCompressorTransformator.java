@@ -116,6 +116,7 @@ public class TiffCompressorTransformator implements ITransformator
     // ITransformator
     //
 
+    @Override
     public Status transform(File path)
     {
         // NOTE:

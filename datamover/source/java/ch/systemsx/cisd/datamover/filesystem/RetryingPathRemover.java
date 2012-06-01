@@ -74,6 +74,7 @@ final class RetryingPathRemover implements IPathRemover
     private final static Status STATUS_FAILED_DELETION =
             Status.createError("Failed to remove path.");
 
+    @Override
     public Status remove(File path)
     {
         assert path != null;
@@ -138,22 +139,26 @@ final class RetryingPathRemover implements IPathRemover
         }
 
         // called each time when one file gets deleted
+        @Override
         synchronized public void update()
         {
             lastActivityMillis = System.currentTimeMillis();
         }
 
+        @Override
         synchronized public String describeInactivity(long now)
         {
             return "No delete activity of path " + path.getPath() + " for "
                     + DurationFormatUtils.formatDurationHMS(now - lastActivityMillis);
         }
 
+        @Override
         synchronized public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
         {
             return lastActivityMillis;
         }
 
+        @Override
         synchronized public boolean hasActivityMoreRecentThan(long thresholdMillis)
         {
             return (System.currentTimeMillis() - lastActivityMillis) < thresholdMillis;
@@ -167,6 +172,7 @@ final class RetryingPathRemover implements IPathRemover
         final DeleteActivityDetector sensor = new DeleteActivityDetector(path);
         Callable<Boolean> deleteCallable = new Callable<Boolean>()
             {
+                @Override
                 public Boolean call() throws Exception
                 {
                     return FileUtilities.deleteRecursively(path, null, sensor);
@@ -184,6 +190,7 @@ final class RetryingPathRemover implements IPathRemover
         IInactivityObserver inactivityObserver = new IInactivityObserver()
             {
                 // called when inactivity took longer than a timeout
+                @Override
                 public void update(long inactiveSinceMillis, String descriptionOfInactivity)
                 {
                     operationLog.error(descriptionOfInactivity);

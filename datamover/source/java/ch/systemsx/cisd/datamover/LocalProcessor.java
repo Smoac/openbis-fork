@@ -280,6 +280,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     // IPathHandler
     //
 
+    @Override
     public final void handle(final File path)
     {
         stopped = false;
@@ -367,6 +368,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
         }
     }
 
+    @Override
     public boolean isStopped()
     {
         return stopped;
@@ -376,6 +378,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     // IRecoverableTimerTaskFactory
     //
 
+    @Override
     public final TimerTask createRecoverableTimerTask()
     {
         return new TimerTask()

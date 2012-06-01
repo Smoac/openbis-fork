@@ -74,12 +74,14 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     // IFileSysOperationsFactory
     //
 
+    @Override
     public final IPathRemover getRemover()
     {
         return new RetryingPathRemover(parameters.getMaximalNumberOfRetries(),
                 parameters.getIntervalToWaitAfterFailure());
     }
 
+    @Override
     public final IImmutableCopier getImmutableCopier()
     {
         final File rsyncExecutable = findRsyncExecutable();
@@ -87,6 +89,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable);
     }
 
+    @Override
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
     {
         final File rsyncExecutable = findRsyncExecutable();
@@ -95,6 +98,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 parameters.isRsyncOverwrite(), parameters.getExtraRsyncParameters());
     }
 
+    @Override
     public final File tryFindSshExecutable()
     {
         return findExecutable(parameters.getSshExecutable(), SSH_EXECUTABLE_NAME);
@@ -122,17 +126,20 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         return lnExecutableOrNull;
     }
 
+    @Override
     public final IPathMover getMover()
     {
         return new RetryingPathMover(parameters.getMaximalNumberOfRetries(),
                 parameters.getIntervalToWaitAfterFailure());
     }
 
+    @Override
     public String tryGetIncomingRsyncExecutable()
     {
         return parameters.getIncomingRsyncExecutable();
     }
 
+    @Override
     public String tryGetOutgoingRsyncExecutable()
     {
         return parameters.getOutgoingRsyncExecutable();

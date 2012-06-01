@@ -99,11 +99,13 @@ public class SelfTestTest
     {
         return new IPathCopier()
             {
+                @Override
                 public Status copy(File sourcePath, File destinationDirectory)
                 {
                     throw new AssertionError();
                 }
 
+                @Override
                 public Status copyFromRemote(File sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
@@ -111,6 +113,7 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
+                @Override
                 public Status copyToRemote(File sourcePath, File destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
@@ -118,11 +121,13 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
+                @Override
                 public Status copyContent(File sourcePath, File destinationDirectory)
                 {
                     throw new AssertionError();
                 }
 
+                @Override
                 public Status copyContentFromRemote(File sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
@@ -130,6 +135,7 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
+                @Override
                 public Status copyContentToRemote(File sourcePath, File destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
@@ -137,27 +143,32 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
+                @Override
                 public boolean terminate()
                 {
                     return true;
                 }
 
+                @Override
                 public void check() throws EnvironmentFailureException,
                         ConfigurationFailureException
                 {
                 }
 
+                @Override
                 public boolean isRemote()
                 {
                     return false;
                 }
 
+                @Override
                 public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
                         String rsyncPassworFileOrNull, long millisToWaitForCompletion)
                 {
                     throw new AssertionError();
                 }
 
+                @Override
                 public boolean checkRsyncConnectionViaSsh(String host,
                         String rsyncExecutableOnHostOrNull, long millisToWaitForCompletion)
                 {
@@ -217,12 +228,14 @@ public class SelfTestTest
         SelfTest.check(mockCopier, new IFileStore[0], new ISelfTestable[]
             { new ISelfTestable()
                 {
+                    @Override
                     public void check() throws EnvironmentFailureException,
                             ConfigurationFailureException
                     {
                         throw new ConfigurationFailureException("some failure");
                     }
 
+                    @Override
                     public boolean isRemote()
                     {
                         return false;
@@ -239,12 +252,14 @@ public class SelfTestTest
         SelfTest.check(mockCopier, new IFileStore[0], new ISelfTestable[]
             { new ISelfTestable()
                 {
+                    @Override
                     public void check() throws EnvironmentFailureException,
                             ConfigurationFailureException
                     {
                         throw new ConfigurationFailureException("some failure");
                     }
 
+                    @Override
                     public boolean isRemote()
                     {
                         return true;

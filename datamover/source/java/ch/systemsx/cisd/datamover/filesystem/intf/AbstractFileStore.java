@@ -107,6 +107,7 @@ public abstract class AbstractFileStore implements IFileStore
         final File destPath = destinationStore.getPath();
         return new IStoreCopier()
             {
+                @Override
                 public Status copy(final StoreItem item)
                 {
                     final File srcItem = getChildFile(item);
@@ -130,11 +131,13 @@ public abstract class AbstractFileStore implements IFileStore
                     }
                 }
 
+                @Override
                 public boolean terminate()
                 {
                     return copier.terminate();
                 }
 
+                @Override
                 public void check() throws ConfigurationFailureException
                 {
                     if (skipAccessibilityTest)
@@ -159,6 +162,7 @@ public abstract class AbstractFileStore implements IFileStore
                     }
                 }
 
+                @Override
                 public boolean isRemote()
                 {
                     return srcHostOrNull != null || destHostOrNull != null;
@@ -193,12 +197,14 @@ public abstract class AbstractFileStore implements IFileStore
             };
     }
 
+    @Override
     public final StoreItemLocation getStoreItemLocation(final StoreItem item)
     {
         return new StoreItemLocation(tryGetHost(), StoreItem.asFile(getPath(), item)
                 .getAbsolutePath());
     }
 
+    @Override
     public final boolean isParentDirectory(final IFileStore child)
     {
         if (child instanceof AbstractFileStore == false)
@@ -211,6 +217,7 @@ public abstract class AbstractFileStore implements IFileStore
                         getCanonicalPath(getPath()));
     }
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         final BooleanStatus result =

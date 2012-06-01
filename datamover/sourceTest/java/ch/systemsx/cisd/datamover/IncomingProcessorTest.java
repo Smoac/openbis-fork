@@ -110,12 +110,14 @@ public final class IncomingProcessorTest
 
     private ITimerTaskListener timerTaskListener = new ITimerTaskListener()
         {
+            @Override
             public void startRunning()
             {
                 File markerFile = new File(MARKER_FILE);
                 assertEquals("Missing marker file " + markerFile, true, markerFile.exists());
             }
 
+            @Override
             public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
             {
                 File markerFile = new File(MARKER_FILE);
@@ -123,6 +125,7 @@ public final class IncomingProcessorTest
                         .exists());
             }
 
+            @Override
             public void canceling()
             {
                 fail("Invocation of 'canceling()' not expected.");
@@ -248,6 +251,7 @@ public final class IncomingProcessorTest
                     one(mover).tryMove(markerFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
                     {
+                        @Override
                         public Object invoke(Invocation invocation) throws Throwable
                         {
                             final File result =
@@ -260,6 +264,7 @@ public final class IncomingProcessorTest
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
                         {
+                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final File result =
@@ -309,6 +314,7 @@ public final class IncomingProcessorTest
                     one(mover).tryMove(markerFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
                     {
+                        @Override
                         public Object invoke(Invocation invocation) throws Throwable
                         {
                             final File result =

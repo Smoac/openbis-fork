@@ -60,6 +60,7 @@ public class RetryingPathRemoverTest
         final DeleteActivityDetector sensor = new DeleteActivityDetector(new File("."));
         Callable<Boolean> callable = new Callable<Boolean>()
             {
+                @Override
                 public Boolean call() throws Exception
                 {
                     for (int i = 0; i < 20; i++)

@@ -52,11 +52,13 @@ class RetryingPathMover implements IPathMover
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
+    @Override
     public File tryMove(final File sourceFile, final File destinationDir)
     {
         return tryMove(sourceFile, destinationDir, "");
     }
 
+    @Override
     public File tryMove(final File sourcePath, final File destinationDirectory,
             final String prefixTemplate)
     {

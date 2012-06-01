@@ -82,6 +82,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
+    @Override
     public final long freeSpaceKb(final HostAwareFile file) throws IOException
     {
         assert file != null : "Unspecified remote file.";

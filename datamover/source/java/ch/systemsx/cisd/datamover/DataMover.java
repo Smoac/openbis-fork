@@ -302,6 +302,7 @@ public final class DataMover
             return new IStoreHandler()
                 {
 
+                    @Override
                     public boolean handle(StoreItem item)
                     {
                         final boolean ok = moveHandler.handle(item);
@@ -312,6 +313,7 @@ public final class DataMover
                         return ok;
                     }
 
+                    @Override
                     public boolean isStopped()
                     {
                         return moveHandler.isStopped();
@@ -352,6 +354,7 @@ public final class DataMover
     {
         return new IStoreHandler()
             {
+                @Override
                 public boolean handle(StoreItem item)
                 {
                     if (prefixBeforeOrNull != null)
@@ -371,6 +374,7 @@ public final class DataMover
                     return ok;
                 }
 
+                @Override
                 public boolean isStopped()
                 {
                     return originalHandler.isStopped();

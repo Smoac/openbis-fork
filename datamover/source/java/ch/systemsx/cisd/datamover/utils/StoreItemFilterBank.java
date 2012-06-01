@@ -46,6 +46,7 @@ public class StoreItemFilterBank implements IStoreItemFilter
     /**
      * Accepts the specified item if it accepted by all filters.
      */
+    @Override
     public boolean accept(StoreItem item)
     {
         for (IStoreItemFilter filter : filters)

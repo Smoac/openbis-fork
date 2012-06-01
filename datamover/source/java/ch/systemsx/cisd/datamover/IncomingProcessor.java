@@ -164,6 +164,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         return RemoteMonitoredMoverFactory.create(sourceStore, destinationStore, parameters, false);
     }
 
+    @Override
     public TimerTask createRecoverableTimerTask()
     {
         return new IncomingProcessorRecoveryTask();
@@ -212,6 +213,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 // IStoreHandler
                 //
 
+                @Override
                 public final boolean handle(final StoreItem sourceItem)
                 {
                     final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
@@ -224,6 +226,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                     }
                 }
 
+                @Override
                 public boolean isStopped()
                 {
                     return (incomingStore.tryAsExtended() == null) ? remotePathMover.isStopped()
