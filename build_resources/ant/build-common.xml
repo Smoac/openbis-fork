@@ -88,8 +88,8 @@
 		<javac srcdir="${src}"
 		       destdir="${classes}"
 		       classpath="${ecp}"
-		       source="1.5"
-		       target="1.5"
+		       source="1.6"
+		       target="1.6"
 			     encoding="UTF-8"
 		       debug="true">
 			<compilerarg line="-warn:none" />
