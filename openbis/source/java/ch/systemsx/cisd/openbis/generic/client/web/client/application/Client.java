@@ -380,6 +380,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                                         History.newItem(lastHistoryOrNull);
                                     }
 
+                                    @SuppressWarnings("deprecation")
                                     @Override
                                     public void onFailure(Throwable reason)
                                     {
