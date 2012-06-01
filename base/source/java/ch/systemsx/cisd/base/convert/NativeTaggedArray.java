@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.base.convert;
 
-import static ch.systemsx.cisd.base.convert.NativeData.FLOAT_SIZE;
 import static ch.systemsx.cisd.base.convert.NativeData.DOUBLE_SIZE;
+import static ch.systemsx.cisd.base.convert.NativeData.FLOAT_SIZE;
 import static ch.systemsx.cisd.base.convert.NativeData.INT_SIZE;
 import static ch.systemsx.cisd.base.convert.NativeData.LONG_SIZE;
 import static ch.systemsx.cisd.base.convert.NativeData.SHORT_SIZE;
 
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
 import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
-import ch.systemsx.cisd.base.mdarray.MDArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
@@ -101,8 +100,8 @@ public class NativeTaggedArray
         }
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
-        NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encodingOrNull
-                .getByteOrder());
+        NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank,
+                encodingOrNull.getByteOrder());
         return new NativeArrayTag(encodingOrNull, dimensions);
     }
 
@@ -213,8 +212,8 @@ public class NativeTaggedArray
             return null;
         }
         final float[] intData = new float[length];
-        NativeData.copyByteToFloat(data, headerSize, intData, 0, intData.length, encoding
-                .getByteOrder());
+        NativeData.copyByteToFloat(data, headerSize, intData, 0, intData.length,
+                encoding.getByteOrder());
         return new MDFloatArray(intData, dimensions);
     }
 
@@ -325,8 +324,8 @@ public class NativeTaggedArray
             return null;
         }
         final double[] intData = new double[length];
-        NativeData.copyByteToDouble(data, headerSize, intData, 0, intData.length, encoding
-                .getByteOrder());
+        NativeData.copyByteToDouble(data, headerSize, intData, 0, intData.length,
+                encoding.getByteOrder());
         return new MDDoubleArray(intData, dimensions);
     }
 
@@ -439,8 +438,8 @@ public class NativeTaggedArray
             return null;
         }
         final short[] intData = new short[length];
-        NativeData.copyByteToShort(data, headerSize, intData, 0, intData.length, encoding
-                .getByteOrder());
+        NativeData.copyByteToShort(data, headerSize, intData, 0, intData.length,
+                encoding.getByteOrder());
         return new MDShortArray(intData, dimensions);
     }
 
@@ -551,8 +550,8 @@ public class NativeTaggedArray
             return null;
         }
         final int[] intData = new int[length];
-        NativeData.copyByteToInt(data, headerSize, intData, 0, intData.length, encoding
-                .getByteOrder());
+        NativeData.copyByteToInt(data, headerSize, intData, 0, intData.length,
+                encoding.getByteOrder());
         return new MDIntArray(intData, dimensions);
     }
 
@@ -665,8 +664,8 @@ public class NativeTaggedArray
             return null;
         }
         final long[] longData = new long[length];
-        NativeData.copyByteToLong(data, headerSize, longData, 0, longData.length, encoding
-                .getByteOrder());
+        NativeData.copyByteToLong(data, headerSize, longData, 0, longData.length,
+                encoding.getByteOrder());
         return new MDLongArray(longData, dimensions);
     }
 
