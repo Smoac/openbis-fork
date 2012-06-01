@@ -73,6 +73,7 @@ public class QueryNodeDialog extends AbstractDescriptionBasedNodeDialog<QueryDes
     {
         queryComboBox.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     QueryDescription queryDescription = (QueryDescription) e.getItem();
@@ -115,6 +116,7 @@ public class QueryNodeDialog extends AbstractDescriptionBasedNodeDialog<QueryDes
         List<QueryDescription> queries = facade.listQueries();
         Collections.sort(queries, new Comparator<QueryDescription>()
             {
+                @Override
                 public int compare(QueryDescription d1, QueryDescription d2)
                 {
                     return d1.getName().compareTo(d2.getName());

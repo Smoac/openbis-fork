@@ -117,6 +117,7 @@ public class TableModelBuilder
             return false;
         }
 
+        @Override
         public int getRowCount()
         {
             int rowCount = 0;
@@ -127,6 +128,7 @@ public class TableModelBuilder
             return rowCount;
         }
 
+        @Override
         public int getColumnCount()
         {
             return columns.size();
@@ -138,6 +140,7 @@ public class TableModelBuilder
             return columns.get(columnIndex).getName();
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex)
         {
             return columns.get(columnIndex).getValue(rowIndex);
@@ -157,6 +160,7 @@ public class TableModelBuilder
         final List<Column> columns = new ArrayList<Column>(propertyColumns.values());
         Collections.sort(columns, new Comparator<Column>()
             {
+                @Override
                 public int compare(Column c1, Column c2)
                 {
                     return c1.getName().compareTo(c2.getName());

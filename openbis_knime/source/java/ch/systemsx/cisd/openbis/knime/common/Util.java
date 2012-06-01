@@ -171,12 +171,15 @@ public class Util
     {
         final JTextField filterField = new JTextField();
         filterField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 newFilter();
             }
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 newFilter();
             }
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 newFilter();
             }

@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-import javax.activation.MimetypesFileTypeMap;
+import javax.activation.FileTypeMap;
 
 import org.knime.core.data.url.MIMEType;
 import org.knime.core.data.url.URIContent;
@@ -136,7 +136,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     
     private MIMEType createType()
     {
-        String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
+        String contentType = FileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
         return MIMEType.getType(contentType);
     }
     

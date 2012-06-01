@@ -74,6 +74,7 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         JButton button = new JButton("...");
         button.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     chooseDataSet(createFacade());
@@ -92,6 +93,7 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         List<ReportDescription> descriptions = facade.listTableReportDescriptions();
         Collections.sort(descriptions, new Comparator<ReportDescription>()
             {
+                @Override
                 public int compare(ReportDescription o1, ReportDescription o2)
                 {
                     return o1.getLabel().compareTo(o2.getLabel());

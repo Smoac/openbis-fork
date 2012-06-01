@@ -80,6 +80,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         JPanel panel = new JPanel(new GridBagLayout());
         dataSetCodeField = createTextFieldWithButton("Data Set Code", new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     chooseDataSet(createFacade());
@@ -87,6 +88,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             }, panel);
         filePathField = createTextFieldWithButton("File", new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     chooseDataSetFile();
@@ -95,6 +97,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         downloadsPathField =
                 createTextFieldWithButton("Location of Downloads", new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             chooseTempFolder();
@@ -126,6 +129,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         List<ReportDescription> descriptions = facade.listTableReportDescriptions();
         Collections.sort(descriptions, new Comparator<ReportDescription>()
             {
+                @Override
                 public int compare(ReportDescription o1, ReportDescription o2)
                 {
                     return o1.getLabel().compareTo(o2.getLabel());
