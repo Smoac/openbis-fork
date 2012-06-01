@@ -44,6 +44,7 @@ public class PlasmidTypeExtractor extends FileTypeExtractor implements ITypeExtr
         DataSetTypeOracle.initializeMapping(properties);
     }
 
+    @Override
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
         final String code =
@@ -51,16 +52,19 @@ public class PlasmidTypeExtractor extends FileTypeExtractor implements ITypeExtr
         return new DataSetType(code);
     }
 
+    @Override
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
         return new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return null;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return DataSetTypeOracle.extractDataSetTypeInfo(incomingDataSetPath).isMeasured();

@@ -56,6 +56,7 @@ public class PlasmidDataSetHandler implements IDataSetHandler
         this.delegator = delegator;
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
         if (dataSet.isDirectory() == false)
