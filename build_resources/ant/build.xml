@@ -173,4 +173,17 @@
     </copy> 
   </target> 
 
+  <target name="build-target" depends="checkout">
+    <exec executable="ant" failonerror="true">
+      <arg value="-lib"/>
+      <arg value="${dir}/build_resources/lib/ecj.jar"/>
+      <arg value="-f"/>
+      <arg value="${dir}/${name}/build/build.xml"/>
+      <arg value="${target}"/>
+    </exec>
+    <copy todir="${result.dir}">
+      <fileset dir="${dir}/${name}/${dist}"/>
+    </copy>
+  </target>
+
 </project>
