@@ -424,9 +424,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     }
 
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
-            String dataSetCode, String dataSetDirectory, int testId, boolean withContainer)
+            String dataSetCode, String dataSetDirectory, int testId, int dataSetsRegistered)
     {
-        assertEquals(1 + (withContainer ? 1 : 0), recordedObject.getDataSetRegistrations().size());
+        assertEquals(dataSetsRegistered, recordedObject.getDataSetRegistrations().size());
 
         NewExternalData dataSet = recordedObject.getDataSetRegistrations().get(0);
 
@@ -459,7 +459,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
             String dataSetCode, String dataSetDirectory, int testId)
     {
-        assertStorageProcess(recordedObject, dataSetCode, dataSetDirectory, testId, false);
+        assertStorageProcess(recordedObject, dataSetCode, dataSetDirectory, testId, 1);
         assertEquals(1, recordedObject.getDataSetRegistrations().size());
     }
 

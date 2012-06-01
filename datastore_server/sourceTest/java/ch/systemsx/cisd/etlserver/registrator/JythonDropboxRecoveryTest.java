@@ -631,21 +631,22 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         makeFileSystemAvailable(workingDirectory);
 
         /*
-         * Third run - Start after the post registration hook, and run the storage - this will succeed now.
-         * Throw exception from storage confirmation. 
+         * Third run - Start after the post registration hook, and run the storage - this will
+         * succeed now. Throw exception from storage confirmation.
          */
 
         handleAndMakeRecoverableImmediately(testCase);
-        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory); //assert no messages
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory); // assert no messages
         /*
-         * Last run. now only do the storage confirm part. After this is done, the registration should be complete.
+         * Last run. now only do the storage confirm part. After this is done, the registration
+         * should be complete.
          */
-        
+
         handler.handle(markerFile);
         // setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
         // now the storage confirmation has succeeded
         assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
-                "sub_data_set_1", 0, includeContainer);
+                "sub_data_set_1", 0, includeContainer ? 2 : 1);
 
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
