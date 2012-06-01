@@ -126,6 +126,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         super(requestContextProvider);
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         WebClientConfiguration webClientConfiguration = getWebClientConfiguration();
@@ -139,6 +140,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                 AnnotationMatchingPointcut.forMethodAnnotation(CacheData.class);
         proxyFactory.addAdvisor(new DefaultPointcutAdvisor(pointcut, new MethodInterceptor()
             {
+                @Override
                 public Object invoke(MethodInvocation methodInvocation) throws Throwable
                 {
                     // assuming first argument is sessionToken which shouldn't be a part of the key
@@ -176,6 +178,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
     }
 
+    @Override
     public TypedTableResultSet<Sample> listParentlessMsInjectionSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -185,6 +188,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                 criteria);
     }
 
+    @Override
     public TypedTableResultSet<Sample> listBiologicalSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -193,6 +197,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return listEntities(new BiologicalSampleProvider(commonServer, sessionToken), criteria);
     }
 
+    @Override
     public void linkSamples(Sample parentSample, List<Sample> childSamples)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -200,6 +205,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         linkSamples(sessionToken, parentSample.getIdentifier(), childSamples);
     }
 
+    @Override
     public void createAndLinkSamples(NewSample newBiologicalSample, List<Sample> msInjectionSamples)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -227,12 +233,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public Vocabulary getTreatmentTypeVocabulary()
     {
         final String sessionToken = getSessionToken();
         return server.getTreatmentTypeVocabulary(sessionToken);
     }
 
+    @Override
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             TechId experimentID, String treatmentTypeOrNull)
     {
@@ -250,6 +258,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public TypedTableResultSet<ProteinInfo> listProteinsByExperiment(
             ListProteinByExperimentCriteria criteria)
     {
@@ -271,11 +280,13 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public String prepareExportProteins(TableExportCriteria<TableModelRowWithObject<ProteinInfo>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public TypedTableResultSet<ProteinSummary> listProteinSummariesByExperiment(
             ListProteinSummaryByExperimentCriteria criteria)
     {
@@ -293,18 +304,21 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
+    @Override
     public String prepareExportProteinSummary(
             TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
     {
         final String sessionToken = getSessionToken();
         return server.getProteinByExperiment(sessionToken, experimentID, proteinReferenceID);
     }
 
+    @Override
     public TypedTableResultSet<ProteinSequence> listSequencesByProteinReference(
             ListProteinSequenceCriteria criteria)
     {
@@ -314,12 +328,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                 criteria);
     }
 
+    @Override
     public String prepareExportProteinSequences(
             TableExportCriteria<TableModelRowWithObject<ProteinSequence>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public TypedTableResultSet<DataSetProtein> listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria)
     {
@@ -329,12 +345,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                         criteria.getProteinReferenceID()), criteria);
     }
 
+    @Override
     public String prepareExportDataSetProteins(
             TableExportCriteria<TableModelRowWithObject<DataSetProtein>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public TypedTableResultSet<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
             ListSampleAbundanceByProteinCriteria criteria)
     {
@@ -345,6 +363,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return listEntities(provider, criteria);
     }
 
+    @Override
     public String prepareExportProteinRelatedSamples(
             TableExportCriteria<TableModelRowWithObject<ProteinRelatedSample>> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -352,6 +371,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     public TypedTableResultSet<Sample> listRawDataSamples(
             IResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -365,12 +385,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return new TypedTableResultSet<Sample>(resultSet);
     }
 
+    @Override
     public String prepareExportRawDataSamples(
             TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs,
             String dataSetType)

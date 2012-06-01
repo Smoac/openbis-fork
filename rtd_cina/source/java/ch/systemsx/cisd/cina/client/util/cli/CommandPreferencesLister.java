@@ -113,6 +113,7 @@ public class CommandPreferencesLister extends
         {
             Collections.sort(results, new Comparator<DataSet>()
                 {
+                    @Override
                     public int compare(DataSet o1, DataSet o2)
                     {
                         // We want earlier data sets later in the list
@@ -139,12 +140,14 @@ public class CommandPreferencesLister extends
         super(new CommandListPreferencesArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new PreferencesListerExecutor(this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "listprefs";

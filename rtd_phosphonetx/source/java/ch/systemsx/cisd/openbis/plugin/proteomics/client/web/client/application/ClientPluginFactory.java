@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
@@ -81,6 +82,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         return new PhosphoNetXModule(getViewContext());
     }
 
+    @Override
     public Set<String> getEntityTypeCodes(EntityKind entityKind)
     {
         if (entityKind == EntityKind.EXPERIMENT)
@@ -90,6 +92,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         return Collections.emptySet();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
@@ -184,7 +187,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     @Override
                     public String getId()
                     {
-                        return GenericExperimentEditForm.createId(identifiable,
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable,
                                 EntityKind.EXPERIMENT);
                     }
 

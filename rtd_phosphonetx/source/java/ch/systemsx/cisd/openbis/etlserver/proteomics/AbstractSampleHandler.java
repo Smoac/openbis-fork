@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
 /**
@@ -52,8 +51,6 @@ abstract class AbstractSampleHandler extends AbstractHandler
 
     protected final ExperimentIdentifier experimentIdentifier;
 
-    private final SpaceIdentifier space;
-
     private final Experiment experiment;
 
     private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
@@ -72,8 +69,6 @@ abstract class AbstractSampleHandler extends AbstractHandler
         this.experiment = experiment;
         this.delimiter = delimiter;
         this.restrictedSampleResolving = restrictedSampleResolving;
-        String databaseInstanceCode = experimentIdentifier.getDatabaseInstanceCode();
-        space = new SpaceIdentifier(databaseInstanceCode, CommonConstants.MS_DATA_SPACE);
     }
     
     protected SampleOrError getOrCreateSampleOrError(String sampleNameAndMore)

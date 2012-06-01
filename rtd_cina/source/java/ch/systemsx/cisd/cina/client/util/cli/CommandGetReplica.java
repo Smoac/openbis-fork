@@ -126,12 +126,14 @@ public class CommandGetReplica extends
         super(new CommandGetReplicaArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new GetReplicaExecutor(this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "getreplica";

@@ -38,6 +38,7 @@ public class CinaSundryStorageProcessor extends DefaultStorageProcessor implemen
         super(properties);
     }
 
+    @Override
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
         return true;

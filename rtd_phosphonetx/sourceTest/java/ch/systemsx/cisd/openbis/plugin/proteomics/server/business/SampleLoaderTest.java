@@ -43,6 +43,7 @@ public class SampleLoaderTest extends AbstractLoaderTestCase
         List<Sample> samples = loader.listSamplesWithParentsByTypeAndSpace("CELL_PLATE", "CISD");
         Collections.sort(samples, new Comparator<Sample>()
             {
+                @Override
                 public int compare(Sample s1, Sample s2)
                 {
                     return s1.getCode().compareTo(s2.getCode());

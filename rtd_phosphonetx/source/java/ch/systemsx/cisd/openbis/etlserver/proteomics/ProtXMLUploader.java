@@ -100,6 +100,7 @@ public class ProtXMLUploader implements IDataSetUploader
         loader = new ProtXMLLoader(PropertyUtils.getBoolean(properties, VALIDATING_XML, false));
     }
 
+    @Override
     public void upload(File dataSet, DataSetInformation dataSetInformation)
     {
         long time = System.currentTimeMillis();
@@ -126,6 +127,7 @@ public class ProtXMLUploader implements IDataSetUploader
         }
     }
 
+    @Override
     public void commit()
     {
         try
@@ -137,6 +139,7 @@ public class ProtXMLUploader implements IDataSetUploader
         }
     }
 
+    @Override
     public void rollback()
     {
         try

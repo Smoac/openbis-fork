@@ -47,6 +47,7 @@ class SampleProvider implements ISampleProvider
         this.boFactory = boFactory;
     }
     
+    @Override
     public void loadByExperimentID(TechId experimentID)
     {
         samplesByPermIDs = new HashMap<String, Sample>();
@@ -78,6 +79,7 @@ class SampleProvider implements ISampleProvider
         gatherSamplesAndAncestorsRecursively(lister, criteria3);
     }
 
+    @Override
     public Sample getSample(String permID)
     {
         Sample sample = samplesByPermIDs.get(permID);

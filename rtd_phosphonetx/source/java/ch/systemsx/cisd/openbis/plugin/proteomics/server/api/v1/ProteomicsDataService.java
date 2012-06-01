@@ -84,17 +84,20 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         this.service = service;
     }
 
+    @Override
     public String tryToAuthenticateAtRawDataServer(String userID, String userPassword)
     {
         SessionContextDTO session = tryToAuthenticate(userID, userPassword);
         return session == null ? null : session.getSessionToken();
     }
 
+    @Override
     public IProteomicsDataService createLogger(IInvocationLoggerContext context)
     {
         return new ProteomicsDataServiceLogger(getSessionManager(), context);
     }
 
+    @Override
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID)
     {
         checkSession(sessionToken);
@@ -170,6 +173,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return transformedDataSet;
     }
 
+    @Override
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken)
     {
@@ -205,6 +209,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return new DataStoreServerProcessingPluginInfo(key, label, translatedCodes);
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
@@ -221,6 +226,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         }
     }
 
+    @Override
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes)
     {
@@ -235,12 +241,14 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         }
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment> listSearchExperiments(
             String sessionToken, String userID)
     {
         return listExperiments(sessionToken, userID, MS_SEARCH);
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment> listExperiments(
             String sessionToken, String userID, String experimentTypeCode)
     {
@@ -279,6 +287,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return e;
     }
 
+    @Override
     public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
             long experimentID)
     {
@@ -306,6 +315,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         }
     }
 
+    @Override
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
@@ -313,6 +323,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
                 searchExperimentIDs);
     }
 
+    @Override
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
     {
@@ -355,11 +366,13 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return session;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 3;

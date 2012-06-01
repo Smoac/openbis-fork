@@ -49,6 +49,7 @@ public class ProteinViewLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         String experimentPermID = getMandatoryParameter(locator, EXPERIMENT_PERM_ID);

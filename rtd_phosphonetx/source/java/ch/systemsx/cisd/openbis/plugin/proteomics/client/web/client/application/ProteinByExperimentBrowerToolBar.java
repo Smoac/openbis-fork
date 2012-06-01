@@ -222,6 +222,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         aggregateOriginalCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
             {
 
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     update();
@@ -299,6 +300,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             browserGrid.setLoadMaskImmediately(true);
             browserGrid.setPostRefreshCallback(new IDataRefreshCallback()
                 {
+                    @Override
                     public void postRefresh(boolean wasSuccessful)
                     {
                         if (summaryGrid != null)

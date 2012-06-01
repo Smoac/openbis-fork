@@ -52,21 +52,25 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         this.sessionToken = sessionToken;
     }
 
+    @Override
     public String getSessionToken()
     {
         return sessionToken;
     }
 
+    @Override
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos()
     {
         return service.listDataStoreServerProcessingPluginInfos(sessionToken);
     }
 
+    @Override
     public List<MsInjectionDataInfo> listRawDataSamples(String userID)
     {
         return service.listRawDataSamples(sessionToken, userID);
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
@@ -75,12 +79,14 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
                 dataSetType);
     }
 
+    @Override
     public void processDataSets(String userID, String dataSetProcessingKey,
             List<String> dataSetCodes)
     {
         service.processDataSets(sessionToken, userID, dataSetProcessingKey, dataSetCodes);
     }
 
+    @Override
     public List<Project> listProjects(String userID)
     {
         Map<String, Set<Role>> namedRoleSets = generalInfoService.listNamedRoleSets(sessionToken);
@@ -109,23 +115,27 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         return projects;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public List<Experiment> listSearchExperiments(String userID)
     {
         return service.listSearchExperiments(sessionToken, userID);
     }
 
+    @Override
     public List<Experiment> listExperiments(@SuppressWarnings("hiding") String sessionToken,
             String userID, String experimentTypeCode)
     {
         return service.listExperiments(sessionToken, userID, experimentTypeCode);
     }
 
+    @Override
     public List<DataSet> listDataSetsByExperiment(String userID, long experimentID)
     {
         return service.listDataSetsByExperiment(sessionToken, userID, experimentID);
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void processSearchData(String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
@@ -133,6 +143,7 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         service.processSearchData(sessionToken, userID, dataSetProcessingKey, searchExperimentIDs);
     }
 
+    @Override
     public void processProteinResultDataSets(@SuppressWarnings("hiding") String sessionToken,
             String userID, String dataSetProcessingKey, String experimentTypeCode,
             long[] experimentIDs)
@@ -141,6 +152,7 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
                 experimentTypeCode, experimentIDs);
     }
 
+    @Override
     public void logout()
     {
         generalInfoService.logout(sessionToken);

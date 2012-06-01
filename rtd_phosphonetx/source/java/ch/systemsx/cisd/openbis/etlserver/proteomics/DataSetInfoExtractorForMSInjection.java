@@ -96,6 +96,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         super(service);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

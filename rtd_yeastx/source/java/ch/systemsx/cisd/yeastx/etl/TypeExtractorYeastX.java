@@ -44,11 +44,13 @@ public class TypeExtractorYeastX extends FileTypeExtractor implements ITypeExtra
         super(properties);
     }
 
+    @Override
     public final LocatorType getLocatorType(final File incomingDataSetPath)
     {
         return new LocatorType(LOCATOR_TYPE_CODE);
     }
 
+    @Override
     public final DataSetType getDataSetType(final File incomingDataSetPath)
     {
         String fileExtension = getExtension(incomingDataSetPath);
@@ -63,11 +65,13 @@ public class TypeExtractorYeastX extends FileTypeExtractor implements ITypeExtra
         return new DataSetType(datasetType);
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return null;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return getExtension(incomingDataSetPath).equalsIgnoreCase(ConstantsYeastX.MZXML_EXT);

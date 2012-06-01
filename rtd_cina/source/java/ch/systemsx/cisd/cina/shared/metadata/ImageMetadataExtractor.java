@@ -105,6 +105,7 @@ public class ImageMetadataExtractor implements IMetadataExtractor
      * Get the metadata extracted from the file in the form of a map. The method {@link #prepare}
      * must be called before getting the metadata map.
      */
+    @Override
     public Map<String, String> getMetadataMap()
     {
         checkPrepared();

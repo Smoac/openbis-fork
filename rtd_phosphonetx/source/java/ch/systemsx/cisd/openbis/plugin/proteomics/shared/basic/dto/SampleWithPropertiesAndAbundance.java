@@ -49,6 +49,7 @@ public class SampleWithPropertiesAndAbundance implements Serializable,
 
     private double abundance;
 
+    @Override
     public final Long getId()
     {
         return id;
@@ -69,6 +70,7 @@ public class SampleWithPropertiesAndAbundance implements Serializable,
         this.identifier = identifier;
     }
 
+    @Override
     public final String getCode()
     {
         return code;
@@ -79,11 +81,13 @@ public class SampleWithPropertiesAndAbundance implements Serializable,
         this.code = code;
     }
 
+    @Override
     public EntityType getEntityType()
     {
         return getSampleType();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
@@ -99,6 +103,7 @@ public class SampleWithPropertiesAndAbundance implements Serializable,
         this.sampleType = sampleType;
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return properties;
@@ -119,6 +124,7 @@ public class SampleWithPropertiesAndAbundance implements Serializable,
         this.abundance = abundance;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

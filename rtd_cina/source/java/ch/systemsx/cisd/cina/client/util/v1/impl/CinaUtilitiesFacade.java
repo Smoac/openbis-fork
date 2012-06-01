@@ -193,6 +193,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
                                 state.getSessionToken(), timeoutInMillis), state.getSessionToken());
     }
 
+    @Override
     public void logout()
     {
         // logout and transition to the unauthenticated state
@@ -200,41 +201,48 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         state = new UnauthenticatedState(generalInformationService);
     }
 
+    @Override
     public String getSessionToken() throws IllegalStateException
     {
         return state.getSessionToken();
     }
 
+    @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.searchForSamples(searchCriteria);
     }
 
+    @Override
     public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException
     {
         return state.generateSampleCode(sampleTypeCode);
     }
 
+    @Override
     public List<Experiment> listVisibleExperiments(String experimentType)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.listVisibleExperiments(experimentType);
     }
 
+    @Override
     public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException
     {
         return state.listDataSets(samples);
     }
 
+    @Override
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException
     {
         return state.getDataSet(dataSetCode);
     }
 
+    @Override
     public List<DataSet> listDataSetsForSample(Sample sample,
             boolean areOnlyDirectlyConnectedIncluded) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException
@@ -265,36 +273,42 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public List<Experiment> listVisibleExperiments(String experimentType)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException
     {
         throw new IllegalStateException("Please log in");
     }
 
+    @Override
     public List<DataSet> listDataSetsForSample(Sample sample,
             boolean areOnlyDirectlyConnectedIncluded) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException
@@ -315,6 +329,7 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
     /**
      * Package visible method used to transfer context information between states.
      */
+    @Override
     public abstract String getSessionToken();
 }
 
@@ -356,6 +371,7 @@ class UnauthenticatedState extends AbstractCinaFacadeState
             throw new AuthorizationFailureException("Login or Password invalid");
     }
 
+    @Override
     public void logout()
     {
         return;
@@ -397,6 +413,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
         throw new IllegalStateException("Already logged in.");
     }
 
+    @Override
     public void logout()
     {
         service.logout(getSessionToken());

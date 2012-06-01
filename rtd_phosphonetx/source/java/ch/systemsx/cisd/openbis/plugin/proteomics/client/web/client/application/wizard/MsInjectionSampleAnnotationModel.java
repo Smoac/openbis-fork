@@ -61,11 +61,13 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
         workflowModel.addTransition(CHOOSE_OR_CREATE_QUESTION, BIOLOGICAL_SAMPLE_CREATING);
     }
 
+    @Override
     public WizardWorkflowModel getWorkflow()
     {
         return workflowModel;
     }
 
+    @Override
     public IWizardState determineNextState(IWizardState currentState)
     {
         return chooseBiologicalSampleFlag ? BIOLOGICAL_SAMPLE_CHOOSING : BIOLOGICAL_SAMPLE_CREATING;
@@ -99,6 +101,7 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
         newBiologicalSample.setExperimentIdentifier(experimentIdentifierOrNull);
     }
 
+    @Override
     public String finish()
     {
         VoidAsyncCallback<Void> callback = new VoidAsyncCallback<Void>(context);

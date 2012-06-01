@@ -89,6 +89,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
     public static abstract class MatcherNoDesc<T> extends BaseMatcher<T>
     {
 
+        @Override
         public void describeTo(Description description)
         {
 
@@ -243,6 +244,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     // Update it with new data
                     one(openbisService).updateSample(with(new MatcherNoDesc<SampleUpdatesDTO>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof SampleUpdatesDTO)
@@ -306,6 +308,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(delegator).handleDataSet(with(new File(path)),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataSetInformation)
@@ -352,6 +355,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(delegator).handleDataSet(with(dataSetFile),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataSetInformation)
@@ -383,6 +387,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(delegator).linkAndHandleDataSet(with(imageDataSetFile1),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataSetInformation)
@@ -406,6 +411,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(delegator).linkAndHandleDataSet(with(imageDataSetFile2),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataSetInformation)
@@ -448,6 +454,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     one(delegator).handleDataSet(with(dataSetFile),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         if (item instanceof DataSetInformation)
@@ -520,6 +527,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     // Create the Grid Prep
                     one(openbisService).registerSample(with(new BaseMatcher<NewSample>()
                         {
+                            @Override
                             @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
@@ -535,6 +543,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                             }
@@ -550,6 +559,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     // Create the Replica
                     one(openbisService).registerSample(with(new MatcherNoDesc<NewSample>()
                         {
+                            @Override
                             @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {

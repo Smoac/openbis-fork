@@ -15,11 +15,13 @@ public final class RawDataSampleValidator implements IValidator<MsInjectionSampl
 {
     private IValidator<Sample> validator = new ParentSampleValidator();
 
+    @Override
     public boolean isValid(PersonPE person, MsInjectionSample sample)
     {
         return validator.isValid(person, sample.getSample());
     }
 
+    @Override
     public void init(IAuthorizationDataProvider authorizationDataProvider)
     {
         // do nothing

@@ -46,6 +46,7 @@ public class QuantMLDataSetInfoExtractor implements IDataSetInfoExtractor
         this.defaultExtractor = new DefaultDataSetInfoExtractor(properties);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

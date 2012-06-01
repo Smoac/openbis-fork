@@ -64,6 +64,7 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         }
     }
     
+    @Override
     public IProteinQueryDAO getProteinQueryDAO(String experimentPermID)
     {
         ExperimentPE experiment = daoFactory.getExperimentDAO().tryGetByPermID(experimentPermID);
@@ -75,6 +76,7 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         return getProteinQueryDAO(experiment);
     }
 
+    @Override
     public IProteinQueryDAO getProteinQueryDAO(TechId experimentID)
     {
         ExperimentPE experiment = daoFactory.getExperimentDAO().tryGetByTechId(experimentID);

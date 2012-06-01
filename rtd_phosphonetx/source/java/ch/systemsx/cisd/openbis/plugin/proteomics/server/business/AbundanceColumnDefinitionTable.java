@@ -50,6 +50,7 @@ class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements I
         columnDefinitions = new TreeMap<Long, AbundanceColumnDefinition>();
     }
 
+    @Override
     public void add(Sample sample)
     {
         Sample parent = sample.getGeneratedFrom();
@@ -66,6 +67,7 @@ class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements I
         }
     }
 
+    @Override
     public List<AbundanceColumnDefinition> getSortedAndAggregatedDefinitions(
             String treatmentTypeOrNull)
     {

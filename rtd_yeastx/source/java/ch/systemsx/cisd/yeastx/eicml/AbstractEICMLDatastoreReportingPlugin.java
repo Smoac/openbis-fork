@@ -51,6 +51,7 @@ abstract public class AbstractEICMLDatastoreReportingPlugin extends
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         DataSource dataSource =

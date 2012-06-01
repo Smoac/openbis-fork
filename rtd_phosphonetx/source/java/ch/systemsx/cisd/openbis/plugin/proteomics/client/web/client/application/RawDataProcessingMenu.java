@@ -144,11 +144,13 @@ public class RawDataProcessingMenu extends TextToolItem
             IActionMenuItem actionMenuItem = new IActionMenuItem()
                 {
 
+                    @Override
                     public String getMenuText(IMessageProvider messageProvider)
                     {
                         return datastoreServiceDescription.getLabel();
                     }
 
+                    @Override
                     public String getMenuId()
                     {
                         return datastoreServiceDescription.getKey();
@@ -157,6 +159,7 @@ public class RawDataProcessingMenu extends TextToolItem
             IDelegatedAction action = new IDelegatedAction()
                 {
 
+                    @Override
                     public void execute()
                     {
                         String title = viewContext.getMessage(COPY_DATA_SETS_TITLE);

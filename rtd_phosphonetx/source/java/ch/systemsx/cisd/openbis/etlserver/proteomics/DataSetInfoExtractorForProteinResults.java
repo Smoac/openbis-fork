@@ -74,6 +74,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         experimentTypeCode = properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

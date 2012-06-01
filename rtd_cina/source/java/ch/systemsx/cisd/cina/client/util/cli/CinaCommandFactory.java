@@ -34,6 +34,7 @@ public class CinaCommandFactory extends AbstractCommandFactory
         LISTSAMPS, GENCODE, LISTEXPS, GETREPLICA, GETBUNDLE, LISTPREFS, HELP
     }
 
+    @Override
     public List<String> getKnownCommands()
     {
         String[] commands =
@@ -41,11 +42,13 @@ public class CinaCommandFactory extends AbstractCommandFactory
         return Arrays.asList(commands);
     }
 
+    @Override
     public ICommand getHelpCommand()
     {
         return getHelpCommand(PROGRAM_CALL_STRING);
     }
 
+    @Override
     public ICommand tryCommandForName(String name)
     {
         ICommand helpCommandOrNull = tryHelpCommandForName(name);

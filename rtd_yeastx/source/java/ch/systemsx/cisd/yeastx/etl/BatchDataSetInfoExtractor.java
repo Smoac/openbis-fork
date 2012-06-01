@@ -45,6 +45,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
         this.fileNameDecorator = new DataSetInfoFileNameDecorator(properties);
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

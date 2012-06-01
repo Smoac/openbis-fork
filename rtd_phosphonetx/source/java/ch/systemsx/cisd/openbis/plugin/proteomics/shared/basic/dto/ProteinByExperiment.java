@@ -32,6 +32,7 @@ public class ProteinByExperiment extends AccessionNumberProvider implements IBas
 
     private ProteinDetails details;
 
+    @Override
     public final String getDescription()
     {
         return description;
@@ -52,6 +53,7 @@ public class ProteinByExperiment extends AccessionNumberProvider implements IBas
         this.details = details;
     }
 
+    @Override
     public final TechId getId()
     {
         return id;

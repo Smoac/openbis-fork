@@ -52,28 +52,33 @@ public class PhosphoNetXModule implements IModule
         this.viewContext = viewContext;
     }
 
+    @Override
     public List<? extends MenuItem> getMenuItems()
     {
         ActionMenu msInjectionSampleAnnotatingMenuItem = TabActionMenuItemFactory.createActionMenu(viewContext, ID,
                 new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
                     {
 
+                        @Override
                         public String getName()
                         {
                             return "ANNOTATE_MS_INJECTION_SAMPLES";
                         }
 
+                        @Override
                         public String getHelpPageTitle()
                         {
                             return "Wizard for annotation MS INJECTION samples";
                         }
 
+                        @Override
                         public DatabaseModificationAwareComponent createComponent(
                                 IViewContext<IPhosphoNetXClientServiceAsync> context)
                         {
                             return DatabaseModificationAwareComponent.create(new MsInjectionSampleAnnotationWizard(context));
                         }
 
+                        @Override
                         public String tryGetLink()
                         {
                             URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -85,22 +90,26 @@ public class PhosphoNetXModule implements IModule
                 new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
                 {
             
+            @Override
             public String getName()
             {
                 return "ALL_RAW_DATA_SAMPLES";
             }
             
+            @Override
             public String getHelpPageTitle()
             {
                 return "MS INJECTION Data Overview";
             }
             
+            @Override
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IPhosphoNetXClientServiceAsync> context)
             {
                 return RawDataSampleGrid.create(context);
             }
             
+            @Override
             public String tryGetLink()
             {
                 return null;
@@ -109,16 +118,19 @@ public class PhosphoNetXModule implements IModule
         return Arrays.asList(msInjectionSampleAnnotatingMenuItem, msInjectionSampleBrowserMenuItem);
     }
 
+    @Override
     public String getName()
     {
         return viewContext.getMessage(Dict.QUERY_MENU_TITLE);
     }
 
+    @Override
     public void initialize(AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
     }
 
+    @Override
     public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {

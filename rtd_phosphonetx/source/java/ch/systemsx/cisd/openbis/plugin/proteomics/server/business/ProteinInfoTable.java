@@ -65,6 +65,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         this.sampleProvider = sampleProvider;
     }
 
+    @Override
     public List<ProteinInfo> getProteinInfos()
     {
         if (infos == null)
@@ -74,6 +75,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         return infos;
     }
 
+    @Override
     public void load(List<AbundanceColumnDefinition> definitions, TechId experimentID,
             double falseDiscoveryRate, AggregateFunction function, boolean aggregateOnOriginal)
     {
@@ -117,6 +119,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         Collections.sort(infos, new Comparator<ProteinInfo>()
             {
 
+                @Override
                 public int compare(ProteinInfo p1, ProteinInfo p2)
                 {
                     String an1 = p1.getAccessionNumber();

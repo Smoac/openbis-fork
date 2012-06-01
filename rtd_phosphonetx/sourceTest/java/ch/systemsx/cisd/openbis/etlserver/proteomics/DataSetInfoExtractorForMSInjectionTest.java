@@ -570,6 +570,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewSample)
@@ -596,6 +597,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                                 description.appendText(SAMPLE_IDENTIFIER);
@@ -625,6 +627,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
                     one(service).updateSample(with(new BaseMatcher<SampleUpdatesDTO>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof SampleUpdatesDTO)
@@ -652,6 +655,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                             }

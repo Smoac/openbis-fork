@@ -39,11 +39,13 @@ public class SampleIDProvider implements ISampleIDProvider
         this.sampleDAO = sampleDAO;
     }
     
+    @Override
     public long getSampleIDOrParentSampleID(String samplePermID)
     {
         return HibernateUtils.getId(getSampleOrParentSample(samplePermID));
     }
 
+    @Override
     public SamplePE getSampleOrParentSample(String samplePermID)
     {
         SamplePE sample = samples.get(samplePermID);

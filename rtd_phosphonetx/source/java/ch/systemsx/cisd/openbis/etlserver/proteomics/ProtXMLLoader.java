@@ -55,6 +55,7 @@ class ProtXMLLoader
             xmlInfraStructure = new XMLInfraStructure(validating);
             xmlInfraStructure.setEntityResolver(new EntityResolver()
                 {
+                    @Override
                     public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
                             IOException
                     {

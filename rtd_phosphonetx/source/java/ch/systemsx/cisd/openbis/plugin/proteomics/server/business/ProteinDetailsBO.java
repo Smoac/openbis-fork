@@ -53,11 +53,13 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         super(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public ProteinDetails getDetailsOrNull()
     {
         return details;
     }
 
+    @Override
     public void loadByExperimentAndReference(TechId experimentID, TechId proteinReferenceID)
     {
         String experimentPermID = getExperimentPermIDFor(experimentID);
@@ -154,6 +156,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
             List<Peptide> result = new ArrayList<Peptide>(peps.values());
             Collections.sort(result, new Comparator<Peptide>()
                 {
+                    @Override
                     public int compare(Peptide p1, Peptide p2)
                     {
                         return p1.getSequence().compareTo(p2.getSequence());

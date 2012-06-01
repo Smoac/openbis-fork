@@ -119,6 +119,7 @@ public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreRepor
         List<TableModelRow> rows = tableModel.getRows();
         Collections.sort(rows, new Comparator<TableModelRow>()
             {
+                @Override
                 public int compare(TableModelRow r1, TableModelRow r2)
                 {
                     ISerializableComparable v1 = r1.getValues().get(MZ_1_COLUMN_INDEX);

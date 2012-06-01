@@ -201,6 +201,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         List<DataSet> dataSets = new ArrayList<DataSet>(info.getDataSets());
         Collections.sort(dataSets, new Comparator<DataSet>()
             {
+                @Override
                 public int compare(DataSet d1, DataSet d2)
                 {
                     return d1.getCode().compareTo(d2.getCode());

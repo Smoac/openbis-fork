@@ -55,6 +55,7 @@ public class SampleLoader implements ISampleLoader
 
     }
 
+    @Override
     public List<Sample> listSamplesWithParentsByTypeAndSpace(String sampleTypeCode, String spaceCode)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -94,6 +95,7 @@ public class SampleLoader implements ISampleLoader
         List<SampleSkeleton> sampleSkeletons =
                 sampleLister.listSampleBy(new IValidator<SampleSkeleton>()
                     {
+                        @Override
                         public boolean isValid(SampleSkeleton sampleSkeleton)
                         {
                             return spaceID.equals(sampleSkeleton.getSpaceID())
@@ -112,6 +114,7 @@ public class SampleLoader implements ISampleLoader
         List<SampleRelationShipSkeleton> relationshipSkeletons =
                 sampleLister.listSampleRelationShipsBy(new IValidator<SampleRelationShipSkeleton>()
                     {
+                        @Override
                         public boolean isValid(SampleRelationShipSkeleton skeleton)
                         {
                             return skeleton.getRelationShipTypeID() == relationshipTypeID

@@ -53,11 +53,13 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         sampleIDProvider = new SampleIDProvider(daoFactory.getSampleDAO());
     }
 
+    @Override
     public List<SampleWithPropertiesAndAbundance> getSamples()
     {
         return samples;
     }
 
+    @Override
     public void loadSamplesWithAbundance(TechId experimentID, TechId proteinReferenceID)
     {
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();

@@ -167,6 +167,7 @@ public class EICMLChromatogramImageGeneratorTest extends AssertJUnit implements
     // }
     // }
 
+    @Override
     public void observe(ChromatogramDTO chromatogram)
     {
         chromatograms.add(chromatogram);

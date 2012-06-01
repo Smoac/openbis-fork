@@ -75,10 +75,12 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
 
     }
 
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
     }
 
+    @Override
     public void execute()
     {
         List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();

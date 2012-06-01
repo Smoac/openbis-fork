@@ -211,6 +211,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                 properties.getProperty(PROTEIN_PROPERTY_CODE_KEY, DEFAULT_PROTEIN_PROPERTY_CODE);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -222,6 +223,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         return createTableModel(datasets.get(0), context.getDirectoryProvider());
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -314,6 +316,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                 new ArrayList<Map.Entry<String, List<Header>>>(entrySet);
         Collections.sort(entryList, new Comparator<Entry<String, List<Header>>>()
             {
+                @Override
                 public int compare(Entry<String, List<Header>> e1, Entry<String, List<Header>> e2)
                 {
                     String key1 = e1.getKey();

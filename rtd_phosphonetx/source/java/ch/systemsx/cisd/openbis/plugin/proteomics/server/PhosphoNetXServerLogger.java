@@ -46,12 +46,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         super(sessionManager, context);
     }
 
+    @Override
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException
     {
         logAccess(sessionToken, "get_treatment_type_vocabulary");
         return null;
     }
 
+    @Override
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, TechId experimentID, String treatmentTypeOrNull)
             throws UserFailureException
@@ -62,6 +64,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
+    @Override
     public List<ProteinInfo> listProteinsByExperiment(String sessionToken, TechId experimentId,
             double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
             boolean aggregateOnOriginal) throws UserFailureException
@@ -73,6 +76,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
     
+    @Override
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
             TechId experimentId) throws UserFailureException
             {
@@ -81,6 +85,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
             }
 
+    @Override
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,
             TechId proteinReferenceID) throws UserFailureException
     {
@@ -89,6 +94,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
+    @Override
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {
@@ -97,6 +103,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
+    @Override
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
             TechId experimentId, TechId proteinReferenceID) throws UserFailureException
     {
@@ -105,6 +112,7 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
+    @Override
     public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(String sessionToken,
             TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {

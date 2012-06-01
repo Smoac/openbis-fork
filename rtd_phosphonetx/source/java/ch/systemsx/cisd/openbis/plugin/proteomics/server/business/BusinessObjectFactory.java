@@ -42,61 +42,73 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
         this.businessObjectFactory = businessObjectFactory;
     }
 
+    @Override
     public ISampleLister createSampleLister(Session session)
     {
         return getCommonBusinessObjectFactory().createSampleLister(session);
     }
 
+    @Override
     public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session)
     {
         return new AbundanceColumnDefinitionTable(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public IProteinInfoTable createProteinInfoTable(Session session, ISampleProvider sampleProvider)
     {
         return new ProteinInfoTable(daoFactory, specificDAOFactory, session, sampleProvider);
     }
 
+    @Override
     public IProteinSummaryTable createProteinSummaryTable(Session session)
     {
         return new ProteinSummaryTable(daoFactory, specificDAOFactory, session);
     }
     
+    @Override
     public IProteinSequenceTable createProteinSequenceTable(Session session)
     {
         return new ProteinSequenceTable(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public IDataSetProteinTable createDataSetProteinTable(Session session)
     {
         return new DataSetProteinTable(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public IProteinDetailsBO createProteinDetailsBO(Session session)
     {
         return new ProteinDetailsBO(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public IProteinRelatedSampleTable createProteinRelatedSampleTable(Session session)
     {
         return new ProteinRelatedSampleTable(daoFactory, specificDAOFactory);
     }
 
+    @Override
     public ISampleTable createSampleTable(Session session)
     {
         return new SampleTable(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public ISampleIDProvider createSampleIDProvider(Session session)
     {
         return new SampleIDProvider(daoFactory.getSampleDAO());
     }
 
+    @Override
     public ISampleProvider createSampleProvider(Session session)
     {
         return new SampleProvider(session, this);
     }
 
+    @Override
     public ISampleLoader createSampleLoader(Session session)
     {
         return new SampleLoader(session, daoFactory, businessObjectFactory);

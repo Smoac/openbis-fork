@@ -35,6 +35,7 @@ public final class ProbabilityToFDRCalculator
             this.fdr = fdr;
         }
 
+        @Override
         public int compareTo(ProbabilityToFDRCalculator.MappingEntry that)
         {
             return probability < that.probability ? -1 : (probability > that.probability ? 1

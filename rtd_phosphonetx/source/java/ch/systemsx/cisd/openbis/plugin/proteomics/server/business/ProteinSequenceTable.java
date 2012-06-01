@@ -47,6 +47,7 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
         super(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public List<ProteinSequence> getSequences()
     {
         if (proteinSequences == null)
@@ -56,6 +57,7 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
         return proteinSequences;
     }
     
+    @Override
     public String getShortName(long databaseID)
     {
         if (databaseIDToShortNameMap == null)
@@ -70,6 +72,7 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
         return shortName;
     }
 
+    @Override
     public void loadByReference(TechId experimentID, TechId proteinReferenceID)
     {
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO(experimentID);

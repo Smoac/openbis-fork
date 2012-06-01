@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.AbundanceHandler;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.IProtDAO;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.ProteinDescription;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.ResultDataSetUploader;
@@ -314,7 +313,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
-                new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, CELL_LYSATE1,
+                new ListSamplesByPropertyCriteria(AbstractSampleHandler.MZXML_FILENAME, CELL_LYSATE1,
                         SPACE_CODE, null);
         context.checking(new Expectations()
             {
@@ -325,11 +324,13 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     one(service).listSamplesByCriteria(
                             with(new BaseMatcher<ListSamplesByPropertyCriteria>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         return criteria.toString().equals(item.toString());
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                         description.appendValue(criteria);

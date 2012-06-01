@@ -81,6 +81,7 @@ public class AbundanceColumnDefinition implements Serializable,
         this.treatments = treatments;
     }
 
+    @Override
     public int compareTo(AbundanceColumnDefinition that)
     {
         if (this.treatments != null && that.treatments != null)

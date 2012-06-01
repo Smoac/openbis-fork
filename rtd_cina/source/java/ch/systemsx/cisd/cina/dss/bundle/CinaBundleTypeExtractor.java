@@ -35,26 +35,31 @@ public class CinaBundleTypeExtractor implements ITypeExtractor
 
     }
 
+    @Override
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
         return new DataSetType(CinaConstants.BUNDLE_DATA_SET_TYPE_CODE);
     }
 
+    @Override
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         return new FileFormatType("PROPRIETARY");
     }
 
+    @Override
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
         return new LocatorType("RELATIVE_LOCATION");
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return null;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return true;

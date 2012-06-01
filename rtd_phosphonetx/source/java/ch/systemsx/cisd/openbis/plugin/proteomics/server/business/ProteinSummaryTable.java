@@ -99,11 +99,13 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
         super(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public List<ProteinSummary> getProteinSummaries()
     {
         return summaries;
     }
 
+    @Override
     public void load(TechId experimentID)
     {
         IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();

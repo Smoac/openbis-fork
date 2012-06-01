@@ -81,16 +81,19 @@ class BundleDownloader
             this.targetDir = targetDir;
         }
 
+        @Override
         public void willDownload(FileInfoDssDTO fileInfo)
         {
             System.out.println("downloading " + getPathForFileInfo(fileInfo));
         }
 
+        @Override
         public void willCreateDirectory(FileInfoDssDTO fileInfo)
         {
             System.out.println("mkdir " + getPathForFileInfo(fileInfo));
         }
 
+        @Override
         public void didFinish()
         {
             System.out.println("Finished.");

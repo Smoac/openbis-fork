@@ -76,6 +76,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
 
     private IDataRefreshCallback postRefreshCallback = new IDataRefreshCallback()
         {
+            @Override
             public void postRefresh(boolean wasSuccessful)
             {
             }
@@ -101,22 +102,26 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
         toolBar.update();
         return new IDisposableComponent()
             {
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                     disposableBrowerGrid.update(observedModifications);
                     summaryGrid.update(observedModifications);
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return disposableBrowerGrid.getRelevantModifications();
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return container;
                 }
 
+                @Override
                 public void dispose()
                 {
                     disposableBrowerGrid.dispose();
@@ -147,6 +152,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
         registerListenerAndLinkGenerator(ProteinBrowserColumnIDs.ACCESSION_NUMBER,
                 new ICellListenerAndLinkGenerator<ProteinInfo>()
                     {
+                        @Override
                         public void handle(TableModelRowWithObject<ProteinInfo> rowItem,
                                 boolean keyPressed)
                         {
@@ -158,6 +164,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
                             DispatcherHelper.dispatchNaviEvent(tabItemFactory);
                         }
 
+                        @Override
                         public String tryGetLink(ProteinInfo entity,
                                 ISerializableComparable comparableValue)
                         {

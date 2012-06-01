@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
  */
 public class DatabaseVersionHolder implements IDatabaseVersionHolder
 {
+    @Override
     public String getDatabaseVersion()
     {
         return "005"; // changed in S124

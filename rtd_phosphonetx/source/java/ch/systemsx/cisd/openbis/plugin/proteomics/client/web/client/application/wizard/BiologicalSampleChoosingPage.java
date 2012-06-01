@@ -62,6 +62,7 @@ public class BiologicalSampleChoosingPage extends WizardPage<MsInjectionSampleAn
         sampleGrid = new BiologicalSampleGrid(viewContext);
         sampleGrid.addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
+                @Override
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
                     List<ModelData> selection = se.getSelection();

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
  */
 final class EICMLFilenameFilter implements FilenameFilter
 {
+    @Override
     public boolean accept(File myDir, String name)
     {
         return name.endsWith("." + ConstantsYeastX.EICML_EXT);

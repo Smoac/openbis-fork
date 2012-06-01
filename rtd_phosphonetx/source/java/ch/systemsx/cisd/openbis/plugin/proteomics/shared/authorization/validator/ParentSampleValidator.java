@@ -32,6 +32,7 @@ public class ParentSampleValidator implements IValidator<Sample>
 {
     private IValidator<Space> validator = new SpaceValidator();
 
+    @Override
     public boolean isValid(PersonPE person, Sample sample)
     {
         Sample parent = sample.getGeneratedFrom();
@@ -46,6 +47,7 @@ public class ParentSampleValidator implements IValidator<Sample>
         return false;
     }
 
+    @Override
     public void init(IAuthorizationDataProvider authorizationDataProvider)
     {
         // do nothing

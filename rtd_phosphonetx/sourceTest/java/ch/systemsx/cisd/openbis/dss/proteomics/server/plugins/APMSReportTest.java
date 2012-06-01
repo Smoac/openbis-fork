@@ -274,12 +274,14 @@ public class APMSReportTest extends AbstractFileSystemTestCase
                 {
                     one(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 return sample.getId() == ((ListSampleCriteria) item)
                                         .getChildSampleId().getId();
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                                 description.appendText("parents of " + sample.getIdentifier());

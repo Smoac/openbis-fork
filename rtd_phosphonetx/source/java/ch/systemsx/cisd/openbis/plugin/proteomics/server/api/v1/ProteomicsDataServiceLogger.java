@@ -39,17 +39,20 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         super(sessionManager, context);
     }
 
+    @Override
     public String tryToAuthenticateAtRawDataServer(String userID, String userPassword)
     {
         return null;
     }
 
+    @Override
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID)
     {
         logAccess(sessionToken, "list_raw_data_samples", "USER_ID(%s)", userID);
         return null;
     }
 
+    @Override
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken)
     {
@@ -57,6 +60,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         return null;
     }
 
+    @Override
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -66,6 +70,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
                 userID, dataSetProcessingKey, numberOfDataSets, dataSetType);
     }
 
+    @Override
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes)
     {
@@ -74,12 +79,14 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
                 dataSetProcessingKey, dataSetCodes);
     }
 
+    @Override
     public List<Experiment> listSearchExperiments(String sessionToken, String userID)
     {
         logAccess(sessionToken, "list_search_experiments");
         return null;
     }
 
+    @Override
     public List<Experiment> listExperiments(String sessionToken, String userID,
             String experimentTypeCode)
     {
@@ -87,6 +94,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         return null;
     }
 
+    @Override
     public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
             long experimentID)
     {
@@ -94,6 +102,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         return null;
     }
 
+    @Override
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
@@ -101,6 +110,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         logAccess(sessionToken, "copy_search_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
     }
 
+    @Override
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
     {
@@ -110,11 +120,13 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
                 dataSetProcessingKey, experimentTypeCode, experimentCount);
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 1;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;

@@ -138,6 +138,7 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
         formPanel.layout();
         formPanel.addClickListener(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     enableNextButton(formPanel.isValid());

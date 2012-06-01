@@ -168,6 +168,7 @@ public class ExperimentViewer extends GenericExperimentViewer
         String href = "";
         ClickHandler listener = new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     viewContext.getCommonService().processDatasets(description, criteria,

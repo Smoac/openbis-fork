@@ -57,6 +57,7 @@ public class SampleProviderTest extends AssertJUnit
             this.childrenIDs = childrenIDs;
         }
 
+        @Override
         public boolean matches(Object item)
         {
             if (item instanceof ListOrSearchSampleCriteria)
@@ -69,6 +70,7 @@ public class SampleProviderTest extends AssertJUnit
             return false;
         }
 
+        @Override
         public void describeTo(Description description)
         {
         }
@@ -117,6 +119,7 @@ public class SampleProviderTest extends AssertJUnit
                     
                     one(sampleLister).list(with(new BaseMatcher<ListOrSearchSampleCriteria>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof ListOrSearchSampleCriteria)
@@ -129,6 +132,7 @@ public class SampleProviderTest extends AssertJUnit
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                             }

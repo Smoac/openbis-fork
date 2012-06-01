@@ -70,6 +70,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                 new RawDataProcessingMenu(viewContext,
                         new IDelegatedActionWithResult<List<TableModelRowWithObject<Sample>>>()
                             {
+                                @Override
                                 public List<TableModelRowWithObject<Sample>> execute()
                                 {
                                     return getSelectedBaseObjects();
@@ -87,6 +88,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                 new ICellListenerAndLinkGenerator<Sample>()
                     {
 
+                        @Override
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -94,6 +96,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                                     specialKeyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(Sample entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity);
@@ -108,6 +111,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                 new ICellListenerAndLinkGenerator<Sample>()
                     {
 
+                        @Override
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -115,6 +119,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                                     .getGeneratedFrom(), false, specialKeyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(Sample entity,
                                 ISerializableComparable comparableValue)
                         {

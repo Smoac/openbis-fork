@@ -42,28 +42,33 @@ public class TypeExtractorForMSInjection implements ITypeExtractor
     {
     }
 
+    @Override
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
         Properties properties = loadProperties(incomingDataSetPath);
         return new DataSetType(PropertyUtils.getMandatoryProperty(properties, DATA_SET_TYPE_KEY));
     }
 
+    @Override
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
         Properties properties = loadProperties(incomingDataSetPath);
         return new FileFormatType(PropertyUtils.getMandatoryProperty(properties, FILE_TYPE_KEY));
     }
 
+    @Override
     public LocatorType getLocatorType(File incomingDataSetPath)
     {
         return LOCATOR_TYPE;
     }
 
+    @Override
     public String getProcessorType(File incomingDataSetPath)
     {
         return null;
     }
 
+    @Override
     public boolean isMeasuredData(File incomingDataSetPath)
     {
         return true;

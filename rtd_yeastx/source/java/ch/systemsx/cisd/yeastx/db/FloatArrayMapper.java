@@ -31,16 +31,19 @@ import net.lemnik.eodsql.TypeMapper;
 class FloatArrayMapper implements TypeMapper<float[]>
 {
 
+    @Override
     public float[] get(ResultSet results, int column) throws SQLException
     {
         return Convert.csvToFloatArray(results.getString(column));
     }
 
+    @Override
     public void set(ResultSet results, int column, float[] obj) throws SQLException
     {
         results.updateString(column, toString(obj));
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, float[] obj) throws SQLException
     {
         if (obj != null)

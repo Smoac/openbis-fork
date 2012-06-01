@@ -96,11 +96,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         this.specificBOFactory = specificBOFactory;
     }
 
+    @Override
     public IPhosphoNetXServer createLogger(IInvocationLoggerContext context)
     {
         return new PhosphoNetXServerLogger(getSessionManager(), context);
     }
 
+    @Override
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException
     {
         IVocabularyDAO vocabularyDAO = getDAOFactory().getVocabularyDAO();
@@ -108,6 +110,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return VocabularyTranslator.translate(vocabulary);
     }
 
+    @Override
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, TechId experimentID, String treatmentTypeOrNull)
             throws UserFailureException
@@ -141,6 +144,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         }
     }
 
+    @Override
     public List<ProteinInfo> listProteinsByExperiment(String sessionToken, TechId experimentId,
             double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
             boolean aggregateOnOriginal) throws UserFailureException
@@ -156,6 +160,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return table.getProteinInfos();
     }
 
+    @Override
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
             TechId experimentId) throws UserFailureException
     {
@@ -165,6 +170,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return summaryTable.getProteinSummaries();
     }
 
+    @Override
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,
             TechId proteinReferenceID) throws UserFailureException
     {
@@ -189,6 +195,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return proteinByExperiment;
     }
 
+    @Override
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {
@@ -198,6 +205,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return sequenceTable.getSequences();
     }
 
+    @Override
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
             TechId experimentId, TechId proteinReferenceID) throws UserFailureException
     {
@@ -209,6 +217,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         return dataSetProteinTable.getDataSetProteins();
     }
 
+    @Override
     public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(String sessionToken,
             TechId experimentID, TechId proteinReferenceID) throws UserFailureException
     {

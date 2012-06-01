@@ -37,6 +37,7 @@ public class CinaBundleDataSetInfoExtractor implements IDataSetInfoExtractor
 
     }
 
+    @Override
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
             IEncapsulatedOpenBISService openbisService) throws UserFailureException,
             EnvironmentFailureException

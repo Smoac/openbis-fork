@@ -360,11 +360,13 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             this.proteinDetails = proteinDetails;
         }
 
+        @Override
         public EntityKind getEntityKind()
         {
             return EntityKind.DATA_SET;
         }
 
+        @Override
         public EntityType getEntityType()
         {
             DataSetType dataSetType = new DataSetType();
@@ -372,32 +374,38 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             return dataSetType;
         }
 
+        @Override
         public String getIdentifier()
         {
             return proteinDetails.getDataSetPermID();
         }
 
+        @Override
         public Long getId()
         {
             return proteinDetails.getDataSetTechID();
         }
 
+        @Override
         public String getCode()
         {
             return proteinDetails.getDataSetPermID();
         }
 
+        @Override
         public String getPermId()
         {
             return getIdentifier();
         }
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return createDatabaseModificationObserver().getRelevantModifications();
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createDatabaseModificationObserver().update(observedModifications);

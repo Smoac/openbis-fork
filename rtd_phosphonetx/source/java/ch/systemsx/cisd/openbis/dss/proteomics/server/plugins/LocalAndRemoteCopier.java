@@ -135,6 +135,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
         }
     }
 
+    @Override
     public void undoLastOperation()
     {
     }
@@ -143,6 +144,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
      * Copies specified data file/folder to destination specified in constructor. The name of the
      * file/folder at the destination is defined by the data set code.
      */
+    @Override
     public Status handle(File originalData, DataSetInformation dataSetInformation,
             Map<String, String> parameterBindings)
     {

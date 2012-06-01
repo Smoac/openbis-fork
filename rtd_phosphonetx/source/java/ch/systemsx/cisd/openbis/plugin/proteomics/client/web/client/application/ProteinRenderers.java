@@ -214,6 +214,7 @@ public final class ProteinRenderers
             super(messageProvider);
         }
 
+        @Override
         public Widget getAsWidget(AccessionNumberProvider object)
         {
             String accessionNumber = object.getAccessionNumber();
@@ -235,6 +236,7 @@ public final class ProteinRenderers
             super(messageProvider);
         }
 
+        @Override
         public Widget getAsWidget(Peptide peptide)
         {
             StringBuilder builder = new StringBuilder();

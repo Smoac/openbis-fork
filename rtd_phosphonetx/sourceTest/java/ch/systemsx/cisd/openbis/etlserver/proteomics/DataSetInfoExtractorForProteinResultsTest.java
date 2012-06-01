@@ -135,6 +135,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                 {
                     one(service).registerExperiment(with(new BaseMatcher<NewExperiment>()
                         {
+                            @Override
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewExperiment)
@@ -152,6 +153,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
                             }

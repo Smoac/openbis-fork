@@ -56,6 +56,7 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
     
     private Double modificationFraction;
 
+    @Override
     public Long getId()
     {
         return id;
@@ -66,6 +67,7 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
         this.id = id;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;
@@ -76,6 +78,7 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
         this.permId = permId;
     }
 
+    @Override
     public String getCode()
     {
         return code;
@@ -86,6 +89,7 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
         this.code = code;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return entityType;
@@ -96,6 +100,7 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
         this.entityType = entityType;
     }
 
+    @Override
     public String getIdentifier()
     {
         return identifier;
@@ -156,11 +161,13 @@ public class ProteinRelatedSample implements Serializable, IEntityInformationHol
         this.modificationFraction = modificationFraction;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return properties;

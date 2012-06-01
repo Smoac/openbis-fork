@@ -28,6 +28,7 @@ public class MetabolDatabaseVersionHolder implements IDatabaseVersionHolder
     /** Current version of the database. */
     static final String DATABASE_VERSION = "006"; // changed in S91
 
+    @Override
     public String getDatabaseVersion()
     {
         return DATABASE_VERSION;

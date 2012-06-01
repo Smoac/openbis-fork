@@ -75,6 +75,7 @@ public class BatchDataSetHandler implements IDataSetHandler
                 true);
     }
 
+    @Override
     public List<DataSetInformation> handleDataSet(File batchDir)
     {
         if (canBatchBeProcessed(batchDir) == false)

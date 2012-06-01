@@ -243,6 +243,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
 
+                            @Override
                             @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
@@ -260,6 +261,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
 
@@ -308,6 +310,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                 {
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
+                            @Override
                             @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
@@ -324,6 +327,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                                 return false;
                             }
 
+                            @Override
                             public void describeTo(Description description)
                             {
 
@@ -356,11 +360,13 @@ public class AbundanceHandlerTest extends AssertJUnit
                     one(service).listSamplesByCriteria(
                             with(new BaseMatcher<ListSamplesByPropertyCriteria>()
                                 {
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         return CRITERIA.toString().equals(item.toString());
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                         description.appendValue(CRITERIA);
@@ -381,11 +387,13 @@ public class AbundanceHandlerTest extends AssertJUnit
                             with(new BaseMatcher<SampleIdentifier>()
                                 {
 
+                                    @Override
                                     public boolean matches(Object item)
                                     {
                                         return expectedSampleIdentifier.equals(item.toString());
                                     }
 
+                                    @Override
                                     public void describeTo(Description description)
                                     {
                                         description.appendValue(expectedSampleIdentifier);

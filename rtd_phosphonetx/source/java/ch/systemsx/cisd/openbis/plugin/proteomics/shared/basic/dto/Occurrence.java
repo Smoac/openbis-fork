@@ -51,6 +51,7 @@ public class Occurrence implements Comparable<Occurrence>
         return startIndex + word.length() - 1;
     }
 
+    @Override
     public int compareTo(Occurrence o)
     {
         return getStartIndex() - o.getStartIndex();

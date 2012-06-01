@@ -80,6 +80,7 @@ public class Treatment implements Serializable, Comparable<Treatment>
         return value + " " + type;
     }
 
+    @Override
     public int compareTo(Treatment that)
     {
         int typeComparisonResult = this.type.toLowerCase().compareTo(that.type.toLowerCase());

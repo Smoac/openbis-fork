@@ -71,6 +71,7 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
                 + "join sequences as s on ip.sequ_id = s.id where coverage is null",
                 new ResultSetExtractor()
                     {
+                        @Override
                         public Object extractData(ResultSet rs) throws SQLException,
                                 DataAccessException
                         {
@@ -97,6 +98,7 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
         jdbcOperations.query("select prot_id, sequence from peptides order by prot_id",
                 new ResultSetExtractor()
                     {
+                        @Override
                         public Object extractData(ResultSet rs) throws SQLException,
                                 DataAccessException
                         {

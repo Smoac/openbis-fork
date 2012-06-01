@@ -76,6 +76,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
     private static final class SimpleResultSetManager<K> implements IResultSetManager<K>
     {
 
+        @Override
         public <T> IResultSet<K, T> getResultSet(String sessionToken,
                 IResultSetConfig<K, T> resultConfig, IOriginalDataProvider<T> dataProvider)
                 throws UserFailureException
@@ -92,6 +93,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
                     new GridRowModels<T>(rows, headers, null, null), rows.size(), false);
         }
 
+        @Override
         public void removeResultSet(K resultSetKey) throws UserFailureException
         {
         }

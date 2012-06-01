@@ -90,6 +90,7 @@ public class ProteinRelatedSampleGrid extends TypedTableGrid<ProteinRelatedSampl
                 new ICellListenerAndLinkGenerator<ProteinRelatedSample>()
                     {
 
+                        @Override
                         public void handle(TableModelRowWithObject<ProteinRelatedSample> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -97,6 +98,7 @@ public class ProteinRelatedSampleGrid extends TypedTableGrid<ProteinRelatedSampl
                                     specialKeyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(ProteinRelatedSample entity,
                                 ISerializableComparable comparableValue)
                         {

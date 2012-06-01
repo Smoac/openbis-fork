@@ -43,6 +43,7 @@ public class ProteinInfo implements Serializable, IBasicProteinInfo
 
     private Map<Long, Double> abundances;
 
+    @Override
     public final TechId getId()
     {
         return id;
@@ -73,6 +74,7 @@ public class ProteinInfo implements Serializable, IBasicProteinInfo
         this.dataSetPermID = dataSetPermID;
     }
 
+    @Override
     public final String getAccessionNumber()
     {
         return accessionNumber;
@@ -83,6 +85,7 @@ public class ProteinInfo implements Serializable, IBasicProteinInfo
         this.accessionNumber = accessionNumber;
     }
 
+    @Override
     public final String getDescription()
     {
         return description;

@@ -60,11 +60,13 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
         this.specificDAOFactory = specificDAOFactory;
     }
     
+    @Override
     public List<ProteinRelatedSample> getSamples()
     {
         return result;
     }
 
+    @Override
     public void load(TechId experimentID, TechId proteinReferenceID, String sequenceOrNull)
     {
         String experimentPermID =

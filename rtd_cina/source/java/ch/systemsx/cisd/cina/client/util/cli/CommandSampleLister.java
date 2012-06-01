@@ -162,12 +162,14 @@ public class CommandSampleLister extends
         super(new CommandListSamplesArguments());
     }
 
+    @Override
     public ResultCode execute(String[] args) throws UserFailureException,
             EnvironmentFailureException
     {
         return new SampleListerExecutor(this).execute(args);
     }
 
+    @Override
     public String getName()
     {
         return "listsamps";

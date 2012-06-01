@@ -42,11 +42,13 @@ class DataSetProteinTable extends AbstractBusinessObject implements IDataSetProt
         super(daoFactory, specificDAOFactory, session);
     }
 
+    @Override
     public List<DataSetProtein> getDataSetProteins()
     {
         return dataSetProteins;
     }
 
+    @Override
     public void load(String experimentPermID, TechId proteinReferenceID,
             IProteinSequenceTable sequenceTable)
     {
