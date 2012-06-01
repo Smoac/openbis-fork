@@ -163,7 +163,7 @@ public final class BeanUtils
         {
         };
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     static final Set<Class> immutableTypes = new LinkedHashSet<Class>(Arrays.asList(boolean.class,
             Boolean.class, byte.class, Byte.class, short.class, Short.class, int.class,
             Integer.class, long.class, Long.class, float.class, Float.class, double.class,
@@ -524,7 +524,6 @@ public final class BeanUtils
         return (E[]) Array.newInstance(elemClass, length);
     }
 
-    
     // No way to avoid the warning since the compiler doesn't accept something like
     // ArrayList<String>.class
     @SuppressWarnings("rawtypes")
@@ -546,7 +545,7 @@ public final class BeanUtils
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private static <T> T constructCollection(
             final Constructor<? extends Collection> constructorWithSize, final int size)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException,
@@ -560,7 +559,7 @@ public final class BeanUtils
             { size });
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private final static <T> T constructCollection(final Class<? extends Collection> collectionClazz)
             throws InstantiationException, IllegalAccessException
     {
@@ -710,7 +709,7 @@ public final class BeanUtils
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private static void addToUntypedCollection(final Collection destination, final Object element)
     {
         destination.add(element);
