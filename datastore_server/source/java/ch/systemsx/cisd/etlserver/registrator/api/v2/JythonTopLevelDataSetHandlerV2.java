@@ -184,13 +184,17 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         if (false == recoveryFile.exists())
         {
             operationLog.error("Recovery file does not exist. " + recoveryFile);
+
             throw new IllegalStateException("Recovery file " + recoveryFile + " doesn't exist");
         }
 
         if (false == retryPeriodHasPassed(recoveryInfo))
         {
-            operationLog.info("Found recovery information for " + incomingFileOriginal
-                    + ". The recovery won't happen as the retry period has not yet passed");
+            String message =
+                    "Found recovery information for " + incomingFileOriginal
+                            + ". The recovery won't happen as the retry period has not yet passed";
+            operationLog.info(message);
+
             return;
         }
 
@@ -218,6 +222,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                                                 recoveryMarkerFile.getName() + ".ERROR");
                                 state.getFileOperations().move(recoveryMarkerFile,
                                         errorRecoveryMarkerFile);
+
+                                DssRegistrationLogger logger =
+                                        recoveryState.getRegistrationLogger(state);
+                                logger.log("Recovery failed. Giving up.");
+                                logger.registerFailure();
+
                             } else
                             {
                                 if (didOperationSucceed)
@@ -290,8 +300,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         final List<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
         // keeps track of whether we should keep or delete the recovery files.
-        // we can delete if succesfully recovered, or rolledback, or gave up
-        boolean shouldDeleteRecoveryFiles = false;
+        // we can delete if succesfully recovered, or rolledback.
+        // This code is not executed at all in case of a recovery give-up
+        boolean shouldStopRecovery = false;
 
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
             {
@@ -377,7 +388,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 operationLog.info(rollbacker.getErrorMessageForLog());
                 rollbacker.doRollback(logger);
 
-                shouldDeleteRecoveryFiles = true;
+                logger.log("Operations haven't been registered in AS - recovery rollback");
+                logger.registerFailure();
+
+                shouldStopRecovery = true;
 
                 hookAdaptor.executePreRegistrationRollback(persistentMapHolder, null);
 
@@ -404,12 +418,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 }
                 if (success)
                 {
-                    logger.registerSuccess();
-                    registrationSuccessful = true;
-
                     hookAdaptor.executePostStorage(persistentMapHolder);
 
-                    shouldDeleteRecoveryFiles = true;
+                    registrationSuccessful = true;
+                    shouldStopRecovery = true;
+
+                    logger.registerSuccess();
                 }
             }
         } catch (Throwable error)
@@ -426,13 +440,13 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             error.printStackTrace();
             // in this case we should ignore, and run the recovery again after some time
             encounteredErrors.add(error);
+            logger.log("Error in recovery: " + error);
         }
-
-        logger.logDssRegistrationResult(encounteredErrors);
 
         cleanAfterwardsAction.execute(registrationSuccessful);
 
-        recoveryMarkerCleanup.execute(shouldDeleteRecoveryFiles);
+        recoveryMarkerCleanup.execute(shouldStopRecovery);
+
     }
 
     /**

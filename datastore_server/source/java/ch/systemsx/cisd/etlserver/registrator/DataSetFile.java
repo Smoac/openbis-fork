@@ -56,4 +56,12 @@ public class DataSetFile implements Serializable
         return (logicalIncomingFile != null) ? logicalIncomingFile : realIncomingFile;
     }
 
+    /**
+     * @returns something like "original file: /local/path/inbox/file.txt logical file: /local/path/pre-staging/file.txt"
+     */
+    @Override
+    public String toString()
+    {
+        return "original file: " + realIncomingFile + " logical file: " + logicalIncomingFile;
+    }
 }

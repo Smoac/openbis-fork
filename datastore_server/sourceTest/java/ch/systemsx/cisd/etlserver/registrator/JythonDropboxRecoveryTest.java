@@ -559,27 +559,42 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         // create expectations
         context.checking(new MultipleErrorsExpectations(atomicatOperationDetails, includeContainer));
 
-        handler.handle(markerFile);
-        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        /*
+         * First run - register datasets, and handle exception from AS
+         */
+
+        handleAndMakeRecoverableImmediately(testCase);
 
         // now we have registered, but error was thrown from registration
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "pre_metadata_registration");
 
-        handler.handle(markerFile);
-        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        /*
+         * Second run - check that the datasets has been registered, and run the post_registration
+         * hook The file system is made unavailable, so the storage will fail. Restore the
+         * filesystem after this run.
+         */
 
-        // now we know we have registered, post_registration_hook executed, but storage failed.
+        handleAndMakeRecoverableImmediately(testCase);
+
+        // now we know we have registered, post registration hook executed, but storage failed.
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "post_metadata_registration");
 
         // so make filesystem avaiable this time
         makeFileSystemAvailable(workingDirectory);
 
-        handler.handle(markerFile);
-        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
-        // now the storage has succeeded, but storage confirmation has not.
+        /*
+         * Third run - Start after the post registration hook, and run the storage - this will succeed now.
+         * Throw exception from storage confirmation. 
+         */
 
+        handleAndMakeRecoverableImmediately(testCase);
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory); //assert no messages
+        /*
+         * Last run. now only do the storage confirm part. After this is done, the registration should be complete.
+         */
+        
         handler.handle(markerFile);
         // setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
         // now the storage confirmation has succeeded
@@ -589,12 +604,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
-        //
-        // // item in store
-        //
-        //
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
 
+    }
+
+    private void handleAndMakeRecoverableImmediately(RecoveryTestCase testCase)
+    {
+        handler.handle(markerFile);
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
     }
 
     class MultipleErrorsExpectations extends AbstractExpectations
