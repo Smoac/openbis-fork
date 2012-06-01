@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
-import ch.systemsx.cisd.common.api.server.json.JsonReflectionsSubTypeResolver;
-import ch.systemsx.cisd.common.api.server.json.JsonTypeAndClassAnnotationIntrospector;
+import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerProvider;
+import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
+import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
+import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsTypeValueToClassObjectMapping;
+import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
 
 /**
  * Jackson library object mapper used in generic OpenBIS.
@@ -32,8 +35,12 @@ public class GenericObjectMapper extends ObjectMapper
     public GenericObjectMapper()
     {
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
-                new GenericJsonClassValueToClassObjectsMapping()));
-        setSubtypeResolver(JsonReflectionsSubTypeResolver.getDefaultInstance());
+                GenericJsonClassValueToClassObjectsMapping.getInstance()));
+        setSubtypeResolver(new JsonReflectionsSubTypeResolver(
+                JsonReflectionsBaseTypeToSubTypesMapping.getInstance()));
+        setDeserializerProvider(new JsonDeserializerProvider(
+                JsonReflectionsTypeValueToClassObjectMapping.getInstance(),
+                GenericJsonClassValueToClassObjectsMapping.getInstance()));
     }
 
 }

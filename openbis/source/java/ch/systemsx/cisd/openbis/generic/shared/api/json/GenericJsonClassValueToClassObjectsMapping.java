@@ -16,21 +16,39 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
-import ch.systemsx.cisd.common.api.server.json.JsonClassValueToClassObjectsMapping;
+import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 
 /**
  * @author pkupczyk
  */
-public class GenericJsonClassValueToClassObjectsMapping extends JsonClassValueToClassObjectsMapping
+public class GenericJsonClassValueToClassObjectsMapping extends
+        JsonStaticClassValueToClassObjectsMapping
 {
 
-    public GenericJsonClassValueToClassObjectsMapping()
+    private static GenericJsonClassValueToClassObjectsMapping instance;
+
+    private GenericJsonClassValueToClassObjectsMapping()
     {
-        add(".MaterialIdentifier",
+        addClass(".MaterialIdentifier",
                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier.class);
-        add(".Material", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.class);
-        add(".PropertyType", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.class);
-        add(".ControlledVocabularyPropertyType",
+        addClass(".Material", ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.class);
+        addClass(".PropertyType",
+                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.class);
+        addClass(
+                ".ControlledVocabularyPropertyType",
                 ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.class);
     }
+
+    public static GenericJsonClassValueToClassObjectsMapping getInstance()
+    {
+        synchronized (GenericJsonClassValueToClassObjectsMapping.class)
+        {
+            if (instance == null)
+            {
+                instance = new GenericJsonClassValueToClassObjectsMapping();
+            }
+            return instance;
+        }
+    }
+
 }
