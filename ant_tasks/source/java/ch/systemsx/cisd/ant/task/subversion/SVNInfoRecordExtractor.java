@@ -43,6 +43,7 @@ class SVNInfoRecordExtractor
     {
         private boolean first = true;
 
+        @Override
         public void handle(SVNInfoRecord record, String key, String value)
         {
             if (first)
@@ -52,6 +53,7 @@ class SVNInfoRecordExtractor
             }
         }
         
+        @Override
         public void commit(SVNInfoRecord record)
         {
         }
@@ -118,6 +120,7 @@ class SVNInfoRecordExtractor
             reset();
         }
         
+        @Override
         public void handle(SVNInfoRecord record, String key, String value)
         {
             if (LAST_CHANGED_REV.equals(key))
@@ -164,6 +167,7 @@ class SVNInfoRecordExtractor
             lastChangedRev = -1;
         }
         
+        @Override
         public void commit(SVNInfoRecord record)
         {
             if (record.getLastChangedRevision() < lastChangedRev)
@@ -199,6 +203,7 @@ class SVNInfoRecordExtractor
 
     private static final class RevisionHandler implements ValueHandler
     {
+        @Override
         public void handle(SVNInfoRecord record, String key, String value)
         {
             try
@@ -212,6 +217,7 @@ class SVNInfoRecordExtractor
             }
         }
 
+        @Override
         public void commit(SVNInfoRecord record)
         {
         }

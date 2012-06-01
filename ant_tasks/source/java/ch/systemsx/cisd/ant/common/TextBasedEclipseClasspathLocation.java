@@ -39,11 +39,13 @@ public class TextBasedEclipseClasspathLocation implements IEclipseClasspathLocat
         this.displayableLocation = displayableLocation == null ? "UNKNOWN" : displayableLocation;
     }
 
+    @Override
     public String getDisplayableLocation()
     {
         return displayableLocation;
     }
 
+    @Override
     public Document getDocument()
     {
         try

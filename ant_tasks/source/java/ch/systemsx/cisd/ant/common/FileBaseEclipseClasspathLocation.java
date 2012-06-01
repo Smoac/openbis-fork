@@ -36,11 +36,13 @@ public class FileBaseEclipseClasspathLocation implements IEclipseClasspathLocati
         this.classpathFile = classpathFile;
     }
 
+    @Override
     public String getDisplayableLocation()
     {
         return classpathFile.getPath();
     }
 
+    @Override
     public Document getDocument()
     {
         try

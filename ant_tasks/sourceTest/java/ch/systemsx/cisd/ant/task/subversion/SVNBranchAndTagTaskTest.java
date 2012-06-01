@@ -156,6 +156,7 @@ public class SVNBranchAndTagTaskTest
             this.catMap = catMap;
         }
 
+        @Override
         public String cat(final String path) throws SVNException
         {
             System.out.println("CAT - " + path);
@@ -163,6 +164,7 @@ public class SVNBranchAndTagTaskTest
             return result == null ? "" : result;
         }
 
+        @Override
         public List<String> list(final String path) throws SVNException
         {
             System.out.println("LIST - " + path);
@@ -171,32 +173,38 @@ public class SVNBranchAndTagTaskTest
             return result;
         }
 
+        @Override
         public void mkdir(final String path, final String logMessage) throws SVNException
         {
             mkdirList.add(new MkdirItem(path, logMessage));
         }
 
+        @Override
         public void copy(final String sourcePath, final String sourceRevision,
                 final String destinationPath, final String logMessage) throws SVNException
         {
             copyList.add(new CopyItem(sourcePath, sourceRevision, destinationPath, logMessage));
         }
 
+        @Override
         public SVNInfoRecord info(final String pathOrUrl)
         {
             throw new AssertionError("Unexpected call info()");
         }
 
+        @Override
         public List<SVNItemStatus> status(final String path)
         {
             throw new AssertionError("Unexpected call status()");
         }
 
+        @Override
         public boolean isMuccAvailable()
         {
             return false;
         }
 
+        @Override
         public void mucc(final String logMessage, final String... args) throws SVNException
         {
             throw new AssertionError();

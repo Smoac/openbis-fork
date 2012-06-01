@@ -362,6 +362,7 @@ class SVNRepositoryProjectContext
 
         return new ISVNProjectPathProvider()
             {
+                @Override
                 public String getPath(String subProjectName) throws UserFailureException
                 {
                     assert subProjectName != null;
@@ -396,11 +397,13 @@ class SVNRepositoryProjectContext
                     }
                 }
 
+                @Override
                 public String getPath()
                 {
                     return getPath(SVNRepositoryProjectContext.this.getProjectName());
                 }
 
+                @Override
                 public String getPath(String subProjectName, String entityPath)
                         throws UserFailureException
                 {
@@ -420,16 +423,19 @@ class SVNRepositoryProjectContext
                     return entityPath.replace('\\', '/');
                 }
 
+                @Override
                 public String getProjectName()
                 {
                     return SVNRepositoryProjectContext.this.getProjectName();
                 }
 
+                @Override
                 public String getRevision()
                 {
                     return SVNRepositoryProjectContext.this.getRevision();
                 }
 
+                @Override
                 public boolean isRepositoryPath()
                 {
                     return true;

@@ -70,32 +70,38 @@ public class GatherRevisionAndVersionTaskTest
             this.project = project;
         }
 
+        @Override
         public boolean isRepositoryPath()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getRevision()
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getProjectName()
         {
             return project.getName();
         }
 
+        @Override
         public String getPath(final String subProjectName, final String entityPath)
                 throws UserFailureException
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getPath(final String subProjectName) throws UserFailureException
         {
             return subProjectName;
         }
 
+        @Override
         public String getPath()
         {
             return getProjectName();
@@ -138,12 +144,14 @@ public class GatherRevisionAndVersionTaskTest
             contentMap.put(file, content);
         }
 
+        @Override
         public List<SVNItemStatus> status(final String path)
         {
             System.out.println("svn status " + path);
             return statusMap.get(path);
         }
 
+        @Override
         public SVNInfoRecord info(final String path)
         {
             System.out.println("INFO - " + path);
@@ -154,17 +162,20 @@ public class GatherRevisionAndVersionTaskTest
             return infoRecord;
         }
 
+        @Override
         public void copy(final String sourcePath, final String sourceRevision,
                 final String destinationPath, final String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call copy");
         }
 
+        @Override
         public void mkdir(final String path, final String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call mkdir");
         }
 
+        @Override
         public List<String> list(final String path) throws SVNException
         {
             System.out.println("LIST - " + path);
@@ -174,6 +185,7 @@ public class GatherRevisionAndVersionTaskTest
             return result;
         }
 
+        @Override
         public String cat(final String path) throws SVNException
         {
             System.out.println("CAT - " + path);
@@ -181,11 +193,13 @@ public class GatherRevisionAndVersionTaskTest
             return result == null ? "" : result;
         }
 
+        @Override
         public boolean isMuccAvailable()
         {
             return false;
         }
 
+        @Override
         public void mucc(final String logMessage, final String... args) throws SVNException
         {
             throw new AssertionError();

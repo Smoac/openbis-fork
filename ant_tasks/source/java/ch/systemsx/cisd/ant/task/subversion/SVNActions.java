@@ -43,6 +43,7 @@ class SVNActions implements ISVNActions
         this.logger = logger;
     }
 
+    @Override
     public String cat(String pathOrUrl) throws SVNException
     {
         assert pathOrUrl != null;
@@ -54,6 +55,7 @@ class SVNActions implements ISVNActions
         return StringUtils.join(subversionProcessInfo.getLines(), OSUtilities.LINE_SEPARATOR);
     }
 
+    @Override
     public List<String> list(String pathOrUrl) throws SVNException
     {
         assert pathOrUrl != null;
@@ -65,6 +67,7 @@ class SVNActions implements ISVNActions
         return subversionProcessInfo.getLines();
     }
 
+    @Override
     public void mkdir(String pathOrUrl, String logMessage) throws SVNException
     {
         assert pathOrUrl != null;
@@ -74,6 +77,7 @@ class SVNActions implements ISVNActions
         SVNUtilities.subversionCommand(logger, "mkdir", "--message", logMessage, pathOrUrl);
     }
 
+    @Override
     public void copy(String sourcePathOrUrl, String sourceRevision, String destinationPathOrUrl,
             String logMessage) throws SVNException
     {
@@ -95,6 +99,7 @@ class SVNActions implements ISVNActions
         }
     }
 
+    @Override
     public SVNInfoRecord info(String pathOrUrl)
     {
         assert pathOrUrl != null;
@@ -108,6 +113,7 @@ class SVNActions implements ISVNActions
         return infoRecord;
     }
 
+    @Override
     public List<SVNItemStatus> status(String pathOrUrl)
     {
         assert pathOrUrl != null;
@@ -137,11 +143,13 @@ class SVNActions implements ISVNActions
         return false;
     }
 
+    @Override
     public boolean isMuccAvailable()
     {
         return SVNUtilities.isMuccAvailable();
     }
 
+    @Override
     public void mucc(String logMessage, String... args) throws SVNException
     {
         assert logMessage != null;

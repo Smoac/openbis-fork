@@ -76,31 +76,37 @@ class SVNInfoRecord
     private Updater updater = new Updater()
         {
 
+            @Override
             public void setLastChangedAuthor(String lastChangedAuthor)
             {
                 SVNInfoRecord.this.lastChangedAuthor = lastChangedAuthor;
             }
 
+            @Override
             public void setLastChangedRevision(int lastChangedRevision)
             {
                 SVNInfoRecord.this.lastChangedRevision = lastChangedRevision;
             }
 
+            @Override
             public void setLastChangedDate(String lastChangedDate)
             {
                 SVNInfoRecord.this.lastChangedDate = lastChangedDate;
             }
 
+            @Override
             public void setNodeKind(NodeKind nodeKind)
             {
                 SVNInfoRecord.this.nodeKind = nodeKind;
             }
 
+            @Override
             public void setRepositoryRootUrl(String repositoryRootUrl)
             {
                 SVNInfoRecord.this.repositoryRootUrl = repositoryRootUrl;
             }
 
+            @Override
             public void setRepositoryUUID(String repositoryUUID)
             {
                 if (SVNInfoRecord.this.repositoryUUID == null)
@@ -115,21 +121,25 @@ class SVNInfoRecord
                 }
             }
 
+            @Override
             public void setRepositoryUrl(String repositoryUrl)
             {
                 SVNInfoRecord.this.repositoryUrl = repositoryUrl;
             }
 
+            @Override
             public void setRevision(int revision)
             {
                 SVNInfoRecord.this.revision = revision;
             }
 
+            @Override
             public void setSchedule(String schedule)
             {
                 SVNInfoRecord.this.schedule = schedule;
             }
 
+            @Override
             public void setWorkingCopyPath(String workingCopyPath)
             {
                 SVNInfoRecord.this.workingCopyPath = workingCopyPath;

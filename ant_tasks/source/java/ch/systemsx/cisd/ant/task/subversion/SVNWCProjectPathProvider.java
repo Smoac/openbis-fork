@@ -53,11 +53,13 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         this.projectName = thisProjectName;
     }
 
+    @Override
     public String getPath()
     {
         return getPath(projectName);
     }
 
+    @Override
     public String getPath(String subProjectName) throws UserFailureException
     {
         assert subProjectName != null;
@@ -67,6 +69,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         return new File(baseDirectory, subProjectName).getAbsolutePath();
     }
 
+    @Override
     public String getPath(String subProjectName, String entityPath) throws UserFailureException
     {
         assert subProjectName != null;
@@ -92,6 +95,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         }
     }
 
+    @Override
     public String getProjectName()
     {
         return projectName;
@@ -100,11 +104,13 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
     /**
      * @return "BASE"
      */
+    @Override
     public String getRevision()
     {
         return "BASE";
     }
 
+    @Override
     public boolean isRepositoryPath()
     {
         return false;

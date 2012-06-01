@@ -44,6 +44,7 @@ class SVNCheckout implements ISVNCheckout
         assert this.directoryToCheckout.isDirectory();
     }
 
+    @Override
     public void checkout(String url, String projectName, String revision) throws SVNException
     {
         assert url != null && url.indexOf("://") > 0;
@@ -56,6 +57,7 @@ class SVNCheckout implements ISVNCheckout
                 "%s@%s", url, revision), workingCopyPath);
     }
 
+    @Override
     public String getDirectoryToCheckout()
     {
         return directoryToCheckout.getAbsolutePath();

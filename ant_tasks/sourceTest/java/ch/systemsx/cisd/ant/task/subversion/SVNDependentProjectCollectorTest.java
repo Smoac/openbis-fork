@@ -81,6 +81,7 @@ public class SVNDependentProjectCollectorTest
             this.pathMap = pathMap;
         }
 
+        @Override
         public String cat(String path) throws SVNException
         {
             System.out.println("CAT - " + path);
@@ -88,6 +89,7 @@ public class SVNDependentProjectCollectorTest
             return result == null ? "" : result;
         }
 
+        @Override
         public List<String> list(String path) throws SVNException
         {
             System.out.println("LIST - " + path);
@@ -96,32 +98,38 @@ public class SVNDependentProjectCollectorTest
             return result;
         }
 
+        @Override
         public void mkdir(String path, String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call mkdir()");
         }
 
+        @Override
         public void copy(String sourcePath, String sourceRevision, String destinationPath,
                 String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call copy()");
         }
 
+        @Override
         public SVNInfoRecord info(String pathOrUrl)
         {
             throw new AssertionError("Unexpected call info()");
         }
 
+        @Override
         public List<SVNItemStatus> status(String path)
         {
             throw new AssertionError("Unexpected call status()");
         }
 
+        @Override
         public boolean isMuccAvailable()
         {
             return false;
         }
 
+        @Override
         public void mucc(String logMessage, String... args) throws SVNException
         {
             throw new AssertionError();

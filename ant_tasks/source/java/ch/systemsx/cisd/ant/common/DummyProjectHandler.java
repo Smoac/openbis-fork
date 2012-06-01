@@ -23,24 +23,29 @@ public class DummyProjectHandler implements IProjectHandler
 {
     public static final IProjectHandler INSTANCE = new DummyProjectHandler();
 
+    @Override
     public IProjectHandler createHandler(EclipseClasspathEntry entry)
     {
         return INSTANCE;
     }
 
+    @Override
     public IEclipseClasspathLocation createLocation()
     {
         return null;
     }
 
+    @Override
     public void handleEntry(EclipseClasspathEntry entry)
     {
     }
 
+    @Override
     public void handleOnEntering()
     {
     }
 
+    @Override
     public void handleOnLeaving()
     {
     }

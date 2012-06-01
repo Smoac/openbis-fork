@@ -93,6 +93,7 @@ public class SVNRecursiveCheckoutTaskTest
             this.checkedOutRevision = new ArrayList<String>();
         }
 
+        @Override
         public void checkout(final String path, final String projectName, final String revision)
                 throws SVNException
         {
@@ -103,6 +104,7 @@ public class SVNRecursiveCheckoutTaskTest
             checkedOutRevision.add(revision);
         }
 
+        @Override
         public String getDirectoryToCheckout()
         {
             return workingCopyDir;
@@ -128,6 +130,7 @@ public class SVNRecursiveCheckoutTaskTest
         {
             return new ISVNFileExporter()
                 {
+                    @Override
                     public void export(String repositoryUrl, File targetDirectory)
                             throws SVNException
                     {
