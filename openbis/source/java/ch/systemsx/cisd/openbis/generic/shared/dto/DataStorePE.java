@@ -37,7 +37,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.validator.constraints.Length;
@@ -200,9 +199,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
         return id;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataStoreInternal")
-    @Cascade(value =
-        { org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataStoreInternal", orphanRemoval = true)
     @NotNull(message = ValidationMessages.DATA_STORE_SERVICES_NOT_NULL_MESSAGE)
     private Set<DataStoreServicePE> getServicesInternal()
     {
