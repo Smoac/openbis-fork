@@ -217,7 +217,7 @@ public class SimplePropertyValidator
             assert value != null : "Unspecified value.";
             try
             {
-                Integer.parseInt(value);
+                Long.parseLong(value);
                 return value;
             } catch (final NumberFormatException ex)
             {
