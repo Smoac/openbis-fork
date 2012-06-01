@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="/libraries/knime/eclipse-equinox-common.jar"/>
 	<classpathentry kind="lib" path="/libraries/knime/eclipse-osgi.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar" sourcepath="/libraries/jackson/jackson-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
