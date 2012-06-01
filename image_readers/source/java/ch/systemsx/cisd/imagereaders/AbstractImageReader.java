@@ -45,16 +45,19 @@ public abstract class AbstractImageReader implements IImageReader
         this.readerName = readerName;
     }
 
+    @Override
     public String getLibraryName()
     {
         return libraryName;
     }
 
+    @Override
     public String getName()
     {
         return readerName;
     }
 
+    @Override
     public final List<ImageID> getImageIDs(File file) throws IOExceptionUnchecked
     {
         RandomAccessFileImpl raf = new RandomAccessFileImpl(file, "r");
@@ -67,16 +70,19 @@ public abstract class AbstractImageReader implements IImageReader
         }
     }
 
+    @Override
     public final List<ImageID> getImageIDs(byte[] bytes)
     {
         return getImageIDs(new ByteBufferRandomAccessFile(bytes));
     }
 
+    @Override
     public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked
     {
         return Arrays.asList(ImageID.NULL);
     }
 
+    @Override
     public BufferedImage readImage(File file, ImageID imageID, IReadParams params) throws IOExceptionUnchecked
     {
         IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
@@ -89,28 +95,33 @@ public abstract class AbstractImageReader implements IImageReader
         }
     }
 
+    @Override
     public BufferedImage readImage(byte[] bytes, ImageID imageID, IReadParams params)
     {
         IRandomAccessFile raf = new ByteBufferRandomAccessFile(bytes);
         return readImage(raf, imageID, params);
     }
 
+    @Override
     public boolean isMetaDataAware()
     {
         return false;
     }
 
+    @Override
     public Map<String, Object> readMetaData(File file, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
         return Collections.emptyMap();
     }
 
+    @Override
     public Map<String, Object> readMetaData(byte[] bytes, ImageID imageID, IReadParams params)
     {
         return Collections.emptyMap();
     }
 
+    @Override
     public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID, IReadParams params)
     {
         return Collections.emptyMap();

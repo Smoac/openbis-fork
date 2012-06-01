@@ -80,6 +80,7 @@ public class BioFormatsInfo
         List<Entry<String, Object>> entries = new ArrayList<Entry<String, Object>>(map.entrySet());
         Collections.sort(entries, new Comparator<Entry<String, Object>>()
             {
+                @Override
                 public int compare(Entry<String, Object> o1, Entry<String, Object> o2)
                 {
                     return o1.getKey().compareTo(o2.getKey());

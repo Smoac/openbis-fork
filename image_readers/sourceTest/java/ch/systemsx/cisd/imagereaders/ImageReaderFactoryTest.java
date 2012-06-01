@@ -36,6 +36,7 @@ public class ImageReaderFactoryTest extends ImageReaderTestCase
 {
     private static final FileFilter IGNORE_SVN = new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return (false == pathname.getName().equalsIgnoreCase(".svn"));

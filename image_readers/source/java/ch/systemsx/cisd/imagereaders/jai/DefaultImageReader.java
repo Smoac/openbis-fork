@@ -78,6 +78,7 @@ class DefaultImageReader extends AbstractImageReader
         }
     }
 
+    @Override
     public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
@@ -94,6 +95,7 @@ class DefaultImageReader extends AbstractImageReader
         }
     }
 
+    @Override
     public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
     {
         try

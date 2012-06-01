@@ -37,11 +37,13 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
      */
     public final static String SINGLE_IMAGE_PER_FILE_READER_SUFFIX = "##SINGLE_IMAGE";
 
+    @Override
     public String getName()
     {
         return ImageReaderConstants.BIOFORMATS_LIBRARY;
     }
 
+    @Override
     public List<String> getReaderNames()
     {
         return BioFormatsImageUtils.getReaderNames();
@@ -53,6 +55,7 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
      * 
      * @return <code>null</code> if no corresponding reader is found.
      */
+    @Override
     public IImageReader tryGetReader(String readerName)
     {
         String readerNameToUse = readerName;
@@ -75,6 +78,7 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
      * 
      * @return <code>null</code> if no suitable reader is found.
      */
+    @Override
     public IImageReader tryGetReaderForFile(String fileName)
     {
         IFormatReader formatReaderOrNull = BioFormatsImageUtils.tryToCreateReaderForFile(fileName);

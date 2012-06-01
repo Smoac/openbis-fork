@@ -64,6 +64,7 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
         }
     }
 
+    @Override
     public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
@@ -93,6 +94,7 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
         return BioFormatsImageUtils.readMetadata(formatReader, input, imageID);
     }
 
+    @Override
     public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
     {
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);

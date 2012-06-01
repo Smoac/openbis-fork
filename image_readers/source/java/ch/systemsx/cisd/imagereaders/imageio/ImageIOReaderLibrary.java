@@ -52,16 +52,19 @@ import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 public class ImageIOReaderLibrary implements IImageReaderLibrary
 {
 
+    @Override
     public String getName()
     {
         return ImageReaderConstants.IMAGEIO_LIBRARY;
     }
 
+    @Override
     public List<String> getReaderNames()
     {
         return removeDuplicates(ImageIO.getReaderFormatNames());
     }
 
+    @Override
     public IImageReader tryGetReader(String readerName)
     {
         assert readerName != null : "Reader name cannot be null";
@@ -71,6 +74,7 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
         return tryGetReader(iterator);
     }
 
+    @Override
     public IImageReader tryGetReaderForFile(String fileName)
     {
         String fileSuffix = FilenameUtils.getExtension(fileName);
@@ -100,6 +104,7 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
         final String readerName = getReaderName(ioReader);
         return new AbstractImageReader(libraryName, readerName)
             {
+                @Override
                 public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID,
                         IReadParams ignored) throws IOExceptionUnchecked
                 {
@@ -114,6 +119,7 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
                     }
                 }
 
+                @Override
                 public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
                 {
                     try

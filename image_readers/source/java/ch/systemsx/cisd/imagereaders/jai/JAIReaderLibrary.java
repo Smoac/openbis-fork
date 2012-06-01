@@ -59,11 +59,13 @@ public class JAIReaderLibrary implements IImageReaderLibrary
         fixExtensions.put("ppm", PNM_FORMAT);
     }
 
+    @Override
     public String getName()
     {
         return ImageReaderConstants.JAI_LIBRARY;
     }
 
+    @Override
     public List<String> getReaderNames()
     {
         List<ImageCodec> codecs = getCodecsList();
@@ -75,6 +77,7 @@ public class JAIReaderLibrary implements IImageReaderLibrary
         return result;
     }
 
+    @Override
     public IImageReader tryGetReader(final String readerName)
     {
         assert readerName != null : "fileName cannot be null";
@@ -92,6 +95,7 @@ public class JAIReaderLibrary implements IImageReaderLibrary
         }
     }
 
+    @Override
     public IImageReader tryGetReaderForFile(String fileName)
     {
         assert fileName != null : "fileName cannot be null";

@@ -57,6 +57,7 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
 
     private final IImageReader TIFF_IMAGE_READER = new AbstractImageReader(getName(), TIFF_READER)
         {
+            @Override
             public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID,
                     IReadParams params) throws IOExceptionUnchecked
             {
@@ -69,6 +70,7 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
                 return createBufferedImageOfSameType(imagePlus);
             }
 
+            @Override
             public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID)
             {
                 AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);
@@ -114,21 +116,25 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
         }
     }
 
+    @Override
     public String getName()
     {
         return ImageReaderConstants.IMAGEJ_LIBRARY;
     }
 
+    @Override
     public List<String> getReaderNames()
     {
         return Collections.singletonList(TIFF_READER);
     }
 
+    @Override
     public IImageReader tryGetReader(String readerName)
     {
         return tryGetReaderForExtension(readerName);
     }
 
+    @Override
     public IImageReader tryGetReaderForFile(String fileName)
     {
         String fileExt = FilenameUtils.getExtension(fileName);
