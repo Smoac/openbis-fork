@@ -62,27 +62,32 @@ public class StackedAuthenticationService implements IAuthenticationService
         this.supportsListingByLastName = foundSupportsListingByLastName;
     }
 
+    @Override
     public String authenticateApplication()
     {
         return "DUMMY-TOKEN";
     }
 
+    @Override
     public boolean authenticateUser(String dummyToken, String user, String password)
     {
         return authenticateUser(user, password);
     }
 
+    @Override
     public boolean authenticateUser(String user, String password)
     {
         final Principal principalOrNull = tryGetAndAuthenticateUser(user, password);
         return Principal.isAuthenticated(principalOrNull);
     }
 
+    @Override
     public Principal getPrincipal(String dummyToken, String user) throws IllegalArgumentException
     {
         return getPrincipal(user);
     }
 
+    @Override
     public Principal getPrincipal(String user) throws IllegalArgumentException
     {
         final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
@@ -93,11 +98,13 @@ public class StackedAuthenticationService implements IAuthenticationService
         return principalOrNull;
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull)
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
         for (IAuthenticationService service : delegates)
@@ -111,12 +118,14 @@ public class StackedAuthenticationService implements IAuthenticationService
         return null;
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
         for (IAuthenticationService service : delegates)
@@ -135,11 +144,13 @@ public class StackedAuthenticationService implements IAuthenticationService
         return null;
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         return listPrincipalsByEmail(emailQuery);
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         if (supportsListingByEmail == false)
@@ -157,11 +168,13 @@ public class StackedAuthenticationService implements IAuthenticationService
         return principals;
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         return listPrincipalsByLastName(lastNameQuery);
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         if (supportsListingByLastName == false)
@@ -179,11 +192,13 @@ public class StackedAuthenticationService implements IAuthenticationService
         return principals;
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
     {
         return listPrincipalsByUserId(userIdQuery);
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         if (supportsListingByUserId == false)
@@ -201,21 +216,25 @@ public class StackedAuthenticationService implements IAuthenticationService
         return principals;
     }
 
+    @Override
     public boolean supportsListingByEmail()
     {
         return supportsListingByEmail;
     }
 
+    @Override
     public boolean supportsListingByLastName()
     {
         return supportsListingByLastName;
     }
 
+    @Override
     public boolean supportsListingByUserId()
     {
         return supportsListingByUserId;
     }
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         for (IAuthenticationService service : delegates)
@@ -224,6 +243,7 @@ public class StackedAuthenticationService implements IAuthenticationService
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return remote;

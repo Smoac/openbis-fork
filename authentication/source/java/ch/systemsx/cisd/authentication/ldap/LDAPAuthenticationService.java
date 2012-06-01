@@ -39,38 +39,45 @@ public class LDAPAuthenticationService implements IAuthenticationService
         query = new LDAPPrincipalQuery(config);
     }
 
+    @Override
     public String authenticateApplication()
     {
         return DUMMY_TOKEN_STR;
     }
 
+    @Override
     public boolean authenticateUser(String applicationToken, String user, String password)
     {
         return authenticateUser(user, password);
     }
 
+    @Override
     public boolean authenticateUser(String user, String password)
     {
         return query.authenticateUser(user, password);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
         return query.tryGetAndAuthenticatePrincipal(user, passwordOrNull);
     }
 
+    @Override
     public Principal getPrincipal(String applicationToken, String user)
             throws IllegalArgumentException
     {
         return getPrincipal(user);
     }
 
+    @Override
     public Principal getPrincipal(String user)
             throws IllegalArgumentException
     {
@@ -82,68 +89,81 @@ public class LDAPAuthenticationService implements IAuthenticationService
         return principalOrNull;
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         return listPrincipalsByEmail(emailQuery);
     }
     
+    @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         return query.listPrincipalsByEmail(emailQuery);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
     
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email,
             String passwordOrNull)
     {
         return query.tryGetAndAuthenticatePrincipalByEmail(email, passwordOrNull);
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         return listPrincipalsByLastName(lastNameQuery);
     }
     
+    @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         return query.listPrincipalsByLastName(lastNameQuery);
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
     {
         return listPrincipalsByUserId(userIdQuery);
     }
     
+    @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         return query.listPrincipalsByUserId(userIdQuery);
     }
 
+    @Override
     public boolean supportsListingByEmail()
     {
         return true;
     }
 
+    @Override
     public boolean supportsListingByLastName()
     {
         return true;
     }
 
+    @Override
     public boolean supportsListingByUserId()
     {
         return true;
     }
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         query.check();
     }
 
+    @Override
     public boolean isRemote()
     {
         return query.isRemote();

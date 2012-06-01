@@ -492,6 +492,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     // ISelfTestable
     //
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         try
@@ -508,6 +509,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
+    @Override
     public boolean isRemote()
     {
         return config.getServerUrl().contains("localhost") == false

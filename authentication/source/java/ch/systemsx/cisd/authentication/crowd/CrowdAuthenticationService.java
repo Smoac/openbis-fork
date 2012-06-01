@@ -142,6 +142,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                  * 
                  * @return The server's response to the request.
                  */
+                @Override
                 public String execute(final String serviceUrl, final String message)
                 {
                     try
@@ -227,11 +228,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
     // ISelfTestable
     //
 
+    @Override
     public boolean isRemote()
     {
         return true;
     }
 
+    @Override
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         try
@@ -263,17 +266,20 @@ public class CrowdAuthenticationService implements IAuthenticationService
     // IAuthenticationService
     //
 
+    @Override
     public final String authenticateApplication()
     {
         return DUMMY_TOKEN_STR;
     }
 
+    @Override
     public final boolean authenticateUser(final String dummyToken, final String user,
             final String password)
     {
         return authenticateUser(user, password);
     }
 
+    @Override
     public final boolean authenticateUser(final String user, final String password)
     {
         assert user != null;
@@ -366,11 +372,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull)
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
         String xmlResponse = null;
@@ -439,11 +447,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
+    @Override
     public final Principal getPrincipal(final String applicationToken, final String user)
     {
         return getPrincipal(user);
     }
 
+    @Override
     public final Principal getPrincipal(final String user)
     {
         final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
@@ -560,57 +570,68 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return index;
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
             String passwordOrNull)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean supportsListingByEmail()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByLastName()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByUserId()
     {
         return false;

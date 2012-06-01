@@ -38,6 +38,7 @@ public final class DummyAuthenticationService implements IAuthenticationService
     //
     // IAuthenticationService
     //
+    @Override
     public final String authenticateApplication()
     {
         // Up to the contract, if it returns <code>null</code> here, it assumes that the application
@@ -48,6 +49,7 @@ public final class DummyAuthenticationService implements IAuthenticationService
     /**
      * Always returns <code>true</code>, meaning that the login was successful.
      */
+    @Override
     public final boolean authenticateUser(final String user, final String password)
     {
         return true;
@@ -56,12 +58,14 @@ public final class DummyAuthenticationService implements IAuthenticationService
     /**
      * Always returns <code>true</code>, meaning that the login was successful.
      */
+    @Override
     public final boolean authenticateUser(final String applicationToken, final String user,
             final String password)
     {
         return true;
     }
 
+    @Override
     public final Principal getPrincipal(final String user)
     {
         // Generate a random first and last name combination
@@ -74,11 +78,13 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch", false);
     }
 
+    @Override
     public final Principal getPrincipal(final String applicationToken, final String user)
     {
         return getPrincipal(user);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
         final Principal principal = getPrincipal(user);
@@ -86,12 +92,14 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return principal;
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String applicationToken, String user,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
         final Principal principal = getPrincipal(email);
@@ -99,62 +107,74 @@ public final class DummyAuthenticationService implements IAuthenticationService
         return principal;
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String applicationToken, String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean supportsListingByEmail()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByLastName()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByUserId()
     {
         return false;
     }
 
+    @Override
     public final void check()
     {
         // Always available.

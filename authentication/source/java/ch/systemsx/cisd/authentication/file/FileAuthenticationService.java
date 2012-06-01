@@ -66,27 +66,32 @@ public class FileAuthenticationService implements IAuthenticationService
     /**
      * Returns the id of the password store, which we consider to be the token.
      */
+    @Override
     public String authenticateApplication()
     {
         return DUMMY_TOKEN_STR;
     }
 
+    @Override
     public boolean authenticateUser(String dummyToken, String user, String password)
     {
         return userStore.isPasswordCorrect(user, password);
     }
 
+    @Override
     public boolean authenticateUser(String user, String password)
     {
         return userStore.isPasswordCorrect(user, password);
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUser(String dummyToken, String user,
             String passwordOrNull)
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
     
+    @Override
     public Principal tryGetAndAuthenticateUser(String user,
             String passwordOrNull)
     {
@@ -106,11 +111,13 @@ public class FileAuthenticationService implements IAuthenticationService
         }
     }
 
+    @Override
     public Principal getPrincipal(String applicationToken, String user)
     {
         return getPrincipal(user);
     }
     
+    @Override
     public Principal getPrincipal(String user)
     {
         final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
@@ -121,66 +128,79 @@ public class FileAuthenticationService implements IAuthenticationService
         return principalOrNull;
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String dummyToken, String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean supportsListingByEmail()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByLastName()
     {
         return false;
     }
 
+    @Override
     public boolean supportsListingByUserId()
     {
         return false;
     }
 
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         userStore.check();
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;

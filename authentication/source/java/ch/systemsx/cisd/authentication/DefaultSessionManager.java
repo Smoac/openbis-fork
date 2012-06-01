@@ -258,6 +258,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    @Override
     public boolean isAWellFormedSessionToken(String sessionTokenOrNull)
     {
         if (sessionTokenOrNull == null)
@@ -286,6 +287,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         return splittedTimeStampToken[1].length() == 32;
     }
 
+    @Override
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
         checkIfNotBlank(sessionToken, "sessionToken");
@@ -350,11 +352,13 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 .join(splittedSessionToken, SESSION_TOKEN_SEPARATOR, 0, exclusiveEndIndex);
     }
 
+    @Override
     public String tryToOpenSession(final String user, final String password)
     {
         checkIfNotBlank(password, "password");
         return tryToOpenSession(user, new IPrincipalProvider()
             {
+                @Override
                 public Principal tryToGetPrincipal(String userID)
                 {
                     return tryGetAndAuthenticateUser(user, password);
@@ -362,6 +366,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             });
     }
 
+    @Override
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider)
     {
         checkIfNotBlank(userID, "user");
@@ -398,6 +403,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     }
 
+    @Override
     public void closeSession(final String sessionToken) throws InvalidSessionException
     {
         synchronized (sessions)
@@ -408,6 +414,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    @Override
     public String getRemoteHost()
     {
         return remoteHostProvider.getRemoteHost();

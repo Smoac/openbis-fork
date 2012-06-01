@@ -59,6 +59,7 @@ final class FileBasedLineStore implements ILineStore
         this.fileDescription = fileDescription;
     }
 
+    @Override
     public void check() throws ConfigurationFailureException
     {
         try
@@ -105,6 +106,7 @@ final class FileBasedLineStore implements ILineStore
         }
     }
 
+    @Override
     public String getId()
     {
         return file.getPath();
@@ -116,6 +118,7 @@ final class FileBasedLineStore implements ILineStore
         return FileUtils.readLines(file);
     }
 
+    @Override
     public List<String> readLines() throws ConfigurationFailureException
     {
         if (file.exists() == false)
@@ -171,6 +174,7 @@ final class FileBasedLineStore implements ILineStore
         checkWritable(newFile, fileDescription);
     }
 
+    @Override
     public void writeLines(List<String> lines)
     {
         checkWritable();

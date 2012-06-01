@@ -52,16 +52,19 @@ final class LineBasedUserStore implements IUserStore
         return null;
     }
 
+    @Override
     public String getId()
     {
         return lineStore.getId();
     }
 
+    @Override
     public UserEntry tryGetUser(String user)
     {
         return tryFindUserEntry(user, lineStore.readLines());
     }
 
+    @Override
     public void addOrUpdateUser(UserEntry user)
     {
         assert user != null;
@@ -86,6 +89,7 @@ final class LineBasedUserStore implements IUserStore
         lineStore.writeLines(passwordLines);
     }
 
+    @Override
     public boolean removeUser(String userId)
     {
         assert userId != null;
@@ -110,6 +114,7 @@ final class LineBasedUserStore implements IUserStore
         return found;
     }
 
+    @Override
     public boolean isPasswordCorrect(String user, String password)
     {
         assert user != null;
@@ -123,6 +128,7 @@ final class LineBasedUserStore implements IUserStore
         return userEntryOrNull.isPasswordCorrect(password);
     }
 
+    @Override
     public List<UserEntry> listUsers()
     {
         final List<UserEntry> list = new ArrayList<UserEntry>();
@@ -139,11 +145,13 @@ final class LineBasedUserStore implements IUserStore
      * 
      * @throws ConfigurationFailureException If the store is not operational.
      */
+    @Override
     public void check() throws ConfigurationFailureException
     {
         lineStore.check();
     }
 
+    @Override
     public boolean isRemote()
     {
         return false;
