@@ -58,6 +58,7 @@ public class NamingThreadPoolExecutorTest
         assertEquals(2, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     assertEquals(name + "-T1", Thread.currentThread().getName());
@@ -109,6 +110,7 @@ public class NamingThreadPoolExecutorTest
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final ThreadFactory factory = new ThreadFactory()
             {
+                @Override
                 public Thread newThread(Runnable r)
                 {
                     return null; // Doesn't matter, never used
@@ -137,6 +139,7 @@ public class NamingThreadPoolExecutorTest
         {
             futureSet.add(eservice.submit(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         threadNameSet.add(Thread.currentThread().getName());
@@ -173,11 +176,13 @@ public class NamingThreadPoolExecutorTest
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedRunnable()
             {
+                @Override
                 public void run()
                 {
                     assertEquals(name + "-T1::" + runnableName, Thread.currentThread().getName());
                 }
 
+                @Override
                 public String getRunnableName()
                 {
                     return runnableName;
@@ -203,12 +208,14 @@ public class NamingThreadPoolExecutorTest
         final Semaphore sem = new Semaphore(0);
         eservice.execute(new NamedRunnable()
             {
+                @Override
                 public void run()
                 {
                     assertEquals(name + "-T1::" + runnableName, Thread.currentThread().getName());
                     sem.release();
                 }
 
+                @Override
                 public String getRunnableName()
                 {
                     return runnableName;
@@ -232,12 +239,14 @@ public class NamingThreadPoolExecutorTest
         final Semaphore sem = new Semaphore(0);
         eservice.execute(new MyRunnable()
             {
+                @Override
                 public void run()
                 {
                     assertEquals(name + "-T1::" + runnableName, Thread.currentThread().getName());
                     sem.release();
                 }
 
+                @Override
                 public String getRunnableName()
                 {
                     return runnableName;
@@ -256,12 +265,14 @@ public class NamingThreadPoolExecutorTest
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedCallable<Object>()
             {
+                @Override
                 public Object call() throws Exception
                 {
                     assertEquals(name + "-T1::" + callableName, Thread.currentThread().getName());
                     return null;
                 }
 
+                @Override
                 public String getCallableName()
                 {
                     return callableName;
@@ -290,12 +301,14 @@ public class NamingThreadPoolExecutorTest
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new MyCallable()
             {
+                @Override
                 public Object call() throws Exception
                 {
                     assertEquals(name + "-T1::" + callableName, Thread.currentThread().getName());
                     return null;
                 }
 
+                @Override
                 public String getCallableName()
                 {
                     return callableName;
@@ -320,12 +333,14 @@ public class NamingThreadPoolExecutorTest
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future1 = eservice.submit(new NamedCallable<Object>()
             {
+                @Override
                 public Object call() throws Exception
                 {
                     assertEquals(name + "-T1::" + callableName1, Thread.currentThread().getName());
                     return null;
                 }
 
+                @Override
                 public String getCallableName()
                 {
                     return callableName1;
@@ -343,12 +358,14 @@ public class NamingThreadPoolExecutorTest
         final String callableName2 = "This is the second special callable name";
         final Future<?> future2 = eservice.submit(new NamedCallable<Object>()
             {
+                @Override
                 public Object call() throws Exception
                 {
                     assertEquals(name + "-T1::" + callableName2, Thread.currentThread().getName());
                     return null;
                 }
 
+                @Override
                 public String getCallableName()
                 {
                     return callableName2;
@@ -374,6 +391,7 @@ public class NamingThreadPoolExecutorTest
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future1 = eservice.submit(new NamedCallable<Object>()
             {
+                @Override
                 public Object call() throws Exception
                 {
                     assertEquals(name + "-T1::" + callableName1, Thread.currentThread().getName());
@@ -381,6 +399,7 @@ public class NamingThreadPoolExecutorTest
                     return null;
                 }
 
+                @Override
                 public String getCallableName()
                 {
                     return callableName1;
@@ -388,6 +407,7 @@ public class NamingThreadPoolExecutorTest
             });
         final Future<?> future2 = eservice.submit(new NamedCallable<Object>()
                 {
+                    @Override
                     public Object call() throws Exception
                     {
                         assertEquals(name + "-T1::" + callableName1, Thread.currentThread().getName());
@@ -395,6 +415,7 @@ public class NamingThreadPoolExecutorTest
                         return null;
                     }
 
+                    @Override
                     public String getCallableName()
                     {
                         return callableName1;

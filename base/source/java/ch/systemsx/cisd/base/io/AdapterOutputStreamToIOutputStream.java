@@ -39,6 +39,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
     // IOutputStream
     //
     
+    @Override
     public void write(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
@@ -50,6 +51,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
         }
     }
 
+    @Override
     public void write(byte[] b) throws IOExceptionUnchecked
     {
         try
@@ -61,6 +63,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
         }
     }
 
+    @Override
     public void write(int b) throws IOExceptionUnchecked
     {
         try
@@ -72,6 +75,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
         }
     }
 
+    @Override
     public void close() throws IOExceptionUnchecked
     {
         try
@@ -83,6 +87,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
         }
     }
 
+    @Override
     public void flush() throws IOExceptionUnchecked
     {
         try
@@ -94,6 +99,7 @@ public class AdapterOutputStreamToIOutputStream implements IOutputStream
         }
     }
 
+    @Override
     public void synchronize() throws IOExceptionUnchecked
     {
         flush();

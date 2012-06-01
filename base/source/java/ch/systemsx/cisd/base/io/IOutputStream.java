@@ -48,11 +48,13 @@ public interface IOutputStream extends ICloseable, ISynchronizable
     /**
      * @see java.io.OutputStream#flush()
      */
+    @Override
     public void synchronize() throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#close()
      */
+    @Override
     public void close() throws IOExceptionUnchecked;
 
 }

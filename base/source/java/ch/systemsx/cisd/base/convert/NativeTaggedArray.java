@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.base.convert.NativeData.LONG_SIZE;
 import static ch.systemsx.cisd.base.convert.NativeData.SHORT_SIZE;
 
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
+import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
 import ch.systemsx.cisd.base.mdarray.MDArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
@@ -205,7 +206,7 @@ public class NativeTaggedArray
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
         NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encoding.getByteOrder());
-        final int length = MDArray.getLength(dimensions);
+        final int length = MDAbstractArray.getLength(dimensions);
         final int headerSize = LENGTH_INDEX + rank * LENGTH_SIZE;
         if (length * FLOAT_SIZE + headerSize != data.length)
         {
@@ -317,7 +318,7 @@ public class NativeTaggedArray
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
         NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encoding.getByteOrder());
-        final int length = MDArray.getLength(dimensions);
+        final int length = MDAbstractArray.getLength(dimensions);
         final int headerSize = LENGTH_INDEX + rank * LENGTH_SIZE;
         if (length * DOUBLE_SIZE + headerSize != data.length)
         {
@@ -431,7 +432,7 @@ public class NativeTaggedArray
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
         NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encoding.getByteOrder());
-        final int length = MDArray.getLength(dimensions);
+        final int length = MDAbstractArray.getLength(dimensions);
         final int headerSize = LENGTH_INDEX + rank * LENGTH_SIZE;
         if (length * SHORT_SIZE + headerSize != data.length)
         {
@@ -543,7 +544,7 @@ public class NativeTaggedArray
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
         NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encoding.getByteOrder());
-        final int length = MDArray.getLength(dimensions);
+        final int length = MDAbstractArray.getLength(dimensions);
         final int headerSize = LENGTH_INDEX + rank * LENGTH_SIZE;
         if (length * INT_SIZE + headerSize != data.length)
         {
@@ -657,7 +658,7 @@ public class NativeTaggedArray
         final int rank = data[RANK_INDEX];
         final int[] dimensions = new int[rank];
         NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encoding.getByteOrder());
-        final int length = MDArray.getLength(dimensions);
+        final int length = MDAbstractArray.getLength(dimensions);
         final int headerSize = LENGTH_INDEX + rank * LENGTH_SIZE;
         if (length * LONG_SIZE + headerSize != data.length)
         {

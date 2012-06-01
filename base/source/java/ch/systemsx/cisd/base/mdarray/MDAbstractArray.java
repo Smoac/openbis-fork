@@ -420,17 +420,20 @@ public abstract class MDAbstractArray<T> implements Serializable,
     // Iterable
     //
 
+    @Override
     public Iterator<ArrayEntry> iterator()
     {
         return new Iterator<ArrayEntry>()
             {
                 int linearIndex = 0;
 
+                @Override
                 public boolean hasNext()
                 {
                     return linearIndex < size;
                 }
 
+                @Override
                 public ArrayEntry next()
                 {
                     final ArrayEntry next = new ArrayEntry(linearIndex);
@@ -438,6 +441,7 @@ public abstract class MDAbstractArray<T> implements Serializable,
                     return next;
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();

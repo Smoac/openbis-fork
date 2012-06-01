@@ -28,11 +28,13 @@ public interface IErrorStrategy
      */
     public static final IErrorStrategy DEFAULT_ERROR_STRATEGY = new IErrorStrategy()
         {
+            @Override
             public void dealWithError(Throwable th) throws RuntimeException, Error
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(th);
             }
 
+            @Override
             public void warning(String message)
             {
                 System.err.println(message);

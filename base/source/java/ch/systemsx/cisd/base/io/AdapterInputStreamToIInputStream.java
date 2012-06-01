@@ -36,6 +36,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         this.delegate = delegate;
     }
 
+    @Override
     public int available() throws IOExceptionUnchecked
     {
         try
@@ -47,6 +48,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public void close() throws IOExceptionUnchecked
     {
         try
@@ -58,16 +60,19 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public void mark(int readlimit)
     {
         delegate.mark(readlimit);
     }
 
+    @Override
     public boolean markSupported()
     {
         return delegate.markSupported();
     }
 
+    @Override
     public int read() throws IOExceptionUnchecked
     {
         try
@@ -79,6 +84,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
@@ -90,6 +96,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public int read(byte[] b) throws IOExceptionUnchecked
     {
         try
@@ -101,6 +108,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public void reset() throws IOExceptionUnchecked
     {
         try
@@ -112,6 +120,7 @@ public class AdapterInputStreamToIInputStream implements IInputStream
         }
     }
 
+    @Override
     public long skip(long n) throws IOExceptionUnchecked
     {
         try

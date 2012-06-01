@@ -82,17 +82,20 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         return randomAccessFile.getChannel();
     }
 
+    @Override
     public ByteOrder getByteOrder()
     {
         return byteOrder;
     }
 
+    @Override
     public void setByteOrder(ByteOrder byteOrder)
     {
         this.byteOrder = byteOrder;
         this.changeByteOrder = ByteOrder.LITTLE_ENDIAN.equals(byteOrder);
     }
 
+    @Override
     public int read() throws IOExceptionUnchecked
     {
         try
@@ -104,6 +107,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
@@ -115,6 +119,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public int read(byte[] b) throws IOExceptionUnchecked
     {
         try
@@ -126,6 +131,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void readFully(byte[] b) throws IOExceptionUnchecked
     {
         try
@@ -137,6 +143,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void readFully(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
@@ -148,6 +155,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public int skipBytes(int n) throws IOExceptionUnchecked
     {
         try
@@ -159,6 +167,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void write(int b) throws IOExceptionUnchecked
     {
         try
@@ -170,6 +179,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void write(byte[] b) throws IOExceptionUnchecked
     {
         try
@@ -181,6 +191,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
@@ -192,6 +203,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public long getFilePointer() throws IOExceptionUnchecked
     {
         try
@@ -203,6 +215,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void seek(long pos) throws IOExceptionUnchecked
     {
         try
@@ -214,6 +227,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public long length() throws IOExceptionUnchecked
     {
         try
@@ -225,6 +239,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void setLength(long newLength) throws IOExceptionUnchecked
     {
         try
@@ -236,6 +251,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void close() throws IOExceptionUnchecked
     {
         try
@@ -247,6 +263,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final boolean readBoolean() throws IOExceptionUnchecked
     {
         try
@@ -258,6 +275,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final byte readByte() throws IOExceptionUnchecked
     {
         try
@@ -269,6 +287,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final int readUnsignedByte() throws IOExceptionUnchecked
     {
         try
@@ -280,6 +299,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final short readShort() throws IOExceptionUnchecked
     {
         try
@@ -292,11 +312,13 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final int readUnsignedShort() throws IOExceptionUnchecked
     {
         return readShort() & 0xffff;
     }
 
+    @Override
     public final char readChar() throws IOExceptionUnchecked
     {
         try
@@ -309,6 +331,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final int readInt() throws IOExceptionUnchecked
     {
         try
@@ -321,6 +344,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final long readLong() throws IOExceptionUnchecked
     {
         try
@@ -333,6 +357,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final float readFloat() throws IOExceptionUnchecked
     {
         try
@@ -345,6 +370,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final double readDouble() throws IOExceptionUnchecked
     {
         try
@@ -357,6 +383,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final String readLine() throws IOExceptionUnchecked
     {
         try
@@ -368,6 +395,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final String readUTF() throws IOExceptionUnchecked
     {
         try
@@ -379,6 +407,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeBoolean(boolean v) throws IOExceptionUnchecked
     {
         try
@@ -390,6 +419,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeByte(int v) throws IOExceptionUnchecked
     {
         try
@@ -401,6 +431,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeShort(int v) throws IOExceptionUnchecked
     {
         try
@@ -412,6 +443,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeChar(int v) throws IOExceptionUnchecked
     {
         try
@@ -423,6 +455,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeInt(int v) throws IOExceptionUnchecked
     {
         try
@@ -434,6 +467,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeLong(long v) throws IOExceptionUnchecked
     {
         try
@@ -445,6 +479,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeFloat(float v) throws IOExceptionUnchecked
     {
         try
@@ -456,6 +491,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeDouble(double v) throws IOExceptionUnchecked
     {
         try
@@ -467,6 +503,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeBytes(String s) throws IOExceptionUnchecked
     {
         try
@@ -478,6 +515,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeChars(String s) throws IOExceptionUnchecked
     {
         try
@@ -489,6 +527,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public final void writeUTF(String str) throws IOExceptionUnchecked
     {
         try
@@ -500,6 +539,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public long skip(long n) throws IOExceptionUnchecked
     {
         if (n <= 0)
@@ -519,6 +559,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public int available() throws IOExceptionUnchecked
     {
         try
@@ -530,6 +571,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void mark(int readlimit)
     {
         try
@@ -541,6 +583,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public void reset() throws IOExceptionUnchecked
     {
         if (markedPosition == -1)
@@ -556,16 +599,19 @@ public class RandomAccessFileImpl implements IRandomAccessFile
         }
     }
 
+    @Override
     public boolean markSupported()
     {
         return true;
     }
 
+    @Override
     public void flush() throws IOExceptionUnchecked
     {
         // NOOP
     }
 
+    @Override
     public void synchronize() throws IOExceptionUnchecked
     {
         try

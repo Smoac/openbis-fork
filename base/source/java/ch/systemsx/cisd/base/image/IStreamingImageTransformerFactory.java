@@ -29,5 +29,6 @@ public interface IStreamingImageTransformerFactory extends IImageTransformerFact
     /**
      * Creates a transformer object based on the attributes of the factory.
      */
+    @Override
     public IStreamingImageTransformer createTransformer();
 }
