@@ -42,13 +42,16 @@ public interface ISampleListingQuery extends BaseQuery
             + "s.modification_timestamp as s_modification_timestamp, sp.code as sp_code, "
             + "st.id as st_id, st.code as st_code, pe.first_name as pe_first_name, "
             + "pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, "
-            + "e.code as exp_code, p.code as proj_code, ps.code as proj_space_code "
+            + "e.code as exp_code, p.code as proj_code, ps.code as proj_space_code, "
+            + "mod.first_name as mod_first_name, mod.last_name as mod_last_name, "
+            + "mod.user_id as mod_user_id, mod.email as mod_email "
             + "from samples as s join sample_types as st on s.saty_id = st.id "
             + "left join samples as cs on s.samp_id_part_of = cs.id "
             + "left join spaces as sp on s.space_id = sp.id "
             + "left join experiments as e on s.expe_id = e.id "
             + "left join projects as p on e.proj_id = p.id "
             + "left join spaces as ps on p.space_id = ps.id "
+            + "left join persons as mod on s.pers_id_modifier = mod.id "
             + "join persons as pe on s.pers_id_registerer = pe.id where s.id = any(?{1}) ", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRecord> listSamplesByIds(LongSet sampleIDs);

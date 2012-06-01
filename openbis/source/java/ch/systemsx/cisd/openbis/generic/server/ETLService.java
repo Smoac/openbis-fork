@@ -835,7 +835,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
             long size)
     {
-        checkSession(sessionToken);
+        final Session session = getSession(sessionToken);
 
         IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
         DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
@@ -854,7 +854,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         long positiveSize = Math.max(1, size);
         externalData.setShareId(shareId);
         externalData.setSize(positiveSize);
-        dataSetDAO.updateDataSet(dataSet);
+        dataSetDAO.updateDataSet(dataSet, session.tryGetPerson());
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,

@@ -55,6 +55,14 @@ public class SampleRecord
 
     public String pe_email;
 
+    public String mod_first_name;
+
+    public String mod_last_name;
+
+    public String mod_user_id;
+
+    public String mod_email;
+
     public String exp_code;
 
     public String proj_code;

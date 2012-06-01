@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator.translateToDescription;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -843,7 +844,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             checkMandatoryProperties();
             IDataDAO dataDAO = getDataDAO();
-            dataDAO.updateDataSets(dataSets);
+            dataDAO.updateDataSets(dataSets, findPerson());
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of data sets"));
@@ -927,7 +928,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         if (details.isParentsUpdateRequested())
         {
-            updateParents(dataSet, dataSetUpdates.getModifiedParentDatasetCodesOrNull());
+            setParents(dataSet, Arrays.asList(dataSetUpdates.getModifiedParentDatasetCodesOrNull()));
         }
         if (details.isFileFormatUpdateRequested())
         {
@@ -965,8 +966,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return service.retrieveLinkFromDataSet(sessionToken, key, dataSet);
     }
 
-    public TableModel createReportFromAggregationService(String datastoreServiceKey, String datastoreCode,
-            Map<String, Object> parameters)
+    public TableModel createReportFromAggregationService(String datastoreServiceKey,
+            String datastoreCode, Map<String, Object> parameters)
     {
         DataStorePE dataStore = findDataStore(datastoreCode);
         IDataStoreService service = tryGetDataStoreService(dataStore);

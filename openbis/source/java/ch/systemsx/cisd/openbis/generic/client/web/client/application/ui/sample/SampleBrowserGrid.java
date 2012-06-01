@@ -423,6 +423,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 super.createColumnsDefinition();
         definitions.setGridCellRendererFor(SampleGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
+        definitions.setGridCellRendererFor(SampleGridColumnIDs.MODIFIER,
+                PersonRenderer.MODIFIER_RENDERER);
         definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
                 createShowDetailsLinkCellRenderer());
         return definitions;

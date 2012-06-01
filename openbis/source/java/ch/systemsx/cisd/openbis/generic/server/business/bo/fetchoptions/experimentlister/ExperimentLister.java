@@ -197,6 +197,7 @@ public class ExperimentLister implements IExperimentLister
         experiment.setIdentifier(experimentIdentifier.toString());
         experiment.setProject(createProject(record));
         experiment.setRegistrator(createPerson(record));
+        experiment.setModifier(createModifier(record));
         experiment.setRegistrationDate(record.e_registration_timestamp);
         experiment.setModificationDate(record.e_modification_timestamp);
         return experiment;
@@ -252,6 +253,18 @@ public class ExperimentLister implements IExperimentLister
         person.setUserId(record.pe_user_id);
         person.setDatabaseInstance(createDatabaseInstance(record));
         person.setRegistrationDate(record.pe_registration_timestamp);
+        return person;
+    }
+
+    private Person createModifier(ExperimentRecord record)
+    {
+        Person person = new Person();
+        person.setFirstName(record.mod_first_name);
+        person.setLastName(record.mod_last_name);
+        person.setEmail(record.mod_email);
+        person.setUserId(record.mod_user_id);
+        person.setDatabaseInstance(createDatabaseInstance(record));
+        person.setRegistrationDate(record.mod_registration_timestamp);
         return person;
     }
 

@@ -771,8 +771,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setOrderInContainer(record.ctnr_order);
         dataSet.setProductionDate(record.production_timestamp);
         dataSet.setRegistrationDate(record.registration_timestamp);
-        dataSet.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
+        dataSet.setRegistrator(getOrCreateActor(record.pers_id_registerer));
         dataSet.setModificationDate(record.modification_timestamp);
+        dataSet.setModifier(getOrCreateActor(record.pers_id_modifier));
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
 
         if (record.ctnr_id != null)

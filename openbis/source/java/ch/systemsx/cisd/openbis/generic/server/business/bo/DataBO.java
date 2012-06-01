@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -198,14 +199,17 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     private void setParentDataSets(ExperimentPE experiment, NewExternalData newData)
     {
         final List<String> parentDataSetCodes = newData.getParentDataSetCodes();
+        final Set<DataPE> parentsToAdd = new HashSet<DataPE>();
         if (parentDataSetCodes != null)
         {
             for (String parentCode : parentDataSetCodes)
             {
                 final DataPE parent = getOrCreateData(parentCode, experiment);
-                data.addParent(parent);
+                parentsToAdd.add(parent);
             }
         }
+
+        replaceParents(data, parentsToAdd, false);
     }
 
     public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
@@ -266,6 +270,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
         externalData.setRegistrator(tryToGetRegistrator(newData));
+        externalData.setModifier(externalData.getRegistrator());
         dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
@@ -377,7 +382,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             result.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
             result.setExperiment(experiment);
             result.setPlaceholder(true);
-            dataDAO.createDataSet(result);
+            dataDAO.createDataSet(result, findPerson());
         }
         return result;
     }
@@ -385,12 +390,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public void save() throws UserFailureException
     {
         assert data != null : "Undefined external data.";
+
         IDataDAO dataDAO = getDataDAO();
         String dataCode = data.getCode();
         DataPE placeholder = dataDAO.tryToFindDataSetByCode(dataCode);
         if (placeholder == null)
         {
-            dataDAO.createDataSet(data);
+            dataDAO.createDataSet(data, findPerson());
         } else
         {
             if (placeholder.isPlaceholder() == false)
@@ -415,7 +421,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             data.setRegistrationDate(new Date());
             data.setModificationDate(placeholder.getModificationDate());
 
-            dataDAO.updateDataSet(data);
+            dataDAO.updateDataSet(data, findPerson());
         }
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
@@ -438,7 +444,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         List<NewProperty> propertyUpdates =
                 extractNewPropertiesToUpdate(properties, propertyUpdatesCodes);
         final DataSetTypePE type = data.getDataSetType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
                 propertyUpdatesCodes));
@@ -496,7 +502,8 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // space could be changed by change of experiment
             checkSameSpace(data.getContainer(), data);
         }
-        updateParents(data, updates.getModifiedParentDatasetCodesOrNull());
+
+        setParents(data, asList(updates.getModifiedParentDatasetCodesOrNull()));
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
         updateFileFormatType(data, updates.getFileFormatTypeCode());
@@ -506,10 +513,22 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         validateAndSave();
     }
 
+    private List<String> asList(String[] arrayOrNull)
+    {
+        if (arrayOrNull == null)
+        {
+            return Collections.emptyList();
+        } else
+        {
+            return Arrays.asList(arrayOrNull);
+        }
+    }
+
     private void validateAndSave()
     {
         try
         {
+            data.setModifier(findPerson());
             getDataDAO().validateAndSaveUpdatedEntity(data);
         } catch (final DataAccessException ex)
         {
@@ -529,14 +548,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             removeComponents(currentComponents);
 
             final Set<String> currentCodes = extractCodes(currentComponents);
-            final Set<String> newCodes = asSet(modifiedContainedDatasetCodesOrNull);
+            final Set<String> newCodes = asSet(asList(modifiedContainedDatasetCodesOrNull));
 
             // quick check for direct cycle
             final Set<String> brandNewCodes = new HashSet<String>(newCodes);
             brandNewCodes.removeAll(currentCodes);
 
             validateContainerRelationshipGraph(brandNewCodes);
-            final List<DataPE> newComponents = findDataSetsByCodes(newCodes);
+            final Set<DataPE> newComponents = findDataSetsByCodes(newCodes);
             addComponents(newComponents);
         }
     }
@@ -554,7 +573,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                             + "' cannot contain itself as a component neither directly nor via subordinate components.");
         }
 
-        final List<DataPE> components = findDataSetsByCodes(componentCodes);
+        final Set<DataPE> components = findDataSetsByCodes(componentCodes);
         for (DataPE componentDataSet : components)
         {
             if (componentDataSet.isContainer())
@@ -588,7 +607,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         final String dataSetTypeCode = dataSet.getDataSetType().getCode();
         final List<DataSetPropertyPE> properties =
                 entityPropertiesConverter.convertProperties(newProperties, dataSetTypeCode,
-                        findRegistrator());
+                        findPerson());
         for (final DataSetPropertyPE property : properties)
         {
             dataSet.addProperty(property);
@@ -641,7 +660,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         final Set<DataSetPropertyPE> existingProperties = data.getProperties();
         final DataSetTypePE type = data.getDataSetType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         data.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
     }

@@ -58,7 +58,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         column.setExpression(checkExpressionFreeOfParameters(newColumn.getExpression()));
         column.setGridId(newColumn.getGridId());
         column.setPublic(newColumn.isPublic());
-        column.setRegistrator(findRegistrator());
+        column.setRegistrator(findPerson());
     }
 
     private static String createUniqueCode(NewColumnOrFilter newColumn)

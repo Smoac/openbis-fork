@@ -26,7 +26,6 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -42,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -112,7 +112,7 @@ public final class DataDAOTest extends AbstractDAOTest
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         SamplePE sample = pickASample();
         DataPE data = createVirtualDataSet(dataSetCode, sample);
-        dataDAO.createDataSet(data);
+        dataDAO.createDataSet(data, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode);
         assertDataEqual(data, dataSet);
@@ -128,7 +128,7 @@ public final class DataDAOTest extends AbstractDAOTest
         externalData.setShareId("42");
         externalData.setSize(4711L);
         externalData.setSpeedHint(SPEED_HINT);
-        dataDAO.createDataSet(externalData);
+        dataDAO.createDataSet(externalData, getTestPerson());
 
         ExternalDataPE dataSet = (ExternalDataPE) dataDAO.tryToFindDataSetByCode(dataSetCode);
         assertDataEqual(externalData, dataSet);
@@ -143,7 +143,7 @@ public final class DataDAOTest extends AbstractDAOTest
         IDataDAO dataDAO = daoFactory.getDataDAO();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         DataPE data = createVirtualDataSet(dataSetCode, null);
-        dataDAO.createDataSet(data);
+        dataDAO.createDataSet(data, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode);
 
@@ -156,7 +156,7 @@ public final class DataDAOTest extends AbstractDAOTest
         IDataDAO dataDAO = daoFactory.getDataDAO();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         DataPE data = createVirtualDataSet(dataSetCode, null);
-        dataDAO.createDataSet(data);
+        dataDAO.createDataSet(data, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindFullDataSetByCode(dataSetCode, true, true);
         assertDataEqual(data, dataSet);
@@ -177,7 +177,7 @@ public final class DataDAOTest extends AbstractDAOTest
         component1.setOrderInContainer(2);
         virtualData.addComponent(component1);
         virtualData.addComponent(component2);
-        dataDAO.createDataSet(virtualData);
+        dataDAO.createDataSet(virtualData, getTestPerson());
 
         DataPE vDataSet = dataDAO.tryToFindDataSetByCode(vDataSetCode);
         assertDataEqual(virtualData, vDataSet);
@@ -197,7 +197,7 @@ public final class DataDAOTest extends AbstractDAOTest
         IDataDAO dataDAO = daoFactory.getDataDAO();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         ExternalDataPE externalData = createExternalData(dataSetCode, null);
-        dataDAO.createDataSet(externalData);
+        dataDAO.createDataSet(externalData, getTestPerson());
 
         ExternalDataPE dataSet = (ExternalDataPE) dataDAO.tryToFindDataSetByCode(dataSetCode);
         assertDataEqual(externalData, dataSet);
@@ -292,7 +292,7 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
         data.setModificationDate(new Date());
-        dataDAO.createDataSet(data);
+        dataDAO.createDataSet(data, getTestPerson());
 
         ExternalDataPE externalData = new ExternalDataPE();
         externalData.setId(dataDAO.tryToFindDataSetByCode(dataSetCode).getId());
@@ -312,7 +312,7 @@ public final class DataDAOTest extends AbstractDAOTest
         externalData.setStatus(DataSetArchivingStatus.AVAILABLE);
         final Date modificationTimestamp = data.getModificationDate();
         externalData.setModificationDate(modificationTimestamp);
-        dataDAO.updateDataSet(externalData);
+        dataDAO.updateDataSet(externalData, getTestPerson());
 
         ExternalDataPE dataSet = (ExternalDataPE) dataDAO.tryToFindDataSetByCode(dataSetCode);
         assertEquals(externalData.getCode(), dataSet.getCode());
@@ -340,12 +340,13 @@ public final class DataDAOTest extends AbstractDAOTest
         final DataPE dataSetConnectedWithParent = findData(CHILD_CODE);
         assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
         final DataPE anotherDataSet = findData("20081105092159111-1");
-        dataSetConnectedWithParent.addParent(anotherDataSet);
-        dataDAO.updateDataSet(dataSetConnectedWithParent);
+        dataSetConnectedWithParent.addParentRelationship(new DataSetRelationshipPE(anotherDataSet,
+                dataSetConnectedWithParent, getTestPerson()));
+        dataDAO.updateDataSet(dataSetConnectedWithParent, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindDataSetByCode(CHILD_CODE);
         assertEquals(dataSetConnectedWithParent.getParents().size(), dataSet.getParents().size());
-        Set<DataPE> extractedParents = dataSet.getParents();
+        List<DataPE> extractedParents = dataSet.getParents();
         for (DataPE parent : dataSetConnectedWithParent.getParents())
         {
             assertTrue(extractedParents.contains(parent));
@@ -500,8 +501,8 @@ public final class DataDAOTest extends AbstractDAOTest
         final SamplePE sample = pickASample();
         DataPE parentData = findData(PARENT_CODE);
         DataPE data = createExternalData(dataSetCode, sample);
-        data.addParent(parentData);
-        dataDAO.createDataSet(data);
+        data.addParentRelationship(new DataSetRelationshipPE(parentData, data, getTestPerson()));
+        dataDAO.createDataSet(data, getTestPerson());
     }
 
     @Test()
@@ -513,8 +514,9 @@ public final class DataDAOTest extends AbstractDAOTest
         final DataPE dataSetConnectedWithSample = findData(PARENT_CODE);
         assertNotNull(dataSetConnectedWithSample.tryGetSample());
         final DataPE anotherDataSet = findData("20081105092159111-1");
-        dataSetConnectedWithSample.addParent(anotherDataSet);
-        dataDAO.updateDataSet(dataSetConnectedWithSample);
+        dataSetConnectedWithSample.addParentRelationship(new DataSetRelationshipPE(anotherDataSet,
+                dataSetConnectedWithSample, getTestPerson()));
+        dataDAO.updateDataSet(dataSetConnectedWithSample, getTestPerson());
     }
 
     @Test()
@@ -526,7 +528,7 @@ public final class DataDAOTest extends AbstractDAOTest
         final DataPE dataSetConnectedWithParent = findData(CHILD_CODE);
         assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
         dataSetConnectedWithParent.setSampleAcquiredFrom(pickASample());
-        dataDAO.updateDataSet(dataSetConnectedWithParent);
+        dataDAO.updateDataSet(dataSetConnectedWithParent, getTestPerson());
     }
 
     @Test

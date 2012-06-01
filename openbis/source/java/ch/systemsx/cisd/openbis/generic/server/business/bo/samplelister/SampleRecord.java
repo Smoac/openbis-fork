@@ -38,7 +38,9 @@ public class SampleRecord extends CodeRecord
 
     public Date modification_timestamp;
 
-    public long pers_id_registerer;
+    public Long pers_id_registerer;
+
+    public Long pers_id_modifier;
 
     public Long del_id;
 

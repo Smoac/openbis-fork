@@ -284,6 +284,8 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
+        schema.setGridCellRendererFor(ExternalDataGridColumnIDs.MODIFIER,
+                PersonRenderer.MODIFIER_RENDERER);
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.SHOW_DETAILS_LINK,
                 createShowDetailsLinkCellRenderer());
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.OVERVIEW,

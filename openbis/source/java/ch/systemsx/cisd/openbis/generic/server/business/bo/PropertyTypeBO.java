@@ -80,7 +80,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         propertyTypePE.setType(dataTypePE);
         MaterialTypePE materialType = tryGetMaterialType(propertyType.getMaterialType());
         propertyTypePE.setMaterialType(materialType);
-        propertyTypePE.setRegistrator(findRegistrator());
+        propertyTypePE.setRegistrator(findPerson());
         propertyTypePE.setManagedInternally(propertyType.isManagedInternally());
         propertyTypePE.setInternalNamespace(propertyType.isInternalNamespace());
 

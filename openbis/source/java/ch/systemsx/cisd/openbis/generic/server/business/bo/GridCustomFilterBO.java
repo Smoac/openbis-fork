@@ -50,7 +50,7 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
         filter.setGridId(newFilter.getGridId());
         filter.setName(newFilter.getName());
         filter.setPublic(newFilter.isPublic());
-        filter.setRegistrator(findRegistrator());
+        filter.setRegistrator(findPerson());
     }
 
     public void loadDataByTechId(TechId id)

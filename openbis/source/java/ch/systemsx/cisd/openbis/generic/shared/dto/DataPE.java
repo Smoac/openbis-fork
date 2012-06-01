@@ -32,8 +32,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -46,7 +44,6 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
@@ -99,6 +96,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private PersonPE registrator;
 
+    private PersonPE modifier;
+
     /** Registration date of the database instance. */
     private Date registrationDate;
 
@@ -113,10 +112,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Date modificationDate;
 
     private String dataProducerCode;
-
-    private Set<DataPE> parents = new HashSet<DataPE>();
-
-    private Set<DataPE> children = new HashSet<DataPE>();
 
     private DataPE container = null;
 
@@ -136,6 +131,128 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Integer orderInContainer;
 
     private DataStorePE dataStore;
+
+    private Set<DataSetRelationshipPE> parentRelationships = new HashSet<DataSetRelationshipPE>();
+
+    private Set<DataSetRelationshipPE> childRelationships = new HashSet<DataSetRelationshipPE>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<DataSetRelationshipPE> getDataSetChildRelationships()
+    {
+        return childRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setDataSetChildRelationships(final Set<DataSetRelationshipPE> childRelationships)
+    {
+        this.childRelationships = childRelationships;
+    }
+
+    @Transient
+    public Set<DataSetRelationshipPE> getChildRelationships()
+    {
+        return new UnmodifiableSetDecorator<DataSetRelationshipPE>(getDataSetChildRelationships());
+    }
+
+    /**
+     * Returns <code>true</code>, if and only if the relationships have been initialized.
+     */
+    @Transient
+    public boolean isChildRelationshipsInitialized()
+    {
+        return HibernateUtils.isInitialized(getDataSetChildRelationships());
+    }
+
+    public void addChildRelationship(final DataSetRelationshipPE relationship)
+    {
+        relationship.setParentDataSet(this);
+        getDataSetChildRelationships().add(relationship);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childDataSet", orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<DataSetRelationshipPE> getDataSetParentRelationships()
+    {
+        return parentRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setDataSetParentRelationships(final Set<DataSetRelationshipPE> parentRelationships)
+    {
+        this.parentRelationships = parentRelationships;
+    }
+
+    @Transient
+    public Set<DataSetRelationshipPE> getParentRelationships()
+    {
+        return new UnmodifiableSetDecorator<DataSetRelationshipPE>(getDataSetParentRelationships());
+    }
+
+    /**
+     * Returns <code>true</code>, if and only if the relationships have been initialized.
+     */
+    @Transient
+    public boolean isParentRelationshipsInitialized()
+    {
+        return HibernateUtils.isInitialized(getDataSetParentRelationships());
+    }
+
+    public void setParentRelationships(final Set<DataSetRelationshipPE> parentRelationships)
+    {
+        getDataSetParentRelationships().clear();
+        for (final DataSetRelationshipPE dataSetRelationship : parentRelationships)
+        {
+            final DataPE parent = dataSetRelationship.getChildDataSet();
+            if (parent != null)
+            {
+                parent.getDataSetParentRelationships().remove(dataSetRelationship);
+            }
+            addParentRelationship(dataSetRelationship);
+        }
+    }
+
+    public void addParentRelationship(final DataSetRelationshipPE relationship)
+    {
+        relationship.setChildDataSet(this);
+        getDataSetParentRelationships().add(relationship);
+    }
+
+    public void removeParentRelationship(final DataSetRelationshipPE relationship)
+    {
+        getDataSetParentRelationships().remove(relationship);
+        relationship.getParentDataSet().getDataSetChildRelationships().remove(relationship);
+        relationship.setChildDataSet(null);
+        relationship.setParentDataSet(null);
+    }
+
+    @Transient
+    public List<DataPE> getParents()
+    {
+        final Set<DataSetRelationshipPE> relationships = getParentRelationships();
+        final List<DataPE> parents = new ArrayList<DataPE>();
+        for (DataSetRelationshipPE r : relationships)
+        {
+            assert r.getChildDataSet().equals(this);
+            parents.add(r.getParentDataSet());
+        }
+        return parents;
+    }
+
+    @Transient
+    public List<DataPE> getChildren()
+    {
+        final Set<DataSetRelationshipPE> relationships = getChildRelationships();
+        final List<DataPE> children = new ArrayList<DataPE>();
+        for (DataSetRelationshipPE r : relationships)
+        {
+            assert r.getParentDataSet().equals(this);
+            children.add(r.getChildDataSet());
+        }
+        return children;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.DATA_STORE_NOT_NULL_MESSAGE)
@@ -161,6 +278,19 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public void setRegistrator(final PersonPE registrator)
     {
         this.registrator = registrator;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_MODIFIER)
+    public PersonPE getModifier()
+    {
+        return modifier;
+    }
+
+    public void setModifier(final PersonPE modifier)
+    {
+        this.modifier = modifier;
     }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
@@ -378,60 +508,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.code = code;
     }
 
-    // bidirectional connection children-parents
-
-    // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
-    public Set<DataPE> getParents()
-    {
-        return parents;
-    }
-
-    @SuppressWarnings("unused")
-    private void setParents(final Set<DataPE> parents)
-    {
-        this.parents = parents;
-    }
-
-    /** adds connection with specified parent */
-    public void addParent(final DataPE parent)
-    {
-        assert parent != null;
-        this.parents.add(parent);
-        parent.addChild(this);
-    }
-
-    /** removes connection with specified parent */
-    public void removeParent(final DataPE parent)
-    {
-        assert parent != null;
-        this.parents.remove(parent);
-        parent.removeChild(this);
-    }
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "parents")
-    public Set<DataPE> getChildren()
-    {
-        return children;
-    }
-
-    @SuppressWarnings("unused")
-    private void setChildren(final Set<DataPE> children)
-    {
-        this.children = children;
-    }
-
-    private void addChild(final DataPE child)
-    {
-        this.children.add(child);
-    }
-
-    private void removeChild(final DataPE child)
-    {
-        this.children.remove(child);
-    }
-
     @Transient
     public DataPE getContainer()
     {
@@ -573,8 +649,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     @Fetch(FetchMode.SUBSELECT)

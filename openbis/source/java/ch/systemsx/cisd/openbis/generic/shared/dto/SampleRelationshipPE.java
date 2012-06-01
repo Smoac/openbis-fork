@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,7 +30,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.Resolution;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -51,6 +59,12 @@ public class SampleRelationshipPE implements Serializable
 
     private SamplePE childSample;
 
+    private PersonPE author;
+
+    private Date registrationDate;
+
+    private Date modificationDate;
+
     private RelationshipTypePE relationship;
 
     /**
@@ -67,11 +81,12 @@ public class SampleRelationshipPE implements Serializable
     }
 
     public SampleRelationshipPE(SamplePE parentSample, SamplePE childSample,
-            RelationshipTypePE relationship)
+            RelationshipTypePE relationship, PersonPE author)
     {
         this.parentSample = parentSample;
         this.childSample = childSample;
         this.relationship = relationship;
+        this.author = author;
         parentSample.addChildRelationship(this);
         childSample.addParentRelationship(this);
     }
@@ -126,6 +141,44 @@ public class SampleRelationshipPE implements Serializable
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PERSON_AUTHOR_COLUMN)
+    public PersonPE getAuthor()
+    {
+        return author;
+    }
+
+    public void setAuthor(PersonPE author)
+    {
+        this.author = author;
+    }
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

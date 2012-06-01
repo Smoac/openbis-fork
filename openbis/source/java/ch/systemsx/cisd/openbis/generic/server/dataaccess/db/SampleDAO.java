@@ -76,11 +76,12 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
-    private final void internalCreateOrUpdateSample(final SamplePE sample,
+    private final void internalCreateOrUpdateSample(final SamplePE sample, final PersonPE modifier,
             final HibernateTemplate hibernateTemplate, final boolean doLog)
     {
         validatePE(sample);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
+        sample.setModifier(modifier);
 
         hibernateTemplate.saveOrUpdate(sample);
         if (doLog && operationLog.isInfoEnabled())
@@ -93,13 +94,14 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     // ISampleDAO
     //
 
-    public final void createOrUpdateSample(final SamplePE sample) throws DataAccessException
+    public final void createOrUpdateSample(final SamplePE sample, final PersonPE modifier)
+            throws DataAccessException
     {
         assert sample != null : "Unspecified sample";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        internalCreateOrUpdateSample(sample, hibernateTemplate, true);
+        internalCreateOrUpdateSample(sample, modifier, hibernateTemplate, true);
 
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(hibernateTemplate);
@@ -325,7 +327,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         }
     }
 
-    public final void createOrUpdateSamples(final List<SamplePE> samples)
+    public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier)
             throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
@@ -334,7 +336,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         for (final SamplePE samplePE : samples)
         {
-            internalCreateOrUpdateSample(samplePE, hibernateTemplate, false);
+            internalCreateOrUpdateSample(samplePE, modifier, hibernateTemplate, false);
         }
         if (operationLog.isInfoEnabled())
         {
@@ -349,9 +351,12 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         hibernateTemplate.clear();
     }
 
-    public final void updateSample(final SamplePE sample) throws DataAccessException
+    public final void updateSample(final SamplePE sample, final PersonPE modifier)
+            throws DataAccessException
     {
         assert sample != null : "Unspecified sample";
+
+        sample.setModifier(modifier);
         validatePE(sample);
 
         // need to deal with exception thrown by trigger checking code uniqueness

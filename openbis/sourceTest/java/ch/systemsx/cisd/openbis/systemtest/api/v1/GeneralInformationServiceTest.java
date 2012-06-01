@@ -616,7 +616,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 parentCodes.toString());
         List<String> childrenCodes = new ArrayList<String>(dataSets.get(5).getChildrenCodes());
         Collections.sort(childrenCodes);
-        assertEquals("[]", childrenCodes.toString());
+        assertEquals("[20081105092259900-0, 20081105092259900-1]", childrenCodes.toString());
         DataSet dataSet = dataSets.get(9);
         assertEquals(true, dataSet.isContainerDataSet());
         assertEquals("[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"

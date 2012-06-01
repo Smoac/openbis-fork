@@ -22,10 +22,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for corresponding {@link SampleGenericBusinessRules} class.
@@ -178,7 +178,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
         if (generatorOrNull != null)
         {
             SampleRelationshipPE relationship =
-                    new SampleRelationshipPE(generatorOrNull, child, createRelationshipType());
+                    new SampleRelationshipPE(generatorOrNull, child, createRelationshipType(), null);
             child.addParentRelationship(relationship);
             generatorOrNull.addChildRelationship(relationship);
         }

@@ -100,7 +100,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         group.setDatabaseInstance(databaseInstance);
         group.setCode(groupIdentifier.getSpaceCode());
         group.setDescription(descriptionOrNull);
-        group.setRegistrator(findRegistrator());
+        group.setRegistrator(findPerson());
     }
 
     public SpacePE getGroup() throws UserFailureException

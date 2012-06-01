@@ -75,7 +75,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     //
     // ISampleBO
     //
-
     public SamplePE tryToGetSample()
     {
         return sample;
@@ -160,7 +159,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             try
             {
-                getSampleDAO().createOrUpdateSample(sample);
+                getSampleDAO().createOrUpdateSample(sample, findPerson());
             } catch (final DataIntegrityViolationException ex)
             {
                 // needed because we throw an exception in DAO instead of relying on DB constraint
@@ -209,7 +208,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample.setExperiment(experiment);
         try
         {
-            getSampleDAO().updateSample(sample);
+            getSampleDAO().updateSample(sample, findPerson());
         } catch (final DataAccessException ex)
         {
             throwException(ex,
@@ -308,7 +307,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public void addAttachment(AttachmentPE sampleAttachment)
     {
         assert sample != null : "no sample has been loaded";
-        sampleAttachment.setRegistrator(findRegistrator());
+        sampleAttachment.setRegistrator(findPerson());
         escapeFileName(sampleAttachment);
         attachments.add(sampleAttachment);
     }
@@ -412,7 +411,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         sample.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
                 type, managedProperty, registrator));
 

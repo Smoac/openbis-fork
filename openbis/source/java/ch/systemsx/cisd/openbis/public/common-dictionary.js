@@ -18,6 +18,7 @@ var common = {
   file: "File",
   perm_id: "PermID",
   registrator: "Registrator",
+  modifier: "Modifier",
   registration_date: "Registration Date",
   modification_date: "Modification Date",
   filter: "Filter",

@@ -129,7 +129,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
-        PersonPE registrator = registratorOrNull != null ? registratorOrNull : findRegistrator();
+        PersonPE registrator = registratorOrNull != null ? registratorOrNull : findPerson();
         samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
@@ -226,6 +226,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void replaceParents(SamplePE child, Set<SamplePE> newParents)
     {
+        PersonPE actor = findPerson();
+
         for (SamplePE parent : newParents)
         {
             checkParentDeletion(parent, child.getSampleIdentifier());
@@ -252,7 +254,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         RelationshipTypePE relationship = tryFindParentChildRelationshipType();
         for (SamplePE newParent : newParents)
         {
-            child.addParentRelationship(new SampleRelationshipPE(newParent, child, relationship));
+            child.addParentRelationship(new SampleRelationshipPE(newParent, child, relationship,
+                    actor));
         }
     }
 

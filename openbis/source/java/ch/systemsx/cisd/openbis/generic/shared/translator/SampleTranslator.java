@@ -103,6 +103,7 @@ public final class SampleTranslator
             result.setDatabaseInstance(DatabaseInstanceTranslator.translate(samplePE
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
+            result.setModifier(PersonTranslator.translate(samplePE.getModifier()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
             setProperties(result, samplePE);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),

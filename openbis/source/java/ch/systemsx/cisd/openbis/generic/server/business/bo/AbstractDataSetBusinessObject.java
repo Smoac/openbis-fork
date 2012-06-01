@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -78,7 +78,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         final Set<DataSetPropertyPE> existingProperties = data.getProperties();
         final DataSetTypePE type = data.getDataSetType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 newProperties, registrator, set));
     }
@@ -154,48 +154,76 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         return exp;
     }
 
-    protected void updateParents(DataPE data, String[] modifiedParentDatasetCodesOrNull)
+    protected void setParents(final DataPE childPE,
+            final List<String> modifiedParentDatasetCodesOrNull)
     {
         if (modifiedParentDatasetCodesOrNull == null)
         {
             return; // parents were not changed
         } else
         {
-            final Set<DataPE> currentParents = data.getParents();
-            final Set<String> currentParentCodes = extractCodes(currentParents);
-            final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
-            newCodes.removeAll(currentParentCodes);
-
             // quick check for direct cycle
-            if (newCodes.contains(data.getCode()))
+            for (String parentCode : modifiedParentDatasetCodesOrNull)
             {
-                throw new UserFailureException("Data set '" + data.getCode()
-                        + "' can not be its own parent.");
+                if (parentCode.equals(childPE.getCode()))
+                {
+                    throw new UserFailureException("Data set '" + childPE.getCode()
+                            + "' can not be its own parent.");
+                }
             }
 
-            final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
-            validateParentsRelationshipGraph(data, parentsToAdd);
-            addParents(data, parentsToAdd);
-
-            final Set<String> removedCodes = currentParentCodes;
-            removedCodes.removeAll(asSet(modifiedParentDatasetCodesOrNull));
-            removeParents(data, filterDataSets(currentParents, removedCodes));
+            final Set<DataPE> parentPEs =
+                    findDataSetsByCodes(asSet(modifiedParentDatasetCodesOrNull));
+            replaceParents(childPE, parentPEs, true);
         }
     }
 
-    private void addParents(DataPE data, Collection<DataPE> parentsToAdd)
+    protected void replaceParents(DataPE child, Set<DataPE> newParents, boolean validate)
     {
-        for (DataPE parent : parentsToAdd)
+        PersonPE actor = findPerson();
+
+        // quick check for deletions
+        for (DataPE parent : newParents)
         {
-            data.addParent(parent);
+            checkParentDeletion(parent, child.getCode());
+        }
+        List<DataSetRelationshipPE> oldParents = new ArrayList<DataSetRelationshipPE>();
+        for (DataSetRelationshipPE r : child.getParentRelationships())
+        {
+            oldParents.add(r);
+        }
+        for (DataSetRelationshipPE r : oldParents)
+        {
+            if (newParents.contains(r.getParentDataSet()))
+            {
+                newParents.remove(r.getParentDataSet());
+            }
+        }
+        if (validate)
+        {
+            validateParentsRelationshipGraph(child, newParents);
+        }
+        for (DataSetRelationshipPE r : oldParents)
+        {
+            if (false == newParents.contains(r.getParentDataSet()))
+            {
+                child.removeParentRelationship(r);
+            }
+        }
+
+        for (DataPE newParent : newParents)
+        {
+            child.addParentRelationship(new DataSetRelationshipPE(newParent, child, actor));
         }
     }
 
-    private void removeParents(DataPE data, Collection<DataPE> parentsToRemove)
+    private void checkParentDeletion(final DataPE parentPE, final String child)
     {
-        for (DataPE parent : parentsToRemove)
+        if (parentPE.getDeletion() != null)
         {
-            data.removeParent(parent);
+            throw UserFailureException.fromTemplate(
+                    "Data set '%s' has been deleted and can't become a parent of data set '%s'.",
+                    parentPE.getIdentifier(), child);
         }
     }
 
@@ -254,10 +282,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         return getDataDAO().findParentIds(dataSetIds);
     }
 
-    protected List<DataPE> findDataSetsByCodes(Collection<String> codes)
+    protected Set<DataPE> findDataSetsByCodes(Collection<String> codes)
     {
         final IDataDAO dao = getDataDAO();
-        final List<DataPE> dataSets = new ArrayList<DataPE>();
+        final Set<DataPE> dataSets = new HashSet<DataPE>();
         final List<String> missingDataSetCodes = new ArrayList<String>();
         for (String code : codes)
         {
@@ -391,9 +419,9 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         return codes;
     }
 
-    protected static Set<String> asSet(String[] objects)
+    protected static Set<String> asSet(List<String> objects)
     {
-        return new LinkedHashSet<String>(Arrays.asList(objects)); // keep the ordering
+        return new LinkedHashSet<String>(objects); // keep the ordering
     }
 
     private UserFailureException createWrongSampleException(DataPE data, SamplePE sample,
@@ -403,5 +431,4 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                 "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
                 data.getCode(), sample.getIdentifier(), reason);
     }
-
 }

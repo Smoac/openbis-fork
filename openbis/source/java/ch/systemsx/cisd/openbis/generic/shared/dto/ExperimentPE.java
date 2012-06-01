@@ -46,7 +46,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
@@ -124,6 +123,14 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private PersonPE registrator;
 
     /**
+     * Person who last modified this entity.
+     * <p>
+     * This is specified at update time.
+     * </p>
+     */
+    private PersonPE modifier;
+
+    /**
      * Registration date of this entity.
      * <p>
      * This is specified at insert time.
@@ -160,6 +167,19 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setRegistrator(final PersonPE registrator)
     {
         this.registrator = registrator;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_MODIFIER)
+    public PersonPE getModifier()
+    {
+        return modifier;
+    }
+
+    public void setModifier(final PersonPE modifier)
+    {
+        this.modifier = modifier;
     }
 
     @Id
@@ -244,8 +264,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.deletion = deletion;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     @Fetch(FetchMode.SUBSELECT)
@@ -304,8 +323,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @Override
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal", cascade = CascadeType.ALL)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal", cascade = CascadeType.ALL, orphanRemoval = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ATTACHMENT)
     @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()

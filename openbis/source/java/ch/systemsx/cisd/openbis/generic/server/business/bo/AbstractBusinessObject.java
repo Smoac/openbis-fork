@@ -114,11 +114,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getSessionFactory();
     }
 
-    protected final PersonPE findRegistrator()
+    protected final PersonPE findPerson()
     {
-        final PersonPE registrator = session.tryGetPerson();
-        assert registrator != null : "Missing person instance in session object.";
-        return registrator;
+        final PersonPE actor = session.tryGetPerson();
+        assert actor != null : "Missing person instance in session object.";
+        return actor;
     }
 
     protected void fillSpaceIdentifier(final SpaceIdentifier spaceIdentifier)
@@ -126,7 +126,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))
         {
             final SpacePE space =
-                    GroupIdentifierHelper.tryGetSpace(spaceIdentifier, findRegistrator(), this);
+                    GroupIdentifierHelper.tryGetSpace(spaceIdentifier, findPerson(), this);
             checkNotNull(spaceIdentifier, space);
             spaceIdentifier.setDatabaseInstanceCode(space.getDatabaseInstance().getCode());
             spaceIdentifier.setSpaceCode(space.getCode());
@@ -190,7 +190,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     protected <T extends EntityPropertyPE> Set<T> convertProperties(final EntityTypePE type,
             final Set<T> existingProperties, List<IEntityProperty> properties)
     {
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         Set<String> propertiesToUpdate = new HashSet<String>();
         if (properties != null)
         {

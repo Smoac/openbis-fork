@@ -96,6 +96,7 @@ public final class ExperimentTranslator
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
+        result.setModifier(PersonTranslator.translate(experiment.getModifier()));
         result.setDeletion(DeletionTranslator.translate(experiment.getDeletion()));
         for (final LoadableFields field : withFields)
         {
@@ -124,7 +125,8 @@ public final class ExperimentTranslator
         for (final ExperimentPE experiment : experiments)
         {
             HibernateUtils.initialize(experiment.getProperties());
-            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true, LoadableFields.PROPERTIES));
+            result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true,
+                    LoadableFields.PROPERTIES));
         }
         return result;
     }

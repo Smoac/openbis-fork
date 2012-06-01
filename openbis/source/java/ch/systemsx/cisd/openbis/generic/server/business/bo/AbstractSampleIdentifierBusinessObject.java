@@ -47,14 +47,14 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session, EntityKind entityKind)
     {
         super(daoFactory, session, entityKind);
-        sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findRegistrator());
+        sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 
     public AbstractSampleIdentifierBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter converter)
     {
         super(daoFactory, session, converter);
-        sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findRegistrator());
+        sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 
     final SampleOwnerFinder getSampleOwnerFinder()

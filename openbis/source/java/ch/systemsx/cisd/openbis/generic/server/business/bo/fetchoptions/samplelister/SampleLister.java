@@ -314,6 +314,10 @@ public class SampleLister implements ISampleLister
         detailsInitializer.setEmail(sampleRecord.pe_email);
         detailsInitializer.setFirstName(sampleRecord.pe_first_name);
         detailsInitializer.setLastName(sampleRecord.pe_last_name);
+        detailsInitializer.setModifierUserId(sampleRecord.mod_user_id);
+        detailsInitializer.setModifierEmail(sampleRecord.mod_email);
+        detailsInitializer.setModifierFirstName(sampleRecord.mod_first_name);
+        detailsInitializer.setModifierLastName(sampleRecord.mod_last_name);
         initializer.setRegistrationDetails(new EntityRegistrationDetails(detailsInitializer));
         initializer.setSampleTypeId(sampleRecord.st_id);
         initializer.setSampleTypeCode(sampleRecord.st_code);

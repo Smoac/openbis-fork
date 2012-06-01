@@ -322,7 +322,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // to an empty experiment (with no connections).
         ExperimentPE experiment =
                 createExperiment("CISD", "CISD", "DEFAULT", "EXP-13", "SIRNA_HCS");
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-13");
         final ExternalDataPE dataSet = findExternalData("20110805092359990-17");
@@ -378,7 +378,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(0, threadOperations.size());
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(1, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
@@ -408,7 +408,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 DynamicPropertyEvaluationScheduler.getThreadOperations();
         assertEquals(0, threadOperations.size());
 
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(1, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
@@ -476,14 +476,14 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(0, threadOperations.size());
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(1, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         ExperimentPE experiment2 =
                 createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2);
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2, getTestPerson());
 
         assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
@@ -512,7 +512,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         boolean exceptionThrown = false;
         try
         {
-            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
         } catch (DataIntegrityViolationException e)
         {
             exceptionThrown = true;
@@ -556,7 +556,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         try
         {
-            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+            daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
         } catch (final DataIntegrityViolationException ex)
         {
             exceptionThrown = true;

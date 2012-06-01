@@ -122,7 +122,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             }
             roleAssignment.setSpace(group);
         }
-        roleAssignment.setRegistrator(findRegistrator());
+        roleAssignment.setRegistrator(findPerson());
         roleAssignment.setRole(newRoleAssignment.getRole());
         if (Grantee.GranteeType.PERSON.equals(newRoleAssignment.getGrantee().getType()))
         {

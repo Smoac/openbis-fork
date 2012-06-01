@@ -23,10 +23,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.SampleIDProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -107,7 +107,7 @@ public class SampleIDProviderTest extends AbstractServerTestCase
                     RelationshipTypePE relationship = new RelationshipTypePE();
                     relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
                     sample.addParentRelationship(new SampleRelationshipPE(parentSample, sample,
-                            relationship));
+                            relationship, new PersonPE()));
                     will(returnValue(sample));
                 }
             });

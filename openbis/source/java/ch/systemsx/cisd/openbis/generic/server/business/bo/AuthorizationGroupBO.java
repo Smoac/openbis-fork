@@ -93,7 +93,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         assert newAuthorizationGroup != null : "Undefined new authorization group";
         assert authorizationGroup == null : "Authorization group already defined";
         authorizationGroup =
-                groupFactory.create(newAuthorizationGroup, findRegistrator(),
+                groupFactory.create(newAuthorizationGroup, findPerson(),
                         getHomeDatabaseInstance());
         dataChanged = true;
     }

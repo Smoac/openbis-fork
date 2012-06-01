@@ -34,20 +34,25 @@ public interface IExperimentListingQuery extends BaseQuery
                     + "      d.id as d_id, d.code as d_code, d.is_original_source as d_is_original_source, d.registration_timestamp as d_registration_timestamp, d.uuid as d_uuid,"
                     + "      s.id as s_id, s.code as s_code, s.description as s_description, s.registration_timestamp as s_registration_timestamp,"
                     + "      pr.id as pr_id, pr.code as pr_code, pr.registration_timestamp as pr_registration_timestamp, pr.description as pr_description, pr.modification_timestamp as pr_modification_timestamp,"
-                    + "      pe.id as pe_id, pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, pe.registration_timestamp as pe_registration_timestamp"
-                    + " FROM experiments e, experiment_types et, database_instances d, spaces s, projects pr, persons pe WHERE"
-                    + "      e.exty_id = et.id AND e.proj_id = pr.id AND"
-                    + "      pr.space_id = s.id AND s.dbin_id = d.id AND e.pers_id_registerer = pe.id";
+                    + "      pe.id as pe_id, pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, pe.registration_timestamp as pe_registration_timestamp,"
+                    + "      mod.id as mod_id, mod.first_name as mod_first_name, mod.last_name as mod_last_name, mod.user_id as mod_user_id, mod.email as mod_email, mod.registration_timestamp as mod_registration_timestamp"
+                    + " FROM experiments e"
+                    + "      JOIN experiment_types AS et ON e.exty_id = et.id"
+                    + "      JOIN projects AS pr ON e.proj_id = pr.id"
+                    + "      JOIN spaces AS s ON pr.space_id = s.id"
+                    + "      JOIN database_instances AS d ON s.dbin_id = d.id"
+                    + "      JOIN persons AS pe ON e.pers_id_registerer = pe.id"
+                    + "      LEFT JOIN persons AS mod ON e.pers_id_modifier = mod.id WHERE ";
 
     @Select(sql = LIST_EXPERIMENTS
-            + " AND d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3}) AND e.code = any(?{4})", parameterBindings =
+            + " d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3}) AND e.code = any(?{4})", parameterBindings =
         { StringArrayMapper.class, StringArrayMapper.class, StringArrayMapper.class,
                 StringArrayMapper.class })
     public DataIterator<ExperimentRecord> listExperiments(String[] databaseInstanceCodes,
             String[] spaceCodes, String[] projectCodes, String[] experimentCodes);
 
     @Select(sql = LIST_EXPERIMENTS
-            + " AND d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3})", parameterBindings =
+            + " d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3})", parameterBindings =
         { StringArrayMapper.class, StringArrayMapper.class, StringArrayMapper.class })
     public DataIterator<ExperimentRecord> listExperimentsForProjects(
             String[] databaseInstanceCodes, String[] spaceCodes, String[] projectCodes);

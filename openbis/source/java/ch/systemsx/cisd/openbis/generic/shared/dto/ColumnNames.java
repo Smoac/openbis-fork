@@ -206,6 +206,8 @@ public final class ColumnNames
 
     public static final String PERSON_REGISTERER_COLUMN = "pers_id_registerer";
 
+    public static final String PERSON_MODIFIER_COLUMN = "pers_id_modifier";
+
     public static final String PERSON_AUTHOR_COLUMN = "pers_id_author";
 
     public static final String PRODUCTION_TIMESTAMP_COLUMN = "production_timestamp";

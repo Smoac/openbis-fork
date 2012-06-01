@@ -38,7 +38,8 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Inserts given {@link SamplePE} into the database or updates it if it already exists.
      */
-    void createOrUpdateSample(final SamplePE sample) throws DataAccessException;
+    void createOrUpdateSample(final SamplePE sample, final PersonPE modifier)
+            throws DataAccessException;
 
     /**
      * Tries to find a sample by its permanent ID. Returns <code>null</code> if not found.
@@ -79,12 +80,14 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Inserts or updates given list of {@link SamplePE} into the database in one go.
      */
-    void createOrUpdateSamples(List<SamplePE> samples) throws DataAccessException;
+    void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier)
+            throws DataAccessException;
 
     /**
      * Updates given <var>sample</var>.
      */
-    public void updateSample(SamplePE sample) throws DataAccessException;
+    public void updateSample(final SamplePE sample, final PersonPE modifier)
+            throws DataAccessException;
 
     /**
      * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.

@@ -121,7 +121,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     {
         final MaterialPE material = new MaterialPE();
         material.setCode(newMaterial.getCode());
-        material.setRegistrator(findRegistrator());
+        material.setRegistrator(findPerson());
         material.setMaterialType(materialTypePE);
         material.setDatabaseInstance(getHomeDatabaseInstance());
         if (newMaterial.getProperties().length > 0)
@@ -191,7 +191,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final MaterialTypePE type = material.getMaterialType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         final Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
         return entityPropertiesConverter.updateProperties(existingProperties, type,
                 propertiesToUpdate, registrator, propertiesToUpdateNames);

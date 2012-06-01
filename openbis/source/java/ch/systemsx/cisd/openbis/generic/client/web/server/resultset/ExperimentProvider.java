@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.MODIFICATION_DATE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.MODIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATION_DATE;
@@ -87,6 +88,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(SPACE).hideByDefault();
         builder.addColumn(PROJECT).hideByDefault();
         builder.addColumn(REGISTRATOR);
+        builder.addColumn(MODIFIER);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
         builder.addColumn(MODIFICATION_DATE).withDefaultWidth(200).hideByDefault();
         builder.addColumn(IS_DELETED).hideByDefault();
@@ -105,6 +107,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
             builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
             builder.column(PROJECT).addString(experiment.getProject().getCode());
             builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
+            builder.column(MODIFIER).addPerson(experiment.getModifier());
             builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
             builder.column(MODIFICATION_DATE).addDate(experiment.getModificationDate());
             builder.column(IS_DELETED).addString(

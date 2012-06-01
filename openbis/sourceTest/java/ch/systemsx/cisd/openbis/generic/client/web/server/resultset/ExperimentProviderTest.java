@@ -86,18 +86,20 @@ public class ExperimentProviderTest extends AbstractProviderTest
                 new ExperimentProvider(server, SESSION_TOKEN, criteria).getTableModel(100);
         assertEquals(
                 "[CODE, EXPERIMENT_TYPE, EXPERIMENT_IDENTIFIER, DATABASE_INSTANCE, SPACE, "
-                        + "PROJECT, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE, IS_DELETED, PERM_ID, "
+                        + "PROJECT, REGISTRATOR, MODIFIER, REGISTRATION_DATE, MODIFICATION_DATE, IS_DELETED, PERM_ID, "
                         + "SHOW_DETAILS_LINK, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[null, VARCHAR, null, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "
-                + "TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, VARCHAR, MULTILINE_VARCHAR]",
+        assertEquals(
+                "[null, VARCHAR, null, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "
+                        + "TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, VARCHAR, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
-        assertEquals("[EXPERIMENT, null, EXPERIMENT, null, null, null, null, null, null, null, "
-                + "null, null, null, null]", getHeaderEntityKinds(tableModel).toString());
+        assertEquals(
+                "[EXPERIMENT, null, EXPERIMENT, null, null, null, null, null, null, null, null, "
+                        + "null, null, null, null]", getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Experiment>> rows = tableModel.getRows();
         assertSame(e1.getExperiment(), rows.get(0).getObjectOrNull());
         assertEquals(
-                "[E1, 1, DB:/A/B/E1, DB, A, B, Einstein, Albert, Mon Jan 12 14:48:43 CET 1970, "
+                "[E1, 1, DB:/A/B/E1, DB, A, B, Einstein, Albert, , Mon Jan 12 14:48:43 CET 1970, "
                         + "Mon Jan 12 14:48:44 CET 1970, yes, 123-45, , 42, ]", rows.get(0)
                         .getValues().toString());
         context.assertIsSatisfied();

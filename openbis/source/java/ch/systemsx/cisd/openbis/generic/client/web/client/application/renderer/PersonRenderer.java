@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorAndModifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -47,10 +48,10 @@ public final class PersonRenderer
     private static final char LOGIN_END = ']';
 
     private static final char LOGIN_START = '[';
-    
+
     /**
-     * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a
-     * DTO implementing {@link IRegistratorHolder}.
+     * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO
+     * implementing {@link IRegistratorHolder}.
      */
     public static final GridCellRenderer<BaseEntityModel<?>> REGISTRATOR_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()
@@ -63,6 +64,25 @@ public final class PersonRenderer
                         Person registrator =
                                 ((TableModelRowWithObject<IRegistratorHolder>) model
                                         .getBaseObject()).getObjectOrNull().getRegistrator();
+                        return PersonRenderer.createPersonAnchor(registrator);
+                    }
+                };
+
+    /**
+     * Modifier renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO
+     * implementing {@link IRegistratorAndModifierHolder}.
+     */
+    public static final GridCellRenderer<BaseEntityModel<?>> MODIFIER_RENDERER =
+            new GridCellRenderer<BaseEntityModel<?>>()
+                {
+                    @SuppressWarnings("unchecked")
+                    public Object render(BaseEntityModel<?> model, String property,
+                            ColumnData config, int rowIndex, int colIndex,
+                            ListStore<BaseEntityModel<?>> store, Grid<BaseEntityModel<?>> grid)
+                    {
+                        Person registrator =
+                                ((TableModelRowWithObject<IRegistratorAndModifierHolder>) model
+                                        .getBaseObject()).getObjectOrNull().getModifier();
                         return PersonRenderer.createPersonAnchor(registrator);
                     }
                 };

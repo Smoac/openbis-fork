@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PERSON;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
@@ -222,7 +223,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
-                    one(experimentDAO).createOrUpdateExperiment(experiment);
+                    one(experimentDAO).createOrUpdateExperiment(experiment, EXAMPLE_PERSON);
                 }
             });
         final ExperimentBO experimentBO = createExperimentBO();
@@ -355,7 +356,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010101011111-1"));
 
-                    one(experimentDAO).createOrUpdateExperiment(experiment);
+                    one(experimentDAO).createOrUpdateExperiment(experiment, EXAMPLE_PERSON);
                     will(throwException(new DataIntegrityViolationException(
                             "exception description...")));
                 }

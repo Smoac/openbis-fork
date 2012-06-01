@@ -629,7 +629,12 @@ final class SampleListingWorker extends AbstractLister
                     row.perm_id));
             sample.setRegistrationDate(row.registration_timestamp);
             sample.setModificationDate(row.modification_timestamp);
-            sample.setRegistrator(getOrCreateRegistrator(row.pers_id_registerer));
+            sample.setRegistrator(getOrCreateActor(row.pers_id_registerer));
+            if (row.code.equals("FRP1"))
+            {
+                System.out.println("A");
+            }
+            sample.setModifier(getOrCreateActor(row.pers_id_modifier));
             if (row.expe_id != null)
             {
                 sample.setExperiment(getOrCreateExperiment(row));

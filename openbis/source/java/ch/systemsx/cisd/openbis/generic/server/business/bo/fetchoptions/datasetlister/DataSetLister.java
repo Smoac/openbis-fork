@@ -207,6 +207,10 @@ public class DataSetLister implements IDataSetLister
         initializer.setFirstName(dataSet.pe_first_name);
         initializer.setLastName(dataSet.pe_last_name);
         initializer.setEmail(dataSet.pe_email);
+        initializer.setModifierUserId(dataSet.mod_user_id);
+        initializer.setModifierFirstName(dataSet.mod_first_name);
+        initializer.setModifierLastName(dataSet.mod_last_name);
+        initializer.setModifierEmail(dataSet.mod_email);
         initializer.setRegistrationDate(dataSet.ds_registration_timestamp);
         initializer.setModificationDate(dataSet.ds_modification_timestamp);
         return new EntityRegistrationDetails(initializer);

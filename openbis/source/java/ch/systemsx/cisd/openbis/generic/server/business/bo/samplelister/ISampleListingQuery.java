@@ -59,7 +59,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     static final String SELECT_FROM_SAMPLES_S =
             "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, s.dbin_id, "
                     + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
-                    + "   s.del_id, s.samp_id_part_of                                              "
+                    + "   s.pers_id_modifier, s.del_id, s.samp_id_part_of                                              "
                     + " FROM samples s";
 
     /**

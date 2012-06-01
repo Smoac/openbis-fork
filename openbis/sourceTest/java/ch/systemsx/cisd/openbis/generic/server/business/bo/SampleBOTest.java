@@ -209,7 +209,7 @@ public final class SampleBOTest extends AbstractBOTest
                                 return true;
                             }
                         };
-                    one(sampleDAO).createOrUpdateSample(with(matcher));
+                    one(sampleDAO).createOrUpdateSample(with(matcher), with(EXAMPLE_PERSON));
 
                     extracted(sampleType);
 
@@ -654,7 +654,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
 
-                    one(sampleDAO).createOrUpdateSample(sample);
+                    one(sampleDAO).createOrUpdateSample(sample, EXAMPLE_PERSON);
                     one(propertiesConverter).checkMandatoryProperties(sample.getProperties(),
                             sample.getSampleType());
                 }

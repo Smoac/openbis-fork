@@ -125,7 +125,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final String entityName = entityKind.toString().toLowerCase();
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
-                        + "left join fetch e.sampleInternal " + "left join fetch e.parents "
+                        + "left join fetch e.sampleInternal "
+                        + "left join fetch e.dataSetParentRelationships "
                         + "left join fetch e.containedDataSets "
                         + "left join fetch e.dataSetProperties "
                         + "where e.%sInternal.id IN (:ids)", TABLE_NAME, entityName);
@@ -177,8 +178,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         final String query =
                 String.format("from %s e " + "left join fetch e.experimentInternal "
-                        + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
-                        + "where e.sampleInternal = ?", TABLE_NAME);
+                        + "left join fetch e.dataSetParentRelationships "
+                        + "left join fetch e.dataSetProperties " + "where e.sampleInternal = ?",
+                        TABLE_NAME);
         final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(sample)));
 
         // distinct does not work properly in HQL for left joins
@@ -212,9 +214,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         assert experiment != null : "Unspecified experiment.";
 
         final String query =
-                String.format("from %s e " + "left join fetch e.experimentInternal "
-                        + "left join fetch e.parents " + "left join fetch e.dataSetProperties "
-                        + "where e.experimentInternal = ?", TABLE_NAME);
+                String.format(
+                        "from %s e " + "left join fetch e.experimentInternal "
+                                + "left join fetch e.dataSetParentRelationships "
+                                + "left join fetch e.dataSetProperties "
+                                + "where e.experimentInternal = ?", TABLE_NAME);
         final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(experiment)));
 
         // distinct does not work properly in HQL for left joins
@@ -334,8 +338,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     private List<DataPE> primFindFullDataSetsByCode(String identifierColumn,
-            Collection<?> identifiers, final boolean withPropertyTypes,
-            final boolean lockForUpdate)
+            Collection<?> identifiers, final boolean withPropertyTypes, final boolean lockForUpdate)
     {
 
         if (identifiers.size() == 0)
@@ -367,11 +370,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                              * lockForUpdate parameter is ignored. See LMS-2882 details
                              */
                             /*
-                            if (lockForUpdate)
-                            {
-                                criteria.setLockMode(LockMode.UPGRADE);
-                            }
-                            */
+                             * if (lockForUpdate) { criteria.setLockMode(LockMode.UPGRADE); }
+                             */
                             return criteria;
                         }
                     }, identifierColumn, identifiers);
@@ -409,11 +409,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
          * lockForUpdate parameter is ignored. See LMS-2882 details
          */
         /*
-        if (lockForUpdate)
-        {
-            criteria.setLockMode(LockMode.UPGRADE);
-        }
-        */
+         * if (lockForUpdate) { criteria.setLockMode(LockMode.UPGRADE); }
+         */
         final List<DataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final DataPE entity = tryFindEntity(list, "data set");
 
@@ -604,11 +601,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
     }
 
-    public void createDataSet(DataPE dataset)
+    public void createDataSet(DataPE dataset, PersonPE modifier)
     {
         assert dataset != null : "Unspecified data set.";
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
+        dataset.setModifier(modifier);
         if (false == dataset.isPlaceholder())
         {
             validatePE(dataset);
@@ -625,13 +623,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
     }
 
-    public void updateDataSet(DataPE data)
+    public void updateDataSet(DataPE data, PersonPE modifier)
     {
         assert data != null : "Given external data can not be null.";
         validatePE(data);
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         data.setCode(CodeConverter.tryToDatabase(data.getCode()));
+        data.setModifier(modifier);
         Long id = HibernateUtils.getId(data);
         final DataPE loaded = (DataPE) hibernateTemplate.load(ENTITY_CLASS, id);
         // This just means that we do not have any entry in 'EXTERNAL_DATA' table for this id. It
@@ -684,7 +683,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         List<DataPE> children = new ArrayList<DataPE>(entity.getChildren());
         for (DataPE child : children)
         {
-            child.removeParent(entity);
+            // FIXME: Pawel Glyzewski shouldn't be deleted by cascade?
+            // child.removeParent(entity);
         }
         if (entity.isContainer())
         {
@@ -1024,7 +1024,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return list;
     }
 
-    public void updateDataSets(List<DataPE> dataSets)
+    public void updateDataSets(List<DataPE> dataSets, PersonPE modifier)
     {
         assert dataSets != null : "Data sets not defined";
 
@@ -1033,6 +1033,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         {
             validatePE(data);
             data.setCode(CodeConverter.tryToDatabase(data.getCode()));
+            data.setModifier(modifier);
             hibernateTemplate.saveOrUpdate(data);
         }
 

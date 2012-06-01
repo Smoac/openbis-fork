@@ -175,7 +175,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 throw new UserFailureException(String.format(errorMsgTemplate, size,
                         entityKind.getLabel(), createPlural(size), entityType.getCode()));
             }
-            PersonPE registrator = findRegistrator();
+            PersonPE registrator = findPerson();
             String validatedValue =
                     propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
                             defaultValue);
@@ -283,7 +283,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         final EntityTypePropertyTypePE etpt =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
         etpt.setPropertyType(propertyType);
-        etpt.setRegistrator(findRegistrator());
+        etpt.setRegistrator(findPerson());
         etpt.setEntityType(entityType);
         etpt.setMandatory(mandatory);
         etpt.setSection(section);

@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -26,7 +28,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.Resolution;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -47,6 +55,12 @@ public class DataSetRelationshipPE implements Serializable
 
     private DataPE childDataSet;
 
+    private PersonPE author;
+
+    private Date registrationDate;
+
+    private Date modificationDate;
+
     /**
      * Deletion information.
      * <p>
@@ -55,15 +69,16 @@ public class DataSetRelationshipPE implements Serializable
      */
     private DeletionPE deletion;
 
-    @Deprecated
-    public DataSetRelationshipPE()
+    @SuppressWarnings("unused")
+    private DataSetRelationshipPE()
     {
     }
 
-    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet)
+    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet, PersonPE author)
     {
         this.parentDataSet = parentDataSet;
         this.childDataSet = childDataSet;
+        this.author = author;
     }
 
     @NotNull(message = ValidationMessages.PARENT_NOT_NULL_MESSAGE)
@@ -92,6 +107,44 @@ public class DataSetRelationshipPE implements Serializable
     public void setChildDataSet(DataPE childDataSet)
     {
         this.childDataSet = childDataSet;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PERSON_AUTHOR_COLUMN)
+    public PersonPE getAuthor()
+    {
+        return author;
+    }
+
+    public void setAuthor(PersonPE author)
+    {
+        this.author = author;
+    }
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

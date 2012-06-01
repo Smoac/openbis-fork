@@ -30,13 +30,13 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Class with static methods useful for writing test code for Manager classes.
@@ -68,8 +68,8 @@ public class ManagerTestTool
     {
         final String userId = person.getUserId();
         final Principal principal =
-                new Principal(userId, person.getFirstName(), person.getLastName(), person
-                        .getEmail());
+                new Principal(userId, person.getFirstName(), person.getLastName(),
+                        person.getEmail());
         final Session session =
                 new Session(userId, "xyz", principal, HOST, System.currentTimeMillis());
         session.setPerson(person);

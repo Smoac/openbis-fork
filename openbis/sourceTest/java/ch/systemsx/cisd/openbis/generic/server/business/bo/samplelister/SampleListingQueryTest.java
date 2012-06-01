@@ -223,7 +223,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertEquals(msg, samplePE.getCode(), sample.code);
             assertEquals(msg, samplePE.getPermId(), sample.perm_id);
             assertEquals(msg, samplePE.getRegistrator().getId().longValue(),
-                    sample.pers_id_registerer);
+                    sample.pers_id_registerer.longValue());
             assertEquals(msg, samplePE.getRegistrationDate(), sample.registration_timestamp);
             assertEquals(msg, samplePE.getModificationDate(), sample.modification_timestamp);
             assertEquals(msg, samplePE.getSampleType().getId().longValue(), sample.saty_id);
@@ -279,7 +279,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         SampleRecord sample = findCode(samples, "CP-TEST-1");
         assertEquals(18, sample.expe_id.longValue());
         assertEquals(1042, sample.id);
-        assertEquals(2, sample.pers_id_registerer);
+        assertEquals(2, sample.pers_id_registerer.longValue());
         assertEquals(sampleTypeId, sample.saty_id);
         assertNotNull(sample.perm_id);
         assertNull(sample.samp_id_part_of);

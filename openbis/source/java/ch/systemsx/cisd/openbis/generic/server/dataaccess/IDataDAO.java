@@ -111,12 +111,12 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /**
      * Persists the specified data set.
      */
-    public void createDataSet(DataPE dataset);
+    public void createDataSet(DataPE dataset, PersonPE modifier);
 
     /**
      * Updates the specified data set.
      */
-    public void updateDataSet(DataPE dataset);
+    public void updateDataSet(DataPE dataset, PersonPE modifier);
 
     /**
      * Lists external data belongig to given data store.
@@ -132,7 +132,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     public List<DataPE> listByCode(Set<String> values);
 
-    public void updateDataSets(List<DataPE> externalData);
+    public void updateDataSets(List<DataPE> externalData, PersonPE modifier);
 
     /** Returns ids of data sets connected with samples specified by given ids. */
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples);

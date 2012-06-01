@@ -91,7 +91,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     /**
      * Inserts given {@link ExperimentPE} into the database or updates it if it already exists.
      */
-    public void createOrUpdateExperiment(ExperimentPE experiment) throws DataAccessException;
+    public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
+            throws DataAccessException;
 
     /**
      * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if
@@ -106,7 +107,7 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     /**
      * Saves or updates given given experiments in the database.
      */
-    public void createOrUpdateExperiments(List<ExperimentPE> experiments);
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier);
 
     /**
      * Delete experiments with given ids by specified registrator with specified reason.

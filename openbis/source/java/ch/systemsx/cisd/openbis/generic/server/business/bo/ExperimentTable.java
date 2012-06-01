@@ -278,7 +278,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         experiment.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
                 type, properties, registrator, propertiesToUpdate));
 
@@ -330,7 +330,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         final ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(newExperiment.getIdentifier()).createIdentifier();
         result.setCode(experimentIdentifier.getExperimentCode());
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         result.setRegistrator(registrator);
         defineExperimentProperties(result, experimentTypePE.getCode(),
                 newExperiment.getProperties(), registrator);
@@ -375,7 +375,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         try
         {
             checkBusinessRules();
-            getExperimentDAO().createOrUpdateExperiments(experiments);
+            getExperimentDAO().createOrUpdateExperiments(experiments, findPerson());
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of experiments"));

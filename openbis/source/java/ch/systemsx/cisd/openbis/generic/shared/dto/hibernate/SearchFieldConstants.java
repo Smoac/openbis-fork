@@ -48,6 +48,8 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_REGISTRATOR = "registrator" + SEPARATOR;
 
+    public static final String PREFIX_MODIFIER = "modifier" + SEPARATOR;
+
     public static final String PREFIX_ATTACHMENT = "attachment" + SEPARATOR;
 
     public static final String PREFIX_VOCABULARY_TERM = "vocabulary term" + SEPARATOR;

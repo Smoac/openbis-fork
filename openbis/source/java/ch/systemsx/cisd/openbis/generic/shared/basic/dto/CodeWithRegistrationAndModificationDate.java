@@ -18,15 +18,19 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorAndModifierHolder;
+
 /**
  * @author Franz-Josef Elmer
  */
 public class CodeWithRegistrationAndModificationDate<T extends CodeWithRegistration<T>> extends
-        CodeWithRegistration<T>
+        CodeWithRegistration<T> implements IRegistratorAndModifierHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Date modificationDate;
+
+    private Person modifier;
 
     public Date getModificationDate()
     {
@@ -38,4 +42,13 @@ public class CodeWithRegistrationAndModificationDate<T extends CodeWithRegistrat
         this.modificationDate = modificationDate;
     }
 
+    public final Person getModifier()
+    {
+        return modifier;
+    }
+
+    public final void setModifier(final Person modifier)
+    {
+        this.modifier = modifier;
+    }
 }

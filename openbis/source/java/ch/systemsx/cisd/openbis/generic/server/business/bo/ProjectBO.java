@@ -83,7 +83,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         final SpacePE group =
                 GroupIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
         result.setSpace(group);
-        result.setRegistrator(findRegistrator());
+        result.setRegistrator(findPerson());
         result.setCode(projectIdentifier.getProjectCode());
         result.setDescription(description);
         if (leaderIdOrNull != null)
@@ -175,7 +175,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public final void addAttachment(final AttachmentPE attachment)
     {
         assert project != null : "no project has been loaded";
-        attachment.setRegistrator(findRegistrator());
+        attachment.setRegistrator(findPerson());
         escapeFileName(attachment);
         attachments.add(attachment);
     }

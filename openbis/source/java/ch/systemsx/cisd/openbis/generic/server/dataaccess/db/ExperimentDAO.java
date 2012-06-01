@@ -294,23 +294,23 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
-    public void createOrUpdateExperiment(ExperimentPE experiment)
+    public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
     {
         HibernateTemplate template = getHibernateTemplate();
-        internalCreateOrUpdateExperiment(experiment, template);
+        internalCreateOrUpdateExperiment(experiment, modifier, template);
         template.flush();
 
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
     }
 
-    public void createOrUpdateExperiments(List<ExperimentPE> experiments)
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier)
     {
         assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         for (final ExperimentPE experiment : experiments)
         {
-            internalCreateOrUpdateExperiment(experiment, hibernateTemplate);
+            internalCreateOrUpdateExperiment(experiment, modifier, hibernateTemplate);
         }
         hibernateTemplate.flush();
 
@@ -319,11 +319,12 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         scheduleDynamicPropertiesEvaluation(experiments);
     }
 
-    private void internalCreateOrUpdateExperiment(ExperimentPE experiment,
+    private void internalCreateOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier,
             HibernateTemplate hibernateTemplate)
     {
         assert experiment != null : "Missing experiment.";
         experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+        experiment.setModifier(modifier);
         validatePE(experiment);
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);

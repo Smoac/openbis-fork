@@ -22,7 +22,9 @@ import static junit.framework.Assert.assertNotNull;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -148,6 +150,17 @@ public class DataSetListerTest extends AbstractDAOTest
         lister.getDataSetMetaData(codes, fetchOptions);
     }
 
+    private static void sortDataSetsByCode(List<DataSet> dataSets)
+    {
+        Collections.sort(dataSets, new Comparator<DataSet>()
+            {
+                public int compare(DataSet o1, DataSet o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
+                }
+            });
+    }
+
     private void assertEqualToDataSetMetaDataWithCodes(List<String> expectedDataSetsCodes,
             DataSetFetchOptions expectedFetchOptions, List<DataSet> actualDataSets)
     {
@@ -155,6 +168,9 @@ public class DataSetListerTest extends AbstractDAOTest
 
         List<DataSet> expectedDataSets =
                 service.getDataSetMetaData(sessionToken, expectedDataSetsCodes);
+
+        sortDataSetsByCode(expectedDataSets);
+        sortDataSetsByCode(actualDataSets);
 
         Iterator<DataSet> expectedIterator = expectedDataSets.iterator();
         Iterator<DataSet> actualIterator = actualDataSets.iterator();
@@ -183,15 +199,27 @@ public class DataSetListerTest extends AbstractDAOTest
 
         if (expectedFetchOptions.isSupersetOf(DataSetFetchOption.PARENTS))
         {
-            assertEquals(expected.getParentCodes(), actual.getParentCodes());
+            assertCollections(expected.getParentCodes(), actual.getParentCodes());
         }
 
         if (expectedFetchOptions.isSupersetOf(DataSetFetchOption.CHILDREN))
         {
-            assertEquals(expected.getChildrenCodes(), actual.getChildrenCodes());
+            assertCollections(expected.getChildrenCodes(), actual.getChildrenCodes());
         }
 
         assertEquals(expectedFetchOptions, actual.getFetchOptions());
+    }
+
+    private static <T extends Comparable<T>> void assertCollections(Collection<T> col1,
+            Collection<T> col2)
+    {
+        ArrayList<T> a1 = new ArrayList<T>(col1);
+        ArrayList<T> a2 = new ArrayList<T>(col2);
+
+        Collections.sort(a1);
+        Collections.sort(a2);
+
+        assertEquals(a1, a2);
     }
 
     private void assertEqualsToRegistrationDetails(EntityRegistrationDetails expected,

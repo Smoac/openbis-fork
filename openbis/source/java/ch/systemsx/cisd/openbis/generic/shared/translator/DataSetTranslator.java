@@ -174,6 +174,7 @@ public class DataSetTranslator
         externalData.setProductionDate(dataPE.getProductionDate());
         externalData.setModificationDate(dataPE.getModificationDate());
         externalData.setRegistrator(PersonTranslator.translate(dataPE.getRegistrator()));
+        externalData.setModifier(PersonTranslator.translate(dataPE.getRegistrator()));
         externalData.setRegistrationDate(dataPE.getRegistrationDate());
         externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
                 withDetails));
@@ -242,6 +243,7 @@ public class DataSetTranslator
         sample.setIdentifier(samplePE.getSampleIdentifier().toString());
         sample.setRegistrationDate(samplePE.getRegistrationDate());
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
+        sample.setModifier(PersonTranslator.translate(samplePE.getModifier()));
         sample.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
         if (loadSampleProperties)
         {

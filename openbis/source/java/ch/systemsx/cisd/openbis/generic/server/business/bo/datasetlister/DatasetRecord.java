@@ -31,6 +31,8 @@ public class DatasetRecord extends CodeRecord
 
     public Long pers_id_registerer;
 
+    public Long pers_id_modifier;
+
     public boolean is_placeholder;
 
     public boolean is_valid;

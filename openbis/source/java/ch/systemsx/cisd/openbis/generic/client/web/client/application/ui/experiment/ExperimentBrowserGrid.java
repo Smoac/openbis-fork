@@ -332,6 +332,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
+        schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.MODIFIER,
+                PersonRenderer.MODIFIER_RENDERER);
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.SHOW_DETAILS_LINK,
                 createShowDetailsLinkCellRenderer());
         return schema;

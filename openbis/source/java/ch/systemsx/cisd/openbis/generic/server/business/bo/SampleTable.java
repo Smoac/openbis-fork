@@ -205,7 +205,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             {
                 checkAllBusinessRules();
             }
-            getSampleDAO().createOrUpdateSamples(samples);
+            getSampleDAO().createOrUpdateSamples(samples, findPerson());
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
@@ -277,7 +277,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 properties, registrator, propertiesToUpdate));
     }

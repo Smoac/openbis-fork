@@ -98,7 +98,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE = new VocabularyPE();
         vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
         vocabularyPE.setCode(vocabulary.getCode());
-        vocabularyPE.setRegistrator(findRegistrator());
+        vocabularyPE.setRegistrator(findPerson());
         vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setChosenFromList(vocabulary.isChosenFromList());
         vocabularyPE.setURLTemplate(vocabulary.getURLTemplate());
@@ -165,7 +165,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setDescription(description);
         vocabularyTermPE.setLabel(label);
-        vocabularyTermPE.setRegistrator(findRegistrator());
+        vocabularyTermPE.setRegistrator(findPerson());
         vocabularyTermPE.setOrdinal(ordinal);
         vocabularyTermPE.setOfficial(isOfficial);
         vocabularyPE.addTerm(vocabularyTermPE);

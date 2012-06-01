@@ -577,9 +577,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         SamplePE top = createSample("S2");
         SamplePE parent = createSample("S3");
         parent.addParentRelationship(new SampleRelationshipPE(top, parent,
-                createParentChildRelation()));
+                createParentChildRelation(), null));
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
-                createParentChildRelation()));
+                createParentChildRelation(), null));
 
         prepareLoadSample(sampleIdentifier, sample);
 
@@ -600,9 +600,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         SamplePE top = createSample("S2");
         SamplePE parent = createSample("S3");
         parent.addParentRelationship(new SampleRelationshipPE(top, parent,
-                createParentChildRelation()));
+                createParentChildRelation(), null));
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
-                createParentChildRelation()));
+                createParentChildRelation(), null));
         SamplePropertyPE property = setAnyProperty(top);
         prepareLoadSample(sampleIdentifier, sample);
 

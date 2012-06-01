@@ -265,7 +265,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         assert record.dbin_id == databaseInstanceId;
         material.setDatabaseInstance(databaseInstance);
 
-        material.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
+        material.setRegistrator(getOrCreateActor(record.pers_id_registerer));
         material.setRegistrationDate(record.registration_timestamp);
         material.setModificationDate(record.modification_timestamp);
 

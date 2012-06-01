@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -267,17 +268,17 @@ public class UploadingCommandTest extends AssertJUnit
         externalData.setExperiment(createExperiment());
         // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection
         // Does it make any difference how many parents are added here?
-        externalData.addParent(createParent("parent1"));
-        externalData.addParent(createParent("parent2"));
+        externalData.addParentRelationship(createParentRelationship(externalData, "parent1"));
+        externalData.addParentRelationship(createParentRelationship(externalData, "parent2"));
         externalData.setDataStore(new DataStorePE());
         return externalData;
     }
 
-    private DataPE createParent(String code)
+    private DataSetRelationshipPE createParentRelationship(DataPE child, String code)
     {
         DataPE data = new DataPE();
         data.setCode(code);
-        return data;
+        return new DataSetRelationshipPE(data, child, null);
     }
 
     private ExperimentPE createExperiment()

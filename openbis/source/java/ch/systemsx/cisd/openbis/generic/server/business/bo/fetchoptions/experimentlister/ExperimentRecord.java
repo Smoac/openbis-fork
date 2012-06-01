@@ -80,4 +80,13 @@ public class ExperimentRecord
 
     public Date pe_registration_timestamp;
 
+    public String mod_first_name;
+
+    public String mod_last_name;
+
+    public String mod_user_id;
+
+    public String mod_email;
+
+    public Date mod_registration_timestamp;
 }

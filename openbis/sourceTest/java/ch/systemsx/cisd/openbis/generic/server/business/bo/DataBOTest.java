@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PERSON;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
@@ -287,6 +288,7 @@ public class DataBOTest extends AbstractBOTest
         DataStorePE dataStore = new DataStorePE();
         prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataPE data = new DataPE();
+        data.setCode(PARENT_CODE);
         context.checking(new Expectations()
             {
                 {
@@ -337,7 +339,7 @@ public class DataBOTest extends AbstractBOTest
                     one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
                     will(returnValue(dataSetTypeUnknown));
 
-                    one(dataDAO).createDataSet(parentData);
+                    one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
                 }
             });
 
@@ -384,7 +386,7 @@ public class DataBOTest extends AbstractBOTest
                             DataSetTypeCode.UNKNOWN.getCode());
                     will(returnValue(dataSetTypeUnknown));
 
-                    one(dataDAO).createDataSet(parentData);
+                    one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
                 }
             });
 
@@ -454,7 +456,7 @@ public class DataBOTest extends AbstractBOTest
                     one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
                     will(returnValue(dataSetTypeUnknown));
 
-                    one(dataDAO).createDataSet(component);
+                    one(dataDAO).createDataSet(component, EXAMPLE_PERSON);
                 }
             });
 
@@ -879,7 +881,7 @@ public class DataBOTest extends AbstractBOTest
                     one(dataDAO).tryToFindDataSetByCode(DATA_SET_CODE);
                     will(returnValue(null));
 
-                    one(dataDAO).createDataSet(with(new DataMatcher()));
+                    one(dataDAO).createDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
 
                     expectMandatoryPropertiesCheck(this, dataSetType);
                 }
@@ -916,7 +918,7 @@ public class DataBOTest extends AbstractBOTest
                     data.setPlaceholder(true);
                     will(returnValue(data));
 
-                    one(dataDAO).updateDataSet(with(new DataMatcher()));
+                    one(dataDAO).updateDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
 
                     expectMandatoryPropertiesCheck(this, dataSetType);
                 }

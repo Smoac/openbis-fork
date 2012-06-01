@@ -51,8 +51,16 @@ public class EntityRegistrationDetails implements Serializable
 
         private String userId;
 
+        private String modifierFirstName;
+
+        private String modifierLastName;
+
+        private String modifierEmail;
+
+        private String modifierUserId;
+
         private Date registrationDate;
-        
+
         private Date modificationDate;
 
         public String getFirstName()
@@ -115,6 +123,45 @@ public class EntityRegistrationDetails implements Serializable
             this.modificationDate = modificationDate;
         }
 
+        public String getModifierFirstName()
+        {
+            return modifierFirstName;
+        }
+
+        public void setModifierFirstName(String modifierFirstName)
+        {
+            this.modifierFirstName = modifierFirstName;
+        }
+
+        public String getModifierLastName()
+        {
+            return modifierLastName;
+        }
+
+        public void setModifierLastName(String modifierLastName)
+        {
+            this.modifierLastName = modifierLastName;
+        }
+
+        public String getModifierEmail()
+        {
+            return modifierEmail;
+        }
+
+        public void setModifierEmail(String modifierEmail)
+        {
+            this.modifierEmail = modifierEmail;
+        }
+
+        public String getModifierUserId()
+        {
+            return modifierUserId;
+        }
+
+        public void setModifierUserId(String modifierUserId)
+        {
+            this.modifierUserId = modifierUserId;
+        }
     }
 
     private String userFirstName;
@@ -125,8 +172,16 @@ public class EntityRegistrationDetails implements Serializable
 
     private String userId;
 
+    private String modifierFirstName;
+
+    private String modifierLastName;
+
+    private String modifierEmail;
+
+    private String modifierUserId;
+
     private Date registrationDate;
-    
+
     private Date modificationDate;
 
     EntityRegistrationDetails()
@@ -140,6 +195,10 @@ public class EntityRegistrationDetails implements Serializable
         this.userLastName = initializer.getLastName();
         this.userEmail = initializer.getEmail();
         this.userId = initializer.getUserId();
+        this.modifierFirstName = initializer.getModifierFirstName();
+        this.modifierLastName = initializer.getModifierLastName();
+        this.modifierEmail = initializer.getModifierEmail();
+        this.modifierUserId = initializer.getModifierUserId();
         this.registrationDate = initializer.getRegistrationDate();
         this.modificationDate = initializer.getModificationDate();
     }
@@ -174,6 +233,26 @@ public class EntityRegistrationDetails implements Serializable
         return modificationDate;
     }
 
+    public String getModifierFirstName()
+    {
+        return modifierFirstName;
+    }
+
+    public String getModifierLastName()
+    {
+        return modifierLastName;
+    }
+
+    public String getModifierEmail()
+    {
+        return modifierEmail;
+    }
+
+    public String getModifierUserId()
+    {
+        return modifierUserId;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -189,6 +268,7 @@ public class EntityRegistrationDetails implements Serializable
         EqualsBuilder builder = new EqualsBuilder();
         EntityRegistrationDetails other = (EntityRegistrationDetails) obj;
         builder.append(getUserId(), other.getUserId());
+        builder.append(getModifierUserId(), other.getModifierUserId());
         builder.append(getRegistrationDate(), other.getRegistrationDate());
         return builder.isEquals();
     }
@@ -198,6 +278,7 @@ public class EntityRegistrationDetails implements Serializable
     {
         HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getUserId());
+        builder.append(getModifierUserId());
         builder.append(getRegistrationDate());
         return builder.toHashCode();
     }
@@ -241,4 +322,23 @@ public class EntityRegistrationDetails implements Serializable
         this.modificationDate = modificationDate;
     }
 
+    void setModifierFirstName(String modifierFirstName)
+    {
+        this.modifierFirstName = modifierFirstName;
+    }
+
+    void setModifierLastName(String modifierLastName)
+    {
+        this.modifierLastName = modifierLastName;
+    }
+
+    void setModifierEmail(String modifierEmail)
+    {
+        this.modifierEmail = modifierEmail;
+    }
+
+    void setModifierUserId(String modifierUserId)
+    {
+        this.modifierUserId = modifierUserId;
+    }
 }

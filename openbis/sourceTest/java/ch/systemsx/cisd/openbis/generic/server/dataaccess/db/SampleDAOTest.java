@@ -508,7 +508,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         samplePE.setDatabaseInstance(homeDatabaseInstance);
         samplePE.setRegistrator(getSystemPerson());
-        sampleDAO.createOrUpdateSample(samplePE);
+        sampleDAO.createOrUpdateSample(samplePE, getTestPerson());
         // Following line throws a NonUniqueResultException if sample code not unique.
         sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance);
     }
@@ -522,10 +522,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         if (samples.length > 1)
         {
-            sampleDAO.createOrUpdateSamples(Arrays.asList(samples));
+            sampleDAO.createOrUpdateSamples(Arrays.asList(samples), getTestPerson());
         } else
         {
-            sampleDAO.createOrUpdateSample(samples[0]);
+            sampleDAO.createOrUpdateSample(samples[0], getTestPerson());
         }
     }
 
@@ -591,7 +591,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         {
             sample.addParentRelationship(new SampleRelationshipPE(generatorOrNull, sample,
                     daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
-                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP)));
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP), getTestPerson()));
         }
         sample.setContainer(containerOrNull);
         return sample;

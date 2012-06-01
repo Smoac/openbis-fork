@@ -354,10 +354,11 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                             .createQuery(
                                     "UPDATE "
                                             + SampleRelationshipPE.class.getSimpleName()
-                                            + " SET deletion = :deletion"
+                                            + " SET deletion = :deletion, author = :author"
                                             + " WHERE deletion IS NULL"
                                             + " AND (parentSample.id IN (:ids) OR childSample.id in (:ids))")
                             .setParameter("deletion", deletion)
+                            .setParameter("author", deletion.getRegistrator())
                             .setParameterList("ids", TechId.asLongs(samplesIds)).executeUpdate();
                 }
             });
@@ -392,10 +393,11 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                             .createQuery(
                                     "UPDATE "
                                             + DataSetRelationshipPE.class.getSimpleName()
-                                            + " SET deletion = :deletion"
+                                            + " SET deletion = :deletion, author = :author"
                                             + " WHERE deletion IS NULL"
                                             + " AND (parentDataSet.id IN (:ids) OR childDataSet.id in (:ids))")
                             .setParameter("deletion", deletion)
+                            .setParameter("author", deletion.getRegistrator())
                             .setParameterList("ids", TechId.asLongs(dataSetIds)).executeUpdate();
                 }
             });

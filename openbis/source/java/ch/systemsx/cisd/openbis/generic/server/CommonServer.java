@@ -1026,7 +1026,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         DataSetUpdateResult result = new DataSetUpdateResult();
         DataPE data = dataSetBO.getData();
         result.setModificationDate(data.getModificationDate());
-        result.setParentCodes(Code.extractCodes(data.getParents()));
+        List<String> parents = IdentifierExtractor.extract(data.getParents());
+        Collections.sort(parents);
+        result.setParentCodes(parents);
         result.setContainedDataSetCodes(Code.extractCodes(data.getContainedDataSets()));
         return result;
     }

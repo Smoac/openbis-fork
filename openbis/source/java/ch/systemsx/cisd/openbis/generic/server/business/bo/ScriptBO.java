@@ -116,7 +116,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setDatabaseInstance(getHomeDatabaseInstance());
         script.setName(newScript.getName());
         script.setDescription(newScript.getDescription());
-        script.setRegistrator(findRegistrator());
+        script.setRegistrator(findPerson());
         script.setScript(newScript.getScript());
         script.setScriptType(newScript.getScriptType());
         script.setEntityKind(newScript.getEntityKind());

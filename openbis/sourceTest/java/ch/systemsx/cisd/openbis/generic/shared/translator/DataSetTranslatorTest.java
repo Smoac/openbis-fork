@@ -29,14 +29,15 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -158,6 +159,7 @@ public class DataSetTranslatorTest extends AssertJUnit
     public void testTranslationADerivedExternalDataPEWithParents()
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
+        externalDataPE.setCode("DS1");
         externalDataPE.setDataStore(createStore());
         externalDataPE.setDerived(true);
 
@@ -175,8 +177,8 @@ public class DataSetTranslatorTest extends AssertJUnit
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
 
-        externalDataPE.addParent(createParent("parent-1"));
-        externalDataPE.addParent(createParent("parent-2"));
+        externalDataPE.addParentRelationship(createParentRelationship(externalDataPE, "parent-1"));
+        externalDataPE.addParentRelationship(createParentRelationship(externalDataPE, "parent-2"));
 
         ExternalData externalData = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
@@ -199,12 +201,12 @@ public class DataSetTranslatorTest extends AssertJUnit
         return result;
     }
 
-    private DataPE createParent(String parentCode)
+    private DataSetRelationshipPE createParentRelationship(DataPE child, String parentCode)
     {
         DataPE parent = new DataPE();
         parent.setCode(parentCode);
         parent.setDataStore(createStore());
-        return parent;
+        return new DataSetRelationshipPE(parent, child, new PersonPE());
     }
 
     private DataStorePE createStore()

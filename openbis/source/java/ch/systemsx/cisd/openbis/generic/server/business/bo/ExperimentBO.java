@@ -284,7 +284,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(newExperiment.getIdentifier()).createIdentifier();
         experiment = new ExperimentPE();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         experiment.setCode(experimentIdentifier.getExperimentCode());
         experiment.setRegistrator(registrator);
         defineExperimentType(newExperiment);
@@ -298,7 +298,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public final void addAttachment(final AttachmentPE experimentAttachment)
     {
         assert experiment != null : "no experiment has been loaded";
-        experimentAttachment.setRegistrator(findRegistrator());
+        experimentAttachment.setRegistrator(findPerson());
         escapeFileName(experimentAttachment);
         attachments.add(experimentAttachment);
     }
@@ -342,7 +342,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             try
             {
-                getExperimentDAO().createOrUpdateExperiment(experiment);
+                getExperimentDAO().createOrUpdateExperiment(experiment, findPerson());
             } catch (final DataAccessException ex)
             {
                 final String projectCode = experiment.getProject().getCode();
@@ -585,7 +585,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
-        final PersonPE registrator = findRegistrator();
+        final PersonPE registrator = findPerson();
         experiment.setProperties(entityPropertiesConverter.updateManagedProperty(
                 existingProperties, type, managedProperty, registrator));
 

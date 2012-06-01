@@ -27,15 +27,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public class AbstractLister
 {
     private final SecondaryEntityDAO referencedEntityDAO;
-    
+
     private final Long2ObjectMap<Person> persons = new Long2ObjectOpenHashMap<Person>();
 
     protected AbstractLister(SecondaryEntityDAO referencedEntityDAO)
     {
         this.referencedEntityDAO = referencedEntityDAO;
     }
-    
-    protected Person getOrCreateRegistrator(Long personId)
+
+    protected Person getOrCreateActor(Long personId)
     {
         if (personId == null)
         {
@@ -49,5 +49,4 @@ public class AbstractLister
         }
         return registrator;
     }
-
 }

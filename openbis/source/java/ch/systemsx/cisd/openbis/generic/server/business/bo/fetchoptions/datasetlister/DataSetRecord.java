@@ -52,6 +52,14 @@ public class DataSetRecord
 
     public String pe_user_id;
 
+    public String mod_first_name;
+
+    public String mod_last_name;
+
+    public String mod_email;
+
+    public String mod_user_id;
+
     public String pre_code;
 
     public String spe_code;
