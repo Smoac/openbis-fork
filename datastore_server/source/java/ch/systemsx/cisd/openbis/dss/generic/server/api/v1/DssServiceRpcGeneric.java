@@ -55,7 +55,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
      * for our purpose.
      */
-    @SuppressWarnings("hiding")
     protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DssServiceRpcGeneric.class);
 
@@ -74,17 +73,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
         this(openBISService, null, shareIdManager, contentProvider, new PutDataSetService(
-                openBISService,
-                operationLog));
+                openBISService, operationLog));
     }
 
     /**
      * A constructor for testing.
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IStreamRepository streamRepository,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
-            PutDataSetService service)
+            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider, PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         putService = service;
@@ -158,8 +155,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     @Override
     public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
-            String path)
-            throws IOExceptionUnchecked, IllegalArgumentException
+            String path) throws IOExceptionUnchecked, IllegalArgumentException
     {
         InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
         return addToRepositoryAndReturnDownloadUrl(stream, path);

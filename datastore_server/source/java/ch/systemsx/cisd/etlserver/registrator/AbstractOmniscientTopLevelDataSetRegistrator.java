@@ -472,7 +472,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return new RuntimeException(cause.toString());
     }
 
-
     /**
      * Set up the infrastructure and forward control to subclasses. Clients can query the service
      * for information about what happened.
@@ -662,8 +661,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings(
-            { "unchecked", "rawtypes" })
+        @SuppressWarnings("unchecked")
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
