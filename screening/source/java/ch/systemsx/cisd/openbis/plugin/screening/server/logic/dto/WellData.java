@@ -41,11 +41,13 @@ public class WellData implements IWellData
         this.wellReferenceOrNull = wellReferenceOrNull;
     }
 
+    @Override
     public long getReplicaMaterialId()
     {
         return replicaId;
     }
 
+    @Override
     public float[] getFeatureVector()
     {
         return featureVector;

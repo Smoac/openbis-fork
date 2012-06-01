@@ -260,6 +260,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         /**
          * Orders locations by wellRow, wellCol, tileRow, tileCol, channelCode
          */
+        @Override
         public int compareTo(FullLocation o)
         {
             int wellRowCompare = new Integer(wellRow).compareTo(new Integer(o.wellRow));
@@ -308,6 +309,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         /**
          * Order by full location, then time, depth, series.
          */
+        @Override
         public int compareTo(FullLocationImageSeriesPoint o)
         {
             int locationCompare = location.compareTo(o.location);

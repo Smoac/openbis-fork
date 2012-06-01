@@ -26,11 +26,13 @@ public class StackImageInitializer extends ImageInitializer
 
     private ImageChannelStack stack;
 
+    @Override
     public int getImageRow()
     {
         return stack.getTileRow();
     }
 
+    @Override
     public int getImageColumn()
     {
         return stack.getTileCol();

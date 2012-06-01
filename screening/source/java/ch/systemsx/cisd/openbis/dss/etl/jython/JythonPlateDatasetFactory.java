@@ -89,6 +89,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
         return new DataSetInformation();
     }
 
+    @Override
     public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
             SimpleImageDataConfig imageDataSet, File incomingDatasetFolder)
     {
@@ -97,6 +98,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
     }
 
     /** a simple method to register the described image dataset in a separate transaction */
+    @Override
     public boolean registerImageDataset(SimpleImageDataConfig imageDataSet,
             File incomingDatasetFolder, DataSetRegistrationService<ImageDataSetInformation> service)
     {
@@ -105,6 +107,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
         return registerImageDataset(imageDatasetDetails, incomingDatasetFolder, service);
     }
 
+    @Override
     public boolean registerImageDataset(
             DataSetRegistrationDetails<ImageDataSetInformation> imageDatasetDetails,
             File incomingDatasetFolder, DataSetRegistrationService<ImageDataSetInformation> service)
@@ -123,6 +126,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
      * @throws UserFailureException if all available geometries in openBIS are too small (there is a
      *             well outside).
      */
+    @Override
     public String figureGeometry(
             DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails)
     {
@@ -158,11 +162,13 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
 
     // ----
 
+    @Override
     public IFeaturesBuilder createFeaturesBuilder()
     {
         return new FeaturesBuilder();
     }
 
+    @Override
     public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorDatasetDetails(
             IFeaturesBuilder featureBuilder)
     {
@@ -189,6 +195,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
      * 
      * @throws IOException if file cannot be parsed
      */
+    @Override
     public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorDatasetDetails(
             String csvFilePath, Properties properties) throws IOException
     {

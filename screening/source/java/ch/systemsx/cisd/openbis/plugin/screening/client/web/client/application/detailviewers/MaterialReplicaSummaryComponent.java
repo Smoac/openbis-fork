@@ -327,6 +327,7 @@ public class MaterialReplicaSummaryComponent
         {
             Collections.sort(technicalReplicas, new Comparator<WellReplicaImage>()
                 {
+                    @Override
                     public int compare(WellReplicaImage arg1, WellReplicaImage arg2)
                     {
                         Integer s1 = arg1.getTechnicalReplicateSequenceNumber();
@@ -343,6 +344,7 @@ public class MaterialReplicaSummaryComponent
         assert image.tryGetImageDataset() != null;
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
             {
+                @Override
                 public Widget create(List<String> channels, String imageTransformationCodeOrNull)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
@@ -403,20 +405,24 @@ public class MaterialReplicaSummaryComponent
         return new IDisposableComponent()
             {
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return new DatabaseModificationKind[0];
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return panel;
                 }
 
+                @Override
                 public void dispose()
                 {
                     gridComponent.dispose();
@@ -479,6 +485,7 @@ public class MaterialReplicaSummaryComponent
                         MaterialComponentUtils.getMaterialFullName(material, false));
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
@@ -521,6 +528,7 @@ public class MaterialReplicaSummaryComponent
         String linkText = screeningViewContext.getMessage(Dict.SHOW_ASSAY, experiment.getCode());
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     ClientPluginFactory.openImagingExperimentViewer(experiment,

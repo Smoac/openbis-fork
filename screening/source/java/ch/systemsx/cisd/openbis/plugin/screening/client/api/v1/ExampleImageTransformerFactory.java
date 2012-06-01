@@ -83,10 +83,12 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
         this.brightnessDelta = brightnessDelta;
     }
 
+    @Override
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
             {
+                @Override
                 public BufferedImage transform(BufferedImage input)
                 {
                     int width = input.getWidth();

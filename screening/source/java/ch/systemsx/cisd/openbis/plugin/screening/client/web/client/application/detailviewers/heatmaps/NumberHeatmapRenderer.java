@@ -45,6 +45,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         this.realNumberRenderer = realNumberRenderer;
     }
 
+    @Override
     public Color getColor(Float value)
     {
         if (value == null || Float.isNaN(value) || Float.isInfinite(value))
@@ -61,6 +62,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         return colors.get(colorNumber);
     }
 
+    @Override
     public List<HeatmapScaleElement> calculateScale()
     {
         ArrayList<HeatmapScaleElement> scale = new ArrayList<HeatmapScaleElement>();
@@ -72,6 +74,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         return scale;
     }
 
+    @Override
     public String tryGetFirstLabel()
     {
         return round(max);

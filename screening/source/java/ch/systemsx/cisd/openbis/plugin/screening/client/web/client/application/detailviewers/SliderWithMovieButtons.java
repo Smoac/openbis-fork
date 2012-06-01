@@ -51,6 +51,7 @@ public class SliderWithMovieButtons extends Composite
         buttons = new MovieButtons(numberOfValues);
         buttons.setFrameLoader(new MovieButtonsFrameLoader()
             {
+                @Override
                 public void loadFrame(final int frame, final AsyncCallback<Void> callback)
                 {
                     final int value = frame + 1;
@@ -58,12 +59,14 @@ public class SliderWithMovieButtons extends Composite
                     slider.setValue(value, true);
                     valueLoader.loadValue(value, new AsyncCallback<Void>()
                         {
+                            @Override
                             public void onSuccess(Void result)
                             {
                                 hideLoading(value);
                                 callback.onSuccess(result);
                             }
 
+                            @Override
                             public void onFailure(Throwable caught)
                             {
                                 hideLoading(value);
@@ -76,6 +79,7 @@ public class SliderWithMovieButtons extends Composite
         slider = new SliderWithAutoWidth(numberOfValues);
         slider.addListener(Events.Change, new Listener<SliderEvent>()
             {
+                @Override
                 public void handleEvent(SliderEvent be)
                 {
                     final int value = be.getNewValue();
@@ -83,11 +87,13 @@ public class SliderWithMovieButtons extends Composite
                     buttons.setFrame(value - 1);
                     valueLoader.loadValue(value, new AsyncCallback<Void>()
                         {
+                            @Override
                             public void onSuccess(Void result)
                             {
                                 hideLoading(value);
                             }
 
+                            @Override
                             public void onFailure(Throwable caught)
                             {
                                 hideLoading(value);

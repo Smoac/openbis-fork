@@ -84,6 +84,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                 .map(experiments,
                         new ICollectionMappingFunction<ExperimentReference, ExperimentReferenceQueryResult>()
                             {
+                                @Override
                                 public ExperimentReference map(
                                         ExperimentReferenceQueryResult experiment)
                                 {

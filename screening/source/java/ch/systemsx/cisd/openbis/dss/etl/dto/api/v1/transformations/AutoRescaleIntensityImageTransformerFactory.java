@@ -48,10 +48,12 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
         this.threshold = threshold;
     }
 
+    @Override
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
             {
+                @Override
                 public BufferedImage transform(BufferedImage image)
                 {
                     if (IntensityRescaling.isNotGrayscale(image))

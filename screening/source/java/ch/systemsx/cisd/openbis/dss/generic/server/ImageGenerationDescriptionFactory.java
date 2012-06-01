@@ -131,10 +131,10 @@ class ImageGenerationDescriptionFactory
     private static Size tryGetSize(HttpServletRequest request)
     {
         String displayModeText =
-                request.getParameter(AbstractImagesDownloadServlet.DISPLAY_MODE_PARAM);
+                request.getParameter(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
         String displayMode = displayModeText == null ? "" : displayModeText;
         Size thumbnailSizeOrNull =
-                AbstractImagesDownloadServlet.tryAsThumbnailDisplayMode(displayMode);
+                AbstractDatasetDownloadServlet.tryAsThumbnailDisplayMode(displayMode);
         return thumbnailSizeOrNull;
     }
 

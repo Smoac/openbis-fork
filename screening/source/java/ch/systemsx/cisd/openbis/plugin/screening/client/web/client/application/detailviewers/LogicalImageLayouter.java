@@ -34,6 +34,7 @@ class LogicalImageLayouter extends LayoutContainer implements IDatasetImagesRefe
         this.refsMap = createRefsMap(images);
     }
 
+    @Override
     public void changeDisplayedImageDataset(ImageDatasetEnrichedReference dataset)
     {
         LogicalImageInfo imageInfo = refsMap.get(dataset);

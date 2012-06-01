@@ -75,11 +75,13 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         this.contentProvider = contentProvider;
     }
 
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
     
+    @Override
     public void setUp(String pluginName, Properties properties)
     {
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
@@ -89,6 +91,7 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         contentProvider = ServiceProvider.getHierarchicalContentProvider();
     }
 
+    @Override
     public void execute()
     {
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();

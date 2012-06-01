@@ -138,7 +138,7 @@ public class LogicalImageViewer
     private Widget getSeriesImageWidget()
     {
         final LayoutContainer container = new LayoutContainer();
-        container.add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
+        container.add(new Text(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
         container.setLayout(new FlowLayout());
 
         // loads the channel stacks asynchroniously, when done replaces the "Loading..." message
@@ -172,6 +172,7 @@ public class LogicalImageViewer
         final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
+                @Override
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences,
                         ImageResolution resolution)
                 {
@@ -181,6 +182,7 @@ public class LogicalImageViewer
 
                     ImagesDownloadListener downloadListener = new ImagesDownloadListener()
                         {
+                            @Override
                             public void imagesDownloaded(LazyImageSeriesFrame frame)
                             {
                                 notifyImageRefresh();
@@ -245,6 +247,7 @@ public class LogicalImageViewer
                 new ChannelChooser(logicalImageReference, viewerFactory, channelState);
         channelChooser.addViewerTo(container, viewContext, new AsyncCallback<Void>()
             {
+                @Override
                 public void onSuccess(Void result)
                 {
                     if (showColorAdjustmentButton)
@@ -253,7 +256,7 @@ public class LogicalImageViewer
                         buttonToolbar.setLayout(new ColumnLayout());
                         buttonToolbar.add(adjustColorsButton);
                         Button refreshButton =
-                                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
+                                new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_REFRESH),
                                         new SelectionListener<ButtonEvent>()
                                             {
                                                 @Override
@@ -275,6 +278,7 @@ public class LogicalImageViewer
                     container.layout();
                 }
 
+                @Override
                 public void onFailure(Throwable caught)
                 {
 
@@ -336,6 +340,7 @@ public class LogicalImageViewer
 
         final FitImageLoadHandler downloadHandler = new FitImageLoadHandler()
             {
+                @Override
                 public void imageLoaded(FitImageLoadEvent event)
                 {
                     notifyImageRefresh();
@@ -344,6 +349,7 @@ public class LogicalImageViewer
 
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
+                @Override
                 public LayoutContainer create(LogicalImageChannelsReference channelReferences,
                         ImageResolution resolution)
                 {

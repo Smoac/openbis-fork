@@ -155,6 +155,7 @@ public class ImageChannel implements Serializable, Comparable<ImageChannel>
                 + ", wavelength=" + wavelength + ", transformations=" + transformations + "]";
     }
 
+    @Override
     public int compareTo(ImageChannel imageChannel)
     {
         return code.compareTo(imageChannel.code);

@@ -175,10 +175,11 @@ public class WellSearchComponent extends TabContent
 
     private Widget createSearchLink()
     {
-        Button searchButton = new Button(screeningViewContext.getMessage(Dict.SEARCH_BUTTON));
+        Button searchButton = new Button(screeningViewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SEARCH_BUTTON));
         searchButton.setWidth(TEXT_AREA_WIDTH);
         IDelegatedAction normalModeAction = new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     showPlateMaterialReviewer();
@@ -186,6 +187,7 @@ public class WellSearchComponent extends TabContent
             };
         IURLProvider urlProvider = new IURLProvider()
             {
+                @Override
                 public String tryGetURL()
                 {
                     MaterialSearchCodesCriteria materialCriteria = tryGetMaterialSearchCriteria();

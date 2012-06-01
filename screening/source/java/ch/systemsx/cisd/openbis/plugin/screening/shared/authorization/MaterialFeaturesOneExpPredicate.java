@@ -43,11 +43,13 @@ public final class MaterialFeaturesOneExpPredicate implements
         this.experimentPredicate = new ExperimentTechIdPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentPredicate.init(provider);
     }
 
+    @Override
     public final Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final MaterialFeaturesOneExpCriteria value)
     {

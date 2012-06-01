@@ -120,6 +120,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         return GroupByMap.create(imageTransformations,
                 new IGroupKeyExtractor<Long, ImgImageTransformationDTO>()
                     {
+                        @Override
                         public Long getKey(ImgImageTransformationDTO transformation)
                         {
                             return transformation.getChannelId();
@@ -162,6 +163,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         return channels.size();
     }
 
+    @Override
     public List<ImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull)
     {
         List<ImgChannelStackDTO> stacks;
@@ -193,6 +195,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
                 stack.getT(), stack.getZ(), stack.getSeriesNumber());
     }
 
+    @Override
     public ImageDatasetParameters getImageParameters()
     {
         ImageDatasetParameters params = new ImageDatasetParameters();
@@ -243,6 +246,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
                             .map(transformationsOrNull,
                                     new CollectionUtils.ICollectionMappingFunction<InternalImageTransformationInfo, ImgImageTransformationDTO>()
                                         {
+                                            @Override
                                             public InternalImageTransformationInfo map(
                                                     ImgImageTransformationDTO transformation)
                                             {

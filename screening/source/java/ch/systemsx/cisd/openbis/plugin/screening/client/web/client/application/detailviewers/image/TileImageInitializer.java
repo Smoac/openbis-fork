@@ -26,11 +26,13 @@ public class TileImageInitializer extends ImageInitializer
 
     private int tileColumn;
 
+    @Override
     public int getImageRow()
     {
         return getTileRow();
     }
 
+    @Override
     public int getImageColumn()
     {
         return getTileColumn();

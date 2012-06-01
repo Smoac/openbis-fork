@@ -90,6 +90,7 @@ class ReplicateSequenceProvider
     {
         return GroupByMap.create(wells, new IGroupKeyExtractor<Double, IEntityPropertiesHolder>()
             {
+                @Override
                 public Double getKey(IEntityPropertiesHolder well)
                 {
                     return tryFindSubgroup(well);
@@ -129,6 +130,7 @@ class ReplicateSequenceProvider
         ArrayList<T> sortedKeys = new ArrayList<T>(keys);
         Collections.sort(sortedKeys, new NullComparator<T>(new Comparator<T>()
             {
+                @Override
                 public int compare(T o1, T o2)
                 {
                     return o1.compareTo(o2);

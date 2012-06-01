@@ -161,6 +161,7 @@ public class WellPosition implements Serializable, Comparable<WellPosition>
         return true;
     }
 
+    @Override
     public int compareTo(WellPosition other)
     {
         int diff = wellRow - other.wellRow;

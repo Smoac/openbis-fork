@@ -137,13 +137,14 @@ class ChannelChooser
             final IViewContext<IScreeningClientServiceAsync> context,
             final AsyncCallback<Void> callback)
     {
-        final Widget loading = new Text(context.getMessage(Dict.LOAD_IN_PROGRESS));
+        final Widget loading = new Text(context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS));
         container.add(loading);
 
         context.getService().getImageDatasetResolutions(basicImage.getDatasetCode(),
                 basicImage.getDatastoreCode(),
                 new AbstractAsyncCallback<List<ImageResolution>>(context)
                     {
+                        @Override
                         protected void process(List<ImageResolution> resolutions)
                         {
                             container.remove(loading);
@@ -184,6 +185,7 @@ class ChannelChooser
         return GroupByMap.create(overlayDatasets,
                 new IGroupKeyExtractor<String, DatasetOverlayImagesReference>()
                     {
+                        @Override
                         public String getKey(DatasetOverlayImagesReference dataset)
                         {
                             return dataset.tryGetAnalysisProcedure();
@@ -227,6 +229,7 @@ class ChannelChooser
     {
         return new IAnalysisProcedureSelectionListener()
             {
+                @Override
                 public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
                 {
                     refreshObjectChooser(criteria, datasetsByAnalysisProcMap,
@@ -265,6 +268,7 @@ class ChannelChooser
                 new CheckBoxGroupWithModel<ImageDatasetChannel>(overlayChannelItems);
         checkBoxGroup.addListener(new CheckBoxGroupListner<ImageDatasetChannel>()
             {
+                @Override
                 public void onChange(Set<ImageDatasetChannel> selected)
                 {
                     setSelectedOverlayChannels(selected);
@@ -323,6 +327,7 @@ class ChannelChooser
         channelChooser
                 .addSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
                     {
+                        @Override
                         public void selectionChanged(List<String> newlySelectedChannels,
                                 @SuppressWarnings("hiding")
                                 String imageTransformationCodeOrNull)
@@ -347,6 +352,7 @@ class ChannelChooser
                             defaultChannelState.tryGetDefaultResolution());
             resolutionChooser.addResolutionChangedListener(new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         defaultChannelState.setDefaultResolution(resolutionChooser.getResolution());

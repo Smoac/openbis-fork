@@ -113,6 +113,7 @@ public class DatasetImageRepresentationFormats implements Serializable,
         return true;
     }
 
+    @Override
     public int compareTo(DatasetImageRepresentationFormats o)
     {
         return dataset.getDatasetCode().compareTo(o.getDataset().getDatasetCode());

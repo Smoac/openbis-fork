@@ -105,6 +105,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
     {
         return new IAnalysisProcedureSelectionListener()
             {
+                @Override
                 public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
                 {
                     analysisProcedureCriteria = criteria;

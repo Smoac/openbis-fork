@@ -139,20 +139,24 @@ public class MaterialComponentUtils
         return new IDisposableComponent()
             {
 
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return new DatabaseModificationKind[0];
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return panel;
                 }
 
+                @Override
                 public void dispose()
                 {
                     gridComponent.dispose();

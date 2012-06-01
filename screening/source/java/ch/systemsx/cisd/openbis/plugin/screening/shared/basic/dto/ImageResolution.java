@@ -52,6 +52,7 @@ public class ImageResolution implements Serializable, Comparable<ImageResolution
         return height;
     }
 
+    @Override
     public int compareTo(ImageResolution o)
     {
         if (this == o)

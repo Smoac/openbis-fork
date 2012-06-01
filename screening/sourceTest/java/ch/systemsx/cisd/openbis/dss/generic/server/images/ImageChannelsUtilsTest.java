@@ -72,6 +72,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private static final IImageTransformer TRANSFORMER = new IImageTransformer()
         {
+            @Override
             public BufferedImage transform(BufferedImage image)
             {
                 int width = image.getWidth();

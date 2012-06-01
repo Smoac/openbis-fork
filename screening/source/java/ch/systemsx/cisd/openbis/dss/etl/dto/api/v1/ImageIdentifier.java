@@ -80,6 +80,7 @@ public class ImageIdentifier implements Comparable<ImageIdentifier>, Serializabl
                 getColorChannelIndex()).getID();
     }
 
+    @Override
     public int compareTo(ImageIdentifier that)
     {
         int diff = seriesIndex - that.seriesIndex;

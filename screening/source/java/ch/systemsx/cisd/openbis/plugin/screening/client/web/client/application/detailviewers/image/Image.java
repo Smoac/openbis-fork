@@ -96,6 +96,7 @@ public class Image extends LayoutContainer
 
         image.addClickHandler(new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     if (getInitializer().getImageClickHandler() != null)
@@ -119,6 +120,7 @@ public class Image extends LayoutContainer
         // are not displayed.
         GWTUtils.executeDelayed(new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     image.setUrl(thumbnailImageUrl);

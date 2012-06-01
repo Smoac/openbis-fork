@@ -1123,6 +1123,7 @@ public class OpenBISScreeningML
         TableMap<String, DataSet> dataSetMap =
                 new TableMap<String, DataSet>(dataSets, new IKeyExtractor<String, DataSet>()
                     {
+                        @Override
                         public String getKey(DataSet e)
                         {
                             return e.getCode();
@@ -1442,32 +1443,38 @@ public class OpenBISScreeningML
             {
                 private int maximumNumberOfTiles;
 
+                @Override
                 public void setMaximumNumberOfTiles(int numberOfTiles)
                 {
                     this.maximumNumberOfTiles = numberOfTiles;
                 }
 
+                @Override
                 public int getMaximumNumberOfTiles()
                 {
                     return maximumNumberOfTiles;
                 }
 
+                @Override
                 public Iterator<Integer> iterator()
                 {
                     return new Iterator<Integer>()
                         {
                             private int index;
 
+                            @Override
                             public boolean hasNext()
                             {
                                 return index < maximumNumberOfTiles;
                             }
 
+                            @Override
                             public Integer next()
                             {
                                 return index++;
                             }
 
+                            @Override
                             public void remove()
                             {
                                 throw new UnsupportedOperationException();
@@ -1537,6 +1544,7 @@ public class OpenBISScreeningML
     {
         return new ITileNumberIterable()
             {
+                @Override
                 public void setMaximumNumberOfTiles(int numberOfTiles)
                 {
                     if (tile >= numberOfTiles)
@@ -1546,28 +1554,33 @@ public class OpenBISScreeningML
                     }
                 }
 
+                @Override
                 public int getMaximumNumberOfTiles()
                 {
                     return 1;
                 }
 
+                @Override
                 public Iterator<Integer> iterator()
                 {
                     return new Iterator<Integer>()
                         {
                             private boolean delivered;
 
+                            @Override
                             public boolean hasNext()
                             {
                                 return delivered == false;
                             }
 
+                            @Override
                             public Integer next()
                             {
                                 delivered = true;
                                 return tile;
                             }
 
+                            @Override
                             public void remove()
                             {
                                 throw new UnsupportedOperationException();
@@ -1755,6 +1768,7 @@ public class OpenBISScreeningML
         {
             openbis.loadImages(imageReferences, new IImageOutputStreamProvider()
                 {
+                    @Override
                     public OutputStream getOutputStream(PlateImageReference imageReference)
                             throws IOException
                     {

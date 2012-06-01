@@ -75,6 +75,7 @@ public class PlateGeometryOracle
         Collections.sort(geometries, new Comparator<Geometry>()
             {
 
+                @Override
                 public int compare(Geometry a, Geometry b)
                 {
                     return a.getHeight() * a.getWidth() - b.getHeight() * b.getWidth();

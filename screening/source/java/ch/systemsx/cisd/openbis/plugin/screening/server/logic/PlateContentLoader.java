@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -408,7 +409,7 @@ public class PlateContentLoader
     private static ListOrSearchSampleCriteria createSamplesForContainerCriteria(TechId plateId)
     {
         return new ListOrSearchSampleCriteria(
-                ListOrSearchSampleCriteria.createForContainer(plateId));
+                ListSampleCriteria.createForContainer(plateId));
     }
 
     private TechId fetchContainerId(TechId wellId)

@@ -57,10 +57,12 @@ public class IntensityRangeReductionFactory implements IImageTransformerFactory
         }
     }
 
+    @Override
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
             {
+                @Override
                 public BufferedImage transform(BufferedImage image)
                 {
                     return reduceIntensityRange(image);

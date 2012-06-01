@@ -54,16 +54,19 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         super(null, context);
     }
 
+    @Override
     public int getMajorVersion()
     {
         return 0;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return 0;
     }
 
+    @Override
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -72,6 +75,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -80,6 +84,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<FeatureInformation> listAvailableFeatures(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -88,6 +93,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes)
     {
@@ -96,6 +102,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureCodes)
@@ -105,6 +112,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
@@ -113,11 +121,13 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> references, boolean convertToPng) {
         logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONVERT(%s)", references);
         return null;
     }
     
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)
     {
@@ -126,12 +136,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s)", imageReferences);
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
@@ -140,6 +152,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
@@ -149,6 +162,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
@@ -157,6 +171,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -165,6 +180,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
@@ -173,6 +189,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
             List<String> channels)
@@ -182,6 +199,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public void saveImageTransformerFactory(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
@@ -191,6 +209,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
                 transformerFactory);
     }
 
+    @Override
     public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
@@ -199,6 +218,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
@@ -221,6 +241,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -228,6 +249,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -236,6 +258,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration)
     {
@@ -244,6 +267,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageRepresentationFormat format)
     {
@@ -252,6 +276,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             IImageRepresentationFormatSelectionCriterion... criteria)
     {
@@ -260,6 +285,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {

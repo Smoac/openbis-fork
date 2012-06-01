@@ -51,6 +51,7 @@ public class FeatureVectorWithDescription extends FeatureVector implements IFeat
     /**
      * @since 1.7
      */
+    @Override
     public List<String> getFeatureCodes()
     {
         return featureNames;

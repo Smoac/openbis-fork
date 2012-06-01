@@ -55,6 +55,7 @@ public class TileContentDialog extends ImageDialog
 
         imageViewer.setLogicalImageRefreshHandler(new LogicalImageRefreshHandler()
             {
+                @Override
                 public void onRefresh()
                 {
                     autosize(grid.getElement());

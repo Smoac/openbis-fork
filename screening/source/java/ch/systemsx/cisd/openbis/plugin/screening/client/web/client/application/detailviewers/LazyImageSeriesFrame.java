@@ -140,6 +140,7 @@ public class LazyImageSeriesFrame extends LayoutContainer
             {
                 int tilesDownloaded = 0;
 
+                @Override
                 public void imageLoaded(FitImageLoadEvent event)
                 {
                     tilesDownloaded++;

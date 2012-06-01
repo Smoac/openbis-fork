@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IDatasetImagesReferenceUpdater;
@@ -79,7 +78,7 @@ public class PlateLayoutSampleSection extends TabContent
     protected void showContent()
     {
         final ScreeningViewContext context = getViewContext();
-        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
+        add(new Text(context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
         context.getService().getPlateContent(sampleId, createDisplayPlateCallback());
     }
 
@@ -141,6 +140,7 @@ public class PlateLayoutSampleSection extends TabContent
     {
         return new IFeatureVectorDatasetReferenceUpdater()
             {
+                @Override
                 public void changeDisplayedFeatureVectorDataset(FeatureVectorDataset dataset)
                 {
                     plateLayouter.changeDisplayedFeatureVectorDataset(dataset);
@@ -153,6 +153,7 @@ public class PlateLayoutSampleSection extends TabContent
     {
         return new IDatasetImagesReferenceUpdater()
             {
+                @Override
                 public void changeDisplayedImageDataset(
                         ImageDatasetEnrichedReference newImageDatasetOrNull)
                 {
@@ -201,9 +202,10 @@ public class PlateLayoutSampleSection extends TabContent
     {
         String plateLinkUrl =
                 ScreeningLinkExtractor.createPlateMetadataBrowserLink(plate.getPermId());
-        return LinkRenderer.getLinkWidget(viewContext.getMessage(Dict.BUTTON_SHOW),
+        return LinkRenderer.getLinkWidget(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SHOW),
                 new ClickHandler()
                     {
+                        @Override
                         public void onClick(ClickEvent event)
                         {
                             PlateMetadataBrowser.openTab(plate, viewContext);

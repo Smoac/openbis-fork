@@ -63,11 +63,13 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         this.imagingQueries = imagingQueries;
     }
     
+    @Override
     public Geometry tryGetPlateGeometry()
     {
         WidthAndHeightDTO plateGeometry =
                 getUniqueOrNull(new IExperimentMetadataQuery<WidthAndHeightDTO>()
                     {
+                        @Override
                         public List<WidthAndHeightDTO> select(IImagingReadonlyQueryDAO query)
                         {
                             return query.listPlateGeometriesForExperiment(experimentId);
@@ -76,10 +78,12 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         return asGeometry(plateGeometry);
     }
 
+    @Override
     public Geometry tryGetTileGeometry()
     {
         WidthAndHeightDTO tileGeometry = getUniqueOrNull(new IExperimentMetadataQuery<WidthAndHeightDTO>()
                     {
+                        @Override
                         public List<WidthAndHeightDTO> select(IImagingReadonlyQueryDAO query)
                         {
                             return query.listTileGeometriesForExperiment(experimentId);
@@ -88,12 +92,14 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         return asGeometry(tileGeometry);
     }
 
+    @Override
     public List<ImageChannel> getImageChannels()
     {
         List<ImgChannelDTO> channels =
                 getMergedResult(new IExperimentMetadataQuery<ImgChannelDTO>()
                     {
 
+                        @Override
                         public List<ImgChannelDTO> select(IImagingReadonlyQueryDAO query)
                         {
                             // TODO KE: does this return all channels ?
@@ -104,6 +110,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         return asImageChannels(uniqueChannels);
     }
 
+    @Override
     public ImageSize tryGetOriginalImageSize()
     {
         List<WidthAndHeightAndPermIdDTO> imageSizes = getImageSizes(true);
@@ -115,6 +122,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         return distinctSizes.size() == 1 ? distinctSizes.iterator().next() : null;
     }
 
+    @Override
     public List<ImageSize> getThumbnailImageSizes()
     {
         List<WidthAndHeightAndPermIdDTO> imageSizes = getImageSizes(false);
@@ -142,6 +150,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         }
         Collections.sort(sizes, new Comparator<ImageSize>()
             {
+                @Override
                 public int compare(ImageSize s1, ImageSize s2)
                 {
                     return s1.getWidth() * s1.getHeight() - s2.getWidth() * s2.getWidth();
@@ -154,6 +163,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
     {
         return getMergedResult(new IExperimentMetadataQuery<WidthAndHeightAndPermIdDTO>()
             {
+                @Override
                 public List<WidthAndHeightAndPermIdDTO> select(IImagingReadonlyQueryDAO query)
                 {
                     return query.listImageSizesForExperiment(experimentId, original);

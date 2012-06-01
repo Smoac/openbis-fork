@@ -126,6 +126,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         // dummy lister which always returns the same result
         AnalysisProcedureLister analysisProcedureLister = new AnalysisProcedureLister()
             {
+                @Override
                 public void listNumericalDatasetsAnalysisProcedures(
                         AsyncCallback<AnalysisProcedures> resultsCallback)
                 {
@@ -142,6 +143,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     {
         return new AnalysisProcedureLister()
             {
+                @Override
                 public void listNumericalDatasetsAnalysisProcedures(
                         AsyncCallback<AnalysisProcedures> resultsCallback)
                 {
@@ -166,6 +168,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
 
+            @Override
             public void handleEvent(BaseEvent be)
             {
                 selectionChanged();
@@ -247,11 +250,13 @@ class AnalysisProcedureChooser extends LayoutContainer
         analysisProcedureLister
                 .listNumericalDatasetsAnalysisProcedures(new AsyncCallback<AnalysisProcedures>()
                     {
+                        @Override
                         public void onSuccess(AnalysisProcedures analysisProcedures)
                         {
                             refresh(selectedProcedureCriteria, analysisProcedures);
                         }
 
+                        @Override
                         public void onFailure(Throwable caught)
                         {
                             // do nothing
@@ -288,7 +293,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
-        comboBox.setEmptyText(messageProvider.getMessage(Dict.LOAD_IN_PROGRESS));
+        comboBox.setEmptyText(messageProvider.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS));
         comboBox.addListener(Events.SelectionChange, selectionChangeListener);
 
         return comboBox;

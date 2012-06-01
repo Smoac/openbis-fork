@@ -179,12 +179,14 @@ public class WellContent extends WellImage implements Serializable, IEntityPrope
     }
 
     /** id of the well */
+    @Override
     public Long getId()
     {
         return well.getId();
     }
 
     /** properties of the well */
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return getWellProperties();

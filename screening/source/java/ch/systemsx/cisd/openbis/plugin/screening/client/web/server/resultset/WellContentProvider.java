@@ -280,6 +280,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     {
         Collections.sort(wells, new Comparator<WellContent>()
             {
+                @Override
                 public int compare(WellContent o1, WellContent o2)
                 {
                     for (IEntityProperty materialProperty : materialPropsOrder)

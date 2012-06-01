@@ -101,6 +101,7 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
                 ColorRangeCalculator.calculateOverlapRange(rangeMap.values());
         return new IImageTransformerFactoryProvider()
             {
+                @Override
                 public IImageTransformerFactory tryGetTransformationFactory(
                         ImgImageEnrichedDTO image)
                 {

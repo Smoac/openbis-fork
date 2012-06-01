@@ -91,6 +91,7 @@ public class LogicalImageSeriesTimeAndDepthControls extends LogicalImageSeriesCo
                     getDisplayTypeId()));
             timeSliderWithButtons.addDelayChangeHandler(new ChangeHandler()
                 {
+                    @Override
                     public void onChange(ChangeEvent event)
                     {
                         getSettingsManager().setDefaultMovieDelay(getDisplayTypeId(),
@@ -127,6 +128,7 @@ public class LogicalImageSeriesTimeAndDepthControls extends LogicalImageSeriesCo
             depthSlider.setValue(1);
             depthSlider.addListener(Events.Change, new Listener<SliderEvent>()
                 {
+                    @Override
                     public void handleEvent(SliderEvent be)
                     {
                         refreshValue(null);

@@ -40,6 +40,7 @@ public class PermanentIdentifier implements Serializable, IPermanentIdentifier
         this.permId = permId;
     }
 
+    @Override
     public String getPermId()
     {
         return permId;

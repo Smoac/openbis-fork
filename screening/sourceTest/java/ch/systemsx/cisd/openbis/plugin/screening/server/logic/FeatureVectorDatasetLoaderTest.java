@@ -117,6 +117,7 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
                         .toString());
         Collections.sort(datasets, new Comparator<ExternalData>()
             {
+                @Override
                 public int compare(ExternalData o1, ExternalData o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());

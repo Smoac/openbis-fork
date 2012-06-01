@@ -94,6 +94,7 @@ public final class ImageSeriesPoint implements Comparable<ImageSeriesPoint>
         return true;
     }
 
+    @Override
     public int compareTo(ImageSeriesPoint o)
     {
         int depthCompare = compareConstituent(depthOrNull, o.depthOrNull);

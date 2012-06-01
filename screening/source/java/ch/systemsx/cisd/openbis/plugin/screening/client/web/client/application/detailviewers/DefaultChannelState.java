@@ -39,11 +39,13 @@ public class DefaultChannelState implements IDefaultChannelState
         this.displayTypeId = displayTypeId;
     }
 
+    @Override
     public void setDefaultChannels(List<String> channels)
     {
         getDisplaySettingManager().setDefaultChannels(displayTypeId, channels);
     }
 
+    @Override
     public List<String> tryGetDefaultChannels()
     {
         return getDisplaySettingManager().tryGetDefaultChannels(displayTypeId);
@@ -54,11 +56,13 @@ public class DefaultChannelState implements IDefaultChannelState
         return ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
     }
 
+    @Override
     public void setDefaultTransformation(String channel, String codes)
     {
         getTransformations().put(channel, codes);
     }
 
+    @Override
     public String tryGetDefaultTransformation(String channel)
     {
         return getTransformations().get(channel);
@@ -69,11 +73,13 @@ public class DefaultChannelState implements IDefaultChannelState
         return getDisplaySettingManager().getDefaultTransformationsForChannels(displayTypeId);
     }
 
+    @Override
     public ImageResolution tryGetDefaultResolution()
     {
         return getDisplaySettingManager().getDefaultResolution(displayTypeId);
     }
 
+    @Override
     public void setDefaultResolution(ImageResolution resolution)
     {
         getDisplaySettingManager().setDefaultResolution(displayTypeId, resolution);

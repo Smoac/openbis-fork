@@ -36,11 +36,13 @@ public class BasicWellContentQueryResult implements IWellReference
 
     public long material_content_id;
 
+    @Override
     public String getPlatePermId()
     {
         return plate_perm_id;
     }
 
+    @Override
     public WellReference getWellReference()
     {
         WellLocation wellLocation = WellLocation.parseLocationStr(well_code);

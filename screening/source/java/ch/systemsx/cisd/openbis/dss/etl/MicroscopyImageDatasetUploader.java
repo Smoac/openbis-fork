@@ -76,6 +76,7 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
     {
         return new ISpotProvider()
             {
+                @Override
                 public Long tryGetSpotId(AcquiredSingleImage image)
                 {
                     return null;

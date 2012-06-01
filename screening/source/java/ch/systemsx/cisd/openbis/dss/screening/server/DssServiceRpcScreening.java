@@ -176,17 +176,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     // ------------------ impl -----------------
 
+    @Override
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         return listAvailableFeatureCodes(sessionToken, featureDatasets);
     }
 
+    @Override
     public IDssServiceRpcScreening createLogger(IInvocationLoggerContext context)
     {
         return new DssServiceRpcScreeningLogger(context);
     }
 
+    @Override
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -205,6 +208,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return result;
     }
 
+    @Override
     public List<FeatureInformation> listAvailableFeatures(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -225,6 +229,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return result;
     }
 
+    @Override
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
@@ -463,6 +468,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
+    @Override
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
@@ -527,6 +533,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return codes;
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureNames)
@@ -542,6 +549,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         final IEncapsulatedOpenBISService openBISService = getOpenBISService();
         return new IMetadataProvider()
             {
+                @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return openBISService.tryToGetSampleIdentifier(samplePermId);
@@ -570,12 +578,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 getFloatFeaturesAsDouble(featureTableRow));
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
         return loadImages(sessionToken, imageReferences, null, null, convertToPng);
     }
     
+    @Override
     public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
 
         InputStream stream = loadImages(sessionToken, imageReferences, convertToPng);
@@ -605,12 +615,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
     
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)
     {
         return loadImages(sessionToken, imageReferences, tryAsSize(thumbnailSizeOrNull), null, true);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration)
     {
@@ -622,6 +634,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             final ImageRepresentationFormat format)
     {
@@ -649,6 +662,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return loadImages(sessionToken, imageReferences, criterion);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             IImageRepresentationFormatSelectionCriterion... criteria)
     {
@@ -762,11 +776,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return new ConcatenatedContentInputStream(true, imageContents);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         return loadImages(sessionToken, imageReferences, true);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
@@ -783,6 +799,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return loadImages(imageReferences, size, null, true, false, imageLoadersMap);
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -792,6 +809,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return loadThumbnailImages(imageReferences, imageLoadersMap);
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
@@ -816,6 +834,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return new ConcatenatedContentInputStream(true, imageContents);
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -841,6 +860,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return new ConcatenatedContentInputStream(true, imageContents);
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
@@ -848,6 +868,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return listImageReferences(dataSetIdentifier, channel, imageAccessor);
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -885,6 +906,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return imageReferences;
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
@@ -892,6 +914,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
             List<String> channels)
@@ -900,6 +923,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channels);
     }
 
+    @Override
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {
@@ -1017,6 +1041,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return createImageLoader(datasetCode);
     }
 
+    @Override
     public void saveImageTransformerFactory(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
@@ -1131,6 +1156,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
     }
 
+    @Override
     public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
@@ -1511,11 +1537,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return dao;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return MAJOR_VERSION;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return MINOR_VERSION;

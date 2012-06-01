@@ -116,26 +116,31 @@ public class ImagingDataSetLocatorResolver extends PermlinkLocatorResolver
                 {
                     private static final long serialVersionUID = 1L;
 
+                    @Override
                     public BasicEntityType getEntityType()
                     {
                         return result.getEntityType();
                     }
 
+                    @Override
                     public EntityKind getEntityKind()
                     {
                         return result.getEntityKind();
                     }
 
+                    @Override
                     public Long getId()
                     {
                         return result.getId();
                     }
 
+                    @Override
                     public String getCode()
                     {
                         return result.getCode();
                     }
 
+                    @Override
                     public String getPermId()
                     {
                         return result.getPermId() + ":" + wellLocation;

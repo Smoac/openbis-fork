@@ -240,20 +240,24 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         final ToolBar toolbar = reviewer.createToolbar();
         return reviewer.asDisposableWithToolbar(new IDisposableComponent()
             {
+                @Override
                 public void update(Set<DatabaseModificationKind> observedModifications)
                 {
                 }
 
+                @Override
                 public DatabaseModificationKind[] getRelevantModifications()
                 {
                     return null;
                 }
 
+                @Override
                 public Component getComponent()
                 {
                     return toolbar;
                 }
 
+                @Override
                 public void dispose()
                 {
                 }
@@ -348,6 +352,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         return new ICellListenerAndLinkGenerator<WellContent>()
             {
+                @Override
                 public String tryGetLink(WellContent wellContent, ISerializableComparable value)
                 {
                     Material material = tryGetMaterial(wellContent, wellMaterialPropertyTypeCode);
@@ -358,6 +363,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                     return tryCreateMaterialDetailsLink(wellContent, material);
                 }
 
+                @Override
                 public void handle(TableModelRowWithObject<WellContent> row,
                         boolean specialKeyPressed)
                 {
@@ -419,11 +425,13 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
+                        @Override
                         public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getExperiment());
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellContent> wellContent,
                                 boolean specialKeyPressed)
                         {
@@ -438,11 +446,13 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.PLATE,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
+                        @Override
                         public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getPlate());
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellContent> wellContent,
                                 boolean specialKeyPressed)
                         {
@@ -457,11 +467,13 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.WELL,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
+                        @Override
                         public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getWell());
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellContent> wellContent,
                                 boolean specialKeyPressed)
                         {
@@ -476,6 +488,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
+                        @Override
                         public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             DatasetImagesReference imageDataset = entity.tryGetImageDataset();
@@ -488,6 +501,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                             }
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellContent> wellContent,
                                 boolean specialKeyPressed)
                         {
@@ -506,6 +520,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_ANALYSIS_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
+                        @Override
                         public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             DatasetReference dataset = entity.tryGetFeatureVectorDataset();
@@ -518,6 +533,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                             }
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellContent> wellContent,
                                 boolean specialKeyPressed)
                         {
@@ -565,6 +581,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     analysisProcedureChooser.updateAnalysisProcedures();
@@ -600,6 +617,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         GridCellRenderer<BaseEntityModel<?>> render = new GridCellRenderer<BaseEntityModel<?>>()
             {
 
+                @Override
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -617,6 +635,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                     final ISimpleChanneledViewerFactory viewerFactory =
                             new ISimpleChanneledViewerFactory()
                                 {
+                                    @Override
                                     public Widget create(List<String> channels,
                                             String imageTransformationCodeOrNull)
                                     {
@@ -675,6 +694,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         return Arrays.asList(WellSearchGridColumnIds.PLATE, WellSearchGridColumnIds.WELL);
     }
 
+    @Override
     public void analysisProcedureSelected(AnalysisProcedureCriteria selectedProcedureCriteria)
     {
         if (experimentCriteriaHolder.tryGetCriteria() != null)

@@ -71,6 +71,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
                 TabularDataGraphCollectionConfiguration.getConfiguration(propertiesFilePath);
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();

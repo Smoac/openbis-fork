@@ -50,11 +50,13 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         super(registrationDetails, dataSetFolder, service);
     }
 
+    @Override
     public void setAnalysisProcedure(String analysisProcedure)
     {
         setPropertyValue(ScreeningConstants.ANALYSIS_PROCEDURE, analysisProcedure);
     }
 
+    @Override
     public void establishSampleLinkForContainedDataSets()
     {
         establishSampleLinkForContainedDataSets = true;
@@ -65,6 +67,7 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         return establishSampleLinkForContainedDataSets;
     }
 
+    @Override
     public DataSet<ImageDataSetInformation> getOriginalDataset()
     {
         return originalDataset;
@@ -75,6 +78,7 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         this.originalDataset = originalDataset;
     }
 
+    @Override
     public List<IDataSet> getThumbnailDatasets()
     {
         return thumbnailDatasets;

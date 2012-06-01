@@ -215,6 +215,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
     }
 
+    @Override
     public ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult extract(
             File incomingDataSetDirectory, DataSetInformation dataSetInformation)
     {

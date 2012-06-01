@@ -137,6 +137,7 @@ public class PlateLayouter
                 private Map<Component, ToolTipAction> toolTipActions =
                         new HashMap<Component, ToolTipAction>();
 
+                @Override
                 public void updateWellStyle(int rowIx, int colIx, Color backgroundColor)
                 {
                     Component wellComponent = getWellComponent(rowIx, colIx);
@@ -144,6 +145,7 @@ public class PlateLayouter
                             .setBackgroudColor(wellComponent, backgroundColor.getHexColor());
                 }
 
+                @Override
                 public void addEmptyTooltip(int rowIx, int colIx)
                 {
                     Component wellComponent = getWellComponent(rowIx, colIx);
@@ -157,6 +159,7 @@ public class PlateLayouter
                     GWTUtils.setToolTip(wellComponent, config);
                 }
 
+                @Override
                 public void updateTooltip(int rowIx, int colIx, String tooltipOrNull)
                 {
                     hideAllToolTipsExcept(rowIx, colIx);
@@ -171,6 +174,7 @@ public class PlateLayouter
                     }
                 }
 
+                @Override
                 public void scheduleUpdateTooltip(final int rowIx, final int colIx,
                         IDelegatedAction refreshTooltipAction)
                 {
@@ -187,6 +191,7 @@ public class PlateLayouter
                     }
                 }
 
+                @Override
                 public void updateLegend(Widget legend)
                 {
                     legendContainer.removeAll();
@@ -406,6 +411,7 @@ public class PlateLayouter
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()
             {
 
+                @Override
                 public void handleEvent(BaseEvent ce)
                 {
                     layouter.hideAllTooltops();

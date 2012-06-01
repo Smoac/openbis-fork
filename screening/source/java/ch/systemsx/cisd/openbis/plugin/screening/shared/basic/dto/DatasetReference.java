@@ -75,6 +75,7 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
         this.analysisProcedure = analysisProcedure;
     }
 
+    @Override
     public String getCode()
     {
         return datasetCode;
@@ -90,21 +91,25 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
         return datastoreHostUrl;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return new BasicEntityType(typeCode);
     }
 
+    @Override
     public Long getId()
     {
         return id;
     }
 
+    @Override
     public String getPermId()
     {
         return datasetCode;

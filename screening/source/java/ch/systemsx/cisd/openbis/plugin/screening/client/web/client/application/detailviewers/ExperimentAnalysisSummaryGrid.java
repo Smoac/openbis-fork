@@ -83,6 +83,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
         return new ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary>()
             {
 
+                @Override
                 public void handle(TableModelRowWithObject<MaterialFeatureVectorSummary> rowItem,
                         boolean specialKeyPressed)
                 {
@@ -91,6 +92,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
                     openMaterialDetailViewer(material);
                 }
 
+                @Override
                 public String tryGetLink(MaterialFeatureVectorSummary entity,
                         ISerializableComparable comparableValue)
                 {
@@ -185,6 +187,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     //
     // IAnalysisProcedureSelectionListener
     //
+    @Override
     public void analysisProcedureSelected(AnalysisProcedureCriteria selectedProcedureCriteria)
     {
         this.analysisProcedureCriteria = selectedProcedureCriteria;

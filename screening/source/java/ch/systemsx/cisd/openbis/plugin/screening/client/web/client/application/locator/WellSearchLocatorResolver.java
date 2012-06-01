@@ -32,6 +32,7 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
         this.viewContext = viewContext;
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         String experimentPermId =

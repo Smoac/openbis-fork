@@ -23,16 +23,19 @@ abstract class DetegatingFloatHeatmapRenderer<T> implements IHeatmapRenderer<T>
         this.delegator = new NumberHeatmapRenderer(min, max, realNumberRenderer);
     }
 
+    @Override
     public Color getColor(T value)
     {
         return delegator.getColor(convert(value));
     }
 
+    @Override
     public List<HeatmapScaleElement> calculateScale()
     {
         return delegator.calculateScale();
     }
 
+    @Override
     public String tryGetFirstLabel()
     {
         return delegator.tryGetFirstLabel();

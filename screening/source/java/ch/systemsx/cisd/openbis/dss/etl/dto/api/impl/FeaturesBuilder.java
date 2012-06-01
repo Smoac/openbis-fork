@@ -39,6 +39,7 @@ public class FeaturesBuilder implements IFeaturesBuilder
     }
 
     /** Defines a container to which values of the feature for each well can be added. */
+    @Override
     public IFeatureDefinition defineFeature(String featureCode)
     {
         assert StringUtils.isBlank(featureCode) == false : "Feature code is blank " + featureCode;

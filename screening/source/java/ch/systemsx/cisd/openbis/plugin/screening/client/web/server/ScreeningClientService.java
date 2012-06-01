@@ -129,33 +129,39 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
     }
 
+    @Override
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws UserFailureException
     {
         return server.getSampleInfo(getSessionToken(), sampleId);
     }
 
+    @Override
     public ExternalData getDataSetInfo(TechId datasetTechId)
     {
         return server.getDataSetInfo(getSessionToken(), datasetTechId);
     }
 
+    @Override
     public Material getMaterialInfo(TechId materialTechId) throws UserFailureException
     {
         return server.getMaterialInfo(getSessionToken(), materialTechId);
     }
 
+    @Override
     public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
         return server.getPlateContent(getSessionToken(), plateId);
     }
 
+    @Override
     public FeatureVectorDataset getFeatureVectorDataset(DatasetReference dataset,
             CodeAndLabel featureName) throws UserFailureException
     {
         return server.getFeatureVectorDataset(getSessionToken(), dataset, featureName);
     }
 
+    @Override
     public FeatureVectorValues getWellFeatureVectorValues(String datasetCode, String datastoreCode,
             WellLocation location)
     {
@@ -163,11 +169,13 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 location);
     }
 
+    @Override
     public PlateImages getPlateContentForDataset(TechId datasetId)
     {
         return server.getPlateContentForDataset(getSessionToken(), datasetId);
     }
 
+    @Override
     public TypedTableResultSet<WellContent> listPlateWells(
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria)
@@ -179,18 +187,21 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return new TypedTableResultSet<WellContent>(resultSet);
     }
 
+    @Override
     public String prepareExportPlateWells(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public List<WellReplicaImage> listWellImages(TechId materialId, TechId experimentId)
             throws UserFailureException
     {
         return server.listWellImages(getSessionToken(), materialId, experimentId);
     }
 
+    @Override
     public TypedTableResultSet<Material> listMaterials(
             IResultSetConfig<String, TableModelRowWithObject<Material>> gridCriteria,
             WellSearchCriteria materialCriteria)
@@ -203,12 +214,14 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return new TypedTableResultSet<Material>(resultSet);
     }
 
+    @Override
     public String prepareExportMaterials(
             TableExportCriteria<TableModelRowWithObject<Material>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public TypedTableResultSet<WellMetadata> listPlateMetadata(
             IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> criteria,
             TechId sampleId)
@@ -222,12 +235,14 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return new TypedTableResultSet<WellMetadata>(resultSet);
     }
 
+    @Override
     public String prepareExportPlateMetadata(
             TableExportCriteria<TableModelRowWithObject<WellMetadata>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public void registerLibrary(LibraryRegistrationInfo details) throws UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -257,12 +272,14 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     }
 
+    @Override
     public Vocabulary getPlateGeometryVocabulary() throws UserFailureException
     {
         final String sessionToken = getSessionToken();
         return server.getVocabulary(sessionToken, ScreeningConstants.PLATE_GEOMETRY);
     }
 
+    @Override
     public LogicalImageInfo getImageDatasetInfo(String datasetCode, String datastoreCode,
             WellLocation wellLocationOrNull)
     {
@@ -271,6 +288,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 wellLocationOrNull);
     }
 
+    @Override
     public ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
             String datastoreCode)
     {
@@ -278,12 +296,14 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getImageDatasetReference(sessionToken, datasetCode, datastoreCode);
     }
 
+    @Override
     public List<ImageResolution> getImageDatasetResolutions(String datasetCode, String datastoreCode)
     {
         final String sessionToken = getSessionToken();
         return server.getImageDatasetResolutions(sessionToken, datasetCode, datastoreCode);
     }
 
+    @Override
     public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
             WellLocation wellLocationOrNull)
     {
@@ -291,6 +311,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getImageDatasetInfosForSample(sessionToken, sampleId, wellLocationOrNull);
     }
 
+    @Override
     public TypedTableResultSet<Material> listExperimentMaterials(final TechId experimentId,
             final ListMaterialDisplayCriteria displayCriteria)
     {
@@ -305,6 +326,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
             }, displayCriteria);
     }
 
+    @Override
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria,
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
@@ -316,6 +338,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     }
 
+    @Override
     public TypedTableResultSet<MaterialReplicaFeatureSummary> listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             MaterialFeaturesOneExpCriteria criteria)
@@ -325,6 +348,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return listEntities(provider, resultSetConfig);
     }
 
+    @Override
     public String prepareExportFeatureVectorSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
             throws UserFailureException
@@ -332,6 +356,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public String prepareExportMaterialReplicaFeatureSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
             throws UserFailureException
@@ -339,6 +364,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public TypedTableResultSet<MaterialSimpleFeatureVectorSummary> listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
             MaterialFeaturesManyExpCriteria criteria) throws UserFailureException
@@ -350,6 +376,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return listEntities(provider, resultSetConfig);
     }
 
+    @Override
     public String prepareExportMaterialFeaturesFromAllExperiments(
             TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria)
             throws UserFailureException
@@ -357,6 +384,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
+    @Override
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
             ExperimentSearchCriteria experimentSearchCriteria)
     {

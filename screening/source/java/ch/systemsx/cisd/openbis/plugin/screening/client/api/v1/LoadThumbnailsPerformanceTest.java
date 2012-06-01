@@ -143,6 +143,7 @@ public class LoadThumbnailsPerformanceTest
     {
         facade.loadThumbnailImages(imageReferences, new IPlateImageHandler()
             {
+                @Override
                 public void handlePlateImage(PlateImageReference plateImageReference,
                         byte[] imageFileBytes)
                 {
@@ -157,6 +158,7 @@ public class LoadThumbnailsPerformanceTest
     {
         facade.loadImages(imageReferences, config, new IPlateImageHandler()
             {
+                @Override
                 public void handlePlateImage(PlateImageReference plateImageReference,
                         byte[] imageFileBytes)
                 {

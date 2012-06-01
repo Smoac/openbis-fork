@@ -61,33 +61,39 @@ public class ExperimentReference implements Serializable, IEntityInformationHold
         this.spaceCode = spaceCode;
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return new BasicEntityType(experimentTypeCode);
     }
 
+    @Override
     public Long getId()
     {
         return experimentId;
     }
 
+    @Override
     public String getCode()
     {
         return experimentCode;
     }
 
     /** @return experiment identifier */
+    @Override
     public String getIdentifier()
     {
         String SEP = "/";
         return SEP + spaceCode + SEP + projectCode + SEP + experimentCode;
     }
 
+    @Override
     public String getPermId()
     {
         return experimentPermId;

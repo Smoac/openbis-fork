@@ -30,10 +30,12 @@ final class BitShiftingImageTransformerFactory implements IImageTransformerFacto
         this.shiftBits = shiftBits;
     }
 
+    @Override
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
             {
+                @Override
                 public BufferedImage transform(BufferedImage image)
                 {
                     if (IntensityRescaling.isNotGrayscale(image))

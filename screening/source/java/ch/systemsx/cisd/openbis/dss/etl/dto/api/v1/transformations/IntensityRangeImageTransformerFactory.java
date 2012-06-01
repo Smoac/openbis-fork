@@ -51,10 +51,12 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
         this.whitePointIntensity = whitePointIntensity;
     }
 
+    @Override
     public IImageTransformer createTransformer()
     {
         return new IImageTransformer()
             {
+                @Override
                 public BufferedImage transform(BufferedImage image)
                 {
                     if (IntensityRescaling.isNotGrayscale(image))

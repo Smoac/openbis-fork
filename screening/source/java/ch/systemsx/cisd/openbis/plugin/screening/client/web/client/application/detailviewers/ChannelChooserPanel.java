@@ -100,6 +100,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
+            @Override
             public void handleEvent(BaseEvent be)
             {
                 selectionChanged();
@@ -109,6 +110,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private final Listener<BaseEvent> transformationSelection = new Listener<BaseEvent>()
         {
+            @Override
             public void handleEvent(BaseEvent be)
             {
                 defaultChannelState.setDefaultTransformation(getSelectedValues().get(0),

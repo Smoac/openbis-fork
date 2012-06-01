@@ -45,11 +45,13 @@ public class WellExtendedData extends WellData implements IEntityPropertiesHolde
         return well;
     }
 
+    @Override
     public Long getId()
     {
         return well.getId();
     }
 
+    @Override
     public List<IEntityProperty> getProperties()
     {
         return well.getProperties();

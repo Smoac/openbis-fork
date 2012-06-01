@@ -63,6 +63,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
     {
         return new IDelegatedAction()
             {
+                @Override
                 public void execute()
                 {
                     ExperimentSearchCriteria criteriaOrNull = searchCriteriaHolder.tryGetCriteria();
@@ -160,6 +161,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
     {
         return new IAnalysisProcedureSelectionListener()
             {
+                @Override
                 public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
                 {
                     IAnalysisProcedureSelectionListener delegateListener =

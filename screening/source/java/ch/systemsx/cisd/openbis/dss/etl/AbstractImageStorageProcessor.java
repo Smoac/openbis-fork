@@ -390,6 +390,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
         }
 
+        @Override
         public final File tryGetProprietaryData()
         {
             return tryGetSingleChild(storedDataDirectory);
@@ -491,6 +492,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     }
 
+    @Override
     public final IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
@@ -600,6 +602,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
      * @return true if the dataset has been enriched before and already contains all the information
      *         about images.
      */
+    @Override
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
         String dataSetTypeCode = dataSetInformation.getDataSetType().getCode().toUpperCase();

@@ -83,6 +83,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     {
         return new IRealNumberRenderer()
             {
+                @Override
                 public String render(float value)
                 {
                     return "" + value;

@@ -95,6 +95,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         this.originalDirName = originalDirName;
     }
 
+    @Override
     public IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages)
     {
@@ -114,6 +115,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
      * 
      * @return container dataset.
      */
+    @Override
     public IImageDataSet createNewImageDataSet(
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
     {

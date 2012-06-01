@@ -35,17 +35,20 @@ public class TransformerFactoryMapper implements TypeMapper<IImageTransformerFac
 {
     private final TypeMapper<Serializable> serializableObjectMapper = new SerializableObjectMapper();
 
+    @Override
     public IImageTransformerFactory get(ResultSet results, int column) throws SQLException
     {
         return (IImageTransformerFactory) serializableObjectMapper.get(results, column);
     }
 
+    @Override
     public void set(ResultSet results, int column, IImageTransformerFactory obj)
             throws SQLException
     {
         serializableObjectMapper.set(results, column, obj);
     }
 
+    @Override
     public void set(PreparedStatement statement, int column, IImageTransformerFactory obj)
             throws SQLException
     {

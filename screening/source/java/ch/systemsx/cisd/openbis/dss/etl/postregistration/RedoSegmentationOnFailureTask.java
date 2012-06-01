@@ -77,11 +77,13 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
     /**
      * @see IDataStoreLockingMaintenanceTask#requiresDataStoreLock()
      */
+    @Override
     public boolean requiresDataStoreLock()
     {
         return true;
     }
 
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         return new Executor(dataSetCode);
@@ -109,6 +111,7 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             return null;
         }
 
+        @Override
         public void execute()
         {
             ExternalData data = service.tryGetDataSet(dataSetCode);
@@ -205,6 +208,7 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             return linkWasMade;
         }
 
+        @Override
         public ICleanupTask createCleanupTask()
         {
             return new NoCleanupTask();

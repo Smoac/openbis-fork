@@ -59,6 +59,7 @@ public class ConvertToolImageTransformerFactory implements IStreamingImageTransf
         this.choice = choice;
     }
 
+    @Override
     public ConvertToolImageTransformer createTransformer()
     {
         return new ConvertToolImageTransformer(convertCliArguments, choice);

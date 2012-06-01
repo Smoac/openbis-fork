@@ -412,6 +412,7 @@ public class FeatureVectorLoader
                     GroupByMap.create(requestedFeatureDefinitions,
                             new IGroupKeyExtractor<Long, ImgFeatureDefDTO>()
                                 {
+                                    @Override
                                     public Long getKey(ImgFeatureDefDTO featureDef)
                                     {
                                         return featureDef.getDataSetId();
@@ -424,6 +425,7 @@ public class FeatureVectorLoader
                     GroupByMap.create(featureVocabularyTerms,
                             new IGroupKeyExtractor<Long, ImgFeatureVocabularyTermDTO>()
                                 {
+                                    @Override
                                     public Long getKey(
                                             ImgFeatureVocabularyTermDTO featureVocabularyTerm)
                                     {
@@ -437,6 +439,7 @@ public class FeatureVectorLoader
                     GroupByMap.create(requestedFeatureValues,
                             new IGroupKeyExtractor<Long, ImgFeatureValuesDTO>()
                                 {
+                                    @Override
                                     public Long getKey(ImgFeatureValuesDTO featureVal)
                                     {
                                         return featureVal.getFeatureDefId();
@@ -452,6 +455,7 @@ public class FeatureVectorLoader
             return new TableMap<Long, ImgContainerDTO>(containers,
                     new IKeyExtractor<Long, ImgContainerDTO>()
                         {
+                            @Override
                             public Long getKey(ImgContainerDTO container)
                             {
                                 return container.getId();

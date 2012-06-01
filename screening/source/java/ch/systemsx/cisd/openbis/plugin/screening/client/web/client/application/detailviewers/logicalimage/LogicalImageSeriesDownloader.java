@@ -82,6 +82,7 @@ class LogicalImageSeriesDownloader
 
         ImagesDownloadListener listener = new ImagesDownloadListener()
             {
+                @Override
                 public void imagesDownloaded(LazyImageSeriesFrame frame)
                 {
                     // do not display the frame if selection changed during loading

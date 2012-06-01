@@ -294,6 +294,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
                 CollectionUtils.filter(materialWellDataList,
                         new ICollectionFilter<WellExtendedData>()
                             {
+                                @Override
                                 public boolean isPresent(WellExtendedData element)
                                 {
                                     return replicaSequences.isBiologicalReplicate(element) == false;
@@ -325,6 +326,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         Collections.sort(materialWellDataList, new Comparator<WellExtendedData>()
             {
+                @Override
                 public int compare(WellExtendedData w1, WellExtendedData w2)
                 {
                     Integer replicaSequenceNumber1 =
@@ -346,6 +348,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
         return GroupByMap.create(materialWellDataList,
                 new IGroupKeyExtractor<Integer, WellExtendedData>()
                     {
+                        @Override
                         public Integer getKey(WellExtendedData wellData)
                         {
                             return replicaSequences.tryGetBiologicalReplicateSequence(wellData);

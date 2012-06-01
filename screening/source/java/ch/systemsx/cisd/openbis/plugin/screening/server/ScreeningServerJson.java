@@ -54,54 +54,64 @@ public class ScreeningServerJson implements IScreeningApiServer
         this.server = server;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return server.getMajorVersion();
     }
 
+    @Override
     public int getMinorVersion()
     {
         return server.getMinorVersion();
     }
 
+    @Override
     public String tryLoginScreening(String userId, String userPassword)
             throws IllegalArgumentException
     {
         return server.tryLoginScreening(userId, userPassword);
     }
 
+    @Override
     public void logoutScreening(String sessionToken) throws IllegalArgumentException
     {
         server.logoutScreening(sessionToken);
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken) throws IllegalArgumentException
     {
         return new PlateList(server.listPlates(sessionToken));
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken, ExperimentIdentifier experiment)
             throws IllegalArgumentException
     {
         return new PlateList(server.listPlates(sessionToken, experiment));
     }
 
+    @Override
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
         return new PlateMetadataList(server.getPlateMetadataList(sessionToken, plates));
     }
 
+    @Override
     public List<ExperimentIdentifier> listExperiments(String sessionToken)
     {
         return new ExperimentIdentifierList(server.listExperiments(sessionToken));
     }
 
+    @Override
     public List<ExperimentIdentifier> listExperiments(String sessionToken, String userId)
     {
         return new ExperimentIdentifierList(server.listExperiments(sessionToken, userId));
     }
 
+    @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
@@ -109,18 +119,21 @@ public class ScreeningServerJson implements IScreeningApiServer
                 plates));
     }
 
+    @Override
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
         return new ImageDatasetReferenceList(server.listImageDatasets(sessionToken, plates));
     }
 
+    @Override
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
         return new ImageDatasetReferenceList(server.listRawImageDatasets(sessionToken, plates));
     }
 
+    @Override
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
@@ -128,12 +141,14 @@ public class ScreeningServerJson implements IScreeningApiServer
                 plates));
     }
 
+    @Override
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {
         return new IDatasetIdentifierList(server.getDatasetIdentifiers(sessionToken, datasetCodes));
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             boolean findDatasets)
@@ -142,6 +157,7 @@ public class ScreeningServerJson implements IScreeningApiServer
                 experimentIdentifer, materialIdentifier, findDatasets));
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
@@ -149,21 +165,25 @@ public class ScreeningServerJson implements IScreeningApiServer
                 materialIdentifier, findDatasets));
     }
 
+    @Override
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
         return new WellIdentifierList(server.listPlateWells(sessionToken, plateIdentifier));
     }
 
+    @Override
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
     {
         return server.getWellSample(sessionToken, wellIdentifier);
     }
 
+    @Override
     public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)
     {
         return server.getPlateSample(sessionToken, plateIdentifier);
     }
 
+    @Override
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -172,6 +192,7 @@ public class ScreeningServerJson implements IScreeningApiServer
                 plates, materialTypeIdentifierOrNull));
     }
 
+    @Override
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             ExperimentIdentifier experimentIdentifer)
     {

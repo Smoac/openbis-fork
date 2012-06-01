@@ -114,6 +114,7 @@ public class LoadImagesWithTransformationTest
     {
         facade.loadImages(imageReferences, config, new IPlateImageHandler()
             {
+                @Override
                 public void handlePlateImage(PlateImageReference plateImageReference,
                         byte[] imageFileBytes)
                 {

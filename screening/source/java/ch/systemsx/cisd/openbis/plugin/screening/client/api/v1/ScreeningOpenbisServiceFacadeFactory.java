@@ -27,12 +27,14 @@ public class ScreeningOpenbisServiceFacadeFactory implements IScreeningOpenbisSe
     public static final IScreeningOpenbisServiceFacadeFactory INSTANCE =
             new ScreeningOpenbisServiceFacadeFactory();
 
+    @Override
     public IScreeningOpenbisServiceFacade tryToCreate(String userId, String userPassword,
             String serverUrl)
     {
         return ScreeningOpenbisServiceFacade.tryCreate(userId, userPassword, serverUrl);
     }
 
+    @Override
     public IScreeningOpenbisServiceFacade tryToCreate(String sessionToken, String serverUrl)
     {
         return ScreeningOpenbisServiceFacade.tryCreate(sessionToken, serverUrl);

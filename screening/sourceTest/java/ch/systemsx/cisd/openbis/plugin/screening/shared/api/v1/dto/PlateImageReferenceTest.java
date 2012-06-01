@@ -50,16 +50,19 @@ public class PlateImageReferenceTest extends AssertJUnit
         return new IDatasetIdentifier()
             {
 
+                @Override
                 public String getDatasetCode()
                 {
                     return "9834598723-9834";
                 }
 
+                @Override
                 public String getPermId()
                 {
                     return getDatasetCode();
                 }
 
+                @Override
                 public String getDatastoreServerUrl()
                 {
                     return "http://localhost:8888";

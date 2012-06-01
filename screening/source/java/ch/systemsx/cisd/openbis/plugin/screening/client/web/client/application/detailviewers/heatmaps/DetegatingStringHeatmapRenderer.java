@@ -23,16 +23,19 @@ abstract class DetegatingStringHeatmapRenderer<T> implements IHeatmapRenderer<T>
         this.delegator = new StringHeatmapRenderer(uniqueValues, colorsOrNull);
     }
 
+    @Override
     public Color getColor(T value)
     {
         return delegator.getColor(extractLabel(value));
     }
 
+    @Override
     public List<HeatmapScaleElement> calculateScale()
     {
         return delegator.calculateScale();
     }
 
+    @Override
     public String tryGetFirstLabel()
     {
         return null;

@@ -133,6 +133,7 @@ public class LoadImagesScreeningClientApiTest
         {
             facade.loadImages(Arrays.asList(imageReference), new IImageOutputStreamProvider()
                 {
+                    @Override
                     public OutputStream getOutputStream(PlateImageReference imageRef)
                             throws IOException
                     {

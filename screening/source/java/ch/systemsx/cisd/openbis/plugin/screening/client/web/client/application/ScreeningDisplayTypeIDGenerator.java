@@ -38,11 +38,13 @@ public enum ScreeningDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
         this.genericNameOrPrefix = genericNameOrPrefix;
     }
 
+    @Override
     public String createID()
     {
         return genericNameOrPrefix;
     }
 
+    @Override
     public String createID(String suffix)
     {
         return genericNameOrPrefix + suffix;

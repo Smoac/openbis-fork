@@ -39,11 +39,13 @@ public class ImagingLoaderStrategyFactory
             this.imageAccessor = imageAccessor;
         }
 
+        @Override
         public ImageDatasetParameters getImageParameters()
         {
             return imageAccessor.getImageParameters();
         }
 
+        @Override
         public List<ImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull)
         {
             return imageAccessor.listImageChannelStacks(wellLocationOrNull);
@@ -55,6 +57,7 @@ public class ImagingLoaderStrategyFactory
     {
         return new AbstractLoaderStrategy(imageAccessor)
             {
+                @Override
                 public AbsoluteImageReference tryGetImage(String channelCode,
                         ImageChannelStackReference channelStackReference,
                         RequestedImageSize imageSize)
@@ -63,6 +66,7 @@ public class ImagingLoaderStrategyFactory
                             imageSize);
                 }
 
+                @Override
                 public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
                         Location wellLocationOrNull, RequestedImageSize imageSize)
                 {
@@ -78,6 +82,7 @@ public class ImagingLoaderStrategyFactory
     {
         return new AbstractLoaderStrategy(imageAccessor)
             {
+                @Override
                 public AbsoluteImageReference tryGetImage(String channelCode,
                         ImageChannelStackReference channelStackReference,
                         RequestedImageSize imageSize)
@@ -86,6 +91,7 @@ public class ImagingLoaderStrategyFactory
                             imageSize);
                 }
 
+                @Override
                 public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
                         Location wellLocationOrNull, RequestedImageSize imageSize)
                 {

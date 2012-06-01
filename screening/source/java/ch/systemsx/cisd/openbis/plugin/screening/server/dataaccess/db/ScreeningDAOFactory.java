@@ -56,6 +56,7 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
         }
     }
 
+    @Override
     public IImagingReadonlyQueryDAO getImagingQueryDAO(String dssCode)
     {
         DataSource dataSource =

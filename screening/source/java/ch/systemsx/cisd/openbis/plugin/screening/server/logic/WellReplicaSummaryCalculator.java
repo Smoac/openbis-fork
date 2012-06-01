@@ -107,6 +107,7 @@ public class WellReplicaSummaryCalculator
         this.replicaToWellDataMap =
                 GroupByMap.create(wellDataList, new IGroupKeyExtractor<Long, IWellData>()
                     {
+                        @Override
                         public Long getKey(IWellData wellData)
                         {
                             return wellData.getReplicaMaterialId();
@@ -384,6 +385,7 @@ public class WellReplicaSummaryCalculator
     {
         return new Comparator<IWellData>()
             {
+                @Override
                 public int compare(IWellData w1, IWellData w2)
                 {
                     float v1 = getFeatureValue(w1, featureIx);

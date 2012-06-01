@@ -111,6 +111,7 @@ public class FeatureInformation implements Serializable, Comparable<FeatureInfor
         return true;
     }
 
+    @Override
     public int compareTo(FeatureInformation o)
     {
         return code.compareTo(o.getCode());

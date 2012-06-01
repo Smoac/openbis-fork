@@ -51,12 +51,14 @@ public final class ExperimentSearchCriteriaPredicate implements
         this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
+    @Override
     public final void init(IAuthorizationDataProvider provider)
     {
         experimentPredicate.init(provider);
         spacePredicate.init(provider);
     }
 
+    @Override
     public final Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final ExperimentSearchCriteria value)
     {

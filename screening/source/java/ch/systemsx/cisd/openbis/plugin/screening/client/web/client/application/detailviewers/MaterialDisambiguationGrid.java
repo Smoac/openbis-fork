@@ -78,6 +78,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
             {
                 private boolean firstCall = true;
 
+                @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
                     if (firstCall == false)
@@ -229,12 +230,14 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
         ICellListenerAndLinkGenerator<Material> listenerLinkGenerator =
                 new ICellListenerAndLinkGenerator<Material>()
                     {
+                        @Override
                         public String tryGetLink(Material material, ISerializableComparable value)
                         {
                             return ScreeningLinkExtractor.createMaterialDetailsLink(material,
                                     searchCriteria.getExperimentCriteria());
                         }
 
+                        @Override
                         public void handle(TableModelRowWithObject<Material> row,
                                 boolean specialKeyPressed)
                         {

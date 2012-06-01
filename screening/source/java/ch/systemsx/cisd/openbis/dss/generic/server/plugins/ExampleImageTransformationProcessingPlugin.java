@@ -43,6 +43,7 @@ public class ExampleImageTransformationProcessingPlugin extends
 
         private static final long serialVersionUID = 1L;
 
+        @Override
         public IImageTransformerFactory tryGetTransformationFactory(ImgImageEnrichedDTO image)
         {
             return new ExampleImageTransformerFactory(colorPattern, brightnessDelta);

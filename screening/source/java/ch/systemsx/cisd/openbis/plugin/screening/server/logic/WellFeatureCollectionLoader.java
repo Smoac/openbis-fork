@@ -99,6 +99,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
                 new TableMap<String, ExternalData>(datasets,
                         new IKeyExtractor<String, ExternalData>()
                             {
+                                @Override
                                 public String getKey(ExternalData externalData)
                                 {
                                     Sample plate = externalData.getSample();
@@ -151,6 +152,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
             GroupByMap<String/* datastore code */, DatasetReference> datastoreToDatasetsMap =
                     GroupByMap.create(datasets, new IGroupKeyExtractor<String, DatasetReference>()
                         {
+                            @Override
                             public String getKey(DatasetReference datasetReference)
                             {
                                 return datasetReference.getDatastoreCode();
@@ -201,6 +203,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
             return CollectionUtils.map(datasets,
                     new ICollectionMappingFunction<String, DatasetReference>()
                         {
+                            @Override
                             public String map(DatasetReference element)
                             {
                                 return element.getCode();

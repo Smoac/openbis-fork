@@ -33,6 +33,7 @@ public abstract class AbstractFormatSelectionCriterion implements
 {
     private static final long serialVersionUID = 1L;
 
+    @Override
     public List<ImageRepresentationFormat> getMatching(
             List<ImageRepresentationFormat> imageRepresentationFormats)
     {

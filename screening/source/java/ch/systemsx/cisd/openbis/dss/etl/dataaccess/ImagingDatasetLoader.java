@@ -89,6 +89,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
      * @param chosenChannelCode
      * @return image (with absolute path, page and color)
      */
+    @Override
     public AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, RequestedImageSize imageSize)
     {
@@ -494,6 +495,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return checkAccessability("", "", image);
     }
 
+    @Override
     public AbsoluteImageReference tryFindAnyOriginalImage()
     {
         List<ImgSpotDTO> wells = query.listWellsWithAnyImages(dataset.getId());
@@ -516,6 +518,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return null;
     }
 
+    @Override
     public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
             Location wellLocationOrNull, RequestedImageSize imageSize)
     {
@@ -554,6 +557,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return checkAccessability(pathPrefixAndSuffix[0], pathPrefixAndSuffix[1], image);
     }
 
+    @Override
     public AbsoluteImageReference tryFindAnyThumbnail()
     {
         List<ImgSpotDTO> wells = query.listWellsWithAnyThumbnails(dataset.getId());
@@ -574,6 +578,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return null;
     }
 
+    @Override
     public AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,
             Location wellLocationOrNull, RequestedImageSize imageSize)
     {
@@ -593,6 +598,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                 Size.NULL_SIZE, false), true);
     }
 
+    @Override
     public AbsoluteImageReference tryGetThumbnail(String channelCode,
             ImageChannelStackReference channelStackReference, RequestedImageSize imageSize)
     {

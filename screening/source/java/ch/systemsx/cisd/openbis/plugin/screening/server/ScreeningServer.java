@@ -164,11 +164,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         this.businessObjectFactory = businessObjectFactory;
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception
     {
         setAnalysisSettings(new AnalysisSettings(configurer.getResolvedProps()));
     }
     
+    @Override
     public void setAnalysisSettings(AnalysisSettings analysisSettings)
     {
         this.analysisSettings = analysisSettings;
@@ -181,6 +183,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
+    @Override
     public final IScreeningServer createLogger(IInvocationLoggerContext context)
     {
         return new ScreeningServerLogger(getSessionManager(), context);
@@ -190,6 +193,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     // IScreeningServer
     //
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -201,12 +205,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
+    @Override
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
     }
 
+    @Override
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
             DatasetReference dataset, CodeAndLabel featureName)
     {
@@ -215,6 +221,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 featureName);
     }
 
+    @Override
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
         Session session = getSession(sessionToken);
@@ -222,6 +229,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 datasetId);
     }
 
+    @Override
     public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
@@ -229,6 +237,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
+    @Override
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             TechId experimentId)
     {
@@ -237,6 +246,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialId, experimentId, createDefaultSettings());
     }
 
+    @Override
     public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
@@ -244,6 +254,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
+    @Override
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
@@ -252,6 +263,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 datasetCode, datastoreCode, wellLocation);
     }
 
+    @Override
     public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
@@ -260,6 +272,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 datastoreCode, wellLocationOrNull);
     }
 
+    @Override
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
             String datasetCode, String datastoreCode)
     {
@@ -268,6 +281,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 datasetCode, datastoreCode);
     }
 
+    @Override
     public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
             String datasetCode, String datastoreCode)
     {
@@ -277,6 +291,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return loader.getImageResolutions();
     }
 
+    @Override
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,
             WellLocation wellLocationOrNull)
     {
@@ -285,16 +300,19 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 sampleId, wellLocationOrNull);
     }
 
+    @Override
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 
+    @Override
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
         return commonServer.getMaterialInfo(sessionToken, materialId);
     }
 
+    @Override
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
         checkSession(sessionToken);
@@ -303,6 +321,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return VocabularyTranslator.translate(vocabulary);
     }
 
+    @Override
     public void registerLibrary(String sessionToken, String userEmail,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType)
@@ -311,6 +330,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 newOligosOrNull, newSamplesWithType, commonServer, genericServer, getDAOFactory()));
     }
 
+    @Override
     public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
             MaterialType materialType)
     {
@@ -327,6 +347,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 .listMaterials(sessionToken, ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }
 
+    @Override
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
@@ -340,6 +361,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 analysisProcedureCriteria, analysisSettings);
     }
 
+    @Override
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, MaterialFeaturesManyExpCriteria criteria)
     {
@@ -386,6 +408,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return settings;
     }
 
+    @Override
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             MaterialFeaturesOneExpCriteria criteria)
     {
@@ -398,30 +421,35 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care
 
+    @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
         return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
     }
 
+    @Override
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
         return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
     }
 
+    @Override
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
         return createScreeningApiImpl(sessionToken).listRawImageDatasets(plates);
     }
 
+    @Override
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
         return createScreeningApiImpl(sessionToken).listSegmentationImageDatasets(plates);
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
@@ -431,6 +459,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialIdentifier, findDatasets);
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
@@ -438,49 +467,58 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 .listPlateWells(materialIdentifier, findDatasets);
     }
 
+    @Override
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
         return createScreeningApiImpl(sessionToken).listPlateWells(plateIdentifier);
     }
 
+    @Override
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
     {
         return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier, true);
     }
 
+    @Override
     public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)
     {
         return createScreeningApiImpl(sessionToken).getPlateSample(plateIdentifier);
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken)
     {
         return createScreeningApiImpl(sessionToken).listPlates();
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken, ExperimentIdentifier experiment)
     {
         return createScreeningApiImpl(sessionToken).listPlates(experiment);
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
             String sessionToken)
     {
         return createScreeningApiImpl(sessionToken).listExperiments();
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
             String sessionToken, String userId)
     {
         return createScreeningApiImpl(sessionToken).listExperiments(userId);
     }
 
+    @Override
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
     }
 
+    @Override
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
@@ -503,6 +541,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return ScreeningUtils.filterNumericalDatasetsAnalysisProcedures(analysisProcedures);
     }
 
+    @Override
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -523,11 +562,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
     }
 
+    @Override
     public void logoutScreening(String sessionToken)
     {
         logout(sessionToken);
     }
 
+    @Override
     public String tryLoginScreening(String userId, String userPassword)
     {
         SessionContextDTO sessionContext = tryToAuthenticate(userId, userPassword);
@@ -540,22 +581,26 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         }
     }
 
+    @Override
     public int getMajorVersion()
     {
         return MAJOR_VERSION;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return MINOR_VERSION;
     }
 
+    @Override
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             List<? extends PlateIdentifier> plateIdentifiers) throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).getPlateMetadata(plateIdentifiers);
     }
 
+    @Override
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             ExperimentIdentifier experimentIdentifer)
     {

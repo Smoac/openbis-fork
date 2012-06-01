@@ -43,6 +43,7 @@ public class ExperimentAnalysisSummaryResolver extends AbstractViewLocatorResolv
         }
     }
 
+    @Override
     public void resolve(final ViewLocator locator) throws UserFailureException
     {
         String experimentPermId = tryGetPermId(locator);

@@ -163,6 +163,7 @@ class WellDataLoader extends AbstractContentLoader
         return CollectionUtils.map(wellsData,
                 new CollectionUtils.ICollectionMappingFunction<WellExtendedData, WellData>()
                     {
+                        @Override
                         public WellExtendedData map(WellData wellData)
                         {
                             WellReference wellReference = wellData.tryGetWellReference();
@@ -400,6 +401,7 @@ class WellDataLoader extends AbstractContentLoader
     {
         return CollectionUtils.filter(wells, new ICollectionFilter<BasicWellContentQueryResult>()
             {
+                @Override
                 public boolean isPresent(BasicWellContentQueryResult well)
                 {
                     return belongsToExperiment(well, experimentPermId);

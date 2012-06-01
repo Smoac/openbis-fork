@@ -52,7 +52,6 @@ public class WellSearchCriteria implements Serializable
         private String experimentIdentifier; // for display purposes and links in simple view mode
 
         // GWT only
-        @SuppressWarnings("unused")
         private SingleExperimentSearchCriteria()
         {
         }

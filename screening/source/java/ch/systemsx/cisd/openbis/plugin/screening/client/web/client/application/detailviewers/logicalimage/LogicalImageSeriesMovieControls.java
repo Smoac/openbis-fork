@@ -45,6 +45,7 @@ public class LogicalImageSeriesMovieControls extends LogicalImageSeriesControls
         sliderWithButtons.setDelay(getSettingsManager().getDefaultMovieDelay(displayTypeId));
         sliderWithButtons.addDelayChangeHandler(new ChangeHandler()
             {
+                @Override
                 public void onChange(ChangeEvent event)
                 {
                     getSettingsManager().setDefaultMovieDelay(getDisplayTypeId(),

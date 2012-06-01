@@ -63,6 +63,7 @@ public class HCSImageResolutionLoader implements IImageResolutionLoader
         this.dataset = dataset;
     }
 
+    @Override
     public List<ImageResolution> getImageResolutions()
     {
         List<ImgImageZoomLevelDTO> zoomLevels = query.listImageZoomLevels(dataset.getId());

@@ -165,6 +165,7 @@ public class LoadEmptyImagesTest
     {
         facade.loadImages(imageReferences, config, new IPlateImageHandler()
             {
+                @Override
                 public void handlePlateImage(PlateImageReference plateImageReference,
                         byte[] imageFileBytes)
                 {

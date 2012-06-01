@@ -141,6 +141,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
     private static final Comparator<ImageRepresentationFormat> SIZE_COMPARATOR =
             new Comparator<ImageRepresentationFormat>()
                 {
+                    @Override
                     public int compare(ImageRepresentationFormat i1, ImageRepresentationFormat i2)
                     {
                         return area(i1) - area(i2);
@@ -188,6 +189,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
         this.type = type;
     }
 
+    @Override
     public List<ImageRepresentationFormat> getMatching(
             List<ImageRepresentationFormat> imageRepresentationFormats)
     {

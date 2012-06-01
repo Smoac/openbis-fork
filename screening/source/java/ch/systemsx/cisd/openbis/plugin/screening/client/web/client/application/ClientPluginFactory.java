@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
@@ -118,6 +119,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     // IClientPluginFactoryUsingWildcards
     //
 
+    @Override
     public List<String> getOrderedEntityTypeCodes(EntityKind entityKind)
     {
         ArrayList<String> types = new ArrayList<String>();
@@ -151,6 +153,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         return types;
     }
 
+    @Override
     public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
         Set<String> types = new HashSet<String>();
@@ -158,6 +161,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         return types;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
@@ -242,7 +246,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.EXPERIMENT, entity, getViewContext());
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.EXPERIMENT, entity, getViewContext());
                     }
 
                     @Override
@@ -392,7 +396,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public String getId()
                 {
-                    return ImagingMaterialViewer.createId(TechId.create(material));
+                    return GenericMaterialViewer.createId(TechId.create(material));
                 }
 
                 @Override
@@ -404,7 +408,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public String getTabTitle()
                 {
-                    return getViewerTitle(Dict.MATERIAL, material, viewContext);
+                    return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.MATERIAL, material, viewContext);
                 }
 
                 @Override
@@ -507,7 +511,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId id = TechId.create(entity);
-                        return MicroscopyDatasetViewer.createId(id);
+                        return GenericDataSetViewer.createId(id);
                     }
 
                     @Override
@@ -519,7 +523,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.DATA_SET, entity, screeningViewContext);
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity, screeningViewContext);
                     }
 
                     @Override
@@ -547,7 +551,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return PlateDatasetViewer.createId(sampleId);
+                        return GenericDataSetViewer.createId(sampleId);
                     }
 
                     @Override
@@ -559,7 +563,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.DATA_SET, entity, screeningViewContext);
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity, screeningViewContext);
                     }
 
                     @Override
@@ -649,6 +653,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                         {
                             ICodeHolder codeHolder = new ICodeHolder()
                                 {
+                                    @Override
                                     public String getCode()
                                     {
                                         if (wellLocationOrNull != null)
@@ -665,7 +670,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                             return getViewerTitle(Dict.WELL, codeHolder, screeningViewContext);
                         } else
                         {
-                            return getViewerTitle(Dict.SAMPLE, entity, screeningViewContext);
+                            return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SAMPLE, entity, screeningViewContext);
                         }
                     }
 
@@ -765,27 +770,32 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return clientPluginFactory;
         }
 
+        @Override
         public AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
             return delegator.createEntityViewer(entity);
         }
 
+        @Override
         public Widget createBatchRegistrationForEntityType(final T entityType)
         {
             return delegator.createBatchRegistrationForEntityType(entityType);
         }
 
+        @Override
         public Widget createBatchUpdateForEntityType(final T entityType)
         {
             return delegator.createBatchUpdateForEntityType(entityType);
         }
 
+        @Override
         public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
         {
             return delegator.createEntityEditor(identifiable);
         }
 
+        @Override
         public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType,
                 ActionContext context)
         {

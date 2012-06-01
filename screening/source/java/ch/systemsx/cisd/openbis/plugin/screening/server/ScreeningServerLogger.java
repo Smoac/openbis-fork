@@ -88,6 +88,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         super(sessionManager, context);
     }
 
+    @Override
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final TechId sampleId)
     {
@@ -102,12 +103,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
+    @Override
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
         logAccess(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
         return null;
     }
 
+    @Override
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
             DatasetReference dataset, CodeAndLabel featureName)
     {
@@ -116,18 +119,21 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getPlateContentForDataset", "DATASET(%s)", datasetId.getId());
         return null;
     }
 
+    @Override
     public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "listPlateWells", "criteria(%s)", materialCriteria);
         return null;
     }
 
+    @Override
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
             TechId experimentId)
     {
@@ -136,12 +142,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<Material> listMaterials(String sessionToken, WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "listMaterials", "criteria(%s)", materialCriteria);
         return null;
     }
 
+    @Override
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
@@ -150,6 +158,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
@@ -158,6 +167,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
             String datasetCode, String datastoreCode)
     {
@@ -166,6 +176,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
             String datasetCode, String datastoreCode)
     {
@@ -174,6 +185,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,
             WellLocation wellLocationOrNull)
     {
@@ -182,12 +194,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;
     }
 
+    @Override
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
         logAccess(sessionToken, "getMaterialInfo", "datasetId(%s)", materialId.getId());
@@ -207,6 +221,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException
     {
         logAccess(sessionToken, "getVocabulary", "CODE(%s)", code);
@@ -215,17 +230,20 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     // --- IScreeningApiServer
 
+    @Override
     public void logoutScreening(String sessionToken)
     {
         // No logging because already done by the session manager
     }
 
+    @Override
     public String tryLoginScreening(String userId, String userPassword)
     {
         // No logging because already done by the session manager
         return null;
     }
 
+    @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
@@ -233,6 +251,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates)
     {
@@ -240,6 +259,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
@@ -247,6 +267,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
@@ -254,6 +275,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
             ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
@@ -264,6 +286,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
@@ -271,30 +294,35 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
         logAccess(sessionToken, "listPlateWells", "plate: %s", plateIdentifier);
         return null;
     }
 
+    @Override
     public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
     {
         logAccess(sessionToken, "getWellSample", "%s", wellIdentifier);
         return null;
     }
 
+    @Override
     public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier)
     {
         logAccess(sessionToken, "getPlateSample", "%s", plateIdentifier);
         return null;
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken)
     {
         logAccess(sessionToken, "listPlates");
         return null;
     }
 
+    @Override
     public List<Plate> listPlates(String sessionToken, ExperimentIdentifier experiment)
             throws IllegalArgumentException
     {
@@ -302,6 +330,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier> listExperiments(
             String sessionToken)
     {
@@ -309,12 +338,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<ExperimentIdentifier> listExperiments(String sessionToken, String userId)
     {
         logAccess(sessionToken, "listExperiments", "user(%s)", userId);
         return null;
     }
 
+    @Override
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
             List<String> datasetCodes)
     {
@@ -322,6 +353,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -337,22 +369,26 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
             MaterialType materialType)
     {
         return null;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return MAJOR_VERSION;
     }
 
+    @Override
     public int getMinorVersion()
     {
         return ScreeningServer.MINOR_VERSION;
     }
 
+    @Override
     public void registerLibrary(String sessionToken, String userEmail,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType)
@@ -362,6 +398,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
                 userEmail, newGenesOrNull, newOligosOrNull, newSamplesWithType);
     }
 
+    @Override
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
@@ -371,6 +408,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
             MaterialFeaturesOneExpCriteria criteria)
     {
@@ -381,6 +419,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, MaterialFeaturesManyExpCriteria criteria)
     {
@@ -391,6 +430,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
@@ -400,6 +440,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
@@ -407,6 +448,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    @Override
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             ExperimentIdentifier experimentIdentifer)
     {

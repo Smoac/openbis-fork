@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 public class SingleDataSetIdentifierPredicate extends
         AbstractDataSetAccessPredicate<IDssServiceRpcScreening, IDatasetIdentifier>
 {
+    @Override
     public List<String> getDataSetCodes(IDatasetIdentifier argument)
     {
         return Arrays.asList(argument.getDatasetCode());

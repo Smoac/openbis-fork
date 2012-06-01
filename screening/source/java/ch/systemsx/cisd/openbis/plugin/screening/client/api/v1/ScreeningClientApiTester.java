@@ -48,6 +48,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -141,6 +143,7 @@ public class ScreeningClientApiTester
             JMenuItem loadPlatesMenuItem = new JMenuItem("List Plates");
             loadPlatesMenuItem.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         loadPlates();
@@ -151,6 +154,7 @@ public class ScreeningClientApiTester
             callApiMenu.add(loadImagesByDataSetMenu);
             loadImagesByDataSetMenu.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         loadImagesByDataSetCode();
@@ -160,6 +164,7 @@ public class ScreeningClientApiTester
             callApiMenu.add(overlayItem);
             overlayItem.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         loadOverlays();
@@ -169,6 +174,7 @@ public class ScreeningClientApiTester
             callApiMenu.add(listAnalysisProceduresMenuItem);
             listAnalysisProceduresMenuItem.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         listAnalysisProcedures();
@@ -178,6 +184,7 @@ public class ScreeningClientApiTester
             callApiMenu.add(listPlatesMenuItem);
             listPlatesMenuItem.addActionListener(new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     listPlates();
@@ -224,13 +231,13 @@ public class ScreeningClientApiTester
             textArea.setEditable(false);
             content.add(textArea, BorderLayout.CENTER);
             List<Plate> plates = facade.listPlates();
-            panel.add(new JLabel(plates.size() + " plates", JLabel.LEFT));
+            panel.add(new JLabel(plates.size() + " plates", SwingConstants.LEFT));
             validate(panel);
             List<ImageDatasetReference> rawImageDatasets = facade.listRawImageDatasets(plates);
-            panel.add(new JLabel(rawImageDatasets.size() + " raw image data sets", JLabel.LEFT));
+            panel.add(new JLabel(rawImageDatasets.size() + " raw image data sets", SwingConstants.LEFT));
             validate(panel);
             List<ImageDatasetReference> overlays = facade.listSegmentationImageDatasets(plates, null);
-            panel.add(new JLabel(overlays.size() + " overlay data sets:", JLabel.LEFT));
+            panel.add(new JLabel(overlays.size() + " overlay data sets:", SwingConstants.LEFT));
             StringBuilder builder = new StringBuilder();
             for (ImageDatasetReference overlay : overlays)
             {
@@ -258,6 +265,7 @@ public class ScreeningClientApiTester
                 JButton button = new JButton(plate.toString() + " " + listPlateWells.size() + " wells");
                 button.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             if (listPlateWells.isEmpty())
@@ -345,6 +353,7 @@ public class ScreeningClientApiTester
                 final ImageSize imageSize = getImageSize(sizeField);
                 new Thread(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             final long t0 = System.currentTimeMillis();
@@ -358,6 +367,7 @@ public class ScreeningClientApiTester
                                 EventQueue.invokeLater(new Runnable()
                                     {
 
+                                        @Override
                                         public void run()
                                         {
                                             JOptionPane.showMessageDialog(TesterFrame.this,
@@ -378,6 +388,7 @@ public class ScreeningClientApiTester
         {
             new Thread(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -386,6 +397,7 @@ public class ScreeningClientApiTester
                             facade.loadImages(Collections.singletonList(plateImageReference),
                                     new IImageOutputStreamProvider()
                                         {
+                                            @Override
                                             public OutputStream getOutputStream(
                                                     PlateImageReference imageReference)
                                                     throws IOException
@@ -395,6 +407,7 @@ public class ScreeningClientApiTester
                                         }, true);
                             EventQueue.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         ImageIcon image = new ImageIcon(outputStream.toByteArray());
@@ -405,7 +418,7 @@ public class ScreeningClientApiTester
                                         JFrame frame = new JFrame(plateImageReference.toString());
                                         frame.getContentPane().add(scrollPane);
                                         frame.setSize(800, 600);
-                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                                         frame.setVisible(true);
                                     }
                                 });
@@ -442,6 +455,7 @@ public class ScreeningClientApiTester
         {
             return new IPlateImageHandler()
                 {
+                    @Override
                     public void handlePlateImage(final PlateImageReference plateImageReference,
                             final byte[] imageFileBytes)
                     {
@@ -450,6 +464,7 @@ public class ScreeningClientApiTester
                         EventQueue.invokeLater(new Runnable()
                             {
 
+                                @Override
                                 public void run()
                                 {
                                     JButton image =
@@ -458,6 +473,7 @@ public class ScreeningClientApiTester
                                     image.addActionListener(new ActionListener()
                                         {
 
+                                            @Override
                                             public void actionPerformed(ActionEvent e)
                                             {
                                                 showFullImage(plateImageReference);

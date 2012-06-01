@@ -175,6 +175,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 .map(summaries,
                         new ICollectionMappingFunction<MaterialFeatureVectorSummary, MaterialIdFeatureVectorSummary>()
                             {
+                                @Override
                                 public MaterialFeatureVectorSummary map(
                                         MaterialIdFeatureVectorSummary summary)
                                 {
@@ -211,6 +212,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         return new TableMap<Long, Material>(materials, new IKeyExtractor<Long, Material>()
             {
+                @Override
                 public Long getKey(Material material)
                 {
                     return material.getId();

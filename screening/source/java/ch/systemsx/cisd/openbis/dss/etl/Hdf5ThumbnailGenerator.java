@@ -523,6 +523,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                                 }
                             };
 
+                @Override
                 public Status execute(ImageFileInfo image)
                 {
                     // each thread will get its own buffer to avoid allocating memory for the
@@ -534,6 +535,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             };
     }
 
+    @Override
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
         final String thumbnailsName = " (" + thumbnailsStorageFormat.getThumbnailsFileName() + ")";

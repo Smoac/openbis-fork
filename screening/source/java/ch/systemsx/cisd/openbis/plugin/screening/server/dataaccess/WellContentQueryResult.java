@@ -59,11 +59,13 @@ public class WellContentQueryResult extends ExperimentReferenceQueryResult imple
     @Deprecated
     public String material_content_type_code;
 
+    @Override
     public String getPlatePermId()
     {
         return plate_perm_id;
     }
 
+    @Override
     public WellReference getWellReference()
     {
         WellLocation wellLocation = WellLocation.parseLocationStr(well_code);

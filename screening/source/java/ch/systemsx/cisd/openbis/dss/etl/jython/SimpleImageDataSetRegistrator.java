@@ -115,11 +115,13 @@ public class SimpleImageDataSetRegistrator
         return createImageDatasetDetails(simpleImageConfig, incoming, factory,
                 new IImageReaderFactory()
                     {
+                        @Override
                         public IImageReader tryGetReaderForFile(String libraryName, String fileName)
                         {
                             return ImageReaderFactory.tryGetReaderForFile(libraryName, fileName);
                         }
 
+                        @Override
                         public IImageReader tryGetReader(String libraryName, String readerName)
                         {
                             return ImageReaderFactory.tryGetReader(libraryName, readerName);

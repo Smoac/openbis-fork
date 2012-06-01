@@ -33,6 +33,7 @@ public class ImageDialog extends Dialog
     {
         addListener(Events.Show, new Listener<BaseEvent>()
             {
+                @Override
                 public void handleEvent(BaseEvent be)
                 {
                     autosize(getElement());

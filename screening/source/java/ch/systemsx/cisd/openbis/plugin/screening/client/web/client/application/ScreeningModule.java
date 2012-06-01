@@ -54,6 +54,7 @@ public class ScreeningModule implements IModule
         this.viewContext = viewContext;
     }
 
+    @Override
     public List<? extends MenuItem> getMenuItems()
     {
         ActionMenu globalWellSearch =
@@ -66,16 +67,19 @@ public class ScreeningModule implements IModule
     {
         return new ITabActionMenuItemDefinition<IScreeningClientServiceAsync>()
             {
+                @Override
                 public String getName()
                 {
                     return Dict.WELLS_SEARCH_MENU_ITEM;
                 }
 
+                @Override
                 public String getHelpPageTitle()
                 {
                     return "Global Well Search";
                 }
 
+                @Override
                 public DatabaseModificationAwareComponent createComponent(
                         IViewContext<IScreeningClientServiceAsync> context)
                 {
@@ -84,6 +88,7 @@ public class ScreeningModule implements IModule
                     return DatabaseModificationAwareComponent.wrapUnaware(wellSearchTab);
                 }
 
+                @Override
                 public String tryGetLink()
                 {
                     return GlobalWellSearchLocatorResolver.createQueryBrowserLink();
@@ -92,16 +97,19 @@ public class ScreeningModule implements IModule
             };
     }
 
+    @Override
     public String getName()
     {
         return viewContext.getMessage(Dict.SCREENING_MODULE_TITLE);
     }
 
+    @Override
     public void initialize(AsyncCallback<Void> callback)
     {
         callback.onSuccess(null);
     }
 
+    @Override
     public Collection<? extends TabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {

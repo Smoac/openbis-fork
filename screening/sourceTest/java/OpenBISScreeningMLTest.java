@@ -84,6 +84,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
     private static final FilenameFilter FILTER_TEMP_DIR = new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.startsWith(OpenBISScreeningML.TEMP_DIR_PREFIX)
@@ -937,6 +938,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                         one(openbis).loadImages(with(imgRefsMatcher1),
                                 with(new BaseMatcher<IImageOutputStreamProvider>()
                                     {
+                                        @Override
                                         public boolean matches(Object item)
                                         {
                                             if (item instanceof IImageOutputStreamProvider)
@@ -964,6 +966,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                                             return false;
                                         }
 
+                                        @Override
                                         public void describeTo(Description description)
                                         {
                                         }
@@ -972,6 +975,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                         one(openbis).loadImages(with(imgRefsMatcher2),
                                 with(new BaseMatcher<IImageOutputStreamProvider>()
                                     {
+                                        @Override
                                         public boolean matches(Object item)
                                         {
                                             if (item instanceof IImageOutputStreamProvider)
@@ -999,6 +1003,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                                             return false;
                                         }
 
+                                        @Override
                                         public void describeTo(Description description)
                                         {
                                         }
@@ -1168,6 +1173,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     {
         Arrays.sort(entities, new Comparator<Object[]>()
             {
+                @Override
                 public int compare(Object[] o1, Object[] o2)
                 {
                     return o1[0].toString().compareTo(o2[0].toString());

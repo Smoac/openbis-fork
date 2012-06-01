@@ -43,6 +43,7 @@ public class MaterialShuffler extends SimpleJdbcDaoSupport
     private final static ParameterizedRowMapper<Integer> ID_MAPPER =
             new ParameterizedRowMapper<Integer>()
                 {
+                    @Override
                     public final Integer mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {
@@ -89,6 +90,7 @@ public class MaterialShuffler extends SimpleJdbcDaoSupport
     private final static ParameterizedRowMapper<EntityIdMaterialId> ENTITY_ID_MATERIAL_ID_MAPPER =
             new ParameterizedRowMapper<EntityIdMaterialId>()
                 {
+                    @Override
                     public final EntityIdMaterialId mapRow(final ResultSet rs, final int rowNum)
                             throws SQLException
                     {
@@ -104,6 +106,7 @@ public class MaterialShuffler extends SimpleJdbcDaoSupport
             new ParameterizedRowMapper<String>()
                 {
 
+                    @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException
                     {
                         return rs.getString("code");
@@ -183,11 +186,13 @@ public class MaterialShuffler extends SimpleJdbcDaoSupport
                 new BatchPreparedStatementSetter()
                     {
 
+                        @Override
                         public int getBatchSize()
                         {
                             return 1000;
                         }
 
+                        @Override
                         public void setValues(PreparedStatement ps, int i) throws SQLException
                         {
                             EntityIdMaterialId entityIdMaterialId = properties.get(i);

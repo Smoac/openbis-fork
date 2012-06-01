@@ -130,6 +130,7 @@ public class ScreeningClientApiTest
         List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
         Collections.sort(imageDatasets, new Comparator<ImageDatasetReference>()
             {
+                @Override
                 public int compare(ImageDatasetReference r1, ImageDatasetReference r2)
                 {
                     return r2.getPlate().getPlateCode().compareTo(r1.getPlate().getPlateCode());
@@ -141,6 +142,7 @@ public class ScreeningClientApiTest
                 facade.listFeatureVectorDatasets(plates, null);
         Collections.sort(featureVectorDatasets, new Comparator<FeatureVectorDatasetReference>()
             {
+                @Override
                 public int compare(FeatureVectorDatasetReference r1,
                         FeatureVectorDatasetReference r2)
                 {
@@ -157,6 +159,7 @@ public class ScreeningClientApiTest
                 facade.loadFeatures(featureVectorDatasets, featureCodes);
         Collections.sort(features, new Comparator<FeatureVectorDataset>()
             {
+                @Override
                 public int compare(FeatureVectorDataset f1, FeatureVectorDataset f2)
                 {
                     return f2.getDataset().getPlate().getPlateCode()
@@ -367,6 +370,7 @@ public class ScreeningClientApiTest
         {
             facade.loadImages(imageReferences, new IImageOutputStreamProvider()
                 {
+                    @Override
                     public OutputStream getOutputStream(PlateImageReference imageReference)
                             throws IOException
                     {

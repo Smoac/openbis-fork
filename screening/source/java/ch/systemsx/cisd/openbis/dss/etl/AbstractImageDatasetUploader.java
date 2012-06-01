@@ -324,6 +324,7 @@ abstract class AbstractImageDatasetUploader
         {
             return new Comparator<ImgChannelStackDTO>()
                 {
+                    @Override
                     public int compare(ImgChannelStackDTO o1, ImgChannelStackDTO o2)
                     {
                         int cmp = compareNullable(o1.getRow(), o2.getRow());

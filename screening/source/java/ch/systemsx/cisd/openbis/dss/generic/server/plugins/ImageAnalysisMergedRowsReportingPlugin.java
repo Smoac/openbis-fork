@@ -83,6 +83,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         this.dao = dao;
     }
 
+    @Override
     public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
         List<String> datasetCodes = extractDatasetCodes(datasets);
@@ -189,6 +190,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         return new IMetadataProvider()
             {
+                @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return openBISService.tryToGetSampleIdentifier(samplePermId);

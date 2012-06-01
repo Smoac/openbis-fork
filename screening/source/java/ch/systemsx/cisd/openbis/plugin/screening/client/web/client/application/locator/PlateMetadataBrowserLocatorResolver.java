@@ -55,6 +55,7 @@ public class PlateMetadataBrowserLocatorResolver extends AbstractViewLocatorReso
         return locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
     }
 
+    @Override
     public void resolve(ViewLocator locator) throws UserFailureException
     {
         String platePermId = tryExtractPlatePermId(locator);

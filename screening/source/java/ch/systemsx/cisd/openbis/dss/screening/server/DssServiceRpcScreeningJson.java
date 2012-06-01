@@ -59,16 +59,19 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
         this.service = service;
     }
 
+    @Override
     public int getMajorVersion()
     {
         return service.getMajorVersion();
     }
 
+    @Override
     public int getMinorVersion()
     {
         return service.getMinorVersion();
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
@@ -76,12 +79,14 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
         return service.listAvailableFeatureNames(sessionToken, featureDatasets);
     }
 
+    @Override
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         return service.listAvailableFeatureCodes(sessionToken, featureDatasets);
     }
 
+    @Override
     public List<FeatureInformation> listAvailableFeatures(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -89,6 +94,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 featureDatasets));
     }
 
+    @Override
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes)
     {
@@ -96,6 +102,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 featureCodes));
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureCodes)
@@ -104,6 +111,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 sessionToken, datasetWellReferences, featureCodes));
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
@@ -111,63 +119,74 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
     
     
+    @Override
     public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
         return service.loadImagesBase64(sessionToken, imageReferences, convertToPng);       
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize size)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageRepresentationFormat format)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             IImageRepresentationFormatSelectionCriterion... criteria)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
@@ -175,6 +194,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 dataSetIdentifier, wellPositions, channel));
     }
 
+    @Override
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
             List<String> channels)
@@ -183,6 +203,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 dataSetIdentifier, wellPositions, channels));
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
@@ -190,6 +211,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 dataSetIdentifier, channel));
     }
 
+    @Override
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -197,6 +219,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 dataSetIdentifier, channels));
     }
 
+    @Override
     public void saveImageTransformerFactory(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
@@ -204,18 +227,21 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
         handleNotSupportedMethod();
     }
 
+    @Override
     public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
         return handleNotSupportedMethod();
     }
 
+    @Override
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
         return new ImageDatasetMetadataList(service.listImageMetadata(sessionToken, imageDatasets));
     }
 
+    @Override
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {

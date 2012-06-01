@@ -69,12 +69,14 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     /**
      * @return null if the dataset is not found in the imaging database
      */
+    @Override
     public IImageDatasetLoader tryCreateImageDatasetLoader(String datasetCode, String datastoreCode)
     {
         return HCSDatasetLoader.tryCreate(specificDAOFactory.getImagingQueryDAO(datastoreCode),
                 datasetCode);
     }
 
+    @Override
     public IImageResolutionLoader tryCreateImageResolutionLoader(String datasetCode,
             String datastoreCode)
     {
@@ -82,17 +84,20 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 specificDAOFactory.getImagingQueryDAO(datastoreCode), datasetCode);
     }
 
+    @Override
     public IHCSFeatureVectorLoader createHCSFeatureVectorLoader(String datastoreCode)
     {
         final IImagingReadonlyQueryDAO dao = specificDAOFactory.getImagingQueryDAO(datastoreCode);
         return new IHCSFeatureVectorLoader()
             {
+                @Override
                 public WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
                         List<WellFeatureVectorReference> references)
                 {
                     return FeatureVectorLoader.fetchWellFeatureValuesIfPossible(references, dao);
                 }
 
+                @Override
                 public WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(
                         List<String> datasetCodes, List<String> featureCodes)
                 {
@@ -100,6 +105,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                             .fetchDatasetFeatures(datasetCodes, featureCodes, dao);
                 }
 
+                @Override
                 public List<CodeAndLabel> fetchDatasetFeatureNames(String datasetCode)
                 {
                     return FeatureVectorLoader.fetchDatasetFeatureNames(datasetCode, dao);
@@ -107,6 +113,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
             };
     }
 
+    @Override
     public IExperimentMetadataLoader createExperimentMetadataLoader(long experimentId,
             List<String> dataStoreCodes)
     {
@@ -123,41 +130,49 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         return imagingQueries;
     }
 
+    @Override
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);
     }
 
+    @Override
     public ISampleLister createSampleLister(Session session)
     {
         return getCommonBusinessObjectFactory().createSampleLister(session);
     }
 
+    @Override
     public IMaterialLister createMaterialLister(Session session)
     {
         return getCommonBusinessObjectFactory().createMaterialLister(session);
     }
 
+    @Override
     public IDataSetTable createDataSetTable(Session session)
     {
         return getCommonBusinessObjectFactory().createDataSetTable(session);
     }
 
+    @Override
     public IExperimentBO createExperimentBO(Session session)
     {
         return getCommonBusinessObjectFactory().createExperimentBO(session);
     }
 
+    @Override
     public IMaterialBO createMaterialBO(Session session)
     {
         return getCommonBusinessObjectFactory().createMaterialBO(session);
     }
 
+    @Override
     public IDataBO createDataBO(Session session)
     {
         return getCommonBusinessObjectFactory().createDataBO(session);
     }
 
+    @Override
     public IDatasetLister createDatasetLister(Session session)
     {
         return getCommonBusinessObjectFactory().createDatasetLister(session);

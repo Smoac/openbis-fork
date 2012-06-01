@@ -33,6 +33,7 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
 
     private Map<String, String> transformations = new HashMap<String, String>();
 
+    @Override
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
     {
         ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
@@ -53,6 +54,7 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
 
     protected abstract String getDefaultFileName();
 
+    @Override
     public void setFileName(String fileName)
     {
         this.fileName = fileName;
@@ -69,6 +71,7 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
         }
     }
 
+    @Override
     public void setFileFormat(String fileFormat)
     {
         this.fileFormat = fileFormat;
@@ -90,6 +93,7 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
         }
     }
 
+    @Override
     public String setTransformation(String channelCode, String transformationCode)
     {
         return transformations.put(channelCode.toUpperCase(), transformationCode);

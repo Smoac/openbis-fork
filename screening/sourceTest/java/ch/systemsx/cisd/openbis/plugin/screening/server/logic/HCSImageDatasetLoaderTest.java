@@ -141,6 +141,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                         .toString());
         Collections.sort(references, new Comparator<ImageDatasetReference>()
             {
+                @Override
                 public int compare(ImageDatasetReference o1, ImageDatasetReference o2)
                 {
                     return o1.getDatasetCode().compareTo(o2.getDatasetCode());

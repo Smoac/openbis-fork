@@ -284,6 +284,7 @@ class ImagingDatasetGuiUtils
             return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON,
                     new ClickHandler()
                         {
+                            @Override
                             public void onClick(ClickEvent event)
                             {
                                 DatasetReference datasetReference =
@@ -415,6 +416,7 @@ class ImagingDatasetGuiUtils
             return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON,
                     new ClickHandler()
                         {
+                            @Override
                             public void onClick(ClickEvent event)
                             {
                                 openDatasetDetails(getChosenDatasetReference(imageDatasetChooser),
@@ -456,6 +458,7 @@ class ImagingDatasetGuiUtils
         assert href != null : "invalid link for " + dataset;
         ClickHandler listener = new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     openDatasetDetails(dataset, viewContext);

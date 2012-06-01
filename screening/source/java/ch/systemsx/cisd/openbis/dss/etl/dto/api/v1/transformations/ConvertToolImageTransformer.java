@@ -123,6 +123,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
         }
     }
 
+    @Override
     public BufferedImage transform(BufferedImage image)
     {
         try
@@ -136,11 +137,13 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
         }
     }
 
+    @Override
     public BufferedImage transform(InputStream input)
     {
         return toBufferedImage(transformToPNG(input));
     }
 
+    @Override
     public byte[] transformToPNG(InputStream input)
     {
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -148,6 +151,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
         return bos.toByteArray();
     }
 
+    @Override
     public void transformToPNGStream(InputStream input, OutputStream output)
     {
         try
@@ -207,6 +211,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
         return ProcessIOStrategy.createCustom(new IProcessIOHandler()
             {
 
+                @Override
                 public void handle(AtomicBoolean processRunning, OutputStream stdin,
                         InputStream stdout, InputStream stderr) throws IOException
                 {

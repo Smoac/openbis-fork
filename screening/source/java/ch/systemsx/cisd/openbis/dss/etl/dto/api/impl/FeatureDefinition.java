@@ -64,6 +64,7 @@ public class FeatureDefinition implements IFeatureDefinition, Serializable
         this.currentFeatureVector = currentFeatureVector;
     }
 
+    @Override
     public void changeSeries(Double timeOrNull, Double depthOrNull)
     {
         flushCurrent();
@@ -80,12 +81,14 @@ public class FeatureDefinition implements IFeatureDefinition, Serializable
     }
 
     /** Optional. Sets the label of a feature. */
+    @Override
     public void setFeatureLabel(String label)
     {
         this.imgFeatureDefDTO.setLabel(label);
     }
 
     /** Optional. Sets description of a feature. */
+    @Override
     public void setFeatureDescription(String description)
     {
         this.imgFeatureDefDTO.setDescription(description);
@@ -95,6 +98,7 @@ public class FeatureDefinition implements IFeatureDefinition, Serializable
      * @param well code of the well, e.g. A1
      * @param value value of the feature in the specified well
      */
+    @Override
     public void addValue(String well, String value)
     {
         WellLocation wellPos = WellLocation.parseLocationStr(well);
@@ -106,6 +110,7 @@ public class FeatureDefinition implements IFeatureDefinition, Serializable
      * @param wellColumn column coordinate of the well, top-left well has (1,1) coordinates.
      * @param value value of the feature in the specified well
      */
+    @Override
     public void addValue(int wellRow, int wellColumn, String value)
     {
         WellLocation wellPos = new WellLocation(wellRow, wellColumn);

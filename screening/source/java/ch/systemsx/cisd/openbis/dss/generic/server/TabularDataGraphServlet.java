@@ -149,16 +149,19 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             }
         }
 
+        @Override
         public List<String[]> getDataLines()
         {
             return lines;
         }
 
+        @Override
         public String[] getHeaderLabels()
         {
             return headerLabels;
         }
 
+        @Override
         public String[] getHeaderCodes()
         {
             return headerCodes;
@@ -202,6 +205,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         return new IMetadataProvider()
             {
+                @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return openBISService.tryToGetSampleIdentifier(samplePermId);

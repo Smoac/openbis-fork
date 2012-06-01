@@ -91,6 +91,7 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
         return scale;
     }
 
+    @Override
     public Color getColor(String value)
     {
         Color color = colorsMap.get(value);
@@ -105,11 +106,13 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
         }
     }
 
+    @Override
     public List<HeatmapScaleElement> calculateScale()
     {
         return scale;
     }
 
+    @Override
     public String tryGetFirstLabel()
     {
         return null;

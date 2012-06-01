@@ -51,6 +51,7 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
         return container;
     }
 
+    @Override
     public void selectionChanged(List<String> channelNames, String imageTransformationCodeOrNull)
     {
         if (channelNames != null)

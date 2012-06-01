@@ -56,6 +56,7 @@ public class NumberHeatmapRendererTest
     {
         return new IRealNumberRenderer()
             {
+                @Override
                 public String render(float value)
                 {
                     return "" + value;

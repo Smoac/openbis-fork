@@ -50,6 +50,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     protected static final IImageTransformerFactoryProvider NO_TRANSFORMATION_PROVIDER =
             new IImageTransformerFactoryProvider()
                 {
+                    @Override
                     public IImageTransformerFactory tryGetTransformationFactory(
                             ImgImageEnrichedDTO image)
                     {
@@ -71,6 +72,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         this.channelCode = PropertyUtils.getMandatoryProperty(properties, CHANNEL_CODE_PROPERTY);
     }
 
+    @Override
     public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
@@ -143,6 +145,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot =
                 GroupByMap.create(allImages, new IGroupKeyExtractor<Long, ImgImageEnrichedDTO>()
                     {
+                        @Override
                         public Long getKey(ImgImageEnrichedDTO image)
                         {
                             return image.getSpotId();

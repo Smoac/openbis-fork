@@ -99,6 +99,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     {
         return new ISpotProvider()
             {
+                @Override
                 public Long tryGetSpotId(AcquiredSingleImage image)
                 {
                     return findSpotId(image, spotIds);

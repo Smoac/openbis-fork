@@ -85,6 +85,7 @@ class LogicalImageSeriesPoint implements Comparable<LogicalImageSeriesPoint>
         return seriesNumberOrNull;
     }
 
+    @Override
     public int compareTo(LogicalImageSeriesPoint o)
     {
         int cmp;

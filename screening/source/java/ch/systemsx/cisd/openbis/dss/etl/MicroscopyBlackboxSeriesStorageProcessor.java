@@ -113,6 +113,7 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
     {
         return new Comparator<AcquiredSingleImage>()
             {
+                @Override
                 public int compare(AcquiredSingleImage o1, AcquiredSingleImage o2)
                 {
                     return getPath(o1).compareTo(getPath(o2));

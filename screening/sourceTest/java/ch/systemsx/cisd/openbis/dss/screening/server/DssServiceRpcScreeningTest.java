@@ -122,6 +122,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
         private int id = counter++;
 
+        @Override
         public IImageTransformer createTransformer()
         {
             return null;

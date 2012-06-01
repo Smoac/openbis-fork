@@ -27,7 +27,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.LayoutUtils;
@@ -69,7 +68,7 @@ public class ImageDataSetSection extends TabContent
     protected void showContent()
     {
         final ScreeningViewContext context = getViewContext();
-        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
+        add(new Text(context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
         context.getService().getImageDatasetInfo(dataSet.getCode(),
                 dataSet.getDataStore().getCode(), wellLocationOrNull,
                 createDisplayImagesCallback(context));

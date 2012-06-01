@@ -63,6 +63,7 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(200, 120);
 
     /** Provides overview of microscopy datasets. */
+    @Override
     public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
             IHierarchicalContent datasetRoot, ImageResolutionKind resolution)
     {

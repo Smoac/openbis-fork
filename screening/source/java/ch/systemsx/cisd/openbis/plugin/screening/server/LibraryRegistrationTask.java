@@ -225,6 +225,7 @@ class LibraryRegistrationTask implements IASyncAction
         return result.toString();
     }
 
+    @Override
     public boolean doAction(Writer messageWriter)
     {
         try
@@ -240,6 +241,7 @@ class LibraryRegistrationTask implements IASyncAction
         }
     }
 
+    @Override
     public String getName()
     {
         return "Library registration";

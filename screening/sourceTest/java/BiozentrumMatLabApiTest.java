@@ -19,6 +19,7 @@
  * 
  * @author Tomasz Pylak
  */
+@SuppressWarnings("unused")
 public class BiozentrumMatLabApiTest
 {
     public static void main(String[] args)

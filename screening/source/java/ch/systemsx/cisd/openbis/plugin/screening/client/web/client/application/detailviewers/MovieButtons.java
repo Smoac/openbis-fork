@@ -57,6 +57,7 @@ public class MovieButtons extends Composite
 
         view.addPlayListener(new SelectionListener<ButtonEvent>()
             {
+                @Override
                 public void componentSelected(ButtonEvent event)
                 {
                     handlePlay();
@@ -64,6 +65,7 @@ public class MovieButtons extends Composite
             });
         view.addStopListener(new SelectionListener<ButtonEvent>()
             {
+                @Override
                 public void componentSelected(ButtonEvent event)
                 {
                     handleStop();
@@ -71,6 +73,7 @@ public class MovieButtons extends Composite
             });
         view.addPreviousListener(new SelectionListener<ButtonEvent>()
             {
+                @Override
                 public void componentSelected(ButtonEvent event)
                 {
                     handlePrevious();
@@ -78,6 +81,7 @@ public class MovieButtons extends Composite
             });
         view.addNextListener(new SelectionListener<ButtonEvent>()
             {
+                @Override
                 public void componentSelected(ButtonEvent event)
                 {
                     handleNext();
@@ -161,10 +165,12 @@ public class MovieButtons extends Composite
     {
         loadFrame(frame, new AsyncCallback<Void>()
             {
+                @Override
                 public void onSuccess(Void result)
                 {
                 }
 
+                @Override
                 public void onFailure(Throwable caught)
                 {
                 }
@@ -306,6 +312,7 @@ public class MovieButtons extends Composite
     private class MovieButtonsStoppedState implements MovieButtonsState
     {
 
+        @Override
         public void init()
         {
             view.setPlayEnabled(true);
@@ -314,6 +321,7 @@ public class MovieButtons extends Composite
             view.setNextEnabled(!isLastFrame());
         }
 
+        @Override
         public void handlePlay()
         {
             if (isLastFrame())
@@ -323,11 +331,13 @@ public class MovieButtons extends Composite
             setState(new MovieButtonsPlayingState());
         }
 
+        @Override
         public void handleStop()
         {
             // do nothing
         }
 
+        @Override
         public void handlePrevious()
         {
             if (!isFirstFrame())
@@ -336,6 +346,7 @@ public class MovieButtons extends Composite
             }
         }
 
+        @Override
         public void handleNext()
         {
             if (!isLastFrame())
@@ -344,11 +355,13 @@ public class MovieButtons extends Composite
             }
         }
 
+        @Override
         public int handleGetFrame()
         {
             return currentFrame;
         }
 
+        @Override
         public void handleSetFrame(int frame)
         {
             currentFrame = frame;
@@ -361,6 +374,7 @@ public class MovieButtons extends Composite
     private class MovieButtonsPlayingState implements MovieButtonsState
     {
 
+        @Override
         public void init()
         {
             view.setPlayEnabled(false);
@@ -370,31 +384,37 @@ public class MovieButtons extends Composite
             loadNextFrame(1);
         }
 
+        @Override
         public void handlePlay()
         {
             // do nothing
         }
 
+        @Override
         public void handleStop()
         {
             setState(new MovieButtonsStoppedState());
         }
 
+        @Override
         public void handlePrevious()
         {
             handleStop();
         }
 
+        @Override
         public void handleNext()
         {
             handleStop();
         }
 
+        @Override
         public int handleGetFrame()
         {
             return currentFrame;
         }
 
+        @Override
         public void handleSetFrame(int frame)
         {
             currentFrame = frame;
@@ -404,6 +424,7 @@ public class MovieButtons extends Composite
         {
             Timer timer = new Timer()
                 {
+                    @Override
                     public void run()
                     {
                         final long startTime = System.currentTimeMillis();
@@ -419,6 +440,7 @@ public class MovieButtons extends Composite
                             loadFrame(getFrame(), new AsyncCallback<Void>()
                                 {
 
+                                    @Override
                                     public void onSuccess(Void result)
                                     {
                                         if (MovieButtonsPlayingState.this == getState())
@@ -437,6 +459,7 @@ public class MovieButtons extends Composite
                                         }
                                     }
 
+                                    @Override
                                     public void onFailure(Throwable caught)
                                     {
                                         onSuccess(null);

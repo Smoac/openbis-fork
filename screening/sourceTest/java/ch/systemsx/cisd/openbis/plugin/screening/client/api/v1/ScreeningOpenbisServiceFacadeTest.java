@@ -104,6 +104,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     {
         private final StringBuilder recorder = new StringBuilder();
 
+        @Override
         public void handlePlateImage(PlateImageReference plateImageReference, byte[] imageFileBytes)
         {
             recorder.append(plateImageReference).append(", ");
@@ -816,6 +817,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         IPlateImageHandler handler = new IPlateImageHandler()
             {
 
+                @Override
                 public void handlePlateImage(PlateImageReference plateImageReference,
                         byte[] imageFileBytes)
                 {

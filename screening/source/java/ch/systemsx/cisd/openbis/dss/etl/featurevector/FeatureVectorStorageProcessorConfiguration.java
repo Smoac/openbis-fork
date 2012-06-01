@@ -76,21 +76,25 @@ class FeatureVectorStorageProcessorConfiguration implements
                         DEFAULT_COLUMNS_TO_BE_IGNORED).split(", *")));
     }
 
+    @Override
     public char getColumnDelimiter()
     {
         return columnDelimiter;
     }
 
+    @Override
     public char getCommentDelimiter()
     {
         return comment;
     }
 
+    @Override
     public boolean isIgnoreComments()
     {
         return ignoreComments;
     }
 
+    @Override
     public boolean isSkipEmptyRecords()
     {
         return true;

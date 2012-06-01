@@ -116,6 +116,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
         return new IAnalysisProcedureSelectionListener()
             {
 
+                @Override
                 public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
                 {
                     analysisProcedureCriteria = criteria;
@@ -130,6 +131,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                 MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<MaterialSimpleFeatureVectorSummary>()
                     {
+                        @Override
                         public void handle(
                                 TableModelRowWithObject<MaterialSimpleFeatureVectorSummary> rowItem,
                                 boolean specialKeyPressed)
@@ -139,6 +141,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                                     getRestrictGlobalScopeLinkToProject(), screeningViewContext);
                         }
 
+                        @Override
                         public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
                                 ISerializableComparable value)
                         {
@@ -155,6 +158,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                 MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<MaterialSimpleFeatureVectorSummary>()
                     {
+                        @Override
                         public void handle(
                                 TableModelRowWithObject<MaterialSimpleFeatureVectorSummary> rowItem,
                                 boolean specialKeyPressed)
@@ -180,6 +184,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                                     new MaterialIdentifier(material), analysisProcedureCriteria);
                         }
 
+                        @Override
                         public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
                                 ISerializableComparable value)
                         {

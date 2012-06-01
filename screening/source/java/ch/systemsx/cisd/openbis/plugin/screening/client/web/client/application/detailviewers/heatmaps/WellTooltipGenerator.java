@@ -54,6 +54,7 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
     }
 
     // public String generateTooltip(WellData wellData, String distinguishedLabelOrNull)
+    @Override
     public String generateTooltip(int rowIx, int colIx, String distinguishedLabelOrNull)
     {
         WellData wellData = model.getWellMatrix()[rowIx][colIx];

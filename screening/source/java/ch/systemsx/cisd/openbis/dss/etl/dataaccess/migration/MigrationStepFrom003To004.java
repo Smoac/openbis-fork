@@ -34,11 +34,13 @@ import ch.systemsx.cisd.dbmigration.java.IMigrationStep;
 public class MigrationStepFrom003To004 implements IMigrationStep
 {
 
+    @Override
     public void performPostMigration(SimpleJdbcTemplate jdbc, DataSource dataSource)
             throws DataAccessException
     {
     }
 
+    @Override
     public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)
             throws DataAccessException
     {

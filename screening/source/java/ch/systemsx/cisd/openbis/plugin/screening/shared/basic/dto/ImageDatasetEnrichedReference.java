@@ -72,26 +72,31 @@ public class ImageDatasetEnrichedReference implements IEntityInformationHolderWi
         return overlayDatasets;
     }
 
+    @Override
     public BasicEntityType getEntityType()
     {
         return imageDataset.getDatasetReference().getEntityType();
     }
 
+    @Override
     public EntityKind getEntityKind()
     {
         return imageDataset.getDatasetReference().getEntityKind();
     }
 
+    @Override
     public Long getId()
     {
         return imageDataset.getDatasetReference().getId();
     }
 
+    @Override
     public String getCode()
     {
         return imageDataset.getDatasetReference().getCode();
     }
 
+    @Override
     public String getPermId()
     {
         return imageDataset.getDatasetReference().getPermId();

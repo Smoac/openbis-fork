@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
  */
 public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 {
+    @Override
     public String getDatabaseVersion()
     {
         return "022"; // changed in S129

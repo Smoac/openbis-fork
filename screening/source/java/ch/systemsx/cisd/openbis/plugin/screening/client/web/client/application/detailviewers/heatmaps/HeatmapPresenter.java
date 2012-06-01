@@ -216,6 +216,7 @@ class HeatmapPresenter
                 final int ci = colIx;
                 final IDelegatedAction refreshTooltipAction = new IDelegatedAction()
                     {
+                        @Override
                         public void execute()
                         {
                             viewContext.log("Update tooltip: "
@@ -234,6 +235,7 @@ class HeatmapPresenter
                     viewManipulations.addEmptyTooltip(rowIx, colIx);
                     viewManipulations.scheduleUpdateTooltip(rowIx, colIx, new IDelegatedAction()
                         {
+                            @Override
                             public void execute()
                             {
                                 viewContext.log("Fetch Well Values: "

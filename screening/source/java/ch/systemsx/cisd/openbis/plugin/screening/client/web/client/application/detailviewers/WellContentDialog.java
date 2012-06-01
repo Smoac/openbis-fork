@@ -115,6 +115,7 @@ public class WellContentDialog extends ImageDialog
 
             viewer.setLogicalImageRefreshHandler(new LogicalImageRefreshHandler()
                 {
+                    @Override
                     public void onRefresh()
                     {
                         contentDialog.autosize(grid.getElement());
@@ -122,6 +123,7 @@ public class WellContentDialog extends ImageDialog
                 });
             viewer.setLogicalImageClickHandler(new LogicalImageClickHandler()
                 {
+                    @Override
                     public void onClick(LogicalImageChannelsReference channelReferences, int row,
                             int col)
                     {
@@ -192,6 +194,7 @@ public class WellContentDialog extends ImageDialog
         {
             new LogicalImageClickHandler()
                 {
+                    @Override
                     public void onClick(LogicalImageChannelsReference channelReferences, int row,
                             int col)
                     {
@@ -216,6 +219,7 @@ public class WellContentDialog extends ImageDialog
             staticTilesGrid.sinkEvents(Events.OnClick.getEventCode());
             staticTilesGrid.addListener(Events.OnClick, new Listener<BaseEvent>()
                 {
+                    @Override
                     public void handleEvent(BaseEvent be)
                     {
                         showContentDialog(viewContext, wellImage, wellImage.getPlate(),
@@ -374,26 +378,31 @@ public class WellContentDialog extends ImageDialog
                 {
                     private static final long serialVersionUID = 1L;
 
+                    @Override
                     public String getPermId()
                     {
                         return plate.getPermId() + suffix;
                     }
 
+                    @Override
                     public String getCode()
                     {
                         return plate.getCode();
                     }
 
+                    @Override
                     public Long getId()
                     {
                         return plate.getId();
                     }
 
+                    @Override
                     public BasicEntityType getEntityType()
                     {
                         return plate.getEntityType();
                     }
 
+                    @Override
                     public EntityKind getEntityKind()
                     {
                         return plate.getEntityKind();
@@ -503,6 +512,7 @@ public class WellContentDialog extends ImageDialog
                 ScreeningLinkExtractor.createMaterialDetailsLink(material, getExperimentCriteria());
         final ClickHandler listener = new ClickHandler()
             {
+                @Override
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
@@ -518,6 +528,7 @@ public class WellContentDialog extends ImageDialog
         {
             link.addClickHandler(new ClickHandler()
                 {
+                    @Override
                     public void onClick(ClickEvent event)
                     {
                         WellContentDialog.this.hide();

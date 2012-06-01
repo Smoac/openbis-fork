@@ -54,6 +54,7 @@ public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugi
     // ISampleServerPluginWithWildcards
     //
 
+    @Override
     public final List<String> getOrderedEntityTypeCodes(final EntityKind entityKind)
     {
         if (entityKind == EntityKind.SAMPLE)
@@ -66,6 +67,7 @@ public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugi
         return Collections.emptyList();
     }
 
+    @Override
     public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
         Set<String> types = new HashSet<String>();
@@ -73,6 +75,7 @@ public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugi
         return types;
     }
 
+    @Override
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
         return getGenericSampleTypeSlaveServerPlugin();

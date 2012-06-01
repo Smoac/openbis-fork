@@ -34,6 +34,7 @@ public class DatasetIdentifierPredicate extends
         AbstractDataSetAccessPredicate<IDssServiceRpcScreening, List<? extends IDatasetIdentifier>>
 {
 
+    @Override
     public List<String> getDataSetCodes(List<? extends IDatasetIdentifier> datasetIdentifiers)
     {
         final List<String> result = new ArrayList<String>();

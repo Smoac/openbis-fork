@@ -239,6 +239,7 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
         /**
          * Orders locations by wellRow, wellCol, tileRow, tileCol, channelCode
          */
+        @Override
         public int compareTo(FullLocation o)
         {
             int tileRowCompare = new Integer(tileRow).compareTo(new Integer(o.tileRow));
@@ -276,6 +277,7 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
         /**
          * Order by full location, then time, depth, series.
          */
+        @Override
         public int compareTo(FullLocationImageSeriesPoint o)
         {
             int locationCompare = location.compareTo(o.location);

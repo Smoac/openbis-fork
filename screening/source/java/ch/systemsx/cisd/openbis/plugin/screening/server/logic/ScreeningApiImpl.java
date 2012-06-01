@@ -187,6 +187,7 @@ public class ScreeningApiImpl
         }
         Collections.sort(plates, new Comparator<Plate>()
             {
+                @Override
                 public int compare(Plate o1, Plate o2)
                 {
                     return o1.getAugmentedCode().compareTo(o2.getAugmentedCode());
@@ -235,6 +236,7 @@ public class ScreeningApiImpl
     {
         Collections.sort(experimentIds, new Comparator<ExperimentIdentifier>()
             {
+                @Override
                 public int compare(ExperimentIdentifier o1, ExperimentIdentifier o2)
                 {
                     return o1.getAugmentedCode().compareTo(o2.getAugmentedCode());
@@ -506,6 +508,7 @@ public class ScreeningApiImpl
         }
         Collections.sort(wells, new Comparator<WellIdentifier>()
             {
+                @Override
                 public int compare(WellIdentifier o1, WellIdentifier o2)
                 {
                     WellPosition p1 = o1.getWellPosition();
@@ -835,6 +838,7 @@ public class ScreeningApiImpl
         }
         Collections.sort(plateWellReferences, new Comparator<PlateWellReferenceWithDatasets>()
             {
+                @Override
                 public int compare(PlateWellReferenceWithDatasets o1,
                         PlateWellReferenceWithDatasets o2)
                 {
@@ -858,6 +862,7 @@ public class ScreeningApiImpl
         }
         Collections.sort(plateWellReferences, new Comparator<PlateWellReferenceWithDatasets>()
             {
+                @Override
                 public int compare(PlateWellReferenceWithDatasets o1,
                         PlateWellReferenceWithDatasets o2)
                 {

@@ -11,6 +11,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -105,7 +106,7 @@ class LibraryExtractor
             throws FileNotFoundException
     {
         SampleType typeInFile = new SampleType();
-        typeInFile.setCode(SampleType.DEFINED_IN_FILE);
+        typeInFile.setCode(EntityType.DEFINED_IN_FILE);
         BatchSamplesOperation prepared =
                 SampleUploadSectionsParser.prepareSamples(typeInFile, Arrays
                         .asList(new NamedInputStream(new FileInputStream(platesFile), platesFile

@@ -147,6 +147,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
                 new ICellListenerAndLinkGenerator<WellMetadata>()
                     {
 
+                        @Override
                         public void handle(TableModelRowWithObject<WellMetadata> rowItem,
                                 boolean specialKeyPressed)
                         {
@@ -154,6 +155,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
                                     .getWellSample(), false, specialKeyPressed);
                         }
 
+                        @Override
                         public String tryGetLink(WellMetadata entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getWellSample());

@@ -242,6 +242,7 @@ public class WellContentLoader extends AbstractContentLoader
                 new TableMap<Long/* plate id */, ExternalData>(imageDatasets,
                         new IKeyExtractor<Long, ExternalData>()
                             {
+                                @Override
                                 public Long getKey(ExternalData externalData)
                                 {
                                     return externalData.getSample().getId();
@@ -464,6 +465,7 @@ public class WellContentLoader extends AbstractContentLoader
     {
         return GroupByMap.create(wellContents, new IGroupKeyExtractor<String, WellContent>()
             {
+                @Override
                 public String getKey(WellContent wellContent)
                 {
                     DatasetReference featureVectorDataset =

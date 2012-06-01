@@ -107,6 +107,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static final IDssServiceFactory DSS_SERVICE_FACTORY = new IDssServiceFactory()
         {
+            @Override
             public DssServiceRpcScreeningHolder createDssService(String serverUrl)
             {
                 return new DssServiceRpcScreeningHolder(serverUrl);
@@ -271,6 +272,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 private final Map<String/* url */, DssServiceRpcScreeningHolder> cache =
                         new HashMap<String, DssServiceRpcScreeningHolder>();
 
+                @Override
                 public DssServiceRpcScreeningHolder createDssService(String serverUrl)
                 {
                     DssServiceRpcScreeningHolder dssServiceHolder = cache.get(serverUrl);
@@ -296,18 +298,21 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * Return the session token for this authenticated user.
      */
+    @Override
     public String getSessionToken()
     {
         return sessionToken;
     }
 
     /** Closes connection with the server. After calling this method this facade cannot be used. */
+    @Override
     public void logout()
     {
         checkASMinimalMinorVersion("logoutScreening");
         openbisScreeningServer.logoutScreening(sessionToken);
     }
 
+    @Override
     public void clearWellImageCache()
     {
         imageCache.clear();
@@ -317,12 +322,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * Return the list of all visible plates assigned to any experiment, along with their
      * hierarchical context (space, project, experiment).
      */
+    @Override
     public List<Plate> listPlates()
     {
         checkASMinimalMinorVersion("listPlates");
         return openbisScreeningServer.listPlates(sessionToken);
     }
 
+    @Override
     public List<PlateMetadata> getPlateMetadataList(List<? extends PlateIdentifier> plateIdentifiers)
     {
         checkASMinimalMinorVersion("getPlateMetadataList", List.class);
@@ -332,6 +339,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * Return the list of all plates for the given <var>experiment</var>.
      */
+    @Override
     public List<Plate> listPlates(ExperimentIdentifier experiment)
     {
         if (hasASMethod("listPlates", ExperimentIdentifier.class))
@@ -354,6 +362,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    @Override
     public List<Plate> listPlates(ExperimentIdentifier experiment, String analysisProcedure)
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -400,12 +409,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return plates;
     }
 
+    @Override
     public List<ExperimentIdentifier> listExperiments()
     {
         checkASMinimalMinorVersion("listExperiments");
         return openbisScreeningServer.listExperiments(sessionToken);
     }
 
+    @Override
     public List<ExperimentIdentifier> listExperiments(String userId)
     {
         checkASMinimalMinorVersion("listExperiments", String.class);
@@ -416,6 +427,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
      */
+    @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates)
     {
@@ -423,6 +435,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.listFeatureVectorDatasets(sessionToken, plates);
     }
 
+    @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
     {
@@ -454,6 +467,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * 
      * @deprecated Use {@link #listRawImageDatasets(List)} instead.
      */
+    @Override
     @Deprecated
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
@@ -464,6 +478,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * For a given set of plates provides the list of all connected data sets containing raw images.
      */
+    @Override
     public List<ImageDatasetReference> listRawImageDatasets(List<? extends PlateIdentifier> plates)
     {
         if (hasASMethod("listRawImageDatasets", List.class))
@@ -479,6 +494,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * For a given set of plates provides the list of all connected data sets containing images.
      */
+    @Override
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates)
     {
@@ -489,6 +505,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return Collections.emptyList();
     }
 
+    @Override
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
     {
@@ -501,6 +518,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
      * the connected image and image analysis data sets for the relevant plates.
      */
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             boolean findDatasets)
@@ -516,6 +534,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
      * data sets for the relevant plates.
      */
+    @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
@@ -527,12 +546,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * For the given <var>plateIdentifier</var> find all wells that are connected to it.
      */
+    @Override
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier)
     {
         checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
         return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
     }
 
+    @Override
     public Map<String, String> getWellProperties(WellIdentifier wellIdentifier)
     {
         Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
@@ -540,6 +561,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return properties;
     }
 
+    @Override
     public void updateWellProperties(WellIdentifier wellIdentifier, Map<String, String> properties)
     {
         Sample wellSample = openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
@@ -554,6 +576,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Override
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException
@@ -561,6 +584,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return getDataSets(wellIdentifier, new TypeBasedDataSetFilter(datasetTypeCodePattern));
     }
 
+    @Override
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier, IDataSetFilter dataSetFilter)
             throws IllegalStateException, EnvironmentFailureException
     {
@@ -568,6 +592,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return getDataSets(wellSample, dataSetFilter);
     }
 
+    @Override
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException
     {
@@ -581,6 +606,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Override
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
             final String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException
@@ -588,6 +614,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return getDataSets(plateIdentifier, new TypeBasedDataSetFilter(datasetTypeCodePattern));
     }
 
+    @Override
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException
     {
@@ -612,6 +639,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
             PlateIdentifier plateIdentifier, IDataSetFilter dataSetFilter)
             throws IllegalStateException, EnvironmentFailureException
@@ -643,6 +671,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<IDataSetDss> getDataSets(final ExperimentIdentifier experimentIdentifier,
             IDataSetFilter filter)
     {
@@ -666,6 +695,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
             ExperimentIdentifier experimentIdentifier, IDataSetFilter dataSetFilter)
             throws IllegalStateException, EnvironmentFailureException
@@ -703,6 +733,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getDataSetMetaData(
             List<String> dataSetCodes)
     {
@@ -733,6 +764,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      *             the server.
      * @throws IOException when accessing the data set file or folder fails
      */
+    @Override
     public IDataSetDss putDataSet(WellIdentifier wellIdentifier, File dataSetFile,
             NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
             EnvironmentFailureException, IOException
@@ -747,6 +779,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
     }
 
+    @Override
     public IDataSetDss putDataSet(PlateIdentifier plateIdentifier, File dataSetFile,
             NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
             EnvironmentFailureException, IOException
@@ -755,6 +788,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return createDataSetDss(sample, dataSetMetadataOrNull, dataSetFile);
     }
 
+    @Override
     public IDataSetDss putDataSet(ExperimentIdentifier experimentIdentifier, File dataSetFile,
             NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
             EnvironmentFailureException, IOException
@@ -815,12 +849,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * Converts a given list of dataset codes to dataset identifiers which can be used in other API
      * calls.
      */
+    @Override
     public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes)
     {
         checkASMinimalMinorVersion("getDatasetIdentifiers", List.class);
         return openbisScreeningServer.getDatasetIdentifiers(sessionToken, datasetCodes);
     }
 
+    @Override
     public List<String> listAvailableFeatureNames(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -832,6 +868,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * is just the code of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
      */
+    @Override
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -839,6 +876,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
                 new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
                     {
+                        @Override
                         @SuppressWarnings("deprecation")
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
@@ -859,6 +897,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * sets of features are available, provide the union of the features of all data sets. Only
      * available when all data store services have minor version 9 or newer.
      */
+    @Override
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -866,6 +905,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
                 new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
@@ -902,6 +942,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Override
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull)
     {
@@ -909,6 +950,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return loadFeatures(datasets, featureCodesOrNull);
     }
 
+    @Override
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             List<String> featureCodesOrNull, String analysisProcedureOrNull)
     {
@@ -927,6 +969,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Override
     public List<FeatureVectorDataset> loadFeatures(
             List<FeatureVectorDatasetReference> featureDatasets,
             final List<String> featureCodesOrNull)
@@ -939,6 +982,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
                 new IReferenceHandler<FeatureVectorDatasetReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetReference> references)
                         {
@@ -951,6 +995,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<FeatureVectorDatasetWellReference> convertToFeatureVectorDatasetWellIdentifier(
             List<PlateWellReferenceWithDatasets> plateWellReferenceWithDataSets)
     {
@@ -977,6 +1022,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 fvdr.getProperties(), wellPosition);
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             final List<FeatureVectorDatasetWellReference> datasetWellReferences,
             final List<String> featureCodesOrNull)
@@ -990,6 +1036,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetWellReferenceMultiplexer.process(datasetWellReferences,
                 new IReferenceHandler<FeatureVectorDatasetWellReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetWellReference> references)
                         {
@@ -1008,6 +1055,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return featureCodeOrNull == null || featureCodeOrNull.isEmpty();
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             List<String> featureCodesOrNull)
@@ -1016,6 +1064,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 featureCodesOrNull);
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             String analysisProcedureOrNull, List<String> featureCodesOrNull)
@@ -1025,12 +1074,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return loadFeatureVectors(featureCodesOrNull, analysisProcedureOrNull, plateWellRefs);
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull)
     {
         return loadFeaturesForPlateWells(materialIdentifier, null, featureCodesOrNull);
     }
 
+    @Override
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, String analysisProcedureOrNull,
             List<String> featureCodesOrNull)
@@ -1082,6 +1133,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         OutputStream getOutputStream(PlateImageReference imageReference) throws IOException;
     }
 
+    @Override
     public List<WellPosition> convertToWellPositions(List<WellIdentifier> wellIds)
     {
         final List<WellPosition> result = new ArrayList<WellPosition>(wellIds.size());
@@ -1092,12 +1144,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef)
     {
         return createPlateImageReferences(imageDatasetRef, null, null, null);
     }
 
+    @Override
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef, List<String> channelCodesOrNull,
             List<WellPosition> wellsOrNull)
@@ -1105,6 +1159,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return createPlateImageReferences(imageDatasetRef, null, channelCodesOrNull, wellsOrNull);
     }
 
+    @Override
     public List<PlateImageReference> createPlateImageReferences(
             ImageDatasetReference imageDatasetRef, ImageDatasetMetadata metadataOrNull,
             List<String> channelCodesOrNull, List<WellPosition> wellsOrNull)
@@ -1116,6 +1171,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 metadataOrNull, channelCodesOrNull, wellsToUse);
     }
 
+    @Override
     public List<PlateImageReference> createPlateImageReferences(
             IImageDatasetIdentifier imageDatasetId, List<String> channeldCodesOrNull,
             List<WellPosition> wellsToUse)
@@ -1123,6 +1179,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return createPlateImageReferences(imageDatasetId, null, channeldCodesOrNull, wellsToUse);
     }
 
+    @Override
     public List<PlateImageReference> createPlateImageReferences(
             IImageDatasetIdentifier imageDatasetId, ImageDatasetMetadata metadataOrNull,
             List<String> channelCodesOrNull, List<WellPosition> wellsToUse)
@@ -1189,6 +1246,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws IOException when reading images from the server or writing them to the output streams
      *             fails
      */
+    @Override
     public void loadImages(List<PlateImageReference> imageReferences,
             final IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
@@ -1211,6 +1269,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @throws IOException when reading images from the server or writing them to the output streams
      *             fails
      */
+    @Override
     public void loadImages(final List<PlateImageReference> imageReferences,
             final IImageOutputStreamProvider outputStreamProvider, final boolean convertToPNG)
             throws IOException
@@ -1220,6 +1279,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             plateImageReferencesMultiplexer.process(imageReferences,
                     new IReferenceHandler<PlateImageReference>()
                         {
+                            @Override
                             public void handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
@@ -1271,6 +1331,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    @Override
     public void loadImages(final List<PlateImageReference> imageReferences,
             final boolean convertToPNG, final IPlateImageHandler plateImageHandler)
             throws IOException
@@ -1280,6 +1341,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             plateImageReferencesMultiplexer.process(imageReferences,
                     new IReferenceHandler<PlateImageReference>()
                         {
+                            @Override
                             public void handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
@@ -1310,6 +1372,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    @Override
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
             throws IOException
@@ -1335,6 +1398,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public void loadImages(IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
             String channel, ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler)
             throws IOException
@@ -1353,6 +1417,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         processImagesStream(plateImageHandler, plateImageReferences, stream);
     }
 
+    @Override
     public byte[] loadImageWellCaching(final PlateImageReference imageReference,
             final ImageSize imageSizeOrNull) throws IOException
     {
@@ -1375,6 +1440,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 Collections.singletonList(imageReference.getWellPosition()));
                 loadImages(imageReferences, imageSizeOrNull, new IPlateImageHandler()
                     {
+                        @Override
                         public void handlePlateImage(PlateImageReference plateImageReference,
                                 byte[] imageFileBytes)
                         {
@@ -1399,12 +1465,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return imageOrNull.getImageData();
     }
 
+    @Override
     public void loadImages(List<PlateImageReference> imageReferences, final ImageSize sizeOrNull,
             final IPlateImageHandler plateImageHandler) throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1419,6 +1487,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
+    @Override
     public byte[] loadThumbnailImageWellCaching(final PlateImageReference imageReference)
             throws IOException
     {
@@ -1451,6 +1520,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 Collections.singletonList(imageReference.getWellPosition()));
                 loadThumbnailImages(imageReferences, new IPlateImageHandler()
                     {
+                        @Override
                         public void handlePlateImage(PlateImageReference plateImageReference,
                                 byte[] imageFileBytes)
                         {
@@ -1476,12 +1546,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return imageOrNull.getImageData();
     }
 
+    @Override
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
             final IPlateImageHandler plateImageHandler) throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1496,12 +1568,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
+    @Override
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
             final IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1538,6 +1612,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
+    @Override
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers,
             String channel, IImageTransformerFactory transformerFactoryOrNull)
     {
@@ -1553,6 +1628,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    @Override
     public IImageTransformerFactory getImageTransformerFactoryOrNull(
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
@@ -1569,6 +1645,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return service.getImageTransformerFactoryOrNull(sessionToken, dataSetIdentifiers, channel);
     }
 
+    @Override
     public ImageDatasetMetadata listImageMetadata(IImageDatasetIdentifier imageDataset)
     {
         final List<ImageDatasetMetadata> metadataList =
@@ -1581,12 +1658,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return metadataList.get(0);
     }
 
+    @Override
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
         final List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
         metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
             {
+                @Override
                 public void handle(DssServiceRpcScreeningHolder dssService,
                         List<IImageDatasetIdentifier> references)
                 {
@@ -1618,6 +1697,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    @Override
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
@@ -1626,6 +1706,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 materialTypeIdentifierOrNull);
     }
 
+    @Override
     public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier)
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -1803,6 +1884,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
+    @Override
     public void loadImages(List<PlateImageReference> imageReferences,
             final LoadImageConfiguration configuration, final IPlateImageHandler plateImageHandler)
             throws IOException
@@ -1810,6 +1892,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1824,6 +1907,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
+    @Override
     public void loadImages(final List<PlateImageReference> imageReferences,
             final IPlateImageHandler plateImageHandler, final ImageRepresentationFormat format)
             throws IOException
@@ -1831,6 +1915,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1844,6 +1929,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     });
     }
 
+    @Override
     public void loadImages(List<PlateImageReference> imageReferences,
             final IPlateImageHandler plateImageHandler,
             final IImageRepresentationFormatSelectionCriterion... criteria) throws IOException
@@ -1851,6 +1937,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         plateImageReferencesMultiplexer.process(imageReferences,
                 new IReferenceHandler<PlateImageReference>()
                     {
+                        @Override
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
@@ -1906,6 +1993,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         } while (size >= 0);
     }
 
+    @Override
     public ExperimentImageMetadata getExperimentImageMetadata(
             ExperimentIdentifier experimentIdentifier)
     {
@@ -1914,6 +2002,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 .getExperimentImageMetadata(sessionToken, experimentIdentifier);
     }
 
+    @Override
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             List<? extends IDatasetIdentifier> dataSetIdentifiers)
     {
