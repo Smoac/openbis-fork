@@ -374,9 +374,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * See {@link #setGenerateImageRepresentationsWithScaleFactors}.
+     * See {@link #setGenerateImageRepresentationsUsingScaleFactors}.
      * 
-     * @deprecated use {@link #setGenerateImageRepresentationsWithScaleFactors} instead.
+     * @deprecated use {@link #setGenerateImageRepresentationsUsingScaleFactors} instead.
      */
     @Deprecated
     public void setGenerateImagePyramidWithScaleFactors(double[] zoomLevels)
@@ -385,9 +385,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * See {@link #setGenerateImageRepresentationsWithImageResolutions}.
+     * See {@link #setGenerateImageRepresentationsUsingImageResolutions}.
      * 
-     * @deprecated use {@link #setGenerateImageRepresentationsWithImageResolutions} instead.
+     * @deprecated use {@link #setGenerateImageRepresentationsUsingImageResolutions} instead.
      */
     @Deprecated
     public void setGenerateImagePyramidWithImageResolution(String[] resolutions)
@@ -397,8 +397,8 @@ abstract public class SimpleImageDataConfig
 
     /**
      * Registers a request for alternate image representations to be generated based on the original
-     * image. The format of the alternate representations is specified by the {@link formats}
-     * argument.
+     * image. The format of the alternate representations is specified by the
+     * {@link IThumbnailsConfiguration} formats argument.
      * 
      * @param formats The formats of the image generated representations. One image representation
      *            will be created for each format.
@@ -432,7 +432,8 @@ abstract public class SimpleImageDataConfig
             if (scaleFactor <= 0)
             {
                 throw new IllegalArgumentException(
-                        "Scale factors for generated image representations must be greater than 0. " + scaleFactor + " <= 0");
+                        "Scale factors for generated image representations must be greater than 0. "
+                                + scaleFactor + " <= 0");
             }
         }
         for (double scale : scaleFactors)
@@ -455,9 +456,11 @@ abstract public class SimpleImageDataConfig
         if (scale <= 0)
         {
             throw new IllegalArgumentException(
-                    "Scale factors for generated image representations must be greater than 0. " + scale + " <= 0");
+                    "Scale factors for generated image representations must be greater than 0. "
+                            + scale + " <= 0");
         }
-        ZoomLevelBasedThumbnailsConfiguration imageRep = new ZoomLevelBasedThumbnailsConfiguration(scale);
+        ZoomLevelBasedThumbnailsConfiguration imageRep =
+                new ZoomLevelBasedThumbnailsConfiguration(scale);
         imagePyramid.add(imageRep);
         return imageRep;
     }
@@ -536,7 +539,8 @@ abstract public class SimpleImageDataConfig
      * @param resolution The resolution of the representation.
      * @return The configuration for the image representation.
      */
-    public IThumbnailsConfiguration addGeneratedImageRepresentationWithoutEnlargingWithResolution(String resolution)
+    public IThumbnailsConfiguration addGeneratedImageRepresentationWithoutEnlargingWithResolution(
+            String resolution)
     {
         return addGeneratedImageRepresentationWithResolution(resolution, false);
     }
@@ -551,7 +555,8 @@ abstract public class SimpleImageDataConfig
      *            original image.
      * @return The configuration for the image representation.
      */
-    private IThumbnailsConfiguration addGeneratedImageRepresentationWithResolution(String resolution, boolean allowEnlarging)
+    private IThumbnailsConfiguration addGeneratedImageRepresentationWithResolution(
+            String resolution, boolean allowEnlarging)
     {
         String[] dimension = resolution.split("x");
         if (dimension.length != 2)
@@ -562,8 +567,8 @@ abstract public class SimpleImageDataConfig
         }
         int width = Integer.parseInt(dimension[0].trim());
         int height = Integer.parseInt(dimension[1].trim());
-        ResolutionBasedThumbnailsConfiguration imageRep = new ResolutionBasedThumbnailsConfiguration(width, height,
-                allowEnlarging);
+        ResolutionBasedThumbnailsConfiguration imageRep =
+                new ResolutionBasedThumbnailsConfiguration(width, height, allowEnlarging);
         imagePyramid.add(imageRep);
         return imageRep;
     }
