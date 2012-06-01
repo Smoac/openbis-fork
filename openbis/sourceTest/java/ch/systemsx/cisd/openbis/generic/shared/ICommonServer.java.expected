@@ -1383,6 +1383,7 @@ public interface ICommonServer extends IServer
     /**
      * Lists columns available for selected grid.
      */
+    @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
