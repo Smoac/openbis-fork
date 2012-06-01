@@ -40,6 +40,7 @@ class CmdLineOptions
         {
             Collections.sort(handlers, new Comparator<OptionHandler>()
                 {
+                    @Override
                     public int compare(OptionHandler h1, OptionHandler h2)
                     {
                         final String n1 = h1.getName();

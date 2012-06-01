@@ -30,6 +30,7 @@ final class MultiValueFieldSetter implements Setter<Object>
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Class<Object> getType()
     {
@@ -46,6 +47,7 @@ final class MultiValueFieldSetter implements Setter<Object>
         return Object.class;
     }
 
+    @Override
     public void addValue(Object value)
     {
         try

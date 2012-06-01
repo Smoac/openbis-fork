@@ -21,12 +21,14 @@ final class FieldSetter implements Setter<Object>
         this.f = f;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Class<Object> getType()
     {
         return (Class<Object>) f.getType();
     }
 
+    @Override
     public void addValue(Object value)
     {
         try

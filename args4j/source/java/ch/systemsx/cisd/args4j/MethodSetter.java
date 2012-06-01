@@ -24,12 +24,14 @@ final class MethodSetter<T> implements Setter<T>
             throw new IllegalAnnotationError(Messages.ILLEGAL_METHOD_SIGNATURE.format(m));
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Class getType()
     {
         return m.getParameterTypes()[0];
     }
 
+    @Override
     public void addValue(T value) throws CmdLineException
     {
         try
