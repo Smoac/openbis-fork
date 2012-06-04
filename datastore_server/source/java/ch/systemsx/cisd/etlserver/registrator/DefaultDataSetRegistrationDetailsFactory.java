@@ -22,35 +22,24 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DefaultDataSetRegistrationDetailsFactory<T extends DataSetInformation> extends
-        AbstractDataSetRegistrationDetailsFactory<T>
+public class DefaultDataSetRegistrationDetailsFactory extends
+        AbstractDataSetRegistrationDetailsFactory<DataSetInformation>
 {
-    private final Class<T> dataSetInfoClass;
 
     /**
      * @param registratorState
      */
     public DefaultDataSetRegistrationDetailsFactory(
-            Class<T> dataSetInfoClass, OmniscientTopLevelDataSetRegistratorState registratorState,
+            OmniscientTopLevelDataSetRegistratorState registratorState,
             DataSetInformation userProvidedDataSetInformationOrNull)
     {
         super(registratorState, userProvidedDataSetInformationOrNull);
-        this.dataSetInfoClass = dataSetInfoClass;
     }
 
     @Override
-    protected T createDataSetInformation()
+    protected DataSetInformation createDataSetInformation()
     {
-        try
-        {
-            return dataSetInfoClass.newInstance();
-        } catch (InstantiationException ex)
-        {
-            throw new Error(ex); 
-        } catch (IllegalAccessException ex)
-        {
-            throw new Error(ex); 
-        }
+        return new DataSetInformation();
     }
 
 }

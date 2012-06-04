@@ -142,7 +142,7 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
          */
         protected TestDataSetRegistrator(TopLevelDataSetRegistratorGlobalState globalState)
         {
-            super(globalState, DataSetInformation.class);
+            super(globalState);
         }
 
         @Override

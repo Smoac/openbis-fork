@@ -680,7 +680,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
          */
         protected TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
         {
-            super(globalState, DataSetInformation.class);
+            super(globalState);
         }
 
         @Override
