@@ -45,6 +45,8 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     static final String DISABLED_TECHNOLOGIES_VARNAME = "DISABLED_TECHNOLOGIES";
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
+    private final SetTechnologyCheckBoxesAction technologyCheckBoxesAction = new SetTechnologyCheckBoxesAction();
+    
     @Override
     public void initialize(PanelActionConfiguration configuration)
     {
@@ -53,6 +55,13 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
+        // The technologyCheckBoxesAction is a 'preactivate' action to populate the technology check
+        // boxes.
+        // But in case of console installation the 'preactivate' action isn't execute. We can
+        // execute it here without any check whether we are console or GUI based installation
+        // because the GUI sets the technology flags and naothing will be populated from existing
+        // service.properties.
+       technologyCheckBoxesAction.executeAction(data, handler);
         boolean isFirstTimeInstallation = GlobalInstallationContext.isFirstTimeInstallation;
         File installDir = GlobalInstallationContext.installDir;
         updateEnabledTechnologyProperty(data, isFirstTimeInstallation, installDir);
@@ -165,6 +174,7 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
                 builder.append(technology.toLowerCase());
             }
         }
+        System.out.println("disabled technologies:"+builder);
         return builder.toString();
     }
 
