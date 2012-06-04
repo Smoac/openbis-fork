@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -108,7 +109,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         try
         {
             // timeout exceptions were observed for the default timeout when database was bigger
-            IndexWriter.setDefaultWriteLockTimeout(3000);
+            IndexWriterConfig.setDefaultWriteLockTimeout(3000);
             final File indexBase = new File(context.getIndexBase());
             final File markerFile = new File(indexBase, FULL_TEXT_INDEX_MARKER_FILENAME);
             final Session session = getSession();

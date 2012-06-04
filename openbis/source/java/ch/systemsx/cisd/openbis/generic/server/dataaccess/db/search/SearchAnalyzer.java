@@ -54,6 +54,7 @@ public final class SearchAnalyzer extends Analyzer
     private static class WordAndCodeTokenizer extends CharTokenizer
     {
 
+        @SuppressWarnings("deprecation")
         public WordAndCodeTokenizer(Reader input)
         {
             super(input);
