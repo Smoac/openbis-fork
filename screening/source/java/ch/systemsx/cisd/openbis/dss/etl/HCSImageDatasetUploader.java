@@ -46,6 +46,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         super(dao);
     }
 
+    @SuppressWarnings("null")
     private void upload(HCSImageDatasetInfo info, List<AcquiredSingleImage> images,
             List<Channel> channels)
     {

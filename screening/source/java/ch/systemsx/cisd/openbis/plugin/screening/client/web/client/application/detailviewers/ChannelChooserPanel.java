@@ -337,6 +337,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
         for (CheckBox cb : getAllCheckBoxes())
         {
+            @SuppressWarnings("null")
             boolean checked =
                     selectAllChannels || selectedChannels.contains(cb.getValueAttribute());
             cb.setValue(checked);
