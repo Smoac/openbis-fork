@@ -1,5 +1,5 @@
 <project name="openbis" default="dist" basedir="..">
-  <import file="../../server-common/build/build-common.xml" />
+  <import file="../../openbis-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
   <project-classpath name="eclipse.cp" classes="${targets}/classes" />
   <project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
@@ -158,7 +158,7 @@
 			<fileset dir="../openbis/${sources}">
 				<include name="*Context.xml" />
 			</fileset>
-			<fileset dir="../server-common/${sources}">
+			<fileset dir="../openbis-common/${sources}">
 				<include name="*Context.xml" />
 			</fileset>
 			<fileset dir="dist/server">
@@ -170,7 +170,7 @@
 				<include name="web.xml" />
 				<include name="spring-servlet.xml" />
 			</fileset>
-			<fileset dir="../server-common/resource/server">
+			<fileset dir="../openbis-common/resource/server">
 				<include name="web-common.xml" />
 			</fileset>
 			<fileset dir="../openbis/resource/server">
@@ -182,7 +182,7 @@
 				<include name="common.dictionary.js" />
 				<include name="*.html" />
 			</fileset>
-			<fileset dir="../server-common/resource/server">
+			<fileset dir="../openbis-common/resource/server">
 				<include name="web-common.xml" />
 			</fileset>
 		</checksum>
@@ -251,11 +251,11 @@
   <patternset id="common-api-sources">
     <include name="ch/systemsx/cisd/common/exceptions/**" />
     <include name="ch/systemsx/cisd/common/api/**" />
+    <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.java" />
   </patternset>
   
-  <!-- Pattern sets of API source in project 'server-common' -->
-  <patternset id="server-common-api-sources">
-    <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.java" />
+  <!-- Pattern sets of API source in project 'openbis-common' -->
+  <patternset id="openbis-common-api-sources">
     <include name="ch/systemsx/cisd/common/api/client/**" />
   </patternset>
   
@@ -363,7 +363,7 @@
     'ClientPluginProvider.java'.
   -->
   <target name="prepare-gwt"
-  	depends="prepare-web-client, compile-tests, server-common-common.prepare-gwt"
+  	depends="prepare-web-client, compile-tests, openbis-common-common.prepare-gwt"
     description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
   	
     <copy todir="${targets.www.web-inf}/lib">
@@ -619,7 +619,7 @@
       <fileset dir="../openbis/${server-resource}">
         <include name="bis-common.xml" />
       </fileset>
-      <fileset dir="../server-common/${server-resource}">
+      <fileset dir="../openbis-common/${server-resource}">
         <include name="web-common.xml" />
       </fileset>
     </copy>
@@ -632,7 +632,7 @@
         <include name="**/*.sql" />
       </classes>
       <!-- Add 'applicationContext.xml' and related files. -->
-      <classes dir="../server-common/${sources}">
+      <classes dir="../openbis-common/${sources}">
         <include name="**/*.xml" />
       </classes>
       <classes dir="${sources}">

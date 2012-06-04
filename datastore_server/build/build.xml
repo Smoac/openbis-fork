@@ -154,8 +154,8 @@
       <packageset dir="../common/${sources}">
         <patternset refid="common-api-sources"/>
       </packageset>
-      <packageset dir="../server-common/${sources}">
-        <patternset refid="server-common-api-sources"/>
+      <packageset dir="../openbis-common/${sources}">
+        <patternset refid="openbis-common-api-sources"/>
       </packageset>
     </javadoc>
     <zip destfile="${query.api.doc.zip}">
@@ -175,8 +175,8 @@
       <fileset dir="../common/${sources}">
         <patternset refid="common-api-sources"/>
       </fileset>
-      <fileset dir="../server-common/${sources}">
-        <patternset refid="server-common-api-sources"/>
+      <fileset dir="../openbis-common/${sources}">
+        <patternset refid="openbis-common-api-sources"/>
       </fileset>
     </zip>
   </target>
