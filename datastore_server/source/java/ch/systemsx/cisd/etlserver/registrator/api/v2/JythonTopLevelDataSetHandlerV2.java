@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbacker;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryState;
@@ -329,11 +332,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         }
                     };
 
+        ArrayList<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms =
+                recoveryState.getDataSetStorageAlgorithms(state);
+
+        RollbackStack rollbackStack = recoveryState.getRollbackStack();
+
         DataSetStorageAlgorithmRunner<T> runner =
                 new DataSetStorageAlgorithmRunner<T>(recoveryState.getIncomingDataSetFile(), // incoming
-                        recoveryState.getDataSetStorageAlgorithms(state), // algorithms
+                        dataSetStorageAlgorithms, // algorithms
                         rollbackDelegate, // rollback delegate,
-                        recoveryState.getRollbackStack(), // rollbackstack
+                        rollbackStack, // rollbackstack
                         logger, // registrationLogger
                         state.getGlobalState().getOpenBisService(), // openBisService
                         hookAdaptor, // the hooks
@@ -375,9 +383,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         new AbstractTransactionState.LiveTransactionRollbackDelegate(state
                                 .getGlobalState().getStagingDir());
 
-                recoveryState.getRollbackStack().setLockedState(false);
+                rollbackStack.setLockedState(false);
 
-                recoveryState.getRollbackStack().rollbackAll(rollbackStackDelegate);
+                rollbackStack.rollbackAll(rollbackStackDelegate);
                 UnstoreDataAction action =
                         state.getOnErrorActionDecision().computeUndoAction(
                                 ErrorType.OPENBIS_REGISTRATION_FAILURE, null);
@@ -395,6 +403,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
                 hookAdaptor.executePreRegistrationRollback(persistentMapHolder, null);
 
+                finishRegistration(dataSetStorageAlgorithms, rollbackStack);
             } else
             {
 
@@ -424,6 +433,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     shouldStopRecovery = true;
 
                     logger.registerSuccess();
+
+                    // do the actions performed when the registration comes into terminal state.
+                    finishRegistration(dataSetStorageAlgorithms, rollbackStack);
+
                 }
             }
         } catch (Throwable error)
@@ -444,6 +457,18 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         recoveryMarkerCleanup.execute(shouldStopRecovery);
 
+    }
+
+    private void finishRegistration(ArrayList<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
+            RollbackStack rollbackStack)
+    {
+        System.out.println("finish him");
+        for (DataSetStorageAlgorithm<T> algorithm : dataSetStorageAlgorithms)
+        {
+            System.out.println("finish him " + algorithm.getStagingFile());
+            algorithm.getStagingFile().delete();
+        }
+        rollbackStack.discard();
     }
 
     /**

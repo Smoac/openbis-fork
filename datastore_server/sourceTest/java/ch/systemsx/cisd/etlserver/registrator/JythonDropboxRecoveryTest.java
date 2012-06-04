@@ -277,14 +277,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
-        assertDirEmpty(stagingDirectory);
-
         assertJythonHooks("pre_metadata_registration", "rollback_pre_registration");
-        // FIXME: this check is commented out because of a bug!
-        // assertDirEmpty(precommitDirectory);
 
-        // assert there is no recovery file
-        // rolllback requirementes
+        assertDirEmptyOrContainsEmptyDirs(precommitDirectory);
+
+        assertNoRecoveryMarkerFile();
     }
 
     private void assertJythonHooks(String... messages)
@@ -318,8 +315,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 // item in store
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
-                // FIXME: this is commented out to cover the bug! beware
-                // assertDirEmpty(stagingDirectory);
+
                 assertDirEmpty(precommitDirectory);
 
                 assertNoOriginalMarkerFileExists();
@@ -330,10 +326,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 break;
             case RECOVERY_ROLLED_BACK:
                 assertDataSetNotStoredProcess(DATA_SET_CODE);
-                assertDirEmpty(stagingDirectory);
 
-                // FIXME: this is commented out to cover the bug! beware
-                // assertDirEmpty(precommitDirectory);
+                assertDirEmptyOrContainsEmptyDirs(precommitDirectory);
 
                 assertNoOriginalMarkerFileExists();
                 assertNoRecoveryMarkerFile();
@@ -402,6 +396,21 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     {
         String contents = file.getAbsolutePath();
         assertEquals(contents, "[]", Arrays.asList(file.list()).toString());
+    }
+
+    private void assertDirEmptyOrContainsEmptyDirs(File file)
+    {
+        for (String s : file.list())
+        {
+            File subFile = new File(file, s);
+            if (subFile.isFile())
+            {
+                fail("Directory " + file + " is not empty! It contains a file" + s);
+            } else if (subFile.isDirectory())
+            {
+                assertDirEmptyOrContainsEmptyDirs(subFile);
+            }
+        }
     }
 
     private void assertOriginalMarkerFileExists()
@@ -499,7 +508,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         context.checking(new StorageErrorExpectations(atomicatOperationDetails));
 
         handleAndMakeRecoverableImmediately(testCase);
-        
+
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "pre_metadata_registration", "post_metadata_registration");
 
@@ -508,15 +517,17 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertOriginalMarkerFileExists();
 
         makeFileSystemAvailable(workingDirectory);
-        
+
         // this recovery should succeed
         handler.handle(markerFile);
 
         assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                 "sub_data_set_1", 0);
-        
+
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(precommitDirectory);
 
         //
         // // item in store
@@ -524,7 +535,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         //
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
     }
-    
+
     // INFO: test with recovery from error in storage confirmed
     @Test
     public void testRecoveryFailureAtStorageConfirmed()
@@ -565,6 +576,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(precommitDirectory);
 
         //
         // // item in store
@@ -651,6 +664,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
+        assertDirEmpty(precommitDirectory);
+        
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
 
     }
@@ -731,14 +746,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             initialExpectations();
             registerDataSetsAndMakeFileSystemUnavailable();
-            
+
             // the recovery should happen here
 
             setStorageConfirmed(false);
         }
     }
 
-    
     class BasicRecoveryTestExpectations extends AbstractExpectations
     {
         final RecoveryTestCase testCase;
@@ -909,7 +923,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             one(openBisService).drawANewUniqueID();
             will(returnValue(new Long(1)));
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-            will(doAll(makeFileSystemUnavailableAction(), returnValue(new AtomicEntityOperationResult())));
+            will(doAll(makeFileSystemUnavailableAction(),
+                    returnValue(new AtomicEntityOperationResult())));
         }
 
         /**
