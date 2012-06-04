@@ -421,7 +421,6 @@ public class NativeDataTests
     {
     }
 
-    @SuppressWarnings("null")
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
