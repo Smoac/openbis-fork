@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics;
 
-import ch.systemsx.cisd.common.AbstractDependencyCheckingTestCase;
+import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
  * 

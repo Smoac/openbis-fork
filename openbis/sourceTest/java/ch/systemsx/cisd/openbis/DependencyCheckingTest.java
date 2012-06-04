@@ -19,11 +19,9 @@ package ch.systemsx.cisd.openbis;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.AbstractDependencyCheckingTestCase;
+import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
@@ -32,7 +30,8 @@ public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
     @Override
     protected List<String> getExcludingClassesPatterns()
     {
-        return Arrays.asList("*.testframework.*", "*TestSuite*", "*.web.client.application.*.Show*Editor");
+        return Arrays.asList("*.testframework.*", "*TestSuite*",
+                "*.web.client.application.*.Show*Editor");
     }
 
 }

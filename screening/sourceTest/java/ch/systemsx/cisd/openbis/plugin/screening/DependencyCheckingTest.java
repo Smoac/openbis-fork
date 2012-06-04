@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.AbstractDependencyCheckingTestCase;
+import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
  * 
