@@ -313,7 +313,7 @@
 			<fileset dir="${cifex.server.resource}">
 				<include name="spring-servlet.xml" />
 			</fileset>
-			<fileset dir="../server-common/${server-resource}">
+			<fileset dir="../common/${server-resource}">
 				<include name="web-common.xml" />
 			</fileset>
 		</copy>
@@ -330,7 +330,7 @@
 			<!-- The command line client -->
 			<file file="${cifex.cli.zip}" />
 			<!-- Add 'applicationContext.xml' and related files. -->
-			<classes dir="../server-common/${sources}">
+			<classes dir="../common/${sources}">
 				<include name="**/*.xml" />
 			</classes>
 			<classes dir="${sources}">
@@ -412,7 +412,7 @@
 	        description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
 		<copy todir="${gwt.war.web-inf}" overwrite="true" failonerror="true">
 			<fileset dir="${cifex.server.resource}" includes="*.xml" />
-			<fileset dir="../server-common/${server-resource}" includes="*.xml" />
+			<fileset dir="../common/${server-resource}" includes="*.xml" />
 		</copy>
 		<copy todir="${gwt.war.web-inf.lib}" overwrite="true" failonerror="true">
 			<fileset dir="${cifex.server.resource}" includes="*.xml" />
