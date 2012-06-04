@@ -271,6 +271,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
      *            usually a big performance boost.
      * @return The list of principals matching the query
      */
+    @SuppressWarnings("null")
     public List<Principal> listPrincipalsByKeyValue(String key, String value,
             Collection<String> additionalAttributesOrNull, int limit)
     {
@@ -372,6 +373,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 config.getSecurityPrincipalPassword(), true);
     }
 
+    @SuppressWarnings("null")
     private DirContext createContextForDistinguishedName(String dn, String password,
             boolean useThreadContext) throws NamingException
     {
