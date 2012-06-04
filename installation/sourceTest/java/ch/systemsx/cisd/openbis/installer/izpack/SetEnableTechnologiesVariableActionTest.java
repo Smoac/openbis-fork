@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemTestCase
 {
+    private File corePluginsFolder;
     private File configFile;
     private File dssConfigFile;
 
@@ -52,6 +53,8 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     @BeforeMethod
     public void setUp()
     {
+        corePluginsFolder = new File(workingDirectory, Utils.CORE_PLUGINS_PATH);
+        corePluginsFolder.mkdirs();
         configFile = new File(workingDirectory, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         configFile.getParentFile().mkdirs();
         dssConfigFile = new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
@@ -68,6 +71,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     @AfterMethod
     public void tearDown()
     {
+        FileUtilities.deleteRecursively(corePluginsFolder);
         configFile.delete();
         dssConfigFile.delete();
     }
@@ -116,8 +120,9 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     }
 
     @Test
-    public void testUpdateUnchangedProperty()
+    public void testUpdateInstallationWithoutCorePluginsFolder()
     {
+        FileUtilities.deleteRecursively(corePluginsFolder);
         FileUtilities.writeToFile(configFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
                 + "=proteomics");
         Properties variables = new Properties();
@@ -126,6 +131,23 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
 
         updateEnabledTechnologyProperties(variables, false);
 
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
+                .loadToStringList(configFile).toString());
+        assertEquals("[" + DISABLED_CORE_PLUGINS_KEY + " = proteomics, screening, illumina-ngs]",
+                FileUtilities.loadToStringList(dssConfigFile).toString());
+    }
+    
+    @Test
+    public void testUpdateUnchangedProperty()
+    {
+        FileUtilities.writeToFile(configFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
+                + "=proteomics");
+        Properties variables = new Properties();
+        variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
+        variables.setProperty(TECHNOLOGY_SCREENING, "false");
+        
+        updateEnabledTechnologyProperties(variables, false);
+        
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
                 .loadToStringList(configFile).toString());
     }

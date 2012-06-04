@@ -57,11 +57,12 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     {
         // The technologyCheckBoxesAction is a 'preactivate' action to populate the technology check
         // boxes.
-        // But in case of console installation the 'preactivate' action isn't execute. We can
-        // execute it here without any check whether we are console or GUI based installation
-        // because the GUI sets the technology flags and naothing will be populated from existing
+        // But in case of console installation the 'preactivate' action isn't executed. We can
+        // execute it here without any check whether this is a console-based or GUI-based
+        // installation
+        // because the GUI sets the technology flags and nothing will be populated from existing
         // service.properties.
-       technologyCheckBoxesAction.executeAction(data, handler);
+        technologyCheckBoxesAction.executeAction(data, handler);
         boolean isFirstTimeInstallation = GlobalInstallationContext.isFirstTimeInstallation;
         File installDir = GlobalInstallationContext.installDir;
         updateEnabledTechnologyProperty(data, isFirstTimeInstallation, installDir);
@@ -84,7 +85,7 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     private void updateDisabledDssPluginsProperty(AutomatedInstallData data, File installDir)
     {
         Set<String> disabledTechnologies = new LinkedHashSet<String>();
-        Set<String> technologies = new HashSet<String>();
+        Set<String> technologies = new LinkedHashSet<String>();
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String technologyFlag = data.getVariable(technology);
@@ -96,12 +97,12 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         }
         File configFile = new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         List<String> list = FileUtilities.loadToStringList(configFile);
-        updateDisabledDssPluginsProperty(list, technologies, disabledTechnologies);
+        updateDisabledDssPluginsProperty(list, technologies, disabledTechnologies, installDir);
         Utils.updateConfigFile(configFile, list);
     }
 
     private void updateDisabledDssPluginsProperty(List<String> list, Set<String> technologies,
-            Set<String> disabledTechnologies)
+            Set<String> disabledTechnologies, File installDir)
     {
         for (int i = 0; i < list.size(); i++)
         {
@@ -117,7 +118,17 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
                 return;
             }
         }
-        String pluginsList = mergeWithDisabledPluginsList("", technologies, disabledTechnologies);
+        String pluginsList;
+        if (Utils.hasCorePluginsFolder(installDir))
+        {
+            pluginsList = mergeWithDisabledPluginsList("", technologies, disabledTechnologies);
+        } else
+        {
+            // A very old openBIS instance does not have a core plugins folder. Thus, all
+            // core plugins have to be disabled in order to avoid possible conflicts of
+            // existing DSS service.properties with a core plugin.
+            pluginsList = mergeWithDisabledPluginsList("", technologies, technologies);
+        }
         list.add(DISABLED_CORE_PLUGINS_KEY + " = " + pluginsList);
     }
     
@@ -174,7 +185,6 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
                 builder.append(technology.toLowerCase());
             }
         }
-        System.out.println("disabled technologies:"+builder);
         return builder.toString();
     }
 

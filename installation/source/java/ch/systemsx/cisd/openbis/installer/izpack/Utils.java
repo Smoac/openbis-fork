@@ -39,11 +39,17 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 class Utils
 {
     private static final String SERVERS_PATH = "servers/";
+    static final String CORE_PLUGINS_PATH = SERVERS_PATH + "core-plugins/";
     static final String AS_PATH = SERVERS_PATH + "openBIS-server/jetty/";
     static final String DSS_PATH = SERVERS_PATH + "datastore_server/";
     static final String SERVICE_PROPERTIES_PATH = "etc/service.properties";
     static final String JETTY_XML_PATH = "etc/jetty.xml";
     static final String KEYSTORE_PATH = "etc/openBIS.keystore";
+    
+    static boolean hasCorePluginsFolder(File installDir)
+    {
+        return new File(installDir, CORE_PLUGINS_PATH).isDirectory();
+    }
 
     static String tryToGetServicePropertyOfAS(File installDir, String propertyKey)
     {
