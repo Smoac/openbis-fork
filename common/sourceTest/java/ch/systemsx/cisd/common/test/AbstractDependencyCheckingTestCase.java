@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex;
+package ch.systemsx.cisd.common.test;
 
-import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
- * 
+ * Abstract super class of dependency checking tests for web servers where classes files
+ * are in <tt>targets/www/WEB-INF/classes</tt>.
  *
  * @author Franz-Josef Elmer
  */
-public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
+public abstract class AbstractDependencyCheckingTestCase extends DependencyCheckingTest
 {
+
+    @Override
+    protected String getPathToClassesCompiledByEclipse()
+    {
+        return "targets/www/WEB-INF/classes";
+    }
 
 }

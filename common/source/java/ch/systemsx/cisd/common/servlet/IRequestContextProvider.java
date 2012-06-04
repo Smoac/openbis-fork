@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex;
+package ch.systemsx.cisd.common.servlet;
 
-import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
+import javax.servlet.http.HttpServletRequest;
 
 /**
+ * Implementation of this interface provides a way to expose the native {@link HttpServletRequest}.
  * 
- *
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
+public interface IRequestContextProvider
 {
+
+    /** Returns the <code>HttpServletRequest</code> object. */
+    public HttpServletRequest getHttpServletRequest();
 
 }
