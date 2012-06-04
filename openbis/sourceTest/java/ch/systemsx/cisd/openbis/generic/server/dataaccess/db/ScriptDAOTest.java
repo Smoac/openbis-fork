@@ -137,13 +137,16 @@ public final class ScriptDAOTest extends AbstractDAOTest
             }
         }
         assertNotNull(registered);
-        assert registered != null;// for Eclipse
-        assertEquals(script.getScriptType(), registered.getScriptType());
-        assertEquals(script.getDatabaseInstance(), registered.getDatabaseInstance());
-        assertEquals(script.getScript(), registered.getScript());
-        assertEquals(script.getDescription(), registered.getDescription());
-        assertEquals(script.getName(), registered.getName());
-        assertEquals(script.getEntityKind(), registered.getEntityKind());
+
+        if (registered != null) // for Eclipse
+        {
+            assertEquals(script.getScriptType(), registered.getScriptType());
+            assertEquals(script.getDatabaseInstance(), registered.getDatabaseInstance());
+            assertEquals(script.getScript(), registered.getScript());
+            assertEquals(script.getDescription(), registered.getDescription());
+            assertEquals(script.getName(), registered.getName());
+            assertEquals(script.getEntityKind(), registered.getEntityKind());
+        }
     }
 
     @Test(dataProvider = "scriptTypes")
