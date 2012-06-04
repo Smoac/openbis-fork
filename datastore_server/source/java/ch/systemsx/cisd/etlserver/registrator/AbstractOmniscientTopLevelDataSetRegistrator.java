@@ -243,6 +243,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     protected final OmniscientTopLevelDataSetRegistratorState state;
 
+    private final Class<T> clazz;
+
     private boolean stopped;
 
     /**
@@ -251,10 +253,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * @param globalState
      */
     protected AbstractOmniscientTopLevelDataSetRegistrator(
-            TopLevelDataSetRegistratorGlobalState globalState)
+            TopLevelDataSetRegistratorGlobalState globalState, Class<T> clazz)
     {
         super(globalState);
 
+        this.clazz = clazz;
         IStorageProcessorTransactional storageProcessor =
                 PropertiesBasedETLServerPlugin.create(IStorageProcessorTransactional.class,
                         globalState.getThreadParameters().getThreadProperties(),
@@ -661,10 +664,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings("unchecked")
         DataSetRegistrationService<T> service =
-                new DataSetRegistrationService(this, incomingDataSetFile,
-                        new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
+                new DataSetRegistrationService<T>(this, incomingDataSetFile,
+                        new DefaultDataSetRegistrationDetailsFactory<T>(clazz,
+                                getRegistratorState(),
                                 callerDataSetInformationOrNull), cleanAfterwardsAction, delegate);
         return service;
     }

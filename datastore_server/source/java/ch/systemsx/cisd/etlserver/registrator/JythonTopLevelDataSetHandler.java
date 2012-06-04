@@ -136,9 +136,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * 
      * @param globalState
      */
-    public JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
+    public JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
+            Class<T> clazz)
     {
-        super(globalState);
+        super(globalState, clazz);
 
         String path =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
@@ -481,12 +482,13 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeFunction(function, service, transaction);
     }
 
-    private void invokeTransactionFunctionWithContext(PyFunction function, DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
+    private void invokeTransactionFunctionWithContext(PyFunction function,
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
             Object... additionalArgs)
     {
         if (additionalArgs.length > 0)
         {
-            invokeFunction(function,  persistentMapHolder.getPersistentMap(),
+            invokeFunction(function, persistentMapHolder.getPersistentMap(),
                     additionalArgs);
         } else
         {

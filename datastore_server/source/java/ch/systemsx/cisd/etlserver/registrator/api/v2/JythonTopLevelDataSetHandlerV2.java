@@ -58,15 +58,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler<T>
 {
-
     /**
      * Constructor.
      * 
      * @param globalState
      */
-    public JythonTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
+    public JythonTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState,
+            Class<T> clazz)
     {
-        super(globalState);
+        super(globalState, clazz);
     }
 
     /**

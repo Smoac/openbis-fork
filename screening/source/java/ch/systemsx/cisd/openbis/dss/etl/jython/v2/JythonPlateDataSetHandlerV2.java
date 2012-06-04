@@ -52,7 +52,7 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
      */
     public JythonPlateDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
     {
-        super(globalState);
+        super(globalState, DataSetInformation.class);
         originalDirName = JythonPlateDataSetHandlerUtils.parseOriginalDir(globalState.getThreadParameters().getThreadProperties());
     }
     

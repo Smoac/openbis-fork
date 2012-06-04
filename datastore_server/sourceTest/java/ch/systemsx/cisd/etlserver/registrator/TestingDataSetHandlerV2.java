@@ -15,7 +15,7 @@ public class TestingDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<Data
     public TestingDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState,
             boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
     {
-        super(globalState);
+        super(globalState, DataSetInformation.class);
 
         this.expectations =
                 new TestingDataSetHandlerExpectations(shouldRegistrationFail,
