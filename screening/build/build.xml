@@ -385,8 +385,8 @@
     <delete dir="${dist.screening-api.javadoc}" />
     <zip destfile="${dist.screening-api.src}">
       <zipfileset dir="../screening/${sources}" includes="OpenBISScreeningML.java" />
-    	<zipfileset dir="../screening/${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
-      <zipfileset dir="../screening/${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*Facade.java" />
+    	<zipfileset dir="../screening/${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**/*.java" />
+      <zipfileset dir="../screening/${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.java" />
     </zip>
   	
   </target>
