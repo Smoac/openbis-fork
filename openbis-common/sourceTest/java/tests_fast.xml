@@ -1,0 +1,16 @@
+<suite name="All" verbose="1">
+    <test name="All">
+        <groups>
+            <run>
+                <exclude name="broken" />
+                <exclude name="slow" />
+            </run>
+        </groups>
+        <packages>
+            <package name="ch.systemsx.cisd.common.server.*" />
+            <package name="ch.systemsx.cisd.common.servlet" />
+            <package name="ch.systemsx.cisd.common.spring" />
+            <package name="ch.systemsx.cisd.common.spring.messaging" />
+        </packages>
+    </test>
+</suite>
