@@ -319,11 +319,28 @@ public class AlternativesStringFilter
             return m1.matches(value) && m2.matches(value);
         }
     }
+    
+    private static interface IMatcherFactory
+    {
+        Matcher tryToCreate(String description);
+    }
 
     /**
      * Sets a new filter <var>value</var>.
      */
     public void setFilterValue(String value)
+    {
+        setFilterValue(value, new IMatcherFactory()
+            {
+                @Override
+                public Matcher tryToCreate(String description)
+                {
+                    return tryGetNumericMatcher(description);
+                }
+            });
+    }
+    
+    public void setFilterValue(String value, IMatcherFactory factory)
     {
         alternatives.clear();
         boolean conjunct = false;
@@ -339,7 +356,7 @@ public class AlternativesStringFilter
             {
                 s = s.substring(1);
             }
-            Matcher matcher = tryGetNumericMatcher(s);
+            Matcher matcher = factory.tryToCreate(s);
             if (matcher == null)
             {
                 matcher = getStringMatcher(s);
@@ -357,22 +374,28 @@ public class AlternativesStringFilter
             alternatives.add(matcher);
         }
     }
+    
 
     public void setDateFilterValue(String value)
     {
-        alternatives.clear();
-
-        String filterValue = value;
-        ComparisonKind comparisonKindOrNull = null;
-        if (value != null && value.length() >= 2 && "<>=".indexOf(value.charAt(0)) > -1)
-        {
-            int operatorLength = (value.charAt(1) == '=') ? 2 : 1;
-            String operator = value.substring(0, operatorLength);
-            filterValue = value.substring(operatorLength);
-            comparisonKindOrNull = tryGetComparisonKind(operator);
-        }
-        Matcher matcher = new DateMatcher(filterValue, comparisonKindOrNull);
-        alternatives.add(matcher);
+        setFilterValue(value, new IMatcherFactory()
+            {
+                @Override
+                public Matcher tryToCreate(String description)
+                {
+                    String filterValue = description;
+                    ComparisonKind comparisonKindOrNull = null;
+                    if (description != null && description.length() >= 2
+                            && "<>=".indexOf(description.charAt(0)) > -1)
+                    {
+                        int operatorLength = (description.charAt(1) == '=') ? 2 : 1;
+                        String operator = description.substring(0, operatorLength);
+                        filterValue = description.substring(operatorLength);
+                        comparisonKindOrNull = tryGetComparisonKind(operator);
+                    }
+                    return new DateMatcher(filterValue, comparisonKindOrNull);
+                }
+            });
     }
 
     private Matcher tryGetNumericMatcher(String s)
