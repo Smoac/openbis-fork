@@ -93,7 +93,7 @@ function props_to_pairs(d)
 function displayReturnedSamples(data)
 {
 	if (data.error) {
-		console.log(error);
+		console.log(data.error);
 		vis.append("p").text("Could not retrieve data.");
 		return;
 	}
