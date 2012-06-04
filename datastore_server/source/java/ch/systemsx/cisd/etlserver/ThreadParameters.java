@@ -137,7 +137,7 @@ public final class ThreadParameters
     {
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties, threadName);
         this.createIncomingDirectories =
-                PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
+                PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, true);
         this.threadProperties = threadProperties;
         String registratorClassName =
                 PropertyUtils.getProperty(threadProperties, TOP_LEVEL_DATA_SET_HANDLER);
