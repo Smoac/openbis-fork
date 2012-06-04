@@ -110,7 +110,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         } catch (RuntimeException ex)
         {
             assertEquals("targets/unit-test-wd/ch.systemsx.cisd.openbis.installer.izpack."
-                    + "SetDisableTechnologiesVariableActionTest/servers/openBIS-server/jetty/"
+                    + "SetEnableTechnologiesVariableActionTest/servers/openBIS-server/jetty/"
                     + "etc/service.properties (No such file or directory)", ex.getMessage());
         }
     }
