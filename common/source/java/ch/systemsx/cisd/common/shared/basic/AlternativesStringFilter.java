@@ -212,6 +212,48 @@ public class AlternativesStringFilter
         }
     }
 
+    static class DateMatcher implements Matcher
+    {
+        private String filter;
+
+        private ComparisonKind comparisonKind;
+
+        DateMatcher(String filter, ComparisonKind comparison)
+        {
+            this.filter = filter;
+            this.comparisonKind = comparison;
+        }
+
+        @Override
+        public boolean matches(String value)
+        {
+            if (value == null)
+            {
+                return false;
+            }
+
+            if (comparisonKind == null || ComparisonKind.EQ.equals(this.comparisonKind))
+            {
+                return value.startsWith(filter);
+            } else
+            {
+                switch (this.comparisonKind)
+                {
+                    case LT:
+                        return value.compareTo(this.filter) < 0;
+                    case LE:
+                        return value.compareTo(this.filter) <= 0;
+                    case GT:
+                        return value.compareTo(this.filter) > 0;
+                    case GE:
+                        return value.compareTo(this.filter) >= 0;
+                    default:
+                        return false;
+                }
+            }
+        }
+    }
+
     static class NumericMatcher implements Matcher
     {
         protected final double filterValue;
@@ -314,6 +356,23 @@ public class AlternativesStringFilter
             }
             alternatives.add(matcher);
         }
+    }
+
+    public void setDateFilterValue(String value)
+    {
+        alternatives.clear();
+
+        String filterValue = value;
+        ComparisonKind comparisonKindOrNull = null;
+        if (value != null && value.length() >= 2 && "<>=".indexOf(value.charAt(0)) > -1)
+        {
+            int operatorLength = (value.charAt(1) == '=') ? 2 : 1;
+            String operator = value.substring(0, operatorLength);
+            filterValue = value.substring(operatorLength);
+            comparisonKindOrNull = tryGetComparisonKind(operator);
+        }
+        Matcher matcher = new DateMatcher(filterValue, comparisonKindOrNull);
+        alternatives.add(matcher);
     }
 
     private Matcher tryGetNumericMatcher(String s)

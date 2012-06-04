@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -96,6 +100,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             final GridRowModel<T> row)
     {
         Comparable<?> value = definition.tryGetComparableValue(row);
+
+        if (value != null && value instanceof DateTableCell)
+        {
+            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date d = ((DateTableCell) value).getDateTime();
+            return df.format(d);
+        }
+
         return value == null ? "" : value.toString();
     }
 
@@ -509,7 +521,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             final AlternativesStringFilter result = new AlternativesStringFilter();
             final String pattern = gridFilterInfo.tryGetFilterPattern().toLowerCase();
-            result.setFilterValue(pattern);
+
+            if (DataTypeCode.TIMESTAMP.equals(gridFilterInfo.getFilteredField().tryToGetDataType()))
+            {
+                result.setDateFilterValue(pattern);
+            } else
+            {
+                result.setFilterValue(pattern);
+            }
             return result;
         }
 
