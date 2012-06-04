@@ -131,9 +131,9 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected static final <T> List<T> cast(final List list)
+    protected static final <T> List<T> cast(final List<?> list)
     {
-        return list;
+        return (List<T>) list;
     }
 
     /**
