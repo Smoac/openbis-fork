@@ -462,10 +462,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     private void finishRegistration(ArrayList<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             RollbackStack rollbackStack)
     {
-        System.out.println("finish him");
         for (DataSetStorageAlgorithm<T> algorithm : dataSetStorageAlgorithms)
         {
-            System.out.println("finish him " + algorithm.getStagingFile());
             algorithm.getStagingFile().delete();
         }
         rollbackStack.discard();

@@ -423,6 +423,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return registrationDetails;
     }
 
+    /**
+     * The global staging directory where all datasets are kept during the registration
+     */
     public File getStagingDirectory()
     {
         return stagingDirectory;
@@ -431,6 +434,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     public File getPreCommitDirectory()
     {
         return preCommitDirectory;
+    }
+
+    /**
+     * @returns The staging file for this dataset. (combined path getStagingDirectory + dataSetCode)
+     */
+    public File getStagingFile()
+    {
+        return new File(stagingDirectory, dataSetInformation.getDataSetCode());
     }
 
     private static abstract class DataSetStorageAlgorithmState<T extends DataSetInformation>
