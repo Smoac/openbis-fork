@@ -155,7 +155,8 @@ public final class DefaultReturnValueFilterTest
     public final void testProceedWithList()
     {
         final PersonPE person = AuthorizationTestUtil.createSession().tryGetPerson();
-        final List<String> list = new ArrayList(Arrays.asList(StringUtilities.getStrings(2)));
+        final List<String> list =
+                new ArrayList<String>(Arrays.asList(StringUtilities.getStrings(2)));
         context.checking(new Expectations()
             {
                 {
