@@ -111,6 +111,12 @@ public class SampleImmutable implements ISampleImmutable
     }
 
     @Override
+    public String getPermId()
+    {
+        return sample.getPermId();
+    }
+
+    @Override
     public List<ISampleImmutable> getContainedSamples()
     {
         List<ISampleImmutable> result = new ArrayList<ISampleImmutable>();

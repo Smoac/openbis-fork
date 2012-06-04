@@ -67,4 +67,8 @@ public interface ISampleImmutable
      */
     List<ISampleImmutable> getContainedSamples();
 
+    /**
+     * Returns the permId of this sample.
+     */
+    String getPermId();
 }
