@@ -1,6 +1,6 @@
 <project name="installation" default="dist" basedir="..">
 	
-  <import file="../../server-common/build/build-common.xml" />
+  <import file="../../openbis-common/build/build-common.xml" />
 	
 	<project-classpath name="ecp" classes="${classes}" />
 

@@ -1,7 +1,7 @@
-<project name="server-common" basedir="..">
+<project name="openbis-common" basedir="..">
   <import file="../build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
-  <property name="mainfolder" value="server-common"/>
+  <property name="mainfolder" value="openbis-common"/>
 	
 
   <target name="ci" depends="build-common.ci, check-dependencies"/>

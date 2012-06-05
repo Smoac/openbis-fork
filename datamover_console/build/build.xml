@@ -1,5 +1,5 @@
 <project name="datamover_console" basedir="..">
-  <import file="../../server-common/build/build-common.xml" />
+  <import file="../../openbis-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
   <property name="mainfolder" value="datamover_console"/>
 
@@ -143,7 +143,7 @@
        <fileset dir="${application.server.resource}">
          <include name="spring-servlet.xml" />
        </fileset>
-        <fileset dir="../server-common/${server-resource}">
+        <fileset dir="../openbis-common/${server-resource}">
             <include name="web-common.xml" />
         </fileset>
     </copy>
@@ -152,7 +152,7 @@
     <war warfile="${webapp.file}" webxml="${application.server.resource}/web.xml">
     <fileset dir="${webapp.dist}" />
       <!-- Add 'applicationContext.xml' and related files. -->
-      <classes dir="../server-common/${sources}">
+      <classes dir="../openbis-common/${sources}">
         <include name="**/*.xml" />
       </classes>
       <classes dir="${sources}">

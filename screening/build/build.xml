@@ -18,7 +18,7 @@
 	
   <property name="classes.screening" value="../screening/targets/ant/classes" />
   <property name="classes.openbis" value="../openbis/targets/ant/classes" />
-  <property name="classes.common-server" value="../server-common/targets/ant/classes" />
+  <property name="classes.common-server" value="../openbis-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
 	<property name="screening-build.info.filename" value="BUILD-screening.INFO" />
 	<property name="screening-build.info.file" value="${classes.screening}/BUILD-screening.INFO" />
@@ -427,7 +427,7 @@
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
   		</fileset> 
-  		<fileset dir="../server-common/targets/classes">
+  		<fileset dir="../openbis-common/targets/classes">
   		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
 			     	<include name="ch/systemsx/cisd/common/api/client/**/*.class" />
   		</fileset> 
