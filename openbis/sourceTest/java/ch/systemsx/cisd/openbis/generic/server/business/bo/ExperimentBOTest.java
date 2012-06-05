@@ -81,7 +81,7 @@ public final class ExperimentBOTest extends AbstractBOTest
 
     private final ExperimentBO createExperimentBO()
     {
-        return new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, relationshipService);
     }
 
     @Test

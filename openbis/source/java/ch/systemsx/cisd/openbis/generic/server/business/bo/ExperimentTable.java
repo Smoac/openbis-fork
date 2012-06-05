@@ -27,9 +27,9 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -61,15 +61,19 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     private boolean dataChanged = false;
 
+    private IRelationshipService relationshipService;
+
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter)
     {
         super(daoFactory, session, converter);
     }
 
-    public ExperimentTable(final IDAOFactory daoFactory, final Session session)
+    public ExperimentTable(final IDAOFactory daoFactory, final Session session,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, EntityKind.EXPERIMENT);
+        this.relationshipService = relationshipService;
     }
 
     //
@@ -245,39 +249,11 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
         if (updates.isProjectUpdateRequested())
         {
-            updateProject(experiment, updates);
+            relationshipService
+                    .reassignProject(session, updates.getProjectIdentifier(),
+                            new ExperimentIdentifier(updates.getProjectIdentifier(), experiment
+                                    .getCode()));
         }
-    }
-
-    /**
-     * Modeled after {@link ExperimentBO#updateProject(SpaceIdentifier)}
-     */
-    private void updateProject(ExperimentPE experiment, ExperimentBatchUpdatesDTO updates)
-    {
-        ProjectPE project = findProject(updates.getProjectIdentifier());
-        ProjectPE previousProject = experiment.getProject();
-        if (project.equals(previousProject))
-        {
-            return; // nothing to change
-        }
-        // if the group has changes, move all samples to that group
-        if (project.getSpace().equals(previousProject.getSpace()) == false)
-        {
-            SampleUtils.setSamplesGroup(experiment, project.getSpace());
-        }
-        experiment.setProject(project);
-    }
-
-    private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
-    {
-        ProjectPE project =
-                getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
-                        newProjectIdentifier.getSpaceCode(), newProjectIdentifier.getProjectCode());
-        if (project == null)
-        {
-            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
-        }
-        return project;
     }
 
     private void batchUpdateProperties(ExperimentPE experiment, List<IEntityProperty> properties,

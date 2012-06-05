@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
@@ -123,6 +124,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected ICorePluginDAO corePluginDAO;
 
+    protected IRelationshipService relationshipService;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -156,6 +159,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         scriptDAO = context.mock(IScriptDAO.class);
         deletionDAO = context.mock(IDeletionDAO.class);
         corePluginDAO = context.mock(ICorePluginDAO.class);
+        relationshipService = context.mock(IRelationshipService.class);
         context.checking(new Expectations()
             {
                 {

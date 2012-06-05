@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -92,9 +93,13 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
 
-    public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
+    private IRelationshipService relationshipService;
+
+    public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, dssFactory);
+        this.relationshipService = relationshipService;
     }
 
     @Override
@@ -172,7 +177,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IExperimentTable createExperimentTable(final Session session)
     {
-        return new ExperimentTable(getDaoFactory(), session);
+        return new ExperimentTable(getDaoFactory(), session, relationshipService);
     }
 
     @Override
@@ -184,7 +189,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IExperimentBO createExperimentBO(final Session session)
     {
-        return new ExperimentBO(getDaoFactory(), session);
+        return new ExperimentBO(getDaoFactory(), session, relationshipService);
     }
 
     @Override

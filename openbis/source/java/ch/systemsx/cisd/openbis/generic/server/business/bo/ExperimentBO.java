@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -81,9 +82,13 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
-    public ExperimentBO(final IDAOFactory daoFactory, final Session session)
+    private IRelationshipService relationshipService;
+
+    public ExperimentBO(final IDAOFactory daoFactory, final Session session,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, EntityKind.EXPERIMENT);
+        this.relationshipService = relationshipService;
     }
 
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
@@ -416,7 +421,15 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throwModifiedEntityException("Experiment");
         }
         updateProperties(updates.getProperties());
-        updateProject(updates.getProjectIdentifier());
+
+        if (updates.getProjectIdentifier().getProjectCode().equals(
+                experiment.getProject().getCode()) == false)
+        {
+            relationshipService.reassignProject(session, updates.getProjectIdentifier(),
+                    new ExperimentIdentifier(updates.getProjectIdentifier(), experiment
+                            .getCode()));
+        }
+
         for (NewAttachment attachment : updates.getAttachments())
         {
             addAttachment(AttachmentTranslator.translate(attachment));
@@ -548,9 +561,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return new HashSet<String>(Arrays.asList(objects));
     }
 
-    /**
-     * See also {@link ExperimentTable#updateProject}.
-     */
     @Private
     void updateProject(ProjectIdentifier newProjectIdentifier)
     {

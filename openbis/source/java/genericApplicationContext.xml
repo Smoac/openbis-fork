@@ -22,6 +22,11 @@
         <property name="sessionFactory" ref="hibernate-session-factory" />
         <property name="jdbcExceptionTranslator" ref="exception-translator" />
     </bean>
+    
+    <bean id="relationship-service"
+        class="ch.systemsx.cisd.openbis.generic.server.RelationshipService">
+        <property name="sessionFactory" ref="hibernate-session-factory" />
+    </bean>
 
     <bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"
         factory-method="createOrMigrateDatabaseAndGetScriptProvider">
@@ -76,6 +81,7 @@
         class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
         <constructor-arg ref="dao-factory" />
         <constructor-arg ref="dss-factory" />
+        <constructor-arg ref="relationship-service" />
     </bean>
 
     <bean id="last-modification-state"
