@@ -128,12 +128,13 @@ end
 # The login command
 #
 class Login < JiraCommand
-  
+ 
   def initialize
     super
-    @jira_user = ARGV[1]
+    print "Enter jira login (e.g. alincoln): "
+    @jira_user = $stdin.gets().strip
   end
-    
+ 
   def description
     return "login"
   end
