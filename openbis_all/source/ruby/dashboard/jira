@@ -120,7 +120,24 @@ class Help < JiraCommand
   
   def run
     # show help
-    return "valid commands: login, sprint, dump, plan"
+return <<-eos
+NAME
+    jira
+
+SYNOPSIS
+    jira commmand [arguments]
+
+DESCRIPTION
+    A simple api for jira. Login as jira user and get some info. The available commands are:    
+
+	login	asks for login and password to jira and stores a session cookie
+
+	sprint S133	get the information about the given sprint
+
+	dump url	print given url in pure json
+
+	plan S133	shows planned BIS issues
+  eos
   end
 end
 
