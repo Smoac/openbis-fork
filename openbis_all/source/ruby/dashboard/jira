@@ -1,0 +1,348 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'json'
+require 'pp'
+
+#
+# = A wrapper for scripting jira
+#
+# Uses the Rest API: http://docs.atlassian.com/jira/REST/4.2.1/
+#
+# ----
+# 
+# This script requires the json gem:
+#
+#    http://flori.github.com/json/
+#
+# Which can be installed:
+#
+#   gem install json
+#
+
+#
+# == Preferences
+#
+
+# The url for JIRA
+$jira_url = 'https://jira-bsse.ethz.ch'
+
+# The url portion for the API
+$jira_api_url = "#{$jira_url}/rest/api/2.0.alpha1"
+
+# Prefs path
+$jira_prefs_path = File.expand_path('~/.jira')
+
+# Cookie location
+$jira_cookie_path = File.join($jira_prefs_path, 'cookie.txt')
+
+#
+# A module that implements some helpful operations
+#
+module JiraHelpers
+  def JiraHelpers.args(first_arg)
+    cmd = ARGV[first_arg .. -1].inject("") { | all, each | all + " " + each }
+    cmd.strip!
+    return cmd
+  end
+  
+  def JiraHelpers.search(query)
+    return `curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'jql=#{query}'`
+  end
+
+  # Search and return the full data for the found objects
+  def JiraHelpers.search_full(query, silent)
+    print "Retrieving issues" unless silent
+    ans = JiraHelpers.search(query)
+    data = JSON.load(ans)
+    full_issues = []
+    data["issues"].each do | issue |
+      print "." unless silent
+      issue_data = `curl -s --get --cookie #{$jira_cookie_path} #{issue["self"]}`
+      full_issues << JSON.load(issue_data)
+    end
+    print "\n" unless silent   
+    return full_issues
+  end
+  
+  def JiraHelpers.session_valid?
+    ans = `curl -s --head --get --cookie #{$jira_cookie_path} '#{$jira_url }/auth/1/session'`
+    return $?.to_i == 0
+  end
+end
+
+#
+# == Commands
+#
+
+#
+# The abstract superclass of commands
+# 
+class JiraCommand
+  
+  attr_accessor :silent
+  
+  def initialize
+    @silent = true
+  end
+  
+  # Return a description of the command to run
+  def description
+    return nil
+  end
+  
+  # Run the command and return the result
+  def run
+    return nil
+  end
+
+  # Return true if the result should be printed. 
+  #
+  # Default: print if the result is not empty.
+  def should_print_result(result)
+    return !result.empty? 
+  end
+  
+end
+
+#
+# The help command
+#
+class Help < JiraCommand
+  def description
+    return "help"
+  end
+  
+  def run
+    # show help
+    return "valid commands: login, sprint, dump, plan"
+  end
+end
+
+#
+# The login command
+#
+class Login < JiraCommand
+  
+  def initialize
+    super
+    @jira_user = ARGV[1]
+  end
+    
+  def description
+    return "login"
+  end
+  
+  def run
+    # The url portion for logging in
+    jira_login = 'secure/Dashboard.jspa?os_authType=basic'
+    Dir.mkdir($jira_prefs_path) unless File.exists?($jira_prefs_path)
+    return `curl --head -s -u #{@jira_user} --cookie-jar #{$jira_cookie_path} '#{$jira_url}/secure/Dashboard.jspa?os_authType=basic'`
+  end
+end
+
+#
+# Lists the issues in the sprint
+#
+class LoggedInCommand < JiraCommand
+  def run
+    Login.new.run unless File.exists?($jira_cookie_path)
+    Login.new.run unless JiraHelpers.session_valid?
+    return self.run_logged_in
+  end
+
+  # For subclasses to implement
+  def run_logged_in
+    return ""
+  end
+end
+
+#
+# Shows the JSON for an issue -- useful for debugging
+#
+class DumpIssue < LoggedInCommand
+  def initialize
+    super
+    @issueUrl = ARGV[1]
+  end
+  
+  def description
+    return "dump #{@issueUrl}"
+  end
+  
+  
+  def run_logged_in
+    if @issueUrl.nil?
+      ans =  JiraHelpers.search("project=SP AND fixVersion = S133 ORDER BY \"Global Rank\" ASC")
+      @issueUrl = JSON.load(ans)["issues"][0]["self"]
+    end
+
+    ans = `curl -s --get --cookie #{$jira_cookie_path} '#{@issueUrl}'`
+    data = JSON.load(ans)
+    return JSON.pretty_generate(data)
+  end
+  
+end
+
+#
+# Lists the issues in the sprint
+#
+class ListSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = ARGV[1]
+    @sprintNumber = "S" if @sprintNumber.nil?
+    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+  end
+  
+  def description
+    return "sprint #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    full_issues = JiraHelpers.search_full(query, @silent)
+    self.print_issues_table(full_issues)
+    # Nothing to show
+    return "#{full_issues.length} issues"
+  end
+  
+  def print_issues_table(full_issues)
+    header = "%8s\t%12s\t%6s\t%12s\t%8s\t%s" % ["Key", "Implements", "Time", "Status", "Tester", "Summary"]
+    puts header
+    time_remaining = 0.0
+    full_issues.each do | issue |
+      key = issue["key"]
+      fields = issue["fields"]
+      implements = nil
+      fields["links"]["value"].each { | link | implements = link["issueKey"] if "implements" == link["type"]["description"] }
+      time = fields["timetracking"]["value"] ? fields["timetracking"]["value"]["timeestimate"] : 0
+      status = fields["status"]["value"]["name"]
+      tester = fields["customfield_10250"]["value"] ? fields["customfield_10250"]["value"]["name"] : nil
+      summary = fields["summary"]["value"]
+      row = "%8s\t%12s\t%5.1fh\t%12s\t%8s\t%s" % [key, implements, time / 60.0, status, tester, summary]
+      puts row
+      
+      # Tasks that are resolved can be considered to have 0 time remaining
+      time_remaining = time_remaining + time unless status == "Resolved"
+    end
+    print " ", ("-" * 27), "\n"
+    puts "   Time Remaining : %.1fh" % (time_remaining / 60.0)
+  end  
+end
+
+#
+# List the issues slated for a sprint in a form that is helpful for planning
+#
+class PlanSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = ARGV[1]
+    @sprintNumber = "S" if @sprintNumber.nil?
+    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^S.*")
+  end
+  
+  def description
+    return "plan #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    sp_query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    sp_issues = JiraHelpers.search_full(sp_query, @silent)
+    init_sp_issue_dict(sp_issues)
+    
+    bis_query= "project = BIS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    bis_issues = JiraHelpers.search_full(bis_query, @silent)    
+    print_issues_table("BIS", bis_issues)
+    
+    ccs_query= "project = CCS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    ccs_issues = JiraHelpers.search_full(ccs_query, @silent)
+    print_issues_table("CCS", ccs_issues)
+
+    # Nothing to show
+    return "#{bis_issues.length} issues"
+  end
+  
+  def init_sp_issue_dict(sp_issues)
+    @sp_issue_dict = {}
+    sp_issues.each do | issue |
+      key = issue["key"]
+      @sp_issue_dict[key] = issue
+    end
+  end
+  
+  def print_issues_table(title, full_issues)
+    puts ("=" * 12)
+    puts title
+    puts ("-" * 12)
+    header = "%8s\t%12s\t%12s\t%6s\t%s" % ["Subtotal", "Key", "SP", "Time", "Summary"]
+    puts header
+    subtotal = 0.0
+    full_issues.each do | issue |
+      key = issue["key"]
+      fields = issue["fields"]
+      summary = fields["summary"]["value"]
+            
+      implementedby = []
+      fields["links"]["value"].each do | link | 
+        sp = link["issueKey"]
+        # We are only interested in links to issues in the specified sprint
+        next unless @sp_issue_dict[sp]
+        implementedby << sp if "is implemented by" == link["type"]["description"] 
+      end
+      
+      if implementedby.length < 1
+        row = "%8s\t%12s\t%12s\t%5.1fh\t%s" % ["----", key, "----", 0, summary]
+        puts row
+        next
+      end
+      
+      implementedby.each_with_index do | sp, index |
+        # print one row for each implemented by
+        spissue = @sp_issue_dict[sp]
+        next if spissue.nil?
+        spfields = spissue["fields"]
+        time = 0        
+        time = spfields["timetracking"]["value"]["timeestimate"] if spfields["timetracking"]["value"] != nil
+        if index < 1 
+          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, key, sp, time / 60.0, summary]
+        else
+          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, "\"", sp, time / 60.0, "\""]
+        end
+        puts row
+      
+        # Tasks that are resolved can be considered to have 0 time remaining
+        status = spfields["status"]["value"]["name"]
+        subtotal = subtotal + time unless status == "Resolved"
+      end
+    end
+  end  
+end
+
+def get_command
+  return Help.new if ARGV.length < 1
+  
+  ans = case ARGV[0]
+  when "login" then Login.new
+  when "sprint" then ListSprint.new
+  when "dump" then DumpIssue.new
+  when "plan" then PlanSprint.new
+  else Help.new
+  end
+
+  return ans  
+end
+
+
+#
+# == Main logic
+# 
+cmd = get_command
+
+result = cmd.run
+
+if cmd.should_print_result(result)
+  puts result
+end
