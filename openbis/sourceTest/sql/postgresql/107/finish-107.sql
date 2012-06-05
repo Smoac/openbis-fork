@@ -679,16 +679,3 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships_history FROM gpawel;
-GRANT ALL ON TABLE data_set_relationships_history TO gpawel;
-GRANT SELECT ON TABLE data_set_relationships_history TO openbis_readonly;
-REVOKE ALL ON TABLE experiment_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE experiment_relationships_history FROM gpawel;
-GRANT ALL ON TABLE experiment_relationships_history TO gpawel;
-GRANT SELECT ON TABLE experiment_relationships_history TO openbis_readonly;
-REVOKE ALL ON TABLE sample_relationships_history FROM PUBLIC;
-REVOKE ALL ON TABLE sample_relationships_history FROM gpawel;
-GRANT ALL ON TABLE sample_relationships_history TO gpawel;
-GRANT SELECT ON TABLE sample_relationships_history TO openbis_readonly;
-
