@@ -7,6 +7,11 @@ require 'pp'
 #
 # = A wrapper for scripting jira
 #
+# Try the following commands:
+#
+#   jira sprint S133  [lists the tasks in S133]
+#   jira plan S134    [shows the tasks planned for S134 in a form suitable for planning]
+#
 # Uses the Rest API: http://docs.atlassian.com/jira/REST/4.2.1/
 #
 # ----
