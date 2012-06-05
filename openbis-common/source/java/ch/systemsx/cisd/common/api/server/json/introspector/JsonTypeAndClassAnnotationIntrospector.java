@@ -68,8 +68,15 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
             return super.findTypeResolver(config, ac, baseType);
         } else
         {
-            // for our classes (ones with @JsonObject annotation) use the custom deserializer
-            return new JsonTypeAndClassResolverBuilder(classValueToClassObjectsMapping);
+            if (ac.getRawType().isEnum())
+            {
+                // for enumerations also use a default implementation
+                return super.findTypeResolver(config, ac, baseType);
+            } else
+            {
+                // for our classes (ones with @JsonObject annotation) use the custom deserializer
+                return new JsonTypeAndClassResolverBuilder(classValueToClassObjectsMapping);
+            }
         }
     }
 

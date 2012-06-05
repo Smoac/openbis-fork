@@ -67,13 +67,6 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     }
 
     @Override
-    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-    {
-        return deserializeWithoutType(jp, ctxt, null);
-    }
-
-    @Override
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {

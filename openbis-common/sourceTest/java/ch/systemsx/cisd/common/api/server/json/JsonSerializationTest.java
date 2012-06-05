@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.common.api.server.json;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes.NestedEnum;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
@@ -40,7 +44,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeRootType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeValues(values, false);
 
         ObjectWithType object = new ObjectWithType();
@@ -52,7 +56,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeRootTypeEmpty() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeValues(values, true);
 
         ObjectWithType object = new ObjectWithType();
@@ -63,7 +67,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeFirstLevelSubType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeAValues(values, false);
 
         ObjectWithTypeA object = new ObjectWithTypeA();
@@ -75,7 +79,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeFirstLevelSubTypeEmpty() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeAValues(values, true);
 
         ObjectWithTypeA object = new ObjectWithTypeA();
@@ -86,7 +90,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeSecondLevelSubType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeAAValues(values, false);
 
         ObjectWithTypeAA object = new ObjectWithTypeAA();
@@ -98,7 +102,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeSecondLevelSubTypeEmpty() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeAAValues(values, true);
 
         ObjectWithTypeAA object = new ObjectWithTypeAA();
@@ -109,7 +113,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeNestedRootType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeNestedValues(values, false);
 
         ObjectNested object = new ObjectNested();
@@ -121,7 +125,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeNestedRootTypeEmpty() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeNestedValues(values, true);
 
         ObjectNested object = new ObjectNested();
@@ -132,7 +136,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeNestedSubType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeNestedChildValues(values, false);
 
         ObjectNestedChild object = new ObjectNestedChild();
@@ -144,7 +148,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializeNestedSubTypeEmpty() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeNestedChildValues(values, true);
 
         ObjectNestedChild object = new ObjectNestedChild();
@@ -155,7 +159,7 @@ public class JsonSerializationTest
     @Test
     public void testSerializePolymorphicType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeValues(values, false);
 
         ObjectWithType object = new ObjectWithType();
@@ -167,11 +171,23 @@ public class JsonSerializationTest
     @Test
     public void testSerializeNotPolymorphicType() throws Exception
     {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
         putObjectWithTypeButNoSubtypesValues(values, false);
 
         ObjectWithTypeButNoSubtypes object = new ObjectWithTypeButNoSubtypes();
         setObjectWithTypeButNoSubtypesFields(object);
+
+        serializeObjectAndCheckItsValues(object, values);
+    }
+
+    @Test
+    public void testSerializeObjectWithEnumTypes() throws Exception
+    {
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        putObjectWithEnumTypesValues(values, false);
+
+        ObjectWithEnumTypes object = new ObjectWithEnumTypes();
+        setObjectWithEnumTypesFields(object);
 
         serializeObjectAndCheckItsValues(object, values);
     }
@@ -294,18 +310,45 @@ public class JsonSerializationTest
         object.b = "bValue";
     }
 
+    private void putObjectWithEnumTypesValues(Map<String, Object> map, boolean empty)
+    {
+        map.put("@type", "ObjectWithEnumTypes");
+
+        if (empty)
+        {
+            map.put("enumField", null);
+            map.put("enumSet", null);
+            map.put("enumMap", null);
+        } else
+        {
+            EnumSet<NestedEnum> enumSet = EnumSet.of(NestedEnum.VALUE1, NestedEnum.VALUE3);
+            EnumMap<NestedEnum, Object> enumMap =
+                    new EnumMap<NestedEnum, Object>(Collections.singletonMap(NestedEnum.VALUE2,
+                            "value2"));
+
+            map.put("enumField", "VALUE1");
+            map.put("enumSet", enumSet);
+            map.put("enumMap", enumMap);
+        }
+    }
+
+    private void setObjectWithEnumTypesFields(ObjectWithEnumTypes object)
+    {
+        EnumSet<NestedEnum> enumSet = EnumSet.of(NestedEnum.VALUE1, NestedEnum.VALUE3);
+        EnumMap<NestedEnum, Object> enumMap =
+                new EnumMap<NestedEnum, Object>(Collections.singletonMap(NestedEnum.VALUE2,
+                        "value2"));
+
+        object.enumField = NestedEnum.VALUE1;
+        object.enumSet = enumSet;
+        object.enumMap = enumMap;
+    }
+
     private void serializeObjectAndCheckItsValues(Object object, Map<String, Object> expectedMap)
             throws Exception
     {
         String jsonFromObject = new JsonTestObjectMapper().writeValueAsString(object);
-
-        TypeReference<HashMap<String, Object>> mapType =
-                new TypeReference<HashMap<String, Object>>()
-                    {
-                    };
-
-        Map<String, Object> mapFromObject = new ObjectMapper().readValue(jsonFromObject, mapType);
-
-        Assert.assertEquals(mapFromObject, expectedMap);
+        String jsonFromExpectedMap = new ObjectMapper().writeValueAsString(expectedMap);
+        Assert.assertEquals(jsonFromObject, jsonFromExpectedMap);
     }
 }
