@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccess;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithRenamedProperties;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
@@ -75,6 +76,7 @@ public class JsonTestObjectMapper extends ObjectMapper
                 ObjectWithIgnoredProperties.class);
         classMapping.addClass(".LegacyObjectWithRenamedProperties",
                 ObjectWithRenamedProperties.class);
+        classMapping.addClass(".LegacyObjectWithPrivateAccess", ObjectWithPrivateAccess.class);
 
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(classMapping));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(subTypesMapping));

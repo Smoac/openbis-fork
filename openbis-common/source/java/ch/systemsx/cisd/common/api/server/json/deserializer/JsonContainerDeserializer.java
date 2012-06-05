@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.api.server.json.deserializer;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -36,6 +38,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.deser.BeanDeserializer;
 import org.codehaus.jackson.map.deser.BeanDeserializerFactory;
 import org.codehaus.jackson.map.deser.SettableBeanProperty;
+import org.codehaus.jackson.map.introspect.BasicBeanDescription;
+import org.codehaus.jackson.map.util.ClassUtil;
 import org.codehaus.jackson.type.JavaType;
 
 import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;
@@ -229,7 +233,7 @@ public class JsonContainerDeserializer extends JsonDeserializer<Object>
 
             try
             {
-                Object instance = tryCreateInstance(clazz);
+                Object instance = tryCreateInstance(clazz, ctxt);
 
                 Iterator<SettableBeanProperty> properties = tryGetProperties(clazz, ctxt);
                 if (properties != null)
@@ -276,17 +280,29 @@ public class JsonContainerDeserializer extends JsonDeserializer<Object>
         return clazz;
     }
 
-    private Object tryCreateInstance(Class<?> clazz) throws IOException
+    private Object tryCreateInstance(Class<?> clazz, DeserializationContext ctxt)
+            throws IOException
     {
         try
         {
-            return clazz.newInstance();
+            JavaType type = ctxt.getConfig().getTypeFactory().constructType(clazz);
+            BasicBeanDescription beanDesc = ctxt.getConfig().introspect(type);
+            Constructor<?> defaultConstructor = beanDesc.findDefaultConstructor();
+            ClassUtil.checkAndFixAccess(defaultConstructor);
+            return defaultConstructor.newInstance();
+
         } catch (InstantiationException e)
         {
-            return new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
+            throw new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
         } catch (IllegalAccessException e)
         {
-            return new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
+            throw new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
+        } catch (IllegalArgumentException e)
+        {
+            throw new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
+        } catch (InvocationTargetException e)
+        {
+            throw new JsonMappingException("Couldn't create an instance of class: " + clazz, e);
         }
     }
 

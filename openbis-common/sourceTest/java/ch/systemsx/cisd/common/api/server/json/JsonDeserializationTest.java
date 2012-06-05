@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccess;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithRenamedProperties;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
@@ -207,6 +208,13 @@ public class JsonDeserializationTest
     {
         testDeserializeObjectWithRenamedProperties("@type", "ObjectWithRenamedProperties");
         testDeserializeObjectWithRenamedProperties("@class", ".LegacyObjectWithRenamedProperties");
+    }
+
+    @Test
+    public void testDeserializeJsonWithPrivateAccess() throws Exception
+    {
+        testDeserializeObjectWithPrivateAccess("@type", "ObjectWithPrivateAccess");
+        testDeserializeObjectWithPrivateAccess("@class", ".LegacyObjectWithPrivateAccess");
     }
 
     @Test(expectedExceptions = JsonMappingException.class)
@@ -480,6 +488,23 @@ public class JsonDeserializationTest
         Assert.assertEquals(object.getY(), "propertyWithGetterAndSetterRenamedValue");
     }
 
+    private void testDeserializeObjectWithPrivateAccess(String typeField, String typeValue)
+            throws Exception
+    {
+        Map<String, Object> objectMap = new HashMap<String, Object>();
+        if (typeField != null && typeValue != null)
+        {
+            objectMap.put(typeField, typeValue);
+        }
+
+        objectMap.put("field", "fieldValue");
+
+        ObjectWithPrivateAccess object = deserialize(objectMap, ObjectWithPrivateAccess.class);
+
+        Assert.assertNotNull(object);
+        Assert.assertEquals(object.getField(), "fieldValue");
+    }
+
     private void testDeserializeObjectWithPrimitiveTypes(String typeField, String typeValue)
             throws Exception
     {
@@ -682,12 +707,27 @@ public class JsonDeserializationTest
         return itemWithUnknownClass;
     }
 
+    private Map<String, Object> createItemWithPrivateAccess()
+    {
+        Map<String, Object> itemWithPrivateAccess = new HashMap<String, Object>();
+        itemWithPrivateAccess.put("@class", ".LegacyObjectWithPrivateAccess");
+        itemWithPrivateAccess.put("field", "itemWithPrivateAccess_field");
+        return itemWithPrivateAccess;
+    }
+
     @SuppressWarnings(
         { "rawtypes", "unchecked" })
     private void assertItemWithUnknownClass(Object object)
     {
         Assert.assertTrue(object instanceof Map);
         Assert.assertEquals(new HashMap((Map) object), createItemWithUnknownClass());
+    }
+
+    private void assertItemWithPrivateAccess(Object object)
+    {
+        Assert.assertEquals(object.getClass(), ObjectWithPrivateAccess.class);
+        ObjectWithPrivateAccess itemWithPrivateAccess = (ObjectWithPrivateAccess) object;
+        Assert.assertEquals("itemWithPrivateAccess_field", itemWithPrivateAccess.getField());
     }
 
     @SuppressWarnings(
@@ -700,6 +740,7 @@ public class JsonDeserializationTest
         collection.add(createItemWithKnownButNotUniqueClass());
         collection.add(createItemWithUnknownType());
         collection.add(createItemWithUnknownClass());
+        collection.add(createItemWithPrivateAccess());
 
         Map map = new HashMap();
         map.put("itemWithKnownType", createItemWithKnownType());
@@ -707,6 +748,7 @@ public class JsonDeserializationTest
         map.put("itemWithKnownButNotUniqueClass", createItemWithKnownButNotUniqueClass());
         map.put("itemWithUnknownType", createItemWithUnknownType());
         map.put("itemWithUnknownClass", createItemWithUnknownClass());
+        map.put("itemWithPrivateAccess", createItemWithPrivateAccess());
 
         List list = new ArrayList();
         list.add(createItemWithKnownType());
@@ -714,6 +756,7 @@ public class JsonDeserializationTest
         list.add(createItemWithKnownButNotUniqueClass());
         list.add(createItemWithUnknownType());
         list.add(createItemWithUnknownClass());
+        list.add(createItemWithPrivateAccess());
 
         Map<String, Object> object = new HashMap<String, Object>();
 
@@ -752,25 +795,27 @@ public class JsonDeserializationTest
         { "rawtypes" })
     private void assertItemsCollection(Collection collection)
     {
-        Assert.assertEquals(collection.size(), 5);
+        Assert.assertEquals(collection.size(), 6);
         Iterator iterator = collection.iterator();
         assertItemWithKnownType(iterator.next());
         assertItemWithKnownUniqueClass(iterator.next());
         assertItemWithKnownButNotUniqueClass(iterator.next());
         assertItemWithUnknownType(iterator.next());
         assertItemWithUnknownClass(iterator.next());
+        assertItemWithPrivateAccess(iterator.next());
     }
 
     @SuppressWarnings(
         { "rawtypes" })
     private void assertItemsMap(Map map)
     {
-        Assert.assertEquals(map.size(), 5);
+        Assert.assertEquals(map.size(), 6);
         assertItemWithKnownType(map.get("itemWithKnownType"));
         assertItemWithKnownUniqueClass(map.get("itemWithKnownUniqueClass"));
         assertItemWithKnownButNotUniqueClass(map.get("itemWithKnownButNotUniqueClass"));
         assertItemWithUnknownType(map.get("itemWithUnknownType"));
         assertItemWithUnknownClass(map.get("itemWithUnknownClass"));
+        assertItemWithPrivateAccess(map.get("itemWithPrivateAccess"));
     }
 
     @SuppressWarnings("unchecked")
