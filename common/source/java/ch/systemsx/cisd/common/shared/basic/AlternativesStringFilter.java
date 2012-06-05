@@ -218,10 +218,16 @@ public class AlternativesStringFilter
 
         private ComparisonKind comparisonKind;
 
+        private String filterForGreater;
+
         DateMatcher(String filter, ComparisonKind comparison)
         {
             this.filter = filter;
             this.comparisonKind = comparison;
+            String[] splitted = filter.split("-");
+            filterForGreater =
+                    splitted[0] + "-" + (splitted.length > 1 ? splitted[1] : "12") + "-"
+                            + (splitted.length > 2 ? splitted[2] : "31") + " 23:59:59";
         }
 
         @Override
@@ -244,7 +250,7 @@ public class AlternativesStringFilter
                     case LE:
                         return value.compareTo(this.filter) < 0 || value.startsWith(filter);
                     case GT:
-                        return value.compareTo(this.filter) > 0;
+                        return value.compareTo(filterForGreater) > 0;
                     case GE:
                         return value.compareTo(this.filter) > 0 || value.startsWith(filter);
                     default:

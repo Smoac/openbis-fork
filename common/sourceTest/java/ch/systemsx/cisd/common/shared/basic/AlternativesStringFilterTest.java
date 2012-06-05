@@ -44,13 +44,56 @@ public class AlternativesStringFilterTest
     }
     
     @Test
+    public void testYearMatching()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("=2011");
+        assertTrue(filter.passes("2011-12-31 23:59:59"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2011-01-01 00:00:00"));
+        assertFalse(filter.passes("2012-01-01 00:00:00"));
+        assertFalse(filter.passes("2010-12-31 23:59:59"));
+    }
+    
+    @Test
+    public void testMonthMatching()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("=2011-07");
+        assertTrue(filter.passes("2011-07-31 23:59:59"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2011-07-01 00:00:00"));
+        assertFalse(filter.passes("2011-08-01 00:00:00"));
+        assertFalse(filter.passes("2011-06-30 23:59:59"));
+    }
+    
+    @Test
     public void testDateMatching()
     {
         AlternativesStringFilter filter = prepareDateFilter("=2011-07-21");
         assertTrue(filter.passes("2011-07-21 10:22:33"));
-        assertTrue(filter.passes("2011-07-21"));
-        assertFalse(filter.passes("2011-07-20"));
-        assertFalse(filter.passes("2010-07-21"));
+        assertFalse(filter.passes("2011-07-20 10:22:33"));
+        assertFalse(filter.passes("2010-07-21 10:22:33"));
+    }
+    
+    @Test
+    public void testYearMatchingBefore()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("<2011");
+        assertTrue(filter.passes("2010-12-31 23:59:59"));
+        assertTrue(filter.passes("2010-07-21 11:22:33"));
+        assertFalse(filter.passes("2011-01-01 00:00:00"));
+        assertFalse(filter.passes("2011-07-22 10:22:33"));
+        assertFalse(filter.passes("2012-01-22 10:22:33"));
+    }
+    
+    @Test
+    public void testMonthMatchingBefore()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("<2011-07");
+        assertTrue(filter.passes("2011-06-30 23:59:59"));
+        assertTrue(filter.passes("2010-07-21 11:22:33"));
+        assertFalse(filter.passes("2011-07-01 00:00:00"));
+        assertFalse(filter.passes("2011-07-22 10:22:33"));
+        assertFalse(filter.passes("2011-08-22 10:22:33"));
     }
     
     @Test
@@ -58,52 +101,122 @@ public class AlternativesStringFilterTest
     {
         AlternativesStringFilter filter = prepareDateFilter("<2011-07-21");
         assertTrue(filter.passes("2011-07-20 10:22:33"));
-        assertTrue(filter.passes("2011-07"));
-        assertFalse(filter.passes("2011-07-21"));
-        assertFalse(filter.passes("2011-07-22"));
+        assertTrue(filter.passes("2011-07-19 23:22:33"));
+        assertFalse(filter.passes("2011-07-21 10:22:33"));
+        assertFalse(filter.passes("2011-07-22 10:22:33"));
+    }
+    
+    @Test
+    public void testYearMatchingBeforeAndEqual()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("<=2011");
+        assertTrue(filter.passes("2011-12-31 23:59:59"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2010-06-01 00:22:33"));
+        assertFalse(filter.passes("2012-01-01 00:00:00"));
+        assertFalse(filter.passes("2012-09-23 10:22:33"));
+        assertFalse(filter.passes("2014-06-23 10:22:33"));
+    }
+    
+    @Test
+    public void testMonthMatchingBeforeAndEqual()
+    {
+        AlternativesStringFilter filter = prepareDateFilter("<=2011-07");
+        assertTrue(filter.passes("2011-07-31 23:59:59"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2011-06-01 00:22:33"));
+        assertTrue(filter.passes("2010-06-01 00:22:33"));
+        assertFalse(filter.passes("2011-08-01 00:00:00"));
+        assertFalse(filter.passes("2011-09-23 10:22:33"));
+        assertFalse(filter.passes("2012-06-23 10:22:33"));
     }
     
     @Test
     public void testDateMatchingBeforeAndEqual()
     {
         AlternativesStringFilter filter = prepareDateFilter("<=2011-07-21");
-        assertTrue(filter.passes("2011-07-20"));
+        assertTrue(filter.passes("2011-07-20 10:22:33"));
         assertTrue(filter.passes("2011-07-21 10:22:33"));
-        assertTrue(filter.passes("2011-07-21"));
-        assertFalse(filter.passes("2011-07-22"));
-        assertFalse(filter.passes("2011-07-23"));
+        assertTrue(filter.passes("2011-07-21 00:22:33"));
+        assertFalse(filter.passes("2011-07-22 10:22:33"));
+        assertFalse(filter.passes("2011-07-23 10:22:33"));
+    }
+    
+    @Test
+    public void testYearMatchingAfter()
+    {
+        AlternativesStringFilter filter = prepareDateFilter(">2011");
+        assertTrue(filter.passes("2013-07-23 10:22:33"));
+        assertTrue(filter.passes("2012-01-01 00:00:00"));
+        assertFalse(filter.passes("2011-12-31 23:59:59"));
+        assertFalse(filter.passes("2010-04-20 10:22:33"));
+    }
+    
+    @Test
+    public void testMonthMatchingAfter()
+    {
+        AlternativesStringFilter filter = prepareDateFilter(">2011-07");
+        assertTrue(filter.passes("2012-07-23 10:22:33"));
+        assertTrue(filter.passes("2011-08-01 00:00:00"));
+        assertFalse(filter.passes("2011-07-31 23:59:59"));
+        assertFalse(filter.passes("2011-04-20 10:22:33"));
     }
     
     @Test
     public void testDateMatchingAfter()
     {
         AlternativesStringFilter filter = prepareDateFilter(">2011-07-21");
+        assertTrue(filter.passes("2011-07-23 10:22:33"));
         assertTrue(filter.passes("2011-07-22 10:22:33"));
-        assertTrue(filter.passes("2011-07-22"));
-        assertFalse(filter.passes("2011-07-21"));
-        assertFalse(filter.passes("2011-07-20"));
+        assertFalse(filter.passes("2011-07-21 10:22:33"));
+        assertFalse(filter.passes("2011-07-20 10:22:33"));
+    }
+    
+    @Test
+    public void testYearMatchingAfterAndEqual()
+    {
+        AlternativesStringFilter filter = prepareDateFilter(">=2011");
+        assertTrue(filter.passes("2012-04-22 10:22:33"));
+        assertTrue(filter.passes("2011-08-22 10:22:33"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2011-01-01 00:00:00"));
+        assertFalse(filter.passes("2010-12-31 23:59:59"));
+        assertFalse(filter.passes("2009-07-19 10:22:33"));
+    }
+    
+    @Test
+    public void testMonthMatchingAfterAndEqual()
+    {
+        AlternativesStringFilter filter = prepareDateFilter(">=2011-07");
+        assertTrue(filter.passes("2012-04-22 10:22:33"));
+        assertTrue(filter.passes("2011-08-22 10:22:33"));
+        assertTrue(filter.passes("2011-07-21 10:22:33"));
+        assertTrue(filter.passes("2011-07-01 00:00:00"));
+        assertFalse(filter.passes("2011-06-30 23:59:59"));
+        assertFalse(filter.passes("2010-07-19 10:22:33"));
     }
     
     @Test
     public void testDateMatchingAfterAndEqual()
     {
         AlternativesStringFilter filter = prepareDateFilter(">=2011-07-21");
-        assertTrue(filter.passes("2011-07-22"));
+        assertTrue(filter.passes("2012-06-12 10:22:33"));
+        assertTrue(filter.passes("2011-07-22 10:22:33"));
         assertTrue(filter.passes("2011-07-21 10:22:33"));
-        assertTrue(filter.passes("2011-07-21"));
-        assertFalse(filter.passes("2011-07-20"));
-        assertFalse(filter.passes("2011-07-19"));
+        assertTrue(filter.passes("2011-07-21 00:22:33"));
+        assertFalse(filter.passes("2011-07-20 10:22:33"));
+        assertFalse(filter.passes("2011-07-19 10:22:33"));
     }
     
     @Test
     public void testDateMatchingRange()
     {
-        AlternativesStringFilter filter = prepareDateFilter(">2011 & <2011-07");
+        AlternativesStringFilter filter = prepareDateFilter(">2010 & <2011-07");
         assertTrue(filter.passes("2011-06-03 10:22:33"));
-        assertTrue(filter.passes("2011-06-03"));
-        assertFalse(filter.passes("2011-07-01"));
+        assertTrue(filter.passes("2011-06-13 10:22:33"));
+        assertFalse(filter.passes("2011-07-01 10:22:33"));
         assertFalse(filter.passes("2011-07-01 00:00:01"));
-        assertFalse(filter.passes("2010-12-31"));
+        assertFalse(filter.passes("2010-12-31 10:22:33"));
         assertFalse(filter.passes("2010-12-31 23:59:59"));
     }
     
@@ -112,7 +225,6 @@ public class AlternativesStringFilterTest
     {
         AlternativesStringFilter filter = prepareDateFilter("");
         assertTrue(filter.passes("2011-06-03 10:22:33"));
-        assertTrue(filter.passes("2011-06-03"));
         assertTrue(filter.passes("2011-07-01 12:13:14"));
     }
     
@@ -121,7 +233,7 @@ public class AlternativesStringFilterTest
     {
         AlternativesStringFilter filter = prepareDateFilter("2011");
         assertTrue(filter.passes("2011-06-03 10:22:33"));
-        assertTrue(filter.passes("2011-06-03"));
+        assertTrue(filter.passes("2011-11-22 10:22:33"));
         assertFalse(filter.passes("2010-12-31 23:59:59"));
         assertFalse(filter.passes("2012-11-06 13:14:15"));
     }
