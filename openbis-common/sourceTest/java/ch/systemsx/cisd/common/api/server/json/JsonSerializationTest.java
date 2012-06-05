@@ -28,8 +28,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes.NestedEnum;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAA;
@@ -181,6 +183,30 @@ public class JsonSerializationTest
     }
 
     @Test
+    public void testSerializeObjectWithPrimitiveTypes() throws Exception
+    {
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        putObjectWithPrimitiveTypesValues(values, false);
+
+        ObjectWithPrimitiveTypes object = new ObjectWithPrimitiveTypes();
+        setObjectWithPrimitiveTypesFields(object);
+
+        serializeObjectAndCheckItsValues(object, values);
+    }
+
+    @Test
+    public void testSerializeObjectWithNestedTypes() throws Exception
+    {
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        putObjectWithNestedTypesValues(values, false);
+
+        ObjectWithNestedTypes object = new ObjectWithNestedTypes();
+        setObjectWithNestedTypesFields(object);
+
+        serializeObjectAndCheckItsValues(object, values);
+    }
+
+    @Test
     public void testSerializeObjectWithEnumTypes() throws Exception
     {
         Map<String, Object> values = new LinkedHashMap<String, Object>();
@@ -308,6 +334,79 @@ public class JsonSerializationTest
     {
         object.a = "aValue";
         object.b = "bValue";
+    }
+
+    private void putObjectWithPrimitiveTypesValues(Map<String, Object> map, boolean empty)
+    {
+        map.put("@type", "ObjectWithPrimitiveTypes");
+
+        if (empty)
+        {
+            map.put("stringField", null);
+            map.put("integerObjectField", null);
+            map.put("floatObjectField", null);
+            map.put("doubleObjectField", null);
+            map.put("integerField", null);
+            map.put("floatField", null);
+            map.put("doubleField", null);
+        } else
+        {
+            map.put("stringField", "stringValue");
+            map.put("integerObjectField", new Integer(1));
+            map.put("floatObjectField", new Float(2.5f));
+            map.put("doubleObjectField", new Double(3.5f));
+            map.put("integerField", 4);
+            map.put("floatField", 5.5f);
+            map.put("doubleField", 6.5d);
+        }
+    }
+
+    private void setObjectWithPrimitiveTypesFields(ObjectWithPrimitiveTypes object)
+    {
+        object.stringField = "stringValue";
+        object.integerObjectField = new Integer(1);
+        object.floatObjectField = new Float(2.5f);
+        object.doubleObjectField = new Double(3.5f);
+        object.integerField = 4;
+        object.floatField = 5.5f;
+        object.doubleField = 6.5d;
+    }
+
+    private void putObjectWithNestedTypesValues(Map<String, Object> map, boolean empty)
+    {
+        map.put("@type", "ObjectWithNestedTypes");
+
+        if (empty)
+        {
+            map.put("propertyNested", null);
+            map.put("propertyNestedChild", null);
+        } else
+        {
+            Map<String, Object> nested = new LinkedHashMap<String, Object>();
+            nested.put("@type", "ObjectNested");
+            nested.put("nested", "nestedValue");
+
+            Map<String, Object> nestedChild = new LinkedHashMap<String, Object>();
+            nestedChild.put("@type", "ObjectNestedChild");
+            nestedChild.put("nested", "nestedValue");
+            nestedChild.put("nestedChild", "nestedChildValue");
+
+            map.put("propertyNested", nestedChild);
+            map.put("propertyNestedChild", nestedChild);
+        }
+    }
+
+    private void setObjectWithNestedTypesFields(ObjectWithNestedTypes object)
+    {
+        ObjectNested nested = new ObjectNested();
+        nested.nested = "nestedValue";
+
+        ObjectNestedChild nestedChild = new ObjectNestedChild();
+        nestedChild.nested = "nestedValue";
+        nestedChild.nestedChild = "nestedChildValue";
+
+        object.propertyNested = nestedChild;
+        object.propertyNestedChild = nestedChild;
     }
 
     private void putObjectWithEnumTypesValues(Map<String, Object> map, boolean empty)

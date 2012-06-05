@@ -553,17 +553,12 @@ public class JsonDeserializationTest
         nestedChild.put("nested", "nestedValue");
         nestedChild.put("nestedChild", "nestedChildValue");
 
-        // TODO check why it fails
-        // objectMap.put("propertyObject", nested);
         objectMap.put("propertyNested", nestedChild);
         objectMap.put("propertyNestedChild", nestedChild);
 
         ObjectWithNestedTypes object = deserialize(objectMap, ObjectWithNestedTypes.class);
 
         Assert.assertNotNull(object);
-
-        // ObjectNested propertyObject = (ObjectNested) object.propertyObject;
-        // Assert.assertEquals("nestedValue", propertyObject.nested);
 
         ObjectNestedChild propertyNested = (ObjectNestedChild) object.propertyNested;
         Assert.assertEquals("nestedValue", propertyNested.nested);
