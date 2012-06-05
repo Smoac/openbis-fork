@@ -242,11 +242,11 @@ public class AlternativesStringFilter
                     case LT:
                         return value.compareTo(this.filter) < 0;
                     case LE:
-                        return value.compareTo(this.filter) <= 0;
+                        return value.compareTo(this.filter) < 0 || value.startsWith(filter);
                     case GT:
                         return value.compareTo(this.filter) > 0;
                     case GE:
-                        return value.compareTo(this.filter) >= 0;
+                        return value.compareTo(this.filter) > 0 || value.startsWith(filter);
                     default:
                         return false;
                 }
