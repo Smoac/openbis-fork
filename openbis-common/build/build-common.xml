@@ -19,7 +19,7 @@
     		<mkdir dir="${targets.www.web-inf}" />
         <copy todir="${targets.www.web-inf}" overwrite="true" failonerror="true">
             <fileset dir="../${ant.project.name}/${server-resource}" includes="*.xml" />
-            <fileset dir="../openbis-common/${server-resource}" includes="*.xml"/>
+            <fileset dir="../common/${server-resource}" includes="*.xml"/>
         </copy>
   			<!-- Clear 'gwt.xml' file. -->
   			<echo file="${targets.www.web-inf}/gwt.xml" message="" />
@@ -29,7 +29,7 @@
     	<!-- For system tests -->
     	<copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
     		<fileset dir="../${ant.project.name}/${server-resource}" includes="*.xml" />
-    	  <fileset dir="../openbis-common/${server-resource}" includes="*.xml"/>
+    	  <fileset dir="../common/${server-resource}" includes="*.xml"/>
 			</copy>
     </target>
 	

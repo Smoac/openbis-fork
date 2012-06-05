@@ -158,7 +158,7 @@
 			<fileset dir="../openbis/${sources}">
 				<include name="*Context.xml" />
 			</fileset>
-			<fileset dir="../openbis-common/${sources}">
+			<fileset dir="../common/${sources}">
 				<include name="*Context.xml" />
 			</fileset>
 			<fileset dir="dist/server">
@@ -170,7 +170,7 @@
 				<include name="web.xml" />
 				<include name="spring-servlet.xml" />
 			</fileset>
-			<fileset dir="../openbis-common/resource/server">
+			<fileset dir="../common/resource/server">
 				<include name="web-common.xml" />
 			</fileset>
 			<fileset dir="../openbis/resource/server">
@@ -182,7 +182,7 @@
 				<include name="common.dictionary.js" />
 				<include name="*.html" />
 			</fileset>
-			<fileset dir="../openbis-common/resource/server">
+			<fileset dir="../common/resource/server">
 				<include name="web-common.xml" />
 			</fileset>
 		</checksum>
@@ -619,7 +619,7 @@
       <fileset dir="../openbis/${server-resource}">
         <include name="bis-common.xml" />
       </fileset>
-      <fileset dir="../openbis-common/${server-resource}">
+      <fileset dir="../common/${server-resource}">
         <include name="web-common.xml" />
       </fileset>
     </copy>
@@ -632,7 +632,7 @@
         <include name="**/*.sql" />
       </classes>
       <!-- Add 'applicationContext.xml' and related files. -->
-      <classes dir="../openbis-common/${sources}">
+      <classes dir="../common/${sources}">
         <include name="**/*.xml" />
       </classes>
       <classes dir="${sources}">
