@@ -25,7 +25,7 @@
     
     <bean id="relationship-service"
         class="ch.systemsx.cisd.openbis.generic.server.RelationshipService">
-        <property name="sessionFactory" ref="hibernate-session-factory" />
+        <property name="daoFactory" ref="dao-factory" />
     </bean>
 
     <bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"

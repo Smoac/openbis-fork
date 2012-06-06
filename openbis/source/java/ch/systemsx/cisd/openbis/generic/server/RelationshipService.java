@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -39,15 +36,23 @@ public class RelationshipService implements IRelationshipService
     private static final String ERR_PROJECT_NOT_FOUND =
             "No project for experiment '%s' could be found in the database.";
 
-    private org.hibernate.SessionFactory sessionFactory;
+    private DAOFactory daoFactory;
 
     @Override
     public void reassignProject(IAuthSession session, ProjectIdentifier projectId,
             ExperimentIdentifier experimentId)
     {
+
+        ProjectPE previousProject =
+                findProject(new ProjectIdentifier(experimentId.getDatabaseInstanceCode(),
+                        experimentId.getSpaceCode(), experimentId.getProjectCode()));
+
         ProjectPE project = findProject(projectId);
-        ExperimentPE experiment = findExperiment(experimentId);
-        ProjectPE previousProject = experiment.getProject();
+
+        ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(previousProject,
+                        experimentId.getExperimentCode());
+
         if (project.equals(previousProject))
         {
             return;
@@ -60,33 +65,21 @@ public class RelationshipService implements IRelationshipService
         experiment.setProject(project);
     }
 
-    private ProjectPE findProject(ProjectIdentifier id)
+    private ProjectPE findProject(ProjectIdentifier projectId)
     {
+        ProjectPE project =
+                daoFactory.getProjectDAO().tryFindProject(projectId.getDatabaseInstanceCode(),
+                        projectId.getSpaceCode(), projectId.getProjectCode());
 
-        final Criteria criteria =
-                this.sessionFactory.getCurrentSession().createCriteria(ProjectPE.class);
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(id.getProjectCode())));
-        final Criteria spaceCriteria = criteria.createCriteria("space");
-        spaceCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(id.getSpaceCode())));
-
-        ProjectPE project = (ProjectPE) criteria.uniqueResult();
         if (project == null)
         {
-            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, id);
+            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, projectId);
         }
         return project;
     }
 
-    private ExperimentPE findExperiment(ExperimentIdentifier id)
+    public void setDaoFactory(DAOFactory daoFactory)
     {
-        final Criteria criteria =
-                this.sessionFactory.getCurrentSession().createCriteria(ExperimentPE.class);
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(id.getExperimentCode())));
-        return (ExperimentPE) criteria.uniqueResult();
-    }
-
-    public void setSessionFactory(org.hibernate.SessionFactory sessionFactory)
-    {
-        this.sessionFactory = sessionFactory;
+        this.daoFactory = daoFactory;
     }
 }

@@ -249,9 +249,15 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
         if (updates.isProjectUpdateRequested())
         {
+            ProjectPE previousProject = experiment.getProject();
+            ProjectIdentifier previousProjectId =
+                    new ProjectIdentifier(previousProject.getSpace().getDatabaseInstance()
+                            .getCode(), previousProject.getSpace().getCode(), previousProject
+                            .getCode());
+
             relationshipService
                     .reassignProject(session, updates.getProjectIdentifier(),
-                            new ExperimentIdentifier(updates.getProjectIdentifier(), experiment
+                            new ExperimentIdentifier(previousProjectId, experiment
                                     .getCode()));
         }
     }

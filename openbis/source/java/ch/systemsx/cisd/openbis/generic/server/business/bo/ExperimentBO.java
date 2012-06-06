@@ -422,11 +422,14 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         updateProperties(updates.getProperties());
 
-        if (updates.getProjectIdentifier().getProjectCode().equals(
-                experiment.getProject().getCode()) == false)
+        ProjectPE project = findProject(updates.getProjectIdentifier());
+        ProjectPE previousProject = experiment.getProject();
+        if (project.equals(previousProject) == false)
         {
             relationshipService.reassignProject(session, updates.getProjectIdentifier(),
-                    new ExperimentIdentifier(updates.getProjectIdentifier(), experiment
+                    new ExperimentIdentifier(new ProjectIdentifier(previousProject.getSpace()
+                            .getDatabaseInstance().getCode(), previousProject.getSpace().getCode(),
+                            previousProject.getCode()), experiment
                             .getCode()));
         }
 
