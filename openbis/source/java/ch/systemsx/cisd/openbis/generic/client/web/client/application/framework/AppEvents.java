@@ -59,8 +59,6 @@ public class AppEvents
 
         private static final String TARGET_KEY = "target";
 
-        private static final long serialVersionUID = 1L;
-
         public OpenUrlEvent(String url, String targetWindow)
         {
             super(OPEN_URL_EVENT, url);
