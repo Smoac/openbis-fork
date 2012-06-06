@@ -33,6 +33,7 @@ public final class ProjectListDeletionConfirmationDialog extends
         AbstractDataListPermanentDeletionConfirmationDialog<Project>
 {
 
+    @SuppressWarnings("hiding")
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public ProjectListDeletionConfirmationDialog(
