@@ -448,7 +448,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 // implemented like this to avoid dependency to jmock in production
                 throw (Error) error;
             }
-
+            operationLog.error("Uncaught error during recovery", error);
             // in this case we should ignore, and run the recovery again after some time
             logger.log(error, "Uncaught error during recovery");
         }

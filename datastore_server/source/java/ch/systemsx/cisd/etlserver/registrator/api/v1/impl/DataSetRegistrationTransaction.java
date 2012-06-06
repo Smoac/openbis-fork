@@ -479,6 +479,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             Throwable ex, ErrorType errorType)
     {
 
+        operationLog.error("The error ", ex);
         boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
 
         IDataSetStorageRecoveryManager storageRecoveryManager =

@@ -237,6 +237,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             {
                 rollbackDelegate.markReadyForRecovery(this, ex);
             }
+            operationLog.error("Error during storage confirmation", ex);
             dssRegistrationLog.log(ex, "Error during storage confirmation");
             return false;
             // There is nothing we can do without recovery
@@ -266,6 +267,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             postPreRegistrationHooks.executePreRegistration(persistentMapHolder);
         } catch (Throwable throwable)
         {
+            operationLog.error("Error in execution of pre registration hooks", throwable);
             dssRegistrationLog.log(throwable, "Error in execution of pre registration hooks");
 
             rollbackDuringPreRegistration(throwable);
@@ -533,6 +535,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         } catch (final Throwable throwable)
         {
+            operationLog.error("Error in registrating data in application server", throwable);
             dssRegistrationLog.log("Error in registrating data in application server");
             if (shouldUseAutoRecovery() && storageRecoveryManager.canRecoverFromError(throwable))
             {
