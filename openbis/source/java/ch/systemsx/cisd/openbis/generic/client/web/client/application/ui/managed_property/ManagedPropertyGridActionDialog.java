@@ -59,8 +59,6 @@ public final class ManagedPropertyGridActionDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final List<TableModelRowWithObject<ReportRowModel>> data;
-
     private final AsyncCallback<Void> callback;
 
     private final IEntityInformationHolder entity;
@@ -79,7 +77,6 @@ public final class ManagedPropertyGridActionDialog extends
     {
         super(viewContext, data, editTitle);
         this.viewContext = viewContext;
-        this.data = data;
         this.entity = entity;
         this.managedProperty = managedProperty;
         this.callback = callback;
