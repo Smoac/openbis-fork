@@ -51,6 +51,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    @SuppressWarnings("hiding")
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final TechId projectId;
