@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeTo
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsTypeValueToClassObjectMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredProperties;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
@@ -72,6 +73,7 @@ public class JsonTestObjectMapper extends ObjectMapper
         classMapping.addClass(".LegacyObjectWithNestedTypes", ObjectWithNestedTypes.class);
         classMapping.addClass(".LegacyObjectWithEnumTypes", ObjectWithEnumTypes.class);
         classMapping.addClass(".LegacyObjectWithContainerTypes", ObjectWithContainerTypes.class);
+        classMapping.addClass(".LegacyObjectWithDateTypes", ObjectWithDateTypes.class);
         classMapping.addClass(".LegacyObjectWithIgnoredProperties",
                 ObjectWithIgnoredProperties.class);
         classMapping.addClass(".LegacyObjectWithRenamedProperties",

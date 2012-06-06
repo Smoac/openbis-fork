@@ -49,4 +49,10 @@ public class ObjectWithContainerTypes
 
     public Map<String, ObjectWithType> mapWithSpecificType;
 
+    // TODO: check why it doesn't work properly during both serialization and deserialization
+
+    // public Object[] arrayWithObjectType;
+
+    // public ObjectWithType[] arrayWithSpecificType;
+
 }

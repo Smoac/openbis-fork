@@ -23,6 +23,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes.NestedEnum;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredProperties;
@@ -190,6 +192,20 @@ public class JsonDeserializationTest
     }
 
     @Test
+    public void testDeserializeJsonWithObjectWithDateTypes() throws Exception
+    {
+        testDeserializeObjectWithDateTypes(true, false);
+        testDeserializeObjectWithDateTypes(false, true);
+    }
+
+    @Test
+    public void testDeserializeJsonWithObjectWithContainerTypes() throws Exception
+    {
+        testDeserializeObjectWithContainerTypes(true, false);
+        testDeserializeObjectWithContainerTypes(false, true);
+    }
+
+    @Test
     public void testDeserializeJsonWithIgnoredProperties() throws Exception
     {
         testDeserializeObjectWithIgnoredProperties(true, false);
@@ -287,8 +303,15 @@ public class JsonDeserializationTest
     @Test
     public void testDeserializeJsonWithNestedMapsInCollection() throws Exception
     {
+        testDeserializeJsonWithNestedMapsInCollection(true, false);
+        testDeserializeJsonWithNestedMapsInCollection(false, true);
+    }
+
+    private void testDeserializeJsonWithNestedMapsInCollection(boolean includeType,
+            boolean includeClass) throws Exception
+    {
         Collection<Object> collection = new ArrayList<Object>();
-        collection.add(createObjectWithContainerTypes());
+        collection.add(createObjectWithContainerTypes(includeType, includeClass));
 
         Collection<Object> collectionResult = deserialize(collection, Collection.class);
 
@@ -299,8 +322,16 @@ public class JsonDeserializationTest
     @Test
     public void testDeserializeJsonWithNestedMapsInMap() throws Exception
     {
+        testDeserializeJsonWithNestedMapsInMap(true, false);
+        testDeserializeJsonWithNestedMapsInMap(false, true);
+    }
+
+    private void testDeserializeJsonWithNestedMapsInMap(boolean includeType, boolean includeClass)
+            throws Exception
+    {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("objectWithContainerTypes", createObjectWithContainerTypes());
+        map.put("objectWithContainerTypes",
+                createObjectWithContainerTypes(includeType, includeClass));
 
         HashMap<String, Object> mapResult = deserialize(map, Map.class);
 
@@ -311,8 +342,15 @@ public class JsonDeserializationTest
     @Test
     public void testDeserializeJsonWithNestedMapsInList() throws Exception
     {
+        testDeserializeJsonWithNestedMapsInList(true, false);
+        testDeserializeJsonWithNestedMapsInList(false, true);
+    }
+
+    private void testDeserializeJsonWithNestedMapsInList(boolean includeType, boolean includeClass)
+            throws Exception
+    {
         List<Object> list = new ArrayList<Object>();
-        list.add(createObjectWithContainerTypes());
+        list.add(createObjectWithContainerTypes(includeType, includeClass));
 
         List<Object> listResult = deserialize(list, List.class);
 
@@ -328,6 +366,156 @@ public class JsonDeserializationTest
         Object object = deserialize(map, rootClass);
 
         assertObjectWithType(object);
+    }
+
+    private void testDeserializeObjectWithTypeA(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithTypeA(includeType, includeClass);
+
+        ObjectWithTypeA object = deserialize(map, rootClass);
+
+        assertObjectWithTypeA(object);
+    }
+
+    private void testDeserializeObjectWithTypeB(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithTypeB(includeType, includeClass);
+
+        ObjectWithTypeB object = deserialize(map, rootClass);
+
+        assertObjectWithTypeB(object);
+    }
+
+    private void testDeserializeObjectWithTypeC(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithTypeC(includeType, includeClass);
+
+        ObjectWithTypeC object = deserialize(map, rootClass);
+
+        assertObjectWithTypeC(object);
+    }
+
+    private void testDeserializeObjectWithTypeAA(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithTypeAA(includeType, includeClass);
+
+        ObjectWithTypeAA object = deserialize(map, rootClass);
+
+        assertObjectWithTypeAA(object);
+    }
+
+    private void testDeserializeObjectWithTypeButNoSubtypes(boolean includeType,
+            boolean includeClass, Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithTypeButNoSubtypes(includeType, includeClass);
+
+        ObjectWithTypeButNoSubtypes object = deserialize(map, rootClass);
+
+        assertObjectWithTypeButNoSubtypes(object);
+    }
+
+    private void testDeserializeObjectWithIgnoredProperties(boolean includeType,
+            boolean includeClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithIgnoredProperties(includeType, includeClass);
+
+        ObjectWithIgnoredProperties object = deserialize(map, ObjectWithIgnoredProperties.class);
+
+        assertObjectWithIgnoredProperties(object);
+    }
+
+    private void testDeserializeObjectWithRenamedProperties(boolean includeType,
+            boolean includeClass) throws Exception
+    {
+        Map<String, Object> map = createObjectWithRenamedProperties(includeType, includeClass);
+
+        ObjectWithRenamedProperties object = deserialize(map, ObjectWithRenamedProperties.class);
+
+        assertObjectWithRenamedProperties(object);
+    }
+
+    private void testDeserializeObjectWithPrivateAccess(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithPrivateAccess(includeType, includeClass);
+
+        ObjectWithPrivateAccess object = deserialize(map, ObjectWithPrivateAccess.class);
+
+        assertObjectWithPrivateAccess(object);
+    }
+
+    private void testDeserializeObjectWithPrimitiveTypes(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithPrimitiveTypes(includeType, includeClass);
+
+        ObjectWithPrimitiveTypes object = deserialize(map, ObjectWithPrimitiveTypes.class);
+
+        assertObjectWithPrimitiveTypes(object);
+    }
+
+    private void testDeserializeObjectWithEnumTypes(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithEnumTypes(includeType, includeClass);
+
+        ObjectWithEnumTypes object = deserialize(map, ObjectWithEnumTypes.class);
+
+        assertObjectWithEnumTypes(object);
+    }
+
+    private void testDeserializeObjectWithDateTypes(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithDateTypes(includeType, includeClass);
+
+        ObjectWithDateTypes object = deserialize(map, ObjectWithDateTypes.class);
+
+        assertObjectWithDateTypes(object);
+    }
+
+    private void testDeserializeObjectWithContainerTypes(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithContainerTypes(includeType, includeClass);
+
+        ObjectWithContainerTypes object = deserialize(map, ObjectWithContainerTypes.class);
+
+        assertObjectWithContainerTypes(object);
+    }
+
+    private void testDeserializeObjectWithNestedTypes(boolean includeType, boolean includeClass)
+            throws Exception
+    {
+        Map<String, Object> map = createObjectWithNestedTypes(includeType, includeClass);
+
+        ObjectWithNestedTypes object = deserialize(map, ObjectWithNestedTypes.class);
+
+        assertObjectWithNestedTypes(object);
+    }
+
+    private void testDeserializeObjectNested(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> objectMap = createObjectNested(includeType, includeClass);
+
+        ObjectNested object = deserialize(objectMap, rootClass);
+
+        assertObjectNested(object);
+    }
+
+    private void testDeserializeObjectNestedChild(boolean includeType, boolean includeClass,
+            Class<?> rootClass) throws Exception
+    {
+        Map<String, Object> objectMap = createObjectNestedChild(includeType, includeClass);
+
+        ObjectNestedChild object = deserialize(objectMap, rootClass);
+
+        assertObjectNestedChild(object);
     }
 
     private Map<String, Object> createObjectWithType(boolean includeType, boolean includeClass)
@@ -351,16 +539,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(object.getClass(), ObjectWithType.class);
         ObjectWithType casted = (ObjectWithType) object;
         Assert.assertEquals(casted.base, "baseValue");
-    }
-
-    private void testDeserializeObjectWithTypeA(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithTypeA(includeType, includeClass);
-
-        ObjectWithTypeA object = deserialize(map, rootClass);
-
-        assertObjectWithTypeA(object);
     }
 
     private Map<String, Object> createObjectWithTypeA(boolean includeType, boolean includeClass)
@@ -388,16 +566,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(casted.a, "aValue");
     }
 
-    private void testDeserializeObjectWithTypeB(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithTypeB(includeType, includeClass);
-
-        ObjectWithTypeB object = deserialize(map, rootClass);
-
-        assertObjectWithTypeB(object);
-    }
-
     private Map<String, Object> createObjectWithTypeB(boolean includeType, boolean includeClass)
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -423,16 +591,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(casted.b, "bValue");
     }
 
-    private void testDeserializeObjectWithTypeC(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithTypeC(includeType, includeClass);
-
-        ObjectWithTypeC object = deserialize(map, rootClass);
-
-        assertObjectWithTypeC(object);
-    }
-
     private Map<String, Object> createObjectWithTypeC(boolean includeType, boolean includeClass)
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -456,16 +614,6 @@ public class JsonDeserializationTest
         ObjectWithTypeC casted = (ObjectWithTypeC) object;
         Assert.assertEquals(casted.base, "baseValue");
         Assert.assertEquals(casted.c, "cValue");
-    }
-
-    private void testDeserializeObjectWithTypeAA(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithTypeAA(includeType, includeClass);
-
-        ObjectWithTypeAA object = deserialize(map, rootClass);
-
-        assertObjectWithTypeAA(object);
     }
 
     private Map<String, Object> createObjectWithTypeAA(boolean includeType, boolean includeClass)
@@ -495,16 +643,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(casted.aa, "aaValue");
     }
 
-    private void testDeserializeObjectWithTypeButNoSubtypes(boolean includeType,
-            boolean includeClass, Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithTypeButNoSubtypes(includeType, includeClass);
-
-        ObjectWithTypeButNoSubtypes object = deserialize(map, rootClass);
-
-        assertObjectWithTypeButNoSubtypes(object);
-    }
-
     private Map<String, Object> createObjectWithTypeButNoSubtypes(boolean includeType,
             boolean includeClass)
     {
@@ -529,16 +667,6 @@ public class JsonDeserializationTest
         ObjectWithTypeButNoSubtypes casted = (ObjectWithTypeButNoSubtypes) object;
         Assert.assertEquals(casted.a, "aValue");
         Assert.assertEquals(casted.b, "bValue");
-    }
-
-    private void testDeserializeObjectWithIgnoredProperties(boolean includeType,
-            boolean includeClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithIgnoredProperties(includeType, includeClass);
-
-        ObjectWithIgnoredProperties object = deserialize(map, ObjectWithIgnoredProperties.class);
-
-        assertObjectWithIgnoredProperties(object);
     }
 
     private Map<String, Object> createObjectWithIgnoredProperties(boolean includeType,
@@ -572,16 +700,6 @@ public class JsonDeserializationTest
         Assert.assertNull(casted.getPropertyWithGetterAndSetterIgnored());
     }
 
-    private void testDeserializeObjectWithRenamedProperties(boolean includeType,
-            boolean includeClass) throws Exception
-    {
-        Map<String, Object> map = createObjectWithRenamedProperties(includeType, includeClass);
-
-        ObjectWithRenamedProperties object = deserialize(map, ObjectWithRenamedProperties.class);
-
-        assertObjectWithRenamedProperties(object);
-    }
-
     private Map<String, Object> createObjectWithRenamedProperties(boolean includeType,
             boolean includeClass)
     {
@@ -613,16 +731,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(casted.getY(), "propertyWithGetterAndSetterRenamedValue");
     }
 
-    private void testDeserializeObjectWithPrivateAccess(boolean includeType, boolean includeClass)
-            throws Exception
-    {
-        Map<String, Object> map = createObjectWithPrivateAccess(includeType, includeClass);
-
-        ObjectWithPrivateAccess object = deserialize(map, ObjectWithPrivateAccess.class);
-
-        assertObjectWithPrivateAccess(object);
-    }
-
     private Map<String, Object> createObjectWithPrivateAccess(boolean includeType,
             boolean includeClass)
     {
@@ -645,16 +753,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(object.getClass(), ObjectWithPrivateAccess.class);
         ObjectWithPrivateAccess casted = (ObjectWithPrivateAccess) object;
         Assert.assertEquals(casted.getField(), "fieldValue");
-    }
-
-    private void testDeserializeObjectWithPrimitiveTypes(boolean includeType, boolean includeClass)
-            throws Exception
-    {
-        Map<String, Object> map = createObjectWithPrimitiveTypes(includeType, includeClass);
-
-        ObjectWithPrimitiveTypes object = deserialize(map, ObjectWithPrimitiveTypes.class);
-
-        assertObjectWithPrimitiveTypes(object);
     }
 
     private Map<String, Object> createObjectWithPrimitiveTypes(boolean includeType,
@@ -693,14 +791,39 @@ public class JsonDeserializationTest
         Assert.assertEquals(casted.doubleField, 6.5d);
     }
 
-    private void testDeserializeObjectWithEnumTypes(boolean includeType, boolean includeClass)
-            throws Exception
+    private Map<String, Object> createObjectWithDateTypes(boolean includeType, boolean includeClass)
     {
-        Map<String, Object> map = createObjectWithEnumTypes(includeType, includeClass);
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (includeType)
+        {
+            map.put("@type", "ObjectWithDateTypes");
+        }
+        if (includeClass)
+        {
+            map.put("@class", ".LegacyObjectWithDateTypes");
+        }
 
-        ObjectWithEnumTypes object = deserialize(map, ObjectWithEnumTypes.class);
+        long DAY_IN_MILLIS = 24 * 3600 * 1000;
 
-        assertObjectWithEnumTypes(object);
+        map.put("utilDate", new java.util.Date(DAY_IN_MILLIS));
+        map.put("sqlDate", new java.sql.Date(DAY_IN_MILLIS * 2));
+        map.put("sqlTimestamp", new java.sql.Timestamp(DAY_IN_MILLIS * 3));
+        return map;
+    }
+
+    private void assertObjectWithDateTypes(Object object)
+    {
+        Assert.assertNotNull(object);
+        Assert.assertEquals(object.getClass(), ObjectWithDateTypes.class);
+        ObjectWithDateTypes casted = (ObjectWithDateTypes) object;
+
+        long DAY_IN_MILLIS = 24 * 3600 * 1000;
+
+        Assert.assertEquals(casted.utilDate.getTime(), new java.util.Date(DAY_IN_MILLIS).getTime());
+        Assert.assertEquals(casted.sqlDate.getTime(),
+                new java.sql.Date(DAY_IN_MILLIS * 2).getTime());
+        Assert.assertEquals(casted.sqlTimestamp.getTime(),
+                new java.sql.Timestamp(DAY_IN_MILLIS * 3).getTime());
     }
 
     private Map<String, Object> createObjectWithEnumTypes(boolean includeType, boolean includeClass)
@@ -739,16 +862,6 @@ public class JsonDeserializationTest
 
         Assert.assertEquals(casted.enumSet, enumSet);
         Assert.assertEquals(casted.enumMap, enumMap);
-    }
-
-    private void testDeserializeObjectWithNestedTypes(boolean includeType, boolean includeClass)
-            throws Exception
-    {
-        Map<String, Object> map = createObjectWithNestedTypes(includeType, includeClass);
-
-        ObjectWithNestedTypes object = deserialize(map, ObjectWithNestedTypes.class);
-
-        assertObjectWithNestedTypes(object);
     }
 
     private Map<String, Object> createObjectWithNestedTypes(boolean includeType,
@@ -792,16 +905,6 @@ public class JsonDeserializationTest
         Assert.assertEquals("nestedChildValue", propertyNestedChild.nestedChild);
     }
 
-    private void testDeserializeObjectNested(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> objectMap = createObjectNested(includeType, includeClass);
-
-        ObjectNested object = deserialize(objectMap, rootClass);
-
-        assertObjectNested(object);
-    }
-
     private Map<String, Object> createObjectNested(boolean includeType, boolean includeClass)
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -823,16 +926,6 @@ public class JsonDeserializationTest
         Assert.assertEquals(object.getClass(), ObjectNested.class);
         ObjectNested casted = (ObjectNested) object;
         Assert.assertEquals(casted.nested, "nestedValue");
-    }
-
-    private void testDeserializeObjectNestedChild(boolean includeType, boolean includeClass,
-            Class<?> rootClass) throws Exception
-    {
-        Map<String, Object> objectMap = createObjectNestedChild(includeType, includeClass);
-
-        ObjectNestedChild object = deserialize(objectMap, rootClass);
-
-        assertObjectNestedChild(object);
     }
 
     private Map<String, Object> createObjectNestedChild(boolean includeType, boolean includeClass)
@@ -949,61 +1042,54 @@ public class JsonDeserializationTest
 
     @SuppressWarnings(
         { "rawtypes", "unchecked" })
-    private Map<String, Object> createObjectWithContainerTypes()
+    private Map<String, Object> createObjectWithContainerTypes(boolean includeType,
+            boolean includeClass)
     {
-        Collection collection = new ArrayList();
-        collection.add(createObjectWithKnownType());
-        collection.add(createObjectWithKnownUniqueClass());
-        collection.add(createObjectWithKnownButNotUniqueClass());
-        collection.add(createObjectWithUnknownType());
-        collection.add(createObjectWithUnknownClass());
-        collection.add(createObjectWithPrivateAccess(true, false));
-        collection.add(createObjectWithPrimitiveTypes(true, false));
-        collection.add(createObjectWithNestedTypes(true, false));
-        collection.add(createObjectWithEnumTypes(true, false));
-        collection.add(createObjectWithIgnoredProperties(true, false));
-        collection.add(createObjectWithRenamedProperties(true, false));
-
-        Map map = new HashMap();
+        Map map = new LinkedHashMap();
         map.put("itemWithKnownType", createObjectWithKnownType());
         map.put("itemWithKnownUniqueClass", createObjectWithKnownUniqueClass());
         map.put("itemWithKnownButNotUniqueClass", createObjectWithKnownButNotUniqueClass());
         map.put("itemWithUnknownType", createObjectWithUnknownType());
         map.put("itemWithUnknownClass", createObjectWithUnknownClass());
-        map.put("itemWithPrivateAccess", createObjectWithPrivateAccess(true, false));
-        map.put("itemWithPrimitiveTypes", createObjectWithPrimitiveTypes(true, false));
-        map.put("itemWithNestedTypes", createObjectWithNestedTypes(true, false));
-        map.put("itemWithEnumTypes", createObjectWithEnumTypes(true, false));
-        map.put("itemWithIgnoredProperties", createObjectWithIgnoredProperties(true, false));
-        map.put("itemWithRenamedProperties", createObjectWithRenamedProperties(true, false));
+        map.put("itemWithPrivateAccess", createObjectWithPrivateAccess(includeType, includeClass));
+        map.put("itemWithPrimitiveTypes", createObjectWithPrimitiveTypes(includeType, includeClass));
+        map.put("itemWithNestedTypes", createObjectWithNestedTypes(includeType, includeClass));
+        map.put("itemWithEnumTypes", createObjectWithEnumTypes(includeType, includeClass));
+        map.put("itemWithDateTypes", createObjectWithDateTypes(includeType, includeClass));
+        map.put("itemWithIgnoredProperties",
+                createObjectWithIgnoredProperties(includeType, includeClass));
+        map.put("itemWithRenamedProperties",
+                createObjectWithRenamedProperties(includeType, includeClass));
 
-        List list = new ArrayList();
-        list.add(createObjectWithKnownType());
-        list.add(createObjectWithKnownUniqueClass());
-        list.add(createObjectWithKnownButNotUniqueClass());
-        list.add(createObjectWithUnknownType());
-        list.add(createObjectWithUnknownClass());
-        list.add(createObjectWithPrivateAccess(true, false));
-        list.add(createObjectWithPrimitiveTypes(true, false));
-        list.add(createObjectWithNestedTypes(true, false));
-        list.add(createObjectWithEnumTypes(true, false));
-        list.add(createObjectWithIgnoredProperties(true, false));
-        list.add(createObjectWithRenamedProperties(true, false));
+        Collection collection = new ArrayList(map.values());
+        List list = new ArrayList(map.values());
+        // Object[] array = map.values().toArray(new Object[map.size()]);
+
+        Map specificMap = new LinkedHashMap();
+        specificMap.put("itemWithKnownType", createObjectWithKnownType());
+        specificMap.put("itemWithKnownUniqueClass", createObjectWithKnownUniqueClass());
+
+        Collection specificCollection = new ArrayList(specificMap.values());
+        List specificList = new ArrayList(specificMap.values());
+        // Object[] specificArray = specificMap.values().toArray(new Object[specificMap.size()]);
 
         Map<String, Object> object = new HashMap<String, Object>();
 
         object.put("@type", "ObjectWithContainerTypes");
         object.put("collectionWithoutType", collection);
         object.put("collectionWithObjectType", collection);
-        object.put("collectionWithSpecificType", collection);
+        object.put("collectionWithSpecificType", specificCollection);
 
         object.put("mapWithoutType", map);
         object.put("mapWithObjectType", map);
-        object.put("mapWithSpecificType", map);
+        object.put("mapWithSpecificType", specificMap);
 
         object.put("listWithoutType", list);
         object.put("listWithObjectType", list);
-        object.put("listWithSpecificType", list);
+        object.put("listWithSpecificType", specificList);
+
+        // object.put("arrayWithObjectType", array);
+        // object.put("arrayWithSpecificType", specificArray);
 
         return object;
     }
@@ -1014,20 +1100,22 @@ public class JsonDeserializationTest
         ObjectWithContainerTypes objectWithContainers = (ObjectWithContainerTypes) object;
         assertObjectsCollection(objectWithContainers.collectionWithObjectType);
         assertObjectsCollection(objectWithContainers.collectionWithoutType);
-        assertObjectsCollection(objectWithContainers.collectionWithSpecificType);
+        assertObjectsSpecificCollection(objectWithContainers.collectionWithSpecificType);
         assertObjectsMap(objectWithContainers.mapWithObjectType);
         assertObjectsMap(objectWithContainers.mapWithoutType);
-        assertObjectsMap(objectWithContainers.mapWithSpecificType);
+        assertObjectsSpecificMap(objectWithContainers.mapWithSpecificType);
         assertObjectsCollection(objectWithContainers.listWithObjectType);
         assertObjectsCollection(objectWithContainers.listWithoutType);
-        assertObjectsCollection(objectWithContainers.listWithSpecificType);
+        assertObjectsSpecificCollection(objectWithContainers.listWithSpecificType);
+        // assertObjectsArray(objectWithContainers.arrayWithObjectType);
+        // assertObjectsSpecificArray(objectWithContainers.arrayWithSpecificType);
     }
 
     @SuppressWarnings(
         { "rawtypes" })
     private void assertObjectsCollection(Collection collection)
     {
-        Assert.assertEquals(collection.size(), 11);
+        Assert.assertEquals(collection.size(), 12);
         Iterator iterator = collection.iterator();
         assertObjectWithKnownType(iterator.next());
         assertObjectWithKnownUniqueClass(iterator.next());
@@ -1038,15 +1126,26 @@ public class JsonDeserializationTest
         assertObjectWithPrimitiveTypes(iterator.next());
         assertObjectWithNestedTypes(iterator.next());
         assertObjectWithEnumTypes(iterator.next());
+        assertObjectWithDateTypes(iterator.next());
         assertObjectWithIgnoredProperties(iterator.next());
         assertObjectWithRenamedProperties(iterator.next());
     }
 
     @SuppressWarnings(
         { "rawtypes" })
+    private void assertObjectsSpecificCollection(Collection collection)
+    {
+        Assert.assertEquals(collection.size(), 2);
+        Iterator iterator = collection.iterator();
+        assertObjectWithKnownType(iterator.next());
+        assertObjectWithKnownUniqueClass(iterator.next());
+    }
+
+    @SuppressWarnings(
+        { "rawtypes" })
     private void assertObjectsMap(Map map)
     {
-        Assert.assertEquals(map.size(), 11);
+        Assert.assertEquals(map.size(), 12);
         assertObjectWithKnownType(map.get("itemWithKnownType"));
         assertObjectWithKnownUniqueClass(map.get("itemWithKnownUniqueClass"));
         assertObjectWithKnownButNotUniqueClass(map.get("itemWithKnownButNotUniqueClass"));
@@ -1056,9 +1155,29 @@ public class JsonDeserializationTest
         assertObjectWithPrimitiveTypes(map.get("itemWithPrimitiveTypes"));
         assertObjectWithNestedTypes(map.get("itemWithNestedTypes"));
         assertObjectWithEnumTypes(map.get("itemWithEnumTypes"));
+        assertObjectWithDateTypes(map.get("itemWithDateTypes"));
         assertObjectWithIgnoredProperties(map.get("itemWithIgnoredProperties"));
         assertObjectWithRenamedProperties(map.get("itemWithRenamedProperties"));
     }
+
+    @SuppressWarnings(
+        { "rawtypes" })
+    private void assertObjectsSpecificMap(Map map)
+    {
+        Assert.assertEquals(map.size(), 2);
+        assertObjectWithKnownType(map.get("itemWithKnownType"));
+        assertObjectWithKnownUniqueClass(map.get("itemWithKnownUniqueClass"));
+    }
+
+    // private void assertObjectsArray(Object[] array)
+    // {
+    // assertObjectsCollection(Arrays.asList(array));
+    // }
+
+    // private void assertObjectsSpecificArray(Object[] array)
+    // {
+    // assertObjectsSpecificCollection(Arrays.asList(array));
+    // }
 
     @SuppressWarnings("unchecked")
     private <T> T deserialize(Object object, Class<?> rootClass) throws Exception
