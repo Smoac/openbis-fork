@@ -67,12 +67,12 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void handleEvent(GridEvent be)
+    public void handleEvent(GridEvent<?> be)
     {
         ICellListener<T> listener = getCellListener(be);
         if (listener != null)
         {
-            ListStore store = be.getGrid().getStore();
+            ListStore<?> store = be.getGrid().getStore();
             listener.handle(((BaseEntityModel<T>) store.getAt(be.getRowIndex())).getBaseObject(),
                     WidgetUtils.ifSpecialKeyPressed(be.getEvent()));
         }
