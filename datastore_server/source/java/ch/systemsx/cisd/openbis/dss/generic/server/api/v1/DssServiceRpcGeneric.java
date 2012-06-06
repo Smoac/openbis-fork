@@ -55,6 +55,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
      * for our purpose.
      */
+    @SuppressWarnings("hiding")
     protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DssServiceRpcGeneric.class);
 
