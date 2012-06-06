@@ -1,9 +1,9 @@
 package ch.systemsx.cisd.args4j;
 
-import ch.systemsx.cisd.args4j.spi.Setter;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import ch.systemsx.cisd.args4j.spi.Setter;
 
 /**
  * {@link Setter} that sets to a {@link Method}.
@@ -26,9 +26,9 @@ final class MethodSetter<T> implements Setter<T>
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class getType()
+    public Class<T> getType()
     {
-        return m.getParameterTypes()[0];
+        return (Class<T>) m.getParameterTypes()[0];
     }
 
     @Override

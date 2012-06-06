@@ -119,7 +119,8 @@ class CmdLineOptions
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     private static <T> OptionHandler createEnumOptionHandler(Option o, Setter<T> setter, Class<T> t)
     {
         return new EnumOptionHandler(o, setter, t);

@@ -15,9 +15,9 @@ import ch.systemsx.cisd.args4j.spi.Setter;
 /**
  * Command line argument owner.
  * <p>
- * For a typical usage, see <a
- * href="https://args4j.dev.java.net/source/browse/args4j/args4j/examples/SampleMain.java?view=markup">this
- * example</a>.
+ * For a typical usage, see <a href=
+ * "https://args4j.dev.java.net/source/browse/args4j/args4j/examples/SampleMain.java?view=markup"
+ * >this example</a>.
  * 
  * @author Kohsuke Kawaguchi (kk@kohsuke.org)
  */
@@ -38,14 +38,14 @@ public class CmdLineParser
     /**
      * {@link Setter} that accepts the arguments.
      */
-    private Setter<String> argumentSetter;
+    private Setter<Object> argumentSetter;
 
     /**
      * Creates a new command line owner that parses arguments/options and set them into the given
      * object.
      * 
-     * @param bean instance of a class annotated by {@link Option} and {@link Argument}. this
-     *            object will receive values.
+     * @param bean instance of a class annotated by {@link Option} and {@link Argument}. this object
+     *            will receive values.
      * @throws IllegalAnnotationError if the option bean class is using args4j annotations
      *             incorrectly.
      */
@@ -55,23 +55,22 @@ public class CmdLineParser
         addOptionsForBean();
     }
 
-    @SuppressWarnings("unchecked")
     private void addOptionsForBean()
     {
         // Recursively process all the methods/fields.
-        for (Class c = bean.getClass(); c != null; c = c.getSuperclass())
+        for (Class<? extends Object> c = bean.getClass(); c != null; c = c.getSuperclass())
         {
             for (Method m : c.getDeclaredMethods())
             {
                 Option o = m.getAnnotation(Option.class);
                 if (o != null)
                 {
-                    options.addOption(new MethodSetter(bean, m), o);
+                    options.addOption(new MethodSetter<Object>(bean, m), o);
                 }
                 Argument a = m.getAnnotation(Argument.class);
                 if (a != null)
                 {
-                    addArgument(new MethodSetter<String>(bean, m));
+                    addArgument(new MethodSetter<Object>(bean, m));
                 }
             }
 
@@ -91,8 +90,7 @@ public class CmdLineParser
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Setter createFieldSetter(Field f)
+    private Setter<Object> createFieldSetter(Field f)
     {
         if (List.class.isAssignableFrom(f.getType()))
             return new MultiValueFieldSetter(bean, f);
@@ -102,7 +100,7 @@ public class CmdLineParser
             return new FieldSetter(bean, f);
     }
 
-    private void addArgument(Setter<String> setter)
+    private void addArgument(Setter<Object> setter)
     {
         if (argumentSetter != null)
             throw new IllegalAnnotationError("@Argument is used more than once");
@@ -151,7 +149,7 @@ public class CmdLineParser
      *         Otherwise, this method returns a string that contains a space at the beginning (but
      *         not at the end.) This allows you to do something like:
      * 
-     * <pre>
+     *         <pre>
      * System.err.println(&quot;java -jar my.jar&quot; + parser.printExample(REQUIRED) + &quot; arg1 arg2&quot;);
      * </pre>
      */

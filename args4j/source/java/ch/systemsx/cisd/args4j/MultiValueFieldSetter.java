@@ -81,6 +81,6 @@ final class MultiValueFieldSetter implements Setter<Object>
             throw new IllegalAnnotationError("type of " + f + " is not a List");
         }
 
-        ((List) o).add(value);
+        ((List<Object>) o).add(value);
     }
 }
