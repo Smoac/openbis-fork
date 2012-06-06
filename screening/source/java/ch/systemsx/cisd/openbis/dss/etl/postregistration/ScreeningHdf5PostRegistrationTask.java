@@ -44,13 +44,10 @@ public class ScreeningHdf5PostRegistrationTask extends Hdf5CompressingPostRegist
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ScreeningHdf5PostRegistrationTask.class);
 
-    private final Properties properties;
-
     public ScreeningHdf5PostRegistrationTask(Properties properties,
             IEncapsulatedOpenBISService service)
     {
         super(properties, service);
-        this.properties = properties;
         checkDatabaseConnection(properties);
     }
 
@@ -67,6 +64,7 @@ public class ScreeningHdf5PostRegistrationTask extends Hdf5CompressingPostRegist
     private final class ScreeningExecutor extends Executor
     {
         private final Properties configProperties;
+
         /**
          * @param dataSetCode
          */
