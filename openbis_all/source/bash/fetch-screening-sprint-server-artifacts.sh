@@ -11,4 +11,4 @@ set -o errexit
 BIN_DIR=`dirname "$0"`
 SCRIPT="$BIN_DIR/fetch-ci-artifacts.sh"
 
-"$SCRIPT" -p server-screening screening
+"$SCRIPT" -p server-standard openbis_standard_technologies
