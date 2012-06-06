@@ -691,4 +691,15 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             externalData.setStorageConfirmation(true);
         }
     }
+
+    @Override
+    public boolean isStorageConfirmed()
+    {
+        ExternalDataPE externalData = data.tryAsExternalData();
+        if (null != externalData)
+        {
+            return externalData.isStorageConfirmation();
+        }
+        return true;
+    }
 }

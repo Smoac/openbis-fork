@@ -130,10 +130,12 @@ public interface IDataBO extends IEntityBusinessObject
 
     /**
      * Indicate that the storage of the external data has been confirmed.
-     * 
-     * @throws UserFailureException
-     *             if the this is not external data
      */
     public void setStorageConfirmed();
+
+    /**
+     * @return true if the storage of this dataset has been confirmed or this is not external data
+     */
+    public boolean isStorageConfirmed();
 
 }

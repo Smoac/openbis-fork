@@ -1748,9 +1748,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
 
-        dataBO.loadByCode(dataSetCode);
-        dataBO.setStorageConfirmed();
-        daoFactory.getPostRegistrationDAO().addDataSet(dataBO.getData());
+        if (false == dataBO.isStorageConfirmed())
+        {
+            dataBO.loadByCode(dataSetCode);
+
+            dataBO.setStorageConfirmed();
+            daoFactory.getPostRegistrationDAO().addDataSet(dataBO.getData());
+        }
     }
 
     @Override
