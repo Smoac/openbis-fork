@@ -107,10 +107,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(IS_DELETED).addString(
                     SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
-            if (sample.getCode().equals("FRP1"))
-            {
-                System.out.println("A");
-            }
             builder.column(MODIFIER).addPerson(sample.getModifier());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             builder.column(MODIFICATION_DATE).addDate(sample.getModificationDate());
