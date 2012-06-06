@@ -35,6 +35,7 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.deser.BeanDeserializer;
 import org.codehaus.jackson.map.deser.BeanDeserializerFactory;
 import org.codehaus.jackson.map.deser.SettableBeanProperty;
@@ -238,7 +239,7 @@ public class JsonContainerDeserializer extends JsonDeserializer<Object>
                 Iterator<SettableBeanProperty> properties = tryGetProperties(clazz, ctxt);
                 if (properties != null)
                 {
-                    trySetProperties(instance, properties, map);
+                    trySetProperties(instance, properties, map, ctxt);
                 }
 
                 return instance;
@@ -324,13 +325,27 @@ public class JsonContainerDeserializer extends JsonDeserializer<Object>
     }
 
     private void trySetProperties(Object instance, Iterator<SettableBeanProperty> properties,
-            Map values) throws IOException
+            Map values, DeserializationContext ctxt) throws IOException
     {
         while (properties.hasNext())
         {
             SettableBeanProperty property = properties.next();
             Object value = values.get(property.getName());
-            property.set(instance, value);
+
+            if (value != null)
+            {
+                if (property.getType().getRawClass().isAssignableFrom(value.getClass()))
+                {
+                    property.set(instance, value);
+                } else
+                {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String json = mapper.writeValueAsString(value);
+                    Object newValue = mapper.readValue(json, property.getType());
+                    property.set(instance, newValue);
+                }
+            }
+
         }
     }
 
