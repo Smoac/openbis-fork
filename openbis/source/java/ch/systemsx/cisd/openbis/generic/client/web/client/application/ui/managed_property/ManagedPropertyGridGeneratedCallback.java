@@ -42,6 +42,7 @@ public class ManagedPropertyGridGeneratedCallback extends
         void execute(final IDisposableComponent gridComponent);
     }
 
+    @SuppressWarnings("hiding")
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final IOnGridComponentGeneratedAction onGridGeneratedAction;
@@ -56,8 +57,7 @@ public class ManagedPropertyGridGeneratedCallback extends
 
     public static AsyncCallback<TableModelReference> create(
             IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
-            IManagedProperty managedProperty,
-            IManagedPropertyGridInformationProvider gridInfo,
+            IManagedProperty managedProperty, IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {
         return AsyncCallbackWithProgressBar.decorate(new ManagedPropertyGridGeneratedCallback(
@@ -67,8 +67,7 @@ public class ManagedPropertyGridGeneratedCallback extends
 
     private ManagedPropertyGridGeneratedCallback(
             IViewContext<ICommonClientServiceAsync> viewContext, IEntityInformationHolder entity,
-            IManagedProperty managedProperty,
-            IManagedPropertyGridInformationProvider gridInfo,
+            IManagedProperty managedProperty, IManagedPropertyGridInformationProvider gridInfo,
             IOnGridComponentGeneratedAction onGridGeneratedAction, IDelegatedAction onRefreshAction)
     {
         super(viewContext);
