@@ -215,6 +215,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
             AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<Space>>
     {
 
+        @SuppressWarnings("hiding")
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
         public GroupListDeletionConfirmationDialog(
