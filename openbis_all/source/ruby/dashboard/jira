@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'json'
 require 'pp'
+require 'set'
 
 #
 # = A wrapper for scripting jira
@@ -69,6 +70,25 @@ module JiraHelpers
     print "\n" unless silent   
     return full_issues
   end
+  
+  # Get the full data for entries that implement {issues}.
+  def JiraHelpers.retrieve_implementors(issues, silent)
+    print "Retrieving implementing issues" unless silent
+    implementors = []
+    issues.each do | issue |
+      print "." unless silent      
+      fields = issue["fields"]
+      fields["links"]["value"].each do | link | 
+        next unless "is implemented by" == link["type"]["description"]
+        implementor_link = link["issue"]
+        implementor_data = `curl -s --get --cookie #{$jira_cookie_path} #{implementor_link}`
+        implementors << JSON.load(implementor_data)  
+      end
+    end
+            
+    print "\n" unless silent   
+    return implementors
+  end  
   
   def JiraHelpers.session_valid?
     ans = `curl -s --head --get --cookie #{$jira_cookie_path} '#{$jira_url }/auth/1/session'`
@@ -137,6 +157,8 @@ DESCRIPTION
 	dump url	print given url in pure json
 
 	plan S133	shows planned BIS issues
+
+	cust 10	shows an overview of the N highest-priority issues from customer projects (OBP, SOB)
   eos
   end
 end
@@ -252,7 +274,7 @@ class ListSprint < LoggedInCommand
     end
     print " ", ("-" * 27), "\n"
     puts "   Time Remaining : %.1fh" % (time_remaining / 60.0)
-  end  
+  end
 end
 
 #
@@ -263,7 +285,7 @@ class PlanSprint < LoggedInCommand
     super
     @sprintNumber = ARGV[1]
     @sprintNumber = "S" if @sprintNumber.nil?
-    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^S.*")
+    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
   end
   
   def description
@@ -283,9 +305,16 @@ class PlanSprint < LoggedInCommand
     ccs_query= "project = CCS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
     ccs_issues = JiraHelpers.search_full(ccs_query, @silent)
     print_issues_table("CCS", ccs_issues)
+    
+    swe_query= "project = SWE AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    swe_issues = JiraHelpers.search_full(swe_query, @silent)
+    print_issues_table("SWE", swe_issues)
+    
+    print_unseen_sp_issues_table(sp_issues)
 
     # Nothing to show
-    return "#{bis_issues.length} issues"
+    issue_count = bis_issues.length + ccs_issues.length + swe_issues.length
+    return "#{issue_count} issues"
   end
   
   def init_sp_issue_dict(sp_issues)
@@ -293,6 +322,33 @@ class PlanSprint < LoggedInCommand
     sp_issues.each do | issue |
       key = issue["key"]
       @sp_issue_dict[key] = issue
+    end
+    @seen_sp_issues = [].to_set
+  end
+  
+  def print_unseen_sp_issues_table(full_issues)
+    puts ("=" * 12)
+    puts "SP Missed"
+    puts ("-" * 12)
+    header = "%8s\t%12s\t%12s\t%6s\t%s" % ["Subtotal", "Key", "SP", "Time", "Summary"]
+    puts header
+    subtotal = 0.0
+    full_issues.each do | issue |
+      sp = issue["key"]
+      next if @seen_sp_issues.include?(sp)
+      fields = issue["fields"]
+      key = nil
+      fields["links"]["value"].each { | link | key = link["issueKey"] if "implements" == link["type"]["description"] }
+      time = fields["timetracking"]["value"] ? fields["timetracking"]["value"]["timeestimate"] : 0
+      summary = fields["summary"]["value"]
+      time = 0        
+      time = fields["timetracking"]["value"]["timeestimate"] if fields["timetracking"]["value"] != nil
+      
+      # Tasks that are resolved can be considered to have 0 time remaining
+      status = fields["status"]["value"]["name"]
+      subtotal = subtotal + time unless status == "Resolved"
+      row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, key, sp, time / 60.0, summary]
+      puts row
     end
   end
   
@@ -329,16 +385,102 @@ class PlanSprint < LoggedInCommand
         spfields = spissue["fields"]
         time = 0        
         time = spfields["timetracking"]["value"]["timeestimate"] if spfields["timetracking"]["value"] != nil
+
+        # Tasks that are resolved can be considered to have 0 time remaining
+        status = spfields["status"]["value"]["name"]
+        subtotal = subtotal + time unless status == "Resolved"
         if index < 1 
           row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, key, sp, time / 60.0, summary]
         else
           row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, "\"", sp, time / 60.0, "\""]
         end
         puts row
+        @seen_sp_issues.add(sp)
+      end
+    end
+  end  
+end
+
+#
+# List the issues slated from customer projects
+#
+class CustIssues < LoggedInCommand
+  def initialize
+    super
+  end
+  
+  def description
+    return "cust"
+  end
+  
+  
+  def run_logged_in
+    obp_query = "project=OBP AND status not in (Resolved, Closed) ORDER BY \"Global Rank\" ASC"
+    obp_issues = JiraHelpers.search_full(obp_query, @silent)
+    
+    sob_query = "project=SOB AND status not in (Resolved, Closed) ORDER BY \"Global Rank\" ASC"
+    sob_issues = JiraHelpers.search_full(sob_query, @silent)
+    
+    all_issues = [obp_issues, sob_issues].flatten
+    implementors = JiraHelpers.retrieve_implementors(all_issues, @silent)
+    init_implementors_dict(implementors)
+    
+    print_issues_table("OBP", obp_issues)
+    print_issues_table("SOB", sob_issues)
+    
+    # Nothing to show
+    return "#{all_issues.length} issues"
+  end
+  
+  def init_implementors_dict(implementors)
+    @implementors_dict = {}
+    implementors.each do | issue |
+      key = issue["key"]
+      @implementors_dict[key] = issue
+    end
+  end
+  
+  def print_issues_table(title, full_issues)
+    puts ("=" * 12)
+    puts title
+    puts ("-" * 12)
+    header = "%12s\t%12s\t%s" % ["Key", "BIS", "Summary"]
+    puts header
+    full_issues.each do | issue |
+      key = issue["key"]
+      fields = issue["fields"]
+      summary = fields["summary"]["value"]
+            
+      implementedby = []
+      fields["links"]["value"].each do | link | 
+        implementor = link["issueKey"]
+        # We are only interested in links to issues in the specified sprint
+        next unless @implementors_dict[implementor]
+        implementedby << implementor if "is implemented by" == link["type"]["description"] 
+      end
+      
+      if implementedby.length < 1
+        row = "%12s\t%12s\t%s" % [key, "----", summary]
+        puts row
+        next
+      end
+      
+      implementedby.each_with_index do | implementor, index |
+        # print one row for each implemented by
+        implementorissue = @implementors_dict[implementor]
+        next if implementorissue.nil?
+        implementorfields = implementorissue["fields"]
+        time = 0        
+        time = implementorfields["timetracking"]["value"]["timeestimate"] if implementorfields["timetracking"]["value"] != nil
+        if index < 1 
+          row = "%12s\t%12s\t%s" % [key, implementor, summary]
+        else
+          row = "%12s\t%12s\t%s" % ["\"", implementor, "\""]
+        end
+        puts row
       
         # Tasks that are resolved can be considered to have 0 time remaining
-        status = spfields["status"]["value"]["name"]
-        subtotal = subtotal + time unless status == "Resolved"
+        status = implementorfields["status"]["value"]["name"]
       end
     end
   end  
@@ -352,6 +494,7 @@ def get_command
   when "sprint" then ListSprint.new
   when "dump" then DumpIssue.new
   when "plan" then PlanSprint.new
+	when "cust" then CustIssues.new
   else Help.new
   end
 
