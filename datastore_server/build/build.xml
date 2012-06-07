@@ -108,8 +108,8 @@
         <include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
-        <exclude name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
-        <exclude name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
