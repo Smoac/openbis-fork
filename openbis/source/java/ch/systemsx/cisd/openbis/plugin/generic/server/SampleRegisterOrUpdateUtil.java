@@ -122,6 +122,7 @@ public class SampleRegisterOrUpdateUtil
             return false;
         }
 
+        @SuppressWarnings("null")
         String newSampleSubCode = newSampleIdentifier.getSampleSubCode();
         if (existingSample.getSubCode().equalsIgnoreCase(newSampleSubCode) == false)
         {
