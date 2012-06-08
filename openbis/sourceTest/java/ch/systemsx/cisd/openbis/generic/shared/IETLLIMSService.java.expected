@@ -801,5 +801,5 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Boolean didEntityOperationsSucceed(String token, TechId registrationId);
+    public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId);
 }
