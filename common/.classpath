@@ -34,16 +34,16 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-context.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/aopalliance.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-hdf5/cisd-jhdf5-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-hdf5/cisd-jhdf5-tools.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-hdf5/hdf5-linux-intel.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-hdf5/hdf5-macosx-intel.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-hdf5/hdf5-windows-intel.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-linux-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-macosx-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-windows-intel.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

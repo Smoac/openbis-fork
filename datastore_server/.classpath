@@ -48,7 +48,6 @@
 	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar"/>
@@ -81,5 +80,10 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-linux-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-macosx-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-windows-intel.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

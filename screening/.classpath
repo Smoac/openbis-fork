@@ -29,7 +29,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hdf5"/>
 	<classpathentry kind="lib" path="/libraries/nativedata"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
@@ -69,5 +68,11 @@
 	<classpathentry kind="lib" path="/libraries/reflections/lib/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="/libraries/reflections/reflections.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-linux-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-macosx-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-windows-intel.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
