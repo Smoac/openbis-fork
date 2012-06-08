@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -1322,52 +1323,78 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
     {
 
-        final Session session = getSession(sessionToken);
-
-        List<Space> spacesCreated = createSpaces(session, operationDetails, progressListener);
-
-        List<Material> materialsCreated =
-                createMaterials(session, operationDetails, progressListener);
-
-        List<Project> projectsCreated = createProjects(session, operationDetails, progressListener);
-
-        List<Experiment> experimentsCreated =
-                createExperiments(session, operationDetails, progressListener);
-
-        List<Sample> samplesCreated = createSamples(session, operationDetails, progressListener);
-
-        List<Sample> samplesUpdated = updateSamples(session, operationDetails, progressListener);
-
-        List<ExternalData> dataSetsCreated =
-                createDataSets(session, operationDetails, progressListener);
-
-        List<ExternalData> dataSetsUpdated =
-                updateDataSets(session, operationDetails, progressListener);
-
-        // If the id is not null, the caller wants to persist the fact that the operation was
-        // invoked and completed;
-        // if the id is null, the caller does not care.
         TechId registrationId = operationDetails.getRegistrationIdOrNull();
-        if (null != registrationId)
-        {
-            daoFactory.getEntityOperationsLogDAO().addLogEntry(registrationId.getId());
-        }
 
-        return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
-                samplesUpdated, samplesCreated, materialsCreated, dataSetsCreated, dataSetsUpdated);
+        EntityOperationsInProgress.getInstance().addRegistrationPending(registrationId);
+
+        try
+        {
+
+            final Session session = getSession(sessionToken);
+
+            List<Space> spacesCreated = createSpaces(session, operationDetails, progressListener);
+
+            List<Material> materialsCreated =
+                    createMaterials(session, operationDetails, progressListener);
+
+            List<Project> projectsCreated =
+                    createProjects(session, operationDetails, progressListener);
+
+            List<Experiment> experimentsCreated =
+                    createExperiments(session, operationDetails, progressListener);
+
+            List<Sample> samplesCreated =
+                    createSamples(session, operationDetails, progressListener);
+
+            List<Sample> samplesUpdated =
+                    updateSamples(session, operationDetails, progressListener);
+
+            List<ExternalData> dataSetsCreated =
+                    createDataSets(session, operationDetails, progressListener);
+
+            List<ExternalData> dataSetsUpdated =
+                    updateDataSets(session, operationDetails, progressListener);
+
+            // If the id is not null, the caller wants to persist the fact that the operation was
+            // invoked and completed;
+            // if the id is null, the caller does not care.
+            if (null != registrationId)
+            {
+                daoFactory.getEntityOperationsLogDAO().addLogEntry(registrationId.getId());
+            }
+
+            return new AtomicEntityOperationResult(spacesCreated, projectsCreated,
+                    experimentsCreated, samplesUpdated, samplesCreated, materialsCreated,
+                    dataSetsCreated, dataSetsUpdated);
+        } finally
+        {
+            EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
+        }
     }
 
     @Override
-    public Boolean didEntityOperationsSucceed(String token, TechId registrationId)
+    public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId)
     {
         if (registrationId == null)
         {
-            return false;
+            return EntityOperationsState.NO_OPERATION;
+        }
+
+        if (EntityOperationsInProgress.getInstance().isRegistrationPending(registrationId))
+        {
+            return EntityOperationsState.IN_PROGRESS;
         }
 
         EntityOperationsLogEntryPE logEntry =
                 daoFactory.getEntityOperationsLogDAO().tryFindLogEntry(registrationId.getId());
-        return logEntry != null;
+
+        if (logEntry != null)
+        {
+            return EntityOperationsState.OPERATION_SUCCEEDED;
+        } else
+        {
+            return EntityOperationsState.NO_OPERATION;
+        }
     }
 
     private List<Space> createSpaces(Session session,

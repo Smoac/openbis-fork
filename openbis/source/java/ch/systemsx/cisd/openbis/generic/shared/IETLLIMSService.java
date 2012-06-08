@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpd
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -801,5 +802,5 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Boolean didEntityOperationsSucceed(String token, TechId registrationId);
+    public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId);
 }
