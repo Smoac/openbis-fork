@@ -62,7 +62,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
     private static enum RegistrationCheckResult
     {
-        REGISTRATION_SUCCEEDED, REGISTRATION_FAILED, CHECK_FAILED
+        REGISTRATION_SUCCEEDED, REGISTRATION_FAILED, CHECK_FAILED, REGISTRATION_IN_PROGRESS
     }
 
     private static enum RecoveryResult
@@ -119,6 +119,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase = new RecoveryTestCase("check retry count incremented");
         testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_CANT_CHECK_REGISTRATION_STATUS;
+        testCase.recoveryRertyCount = 3;
+        testCases.add(testCase);
+
+        testCase =
+                new RecoveryTestCase("registration in progress - don't increase the try counter");
+        testCase.registrationCheckResult = RegistrationCheckResult.REGISTRATION_IN_PROGRESS;
+        testCase.recoveryResult = RecoveryResult.RETRY_AT_CANT_CHECK_REGISTRATION_STATUS;
+        testCase.shouldIncrementTryCount = false;
         testCase.recoveryRertyCount = 3;
         testCases.add(testCase);
 
@@ -199,6 +207,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
          * If true than setting storage confirmed in application server will fail.
          */
         protected boolean shouldStorageConfirmationFail = false;
+
+        /**
+         * The behaviour on error. Default is that it should increase the try count.
+         */
+        protected boolean shouldIncrementTryCount = true;
 
         private RecoveryTestCase(String title)
         {
@@ -310,6 +323,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             jythonHookTestTool.assertLogged("post_metadata_registration");
         }
 
+        int expectedRetryCount =
+                testCase.recoveryRertyCount + (testCase.shouldIncrementTryCount ? 1 : 0);
+
         switch (testCase.recoveryResult)
         {
             case RECOVERY_SUCCEEDED:
@@ -343,14 +359,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 {
                     assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
                 }
-                assertRecoveryFile(testCase.recoveryRertyCount + 1,
+                assertRecoveryFile(expectedRetryCount,
                         RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 break;
             case RETRY_AT_STORAGE_CONFIRMED_FAILURE:
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
-                assertRecoveryFile(testCase.recoveryRertyCount + 1,
+                assertRecoveryFile(expectedRetryCount,
                         RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 break;
@@ -666,7 +682,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoRecoveryMarkerFile();
 
         assertDirEmpty(precommitDirectory);
-        
+
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
 
     }
@@ -699,7 +715,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             // second handle - fail at storage
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
-            will(doAll(makeFileSystemUnavailableAction(), returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
+            will(doAll(makeFileSystemUnavailableAction(),
+                    returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
 
             // third try - fail at storage confirmation
             setStorageConfirmed(true);
@@ -796,7 +813,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             switch (testCase.registrationCheckResult)
             {
                 case REGISTRATION_SUCCEEDED:
-                    // with the current implemntation returning the non-empty list should be enough
                     returnSuccessAndChangeEnvironment();
                     break;
                 case REGISTRATION_FAILED:
@@ -805,6 +821,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 case CHECK_FAILED:
                     will(throwException(new EnvironmentFailureException(
                             "Cannot check whether the registration was successful")));
+                    break;
+                case REGISTRATION_IN_PROGRESS:
+                    will(returnValue(EntityOperationsState.IN_PROGRESS));
+                    break;
             }
         }
 
@@ -812,7 +832,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             if (testCase.shouldMakeFilesystemUnavailable)
             {
-                will(doAll(makeFileSystemUnavailableAction(), returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
+                will(doAll(makeFileSystemUnavailableAction(),
+                        returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
             } else
             {
                 will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));

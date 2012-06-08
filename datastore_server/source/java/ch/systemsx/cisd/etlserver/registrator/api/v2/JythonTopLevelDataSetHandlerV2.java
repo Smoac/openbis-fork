@@ -202,69 +202,68 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         logger.log("Starting recovery at checkpoint " + recoveryInfo.getRecoveryStage());
 
-        IDelegatedActionWithResult<Boolean> recoveryMarkerFileCleanupAction =
-                new IDelegatedActionWithResult<Boolean>()
+        IRecoveryCleanupDelegate recoveryMarkerFileCleanupAction = new IRecoveryCleanupDelegate()
+            {
+                @Override
+                public void execute(boolean shouldStopRecovery, boolean shouldIncreaseTryCount)
+                {
+                    if (false == shouldStopRecovery
+                            && recoveryInfo.getTryCount() >= state.getGlobalState()
+                                    .getStorageRecoveryManager().getMaximumRertyCount())
                     {
-                        @Override
-                        public Boolean execute(boolean didOperationSucceed)
+                        notificationLog.error("The dataset "
+                                + recoveryState.getIncomingDataSetFile().getRealIncomingFile()
+                                + " has failed to register. Giving up.");
+                        deleteMarkerFile();
+
+                        System.err.println("This is happening " + recoveryMarkerFile);
+                        File errorRecoveryMarkerFile =
+                                new File(recoveryMarkerFile.getParent(),
+                                        recoveryMarkerFile.getName() + ".ERROR");
+                        state.getFileOperations().move(recoveryMarkerFile, errorRecoveryMarkerFile);
+
+                        logger.log("Recovery failed. Giving up.");
+                        logger.registerFailure();
+
+                    } else
+                    {
+                        if (shouldStopRecovery)
                         {
-                            if (!didOperationSucceed
-                                    && recoveryInfo.getTryCount() >= state.getGlobalState()
-                                            .getStorageRecoveryManager().getMaximumRertyCount())
-                            {
-                                notificationLog.error("The dataset "
-                                        + recoveryState.getIncomingDataSetFile()
-                                                .getRealIncomingFile()
-                                        + " has failed to register. Giving up.");
-                                deleteMarkerFile();
+                            deleteMarkerFile();
 
-                                System.err.println("This is happening " + recoveryMarkerFile);
-                                File errorRecoveryMarkerFile =
-                                        new File(recoveryMarkerFile.getParent(),
-                                                recoveryMarkerFile.getName() + ".ERROR");
-                                state.getFileOperations().move(recoveryMarkerFile,
-                                        errorRecoveryMarkerFile);
-
-                                logger.log("Recovery failed. Giving up.");
-                                logger.registerFailure();
-
-                            } else
-                            {
-                                if (didOperationSucceed)
-                                {
-                                    deleteMarkerFile();
-
-                                    recoveryMarkerFile.delete();
-                                    recoveryFile.delete();
-                                } else
-                                {
-                                    // this replaces the recovery file with a new one with increased
-                                    // count
-                                    // FIXME: is this safe operation (how to assure, that it won't
-                                    // corrupt the recoveryMarkerFile?)
-                                    DataSetStorageRecoveryInfo rInfo =
-                                            state.getGlobalState().getStorageRecoveryManager()
-                                                    .getRecoveryFileFromMarker(recoveryMarkerFile);
-                                    rInfo.increaseTryCount();
-                                    rInfo.setLastTry(new Date());
-                                    rInfo.writeToFile(recoveryMarkerFile);
-                                }
-                            }
-                            return true;
-                        }
-
-                        private void deleteMarkerFile()
+                            recoveryMarkerFile.delete();
+                            recoveryFile.delete();
+                        } else
                         {
-                            File incomingMarkerFile =
-                                    MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
-                                            .getIncomingDataSetFile().getRealIncomingFile());
-                            if (incomingMarkerFile.exists())
+                            // this replaces the recovery file with a new one with increased
+                            // count
+                            // FIXME: is this safe operation (how to assure, that it won't
+                            // corrupt the recoveryMarkerFile?)
+                            DataSetStorageRecoveryInfo rInfo =
+                                    state.getGlobalState().getStorageRecoveryManager()
+                                            .getRecoveryFileFromMarker(recoveryMarkerFile);
+                            if (shouldIncreaseTryCount)
                             {
-
-                                incomingMarkerFile.delete();
+                                rInfo.increaseTryCount();
                             }
+                            rInfo.setLastTry(new Date());
+                            rInfo.writeToFile(recoveryMarkerFile);
                         }
-                    };
+                    }
+                }
+
+                private void deleteMarkerFile()
+                {
+                    File incomingMarkerFile =
+                            MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
+                                    .getIncomingDataSetFile().getRealIncomingFile());
+                    if (incomingMarkerFile.exists())
+                    {
+
+                        incomingMarkerFile.delete();
+                    }
+                }
+            };
 
         PostRegistrationCleanUpAction cleanupAction =
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
@@ -272,6 +271,11 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         handleRecoveryState(recoveryInfo.getRecoveryStage(), recoveryState, cleanupAction,
                 recoveryMarkerFileCleanupAction);
+    }
+
+    interface IRecoveryCleanupDelegate
+    {
+        void execute(boolean shouldStopRecovery, boolean shouldIncreaseTryCount);
     }
 
     /**
@@ -289,7 +293,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     private void handleRecoveryState(RecoveryStage recoveryStage,
             final AbstractRecoveryState<T> recoveryState,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-            final IDelegatedActionWithResult<Boolean> recoveryMarkerCleanup)
+            final IRecoveryCleanupDelegate recoveryMarkerCleanup)
     {
 
         final DssRegistrationLogger logger = recoveryState.getRegistrationLogger(state);
@@ -298,6 +302,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         // we can delete if succesfully recovered, or rolledback.
         // This code is not executed at all in case of a recovery give-up
         boolean shouldStopRecovery = false;
+
+        // by default in case of failure we increase try count
+        boolean shouldIncreaseTryCount = true;
 
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
             {
@@ -375,7 +382,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 entityOperationsState = EntityOperationsState.OPERATION_SUCCEEDED;
             }
 
-            if (EntityOperationsState.NO_OPERATION == entityOperationsState)
+            if (EntityOperationsState.IN_PROGRESS == entityOperationsState)
+            {
+                shouldIncreaseTryCount = false;
+            } else if (EntityOperationsState.NO_OPERATION == entityOperationsState)
             {
                 operationLog
                         .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not successful.");
@@ -456,7 +466,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         cleanAfterwardsAction.execute(registrationSuccessful);
 
-        recoveryMarkerCleanup.execute(shouldStopRecovery);
+        recoveryMarkerCleanup.execute(shouldStopRecovery, shouldIncreaseTryCount);
 
     }
 
