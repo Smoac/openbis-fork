@@ -87,9 +87,9 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         logFile.registerSuccess();
         logFile.log("3: Succeeded");
         List<String> contents = FileUtilities.loadToStringList(logFile.getFile());
-        assertTrue(contents.get(0), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 1: The message$", contents.get(0)));
-        assertTrue(contents.get(1), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 2: The message$", contents.get(1)));
-        assertTrue(contents.get(2), Pattern.matches("^\\d{2}:\\d{2}:\\d{2} 3: Succeeded$", contents.get(2)));
+        assertTrue(contents.get(0), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 1: The message$", contents.get(0)));
+        assertTrue(contents.get(1), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 2: The message$", contents.get(1)));
+        assertTrue(contents.get(2), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 3: Succeeded$", contents.get(2)));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         String contents = FileUtilities.loadToString(logFile.getFile());
         assertTrue(contents,
                 Pattern.matches(
-                        "^\\d{2}:\\d{2}:\\d{2} This is a very long string, in fact, a string that is longer than the limit for the length of an...\\n$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} This is a very long string, in fact, a string that is longer than the limit for the length of an...\\n$",
                         contents));
     }
 

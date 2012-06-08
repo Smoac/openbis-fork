@@ -132,14 +132,14 @@ public class DssComponentTest extends SystemTestCase
         File logFile = succeededContents[0];
         String[] expectedContents =
             {
-                    "^\\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
                     "^\\t\\d+-\\d+$",
-                    "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
-                    "^\\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
-                    "^\\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
-                    "^\\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
-                    "^\\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
-                    "^\\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$"
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
+                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$"
         };
         checkLogFileContents(logFile, expectedContents);
 
@@ -147,7 +147,7 @@ public class DssComponentTest extends SystemTestCase
         File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 1);
         logFile = failedContents[0];
         expectedContents = new String[]
-            { "^\\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
+            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
         checkLogFileContents(logFile, expectedContents);
     }
 

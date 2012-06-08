@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
@@ -70,13 +70,15 @@ public class DssRegistrationLogger
         moveToDir(helper.getSucceededDir());
     }
 
+    private static FastDateFormat simpleNoISODateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+    
     /**
      * Logs a message.
      */
     public void log(String message)
     {
         StringBuilder logMessage = new StringBuilder();
-        logMessage.append(DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(new Date()));
+        logMessage.append(simpleNoISODateFormat.format(new Date()));
         logMessage.append(" ");
         logMessage.append(message);
         logMessage.append("\n");
