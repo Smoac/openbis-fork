@@ -179,6 +179,8 @@ public class ProjectGrid extends TypedTableGrid<Project>
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(ProjectGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
+        schema.setGridCellRendererFor(ProjectGridColumnIDs.MODIFIER,
+                PersonRenderer.MODIFIER_RENDERER);
         return schema;
     }
 

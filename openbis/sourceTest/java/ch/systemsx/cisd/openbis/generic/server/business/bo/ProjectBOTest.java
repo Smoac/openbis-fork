@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PERSON;
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PROJECT;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,9 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 @Friend(toClasses = DeletedExperimentPE.class)
 public final class ProjectBOTest extends AbstractBOTest
 {
-
-    private static final ProjectPE EXAMPLE_PROJECT = ManagerTestTool.EXAMPLE_PROJECT;
-
     private static final TechId EXAMPLE_PROJECT_ID = new TechId(EXAMPLE_PROJECT.getId());
 
     private final ProjectBO createProjectBO()
@@ -244,7 +244,7 @@ public final class ProjectBOTest extends AbstractBOTest
             {
                 {
 
-                    one(projectDAO).createProject(projectBO.getProject());
+                    one(projectDAO).createProject(projectBO.getProject(), EXAMPLE_PERSON);
                 }
             });
         projectBO.save();
@@ -274,7 +274,7 @@ public final class ProjectBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).createProject(projectBO.getProject());
+                    one(projectDAO).createProject(projectBO.getProject(), EXAMPLE_PERSON);
                     will(throwException(ManagerTestTool.createUniqueViolationException()));
                 }
             });

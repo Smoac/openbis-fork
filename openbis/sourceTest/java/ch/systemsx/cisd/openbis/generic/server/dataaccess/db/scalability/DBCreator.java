@@ -234,7 +234,7 @@ public final class DBCreator extends AbstractDAOTest
         project.setSpace(defaultGroup);
         project.setProjectLeader(getSystemPerson());
         project.setRegistrator(getSystemPerson());
-        daoFactory.getProjectDAO().createProject(project);
+        daoFactory.getProjectDAO().createProject(project, getTestPerson());
 
         return project;
     }

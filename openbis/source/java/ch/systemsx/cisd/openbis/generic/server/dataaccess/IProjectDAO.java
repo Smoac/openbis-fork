@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * <i>Data Access Object</i> for {@link ProjectPE}.
@@ -48,5 +49,5 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
     /**
      * Creates a new project.
      */
-    public void createProject(ProjectPE project);
+    public void createProject(ProjectPE project, final PersonPE modifier);
 }

@@ -32,8 +32,9 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Implementation of {@link IProjectDAO}.
@@ -42,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements IProjectDAO
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ProjectDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ProjectDAO.class);
 
     protected ProjectDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
@@ -102,12 +103,13 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
     }
 
     @Override
-    public void createProject(ProjectPE project)
+    public void createProject(ProjectPE project, PersonPE modifier)
     {
         assert project != null : "Missing project.";
         validatePE(project);
 
         project.setCode(CodeConverter.tryToDatabase(project.getCode()));
+        project.setModifier(modifier);
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(project);
         template.flush();

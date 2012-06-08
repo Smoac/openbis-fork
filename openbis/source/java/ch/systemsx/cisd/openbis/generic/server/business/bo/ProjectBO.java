@@ -107,7 +107,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             try
             {
-                getProjectDAO().createProject(project);
+                getProjectDAO().createProject(project, findPerson());
             } catch (final DataAccessException ex)
             {
                 throwException(ex, "Project '" + project.getCode() + "'");

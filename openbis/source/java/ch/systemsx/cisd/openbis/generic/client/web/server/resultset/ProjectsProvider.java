@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.DESCRIPTION;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.MODIFICATION_DATE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.MODIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs.SPACE;
@@ -32,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Table model provider of {@link Space} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ProjectsProvider extends AbstractCommonTableModelProvider<Project>
@@ -51,7 +53,9 @@ public class ProjectsProvider extends AbstractCommonTableModelProvider<Project>
         builder.addColumn(SPACE);
         builder.addColumn(DESCRIPTION).withDefaultWidth(200);
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
+        builder.addColumn(MODIFIER).withDefaultWidth(200).hideByDefault();
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         for (Project project : projects)
         {
             builder.addRow(project);
@@ -60,6 +64,8 @@ public class ProjectsProvider extends AbstractCommonTableModelProvider<Project>
             builder.column(DESCRIPTION).addString(project.getDescription());
             builder.column(REGISTRATOR).addPerson(project.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(project.getRegistrationDate());
+            builder.column(MODIFIER).addPerson(project.getModifier());
+            builder.column(MODIFICATION_DATE).addDate(project.getModificationDate());
         }
         return builder.getModel();
     }

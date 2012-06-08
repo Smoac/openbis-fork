@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
@@ -27,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  * 
  * @author Tomasz Pylak
  */
-public class Project extends CodeWithRegistration<Project> implements IAttachmentHolder,
-        IIdAndCodeHolder
+public class Project extends CodeWithRegistrationAndModificationDate<Project> implements
+        IAttachmentHolder, IIdAndCodeHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -57,8 +56,6 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
 
     // TODO 2009-06-17, Piotr Buczek: remove and create NewProject with NewAttachments, ...
     private List<NewAttachment> newAttachments;
-
-    private Date modificationDate;
 
     @Override
     public AttachmentHolderKind getAttachmentHolderKind()
@@ -124,16 +121,6 @@ public class Project extends CodeWithRegistration<Project> implements IAttachmen
     public List<NewAttachment> getNewAttachments()
     {
         return newAttachments;
-    }
-
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
     }
 
     @Override

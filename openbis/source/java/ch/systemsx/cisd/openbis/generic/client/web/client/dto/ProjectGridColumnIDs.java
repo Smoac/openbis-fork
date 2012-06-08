@@ -20,13 +20,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project
 
 /**
  * IDs of column of {@link ProjectGrid}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ProjectGridColumnIDs
 {
     public static final String CODE = "CODE";
-    
+
     public static final String SPACE = "SPACE";
 
     public static final String DESCRIPTION = "DESCRIPTION";
@@ -35,4 +35,7 @@ public class ProjectGridColumnIDs
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
+    public static final String MODIFIER = "MODIFIER";
+
+    public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
 }

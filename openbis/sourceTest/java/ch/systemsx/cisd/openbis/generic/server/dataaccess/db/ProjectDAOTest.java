@@ -31,9 +31,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -154,7 +154,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         final ProjectPE newProject =
                 prepareProject(templateProject.getSpace(), NONEXISTENT, DESCRIPTION_NEW_PROJECT,
                         getSystemPerson());
-        daoFactory.getProjectDAO().createProject(newProject);
+        daoFactory.getProjectDAO().createProject(newProject, getTestPerson());
         final ProjectPE registeredProject =
                 daoFactory.getProjectDAO().tryFindProject(
                         templateProject.getSpace().getDatabaseInstance().getCode(),

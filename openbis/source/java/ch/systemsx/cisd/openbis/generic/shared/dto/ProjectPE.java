@@ -100,6 +100,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     private PersonPE registrator;
 
+    private PersonPE modifier;
+
     private Date registrationDate;
 
     private ProjectIdentifier projectIdentifier;
@@ -128,6 +130,18 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setRegistrator(final PersonPE registrator)
     {
         this.registrator = registrator;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
+    public PersonPE getModifier()
+    {
+        return modifier;
+    }
+
+    public void setModifier(final PersonPE modifier)
+    {
+        this.modifier = modifier;
     }
 
     public final void setCode(final String code)
