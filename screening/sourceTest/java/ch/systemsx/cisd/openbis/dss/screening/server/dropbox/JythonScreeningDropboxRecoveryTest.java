@@ -39,6 +39,7 @@ import ch.systemsx.cisd.etlserver.registrator.TestingDataSetHandlerExpectations;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.jython.v2.JythonPlateDataSetHandlerV2;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -275,7 +276,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             registerDataSetsAndThrow(true);
 
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
-            will(returnValue(true));
+            will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
 
             // the recovery should happen here
 
