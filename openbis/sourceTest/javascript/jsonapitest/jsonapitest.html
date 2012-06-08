@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <script src="../simpleapp/jquery.js"></script>
+  <script src="../simpleapp/openbis.js"></script>
+  <script type="text/javascript" src="qunit/qunit.js"></script>  
+  <link type="text/css" rel="stylesheet" href="qunit/qunit.css" media="screen" />
+  <link type="text/css" rel="stylesheet" href="../simpleapp/body-style.css" />
+  <link type="text/css" rel="stylesheet" href="../simpleapp/button.css" />
+
+  <script>
+  
+var server = new openbis('https://sprint-openbis.ethz.ch/openbis/openbis', 'https://sprint-openbis.ethz.ch:443/datastore_server');
+//var server = new openbis('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+  
+$(document).ready(function() {
+  $('#main').hide();
+  
+  if(username.value.length==0) {
+    $("#username").focus();
+  } else {
+    $("#login-button").focus();
+  }
+  
+  $('#logout-button').click(function() { 
+    server.logout(function(data) { 
+      $("#login-form-div").show();
+      $("#main").hide();
+      $("#username").focus();
+      location.reload(true);
+    });
+  });
+  
+  $('#login-form').submit(function() {
+     server.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { runTests(data) })
+  });
+  
+  server.ifRestoredSessionActive(function(data) { runTests(data) });
+
+    // Make the ENTER key the default button
+  $("login-form input").keypress(function (e) {
+    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+      $('button[type=submit].default').click();
+      return false;
+    } else {
+      return true;
+    }
+  });
+});
+  
+function runTests(data)
+{
+  $("#login-form-div").hide();
+  $("#main").show();
+  
+  test("login", function() {
+    ok(data.result != null, "Logged in")
+  });
+  
+  module("Search");
+  asyncTest("Sample Search", function() {
+    
+    function assertResults(data) { 
+      ok(data.result != null, "Got results");
+      ok(data.result.length > 1, "Results length (" + data.result.length + ") > 1");
+      equal(data.result.length, 2008, "Should have had 2008 results");
+      start();
+    }
+    
+    var sampleCriteria = 
+    {
+      matchClauses : 
+        [ {"@type":"AttributeMatchClause",
+          fieldType : "ATTRIBUTE",      
+          attribute : "TYPE",
+          desiredValue : "SEKHAR" 
+        } ],
+      operator : "MATCH_ALL_CLAUSES"
+    };
+    server.searchForSamples(sampleCriteria, assertResults);
+  });
+}
+  </script>
+  
+</head>
+<body>
+  <div id="login-form-div">
+    <h1>openBIS My Installation</h1>
+    <form id="login-form" action="javascript:">
+      <input id="username" type="text" required="required"> 
+      <input id="password" type="password" required="required"> 
+      <button class="login-button" id="login-button" type="submit">Login</button>
+    </form>
+  </div>
+  <div id="main">
+    <div id="button-group" style="padding-bottom: 10px;">
+      <button id="logout-button">Logout</button>
+    </div>
+    <h1 id="qunit-header">openBIS JSON API Tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+  </div>
+</body>
+</html>
