@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRe
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -352,7 +353,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         operationLog.info("Recovery succesfully deserialized the state of the registration");
         try
         {
-            boolean entityOperationsSucceeded;
+            EntityOperationsState entityOperationsState;
 
             if (recoveryStage.beforeOrEqual(RecoveryStage.PRECOMMIT))
             {
@@ -364,17 +365,17 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     throw new IllegalStateException(
                             "Recovery state cannot have null registrationId at the precommit phase");
                 }
-                entityOperationsSucceeded =
+                entityOperationsState =
                         state.getGlobalState().getOpenBisService()
                                 .didEntityOperationsSucceed(registrationId);
             } else
             {
                 // if we are at the later stage than precommit - it means that the entity operations
                 // have succeeded
-                entityOperationsSucceeded = true;
+                entityOperationsState = EntityOperationsState.OPERATION_SUCCEEDED;
             }
 
-            if (false == entityOperationsSucceeded)
+            if (EntityOperationsState.NO_OPERATION == entityOperationsState)
             {
                 operationLog
                         .info("Recovery hasn't found registration artifacts in the application server. Registration of metadata was not successful.");

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -512,5 +513,5 @@ public interface IEncapsulatedOpenBISService
      * {@link IETLLIMSService#didEntityOperationsSucceed(String, TechId)}
      */
     @ManagedAuthentication
-    public Boolean didEntityOperationsSucceed(TechId registrationId);
+    public EntityOperationsState didEntityOperationsSucceed(TechId registrationId);
 }

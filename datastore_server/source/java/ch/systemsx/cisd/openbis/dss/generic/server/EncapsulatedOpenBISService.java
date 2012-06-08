@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-
 import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -42,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -714,7 +714,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public Boolean didEntityOperationsSucceed(TechId registrationId)
+    public EntityOperationsState didEntityOperationsSucceed(TechId registrationId)
     {
         return service.didEntityOperationsSucceed(session.getToken(), registrationId);
     }

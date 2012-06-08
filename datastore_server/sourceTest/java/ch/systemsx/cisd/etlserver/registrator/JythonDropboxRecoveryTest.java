@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -698,7 +699,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
             // second handle - fail at storage
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
-            will(doAll(makeFileSystemUnavailableAction(), returnValue(true)));
+            will(doAll(makeFileSystemUnavailableAction(), returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
 
             // third try - fail at storage confirmation
             setStorageConfirmed(true);
@@ -796,10 +797,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 case REGISTRATION_SUCCEEDED:
                     // with the current implemntation returning the non-empty list should be enough
-                    returnTrueAndChangeEnvironment();
+                    returnSuccessAndChangeEnvironment();
                     break;
                 case REGISTRATION_FAILED:
-                    will(returnValue(false));
+                    will(returnValue(EntityOperationsState.NO_OPERATION));
                     break;
                 case CHECK_FAILED:
                     will(throwException(new EnvironmentFailureException(
@@ -807,14 +808,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             }
         }
 
-        private void returnTrueAndChangeEnvironment()
+        private void returnSuccessAndChangeEnvironment()
         {
             if (testCase.shouldMakeFilesystemUnavailable)
             {
-                will(doAll(makeFileSystemUnavailableAction(), returnValue(true)));
+                will(doAll(makeFileSystemUnavailableAction(), returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
             } else
             {
-                will(returnValue(true));
+                will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
             }
         }
 
