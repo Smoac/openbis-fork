@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.api.server.json;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -1063,7 +1064,7 @@ public class JsonDeserializationTest
 
         Collection collection = new ArrayList(map.values());
         List list = new ArrayList(map.values());
-        // Object[] array = map.values().toArray(new Object[map.size()]);
+        Object[] array = map.values().toArray(new Object[map.size()]);
 
         Map specificMap = new LinkedHashMap();
         specificMap.put("itemWithKnownType", createObjectWithKnownType());
@@ -1071,7 +1072,7 @@ public class JsonDeserializationTest
 
         Collection specificCollection = new ArrayList(specificMap.values());
         List specificList = new ArrayList(specificMap.values());
-        // Object[] specificArray = specificMap.values().toArray(new Object[specificMap.size()]);
+        Object[] specificArray = specificMap.values().toArray(new Object[specificMap.size()]);
 
         Map<String, Object> object = new HashMap<String, Object>();
 
@@ -1080,16 +1081,28 @@ public class JsonDeserializationTest
         object.put("collectionWithObjectType", collection);
         object.put("collectionWithSpecificType", specificCollection);
 
+        object.put("linkedHashSetWithoutType", collection);
+        object.put("linkedHashSetWithObjectType", collection);
+        object.put("linkedHashSetWithSpecificType", specificCollection);
+
         object.put("mapWithoutType", map);
         object.put("mapWithObjectType", map);
         object.put("mapWithSpecificType", specificMap);
+
+        object.put("linkedHashMapWithoutType", map);
+        object.put("linkedHashMapWithObjectType", map);
+        object.put("linkedHashMapWithSpecificType", specificMap);
 
         object.put("listWithoutType", list);
         object.put("listWithObjectType", list);
         object.put("listWithSpecificType", specificList);
 
-        // object.put("arrayWithObjectType", array);
-        // object.put("arrayWithSpecificType", specificArray);
+        object.put("linkedListWithoutType", list);
+        object.put("linkedListWithObjectType", list);
+        object.put("linkedListWithSpecificType", specificList);
+
+        object.put("arrayWithObjectType", array);
+        object.put("arrayWithSpecificType", specificArray);
 
         return object;
     }
@@ -1098,17 +1111,33 @@ public class JsonDeserializationTest
     {
         Assert.assertEquals(object.getClass(), ObjectWithContainerTypes.class);
         ObjectWithContainerTypes objectWithContainers = (ObjectWithContainerTypes) object;
+
         assertObjectsCollection(objectWithContainers.collectionWithObjectType);
         assertObjectsCollection(objectWithContainers.collectionWithoutType);
         assertObjectsSpecificCollection(objectWithContainers.collectionWithSpecificType);
+
+        assertObjectsCollection(objectWithContainers.linkedHashSetWithObjectType);
+        assertObjectsCollection(objectWithContainers.linkedHashSetWithoutType);
+        assertObjectsSpecificCollection(objectWithContainers.linkedHashSetWithSpecificType);
+
         assertObjectsMap(objectWithContainers.mapWithObjectType);
         assertObjectsMap(objectWithContainers.mapWithoutType);
         assertObjectsSpecificMap(objectWithContainers.mapWithSpecificType);
+
+        assertObjectsMap(objectWithContainers.linkedHashMapWithObjectType);
+        assertObjectsMap(objectWithContainers.linkedHashMapWithoutType);
+        assertObjectsSpecificMap(objectWithContainers.linkedHashMapWithSpecificType);
+
         assertObjectsCollection(objectWithContainers.listWithObjectType);
         assertObjectsCollection(objectWithContainers.listWithoutType);
         assertObjectsSpecificCollection(objectWithContainers.listWithSpecificType);
-        // assertObjectsArray(objectWithContainers.arrayWithObjectType);
-        // assertObjectsSpecificArray(objectWithContainers.arrayWithSpecificType);
+
+        assertObjectsCollection(objectWithContainers.linkedListWithObjectType);
+        assertObjectsCollection(objectWithContainers.linkedListWithoutType);
+        assertObjectsSpecificCollection(objectWithContainers.linkedListWithSpecificType);
+
+        assertObjectsArray(objectWithContainers.arrayWithObjectType);
+        assertObjectsSpecificArray(objectWithContainers.arrayWithSpecificType);
     }
 
     @SuppressWarnings(
@@ -1169,15 +1198,15 @@ public class JsonDeserializationTest
         assertObjectWithKnownUniqueClass(map.get("itemWithKnownUniqueClass"));
     }
 
-    // private void assertObjectsArray(Object[] array)
-    // {
-    // assertObjectsCollection(Arrays.asList(array));
-    // }
+    private void assertObjectsArray(Object[] array)
+    {
+        assertObjectsCollection(Arrays.asList(array));
+    }
 
-    // private void assertObjectsSpecificArray(Object[] array)
-    // {
-    // assertObjectsSpecificCollection(Arrays.asList(array));
-    // }
+    private void assertObjectsSpecificArray(Object[] array)
+    {
+        assertObjectsSpecificCollection(Arrays.asList(array));
+    }
 
     @SuppressWarnings("unchecked")
     private <T> T deserialize(Object object, Class<?> rootClass) throws Exception

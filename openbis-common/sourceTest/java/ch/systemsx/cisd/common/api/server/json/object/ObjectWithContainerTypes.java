@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.api.server.json.object;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +39,23 @@ public class ObjectWithContainerTypes
 
     public Collection<ObjectWithType> collectionWithSpecificType;
 
+    public LinkedHashSet linkedHashSetWithoutType;
+
+    public Collection<Object> linkedHashSetWithObjectType;
+
+    public Collection<ObjectWithType> linkedHashSetWithSpecificType;
+
     public List listWithoutType;
 
     public List<Object> listWithObjectType;
 
     public List<ObjectWithType> listWithSpecificType;
+
+    public LinkedList linkedListWithoutType;
+
+    public LinkedList<Object> linkedListWithObjectType;
+
+    public LinkedList<ObjectWithType> linkedListWithSpecificType;
 
     public Map mapWithoutType;
 
@@ -49,10 +63,14 @@ public class ObjectWithContainerTypes
 
     public Map<String, ObjectWithType> mapWithSpecificType;
 
-    // TODO: check why it doesn't work properly during both serialization and deserialization
+    public Map linkedHashMapWithoutType;
 
-    // public Object[] arrayWithObjectType;
+    public Map<String, Object> linkedHashMapWithObjectType;
 
-    // public ObjectWithType[] arrayWithSpecificType;
+    public Map<String, ObjectWithType> linkedHashMapWithSpecificType;
+
+    public Object[] arrayWithObjectType;
+
+    public ObjectWithType[] arrayWithSpecificType;
 
 }

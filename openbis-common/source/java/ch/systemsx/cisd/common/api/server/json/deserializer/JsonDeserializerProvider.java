@@ -16,15 +16,8 @@
 
 package ch.systemsx.cisd.common.api.server.json.deserializer;
 
-import org.codehaus.jackson.map.BeanProperty;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.DeserializerFactory;
 import org.codehaus.jackson.map.deser.StdDeserializerProvider;
-import org.codehaus.jackson.type.JavaType;
-
-import ch.systemsx.cisd.common.api.server.json.mapping.IJsonClassValueToClassObjectsMapping;
-import ch.systemsx.cisd.common.api.server.json.mapping.IJsonTypeValueToClassObjectMapping;
 
 /**
  * @author pkupczyk
@@ -32,32 +25,9 @@ import ch.systemsx.cisd.common.api.server.json.mapping.IJsonTypeValueToClassObje
 public class JsonDeserializerProvider extends StdDeserializerProvider
 {
 
-    private IJsonTypeValueToClassObjectMapping typeValueToClassObjectMapping;
-
-    private IJsonClassValueToClassObjectsMapping classValueToClassObjectsMapping;
-
-    public JsonDeserializerProvider(
-            IJsonTypeValueToClassObjectMapping typeValueToClassObjectMapping,
-            IJsonClassValueToClassObjectsMapping classValueToClassObjectsMapping)
+    public JsonDeserializerProvider(DeserializerFactory f)
     {
-        this.typeValueToClassObjectMapping = typeValueToClassObjectMapping;
-        this.classValueToClassObjectsMapping = classValueToClassObjectsMapping;
-    }
-
-    @Override
-    protected JsonDeserializer<Object> _createDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property) throws JsonMappingException
-    {
-        JsonDeserializer<Object> deserializer = super._createDeserializer(config, type, property);
-
-        if (JsonContainerDeserializer.canDeserialize(type))
-        {
-            return new JsonContainerDeserializer(deserializer, typeValueToClassObjectMapping,
-                    classValueToClassObjectsMapping);
-        } else
-        {
-            return deserializer;
-        }
+        super(f);
     }
 
 }

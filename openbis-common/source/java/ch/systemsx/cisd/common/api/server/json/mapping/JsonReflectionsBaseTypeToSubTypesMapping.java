@@ -37,15 +37,24 @@ public class JsonReflectionsBaseTypeToSubTypesMapping implements IJsonBaseTypeTo
 
     private Map<Class<?>, Set<NamedType>> baseTypeToSubTypesMap;
 
+    private Set<NamedType> allSubTypesSet;
+
     public JsonReflectionsBaseTypeToSubTypesMapping(String prefix)
     {
         baseTypeToSubTypesMap = createBaseTypeToSubTypesMap(prefix);
+        allSubTypesSet = createAllSubTypesSet(baseTypeToSubTypesMap);
     }
 
     @Override
     public Set<NamedType> getSubTypes(Class<?> baseType)
     {
-        return baseTypeToSubTypesMap.get(baseType);
+        if (Object.class.equals(baseType))
+        {
+            return allSubTypesSet;
+        } else
+        {
+            return baseTypeToSubTypesMap.get(baseType);
+        }
     }
 
     private static Map<Class<?>, Set<NamedType>> createBaseTypeToSubTypesMap(String prefix)
@@ -80,13 +89,26 @@ public class JsonReflectionsBaseTypeToSubTypesMapping implements IJsonBaseTypeTo
         return subTypesMap;
     }
 
+    private static Set<NamedType> createAllSubTypesSet(
+            Map<Class<?>, Set<NamedType>> baseTypeToSubTypesMap)
+    {
+        Set<NamedType> allSubTypes = new HashSet<NamedType>();
+        for (Set<NamedType> subTypes : baseTypeToSubTypesMap.values())
+        {
+            allSubTypes.addAll(subTypes);
+        }
+        return allSubTypes;
+    }
+
     public static final JsonReflectionsBaseTypeToSubTypesMapping getInstance()
     {
         synchronized (JsonReflectionsBaseTypeToSubTypesMapping.class)
         {
             if (instance == null)
             {
-                instance = new JsonReflectionsBaseTypeToSubTypesMapping(JsonConstants.getClassesPrefix());
+                instance =
+                        new JsonReflectionsBaseTypeToSubTypesMapping(
+                                JsonConstants.getClassesPrefix());
             }
             return instance;
         }

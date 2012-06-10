@@ -18,10 +18,10 @@ package ch.systemsx.cisd.common.api.server.json;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerFactory;
 import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerProvider;
 import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
-import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsTypeValueToClassObjectMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypes;
@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeB;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeBIllegalDuplicate;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeButNoSubtypes;
 import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
+import ch.systemsx.cisd.common.api.server.json.serializer.JsonSerializerFactory;
 
 /**
  * @author pkupczyk
@@ -50,9 +51,6 @@ public class JsonTestObjectMapper extends ObjectMapper
 
     public JsonTestObjectMapper()
     {
-        JsonReflectionsTypeValueToClassObjectMapping typeMapping =
-                new JsonReflectionsTypeValueToClassObjectMapping(getClass().getPackage().getName());
-
         JsonReflectionsBaseTypeToSubTypesMapping subTypesMapping =
                 new JsonReflectionsBaseTypeToSubTypesMapping(getClass().getPackage().getName());
 
@@ -82,7 +80,9 @@ public class JsonTestObjectMapper extends ObjectMapper
 
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(classMapping));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(subTypesMapping));
-        setDeserializerProvider(new JsonDeserializerProvider(typeMapping, classMapping));
+        setDeserializerProvider(new JsonDeserializerProvider(new JsonDeserializerFactory(
+                classMapping)));
+        setSerializerFactory(new JsonSerializerFactory());
     }
 
 }

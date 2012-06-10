@@ -108,7 +108,14 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
             tb.copyCurrentStructure(jp);
         }
 
-        return deserializeWithoutType(jp, ctxt, tb);
+        if (hasSubtypes)
+        {
+            throw new JsonMappingException(
+                    "Cannot deserialize a polymorphic type without type information");
+        } else
+        {
+            return deserializeWithoutType(jp, ctxt, tb);
+        }
     }
 
     private Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb,
@@ -177,15 +184,9 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
         throw new NoMatchingLegacyClassesException(classValue);
     }
 
-    private Object deserializeWithoutType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb)
+    public Object deserializeWithoutType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb)
             throws IOException, JsonProcessingException
     {
-        if (hasSubtypes)
-        {
-            throw new JsonMappingException(
-                    "Cannot deserialize a polymorphic type without type information");
-        }
-
         final JsonParser actualJp;
         final JsonDeserializer<Object> deserializer =
                 ctxt.getDeserializerProvider().findValueDeserializer(ctxt.getConfig(), _baseType,
