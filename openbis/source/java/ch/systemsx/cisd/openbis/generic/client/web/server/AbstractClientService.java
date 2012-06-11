@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TableModelUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -447,7 +448,7 @@ public abstract class AbstractClientService implements IClientService,
                     .getWebClientConfiguration());
         }
         applicationInfo.setEnabledTechnologies(ServerUtils.extractSet(getServiceProperties()
-                .getProperty("enabled-technologies")));
+                .getProperty(Constants.ENABLED_TECHNOLOGIES_KEY)));
         applicationInfo.setCustomImports(extractCustomImportProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());

@@ -60,6 +60,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     private CorePluginsInjector injector;
     private File corePluginsFolder;
     private String corePluginsFolderProperty;
+    private String enabledScreeningProperty;
 
     @BeforeMethod
     public void beforeMethod()
@@ -70,7 +71,8 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         corePluginsFolderProperty = CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY + " = "
-                + corePluginsFolder + "\n";
+                        + corePluginsFolder + "\n";
+        enabledScreeningProperty = ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY + " = screening\n";
     }
 
     @AfterMethod
@@ -188,18 +190,18 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         File myDropBox = new File(corePluginsFolder, "screening/1/dss/drop-boxes/my-drop-box");
         myDropBox.mkdirs();
         FileUtilities.writeToFile(new File(myDropBox, PLUGIN_PROPERTIES_FILE_NAME),
-                "class = blabla\n" + "incoming = ${data}\n" + "script = handler.py");
+                "class = blabla\n" + "incoming = ${fdata}\n" + "script = handler.py");
         FileUtilities.writeToFile(new File(myDropBox, "handler.py"), "print 'hello world'");
         Properties properties = createProperties();
         properties.setProperty(INPUT_THREAD_NAMES, "a, b");
-        properties.setProperty("data", "../my-data");
+        properties.setProperty("fdata", "../my-data");
         preparePluginNameLog("screening:drop-boxes:my-drop-box [" + myDropBox + "]");
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + "data = ../my-data\n"
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty + "fdata = ../my-data\n"
                 + "inputs = a, b, my-drop-box\n" + "my-drop-box.class = blabla\n"
-                + "my-drop-box.incoming = ${data}\n" + "my-drop-box.script = " + myDropBox
+                + "my-drop-box.incoming = ${fdata}\n" + "my-drop-box.script = " + myDropBox
                 + "/handler.py\n", properties);
         assertEquals("../my-data", properties.getProperty("my-drop-box.incoming"));
 
@@ -220,14 +222,16 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(myProcessingPlugin, PLUGIN_PROPERTIES_FILE_NAME),
                 "script = script.py");
         FileUtilities.writeToFile(new File(myProcessingPlugin, "script.py"), "print 'hello world'");
-        Properties properties = createProperties();
+        Properties properties = createProperties("proteomics, screening");
         properties.setProperty(REPORTING_PLUGIN_NAMES, "a, b");
         preparePluginNameLog("screening:drop-boxes:my-drop-box [" + myDropBox + "]",
                 "proteomics:processing-plugins:my-processing [" + myProcessingPlugin + "]");
         
         injector.injectCorePlugins(properties);
         
-        assertProperties(corePluginsFolderProperty + "inputs = my-drop-box\n"
+        assertProperties(corePluginsFolderProperty
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + " = proteomics, screening\n" + "inputs = my-drop-box\n"
                 + "my-drop-box.script1 = " + myDropBox + "/script1.py\n" + "my-drop-box.script2 = "
                 + myDropBox + "/script2.py\n" + "my-processing.script = " + myProcessingPlugin
                 + "/script.py\n" + "processing-plugins = my-processing\n"
@@ -294,7 +298,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + "maintenance-plugins = t1, t2\n"
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty + "maintenance-plugins = t1, t2\n"
                 + "my-report.script = " + misc + "/r.py\n"
                 + "reporting-plugins = k1, k2, my-report\n" + "t1.class = blabla\n"
                 + "t2.script = " + misc + "/task.py\n", properties);
@@ -303,7 +307,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testDisabledPluginsByProperties()
+    public void testDisabledPluginsByPropertiesAndNotEnabledTechnology()
     {
         new File(corePluginsFolder, "screening/1/dss/miscellaneous/a").mkdirs();
         new File(corePluginsFolder, "screening/1/dss/miscellaneous/b").mkdirs();
@@ -315,14 +319,14 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         new File(corePluginsFolder, "proteomics/1/dss/reporting-plugins/r1").mkdirs();
         Properties properties = createProperties();
         properties.setProperty(DISABLED_CORE_PLUGINS_KEY,
-                "proteomics, screening:miscellaneous, screening:drop-boxes:dp1");
+                "screening:miscellaneous, screening:drop-boxes:dp1");
         preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
 
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
-                + "disabled-core-plugins = proteomics, screening:miscellaneous, "
-                + "screening:drop-boxes:dp1\n" + "inputs = dp2\n", properties);
+                + "disabled-core-plugins = screening:miscellaneous, screening:drop-boxes:dp1\n"
+                + enabledScreeningProperty + "inputs = dp2\n", properties);
 
         context.assertIsSatisfied();
     }
@@ -341,7 +345,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         
         injector.injectCorePlugins(properties);
         
-        assertProperties(corePluginsFolderProperty + "inputs = dp2\n", properties);
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty + "inputs = dp2\n", properties);
         
         context.assertIsSatisfied();
     }
@@ -359,7 +363,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
                 + Constants.PLUGIN_SERVICES_LIST_KEY + " = z\n"
                 + "z.alpha = 42\n", properties);
 
@@ -379,7 +383,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         
         injector.injectCorePlugins(properties);
         
-        assertProperties(corePluginsFolderProperty
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
                 + "z = 42\n", properties);
         
         context.assertIsSatisfied();
@@ -417,8 +421,17 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     
     private Properties createProperties()
     {
+        return createProperties("screening");
+    }
+
+    private Properties createProperties(String technologies)
+    {
         Properties properties = new ExtendedProperties();
-        properties.setProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY, corePluginsFolder.getPath());
+        properties.setProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY,
+                corePluginsFolder.getPath());
+        properties.setProperty(
+                ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY,
+                technologies);
         return properties;
     }
 

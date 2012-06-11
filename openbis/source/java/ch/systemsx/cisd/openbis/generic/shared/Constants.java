@@ -18,13 +18,16 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 /**
  * Common constants
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
     public static final String USER_PARAMETER = "user";
-    
+
+    public static final String ENABLED_TECHNOLOGIES_KEY = "enabled-technologies";
+
     public static final int MAX_SPEED = 100;
-    public static final int DEFAULT_SPEED_HINT = - MAX_SPEED / 2;
+
+    public static final int DEFAULT_SPEED_HINT = -MAX_SPEED / 2;
 }

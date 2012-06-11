@@ -140,12 +140,15 @@ public class CorePluginsInjector
 
     public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
     {
-        Set<String> disabledPlugins = getDisabledPlugins(properties);
+        Set<String> enabledTechnologies =
+                getSet(properties,
+                        ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY);
+        Set<String> disabledPlugins = getSet(properties, DISABLED_CORE_PLUGINS_KEY);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
         Map<PluginType, Map<String, DssCorePlugin>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, disabledPlugins, pluginNames);
+                scanForCorePlugins(corePluginsFolderPath, enabledTechnologies, disabledPlugins, pluginNames);
         for (Entry<PluginType, Map<String, DssCorePlugin>> entry : plugins.entrySet())
         {
             PluginType pluginType = entry.getKey();
@@ -200,10 +203,10 @@ public class CorePluginsInjector
         }
     }
     
-    private Set<String> getDisabledPlugins(Properties properties)
+    private Set<String> getSet(Properties properties, String key)
     {
         Set<String> set = new HashSet<String>();
-        String property = properties.getProperty(DISABLED_CORE_PLUGINS_KEY);
+        String property = properties.getProperty(key);
         if (StringUtils.isNotBlank(property))
         {
             String[] splittedProperty = property.split(",");
@@ -216,7 +219,8 @@ public class CorePluginsInjector
     }
 
     private Map<PluginType, Map<String, DssCorePlugin>> scanForCorePlugins(
-            String corePluginsFolderPath, Set<String> disabledPlugins, Set<String> pluginNames)
+            String corePluginsFolderPath, Set<String> enabledTechnologies,
+            Set<String> disabledPlugins, Set<String> pluginNames)
     {
         Map<PluginType, Map<String, DssCorePlugin>> typeToPluginsMap =
                 new LinkedHashMap<CorePluginsInjector.PluginType, Map<String, DssCorePlugin>>();
@@ -227,6 +231,10 @@ public class CorePluginsInjector
         for (CorePlugin corePlugin : plugins)
         {
             String technology = corePlugin.getName();
+            if (enabledTechnologies.contains(technology) == false)
+            {
+                continue;
+            }
             File dssFolder =
                     new File(corePluginsFolderPath, technology + "/" + corePlugin.getVersion()
                             + "/" + CorePluginScanner.ScannerType.DSS.getSubFolderName());
