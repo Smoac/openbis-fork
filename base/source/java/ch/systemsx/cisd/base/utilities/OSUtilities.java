@@ -55,11 +55,11 @@ public class OSUtilities
     }
 
     /**
-     * @return <code>true</code> if the the operating system is a flavor of MacOS.
+     * @return <code>true</code> if the the operating system is a flavor of Mac OS X.
      */
     public static boolean isMacOS()
     {
-        return System.getProperty("java.vendor").startsWith("Apple");
+        return "Mac OS X".equals(System.getProperty("os.name"));
     }
 
     /**
