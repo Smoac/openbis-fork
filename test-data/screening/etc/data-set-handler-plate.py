@@ -113,5 +113,7 @@ def process():
       channel.setAvailableTransformations(transforms)
   
     datasetInfo.setChannels(channels, colorComponents)
-  
-    factory.registerImageDataset(imageRegistrationDetails, incoming)
+    
+    # Create the data set
+    dataSet = transaction.createNewDataSet(imageRegistrationDetails)
+    transaction.moveFile(incoming.getPath(), dataSet)
