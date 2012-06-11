@@ -106,9 +106,10 @@ public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
         createTestDatabase();
         createTables(
                 "create table timestamp (timestamp timestamp)",
-                "create table report1 (id bigint, code varchar(20), description varchar(200))",
-                "create table report2 (code varchar(20), rank integer, greetings varchar(200), "
-                        + "size double precision, organism varchar(100), material varchar(30), timestamp timestamp)");
+                "create table report1 (id bigint, code varchar(20), description varchar(200), constraint pk_report1 primary key (code))",
+                "create table report2 (code varchar(20), report1_code varchar(20), rank integer, greetings varchar(200), "
+                        + "size double precision, organism varchar(100), material varchar(30), timestamp timestamp)",
+                "alter table report2 add constraint r2_r1_fk foreign key (report1_code) references report1 (code)");
         dbConfigContext.closeConnections();
         mappingFile = new File(workingDirectory, "mapping-file.txt");
         properties = new Properties();
@@ -622,10 +623,10 @@ public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
     public void testInsert() throws Exception
     {
         FileUtilities.writeToFile(mappingFile, "# my mapping\n[T1:REPORT1,CODE]\n\n"
-                + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nP2: GREETINGS\nP1:RANK\nORG:ORGANISM\n"
-                + "T:timestamp");
+                + "[T2: REPORT2, code]\nM:MATERIAL\nS:size\nR1CODE: REPORT1_CODE\n"
+                + "P2: GREETINGS\nP1:RANK\nORG:ORGANISM\n" + "T:timestamp");
         prepareListMaterialTypes("T1:D=VARCHAR",
-                "T2:M=MATERIAL,S=REAL,P2=VARCHAR,P1=INTEGER,ORG=CONTROLLEDVOCABULARY,T=TIMESTAMP");
+                "T2:M=MATERIAL,S=REAL,R1CODE=VARCHAR,P2=VARCHAR,P1=INTEGER,ORG=CONTROLLEDVOCABULARY,T=TIMESTAMP");
         materialReportingTask.setUp("", properties);
         final Material m1 =
                 new MaterialBuilder().code("M1").type("T1").property("P1", "42").getMaterial();
@@ -638,7 +639,8 @@ public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
         mb2.property("T").type(DataTypeCode.TIMESTAMP).value(new Date(24 * 3600L * 1000L * 33));
         final Material m2 = mb2.getMaterial();
         final Material m3 =
-                new MaterialBuilder().code("M3").type("T2").property("P2", "hello").getMaterial();
+                new MaterialBuilder().code("M3").type("T2").property("P2", "hello")
+                        .property("R1CODE", "M1").getMaterial();
         final RecordingMatcher<DetailedSearchCriteria> criteriaRecorder =
                 new RecordingMatcher<DetailedSearchCriteria>();
         context.checking(new Expectations()
@@ -662,10 +664,11 @@ public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
         List<?> result = loadTable("report1");
         assertEquals("[{code=M1, description=null, id=null}]", result.toString());
         result = loadTable("report2");
-        assertEquals("[{code=M2, greetings=null, material=M1, organism=FLY, rank=42, "
-                + "size=1.00000005E7, timestamp=1970-02-03 01:00:00.0}, "
-                + "{code=M3, greetings=hello, material=null, organism=null, rank=null, "
-                + "size=null, timestamp=null}]", result.toString());
+        assertEquals(
+                "[{code=M2, greetings=null, material=M1, organism=FLY, rank=42, report1_code=null, "
+                        + "size=1.00000005E7, timestamp=1970-02-03 01:00:00.0}, "
+                        + "{code=M3, greetings=hello, material=null, organism=null, rank=null, report1_code=M1, "
+                        + "size=null, timestamp=null}]", result.toString());
         assertEquals("[{timestamp=1970-03-02 01:00:00.0}]", loadTable("timestamp", false)
                 .toString());
         DetailedSearchCriterion detailedSearchCriterion =
@@ -738,11 +741,11 @@ public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
         assertEquals("[{code=M1, description=null, id=null}]", result.toString());
         result = loadTable("report2");
         assertEquals("[{code=M2, greetings=blabla, material=null, organism=Tiger, "
-                + "rank=137, size=null, timestamp=null}, "
+                + "rank=137, report1_code=null, size=null, timestamp=null}, "
                 + "{code=M3, greetings=hello, material=null, organism=null, "
-                + "rank=null, size=null, timestamp=null}, "
+                + "rank=null, report1_code=null, size=null, timestamp=null}, "
                 + "{code=M4, greetings=hi, material=null, organism=null, "
-                + "rank=null, size=null, timestamp=null}]", result.toString());
+                + "rank=null, report1_code=null, size=null, timestamp=null}]", result.toString());
         assertEquals("[{timestamp=1970-03-04 01:00:00.0}]", loadTable("timestamp", false)
                 .toString());
         List<DetailedSearchCriteria> recordedObjects = criteriaRecorder.getRecordedObjects();

@@ -450,14 +450,14 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
         operationLog.info("Start reporting added or changed materials to the report database.");
         Map<String, List<Material>> materialsByType =
                 getRecentlyAddedOrChangedMaterials(contextOrNull.getSessionToken());
-        for (Entry<String, List<Material>> entry : materialsByType.entrySet())
+        Set<Entry<String, MappingInfo>> entrySet = mapping.entrySet();
+        for (Entry<String, MappingInfo> entry : entrySet)
         {
             String materialTypeCode = entry.getKey();
-            final List<Material> materials = entry.getValue();
-            MappingInfo mappingInfo = mapping.get(materialTypeCode);
-            if (mappingInfo != null)
+            List<Material> materials = materialsByType.get(materialTypeCode);
+            if (materials != null)
             {
-                addOrUpdate(mappingInfo, materials);
+                addOrUpdate(entry.getValue(), materials);
             }
         }
         writeTimestamp(newTimestamp);
@@ -680,7 +680,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
     static Map<String, MappingInfo> readMappingFile(String mappingFileName)
     {
         Map<String, MaterialExternalDBSyncTask.MappingInfo> map =
-                new HashMap<String, MaterialExternalDBSyncTask.MappingInfo>();
+                new LinkedHashMap<String, MaterialExternalDBSyncTask.MappingInfo>();
         List<String> lines = FileUtilities.loadToStringList(new File(mappingFileName));
         MappingInfo currentMappingInfo = null;
         for (int i = 0; i < lines.size(); i++)
