@@ -43,6 +43,7 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceBean;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceExporter;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
+    private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
+
     public static final int SYSTEM_TEST_CASE_SERVER_PORT = 8888;
 
     private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
@@ -173,7 +176,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs", "");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
-                "sourceTest/core-plugins");
+                SOURCE_TEST_CORE_PLUGINS);
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + Constants.ENABLED_TECHNOLOGIES_KEY, getEnabledTechnologies());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
@@ -187,9 +190,16 @@ public abstract class SystemTestCase extends AssertJUnit
         ETLDaemon.runForTesting(new String[0]);
     }
 
-    protected String getEnabledTechnologies()
+    private String getEnabledTechnologies()
     {
-        return "generic-test";
+        File corePluginsFolder = new File(SOURCE_TEST_CORE_PLUGINS);
+        String[] list = corePluginsFolder.list();
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (String technology : list)
+        {
+            builder.append(technology);
+        }
+        return builder.toString();
     }
 
     /**
