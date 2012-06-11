@@ -174,18 +174,22 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs", "");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
                 "sourceTest/core-plugins");
-        System.setProperty(Constants.ENABLED_TECHNOLOGIES_KEY, "generic-test");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + Constants.ENABLED_TECHNOLOGIES_KEY, getEnabledTechnologies());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH, getRegistrationLogDir()
                 .getAbsolutePath());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default",
-                "test");
-
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default", "test");
 
         DataStoreServer.main(new String[0]);
         ETLDaemon.runForTesting(new String[0]);
+    }
+
+    protected String getEnabledTechnologies()
+    {
+        return "generic-test";
     }
 
     /**

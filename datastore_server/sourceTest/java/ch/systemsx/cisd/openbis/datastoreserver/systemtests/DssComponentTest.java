@@ -184,7 +184,7 @@ public class DssComponentTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         List<ValidationError> errors = dss.validateDataSet(newDataset, exampleDataSet);
-        assertEquals(0, errors.size());
+        assertEquals("[]", errors.toString());
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
