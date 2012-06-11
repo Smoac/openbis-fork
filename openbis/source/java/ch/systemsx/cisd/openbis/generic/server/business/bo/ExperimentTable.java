@@ -255,10 +255,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                             .getCode(), previousProject.getSpace().getCode(), previousProject
                             .getCode());
 
-            relationshipService
-                    .reassignProject(session, updates.getProjectIdentifier(),
-                            new ExperimentIdentifier(previousProjectId, experiment
-                                    .getCode()));
+            relationshipService.assignExperimentToProject(session, new ExperimentIdentifier(
+                    previousProjectId, experiment.getCode()), updates.getProjectIdentifier());
         }
     }
 

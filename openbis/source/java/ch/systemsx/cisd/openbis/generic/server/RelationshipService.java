@@ -39,8 +39,8 @@ public class RelationshipService implements IRelationshipService
     private DAOFactory daoFactory;
 
     @Override
-    public void reassignProject(IAuthSession session, ProjectIdentifier projectId,
-            ExperimentIdentifier experimentId)
+    public void assignExperimentToProject(IAuthSession session, ExperimentIdentifier experimentId,
+            ProjectIdentifier projectId)
     {
 
         ProjectPE previousProject =
