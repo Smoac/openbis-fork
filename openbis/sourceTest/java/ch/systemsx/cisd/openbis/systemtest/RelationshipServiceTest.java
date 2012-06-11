@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -43,85 +42,118 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 @Test(groups = "system test")
 public class RelationshipServiceTest extends SystemTestCase
 {
-    @BeforeMethod
-    public void createUsers()
+
+    private SpaceIdentifier sourceSpace = new SpaceIdentifier("CISD", "CISD");
+
+    private SpaceIdentifier destinationSpace = new SpaceIdentifier("CISD", "TESTGROUP");
+
+    private String systemSessionToken;
+
+    private ExperimentUpdatesDTO projectUpdate;
+
+    @BeforeClass
+    public void loginSystemUser()
     {
-        SessionContextDTO systemUser = commonServer.tryToAuthenticateAsSystem();
-        commonServer.registerPerson(systemUser.getSessionToken(), "basic");
-        commonServer.registerSpaceRole(systemUser.getSessionToken(), RoleCode.USER,
-                new SpaceIdentifier("CISD", "CISD"), Grantee.createPerson("basic"));
-
-        commonServer.registerPerson(systemUser.getSessionToken(), "power");
-        commonServer.registerSpaceRole(systemUser.getSessionToken(), RoleCode.POWER_USER,
-                new SpaceIdentifier("CISD", "CISD"), Grantee.createPerson("power"));
-
-        commonServer.registerPerson(systemUser.getSessionToken(), "admin");
-        commonServer.registerSpaceRole(systemUser.getSessionToken(), RoleCode.ADMIN,
-                new SpaceIdentifier("CISD", "CISD"), Grantee.createPerson("admin"));
-
-        commonServer.registerPerson(systemUser.getSessionToken(), "instance_admin");
-        commonServer.registerInstanceRole(systemUser.getSessionToken(), RoleCode.ADMIN, Grantee
-                .createPerson("instance_admin"));
-
+        systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        projectUpdate = getProjectUpdate();
+        createSpaceUser("basic_user", RoleCode.USER, RoleCode.USER);
+        createSpaceUser("power_user", RoleCode.POWER_USER, RoleCode.POWER_USER);
+        createSpaceUser("source_space_admin", RoleCode.ADMIN, RoleCode.USER);
+        createSpaceUser("destination_space_admin", RoleCode.USER, RoleCode.ADMIN);
+        createSpaceUser("both_space_admin", RoleCode.ADMIN, RoleCode.ADMIN);
+        createInstanceUser("instance_admin", RoleCode.ADMIN);
     }
 
     @Test(expectedExceptions =
         { AuthorizationFailureException.class })
     public void basicUserIsNotAllowedToUpdateExperienceProjectRelationship()
     {
-        SessionContextDTO basicUser = commonServer.tryToAuthenticate("basic", "password");
-        ExperimentUpdatesDTO updates = getProjectUpdate(basicUser);
-        commonServer.updateExperiment(basicUser.getSessionToken(), updates);
+        String session = authenticate("basic_user");
+        commonServer.updateExperiment(session, projectUpdate);
     }
 
     @Test(expectedExceptions =
         { AuthorizationFailureException.class })
     public void powerUserIsNotAllowedToUpdateExperienceProjectRelationship()
     {
-        SessionContextDTO powerUser = commonServer.tryToAuthenticate("power", "password");
-        ExperimentUpdatesDTO updates = getProjectUpdate(powerUser);
-        commonServer.updateExperiment(powerUser.getSessionToken(), updates);
+        String session = authenticate("power_user");
+        commonServer.updateExperiment(session, projectUpdate);
+    }
+
+    @Test(expectedExceptions =
+        { AuthorizationFailureException.class })
+    public void spaceAdminOfOnlySourceSpaceIsNotAllowedToUpdateExperienceProjectRelationship()
+    {
+        String session = authenticate("source_space_admin");
+        commonServer.updateExperiment(session, projectUpdate);
+    }
+
+    @Test(expectedExceptions =
+        { AuthorizationFailureException.class })
+    public void spaceAdminOfOnlyDestinationSpaceIsNotAllowedToUpdateExperienceProjectRelationship()
+    {
+        String session = authenticate("destination_space_admin");
+        commonServer.updateExperiment(session, projectUpdate);
     }
 
     @Test
-    public void spaceAdminIsAllowedToUpdateExperienceProjectRelationship()
+    public void spaceAdminOfBothSpacesIsAllowedToUpdateExperienceProjectRelationship()
     {
-        SessionContextDTO adminUser = commonServer.tryToAuthenticate("admin", "password");
-        ExperimentUpdatesDTO updates = getProjectUpdate(adminUser);
-        commonServer.updateExperiment(adminUser.getSessionToken(), updates);
+        String session = authenticate("both_space_admin");
+        commonServer.updateExperiment(session, projectUpdate);
 
         Experiment experiment =
-                commonServer.getExperimentInfo(adminUser.getSessionToken(),
+                commonServer.getExperimentInfo(session,
                         new ExperimentIdentifier(
-                                "CISD", "CISD", "DEFAULT", "EXP1"));
-        assertThat(experiment.getProject().getCode(), is("DEFAULT"));
+                                "CISD", "TESTGROUP", "TESTPROJ", "EXP1"));
+        assertThat(experiment.getProject().getCode(), is("TESTPROJ"));
     }
 
     @Test
     public void instanceAdminIsAllowedToUpdateExperienceProjectRelationship()
     {
-        SessionContextDTO instanceAdminUser =
-                commonServer.tryToAuthenticate("instance_admin", "password");
-        ExperimentUpdatesDTO updates = getProjectUpdate(instanceAdminUser);
-        commonServer.updateExperiment(instanceAdminUser.getSessionToken(), updates);
+        String session = authenticate("instance_admin");
+        commonServer.updateExperiment(session, projectUpdate);
 
         Experiment experiment =
-                commonServer.getExperimentInfo(instanceAdminUser.getSessionToken(),
+                commonServer.getExperimentInfo(session,
                         new ExperimentIdentifier(
-                                "CISD", "CISD", "DEFAULT", "EXP1"));
-        assertThat(experiment.getProject().getCode(), is("DEFAULT"));
+                                "CISD", "TESTGROUP", "TESTPROJ", "EXP1"));
+        assertThat(experiment.getProject().getCode(), is("TESTPROJ"));
     }
 
-    private ExperimentUpdatesDTO getProjectUpdate(SessionContextDTO session)
+    private String authenticate(String user)
+    {
+        return commonServer.tryToAuthenticate(user, "password").getSessionToken();
+    }
+
+    private void createSpaceUser(String userName, RoleCode sourceSpaceRole,
+            RoleCode destinationSpaceRole)
+    {
+        String sessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        commonServer.registerPerson(sessionToken, userName);
+        commonServer.registerSpaceRole(sessionToken, sourceSpaceRole,
+                sourceSpace, Grantee.createPerson(userName));
+        commonServer.registerSpaceRole(sessionToken, destinationSpaceRole,
+                destinationSpace, Grantee.createPerson(userName));
+    }
+
+    private void createInstanceUser(String userName, RoleCode role)
+    {
+        commonServer.registerPerson(systemSessionToken, userName);
+        commonServer.registerInstanceRole(systemSessionToken, role, Grantee.createPerson(userName));
+    }
+
+    private ExperimentUpdatesDTO getProjectUpdate()
     {
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
         Experiment experiment =
-                commonServer.getExperimentInfo(session.getSessionToken(), new ExperimentIdentifier(
+                commonServer.getExperimentInfo(systemSessionToken, new ExperimentIdentifier(
                         "CISD", "CISD", "NEMO", "EXP1"));
 
         updates.setExperimentId(new TechId(experiment));
         updates.setVersion(experiment.getModificationDate());
-        updates.setProjectIdentifier(new ProjectIdentifier("CISD", "CISD", "DEFAULT"));
+        updates.setProjectIdentifier(new ProjectIdentifier("CISD", "TESTGROUP", "TESTPROJ"));
         updates.setProperties(experiment.getProperties());
         updates.setAttachments(new ArrayList<NewAttachment>());
         updates.setNewSamples(new ArrayList<NewSamplesWithTypes>());

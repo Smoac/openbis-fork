@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -32,8 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public interface IRelationshipService
 {
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
-    @Capability("REASSIGN_PROJECT")
-    public void reassignProject(IAuthSession session, ProjectIdentifier project,
-            ExperimentIdentifier experiment);
+    @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
+    public void assignExperimentToProject(IAuthSession session,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ExperimentIdentifier experiment,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ProjectIdentifier project);
 
 }
