@@ -99,11 +99,16 @@ class Utils
     
     private static Properties tryToGetServiceProperties(File installDir, String relativePath)
     {
+        return tryToGetProperties(new File(installDir, relativePath));
+    }
+
+    public static Properties tryToGetProperties(File configFile)
+    {
         Properties properties = new Properties();
         FileReader fileReader = null;
         try
         {
-            fileReader = new FileReader(new File(installDir, relativePath));
+            fileReader = new FileReader(configFile);
             properties.load(fileReader);
             return properties;
         } catch (Exception ex)

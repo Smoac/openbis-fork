@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import static ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
@@ -68,10 +73,10 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         if (isFirstTimeInstallation == false)
         {
             File asConfigFile = new File(installDir, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-            Utils.updateOrAppendProperty(asConfigFile, ENABLED_TECHNOLOGIES_KEY, newTechnologyList);
+            modifyPropertyEnabledTechnologies(asConfigFile, data);
             File dssConfigFile =
                     new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-            Utils.updateOrAppendProperty(dssConfigFile, ENABLED_TECHNOLOGIES_KEY, newTechnologyList);
+            modifyPropertyEnabledTechnologies(dssConfigFile, data);
         }
     }
 
@@ -88,5 +93,40 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         }
         return builder.toString();
     }
+    
+    private void modifyPropertyEnabledTechnologies(File configFile, AutomatedInstallData data)
+    {
+        Set<String> allTechnologies = new HashSet<String>();
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (String technology : GlobalInstallationContext.TECHNOLOGIES)
+        {
+            String lowerCasedTechnology = technology.toLowerCase();
+            allTechnologies.add(lowerCasedTechnology);
+            String technologyFlag = data.getVariable(technology);
+            if (Boolean.TRUE.toString().equalsIgnoreCase(technologyFlag))
+            {
+                builder.append(lowerCasedTechnology);
+            }
+        }
+        Properties properties = Utils.tryToGetProperties(configFile);
+        if (properties != null)
+        {
+            String property = properties.getProperty(ENABLED_TECHNOLOGIES_KEY);
+            if (StringUtils.isNotBlank(property))
+            {
+                String[] splittedProperty = property.split(",");
+                for (String term : splittedProperty)
+                {
+                    String trimmedTerm = term.trim();
+                    if (allTechnologies.contains(trimmedTerm) == false)
+                    {
+                        builder.append(trimmedTerm);
+                    }
+                }
+            }
+        }
+        Utils.updateOrAppendProperty(configFile, ENABLED_TECHNOLOGIES_KEY, builder.toString());
+    }
+
     
 }

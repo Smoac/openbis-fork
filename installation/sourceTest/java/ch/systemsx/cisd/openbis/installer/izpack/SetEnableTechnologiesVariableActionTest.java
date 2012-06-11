@@ -119,20 +119,39 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     }
 
     @Test
-    public void testUpdateInstallationWithoutCorePluginsFolder()
+    public void testUpdateInstallationWithOtherEnabledTechnologiesInAs()
     {
         FileUtilities.deleteRecursively(corePluginsFolder);
         FileUtilities.writeToFile(configFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
-                + "=proteomics");
+                + "=proteomics, my-tech");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
         updateEnabledTechnologyProperties(variables, false);
 
-        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=proteomics, my-tech]",
+                FileUtilities.loadToStringList(configFile).toString());
+        assertEquals("[, " + ENABLED_TECHNOLOGIES_KEY + " = proteomics]", FileUtilities
+                .loadToStringList(dssConfigFile).toString());
+    }
+    
+    @Test
+    public void testUpdateInstallationWithOtherEnabledTechnologiesInDss()
+    {
+        FileUtilities.writeToFile(configFile, ENABLED_TECHNOLOGIES_KEY
+                + "=proteomics");
+        FileUtilities.writeToFile(dssConfigFile, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
+                + " =my-tech,screening");
+        Properties variables = new Properties();
+        variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
+        variables.setProperty(TECHNOLOGY_SCREENING, "false");
+        
+        updateEnabledTechnologyProperties(variables, false);
+        
+        assertEquals("[" + ENABLED_TECHNOLOGIES_KEY + "=proteomics]", FileUtilities
                 .loadToStringList(configFile).toString());
-        assertEquals("[, " + ENABLED_TECHNOLOGIES_KEY + " = proteomics]",
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = proteomics, my-tech]",
                 FileUtilities.loadToStringList(dssConfigFile).toString());
     }
     
