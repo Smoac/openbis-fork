@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 /**
  * @author Franz-Josef Elmer
@@ -173,6 +174,7 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs", "");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
                 "sourceTest/core-plugins");
+        System.setProperty(Constants.ENABLED_TECHNOLOGIES_KEY, "generic-test");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
