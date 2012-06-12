@@ -106,7 +106,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_CANT_CHECK_REGISTRATION_STATUS;
         testCases.add(testCase);
-
+        
         testCase = new RecoveryTestCase("retry if storage failed");
         testCase.shouldMakeFilesystemUnavailable = true;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_STORAGE_FAILURE;
@@ -234,6 +234,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
     }
 
+    /*
+     * The beginning of the basic testcase region
+     */
+
     // INFO: basic testcase
     @Test(dataProvider = "recoveryTestCaseProvider")
     public void testBasicRecovery(final RecoveryTestCase testCase)
@@ -284,6 +288,77 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             assertNoRecoveryTriggeredConstraints();
         }
+    }
+
+    class BasicRecoveryTestExpectations extends AbstractExpectations
+    {
+        final RecoveryTestCase testCase;
+
+        public BasicRecoveryTestExpectations(final RecoveryTestCase testCase,
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            this.testCase = testCase;
+
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+
+            registerDataSetsAndThrow(testCase.canRecoverFromError);
+
+            // now registration has failed with the exception. we continue depending on where
+
+            if (testCase.canRecoverFromError && false == testCase.nextTryInTheFuture)
+            {
+                checkRegistrationSucceeded();
+
+                if (testCase.recoveryResult == RecoveryResult.RECOVERY_SUCCEEDED
+                        || testCase.recoveryResult == RecoveryResult.RETRY_AT_STORAGE_CONFIRMED_FAILURE)
+                {
+                    setStorageConfirmed(testCase.shouldStorageConfirmationFail);
+                }
+            } else
+            {
+                // rollback
+            }
+        }
+
+        protected void checkRegistrationSucceeded()
+        {
+            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
+            switch (testCase.registrationCheckResult)
+            {
+                case REGISTRATION_SUCCEEDED:
+                    returnSuccessAndChangeEnvironment();
+                    break;
+                case REGISTRATION_FAILED:
+                    will(returnValue(EntityOperationsState.NO_OPERATION));
+                    break;
+                case CHECK_FAILED:
+                    will(throwException(new EnvironmentFailureException(
+                            "Cannot check whether the registration was successful")));
+                    break;
+                case REGISTRATION_IN_PROGRESS:
+                    will(returnValue(EntityOperationsState.IN_PROGRESS));
+                    break;
+            }
+        }
+
+        private void returnSuccessAndChangeEnvironment()
+        {
+            if (testCase.shouldMakeFilesystemUnavailable)
+            {
+                will(doAll(makeFileSystemUnavailableAction(),
+                        returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
+            } else
+            {
+                will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
+            }
+        }
+
     }
 
     private void assertNoRecoveryTriggeredConstraints()
@@ -495,7 +570,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         .getProcessingMarkerFile(originalIncoming);
         return recoveryMarkerFile;
     }
-    
+
+    // INFO: test with recovery when storage failed
     @Test
     public void testRecoveryFailureAtStorage()
     {
@@ -543,6 +619,26 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         //
         //
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
+    }
+
+    class StorageErrorExpectations extends AbstractExpectations
+    {
+        public StorageErrorExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndMakeFileSystemUnavailable();
+
+            // the recovery should happen here
+
+            setStorageConfirmed(false);
+        }
     }
 
     // INFO: test with recovery from error in storage confirmed
@@ -594,15 +690,46 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
     }
 
+    class StorageConfirmedErrorExpectations extends AbstractExpectations
+    {
+        public StorageConfirmedErrorExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
+        {
+            super(atomicatOperationDetails);
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndSucceed();
+            setStorageConfirmed(true);
+
+            // the recovery should happen here
+
+            setStorageConfirmed(false);
+        }
+    }
+
+    // INFO: the test that checks the retry mechanism
     
+    @DataProvider(name = "retryDP")
+    public Object[][] retryCounters()
+    {
+        return new Object[][]
+            {
+                { 1 },
+                { 5 },
+                { 15 } };
+    }
+
     /**
      * This test tests that when the perform entity operation fails with the recoverable error, it
      * will repeat the registration N times, and then fail.
      */
-    @Test
-    public void testRetryRegistrationNTimesAndFail()
+    @Test(dataProvider = "retryDP")
+    public void testRetryRegistrationNTimesAndFail(Integer retryCount)
     {
-        Integer retryCount = 10;
 
         RecoveryTestCase testCase = new RecoveryTestCase("No name");
         setUpHomeDataBaseExpectations();
@@ -613,38 +740,42 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
                         testCase.overrideProperties);
 
-        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT, retryCount.toString());
-        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); //100 ms - to make it quick
-        
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
+                retryCount.toString());
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); // 100 ms
+                                                                                          // - to
+                                                                                          // make it
+                                                                                          // quick
+
         createHandler(properties, true, false);
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
         // create expectations
-        context.checking(new RertyRegistrationFail(atomicatOperationDetails, retryCount));
+        context.checking(new RetryRegistrationFail(atomicatOperationDetails, retryCount));
 
         handler.handle(markerFile);
 
         setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
-        
+
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "pre_metadata_registration");
-        
+
         assertOriginalMarkerFileExists();
-        
+
         handler.handle(markerFile);
-        
-        //the rollback has happened
+
+        // the rollback has happened
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "rollback_pre_registration");
     }
 
-    class RertyRegistrationFail extends AbstractExpectations
+    class RetryRegistrationFail extends AbstractExpectations
     {
         private final int retryCount;
 
-        public RertyRegistrationFail(
+        public RetryRegistrationFail(
                 final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
                 int retryCount)
         {
@@ -661,12 +792,83 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 registerDataSetsAndThrow(true, false, EntityOperationsState.NO_OPERATION);
             }
-            
-            //the recovery - will find that nothing has happened
+
+            // the recovery - will find that nothing has happened
             checkEntityOperationsSucceeded(EntityOperationsState.NO_OPERATION);
         }
     }
+    
+    @Test(dataProvider = "retryDP")
+    public void testRetryRegistrationSucceeded(Integer retryCount)
+    {
 
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
+                retryCount.toString());
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); // 100 ms
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new RetryRegistrationSucceeded(atomicatOperationDetails, retryCount));
+
+        handler.handle(markerFile);
+
+
+        // the rollback has happened
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration", "post_metadata_registration", "post_storage");
+        
+        assertStorageProcess(atomicatOperationDetails.getRecordedObjects().get(0), DATA_SET_CODE,
+                "sub_data_set_1", 0);
+
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(precommitDirectory);
+    }
+
+
+    class RetryRegistrationSucceeded extends AbstractExpectations
+    {
+        private final int retryCount;
+
+        public RetryRegistrationSucceeded(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
+                int retryCount)
+        {
+            super(atomicatOperationDetails);
+            this.retryCount = retryCount;
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndThrow(true, true, EntityOperationsState.NO_OPERATION);
+            for (int i = 0; i < retryCount - 1; i++)
+            {
+                registerDataSetsAndThrow(true, false, EntityOperationsState.NO_OPERATION);
+            }
+            performEntityOperations();
+            setStorageConfirmed(false);            
+        }
+    }
+    
+    
+    
+    // INFO: the test that checks all possible recovery points one by one in single registration
     @DataProvider(name = "multipleCheckpointsDataProvider")
     public Object[][] multipleCheckpointsData()
     {
@@ -794,118 +996,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
     }
 
-    class StorageConfirmedErrorExpectations extends AbstractExpectations
-    {
-        public StorageConfirmedErrorExpectations(
-                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
-        {
-            super(atomicatOperationDetails);
-            prepareExpecatations();
-        }
-
-        private void prepareExpecatations()
-        {
-            initialExpectations();
-            registerDataSetsAndSucceed();
-            setStorageConfirmed(true);
-
-            // the recovery should happen here
-
-            setStorageConfirmed(false);
-        }
-    }
-
-    class StorageErrorExpectations extends AbstractExpectations
-    {
-        public StorageErrorExpectations(
-                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
-        {
-            super(atomicatOperationDetails);
-            prepareExpecatations();
-        }
-
-        private void prepareExpecatations()
-        {
-            initialExpectations();
-            registerDataSetsAndMakeFileSystemUnavailable();
-
-            // the recovery should happen here
-
-            setStorageConfirmed(false);
-        }
-    }
-
-    class BasicRecoveryTestExpectations extends AbstractExpectations
-    {
-        final RecoveryTestCase testCase;
-
-        public BasicRecoveryTestExpectations(final RecoveryTestCase testCase,
-                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails)
-        {
-            super(atomicatOperationDetails);
-            this.testCase = testCase;
-
-            prepareExpecatations();
-        }
-
-        private void prepareExpecatations()
-        {
-            initialExpectations();
-
-            registerDataSetsAndThrow(testCase.canRecoverFromError);
-
-            // now registration has failed with the exception. we continue depending on where
-
-            if (testCase.canRecoverFromError && false == testCase.nextTryInTheFuture)
-            {
-                checkRegistrationSucceeded();
-
-                if (testCase.recoveryResult == RecoveryResult.RECOVERY_SUCCEEDED
-                        || testCase.recoveryResult == RecoveryResult.RETRY_AT_STORAGE_CONFIRMED_FAILURE)
-                {
-                    setStorageConfirmed(testCase.shouldStorageConfirmationFail);
-                }
-            } else
-            {
-                // rollback
-            }
-        }
-
-        protected void checkRegistrationSucceeded()
-        {
-            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
-            switch (testCase.registrationCheckResult)
-            {
-                case REGISTRATION_SUCCEEDED:
-                    returnSuccessAndChangeEnvironment();
-                    break;
-                case REGISTRATION_FAILED:
-                    will(returnValue(EntityOperationsState.NO_OPERATION));
-                    break;
-                case CHECK_FAILED:
-                    will(throwException(new EnvironmentFailureException(
-                            "Cannot check whether the registration was successful")));
-                    break;
-                case REGISTRATION_IN_PROGRESS:
-                    will(returnValue(EntityOperationsState.IN_PROGRESS));
-                    break;
-            }
-        }
-
-        private void returnSuccessAndChangeEnvironment()
-        {
-            if (testCase.shouldMakeFilesystemUnavailable)
-            {
-                will(doAll(makeFileSystemUnavailableAction(),
-                        returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
-            } else
-            {
-                will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
-            }
-        }
-
-    }
-
     abstract class AbstractExpectations extends Expectations
     {
         final Experiment experiment;
@@ -1029,6 +1119,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected void registerDataSetsAndSucceed()
         {
             drawUniqueId();
+            performEntityOperations();
+        }
+
+        public void performEntityOperations()
+        {
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
             will(returnValue(new AtomicEntityOperationResult()));
         }
