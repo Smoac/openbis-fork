@@ -26,11 +26,11 @@ import java.util.HashMap;
  * 
  * @author jakubs
  */
-public class RegistrationExceptionsCollection
+public class DistinctExceptionsCollection
 {
     private final HashMap<Throwable, Integer> collection;
 
-    public RegistrationExceptionsCollection()
+    public DistinctExceptionsCollection()
     {
         collection = new HashMap<Throwable, Integer>();
     }

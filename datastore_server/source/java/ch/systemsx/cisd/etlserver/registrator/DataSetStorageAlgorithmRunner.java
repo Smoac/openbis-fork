@@ -580,8 +580,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private boolean registerDataWithRecovery(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
-        RegistrationExceptionsCollection exceptionCollection =
-                new RegistrationExceptionsCollection();
+        DistinctExceptionsCollection exceptionCollection =
+                new DistinctExceptionsCollection();
 
         EntityOperationsState result = EntityOperationsState.NO_OPERATION;
 
