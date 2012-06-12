@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,11 +66,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -79,6 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
  */
 public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetHandlerTest
 {
+    private static final Long SEARCH_RETURNED_SAMPLE_DB_ID = new Long(100);
+
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
 
@@ -606,7 +611,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
 
                     checkpointStored();
-                    
+
                     setStorageConfirmed();
 
                     registrationCompleted();
@@ -638,15 +643,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     }
                 }
 
-
                 @SuppressWarnings("unchecked")
                 private void checkpointStored()
                 {
                     if (testCase.shouldUseAutoRecovery)
                     {
-                        one(storageRecoveryManager)
-                                .checkpointStoredStateBeforeStorageConfirmation(
-                                        with(any(DataSetStorageAlgorithmRunner.class)));
+                        one(storageRecoveryManager).checkpointStoredStateBeforeStorageConfirmation(
+                                with(any(DataSetStorageAlgorithmRunner.class)));
                     }
                 }
 
@@ -1088,6 +1091,64 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     }
 
     @Test
+    public void testTransactionWithMutableSample()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("transaction-with-mutable-sample.py");
+        createHandler(properties, false, true);
+        createData();
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        context.checking(new Expectations()
+            {
+                {
+                    Experiment experiment = new Experiment();
+                    experiment.setIdentifier("/SPACE/PROJECT/EXP-CODE");
+                    experiment.setCode("EXP-CODE");
+                    Person registrator = new Person();
+                    registrator.setEmail("email@email.com");
+                    experiment.setRegistrator(registrator);
+
+                    SearchCriteria searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
+                    oneOf(openBisService).searchForSamples(searchCriteria);
+
+                    SampleBuilder sampleBuilder = new SampleBuilder();
+                    sampleBuilder.id(SEARCH_RETURNED_SAMPLE_DB_ID);
+                    sampleBuilder.modificationDate(new Date());
+                    sampleBuilder.identifier("/SPACE/SAMPLE-CODE");
+                    sampleBuilder.experiment(experiment);
+                    sampleBuilder.permID("SAMPLE_PERM_ID");
+                    sampleBuilder.code("SAMPLE-CODE");
+                    sampleBuilder.type("SAMPLE_TYPE");
+
+                    will(returnValue(Arrays.asList(sampleBuilder.getSample())));
+
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
+                atomicatOperationDetails.recordedObject();
+
+        assertEquals(0, operations.getDataSetRegistrations().size());
+        assertEquals(0, operations.getExperimentUpdates().size());
+        assertEquals(1, operations.getSampleUpdates().size());
+        assertEquals(0, operations.getSampleRegistrations().size());
+        assertEquals(0, operations.getExperimentRegistrations().size());
+
+        SampleUpdatesDTO updatedSample = operations.getSampleUpdates().get(0);
+        assertEquals(SEARCH_RETURNED_SAMPLE_DB_ID, updatedSample.getSampleIdOrNull().getId());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testTransactionWithNewMaterial()
     {
         setUpHomeDataBaseExpectations();
@@ -1313,6 +1374,16 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         createData();
 
         setUpSearchExpectations();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+                    oneOf(openBisService)
+                            .performEntityOperations(
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+                }
+            });
 
         handler.handle(markerFile);
 
@@ -1360,10 +1431,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             .checkpointPrecommittedStateAfterPostRegistrationHook(
                                     with(any(DataSetStorageAlgorithmRunner.class)));
 
-                    one(storageRecoveryManager)
-                    .checkpointStoredStateBeforeStorageConfirmation(
+                    one(storageRecoveryManager).checkpointStoredStateBeforeStorageConfirmation(
                             with(any(DataSetStorageAlgorithmRunner.class)));
-                    
+
                     oneOf(storageRecoveryManager).registrationCompleted(
                             with(any(DataSetStorageAlgorithmRunner.class)));
                 }
@@ -1504,13 +1574,17 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
                     oneOf(openBisService).searchForSamples(searchCriteria);
-                    will(returnValue(Collections.EMPTY_LIST));
 
-                    one(openBisService).drawANewUniqueID();
-                    will(returnValue(new Long(1)));
-                    oneOf(openBisService)
-                            .performEntityOperations(
-                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+                    SampleBuilder sampleBuilder = new SampleBuilder();
+                    sampleBuilder.id(SEARCH_RETURNED_SAMPLE_DB_ID);
+                    sampleBuilder.modificationDate(new Date());
+                    sampleBuilder.identifier("/SPACE/SAMPLE-CODE");
+                    sampleBuilder.experiment(experiment);
+                    sampleBuilder.permID("SAMPLE_PERM_ID");
+                    sampleBuilder.code("SAMPLE-CODE");
+                    sampleBuilder.type("SAMPLE_TYPE");
+
+                    will(returnValue(Arrays.asList(sampleBuilder.getSample())));
                 }
             });
     }
