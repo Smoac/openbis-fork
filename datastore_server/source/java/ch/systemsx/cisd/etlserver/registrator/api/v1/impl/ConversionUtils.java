@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -95,6 +96,14 @@ public class ConversionUtils
     public static SampleUpdatesDTO convertToSampleUpdateDTO(Sample apiSample)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = apiSample.getSample();
+        Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> sampleParents =
+                sample.getParents();
+        String[] parentCodes = new String[sampleParents.size()];
+        int i = 0;
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
+        {
+            parentCodes[i++] = parent.getCode();
+        }
 
         List<NewAttachment> attachments = Collections.emptyList();
         String containerIdentifier =
@@ -109,7 +118,7 @@ public class ConversionUtils
                         sample.getModificationDate(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
                         containerIdentifier, // Container Identifier
-                        null // Parent Identifiers
+                        parentCodes // Parent Identifiers
                 );
         return sampleUpdate;
     }
