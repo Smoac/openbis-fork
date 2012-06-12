@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -272,7 +273,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         RecoveryInfoDateConstraint.ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
-                assertJythonHooks("pre_metadata_registration");
+                JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                        "pre_metadata_registration");
                 // nothing happened
             } else
             {
@@ -291,22 +293,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
-        assertJythonHooks("pre_metadata_registration", "rollback_pre_registration");
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration", "rollback_pre_registration");
 
         assertDirEmptyOrContainsEmptyDirs(precommitDirectory);
 
         assertNoRecoveryMarkerFile();
-    }
-
-    private void assertJythonHooks(String... messages)
-    {
-        JythonHookTestTool jythonHookTestTool =
-                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
-        for (String msg : messages)
-        {
-            jythonHookTestTool.assertLogged(msg);
-        }
-        jythonHookTestTool.assertNoMoreMessages();
     }
 
     private void assertPostRecoveryConstraints(
@@ -503,7 +495,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         .getProcessingMarkerFile(originalIncoming);
         return recoveryMarkerFile;
     }
-
+    
     @Test
     public void testRecoveryFailureAtStorage()
     {
@@ -579,6 +571,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "pre_metadata_registration", "post_metadata_registration");
 
+        //
+        // // item already in store
+        //
         assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                 "sub_data_set_1", 0);
 
@@ -596,11 +591,80 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         assertDirEmpty(precommitDirectory);
 
-        //
-        // // item in store
-        //
-        //
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory, "post_storage");
+    }
+
+    
+    /**
+     * This test tests that when the perform entity operation fails with the recoverable error, it
+     * will repeat the registration N times, and then fail.
+     */
+    @Test
+    public void testRetryRegistrationNTimesAndFail()
+    {
+        Integer retryCount = 10;
+
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT, retryCount.toString());
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); //100 ms - to make it quick
+        
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new RertyRegistrationFail(atomicatOperationDetails, retryCount));
+
+        handler.handle(markerFile);
+
+        setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
+        
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration");
+        
+        assertOriginalMarkerFileExists();
+        
+        handler.handle(markerFile);
+        
+        //the rollback has happened
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "rollback_pre_registration");
+    }
+
+    class RertyRegistrationFail extends AbstractExpectations
+    {
+        private final int retryCount;
+
+        public RertyRegistrationFail(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
+                int retryCount)
+        {
+            super(atomicatOperationDetails);
+            this.retryCount = retryCount;
+            prepareExpecatations();
+        }
+
+        private void prepareExpecatations()
+        {
+            initialExpectations();
+            registerDataSetsAndThrow(true, true, EntityOperationsState.NO_OPERATION);
+            for (int i = 0; i < retryCount; i++)
+            {
+                registerDataSetsAndThrow(true, false, EntityOperationsState.NO_OPERATION);
+            }
+            
+            //the recovery - will find that nothing has happened
+            checkEntityOperationsSucceeded(EntityOperationsState.NO_OPERATION);
+        }
     }
 
     @DataProvider(name = "multipleCheckpointsDataProvider")
@@ -918,9 +982,16 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
          */
         protected void registerDataSetsAndThrow(boolean canRecoverFromError)
         {
-            one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
+            registerDataSetsAndThrow(canRecoverFromError, true, EntityOperationsState.NO_OPERATION);
+        }
 
+        protected void registerDataSetsAndThrow(boolean canRecoverFromError, boolean drawId,
+                EntityOperationsState entityOperationsState)
+        {
+            if (drawId)
+            {
+                drawUniqueId();
+            }
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
             Exception e;
@@ -939,23 +1010,38 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             if (canRecoverFromError)
             {
                 // the check immediately after the exception fails as well
-                one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
-                will(returnValue(EntityOperationsState.NO_OPERATION));
+                checkEntityOperationsSucceeded(entityOperationsState);
             }
         }
 
+        /**
+         * call openBisService.didEntityOperationsSucceeded
+         */
+        protected void checkEntityOperationsSucceeded(EntityOperationsState entityOperationsState)
+        {
+            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
+            will(returnValue(entityOperationsState));
+        }
+
+        /**
+         * Draw unique ID and perform entity operations
+         */
         protected void registerDataSetsAndSucceed()
         {
-            one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
+            drawUniqueId();
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
             will(returnValue(new AtomicEntityOperationResult()));
         }
 
-        protected void registerDataSetsAndMakeFileSystemUnavailable()
+        protected void drawUniqueId()
         {
             one(openBisService).drawANewUniqueID();
             will(returnValue(new Long(1)));
+        }
+
+        protected void registerDataSetsAndMakeFileSystemUnavailable()
+        {
+            drawUniqueId();
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
             will(doAll(makeFileSystemUnavailableAction(),
                     returnValue(new AtomicEntityOperationResult())));
