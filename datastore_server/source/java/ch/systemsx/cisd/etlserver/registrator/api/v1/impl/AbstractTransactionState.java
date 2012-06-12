@@ -618,11 +618,11 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         public boolean commit()
         {
             ArrayList<DataSetStorageAlgorithm<T>> algorithms = createStorageAlgorithmsForDataSets();
-
+            
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, rollbackStack,
                             registrationService.getDssRegistrationLog(), openBisService,
-                            registrationService);
+                            registrationService, registrationService.getRegistratorContext().getGlobalState());
 
             boolean storageAlgorithmsSucceeded = runner.prepareAndRunStorageAlgorithms();
 

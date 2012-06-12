@@ -96,6 +96,14 @@ public final class ThreadParameters
 
     public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
+    
+    
+    /*
+     * The properties that control the process of retrying registration by jython dropboxes
+     */
+    public static final String DATASET_REGISTRATION_MAX_RETRY_COUNT = "dataset-registration-max-retry-count";
+    
+    public static final String DATASET_REGISTRATION_RETRY_SLEEP = "dataset-registration-retry-sleep";
 
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
@@ -127,6 +135,10 @@ public final class ThreadParameters
 
     private final boolean reprocessFaultyDatasets;
 
+    private final int dataSetRegistrationMaxRetryCount;
+    
+    private final int dataSetRegistrationRetrySleep;
+    
     private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
 
     /**
@@ -170,6 +182,11 @@ public final class ThreadParameters
         this.dataSetRegistrationPreStagingBehavior =
                 getOriginalnputDataSetBehaviour(threadProperties);
 
+        //FIXME: choose the right defaults.
+        this.dataSetRegistrationMaxRetryCount = Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_MAX_RETRY_COUNT, "0"));
+        
+        this.dataSetRegistrationRetrySleep = Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_RETRY_SLEEP, "10000"));
+        
         this.threadName = threadName;
 
         String onErrorClassName =
@@ -413,6 +430,16 @@ public final class ThreadParameters
     public DataSetRegistrationPreStagingBehavior getDataSetRegistrationPreStagingBehavior()
     {
         return dataSetRegistrationPreStagingBehavior;
+    }
+
+    public int getDataSetRegistrationMaxRetryCount()
+    {
+        return dataSetRegistrationMaxRetryCount;
+    }
+
+    public int getDataSetRegistrationRetrySleep()
+    {
+        return dataSetRegistrationRetrySleep;
     }
 
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -115,10 +116,15 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final DataSetFile incomingDataSetFile;
 
+    private final int maxRetryCount;
+
+    private final int retrySleep;
+
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
-            IPrePostRegistrationHook<T> postPreRegistrationHooks)
+            IPrePostRegistrationHook<T> postPreRegistrationHooks,
+            TopLevelDataSetRegistratorGlobalState globalState)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
@@ -132,6 +138,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.autoRecoverySettings = transaction.getAutoRecoverySettings();
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
+        
+        this.maxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.retrySleep = globalState.getThreadParameters().getDataSetRegistrationRetrySleep();
     }
 
     /**
@@ -143,7 +152,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
             IPrePostRegistrationHook<T> postPreRegistrationHooks,
             IDataSetStorageRecoveryManager storageRecoveryManager,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
+            TopLevelDataSetRegistratorGlobalState globalState)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
@@ -157,6 +167,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
         this.storageRecoveryManager = storageRecoveryManager;
         this.incomingDataSetFile = incomingDataSetFile;
+        
+        this.maxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.retrySleep = globalState.getThreadParameters().getDataSetRegistrationRetrySleep();
     }
 
     /**
@@ -529,10 +542,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return true;
     }
 
-    private static int RETRY_SLEEP_PERIOD = 1000;
-
-    private static int MAX_RETRY_SAME_ERROR_COUNT = 0;
-
     private boolean registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
@@ -624,7 +633,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                     break;
 
                 case NO_OPERATION:
-                    if (errorCount > MAX_RETRY_SAME_ERROR_COUNT)
+                    if (errorCount > maxRetryCount)
                     {
                         operationLog.debug("The same error happened " + errorCount
                                 + " times. Will stop registration.");
@@ -672,7 +681,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void waitTheRetryPeriod()
     {
-        ConcurrencyUtilities.sleep(RETRY_SLEEP_PERIOD);
+        ConcurrencyUtilities.sleep(retrySleep);
     }
 
     /**

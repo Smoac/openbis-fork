@@ -353,7 +353,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         logger, // registrationLogger
                         state.getGlobalState().getOpenBisService(), // openBisService
                         hookAdaptor, // the hooks
-                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder);
+                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder, state.getGlobalState());
 
         boolean registrationSuccessful = false;
 
