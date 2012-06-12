@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryMa
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -67,6 +69,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         public void registerDataSetsInApplicationServer(TechId registrationId,
                 List<DataSetRegistrationInformation<T>> data) throws Throwable;
+
+        public EntityOperationsState didEntityOperationsSucceeded(TechId registrationId);
     }
 
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
@@ -525,7 +529,28 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return true;
     }
 
+    private static int RETRY_SLEEP_PERIOD = 1000;
+
+    private static int MAX_RETRY_SAME_ERROR_COUNT = 0;
+
     private boolean registerDataSetsInApplicationServer(TechId registrationId,
+            List<DataSetRegistrationInformation<T>> registrationData)
+    {
+        boolean result;
+        if (shouldUseAutoRecovery())
+        {
+            result = registerDataWithRecovery(registrationId, registrationData);
+        } else
+        {
+            result = registerData(registrationId, registrationData);
+        }
+
+        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
+        return result;
+    }
+
+    // TODO: should we have DSARunnerV2 instead of these two methods?
+    private boolean registerData(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
         try
@@ -537,18 +562,117 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             operationLog.error("Error in registrating data in application server", throwable);
             dssRegistrationLog.log("Error in registrating data in application server");
-            if (shouldUseAutoRecovery() && storageRecoveryManager.canRecoverFromError(throwable))
-            {
-                rollbackDelegate.markReadyForRecovery(this, throwable);
-            } else
-            {
-                rollbackDuringMetadataRegistration(throwable);
-            }
+            rollbackDuringMetadataRegistration(throwable);
             return false;
         }
-
-        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
         return true;
+    }
+
+    private boolean registerDataWithRecovery(TechId registrationId,
+            List<DataSetRegistrationInformation<T>> registrationData)
+    {
+        RegistrationExceptionsCollection exceptionCollection =
+                new RegistrationExceptionsCollection();
+
+        EntityOperationsState result = EntityOperationsState.NO_OPERATION;
+
+        Throwable problem = null;
+        int errorCount = 0;
+
+        while (true)
+        {
+
+            if (result == EntityOperationsState.NO_OPERATION)
+            {
+                try
+                {
+                    applicationServerRegistrator.registerDataSetsInApplicationServer(
+                            registrationId, registrationData);
+                    return true;
+                } catch (final Throwable exception)
+                {
+                    operationLog.error("Error in registrating data in application server",
+                            exception);
+                    dssRegistrationLog.log("Error in registrating data in application server");
+
+                    problem = exception;
+                }
+
+                // how many times has this error already happened?
+                errorCount = exceptionCollection.add(problem);
+
+                if (!storageRecoveryManager.canRecoverFromError(problem))
+                {
+                    rollbackDuringMetadataRegistration(problem);
+                    return false;
+                }
+            }
+            operationLog.debug("Will check the status of registration");
+
+            // check in openbis.registration succeeded
+            result = checkOperationsSucceededNoGiveUp(registrationId);
+
+            operationLog.debug("The registration is in state: " + result);
+
+            switch (result)
+            {
+                case IN_PROGRESS:
+                    operationLog
+                            .debug("The registration is in progress. Will wait until it's done.");
+
+                    waitTheRetryPeriod();
+                    break;
+
+                case NO_OPERATION:
+                    if (errorCount > MAX_RETRY_SAME_ERROR_COUNT)
+                    {
+                        operationLog.debug("The same error happened " + errorCount
+                                + " times. Will stop registration.");
+                        dssRegistrationLog.log("The same error happened " + errorCount
+                                + " times. Will stop registration.");
+
+                        rollbackDelegate.markReadyForRecovery(this, problem);
+                        return false;
+                    }
+                    waitTheRetryPeriod();
+                    break;
+
+                case OPERATION_SUCCEEDED:
+                    operationLog
+                            .debug("The registration is in progress. Will wait until it's done.");
+
+                    // the operation has succeeded so we return
+                    return true;
+            }
+
+        }
+    }
+
+    /**
+     * Checks if the operations have succeeded in AS. Never give up if can't connect.
+     */
+    private EntityOperationsState checkOperationsSucceededNoGiveUp(TechId registrationId)
+    {
+        while (true)
+        {
+            try
+            {
+                EntityOperationsState result =
+                        applicationServerRegistrator.didEntityOperationsSucceeded(registrationId);
+                return result;
+            } catch (Exception exception)
+            {
+                operationLog
+                        .debug("Error in checking status of registration. Probably AS is down. Will wait.",
+                                exception);
+                waitTheRetryPeriod();
+            }
+        }
+    }
+
+    private void waitTheRetryPeriod()
+    {
+        ConcurrencyUtilities.sleep(RETRY_SLEEP_PERIOD);
     }
 
     /**

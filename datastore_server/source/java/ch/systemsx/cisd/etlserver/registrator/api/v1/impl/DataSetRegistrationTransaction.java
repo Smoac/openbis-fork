@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutab
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -519,6 +520,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         entityRegistrationService.performOperationsInApplcationServer(registrationDetails);
     }
 
+    @Override
+    public EntityOperationsState didEntityOperationsSucceeded(TechId registrationId)
+    {
+     return openBisService.didEntityOperationsSucceed(registrationId);
+    }
+    
     public boolean isCommittedOrRolledback()
     {
         return isCommitted() || isRolledback();

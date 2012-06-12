@@ -27,10 +27,15 @@ import java.util.Properties;
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
@@ -65,6 +70,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSystemTestCase
 {
+    @BeforeClass
+    public static void classSetUp()
+    {
+        Logger rootLogger = Logger.getRootLogger();
+        if (!rootLogger.getAllAppenders().hasMoreElements())
+        {
+            rootLogger.setLevel(Level.INFO);
+            rootLogger.addAppender(new ConsoleAppender(new PatternLayout("%-5p [%t]: %m%n")));
+
+            // The TTCC_CONVERSION_PATTERN contains more info than
+            // the pattern we used for the root logger
+            Logger pkgLogger =
+                    rootLogger.getLoggerRepository().getLogger("robertmaldon.moneymachine");
+            pkgLogger.setLevel(Level.DEBUG);
+            pkgLogger.addAppender(new ConsoleAppender(new PatternLayout(
+                    PatternLayout.TTCC_CONVERSION_PATTERN)));
+        }
+    }
 
     /**
      * Return the path of the folder that contains the registration scripts.

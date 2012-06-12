@@ -359,15 +359,15 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 {
                     assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
                 }
-                assertRecoveryFile(expectedRetryCount,
-                        RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
+                assertRecoveryFile(expectedRetryCount, RecoveryInfoDateConstraint.AFTER_ORIGINAL,
+                        testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 break;
             case RETRY_AT_STORAGE_CONFIRMED_FAILURE:
                 assertStorageProcess(atomicatOperationDetails.recordedObject(), DATA_SET_CODE,
                         "sub_data_set_1", 0);
-                assertRecoveryFile(expectedRetryCount,
-                        RecoveryInfoDateConstraint.AFTER_ORIGINAL, testCase.recoveryLastTry);
+                assertRecoveryFile(expectedRetryCount, RecoveryInfoDateConstraint.AFTER_ORIGINAL,
+                        testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 break;
             case GIVE_UP:
@@ -710,7 +710,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 initialContainerExpectations();
             }
-            // first try - fail at registration
+            // first try - fail at registration and realize that the operation has not succeeded
             registerDataSetsAndThrow(true);
 
             // second handle - fail at storage
@@ -911,6 +911,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 };
         }
 
+        /**
+         * This method should make sure that the registration will fail, and it will go into the
+         * recovery mode. It means that it also has to assure that the subsequent retries introduce
+         * in SP-107 are failing.
+         */
         protected void registerDataSetsAndThrow(boolean canRecoverFromError)
         {
             one(openBisService).drawANewUniqueID();
@@ -930,6 +935,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             }
 
             will(throwException(e));
+
+            if (canRecoverFromError)
+            {
+                // the check immediately after the exception fails as well
+                one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
+                will(returnValue(EntityOperationsState.NO_OPERATION));
+            }
         }
 
         protected void registerDataSetsAndSucceed()
