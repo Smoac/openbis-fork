@@ -732,10 +732,15 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             throw new UserFailureException("It is not allowed to change the user from remote host "
                     + remoteHost);
         }
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        injectPerson(session, userID);
+    }
+
+    protected void injectPerson(Session session, String personID)
+    {
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(personID);
         if (person == null)
         {
-            throw new UserFailureException("Unknown user: " + userID);
+            throw new UserFailureException("Unknown user: " + personID);
         }
         HibernateUtils.initialize(person.getAllPersonRoles());
         session.setPerson(person);

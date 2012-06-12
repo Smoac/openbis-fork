@@ -27,8 +27,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.authentication.DefaultSessionManager;
+import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -40,6 +44,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
@@ -72,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
@@ -191,25 +198,32 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final ServiceConversationServer server;
 
+    private final IEntityOperationChecker entityOperationChecker;
+
+    private final DefaultSessionManager<Session> sessionManagerForEntityOperation;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
-            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider)
+            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
+            IEntityOperationChecker entityOperationChecker)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
-                trustedOriginDomainProvider);
+                trustedOriginDomainProvider, entityOperationChecker);
     }
 
     ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
             IDataStoreServiceFactory dssFactory,
-            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider)
+            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
+            IEntityOperationChecker entityOperationChecker)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.trustedOriginDomainProvider = trustedOriginDomainProvider;
+        this.entityOperationChecker = entityOperationChecker;
 
         org.hibernate.SessionFactory sessionFactory =
                 daoFactory.getPersistencyResources().getSessionFactoryOrNull();
@@ -217,6 +231,18 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         server = new ServiceConversationServer();
         server.addServiceType(new RmiServiceFactory<IETLLIMSService>(server, this,
                 IETLLIMSService.class, PROGRESS_TIMEOUT, sessionFactory));
+        sessionManagerForEntityOperation =
+                new DefaultSessionManager<Session>(new SessionFactory(),
+                        new LogMessagePrefixGenerator(), new DummyAuthenticationService(),
+                        new RequestContextProviderAdapter(new IRequestContextProvider()
+                            {
+                                @Override
+                                public HttpServletRequest getHttpServletRequest()
+                                {
+                                    return null;
+                                }
+                            }), 30);
+
     }
 
     @Override
@@ -1329,33 +1355,44 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         EntityOperationsInProgress.getInstance().addRegistrationPending(registrationId);
 
+        String sessionTokenForEntityOperation = null;
         try
         {
-
             final Session session = getSession(sessionToken);
+            Session sessionForEntityOperation = session;
+            String userId = operationDetails.tryUserIdOrNull();
+            if (userId != null)
+            {
+                sessionTokenForEntityOperation =
+                        sessionManagerForEntityOperation.tryToOpenSession(userId, "dummy password");
+                sessionForEntityOperation =
+                        sessionManagerForEntityOperation.getSession(sessionTokenForEntityOperation);
+                injectPerson(sessionForEntityOperation, userId);
+            }
 
-            List<Space> spacesCreated = createSpaces(session, operationDetails, progressListener);
+            List<Space> spacesCreated =
+                    createSpaces(sessionForEntityOperation, operationDetails, progressListener);
 
             List<Material> materialsCreated =
-                    createMaterials(session, operationDetails, progressListener);
+                    createMaterials(sessionForEntityOperation, operationDetails, progressListener);
 
             List<Project> projectsCreated =
-                    createProjects(session, operationDetails, progressListener);
+                    createProjects(sessionForEntityOperation, operationDetails, progressListener);
 
             List<Experiment> experimentsCreated =
-                    createExperiments(session, operationDetails, progressListener);
+                    createExperiments(sessionForEntityOperation, operationDetails, progressListener);
 
             List<Sample> samplesCreated =
-                    createSamples(session, operationDetails, progressListener);
+                    createSamples(sessionForEntityOperation, operationDetails, progressListener);
 
             List<Sample> samplesUpdated =
-                    updateSamples(session, operationDetails, progressListener);
+                    updateSamples(sessionForEntityOperation, operationDetails, progressListener);
 
             List<ExternalData> dataSetsCreated =
-                    createDataSets(session, operationDetails, progressListener);
+                    createDataSets(sessionForEntityOperation, operationDetails, progressListener);
 
             List<ExternalData> dataSetsUpdated =
-                    updateDataSets(session, operationDetails, progressListener);
+                    updateDataSets(sessionForEntityOperation, operationDetails, progressListener);
 
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
@@ -1371,6 +1408,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
+            if (sessionTokenForEntityOperation != null)
+            {
+                sessionManagerForEntityOperation.closeSession(sessionTokenForEntityOperation);
+            }
         }
     }
 
@@ -1404,6 +1445,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
+        assertSpaceCreationAllowed(session, newSpaces);
+
         int index = 0;
         for (NewSpace newSpace : newSpaces)
         {
@@ -1415,6 +1458,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return SpaceTranslator.translate(spacePEsCreated);
     }
 
+    protected void assertSpaceCreationAllowed(Session session, List<NewSpace> newSpaces)
+    {
+        if (newSpaces != null && newSpaces.isEmpty() == false)
+        {
+            entityOperationChecker.assertSpaceCreationAllowed(session, newSpaces);
+        }
+    }
+
     private List<Material> createMaterials(Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
@@ -1422,6 +1473,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
                         getPropertiesBatchManager());
         Map<String, List<NewMaterial>> materialRegs = operationDetails.getMaterialRegistrations();
+        assertMaterialCreationAllowed(session, materialRegs);
         List<Material> registeredMaterials = new ArrayList<Material>();
         int index = 0;
         for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
@@ -1433,6 +1485,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             progress.update("createMaterials", materialRegs.size(), ++index);
         }
         return registeredMaterials;
+    }
+
+    protected void assertMaterialCreationAllowed(Session session,
+            Map<String, List<NewMaterial>> materials)
+    {
+        if (materials != null && materials.isEmpty() == false)
+        {
+            entityOperationChecker.assertMaterialCreationAllowed(session, materials);
+        }
     }
 
     private SpacePE registerSpaceInternal(Session session, NewSpace newSpace,
@@ -1472,6 +1533,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
         List<NewProject> newProjects = operationDetails.getProjectRegistrations();
+        assertProjectCreationAllowed(session, newProjects);
         int index = 0;
         for (NewProject newProject : newProjects)
         {
@@ -1481,6 +1543,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             progress.update("createProjects", newProjects.size(), ++index);
         }
         return ProjectTranslator.translate(projectPEsCreated);
+    }
+
+    protected void assertProjectCreationAllowed(Session session, List<NewProject> newProjects)
+    {
+        if (newProjects != null && newProjects.isEmpty() == false)
+        {
+            entityOperationChecker.assertProjectCreationAllowed(session, newProjects);
+        }
     }
 
     private ProjectPE registerProjectInternal(Session session, NewProject newProject,

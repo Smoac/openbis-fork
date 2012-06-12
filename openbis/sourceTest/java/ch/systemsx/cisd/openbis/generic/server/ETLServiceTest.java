@@ -134,6 +134,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
+    private IEntityOperationChecker entityOperationChecker;
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -142,6 +144,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
+        entityOperationChecker = context.mock(IEntityOperationChecker.class);
         MaterialConfigurationProvider.initializeForTesting(false);
     }
 
@@ -1025,7 +1028,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             { "c1", "c2" });
 
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
-                newMaterial, newSamplePE, newSampleIdentifier, newSample, externalData,
+                materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
                 updatedDataSetCode, dataSetUpdate);
 
         AtomicEntityOperationDetails details =
@@ -1054,7 +1057,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private void prepareEntityOperationsExpectations(final SamplePE samplePE,
             final SampleUpdatesDTO sampleUpdate, final MaterialPE material,
-            final MaterialTypePE materialType, final NewMaterial newMaterial,
+            final MaterialTypePE materialType, final Map<String, List<NewMaterial>> newMaterials,
             final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
             final NewSample newSample, final NewExternalData externalData,
             final String updatedDataSetCode, final DataSetUpdatesDTO dataSetUpdate)
@@ -1068,13 +1071,16 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
                     will(returnValue(materialType));
 
-                    final List<NewMaterial> newMaterials = Arrays.asList(newMaterial);
-                    one(propertiesBatchManager).manageProperties(materialType, newMaterials, null);
+                    one(entityOperationChecker)
+                            .assertMaterialCreationAllowed(SESSION, newMaterials);
+                    List<NewMaterial> newMaterialsList = newMaterials.values().iterator().next();
+                    one(propertiesBatchManager).manageProperties(materialType, newMaterialsList,
+                            null);
 
                     one(boFactory).createMaterialTable(SESSION);
                     will(returnValue(materialTable));
 
-                    one(materialTable).add(newMaterials, materialType);
+                    one(materialTable).add(newMaterialsList, materialType);
                     one(materialTable).save();
                     one(materialTable).getMaterials();
                     will(returnValue(Arrays.asList(material)));
@@ -1193,7 +1199,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             { "c1", "c2" });
 
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
-                newMaterial, newSamplePE, newSampleIdentifier, newSample, externalData,
+                materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
                 updatedDataSetCode, dataSetUpdate);
 
         context.checking(new Expectations()
@@ -1367,7 +1373,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     private IETLLIMSService createService()
     {
         return new ETLService(authenticationService, sessionManager, daoFactory,
-                propertiesBatchManager, boFactory, dssfactory, null);
+                propertiesBatchManager, boFactory, dssfactory, null, entityOperationChecker);
     }
 
     private DataStoreServerInfo createDSSInfo()

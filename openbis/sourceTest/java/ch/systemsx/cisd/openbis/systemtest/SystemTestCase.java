@@ -33,6 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
@@ -43,15 +44,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -76,12 +81,22 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected IGenericClientService genericClientService;
 
+    protected IETLLIMSService etlService;
+
     protected MockHttpServletRequest request;
+
+    protected String systemSessionToken;
 
     @BeforeSuite
     public void beforeSuite()
     {
         TestInitializer.init();
+    }
+
+    @BeforeClass
+    public void loginAsSystem()
+    {
+        systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
     }
 
     /**
@@ -140,6 +155,13 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     public final void setGenericClientService(final IGenericClientService genericClientService)
     {
         this.genericClientService = genericClientService;
+    }
+
+    @Autowired
+    public void setETLService(IETLLIMSService etlService)
+    {
+        this.etlService = etlService;
+
     }
 
     protected SessionContext logIntoCommonClientService()
@@ -207,6 +229,39 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
             sample.setProperties(propertis.toArray(new IEntityProperty[propertis.size()]));
             genericClientService.registerSample(SESSION_KEY, sample);
         }
+    }
+
+    /**
+     * Register a person with specified user ID.
+     * 
+     * @return userID
+     */
+    protected String registerPerson(String userID)
+    {
+        commonServer.registerPerson(systemSessionToken, userID);
+        return userID;
+    }
+
+    protected void assignInstanceRole(String userID, RoleCode roleCode)
+    {
+        commonServer.registerInstanceRole(systemSessionToken, roleCode,
+                Grantee.createPerson(userID));
+    }
+
+    protected void assignSpaceRole(String userID, RoleCode roleCode, SpaceIdentifier spaceIdentifier)
+    {
+        commonServer.registerSpaceRole(systemSessionToken, roleCode, spaceIdentifier,
+                Grantee.createPerson(userID));
+    }
+
+    /**
+     * Authenticates as specified user.
+     * 
+     * @return session token
+     */
+    protected String authenticateAs(String user)
+    {
+        return commonServer.tryToAuthenticate(user, "password").getSessionToken();
     }
 
     protected NewSampleBuilder sample(String identifier)

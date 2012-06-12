@@ -150,7 +150,10 @@
         <constructor-arg ref="common-business-object-factory" />
         <constructor-arg ref="dss-factory" />
         <constructor-arg ref="trusted-origin-domain-provider" />
+        <constructor-arg ref="entity-operation-checker" />
     </bean>
+    
+    <bean id="entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.EntityOperationChecker"/>
 
     <!-- 
         // Transaction
