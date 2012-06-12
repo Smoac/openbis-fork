@@ -1534,6 +1534,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
+        if (sampleUpdates.size() < 1)
+        {
+            return Collections.emptyList();
+        }
         ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
                 progress, "updateSamples");

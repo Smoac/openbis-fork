@@ -69,6 +69,8 @@ public class BatchOperationExecutor
                 endIndex, endIndex = Math.min(startIndex + batchSize, maxIndex))
         {
             final List<S> batch = allEntities.subList(startIndex, endIndex);
+            operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
+                    strategy.getOperationName(), startIndex, maxIndex));
             strategy.execute(batch);
             if (null != progressListenerOrNull)
             {
