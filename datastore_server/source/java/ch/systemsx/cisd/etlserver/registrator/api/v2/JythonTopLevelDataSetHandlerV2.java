@@ -151,7 +151,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         }
     }
 
-    private static final int MAX_RETRY_COUNT = 3;
+    private static final int MAX_RETRY_COUNT = 50;
 
     private static final int RETRY_SLEEP = 100;
 

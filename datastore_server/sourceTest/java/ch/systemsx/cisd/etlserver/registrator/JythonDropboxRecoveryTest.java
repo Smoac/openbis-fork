@@ -904,6 +904,68 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
     }
 
+    // INFO: testcase that verifies the repeating of the jython process works.
+    @Test
+    public void testRetryProcessing()
+    {
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py",
+                        testCase.overrideProperties);
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new RetryProcessExpectations(atomicatOperationDetails, 20));
+
+        handler.handle(markerFile);
+
+        JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                "pre_metadata_registration", "post_metadata_registration", "post_storage");
+
+        assertStorageProcess(atomicatOperationDetails.getRecordedObjects().get(0), DATA_SET_CODE,
+                "sub_data_set_1", 0);
+
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(precommitDirectory);
+    }
+
+    class RetryProcessExpectations extends AbstractExpectations
+    {
+        public RetryProcessExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails, int retryCount)
+        {
+            super(atomicatOperationDetails);
+            prepareExpectations(retryCount);
+        }
+
+        private void prepareExpectations(int retryCount)
+        {
+            // create dataset
+            for (int i = 0; i < retryCount; i++)
+            {
+                one(openBisService).createDataSetCode();
+                will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
+                                                      // about
+            }
+            
+            initialExpectations();
+
+            registerDataSetsAndSucceed();
+
+            setStorageConfirmed(false);
+        }
+    }
+
     // INFO: the test that checks all possible recovery points one by one in single registration
     @DataProvider(name = "multipleCheckpointsDataProvider")
     public Object[][] multipleCheckpointsData()
