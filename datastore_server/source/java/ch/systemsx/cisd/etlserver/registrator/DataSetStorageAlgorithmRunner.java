@@ -116,9 +116,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final DataSetFile incomingDataSetFile;
 
-    private final int maxRetryCount;
+    private final int registrationMaxRetryCount;
 
-    private final int retrySleep;
+    private final int registrationRetryPauseInSec;
 
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
@@ -139,8 +139,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
         
-        this.maxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
-        this.retrySleep = globalState.getThreadParameters().getDataSetRegistrationRetrySleep();
+        this.registrationMaxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec = globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -168,8 +168,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.storageRecoveryManager = storageRecoveryManager;
         this.incomingDataSetFile = incomingDataSetFile;
         
-        this.maxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
-        this.retrySleep = globalState.getThreadParameters().getDataSetRegistrationRetrySleep();
+        this.registrationMaxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec = globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -633,7 +633,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                     break;
 
                 case NO_OPERATION:
-                    if (errorCount > maxRetryCount)
+                    if (errorCount > registrationMaxRetryCount)
                     {
                         operationLog.debug("The same error happened " + errorCount
                                 + " times. Will stop registration.");
@@ -681,7 +681,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void waitTheRetryPeriod()
     {
-        ConcurrencyUtilities.sleep(retrySleep);
+        ConcurrencyUtilities.sleep(registrationRetryPauseInSec * 1000);
     }
 
     /**

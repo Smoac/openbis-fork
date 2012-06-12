@@ -25,6 +25,7 @@ import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -66,6 +67,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler<T>
 {
 
+    private final int processMaxRetryCount;
+
+    private final int processRetryPauseInSec;
+
     /**
      * Constructor.
      * 
@@ -74,6 +79,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     public JythonTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
+        this.processMaxRetryCount = globalState.getThreadParameters().getProcessMaxRetryCount();
+        this.processRetryPauseInSec = globalState.getThreadParameters().getProcessRetryPauseInSec();
     }
 
     /**
@@ -151,10 +158,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         }
     }
 
-    private static final int MAX_RETRY_COUNT = 50;
-
-    private static final int RETRY_SLEEP = 100;
-
     private void executeJythonProcessFunctionWithRetries(PythonInterpreter interpreter,
             JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction)
     {
@@ -184,7 +187,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             // TODO: if the max retry count has happened - then we finish
             // This actually will likely be removed if we would like to give the control about
             // retries 100% to the user only
-            if (errorCount > MAX_RETRY_COUNT)
+            if (errorCount > processMaxRetryCount)
             {
                 operationLog
                         .error("The jython script processing has failed too many times. Rolling back.");
@@ -213,9 +216,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             // creates the new transaction and propagates the values in the persistent map
             service.transaction().getPersistentMap().putAll(persistentMap);
+            
+            waitTheRetryPeriod();
         }
     }
 
+    private void waitTheRetryPeriod()
+    {
+        ConcurrencyUtilities.sleep(processRetryPauseInSec * 1000);
+    }
+    
     protected void executeJythonProcessFunction(PythonInterpreter interpreter,
             IDataSetRegistrationTransaction transaction)
     {

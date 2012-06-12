@@ -96,14 +96,23 @@ public final class ThreadParameters
 
     public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
-    
-    
+
     /*
      * The properties that control the process of retrying registration by jython dropboxes
      */
-    public static final String DATASET_REGISTRATION_MAX_RETRY_COUNT = "dataset-registration-max-retry-count";
-    
-    public static final String DATASET_REGISTRATION_RETRY_SLEEP = "dataset-registration-retry-sleep";
+    public static final String DATASET_REGISTRATION_MAX_RETRY_COUNT =
+            "dataset-registration-max-retry-count";
+
+    public static final String DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC =
+            "dataset-registration-retry-pause-in-sec";
+
+    /*
+     * The properties that control the process of retrying registration by jython dropboxes
+     */
+    public static final String PROCESS_MAX_RETRY_COUNT = "process-max-retry-count";
+
+    public static final String PROCESS_RETRY_PAUSE_IN_SEC =
+            "process-registration-retry-pause-in-sec";
 
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
@@ -136,9 +145,13 @@ public final class ThreadParameters
     private final boolean reprocessFaultyDatasets;
 
     private final int dataSetRegistrationMaxRetryCount;
-    
-    private final int dataSetRegistrationRetrySleep;
-    
+
+    private final int dataSetRegistrationRetryPauseInSec;
+
+    private final int processMaxRetryCount;
+
+    private final int processRetryPauseInSec;
+
     private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
 
     /**
@@ -182,10 +195,22 @@ public final class ThreadParameters
         this.dataSetRegistrationPreStagingBehavior =
                 getOriginalnputDataSetBehaviour(threadProperties);
 
-        //FIXME: choose the right defaults.
-        this.dataSetRegistrationMaxRetryCount = Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_MAX_RETRY_COUNT, "0"));
-        
-        this.dataSetRegistrationRetrySleep = Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_RETRY_SLEEP, "10000"));
+        // FIXME: choose the right defaults.
+        this.dataSetRegistrationMaxRetryCount =
+                Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_MAX_RETRY_COUNT,
+                        "0"));
+
+        this.dataSetRegistrationRetryPauseInSec =
+                Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC,
+                        "10"));
+
+        this.processMaxRetryCount =
+                Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT,
+                        "0"));
+
+        this.processRetryPauseInSec =
+                Integer.parseInt(threadProperties.getProperty(PROCESS_RETRY_PAUSE_IN_SEC,
+                        "10"));
         
         this.threadName = threadName;
 
@@ -264,7 +289,8 @@ public final class ThreadParameters
             return FileUtilities.normalizeFile(new File(incomingDir));
         } else
         {
-            throw new ConfigurationFailureException("No '" + INCOMING_DIR + "' defined for input [" + threadName2 + "].");
+            throw new ConfigurationFailureException("No '" + INCOMING_DIR + "' defined for input ["
+                    + threadName2 + "].");
         }
     }
 
@@ -437,9 +463,19 @@ public final class ThreadParameters
         return dataSetRegistrationMaxRetryCount;
     }
 
-    public int getDataSetRegistrationRetrySleep()
+    public int getDataSetRegistrationPauseInSec()
     {
-        return dataSetRegistrationRetrySleep;
+        return dataSetRegistrationRetryPauseInSec;
+    }
+
+    public int getProcessMaxRetryCount()
+    {
+        return processMaxRetryCount;
+    }
+
+    public int getProcessRetryPauseInSec()
+    {
+        return processRetryPauseInSec;
     }
 
 }

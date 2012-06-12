@@ -742,10 +742,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
                 retryCount.toString());
-        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); // 100 ms
-                                                                                          // - to
-                                                                                          // make it
-                                                                                          // quick
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "0"); // 1s
 
         createHandler(properties, true, false);
 
@@ -836,7 +833,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
                 retryCount.toString());
-        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_SLEEP, "100"); // 100 ms
+        properties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "0"); // 1s
 
         createHandler(properties, true, false);
 
@@ -917,6 +914,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py",
                         testCase.overrideProperties);
 
+        properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "100"); // we dont want it
+                                                                                 // to fail at all
+                                                                                 // in this testcase
+        properties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0"); // continue
+                                                                                  // immediately to
+                                                                                  // not stop the
+                                                                                  // tests
+
         createHandler(properties, true, false);
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
@@ -942,7 +947,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     class RetryProcessExpectations extends AbstractExpectations
     {
         public RetryProcessExpectations(
-                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails, int retryCount)
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
+                int retryCount)
         {
             super(atomicatOperationDetails);
             prepareExpectations(retryCount);
@@ -957,12 +963,80 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
                                                       // about
             }
-            
+
             initialExpectations();
 
             registerDataSetsAndSucceed();
 
             setStorageConfirmed(false);
+        }
+    }
+
+    // INFO: testcase that verifies the repeating of the jython process works.
+    @Test
+    public void testRetryProcessingFailed()
+    {
+        RecoveryTestCase testCase = new RecoveryTestCase("No name");
+        setUpHomeDataBaseExpectations();
+
+        createData();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py",
+                        testCase.overrideProperties);
+
+        properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "10"); // we dont want it
+                                                                                // to fail at all in
+                                                                                // this testcase
+        properties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0"); // continue
+                                                                                  // immediately to
+                                                                                  // not stop the
+                                                                                  // tests
+
+        createHandler(properties, true, false);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+
+        // create expectations
+        context.checking(new RetryProcessFailedExpectations(atomicatOperationDetails, 10));
+
+        handler.handle(markerFile);
+
+
+        assertDataSetNotStoredProcess( DATA_SET_CODE);
+
+        //no recovery is triggered - files are moved to the faulty paths/marker file is deleted
+        assertNoOriginalMarkerFileExists();
+        assertNoRecoveryMarkerFile();
+
+        assertDirEmpty(precommitDirectory);
+    }
+
+    class RetryProcessFailedExpectations extends AbstractExpectations
+    {
+        public RetryProcessFailedExpectations(
+                final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
+                int retryCount)
+        {
+            super(atomicatOperationDetails);
+            prepareExpectations(retryCount);
+        }
+
+        private void prepareExpectations(int retryCount)
+        {
+            // get experiment
+            atLeast(1).of(openBisService).tryToGetExperiment(
+                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
+            will(returnValue(experiment));
+
+            // create dataset
+            for (int i = 0; i <= retryCount; i++)
+            {
+                one(openBisService).createDataSetCode();
+                will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
+                                                      // about
+            }
         }
     }
 

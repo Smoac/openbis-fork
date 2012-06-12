@@ -9,6 +9,8 @@ def should_retry_processing(map, error):
 
 def process():
   key = transaction.getPersistentMap().get("RETRY_COUNT");
+  if (key == None):
+    key = 1
   dataSet = transaction.createNewDataSet()
   transaction.moveFile(incoming.getPath() + '/sub_data_set_1', dataSet)
   dataSet.setDataSetType('O1')
