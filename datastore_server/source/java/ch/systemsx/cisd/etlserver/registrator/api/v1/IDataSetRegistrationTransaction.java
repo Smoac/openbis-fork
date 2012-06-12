@@ -91,6 +91,13 @@ public interface IDataSetRegistrationTransaction
     ISample getSampleForUpdate(String sampleIdentifierString);
 
     /**
+     * Given an immutable sample, make it mutable
+     * 
+     * @return A sample
+     */
+    ISample makeSampleMutable(ISampleImmutable sample);
+
+    /**
      * Create a new sample to register with the openBIS AS. The sample will have a permId.
      * 
      * @param sampleIdentifierString The identifier for the new sample

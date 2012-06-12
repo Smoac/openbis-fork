@@ -441,6 +441,30 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
+        public ISample makeSampleMutable(ISampleImmutable sample)
+        {
+            if (sample == null)
+            {
+                return null;
+            }
+            // Check if we already have an updatable sample for this one
+            Sample result = findSampleLocally(sample);
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (sample instanceof SampleImmutable)
+            {
+                result = new Sample((SampleImmutable) sample);
+                samplesToBeUpdated.add(result);
+
+                return result;
+            }
+
+            return null;
+        }
+
         private Sample findSampleLocally(SampleIdentifier sampleIdentifier)
         {
             String sampleIdentifierString = sampleIdentifier.toString();
@@ -448,6 +472,18 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             for (Sample sample : samplesToBeUpdated)
             {
                 if (sample.getSampleIdentifier().equalsIgnoreCase(sampleIdentifierString))
+                {
+                    return sample;
+                }
+            }
+            return null;
+        }
+
+        private Sample findSampleLocally(ISampleImmutable sampleToFind)
+        {
+            for (Sample sample : samplesToBeUpdated)
+            {
+                if (sample.equals(sampleToFind))
                 {
                     return sample;
                 }

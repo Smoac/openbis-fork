@@ -78,6 +78,11 @@ public class Sample extends SampleImmutable implements ISample
         super(sample);
     }
 
+    public Sample(SampleImmutable sample)
+    {
+        super(sample.getSample());
+    }
+
     public Sample(String sampleIdentifier, String permId)
     {
         super(buildSampleWithIdentifier(sampleIdentifier), false);
