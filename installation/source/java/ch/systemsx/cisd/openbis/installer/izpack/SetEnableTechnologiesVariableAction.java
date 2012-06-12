@@ -23,8 +23,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
@@ -112,7 +110,7 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         if (properties != null)
         {
             String property = properties.getProperty(ENABLED_TECHNOLOGIES_KEY);
-            if (StringUtils.isNotBlank(property))
+            if (property != null && property.trim().length() > 0)
             {
                 String[] splittedProperty = property.split(",");
                 for (String term : splittedProperty)
