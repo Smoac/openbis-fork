@@ -51,7 +51,6 @@ public class RegistrationExceptionsCollection
             oldValue = 0;
         }
         collection.put(key, oldValue + 1);
-        System.err.println("Adding the throwable "+t.getMessage()+ " for the time "+(oldValue+1));
         return oldValue + 1;
     }
 

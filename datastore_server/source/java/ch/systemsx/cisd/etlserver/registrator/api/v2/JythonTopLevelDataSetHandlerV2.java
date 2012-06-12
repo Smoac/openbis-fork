@@ -216,7 +216,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                                 + " has failed to register. Giving up.");
                         deleteMarkerFile();
 
-                        System.err.println("This is happening " + recoveryMarkerFile);
                         File errorRecoveryMarkerFile =
                                 new File(recoveryMarkerFile.getParent(),
                                         recoveryMarkerFile.getName() + ".ERROR");

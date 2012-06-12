@@ -262,8 +262,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 @Override
                 public boolean execute(Exception arg)
                 {
-                    System.out.println(arg);
-                    System.out.println(arg.getMessage());
                     return arg.getMessage().contains("wrong number of arguments");
                 }
             };
