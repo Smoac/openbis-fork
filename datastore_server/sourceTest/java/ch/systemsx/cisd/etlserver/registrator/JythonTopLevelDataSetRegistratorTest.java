@@ -266,8 +266,23 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 }
             };
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
-        testCases.addAll(multipleVersionsOfTestCase(testCase));
+        testCases.add(testCase);
 
+        testCase = new TestCaseParameters("Postregistration hook has wrong signature.");
+        testCase.dropboxScriptPath = "testcase-postregistration-hook-wrong-signature.py";
+        testCase.shouldThrowExceptionDuringRegistration = true;
+        testCase.exceptionAcceptor = new IPredicate<Exception>()
+            {
+                @Override
+                public boolean execute(Exception arg)
+                {
+                    return arg.getMessage().contains("wrong number of arguments");
+                }
+            };
+        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
+        testCases.add(versionV2(testCase));
+
+        
         testCase = new TestCaseParameters("Simple transaction explicit rollback");
         testCase.dropboxScriptPath = "testcase-rollback.py";
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;

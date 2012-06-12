@@ -401,12 +401,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         getStateAsLiveState().deleteFile(src);
     }
 
-    /**
-     * Marked as deprecated, to prevent using this method directly. Instead it should only be used
-     * implicitly as an implementation of the persistent map holder interface.
-     */
     @Override
-    @Deprecated
     public DataSetRegistrationPersistentMap getPersistentMap()
     {
         return registrationContext;
@@ -486,13 +481,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         IDataSetStorageRecoveryManager storageRecoveryManager =
                 registrationService.getRegistratorContext().getGlobalState()
                         .getStorageRecoveryManager();
-        
-            if (useAutoRecovery)
-            {
-                storageRecoveryManager.removeCheckpoint(algorithm);
-            }
-            rollback();
-            registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
+
+        if (useAutoRecovery)
+        {
+            storageRecoveryManager.removeCheckpoint(algorithm);
+        }
+        rollback();
+        registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
     }
 
     @Override
@@ -501,7 +496,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         registrationService.registerNonFatalError(ex);
         state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
     }
-    
+
     /**
      * Delegate method called by the {@link DataSetStorageAlgorithmRunner}. This implementation asks
      * the DataSetRegistrationService to register not just the data sets, but perform any creation
@@ -523,9 +518,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public EntityOperationsState didEntityOperationsSucceeded(TechId registrationId)
     {
-     return openBisService.didEntityOperationsSucceed(registrationId);
+        return openBisService.didEntityOperationsSucceed(registrationId);
     }
-    
+
     public boolean isCommittedOrRolledback()
     {
         return isCommitted() || isRolledback();

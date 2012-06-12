@@ -93,7 +93,20 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
             return transactions.get(0);
         }
     }
-
+    
+    
+    /**
+     * rolls back the existing transaction
+     */
+    public void rollbackAndForgetTransaction()
+    {
+        DataSetRegistrationTransaction<T> transaction = getTransaction();
+        
+        transaction.rollback();
+        
+        transactions.remove(transaction);
+    }
+    
     /**
      * Commit any scheduled changes.
      */

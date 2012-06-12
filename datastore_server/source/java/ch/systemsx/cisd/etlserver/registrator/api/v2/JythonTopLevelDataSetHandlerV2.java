@@ -41,9 +41,12 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageRollbacker;
+import ch.systemsx.cisd.etlserver.registrator.DistinctExceptionsCollection;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
@@ -105,8 +108,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 pythonInterpreter, globalState);
     }
 
-    @Override
-    protected void configureEvaluator(
+    private void configureEvaluator(
             File dataSetFile,
             ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T> service,
             PythonInterpreter interpreter)
@@ -116,14 +118,109 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         if (service != null)
         {
-            interpreter.set(TRANSACTION_VARIABLE_NAME, service.transaction());
             interpreter.set(FACTORY_VARIABLE_NAME, service.getDataSetRegistrationDetailsFactory());
         }
     }
 
     @Override
-    protected void executeJythonProcessFunction(PythonInterpreter interpreter)
+    protected void executeJythonScript(File dataSetFile, String scriptString,
+            JythonDataSetRegistrationService<T> service)
     {
+
+        // Configure the evaluator
+        PythonInterpreter interpreter = service.getInterpreter();
+        configureEvaluator(dataSetFile, service, interpreter);
+
+        // Invoke the evaluator
+        interpreter.exec(scriptString);
+
+        verifyEvaluatorHookFunctions(interpreter);
+
+        PyFunction retryFunction = getShouldRetryProcessFunction(service);
+
+        if (retryFunction == null)
+        {
+
+            // in case when there is no retry function defined we just call the process and don't
+            // try to catch any kind of exceptions
+            executeJythonProcessFunction(service.getInterpreter(), service.transaction());
+        } else
+        {
+            executeJythonProcessFunctionWithRetries(interpreter,
+                    (JythonDataSetRegistrationServiceV2<T>) service, retryFunction);
+        }
+    }
+
+    private static final int MAX_RETRY_COUNT = 3;
+
+    private static final int RETRY_SLEEP = 100;
+
+    private void executeJythonProcessFunctionWithRetries(PythonInterpreter interpreter,
+            JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction)
+    {
+        DistinctExceptionsCollection errors = new DistinctExceptionsCollection();
+
+        // create initial transaction
+        service.transaction();
+
+        while (true)
+        {
+            Exception problem;
+            try
+            {
+                executeJythonProcessFunction(interpreter, service.getTransaction());
+                // if function succeeded - than we are happy
+                return;
+            } catch (Exception ex)
+            {
+                problem = ex;
+                operationLog
+                        .info("Exception occured during jython script processing. Will check if can retry.",
+                                ex);
+            }
+
+            int errorCount = errors.add(problem);
+
+            // TODO: if the max retry count has happened - then we finish
+            // This actually will likely be removed if we would like to give the control about
+            // retries 100% to the user only
+            if (errorCount > MAX_RETRY_COUNT)
+            {
+                operationLog
+                        .error("The jython script processing has failed too many times. Rolling back.");
+                throw CheckedExceptionTunnel.wrapIfNecessary(problem);
+            }
+
+            DataSetRegistrationPersistentMap persistentMap =
+                    service.getTransaction().getPersistentMap();
+
+            try
+            {
+                invokeFunction(retryFunction, persistentMap, problem);
+            } catch (Exception ex)
+            {
+                operationLog.error("The retry function has failed. Rolling back.", ex);
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+
+            // TODO: we dont have a way to check the result of the jython function. Thus we assume
+            // that the user agreed to do te retry. If that's an object to change we should check
+            // the result and only proceed if this was true
+
+            service.rollbackAndForgetTransaction();
+            // TODO: now the transaction is rolled back and everything should be in place again.
+            // should we catch some exceptions here? can we recover if whatever went wrong in here
+
+            // creates the new transaction and propagates the values in the persistent map
+            service.transaction().getPersistentMap().putAll(persistentMap);
+        }
+    }
+
+    protected void executeJythonProcessFunction(PythonInterpreter interpreter,
+            IDataSetRegistrationTransaction transaction)
+    {
+        interpreter.set(TRANSACTION_VARIABLE_NAME, transaction);
+
         String PROCESS_FUNCTION_NAME = "process";
         try
         {
@@ -345,14 +442,16 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         RollbackStack rollbackStack = recoveryState.getRollbackStack();
 
         DataSetStorageAlgorithmRunner<T> runner =
-                new DataSetStorageAlgorithmRunner<T>(recoveryState.getIncomingDataSetFile(), // incoming
+                new DataSetStorageAlgorithmRunner<T>(
+                        recoveryState.getIncomingDataSetFile(), // incoming
                         dataSetStorageAlgorithms, // algorithms
                         rollbackDelegate, // rollback delegate,
                         rollbackStack, // rollbackstack
                         logger, // registrationLogger
                         state.getGlobalState().getOpenBisService(), // openBisService
                         hookAdaptor, // the hooks
-                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder, state.getGlobalState());
+                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder,
+                        state.getGlobalState());
 
         boolean registrationSuccessful = false;
 

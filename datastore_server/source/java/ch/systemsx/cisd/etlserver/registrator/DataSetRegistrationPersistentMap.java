@@ -3,6 +3,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -62,6 +63,17 @@ public class DataSetRegistrationPersistentMap implements Serializable
                             + value.getClass());
         return persistentMap.put(key, (Serializable) value);
 
+    }
+
+    /**
+     * Add all entries from other persistent map.
+     */
+    public void putAll(DataSetRegistrationPersistentMap other)
+    {
+        for (Entry<String, Serializable> item : other.persistentMap.entrySet())
+        {
+            this.persistentMap.put(item.getKey(), item.getValue());
+        }
     }
 
     public Serializable remove(Object key)

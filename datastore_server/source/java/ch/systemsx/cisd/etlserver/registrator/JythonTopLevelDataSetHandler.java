@@ -85,6 +85,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME("rollback_pre_registration", 2),
 
         /**
+         * The name of the function to define to hook into the transaction rollback mechanism.
+         */
+        SHOULD_RETRY_PROCESS_FUNCTION_NAME("should_retry_processing", 2),
+
+        
+        /**
          * The name of the function called when secondary transactions, DynamicTransactionQuery
          * objects, fail.
          */
@@ -165,7 +171,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         executeJythonScript(dataSetFile, scriptString, service);
     }
 
-    private void executeJythonScript(File dataSetFile, String scriptString,
+    protected void executeJythonScript(File dataSetFile, String scriptString,
             JythonDataSetRegistrationService<T> service)
     {
         // Configure the evaluator
@@ -175,17 +181,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         // Invoke the evaluator
         interpreter.exec(scriptString);
 
-        executeJythonProcessFunction(service.interpreter);
-
         verifyEvaluatorHookFunctions(interpreter);
-    }
-
-    /**
-     * Execute the function that processes the data set. Subclasses may override.
-     */
-    protected void executeJythonProcessFunction(PythonInterpreter interpreter)
-    {
-
     }
 
     protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
@@ -215,7 +211,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    protected void configureEvaluator(File dataSetFile,
+    private void configureEvaluator(File dataSetFile,
             JythonDataSetRegistrationService<T> service, PythonInterpreter interpreter)
     {
         interpreter.set(SERVICE_VARIABLE_NAME, service);
@@ -340,6 +336,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return function;
     }
 
+    public PyFunction getShouldRetryProcessFunction (DataSetRegistrationService<T> service)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function =
+                tryJythonFunction(interpreter,
+                        JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME);
+        return function;
+    }
+    
     /**
      * If true than the old methods of jython hook functions will also be used (as a fallbacks in
      * case of the new methods or missing, or normally)
