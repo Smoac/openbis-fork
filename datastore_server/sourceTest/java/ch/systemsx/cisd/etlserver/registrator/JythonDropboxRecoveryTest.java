@@ -106,7 +106,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         testCase.registrationCheckResult = RegistrationCheckResult.CHECK_FAILED;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_CANT_CHECK_REGISTRATION_STATUS;
         testCases.add(testCase);
-        
+
         testCase = new RecoveryTestCase("retry if storage failed");
         testCase.shouldMakeFilesystemUnavailable = true;
         testCase.recoveryResult = RecoveryResult.RETRY_AT_STORAGE_FAILURE;
@@ -712,7 +712,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     }
 
     // INFO: the test that checks the retry mechanism
-    
+
     @DataProvider(name = "retryDP")
     public Object[][] retryCounters()
     {
@@ -797,9 +797,32 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             checkEntityOperationsSucceeded(EntityOperationsState.NO_OPERATION);
         }
     }
-    
-    @Test(dataProvider = "retryDP")
-    public void testRetryRegistrationSucceeded(Integer retryCount)
+
+    enum RetrySuccessMethod
+    {
+        /**
+         * perform entity operations executed successfully
+         */
+        OPERATIONS_SUCCEDED,
+        /**
+         * the later check if the operations succeeded has succeeded
+         */
+        CHECK_SUCCEEDED
+    }
+
+    @DataProvider(name = "retrySuccessDP")
+    public Object[][] retrySuccessDP()
+    {
+        return new Object[][]
+            {
+                { 1, RetrySuccessMethod.OPERATIONS_SUCCEDED },
+                { 1, RetrySuccessMethod.CHECK_SUCCEEDED },
+                { 5, RetrySuccessMethod.OPERATIONS_SUCCEDED },
+                { 15, RetrySuccessMethod.CHECK_SUCCEEDED } };
+    }
+
+    @Test(dataProvider = "retrySuccessDP")
+    public void testRetryRegistrationSucceeded(Integer retryCount, RetrySuccessMethod rsm)
     {
 
         RecoveryTestCase testCase = new RecoveryTestCase("No name");
@@ -821,15 +844,14 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
 
         // create expectations
-        context.checking(new RetryRegistrationSucceeded(atomicatOperationDetails, retryCount));
+        context.checking(new RetryRegistrationSucceeded(atomicatOperationDetails, retryCount, rsm));
 
         handler.handle(markerFile);
-
 
         // the rollback has happened
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
                 "pre_metadata_registration", "post_metadata_registration", "post_storage");
-        
+
         assertStorageProcess(atomicatOperationDetails.getRecordedObjects().get(0), DATA_SET_CODE,
                 "sub_data_set_1", 0);
 
@@ -839,17 +861,19 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         assertDirEmpty(precommitDirectory);
     }
 
-
     class RetryRegistrationSucceeded extends AbstractExpectations
     {
         private final int retryCount;
 
+        private final RetrySuccessMethod retrySuccessMethod;
+
         public RetryRegistrationSucceeded(
                 final RecordingMatcher<AtomicEntityOperationDetails> atomicatOperationDetails,
-                int retryCount)
+                int retryCount, RetrySuccessMethod retrySuccessMethod)
         {
             super(atomicatOperationDetails);
             this.retryCount = retryCount;
+            this.retrySuccessMethod = retrySuccessMethod;
             prepareExpecatations();
         }
 
@@ -861,13 +885,25 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             {
                 registerDataSetsAndThrow(true, false, EntityOperationsState.NO_OPERATION);
             }
-            performEntityOperations();
-            setStorageConfirmed(false);            
+
+            if (retrySuccessMethod == RetrySuccessMethod.OPERATIONS_SUCCEDED)
+            {
+                performEntityOperations();
+            } else if (retrySuccessMethod == RetrySuccessMethod.CHECK_SUCCEEDED)
+            {
+                registerDataSetsAndThrow(true, false, EntityOperationsState.IN_PROGRESS);
+
+                for (int i = 0; i < 40; i++)
+                {
+                    checkEntityOperationsSucceeded(EntityOperationsState.IN_PROGRESS);
+                }
+                checkEntityOperationsSucceeded(EntityOperationsState.OPERATION_SUCCEEDED);
+            }
+
+            setStorageConfirmed(false);
         }
     }
-    
-    
-    
+
     // INFO: the test that checks all possible recovery points one by one in single registration
     @DataProvider(name = "multipleCheckpointsDataProvider")
     public Object[][] multipleCheckpointsData()
