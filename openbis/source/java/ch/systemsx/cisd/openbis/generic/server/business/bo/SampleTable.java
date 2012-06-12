@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -41,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -276,6 +280,113 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
+    /**
+     * Prepare a batch update using the SampleUpdatesDTO, not the SampleBatchUpdatesDTO. This
+     * version assumes that all the properties are provided in the updates object, not just those
+     * that should explicitly be updated.
+     */
+    private void prepareBatchUpdate(SamplePE sample, SampleUpdatesDTO updates,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
+            Map<String, ExperimentPE> experimentCache,
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache)
+    {
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found with given identifier '%s'.",
+                    updates.getSampleIdentifier());
+        }
+
+        updateProperties(sample, updates.getProperties());
+        checkPropertiesBusinessRules(sample, propertiesCache);
+
+        updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
+        if (updates.isUpdateExperimentLink())
+        {
+            updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
+            checkExperimentBusinessRules(getDataDAO(), sample);
+        }
+
+        boolean parentsUpdated = updateParents(sample, updates);
+
+        boolean containerUpdated = updateContainer(sample, updates);
+
+        // NOTE: Checking business rules with relationships is expensive.
+        // Don't perform them unless relevant data were changed.
+        if (updates.isUpdateExperimentLink() || parentsUpdated)
+        {
+            checkParentBusinessRules(sample);
+        }
+        if (updates.isUpdateExperimentLink() || containerUpdated)
+        {
+            checkContainerBusinessRules(sample);
+        }
+    }
+
+    private boolean updateContainer(SamplePE sample, SampleUpdatesDTO updates)
+    {
+        SamplePE container = sample.getContainer();
+        String oldContainerIdentifierOrNull =
+                (null == container) ? null : container.getIdentifier();
+        // Figure out if we need to update the container
+        if (oldContainerIdentifierOrNull == null)
+        {
+            if (updates.getContainerIdentifierOrNull() == null)
+            {
+                return false;
+            }
+        } else
+        {
+            if (oldContainerIdentifierOrNull.equals(updates.getContainerIdentifierOrNull()))
+            {
+                return false;
+            }
+        }
+        setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull(),
+                null);
+        return true;
+    }
+
+    /**
+     * Update parents and return whether or not something was changed.
+     * 
+     * @return True if the parents were changed, false if nothing was changed
+     */
+    private boolean updateParents(SamplePE sample, SampleUpdatesDTO updates)
+    {
+        final String[] newParents = updates.getModifiedParentCodesOrNull();
+        // If the parents are null, don't touch them
+        if (null == newParents)
+        {
+            return false;
+        }
+
+        // Compare the old and new parents
+        Set<String> oldParentsSet = new HashSet<String>();
+        for (SamplePE parent : sample.getParents())
+        {
+            oldParentsSet.add(parent.getCode());
+        }
+        Set<String> newParentsSet = new HashSet<String>();
+        newParentsSet.addAll(Arrays.asList(newParents));
+
+        // Nothing to change
+        if (oldParentsSet.equals(newParentsSet))
+        {
+            return false;
+        }
+
+        setParents(sample, newParents, null);
+        return true;
+    }
+
+    private void updateProperties(SamplePE sample, List<IEntityProperty> properties)
+    {
+        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
+        final SampleTypePE type = sample.getSampleType();
+        sample.setProperties(convertProperties(type, existingProperties, properties));
+    }
+
     private void batchUpdateProperties(SamplePE sample, List<IEntityProperty> properties,
             Set<String> propertiesToUpdate)
     {
@@ -316,6 +427,74 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         businessRulesChecked = true;
 
         setBatchUpdateMode(false);
+    }
+
+    @Override
+    public void prepareForUpdateWithSampleUpdates(List<SampleUpdatesDTO> updates)
+    {
+        assert updates != null : "Unspecified samples.";
+
+        setBatchUpdateMode(true);
+        final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
+                new HashMap<SampleOwnerIdentifier, SampleOwner>();
+        final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
+        samples = loadSamplesByTechId(updates);
+        Map<Long, SamplePE> samplesById = new HashMap<Long, SamplePE>();
+        for (SamplePE sample : samples)
+        {
+            samplesById.put(sample.getId(), sample);
+        }
+        for (SampleUpdatesDTO sampleUpdates : updates)
+        {
+            Long id =
+                    (null == sampleUpdates.getSampleIdOrNull()) ? null : sampleUpdates
+                            .getSampleIdOrNull().getId();
+            if (null == id)
+            {
+                throw new UserFailureException("Sample with identifier "
+                        + sampleUpdates.getSampleIdentifier()
+                        + " is not in the database and therefore cannot be updated.");
+            }
+
+            final SamplePE sample = samplesById.get(id);
+            if (null == sample)
+            {
+                throw new UserFailureException("Sample with identifier "
+                        + sampleUpdates.getSampleIdentifier()
+                        + " is not in the database and therefore cannot be updated.");
+            }
+            if (false == sample.getModificationDate().equals(sampleUpdates.getVersion()))
+            {
+                throw new EnvironmentFailureException("Sample with identifier "
+                        + sampleUpdates.getSampleIdentifier()
+                        + " has been updated since it was retrieved.");
+            }
+            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
+                    propertiesCache);
+        }
+
+        dataChanged = true;
+        businessRulesChecked = true;
+
+        setBatchUpdateMode(false);
+    }
+
+    private List<SamplePE> loadSamplesByTechId(List<SampleUpdatesDTO> updates)
+    {
+        final List<SamplePE> results = new ArrayList<SamplePE>();
+        List<TechId> identifiers = new ArrayList<TechId>();
+        for (SampleUpdatesDTO sampleUpdates : updates)
+        {
+            TechId id = sampleUpdates.getSampleIdOrNull();
+            if (id != null)
+            {
+                identifiers.add(id);
+            }
+        }
+        results.addAll(listSamplesByTechIds(identifiers));
+        return results;
     }
 
     private List<SamplePE> loadSamples(List<SampleBatchUpdatesDTO> updates,

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -24,7 +25,38 @@ public class BatchOperationExecutor
         executeInBatches(strategy, DEFAULT_BATCH_SIZE);
     }
 
+    /**
+     * Executes an operation in batches using the default batch size.
+     * 
+     * @param strategy The operation to execute
+     * @param progressListenerOrNull The progress listener to notify of progress. If this is
+     *            non-null, the progressPhaseOrNull must be non-null as well.
+     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be
+     *            non-null if the progressListenerOrNull is
+     */
+    public static <S> void executeInBatches(IBatchOperation<S> strategy,
+            IProgressListener progressListenerOrNull, String progressPhaseOrNull)
+    {
+        executeInBatches(strategy, DEFAULT_BATCH_SIZE, progressListenerOrNull, progressPhaseOrNull);
+    }
+
     public static <S> void executeInBatches(IBatchOperation<S> strategy, int batchSize)
+    {
+        executeInBatches(strategy, batchSize, null, null);
+    }
+
+    /**
+     * Executes an operation in batches.
+     * 
+     * @param strategy The operation to execute
+     * @param batchSize The size of the batches
+     * @param progressListenerOrNull The progress listener to notify of progress. If this is
+     *            non-null, the progressPhaseOrNull must be non-null as well.
+     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be
+     *            non-null if the progressListenerOrNull is
+     */
+    public static <S> void executeInBatches(IBatchOperation<S> strategy, int batchSize,
+            IProgressListener progressListenerOrNull, String progressPhaseOrNull)
     {
         assert strategy != null : "Unspecified operation.";
 
@@ -38,6 +70,10 @@ public class BatchOperationExecutor
         {
             final List<S> batch = allEntities.subList(startIndex, endIndex);
             strategy.execute(batch);
+            if (null != progressListenerOrNull)
+            {
+                progressListenerOrNull.update(progressPhaseOrNull, endIndex, maxIndex);
+            }
             operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
                     strategy.getOperationName(), endIndex, maxIndex));
             if (operationLog.isDebugEnabled())

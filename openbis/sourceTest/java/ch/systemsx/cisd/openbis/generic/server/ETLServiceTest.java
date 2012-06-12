@@ -1093,13 +1093,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleTable).getSamples();
                     will(returnValue(Arrays.asList(newSamplePE)));
 
-                    one(boFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
-
-                    one(sampleBO).update(sampleUpdate);
-                    one(sampleBO).save();
-                    one(sampleBO).getSample();
-                    will(returnValue(samplePE));
+                    one(boFactory).createSampleTable(SESSION);
+                    will(returnValue(sampleTable));
+                    one(sampleTable).prepareForUpdateWithSampleUpdates(Arrays.asList(sampleUpdate));
+                    one(sampleTable).save();
+                    one(sampleTable).getSamples();
+                    will(returnValue(Arrays.asList(samplePE)));
                 }
             });
 

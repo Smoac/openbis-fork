@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
  * A generic sample <i>Business Object</i>.
@@ -57,6 +58,15 @@ public interface ISampleTable
      * NOTE: Business rules are checked in this step as well for better performance.
      */
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates) throws UserFailureException;
+
+    /**
+     * Comparable to {@link #prepareForUpdate(List)} but takes a {@link SampleUpdatesDTO} object
+     * instead of a {@link SampleBatchUpdatesDTO} object. Whereas prepareForUpdate only changes the
+     * fields requested in the updates' details object, this method changes the samples to match the
+     * updates object.
+     */
+    void prepareForUpdateWithSampleUpdates(List<SampleUpdatesDTO> updates)
+            throws UserFailureException;
 
     /**
      * Writes added data to the Data Access Layers.

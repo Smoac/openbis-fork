@@ -628,6 +628,21 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return results;
     }
 
+    protected List<SamplePE> listSamplesByTechIds(final List<TechId> sampleTechIds)
+    {
+        assert sampleTechIds != null : "Sample identifiers unspecified.";
+
+        final ISampleDAO sampleDAO = getSampleDAO();
+        List<Long> ids = new ArrayList<Long>();
+        for (TechId sampleTechId : sampleTechIds)
+        {
+            ids.add(sampleTechId.getId());
+        }
+        final List<SamplePE> results = new ArrayList<SamplePE>();
+        results.addAll(sampleDAO.listByIDs(ids));
+        return results;
+    }
+
     /** Helper class encapsulating {@link SampleOwner} and code of container of a sample. */
     private static class SampleOwnerWithContainer
     {

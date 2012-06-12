@@ -43,6 +43,8 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -1531,16 +1533,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private List<Sample> updateSamples(Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
-        ArrayList<SamplePE> samplePEsUpdated = new ArrayList<SamplePE>();
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
-        int index = 0;
-        for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
-        {
-            SamplePE samplePE = updateSampleInternal(sampleUpdate, session).getSample();
-            samplePEsUpdated.add(samplePE);
-            progress.update("updateSamples", sampleUpdates.size(), ++index);
-        }
-        return SampleTranslator.translate(samplePEsUpdated, session.getBaseIndexURL());
+        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
+                progress, "updateSamples");
+        return SampleTranslator.translate(sampleTable.getSamples(), session.getBaseIndexURL());
     }
 
     /**
