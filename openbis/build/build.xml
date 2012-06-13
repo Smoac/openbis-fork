@@ -496,10 +496,13 @@
         <include name="jsonrpc4j.jar" />
       </fileset>
       <fileset dir="${lib}/jackson">
-        <include name="jackson-core-asl.jar" />
+        <include name="jackson-annotations.jar" />
       </fileset>
       <fileset dir="${lib}/jackson">
-        <include name="jackson-mapper-asl.jar" />
+        <include name="jackson-core.jar" />
+      </fileset>
+      <fileset dir="${lib}/jackson">
+        <include name="jackson-databind.jar" />
       </fileset>
     </copy>
     <copy todir="${targets.www.web-inf}">
@@ -799,10 +802,13 @@
         <include name="jsonrpc4j.jar" />
       </lib>
       <lib dir="${lib}/jackson">
-        <include name="jackson-core-asl.jar" />
+        <include name="jackson-annotations.jar" />
       </lib>
       <lib dir="${lib}/jackson">
-        <include name="jackson-mapper-asl.jar" />
+        <include name="jackson-core.jar" />
+      </lib>
+      <lib dir="${lib}/jackson">
+        <include name="jackson-databind.jar" />
       </lib>
     </war>
     <!-- Does some cleaning. -->
