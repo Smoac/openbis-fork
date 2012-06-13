@@ -274,7 +274,10 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             // initialExpectations();
 
             registerDataSetsAndThrow(true);
-
+            one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
+            will(returnValue(EntityOperationsState.NO_OPERATION));
+            //this is check at the retry phase - to trigger going into recovery mode
+            
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
             will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
 
