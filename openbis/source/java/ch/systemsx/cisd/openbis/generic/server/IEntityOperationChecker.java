@@ -56,14 +56,14 @@ public interface IEntityOperationChecker
             Map<String, List<NewMaterial>> materials);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECTS_VIA_DSS")
     public void assertProjectCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewProjectPredicate.class)
             List<NewProject> newProjects);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
