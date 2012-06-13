@@ -16,18 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Predicate for {@link NewExternalData} instances.
  * 
  * @author Franz-Josef Elmer
  */
-public class NewExternalDataPredicate extends DelegatedPredicate<String, NewExternalData>
+public class NewExternalDataPredicate extends AbstractPredicate<NewExternalData>
 {
+    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+
+    private final ExistingSpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
+
     public NewExternalDataPredicate()
     {
-        super(new DataSetCodePredicate());
+        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
+        experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
+    }
+
+    @Override
+    public void init(IAuthorizationDataProvider provider)
+    {
+        sampleOwnerIdentifierPredicate.init(provider);
+        experimentOwnerIdentifierPredicate.init(provider);
     }
 
     @Override
@@ -37,9 +56,16 @@ public class NewExternalDataPredicate extends DelegatedPredicate<String, NewExte
     }
 
     @Override
-    public String tryConvert(NewExternalData value)
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+            NewExternalData value)
     {
-        return value.getCode();
+        SampleIdentifier sampleIdentifier = value.getSampleIdentifierOrNull();
+        if (sampleIdentifier != null)
+        {
+            return sampleOwnerIdentifierPredicate.evaluate(person, allowedRoles, sampleIdentifier);
+        }
+        return experimentOwnerIdentifierPredicate.evaluate(person, allowedRoles,
+                value.getExperimentIdentifierOrNull());
     }
 
 }

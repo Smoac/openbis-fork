@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewProjectPredicate;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -97,4 +99,11 @@ public interface IEntityOperationChecker
     public void assertDataSetCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
             List<? extends NewExternalData> dataSets);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_DATA_SET_VIA_DSS")
+    public void assertDataSetUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            List<DataSetUpdatesDTO> dataSets);
 }

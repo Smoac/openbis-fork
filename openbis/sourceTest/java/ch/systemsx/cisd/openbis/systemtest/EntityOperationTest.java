@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -50,7 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -181,12 +184,34 @@ public class EntityOperationTest extends SystemTestCase
             return this;
         }
 
-        EntityOperationBuilder dataSet(DataSet dataSet)
+        EntityOperationBuilder dataSet(ExternalData dataSet)
         {
             NewExternalData newExternalData = new NewExternalData();
             newExternalData.setCode(dataSet.getCode());
             newExternalData.setDataSetType(dataSet.getDataSetType());
             newExternalData.setDataStoreCode(dataSet.getDataStore().getCode());
+            if (dataSet instanceof DataSet)
+            {
+                DataSet realDataSet = (DataSet) dataSet;
+                newExternalData.setFileFormatType(realDataSet.getFileFormatType());
+                newExternalData.setLocation(realDataSet.getLocation());
+                newExternalData.setLocatorType(realDataSet.getLocatorType());
+            }
+            newExternalData.setStorageFormat(StorageFormat.PROPRIETARY);
+            List<IEntityProperty> properties = dataSet.getProperties();
+            List<NewProperty> newProperties = new ArrayList<NewProperty>();
+            for (IEntityProperty property : properties)
+            {
+                newProperties.add(new NewProperty(property.getPropertyType().getCode(), property
+                        .tryGetAsString()));
+            }
+            newExternalData.setDataSetProperties(newProperties);
+            Sample sample = dataSet.getSample();
+            if (sample != null)
+            {
+                newExternalData.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample
+                        .getIdentifier()));
+            }
             Experiment experiment = dataSet.getExperiment();
             if (experiment != null)
             {
@@ -194,6 +219,33 @@ public class EntityOperationTest extends SystemTestCase
                         .parse(experiment.getIdentifier()));
             }
             dataSets.add(newExternalData);
+            return this;
+        }
+
+        EntityOperationBuilder dataSetUpdate(ExternalData dataSet)
+        {
+            DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+            dataSetUpdate.setDatasetId(new TechId(dataSet));
+            dataSetUpdate.setVersion(dataSet.getModificationDate());
+            if (dataSet instanceof DataSet)
+            {
+                DataSet realDataSet = (DataSet) dataSet;
+                dataSetUpdate.setFileFormatTypeCode(realDataSet.getFileFormatType().getCode());
+            }
+            dataSetUpdate.setProperties(dataSet.getProperties());
+            Sample sample = dataSet.getSample();
+            if (sample != null)
+            {
+                dataSetUpdate.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample
+                        .getIdentifier()));
+            }
+            Experiment experiment = dataSet.getExperiment();
+            if (experiment != null)
+            {
+                dataSetUpdate.setExperimentIdentifierOrNull(ExperimentIdentifierFactory
+                        .parse(experiment.getIdentifier()));
+            }
+            dataSetUpdates.add(dataSetUpdate);
             return this;
         }
 
@@ -493,18 +545,75 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
-    public void testCreateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
+    public void testCreateDataSetAsSpaceETLServerSucessfully()
     {
-        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_B);
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().dataSet(
-                        new DataSetBuilder()
-                                .code("DS-1")
-                                .type("UNKNOWN")
+                        new DataSetBuilder().code("DS-1").type("HCS_IMAGE")
                                 .store(new DataStoreBuilder("STANDARD").getStore())
-                                .experiment(
-                                        new ExperimentBuilder().identifier("/CISD/NEMO/EXP1")
-                                                .getExperiment()).getDataSet()).create();
+                                .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
+                                .sample(new SampleBuilder().identifier("/CISD/CP1-A1").getSample())
+                                .getDataSet()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals("DS-1", result.getDataSetsCreated().get(0).getCode());
+        assertEquals("HCS_IMAGE", result.getDataSetsCreated().get(0).getDataSetType().getCode());
+        assertEquals("[COMMENT: my data]", result.getDataSetsCreated().get(0).getProperties()
+                .toString());
+        assertEquals(1, result.getDataSetsCreated().size());
+    }
+
+    @Test
+    public void testCreateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(SPACE_ETL_SERVER_FOR_B)
+                        .dataSet(
+                                new DataSetBuilder()
+                                        .code("DS-1")
+                                        .type("UNKNOWN")
+                                        .store(new DataStoreBuilder("STANDARD").getStore())
+                                        .fileFormat("XML")
+                                        .location("a/b/c")
+                                        .experiment(
+                                                new ExperimentBuilder().identifier(
+                                                        "/CISD/NEMO/EXP1").getExperiment())
+                                        .getDataSet()).create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+                + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
+    }
+
+    @Test
+    public void testUpdateDataSetAsSpaceETLServerSucessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        dataSet.setDataSetProperties(new DataSetBuilder().property("COMMENT", "hello").getDataSet()
+                .getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().dataSetUpdate(dataSet).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals(new Long(4), result.getDataSetsUpdated().get(0).getId());
+        assertEquals("[COMMENT: hello]", result.getDataSetsUpdated().get(0).getProperties()
+                .toString());
+        assertEquals(1, result.getDataSetsUpdated().size());
+    }
+
+    @Test
+    public void testUpdateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(SPACE_ETL_SERVER_FOR_B).dataSetUpdate(dataSet)
+                        .create();
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");

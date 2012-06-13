@@ -1156,6 +1156,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     exactly(1).of(boFactory).createDataBO(SESSION);
                     will(returnValue(dataBO));
 
+                    one(entityOperationChecker).assertDataSetUpdateAllowed(SESSION,
+                            Arrays.asList(dataSetUpdate));
                     one(dataBO).update(dataSetUpdate);
                     one(dataBO).getData();
                     final DataPE updatedDataSet = createDataSet(updatedDataSetCode, "type");

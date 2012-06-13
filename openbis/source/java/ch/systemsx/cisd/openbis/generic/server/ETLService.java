@@ -1699,7 +1699,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
     }
 
-    protected void assertDataSetCreationAllowed(Session session,
+    private void assertDataSetCreationAllowed(Session session,
             List<? extends NewExternalData> dataSets)
     {
         if (dataSets != null && dataSets.isEmpty() == false)
@@ -1713,13 +1713,23 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         List<DataPE> dataSetsUpdated = new ArrayList<DataPE>();
         int index = 0;
-        for (DataSetUpdatesDTO dataSet : operationDetails.getDataSetUpdates())
+        List<DataSetUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
+        assertDataSetUpdateAllowed(session, dataSetUpdates);
+        for (DataSetUpdatesDTO dataSet : dataSetUpdates)
         {
             DataPE updatedDataSet = updateDataSetInternal(session, dataSet);
             dataSetsUpdated.add(updatedDataSet);
-            progress.update("updateDataSets", operationDetails.getDataSetUpdates().size(), ++index);
+            progress.update("updateDataSets", dataSetUpdates.size(), ++index);
         }
         return DataSetTranslator.translate(dataSetsUpdated, "", session.getBaseIndexURL());
+    }
+
+    private void assertDataSetUpdateAllowed(Session session, List<DataSetUpdatesDTO> dataSets)
+    {
+        if (dataSets != null && dataSets.isEmpty() == false)
+        {
+            entityOperationChecker.assertDataSetUpdateAllowed(session, dataSets);
+        }
     }
 
     private DataPE updateDataSetInternal(Session session, DataSetUpdatesDTO dataSet)
