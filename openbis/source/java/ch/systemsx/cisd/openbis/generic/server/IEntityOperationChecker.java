@@ -23,14 +23,19 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
  * Checking methods to be invoked to check authorization in context of
@@ -51,14 +56,45 @@ public interface IEntityOperationChecker
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECTS_VIA_DSS")
-    public void assertProjectCreationAllowed(Session session,
+    public void assertProjectCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewProjectPredicate.class)
             List<NewProject> newProjects);
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("CREATE_PROJECTS_VIA_DSS")
-    public void assertExperimentCreationAllowed(Session session,
+    @Capability("CREATE_EXPERIMENTS_VIA_DSS")
+    public void assertExperimentCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
             List<NewExperiment> newExperiments);
+
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    public void assertInstanceSampleCreationAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            List<NewSample> instanceSamples);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("CREATE_SPACE_SAMPLES_VIA_DSS")
+    public void assertSpaceSampleCreationAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            List<NewSample> spaceSamples);
+
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    public void assertInstanceSampleUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            List<SampleUpdatesDTO> instanceSamples);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_SPACE_SAMPLES_VIA_DSS")
+    public void assertSpaceSampleUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            List<SampleUpdatesDTO> spaceSamples);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("CREATE_DATA_SET_VIA_DSS")
+    public void assertDataSetCreationAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
+            List<? extends NewExternalData> dataSets);
 }

@@ -37,8 +37,8 @@ public class DataSetCodePredicate extends AbstractSpacePredicate<String>
     }
 
     @Override
-    protected
-    Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String dataSetCode)
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+            String dataSetCode)
     {
         assert initialized : "Predicate has not been initialized";
 
@@ -48,10 +48,8 @@ public class DataSetCodePredicate extends AbstractSpacePredicate<String>
         {
             String dbInstanceUUID = accessData.getDatabaseInstanceUuid();
             String dbInstanceCode = accessData.getDatabaseInstanceCode();
-            String groupCode = accessData.getSpaceCode();
-            Status result =
-                    evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, groupCode);
-            return result;
+            String spaceCode = accessData.getSpaceCode();
+            return evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, spaceCode);
         }
         return Status.OK;
     }

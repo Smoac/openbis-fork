@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -39,14 +40,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 
@@ -87,7 +94,7 @@ public class EntityOperationTest extends SystemTestCase
 
         private final List<SampleUpdatesDTO> sampleUpdates = new ArrayList<SampleUpdatesDTO>();
 
-        private final List<? extends NewExternalData> dataSets = new ArrayList<NewExternalData>();
+        private final List<NewExternalData> dataSets = new ArrayList<NewExternalData>();
 
         private final List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();
 
@@ -148,6 +155,45 @@ public class EntityOperationTest extends SystemTestCase
             newExperiment.setPermID(experiment.getPermId());
             newExperiment.setProperties(experiment.getProperties().toArray(new IEntityProperty[0]));
             experiments.add(newExperiment);
+            return this;
+        }
+
+        EntityOperationBuilder sample(Sample sample)
+        {
+            NewSample newSample = new NewSample();
+            newSample.setIdentifier(sample.getIdentifier());
+            newSample.setSampleType(sample.getSampleType());
+            Experiment experiment = sample.getExperiment();
+            if (experiment != null)
+            {
+                newSample.setExperimentIdentifier(experiment.getIdentifier());
+            }
+            newSample.setProperties(sample.getProperties().toArray(new IEntityProperty[0]));
+            samples.add(newSample);
+            return this;
+        }
+
+        EntityOperationBuilder sampleUpdate(Sample sample)
+        {
+            sampleUpdates.add(new SampleUpdatesDTO(new TechId(sample), sample.getProperties(),
+                    null, null, sample.getModificationDate(), SampleIdentifierFactory.parse(sample
+                            .getIdentifier()), null, null));
+            return this;
+        }
+
+        EntityOperationBuilder dataSet(DataSet dataSet)
+        {
+            NewExternalData newExternalData = new NewExternalData();
+            newExternalData.setCode(dataSet.getCode());
+            newExternalData.setDataSetType(dataSet.getDataSetType());
+            newExternalData.setDataStoreCode(dataSet.getDataStore().getCode());
+            Experiment experiment = dataSet.getExperiment();
+            if (experiment != null)
+            {
+                newExternalData.setExperimentIdentifierOrNull(ExperimentIdentifierFactory
+                        .parse(experiment.getIdentifier()));
+            }
+            dataSets.add(newExternalData);
             return this;
         }
 
@@ -302,6 +348,163 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().experiment(
                         new ExperimentBuilder().identifier("/CISD/NEMO/E1").type("SIRNA_HCS")
                                 .getExperiment()).create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+                + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
+    }
+
+    @Test
+    public void testCreateInstanceSampleAsInstanceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sample(
+                        new SampleBuilder().identifier("/S1").type("MASTER_PLATE")
+                                .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals("/S1", result.getSamplesCreated().get(0).getIdentifier());
+        assertEquals("MASTER_PLATE", result.getSamplesCreated().get(0).getSampleType().getCode());
+        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", result.getSamplesCreated().get(0)
+                .getProperties().toString());
+        assertEquals(1, result.getSamplesCreated().size());
+    }
+
+    @Test
+    public void testCreateInstanceSampleAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sample(
+                        new SampleBuilder().identifier("/S1").type("MASTER_PLATE")
+                                .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+                + SPACE_ETL_SERVER_FOR_A + "' does not have enough privileges "
+                + "to modify database instance 'CISD'.\".");
+    }
+
+    @Test
+    public void testCreateSpaceSampleAsSpaceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sample(
+                        new SampleBuilder()
+                                .identifier("/CISD/S1")
+                                .type("CELL_PLATE")
+                                .property("COMMENT", "hello")
+                                .experiment(
+                                        new ExperimentBuilder().identifier("/CISD/NEMO/EXP1")
+                                                .getExperiment()).getSample()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals("/CISD/S1", result.getSamplesCreated().get(0).getIdentifier());
+        assertEquals("CELL_PLATE", result.getSamplesCreated().get(0).getSampleType().getCode());
+        assertEquals("[COMMENT: hello]", result.getSamplesCreated().get(0).getProperties()
+                .toString());
+        assertEquals("/CISD/NEMO/EXP1", result.getSamplesCreated().get(0).getExperiment()
+                .getIdentifier());
+        assertEquals(1, result.getSamplesCreated().size());
+    }
+
+    @Test
+    public void testCreateSpaceSampleAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_B);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sample(
+                        new SampleBuilder().identifier("/CISD/S1").type("CELL_PLATE").getSample())
+                        .create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+                + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
+    }
+
+    @Test
+    public void testUpdateInstanceSampleAsInstanceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(646)).getParent();
+        List<IEntityProperty> properties = sample.getProperties();
+        assertEquals("[$PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+                .getSample().getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sampleUpdate(sample).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals(new Long(646), result.getSamplesUpdated().get(0).getId());
+        assertEquals("/MP", result.getSamplesUpdated().get(0).getIdentifier());
+        assertEquals("MASTER_PLATE", result.getSamplesUpdated().get(0).getSampleType().getCode());
+        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", result.getSamplesUpdated().get(0)
+                .getProperties().toString());
+        assertEquals(1, result.getSamplesUpdated().size());
+    }
+
+    @Test
+    public void testUpdateInstanceSampleAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(646)).getParent();
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sampleUpdate(sample).create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
+                + "\"None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
+                + "could be found in roles of user '" + SPACE_ETL_SERVER_FOR_A + "'.\".");
+    }
+
+    @Test
+    public void testUpdateSpaceSampleAsSpaceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(986)).getParent();
+        List<IEntityProperty> properties = sample.getProperties();
+        assertEquals("[]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("COMMENT", "hello").getSample()
+                .getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sampleUpdate(sample).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+
+        assertEquals(new Long(986), result.getSamplesUpdated().get(0).getId());
+        assertEquals("/CISD/3VCP5", result.getSamplesUpdated().get(0).getIdentifier());
+        assertEquals("CELL_PLATE", result.getSamplesUpdated().get(0).getSampleType().getCode());
+        assertEquals("[COMMENT: hello]", result.getSamplesUpdated().get(0).getProperties()
+                .toString());
+        assertEquals(1, result.getSamplesUpdated().size());
+    }
+
+    @Test
+    public void testUpdateSpaceSampleAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_B);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(986)).getParent();
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().sampleUpdate(sample).create();
+
+        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+                + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
+    }
+
+    @Test
+    public void testCreateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_B);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().dataSet(
+                        new DataSetBuilder()
+                                .code("DS-1")
+                                .type("UNKNOWN")
+                                .store(new DataStoreBuilder("STANDARD").getStore())
+                                .experiment(
+                                        new ExperimentBuilder().identifier("/CISD/NEMO/EXP1")
+                                                .getExperiment()).getDataSet()).create();
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");

@@ -22,9 +22,11 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
  * Implementation of {@link IEntityOperationChecker} which does nothing because checking is done by
@@ -47,12 +49,42 @@ public class EntityOperationChecker implements IEntityOperationChecker
     }
 
     @Override
-    public void assertProjectCreationAllowed(Session session, List<NewProject> newProjects)
+    public void assertProjectCreationAllowed(IAuthSession session, List<NewProject> newProjects)
     {
     }
 
     @Override
-    public void assertExperimentCreationAllowed(Session session, List<NewExperiment> newExperiments)
+    public void assertExperimentCreationAllowed(IAuthSession session,
+            List<NewExperiment> newExperiments)
+    {
+    }
+
+    @Override
+    public void assertInstanceSampleCreationAllowed(IAuthSession session,
+            List<NewSample> instanceSamples)
+    {
+    }
+
+    @Override
+    public void assertSpaceSampleCreationAllowed(IAuthSession session, List<NewSample> spaceSamples)
+    {
+    }
+
+    @Override
+    public void assertInstanceSampleUpdateAllowed(IAuthSession session,
+            List<SampleUpdatesDTO> instanceSamples)
+    {
+    }
+
+    @Override
+    public void assertSpaceSampleUpdateAllowed(IAuthSession session,
+            List<SampleUpdatesDTO> spaceSamples)
+    {
+    }
+
+    @Override
+    public void assertDataSetCreationAllowed(IAuthSession session,
+            List<? extends NewExternalData> dataSets)
     {
     }
 

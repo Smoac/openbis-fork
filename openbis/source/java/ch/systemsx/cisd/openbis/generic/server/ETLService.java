@@ -164,6 +164,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
@@ -1576,6 +1577,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         List<NewSample> containerSamples = new ArrayList<NewSample>();
         List<NewSample> containedSamples = new ArrayList<NewSample>();
+        List<NewSample> instanceSamples = new ArrayList<NewSample>();
+        List<NewSample> spaceSamples = new ArrayList<NewSample>();
         int index = 0;
         for (NewSample newSample : newSamples)
         {
@@ -1586,9 +1589,19 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             {
                 containedSamples.add(newSample);
             }
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
+            if (sampleIdentifier.isDatabaseInstanceLevel())
+            {
+                instanceSamples.add(newSample);
+            } else
+            {
+                spaceSamples.add(newSample);
+            }
             progress.update("createSamples", newSamples.size(), ++index);
         }
 
+        assertInstanceSampleCreationAllowed(session, instanceSamples);
+        assertSpaceSampleCreationAllowed(session, spaceSamples);
         String userIdOrNull = operationDetails.tryUserIdOrNull();
         ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
         // in the first pass register samples without container to avoid dependency inversion
@@ -1600,6 +1613,23 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return SampleTranslator.translate(samplePEsCreated, session.getBaseIndexURL());
     }
 
+    private void assertInstanceSampleCreationAllowed(Session session,
+            List<NewSample> instanceSamples)
+    {
+        if (instanceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertInstanceSampleCreationAllowed(session, instanceSamples);
+        }
+    }
+
+    private void assertSpaceSampleCreationAllowed(Session session, List<NewSample> spaceSamples)
+    {
+        if (spaceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertSpaceSampleCreationAllowed(session, spaceSamples);
+        }
+    }
+
     private List<Sample> updateSamples(Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
@@ -1608,10 +1638,42 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             return Collections.emptyList();
         }
+        List<SampleUpdatesDTO> instanceSamples = new ArrayList<SampleUpdatesDTO>();
+        List<SampleUpdatesDTO> spaceSamples = new ArrayList<SampleUpdatesDTO>();
+        for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
+        {
+            SampleIdentifier sampleIdentifier = sampleUpdate.getSampleIdentifier();
+            if (sampleIdentifier.isDatabaseInstanceLevel())
+            {
+                instanceSamples.add(sampleUpdate);
+            } else
+            {
+                spaceSamples.add(sampleUpdate);
+            }
+        }
+        assertInstanceSampleUpdateAllowed(session, instanceSamples);
+        assertSpaceSampleUpdateAllowed(session, spaceSamples);
         ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
                 progress, "updateSamples");
         return SampleTranslator.translate(sampleTable.getSamples(), session.getBaseIndexURL());
+    }
+
+    private void assertInstanceSampleUpdateAllowed(Session session,
+            List<SampleUpdatesDTO> instanceSamples)
+    {
+        if (instanceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertInstanceSampleUpdateAllowed(session, instanceSamples);
+        }
+    }
+
+    private void assertSpaceSampleUpdateAllowed(Session session, List<SampleUpdatesDTO> spaceSamples)
+    {
+        if (spaceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertSpaceSampleUpdateAllowed(session, spaceSamples);
+        }
     }
 
     /**
@@ -1624,7 +1686,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         List<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
-
+        assertDataSetCreationAllowed(session, dataSetRegistrations);
         NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
         List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
 
@@ -1635,6 +1697,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             progress.update("createDataSets", orderedRegistrations.size(), ++index);
         }
         return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
+    }
+
+    protected void assertDataSetCreationAllowed(Session session,
+            List<? extends NewExternalData> dataSets)
+    {
+        if (dataSets != null && dataSets.isEmpty() == false)
+        {
+            entityOperationChecker.assertDataSetCreationAllowed(session, dataSets);
+        }
     }
 
     private List<ExternalData> updateDataSets(Session session,
