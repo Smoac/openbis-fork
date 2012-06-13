@@ -240,10 +240,11 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
                 if (containedDataSetCodes != null)
                 {
+                    PersonPE modifier = findPerson();
                     for (String containedCode : containedDataSetCodes)
                     {
                         final DataPE contained = getOrCreateData(containedCode, experiment);
-                        data.addComponent(contained);
+                        data.addComponent(contained, modifier);
                         checkSameSpace(data, contained);
                     }
                 }
@@ -601,9 +602,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private void addComponents(Collection<DataPE> componentsToAdd)
     {
+        PersonPE modifier = findPerson();
         for (DataPE component : componentsToAdd)
         {
-            data.addComponent(component);
+            data.addComponent(component, modifier);
         }
     }
 

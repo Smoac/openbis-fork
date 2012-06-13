@@ -715,7 +715,7 @@ public class DataBOTest extends AbstractBOTest
         container1.getDataSetType().setContainerType(true);
         final DataPE container2 = createDataSet("container-2", null, experiment);
         container2.getDataSetType().setContainerType(true);
-        container2.addComponent(container1);
+        container2.addComponent(container1, EXAMPLE_PERSON);
 
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(container1, null, EXPERIMENT_IDENTIFIER);

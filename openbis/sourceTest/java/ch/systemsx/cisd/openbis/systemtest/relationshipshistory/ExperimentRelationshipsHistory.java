@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.systemtest.relationshipshistory;
 
 /**
- * A static class which holds the database version.
- * 
- * @author Christian Ribeaud
+ * @author Pawel Glyzewski
  */
-public final class DatabaseVersionHolder
+class ExperimentRelationshipsHistory extends AbstractRelationshipsHistory
 {
-    /** Current version of the database. */
-    private static final String DATABASE_VERSION = "109"; // S134
+    private Long mainExpeId;
 
-    private DatabaseVersionHolder()
+    public Long getMainExpeId()
     {
-        // Can not be instantiated
+        return mainExpeId;
     }
 
-    /** Returns the current version of the database. */
-    public final static String getDatabaseVersion()
+    public void setMainExpeId(Long mainExpeId)
     {
-        return DATABASE_VERSION;
+        this.mainExpeId = mainExpeId;
+    }
+
+    @Override
+    protected String getMainEntityString()
+    {
+        return "mainExpeId=" + mainExpeId;
     }
 }

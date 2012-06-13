@@ -542,11 +542,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return result;
     }
 
-    public void addComponent(final DataPE component)
+    public void addComponent(final DataPE component, final PersonPE modifierPerson)
     {
         assert component != null;
         this.containedDataSets.add(component);
         component.setContainerInternal(this);
+        component.setModifier(modifierPerson);
         component.setOrderInContainer(containedDataSets.size());
     }
 

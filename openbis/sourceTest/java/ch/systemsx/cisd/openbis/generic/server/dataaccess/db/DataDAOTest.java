@@ -175,8 +175,8 @@ public final class DataDAOTest extends AbstractDAOTest
         component1.setOrderInContainer(1);
         DataPE component2 = createExternalData(c2DataSetCode, sample);
         component1.setOrderInContainer(2);
-        virtualData.addComponent(component1);
-        virtualData.addComponent(component2);
+        virtualData.addComponent(component1, getTestPerson());
+        virtualData.addComponent(component2, getTestPerson());
         dataDAO.createDataSet(virtualData, getTestPerson());
 
         DataPE vDataSet = dataDAO.tryToFindDataSetByCode(vDataSetCode);

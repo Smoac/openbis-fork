@@ -333,7 +333,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             }
 
             validateContainerContainedRelationshipGraph(container, data);
-            container.addComponent(data);
+            container.addComponent(data, findPerson());
         }
     }
 
