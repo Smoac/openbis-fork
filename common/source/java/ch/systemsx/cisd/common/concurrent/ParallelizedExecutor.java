@@ -71,23 +71,26 @@ public class ParallelizedExecutor
         return (int) Math.max(1, threads);
     }
 
-    private static <T> void startUpWorkerThreads(AtomicInteger workersCounter,
+    private static <T> Thread[] startUpWorkerThreads(AtomicInteger workersCounter,
             Queue<T> workerQueue, Collection<FailureRecord<T>> failed,
             ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails,
             boolean stopOnFirstFailure)
     {
         int counter = workersCounter.get();
+        final Thread[] workerThreads = new Thread[counter];
         for (int i = 0; i < counter; ++i)
         {
             ParallelizedWorker<T> worker =
                     new ParallelizedWorker<T>(workerQueue, failed, taskExecutor, workersCounter,
                             retriesNumberWhenExecutionFails, stopOnFirstFailure);
-            new Thread(worker, "Worker " + i).start();
+            workerThreads[i] = new Thread(worker, "Worker " + i);
+            workerThreads[i].start();
         }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Started up %d worker threads.", counter));
         }
+        return workerThreads;
     }
 
     /**
@@ -121,7 +124,7 @@ public class ParallelizedExecutor
                     retriesNumberWhenExecutionFails);
         } else
         {
-            processinParallel(taskExecutor, retriesNumberWhenExecutionFails, workerQueue, failed,
+            processInParallel(taskExecutor, retriesNumberWhenExecutionFails, workerQueue, failed,
                     numberOfWorkers, stopOnFirstFailure);
         }
         logFinished(failed, processDescription, start);
@@ -143,14 +146,15 @@ public class ParallelizedExecutor
         }
     }
 
-    private static <T> void processinParallel(ITaskExecutor<T> taskExecutor,
+    private static <T> void processInParallel(ITaskExecutor<T> taskExecutor,
             int retriesNumberWhenExecutionFails, final Queue<T> workerQueue,
             final Collection<FailureRecord<T>> failed, int numberOfWorkers,
             boolean stopOnFirstFailure)
     {
         final AtomicInteger workersCounter = new AtomicInteger(numberOfWorkers);
-        startUpWorkerThreads(workersCounter, workerQueue, failed, taskExecutor,
-                retriesNumberWhenExecutionFails, stopOnFirstFailure);
+        final Thread[] threads =
+                startUpWorkerThreads(workersCounter, workerQueue, failed, taskExecutor,
+                        retriesNumberWhenExecutionFails, stopOnFirstFailure);
         synchronized (failed)
         {
             while (workersCounter.get() > 0)
@@ -160,6 +164,11 @@ public class ParallelizedExecutor
                     failed.wait();
                 } catch (InterruptedException ex)
                 {
+                    workerQueue.clear();
+                    for (Thread t : threads)
+                    {
+                        t.interrupt();
+                    }
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                 }
             }

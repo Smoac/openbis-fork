@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -118,8 +119,17 @@ class ParallelizedWorker<T> implements Runnable
                     try
                     {
                         status = taskExecutor.execute(taskOrNull);
+                    } catch (final InterruptedExceptionUnchecked iex)
+                    {
+                        operationLog.info(INTERRPTED_MSG);
+                        return;
                     } catch (final Throwable th)
                     {
+                        if (Thread.interrupted())
+                        {
+                            operationLog.info(INTERRPTED_MSG);
+                            return;
+                        }
                         th.printStackTrace();
                         operationLog.error(
                                 String.format(PROCESSING_FAILURE_MSG_TEMPLATE, taskOrNull), th);
