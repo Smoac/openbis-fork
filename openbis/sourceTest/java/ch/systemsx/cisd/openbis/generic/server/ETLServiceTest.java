@@ -1091,20 +1091,31 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
+                    List<NewSample> sampleList = Arrays.asList(newSample);
+                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(SESSION,
+                            sampleList);
+
                     one(boFactory).createSampleTable(SESSION);
                     will(returnValue(sampleTable));
 
-                    one(sampleTable).prepareForRegistration(Arrays.asList(newSample), null);
+                    one(sampleTable).prepareForRegistration(sampleList, null);
                     one(sampleTable).save();
                     one(sampleTable).getSamples();
                     will(returnValue(Arrays.asList(newSamplePE)));
 
                     one(boFactory).createSampleTable(SESSION);
                     will(returnValue(sampleTable));
-                    one(sampleTable).prepareForUpdateWithSampleUpdates(Arrays.asList(sampleUpdate));
+
+                    List<SampleUpdatesDTO> sampleUpdateList = Arrays.asList(sampleUpdate);
+                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(SESSION,
+                            sampleUpdateList);
+                    one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
                     one(sampleTable).getSamples();
                     will(returnValue(Arrays.asList(samplePE)));
+
+                    one(entityOperationChecker).assertDataSetCreationAllowed(SESSION,
+                            Arrays.asList(externalData));
                 }
             });
 
