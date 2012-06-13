@@ -20,11 +20,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The unique {@link IRelationshipService} implementation.
@@ -33,8 +37,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class RelationshipService implements IRelationshipService
 {
+    private static final String ERR_EXPERIMENT_NOT_FOUND =
+            "Experiment '%s' not found";
+
     private static final String ERR_PROJECT_NOT_FOUND =
-            "No project for experiment '%s' could be found in the database.";
+            "Project '%s' not found";
+
+    private static final String ERR_SPACE_NOT_FOUND =
+            "Space '%s' not found";
+
+    private static final String ERR_DATABASE_NOT_FOUND =
+            "Database '%s' not found";
 
     private DAOFactory daoFactory;
 
@@ -42,27 +55,39 @@ public class RelationshipService implements IRelationshipService
     public void assignExperimentToProject(IAuthSession session, ExperimentIdentifier experimentId,
             ProjectIdentifier projectId)
     {
-
-        ProjectPE previousProject =
-                findProject(new ProjectIdentifier(experimentId.getDatabaseInstanceCode(),
-                        experimentId.getSpaceCode(), experimentId.getProjectCode()));
-
+        ExperimentPE experiment = findExperiment(experimentId);
         ProjectPE project = findProject(projectId);
 
-        ExperimentPE experiment =
-                daoFactory.getExperimentDAO().tryFindByCodeAndProject(previousProject,
-                        experimentId.getExperimentCode());
-
-        if (project.equals(previousProject))
-        {
-            return;
-        }
-        // if the group has changes, move all samples to that group
-        if (project.getSpace().equals(previousProject.getSpace()) == false)
-        {
-            SampleUtils.setSamplesGroup(experiment, project.getSpace());
-        }
+        SampleUtils.setSamplesGroup(experiment, project.getSpace());
         experiment.setProject(project);
+    }
+
+    @Override
+    public void assignProjectToSpace(IAuthSession session, ProjectIdentifier projectId,
+            SpaceIdentifier spaceId)
+    {
+        ProjectPE project = findProject(projectId);
+        SpacePE space = findSpace(spaceId);
+
+        project.setSpace(space);
+        for (ExperimentPE experiment : project.getExperiments())
+        {
+            SampleUtils.setSamplesGroup(experiment, space);
+        }
+    }
+
+    private ExperimentPE findExperiment(ExperimentIdentifier experimentId)
+    {
+        ProjectPE project = findProject(experimentId);
+        ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(project,
+                        experimentId.getExperimentCode());
+        if (experiment == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_EXPERIMENT_NOT_FOUND, experimentId);
+        }
+
+        return experiment;
     }
 
     private ProjectPE findProject(ProjectIdentifier projectId)
@@ -76,6 +101,33 @@ public class RelationshipService implements IRelationshipService
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, projectId);
         }
         return project;
+    }
+
+    private SpacePE findSpace(SpaceIdentifier spaceId)
+    {
+        DatabaseInstancePE dbin = findDatabaseInstance(spaceId);
+        SpacePE space =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
+                        spaceId.getSpaceCode(), dbin);
+        if (space == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_SPACE_NOT_FOUND, spaceId);
+        }
+
+        return space;
+    }
+
+    private DatabaseInstancePE findDatabaseInstance(DatabaseInstanceIdentifier dbinId)
+    {
+        DatabaseInstancePE dbin =
+                daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
+                        dbinId.getDatabaseInstanceCode());
+
+        if (dbin == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_DATABASE_NOT_FOUND, dbinId);
+        }
+        return dbin;
     }
 
     public void setDaoFactory(DAOFactory daoFactory)

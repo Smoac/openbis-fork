@@ -26,11 +26,11 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
@@ -46,7 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -72,9 +74,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
-    public ProjectBO(final IDAOFactory daoFactory, final Session session)
+    private IRelationshipService relationshipService;
+
+    public ProjectBO(final IDAOFactory daoFactory, final Session session,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session);
+        this.relationshipService = relationshipService;
     }
 
     private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
@@ -283,32 +289,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         String groupCode = updates.getGroupCode();
         if (groupCode != null && groupCode.equals(project.getSpace().getCode()) == false)
         {
-            updateGroup(groupCode);
+            ProjectIdentifier projectId = IdentifierHelper.createProjectIdentifier(project);
+            SpaceIdentifier spaceId =
+                    new SpaceIdentifier(project.getSpace().getDatabaseInstance().getCode(),
+                            groupCode);
+            relationshipService.assignProjectToSpace(session, projectId, spaceId);
         }
         dataChanged = true;
-    }
-
-    private void updateGroup(String groupCode)
-    {
-        SpacePE group = findGroup(groupCode);
-        project.setSpace(group);
-        for (ExperimentPE experiment : project.getExperiments())
-        {
-            SampleUtils.setSamplesGroup(experiment, group);
-        }
-    }
-
-    private SpacePE findGroup(String groupCode)
-    {
-        SpacePE group =
-                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
-                        project.getSpace().getDatabaseInstance());
-        if (group == null)
-        {
-            throw UserFailureException
-                    .fromTemplate("No space with the name '%s' found!", groupCode);
-        }
-        return group;
     }
 
     @Override

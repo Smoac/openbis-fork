@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Definition of an internal service through which entity relationships can be changed and deleted.
@@ -40,5 +41,13 @@ public interface IRelationshipService
             ExperimentIdentifier experiment,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier project);
+
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("ASSIGN_PROJECT_TO_SPACE")
+    public void assignProjectToSpace(IAuthSession session,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ProjectIdentifier project,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            SpaceIdentifier space);
 
 }
