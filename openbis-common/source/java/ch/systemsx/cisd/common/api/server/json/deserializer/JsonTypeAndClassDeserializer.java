@@ -21,19 +21,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.JsonToken;
-import org.codehaus.jackson.map.BeanProperty;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.jsontype.NamedType;
-import org.codehaus.jackson.map.jsontype.TypeIdResolver;
-import org.codehaus.jackson.map.jsontype.impl.AsPropertyTypeDeserializer;
-import org.codehaus.jackson.type.JavaType;
-import org.codehaus.jackson.util.JsonParserSequence;
-import org.codehaus.jackson.util.TokenBuffer;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.util.JsonParserSequence;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;
@@ -59,11 +60,24 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     private IJsonClassValueToClassObjectsMapping classValueToClassObjectsMapping =
             new JsonStaticClassValueToClassObjectsMapping();
 
-    public JsonTypeAndClassDeserializer(JavaType type, Collection<NamedType> subtypes,
-            TypeIdResolver idRes, BeanProperty property, String typePropName)
+    public JsonTypeAndClassDeserializer(JsonTypeAndClassDeserializer src, BeanProperty property)
     {
-        super(type, idRes, property, typePropName);
+        super(src, property);
+        hasSubtypes = src.hasSubtypes;
+        classValueToClassObjectsMapping = src.classValueToClassObjectsMapping;
+    }
+
+    public JsonTypeAndClassDeserializer(JavaType type, Collection<NamedType> subtypes,
+            TypeIdResolver idRes, String typePropName, boolean typeIdVisible)
+    {
+        super(type, idRes, typePropName, typeIdVisible, null);
         hasSubtypes = subtypes != null && subtypes.size() > 1;
+    }
+
+    @Override
+    public TypeDeserializer forProperty(BeanProperty prop)
+    {
+        return new JsonTypeAndClassDeserializer(this, prop);
     }
 
     @Override
@@ -72,17 +86,23 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     {
         // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
         JsonToken t = jp.getCurrentToken();
-
         if (t == JsonToken.START_OBJECT)
         {
             t = jp.nextToken();
+        } else if (t == JsonToken.START_ARRAY)
+        {
+            /*
+             * This is most likely due to the fact that not all Java types are serialized as JSON
+             * Objects; so if "as-property" inclusion is requested, serialization of things like
+             * Lists must be instead handled as if "as-wrapper-array" was requested. But this can
+             * also be due to some custom handling: so, if "defaultImpl" is defined, it will be
+             * asked to handle this case.
+             */
+            return _deserializeTypedUsingDefaultImpl(jp, ctxt, null);
         } else if (t != JsonToken.FIELD_NAME)
         {
-            throw ctxt.wrongTokenException(jp, JsonToken.START_OBJECT,
-                    "need JSON Object to contain As.PROPERTY type information (for class "
-                            + baseTypeName() + ")");
+            return _deserializeTypedUsingDefaultImpl(jp, ctxt, null);
         }
-
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
 
@@ -121,19 +141,23 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     private Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb,
             String type) throws IOException, JsonProcessingException
     {
-        final JsonParser actualJp;
-        final JsonDeserializer<Object> deser = _findDeserializer(ctxt, type);
-        // deserializer should take care of closing END_OBJECT as well
-        if (tb != null)
-        {
-            actualJp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
-        } else
-        {
-            actualJp = jp;
+        JsonParser actualJp = jp;
+        TokenBuffer actualTb = tb;
+        JsonDeserializer<Object> deser = _findDeserializer(ctxt, type);
+        if (_typeIdVisible)
+        { // need to merge id back in JSON input?
+            if (actualTb == null)
+            {
+                actualTb = new TokenBuffer(null);
+            }
+            actualTb.writeFieldName(actualJp.getCurrentName());
+            actualTb.writeString(type);
         }
-        /*
-         * Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
-         */
+        if (actualTb != null)
+        { // need to put back skipped properties?
+            actualJp = JsonParserSequence.createFlattened(actualTb.asParser(actualJp), actualJp);
+        }
+        // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
         actualJp.nextToken(); // to skip past String value
         // deserializer should take care of closing END_OBJECT as well
         return deser.deserialize(actualJp, ctxt);
@@ -189,8 +213,7 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     {
         final JsonParser actualJp;
         final JsonDeserializer<Object> deserializer =
-                ctxt.getDeserializerProvider().findValueDeserializer(ctxt.getConfig(), _baseType,
-                        _property);
+                ctxt.findContextualValueDeserializer(_baseType, _property);
 
         if (tb != null)
         {

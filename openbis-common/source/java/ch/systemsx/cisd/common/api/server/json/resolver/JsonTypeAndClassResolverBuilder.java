@@ -18,15 +18,14 @@ package ch.systemsx.cisd.common.api.server.json.resolver;
 
 import java.util.Collection;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.map.BeanProperty;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.TypeDeserializer;
-import org.codehaus.jackson.map.jsontype.NamedType;
-import org.codehaus.jackson.map.jsontype.TypeIdResolver;
-import org.codehaus.jackson.map.jsontype.impl.StdTypeResolverBuilder;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 import ch.systemsx.cisd.common.api.server.json.deserializer.JsonTypeAndClassDeserializer;
 import ch.systemsx.cisd.common.api.server.json.mapping.IJsonClassValueToClassObjectsMapping;
@@ -49,11 +48,12 @@ public class JsonTypeAndClassResolverBuilder extends StdTypeResolverBuilder
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config, JavaType baseType,
-            Collection<NamedType> subtypes, BeanProperty property)
+            Collection<NamedType> subtypes)
     {
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
         JsonTypeAndClassDeserializer deserializer =
-                new JsonTypeAndClassDeserializer(baseType, subtypes, idRes, property, _typeProperty);
+                new JsonTypeAndClassDeserializer(baseType, subtypes, idRes, _typeProperty,
+                        _typeIdVisible);
         deserializer.setClassValueToClassObjectsMapping(classValueToClassObjectsMapping);
         return deserializer;
     }

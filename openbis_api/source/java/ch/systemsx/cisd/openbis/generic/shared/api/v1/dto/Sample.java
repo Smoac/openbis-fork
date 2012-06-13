@@ -28,12 +28,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
@@ -594,12 +593,13 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.sampleTypeCode = sampleTypeCode;
     }
 
-    @JsonProperty(value = "properties")
+    @JsonProperty("properties")
     public Map<String, String> getPropertiesJson()
     {
         return retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES) ? properties : null;
     }
 
+    @JsonProperty("properties")
     private void setProperties(HashMap<String, String> properties)
     {
         this.properties = properties;
@@ -615,23 +615,25 @@ public final class Sample implements Serializable, IIdentifierHolder
         this.retrievedFetchOptions = fetchOptions;
     }
 
-    @JsonProperty(value = "children")
+    @JsonProperty("children")
     public List<Sample> getChildrenJson()
     {
         return retrievedFetchOptions.contains(SampleFetchOption.CHILDREN) ? children : null;
     }
 
-    @JsonProperty(value = "parents")
+    @JsonProperty("parents")
     public List<Sample> getParentsJson()
     {
         return retrievedFetchOptions.contains(SampleFetchOption.PARENTS) ? parents : null;
     }
 
+    @JsonProperty("parents")
     private void setParents(List<Sample> parents)
     {
         this.parents = parents;
     }
 
+    @JsonProperty("children")
     private void setChildren(List<Sample> children)
     {
         this.children = children;

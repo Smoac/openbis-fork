@@ -20,7 +20,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -73,7 +74,7 @@ public class FileInfoDssDTO implements Serializable
     /**
      * Return true if this FileInfo represents a folder.
      */
-    @JsonProperty(value = "isDirectory")
+    @JsonProperty("isDirectory")
     public boolean isDirectory()
     {
         return isDirectory;
@@ -116,6 +117,7 @@ public class FileInfoDssDTO implements Serializable
         this.pathInListing = pathInListing;
     }
 
+    @JsonProperty("isDirectory")
     private void setIsDirectory(boolean isDirectory)
     {
         this.isDirectory = isDirectory;

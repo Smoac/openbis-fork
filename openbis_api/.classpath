@@ -4,9 +4,11 @@
 	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar" sourcepath="/libraries/jackson/jackson-src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

@@ -21,8 +21,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jackson.map.jsontype.NamedType;
 import org.reflections.Reflections;
+
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;

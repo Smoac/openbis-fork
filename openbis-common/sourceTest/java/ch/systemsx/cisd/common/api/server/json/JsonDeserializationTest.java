@@ -28,10 +28,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypes;

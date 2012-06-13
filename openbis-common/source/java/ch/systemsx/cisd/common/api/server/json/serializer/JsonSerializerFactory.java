@@ -18,24 +18,23 @@ package ch.systemsx.cisd.common.api.server.json.serializer;
 
 import java.util.Collection;
 
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.BeanProperty;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.TypeSerializer;
-import org.codehaus.jackson.map.introspect.AnnotatedClass;
-import org.codehaus.jackson.map.introspect.BasicBeanDescription;
-import org.codehaus.jackson.map.jsontype.NamedType;
-import org.codehaus.jackson.map.jsontype.TypeIdResolver;
-import org.codehaus.jackson.map.jsontype.impl.AsPropertyTypeSerializer;
-import org.codehaus.jackson.map.jsontype.impl.TypeNameIdResolver;
-import org.codehaus.jackson.map.ser.BeanSerializerFactory;
-import org.codehaus.jackson.map.type.ArrayType;
-import org.codehaus.jackson.map.type.CollectionLikeType;
-import org.codehaus.jackson.map.type.CollectionType;
-import org.codehaus.jackson.map.type.MapLikeType;
-import org.codehaus.jackson.map.type.MapType;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;
@@ -53,20 +52,20 @@ public class JsonSerializerFactory extends BeanSerializerFactory
 
     @Override
     protected JsonSerializer<?> buildArraySerializer(SerializationConfig config, ArrayType type,
-            BasicBeanDescription beanDesc, BeanProperty property, boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+            BeanDescription beanDesc, boolean staticTyping, TypeSerializer elementTypeSerializer,
+            JsonSerializer<Object> elementValueSerializer) throws JsonMappingException
     {
         ArrayType newType =
-                type.withContentTypeHandler(createContentTypeSerializer(config, type, property));
-        return super.buildArraySerializer(config, newType, beanDesc, property, staticTyping,
+                type.withContentTypeHandler(createContentTypeSerializer(config, type, null));
+        return super.buildArraySerializer(config, newType, beanDesc, staticTyping,
                 elementTypeSerializer, elementValueSerializer);
     }
 
     @Override
     protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
-            CollectionType type, BasicBeanDescription beanDesc, BeanProperty property,
+            CollectionType type, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping, TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer)
+            JsonSerializer<Object> elementValueSerializer) throws JsonMappingException
     {
         CollectionType newType =
                 type.withContentTypeHandler(createContentTypeSerializer(config, type, property));
@@ -75,39 +74,15 @@ public class JsonSerializerFactory extends BeanSerializerFactory
     }
 
     @Override
-    protected JsonSerializer<?> buildCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type, BasicBeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping, TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer)
-    {
-        CollectionLikeType newType =
-                type.withContentTypeHandler(createContentTypeSerializer(config, type, property));
-        return super.buildCollectionLikeSerializer(config, newType, beanDesc, property,
-                staticTyping, elementTypeSerializer, elementValueSerializer);
-    }
-
-    @Override
     protected JsonSerializer<?> buildMapSerializer(SerializationConfig config, MapType type,
-            BasicBeanDescription beanDesc, BeanProperty property, boolean staticTyping,
-            JsonSerializer<Object> keySerializer, TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer)
+            BeanDescription beanDesc, boolean staticTyping, JsonSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+            throws JsonMappingException
     {
         MapType newType =
-                type.withContentTypeHandler(createContentTypeSerializer(config, type, property));
-        return super.buildMapSerializer(config, newType, beanDesc, property, staticTyping,
-                keySerializer, elementTypeSerializer, elementValueSerializer);
-    }
-
-    @Override
-    protected JsonSerializer<?> buildMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BasicBeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping, JsonSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
-    {
-        MapLikeType newType =
-                type.withContentTypeHandler(createContentTypeSerializer(config, type, property));
-        return super.buildMapLikeSerializer(config, newType, beanDesc, property, staticTyping,
-                keySerializer, elementTypeSerializer, elementValueSerializer);
+                type.withContentTypeHandler(createContentTypeSerializer(config, type, null));
+        return super.buildMapSerializer(config, newType, beanDesc, staticTyping, keySerializer,
+                elementTypeSerializer, elementValueSerializer);
     }
 
     private TypeSerializer createContentTypeSerializer(SerializationConfig config,
@@ -124,8 +99,7 @@ public class JsonSerializerFactory extends BeanSerializerFactory
 
         if (contentClass.equals(Object.class) || contentClass.isAnnotationPresent(JsonObject.class))
         {
-            BasicBeanDescription bean =
-                    config.introspectClassAnnotations(contentType.getRawClass());
+            BeanDescription bean = config.introspectClassAnnotations(contentType.getRawClass());
             AnnotatedClass ac = bean.getClassInfo();
             AnnotationIntrospector ai = config.getAnnotationIntrospector();
             Collection<NamedType> subtypes =

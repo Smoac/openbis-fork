@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.util.Date;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 

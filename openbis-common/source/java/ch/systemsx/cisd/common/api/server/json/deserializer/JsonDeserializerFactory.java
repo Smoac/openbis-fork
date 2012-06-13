@@ -20,30 +20,30 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.BeanProperty;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.DeserializerProvider;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.TypeDeserializer;
-import org.codehaus.jackson.map.deser.BeanDeserializerFactory;
-import org.codehaus.jackson.map.introspect.AnnotatedClass;
-import org.codehaus.jackson.map.introspect.BasicBeanDescription;
-import org.codehaus.jackson.map.jsontype.NamedType;
-import org.codehaus.jackson.map.jsontype.TypeIdResolver;
-import org.codehaus.jackson.map.jsontype.impl.TypeNameIdResolver;
-import org.codehaus.jackson.map.type.ArrayType;
-import org.codehaus.jackson.map.type.CollectionLikeType;
-import org.codehaus.jackson.map.type.CollectionType;
-import org.codehaus.jackson.map.type.MapLikeType;
-import org.codehaus.jackson.map.type.MapType;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
+import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.databind.type.MapType;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;
@@ -62,62 +62,57 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
     public JsonDeserializerFactory(
             IJsonClassValueToClassObjectsMapping classValueToClassObjectsMapping)
     {
-        super(null);
+        super(new DeserializerFactoryConfig());
         this.classValueToClassObjectsMapping = classValueToClassObjectsMapping;
     }
 
     @Override
-    public JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config,
-            DeserializerProvider p, ArrayType type, BeanProperty property)
-            throws JsonMappingException
+    public JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt, ArrayType type,
+            BeanDescription beanDesc) throws JsonMappingException
     {
         ArrayType newType =
-                type.withContentTypeHandler(createContentTypeDeserializer(config, type, property));
-        return super.createArrayDeserializer(config, p, newType, property);
+                type.withContentTypeHandler(createContentTypeDeserializer(ctxt, type, beanDesc));
+        return super.createArrayDeserializer(ctxt, newType, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
-            DeserializerProvider p, CollectionType type, BeanProperty property)
-            throws JsonMappingException
+    public JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
+            CollectionType type, BeanDescription beanDesc) throws JsonMappingException
     {
         CollectionType newType =
-                type.withContentTypeHandler(createContentTypeDeserializer(config, type, property));
-        return super.createCollectionDeserializer(config, p, newType, property);
+                type.withContentTypeHandler(createContentTypeDeserializer(ctxt, type, beanDesc));
+        return super.createCollectionDeserializer(ctxt, newType, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, CollectionLikeType type, BeanProperty property)
-            throws JsonMappingException
+    public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
+            CollectionLikeType type, BeanDescription beanDesc) throws JsonMappingException
     {
         CollectionLikeType newType =
-                type.withContentTypeHandler(createContentTypeDeserializer(config, type, property));
-        return super.createCollectionLikeDeserializer(config, p, newType, property);
+                type.withContentTypeHandler(createContentTypeDeserializer(ctxt, type, beanDesc));
+        return super.createCollectionLikeDeserializer(ctxt, newType, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> createMapDeserializer(DeserializationConfig config,
-            DeserializerProvider p, MapType type, BeanProperty property)
-            throws JsonMappingException
+    public JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt, MapType type,
+            BeanDescription beanDesc) throws JsonMappingException
     {
         MapType newType =
-                type.withContentTypeHandler(createContentTypeDeserializer(config, type, property));
-        return super.createMapDeserializer(config, p, newType, property);
+                type.withContentTypeHandler(createContentTypeDeserializer(ctxt, type, beanDesc));
+        return super.createMapDeserializer(ctxt, newType, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, MapLikeType type, BeanProperty property)
-            throws JsonMappingException
+    public JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
+            MapLikeType type, BeanDescription beanDesc) throws JsonMappingException
     {
         MapLikeType newType =
-                type.withContentTypeHandler(createContentTypeDeserializer(config, type, property));
-        return super.createMapLikeDeserializer(config, p, newType, property);
+                type.withContentTypeHandler(createContentTypeDeserializer(ctxt, type, beanDesc));
+        return super.createMapLikeDeserializer(ctxt, newType, beanDesc);
     }
 
-    private TypeDeserializer createContentTypeDeserializer(DeserializationConfig config,
-            JavaType containerType, BeanProperty property)
+    private TypeDeserializer createContentTypeDeserializer(DeserializationContext ctxt,
+            JavaType containerType, BeanDescription beanDesc)
     {
         JavaType contentType = containerType.getContentType();
 
@@ -130,8 +125,9 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
 
         if (contentClass.equals(Object.class) || contentClass.isAnnotationPresent(JsonObject.class))
         {
-            BasicBeanDescription bean =
-                    config.introspectClassAnnotations(contentType.getRawClass());
+            DeserializationConfig config = ctxt.getConfig();
+
+            BeanDescription bean = config.introspectClassAnnotations(contentType.getRawClass());
             AnnotatedClass ac = bean.getClassInfo();
             AnnotationIntrospector ai = config.getAnnotationIntrospector();
             Collection<NamedType> subtypes =
@@ -140,7 +136,7 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
                     TypeNameIdResolver.construct(config, contentType, subtypes, false, true);
             JsonTypeAndClassWithFallbackDeserializer deserializer =
                     new JsonTypeAndClassWithFallbackDeserializer(contentType, subtypes, resolver,
-                            property, JsonConstants.getTypeField());
+                            JsonConstants.getTypeField());
             deserializer.setClassValueToClassObjectsMapping(this.classValueToClassObjectsMapping);
             return deserializer;
         } else
@@ -152,11 +148,22 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
     private class JsonTypeAndClassWithFallbackDeserializer extends JsonTypeAndClassDeserializer
     {
 
-        public JsonTypeAndClassWithFallbackDeserializer(JavaType type,
-                Collection<NamedType> subtypes, TypeIdResolver idRes, BeanProperty property,
-                String typePropName)
+        public JsonTypeAndClassWithFallbackDeserializer(
+                JsonTypeAndClassWithFallbackDeserializer src, BeanProperty property)
         {
-            super(type, subtypes, idRes, property, typePropName);
+            super(src, property);
+        }
+
+        public JsonTypeAndClassWithFallbackDeserializer(JavaType type,
+                Collection<NamedType> subtypes, TypeIdResolver idRes, String typePropName)
+        {
+            super(type, subtypes, idRes, typePropName, false);
+        }
+
+        @Override
+        public TypeDeserializer forProperty(BeanProperty prop)
+        {
+            return new JsonTypeAndClassWithFallbackDeserializer(this, prop);
         }
 
         @Override

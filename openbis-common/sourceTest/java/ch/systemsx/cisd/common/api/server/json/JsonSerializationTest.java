@@ -22,9 +22,10 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes.NestedEnum;

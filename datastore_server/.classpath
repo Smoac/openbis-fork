@@ -67,9 +67,6 @@
 	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar" sourcepath="/libraries/mina/mina-core-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/pngj/pngj.jar" sourcepath="/libraries/pngj/pngj_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
-	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-isserializable.jar"/>
 	<classpathentry kind="lib" path="/libraries/sshd/sshd-core.jar" sourcepath="/libraries/sshd/sshd-core-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
@@ -80,6 +77,10 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-linux-intel.jar"/>

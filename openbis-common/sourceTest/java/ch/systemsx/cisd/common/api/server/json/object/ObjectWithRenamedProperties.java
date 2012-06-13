@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 

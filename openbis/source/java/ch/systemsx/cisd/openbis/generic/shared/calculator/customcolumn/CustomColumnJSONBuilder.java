@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.core.CustomColumnParam;

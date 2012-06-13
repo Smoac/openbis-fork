@@ -25,11 +25,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.reflections.Reflections;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
@@ -65,10 +66,10 @@ public class JsonAnnotationTest
     private void findAllClassesUsedByJsonRpcApi()
     {
         Class<?>[] jsonRpcInterfaces =
-            { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
-                    IGeneralInformationChangingService.class,
-                    IGeneralInformationService.class, IWebInformationService.class,
-                    IQueryApiServer.class, IDssServiceRpcScreening.class };
+                    { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
+                            IGeneralInformationChangingService.class,
+                            IGeneralInformationService.class, IWebInformationService.class,
+                            IQueryApiServer.class, IDssServiceRpcScreening.class };
 
         for (Class<?> jsonClass : jsonRpcInterfaces)
         {

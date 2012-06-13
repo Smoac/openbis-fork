@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.common.api.server.json;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
 import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerFactory;
-import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerProvider;
 import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
+import ch.systemsx.cisd.common.api.server.json.mapping.IJsonBaseTypeToSubTypesMapping;
+import ch.systemsx.cisd.common.api.server.json.mapping.IJsonClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
@@ -51,12 +53,17 @@ public class JsonTestObjectMapper extends ObjectMapper
 
     public JsonTestObjectMapper()
     {
-        JsonReflectionsBaseTypeToSubTypesMapping subTypesMapping =
-                new JsonReflectionsBaseTypeToSubTypesMapping(getClass().getPackage().getName());
+        super(null, null, new DefaultDeserializationContext.Impl(new JsonDeserializerFactory(
+                getClassMapping())));
+        setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(getClassMapping()));
+        setSubtypeResolver(new JsonReflectionsSubTypeResolver(getTypeMapping()));
+        setSerializerFactory(new JsonSerializerFactory());
+    }
 
+    private static IJsonClassValueToClassObjectsMapping getClassMapping()
+    {
         JsonStaticClassValueToClassObjectsMapping classMapping =
                 new JsonStaticClassValueToClassObjectsMapping();
-
         classMapping.addClass(".LegacyObjectWithType", ObjectWithType.class);
         classMapping.addClass(".LegacyObjectWithTypeA", ObjectWithTypeA.class);
         classMapping.addClass(".LegacyObjectWithTypeA", ObjectWithTypeALegalDuplicate.class);
@@ -77,12 +84,13 @@ public class JsonTestObjectMapper extends ObjectMapper
         classMapping.addClass(".LegacyObjectWithRenamedProperties",
                 ObjectWithRenamedProperties.class);
         classMapping.addClass(".LegacyObjectWithPrivateAccess", ObjectWithPrivateAccess.class);
+        return classMapping;
+    }
 
-        setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(classMapping));
-        setSubtypeResolver(new JsonReflectionsSubTypeResolver(subTypesMapping));
-        setDeserializerProvider(new JsonDeserializerProvider(new JsonDeserializerFactory(
-                classMapping)));
-        setSerializerFactory(new JsonSerializerFactory());
+    private static IJsonBaseTypeToSubTypesMapping getTypeMapping()
+    {
+        return new JsonReflectionsBaseTypeToSubTypesMapping(JsonTestObjectMapper.class.getPackage()
+                .getName());
     }
 
 }

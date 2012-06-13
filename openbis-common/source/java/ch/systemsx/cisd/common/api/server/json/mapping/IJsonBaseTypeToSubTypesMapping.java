@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.api.server.json.mapping;
 
 import java.util.Set;
 
-import org.codehaus.jackson.map.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
  * @author pkupczyk

@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.json;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
 import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerFactory;
-import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerProvider;
 import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
 import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.serializer.JsonSerializerFactory;
-import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericJsonClassValueToClassObjectsMapping;
 
 /**
  * Jackson library object mapper used in screening OpenBIS.
@@ -36,12 +35,13 @@ public class ScreeningObjectMapper extends ObjectMapper
 
     public ScreeningObjectMapper()
     {
+        super(null, null, new DefaultDeserializationContext.Impl(new JsonDeserializerFactory(
+                ScreeningJsonClassValueToClassObjectsMapping.getInstance())));
+
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
                 ScreeningJsonClassValueToClassObjectsMapping.getInstance()));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(
                 JsonReflectionsBaseTypeToSubTypesMapping.getInstance()));
-        setDeserializerProvider(new JsonDeserializerProvider(new JsonDeserializerFactory(
-                GenericJsonClassValueToClassObjectsMapping.getInstance())));
         setSerializerFactory(new JsonSerializerFactory());
     }
 

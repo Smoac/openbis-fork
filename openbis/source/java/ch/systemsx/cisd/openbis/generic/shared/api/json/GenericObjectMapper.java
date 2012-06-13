@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
 import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerFactory;
-import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerProvider;
 import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
 import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
@@ -35,12 +35,13 @@ public class GenericObjectMapper extends ObjectMapper
 
     public GenericObjectMapper()
     {
+        super(null, null, new DefaultDeserializationContext.Impl(new JsonDeserializerFactory(
+                GenericJsonClassValueToClassObjectsMapping.getInstance())));
+
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(
                 GenericJsonClassValueToClassObjectsMapping.getInstance()));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(
                 JsonReflectionsBaseTypeToSubTypesMapping.getInstance()));
-        setDeserializerProvider(new JsonDeserializerProvider(new JsonDeserializerFactory(
-                GenericJsonClassValueToClassObjectsMapping.getInstance())));
         setSerializerFactory(new JsonSerializerFactory());
     }
 }

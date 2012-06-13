@@ -21,9 +21,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="/libraries/hibernate-search/jsr250-api.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
@@ -52,5 +49,9 @@
 	<classpathentry kind="lib" path="/libraries/reflections/lib/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="/libraries/reflections/reflections.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

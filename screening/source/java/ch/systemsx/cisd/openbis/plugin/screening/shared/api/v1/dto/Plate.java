@@ -3,8 +3,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 
