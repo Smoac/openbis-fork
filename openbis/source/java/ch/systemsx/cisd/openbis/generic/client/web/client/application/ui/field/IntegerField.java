@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 
 /**
- * A {@link NumberField} extension for registering an {@link Integer}.
+ * A {@link NumberField} extension for registering an {@link Long}.
  * 
  * @author Christian Ribeaud
  */
@@ -29,9 +29,9 @@ public final class IntegerField extends NumberField
     {
         VarcharField.configureField(this, fieldLabel, mandatory);
         getMessages().setBlankText("Integer required");
-        setPropertyEditorType(Integer.class);
+        setPropertyEditorType(Long.class);
         setEmptyText("Integer value");
-        setMaxLength(String.valueOf(Integer.MAX_VALUE).length());
+        setMaxLength(String.valueOf(Long.MAX_VALUE).length());
         setAllowDecimals(false);
     }
 }
