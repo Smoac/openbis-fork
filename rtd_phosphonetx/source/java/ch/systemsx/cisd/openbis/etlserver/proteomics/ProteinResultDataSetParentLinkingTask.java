@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -83,7 +84,7 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>();
         List<Project> projects = service.listProjects();
         for (Project project : projects)
         {
@@ -118,14 +119,20 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                         continue;
                     }
                     DataSet dataSet = (DataSet) ds;
-                    DataSetUpdatesDTO update = new DataSetUpdatesDTO();
+                    DataSetBatchUpdatesDTO update = new DataSetBatchUpdatesDTO();
                     update.setDatasetId(new TechId(dataSet.getId()));
                     update.setVersion(dataSet.getModificationDate());
                     update.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(dataSet
                             .getExperiment().getIdentifier()));
-                    update.setModifiedParentDatasetCodesOrNull(codes.toArray(new String[0]));
                     update.setFileFormatTypeCode(dataSet.getFileFormatType().getCode());
                     update.setProperties(dataSet.getProperties());
+
+                    // All we want to do is update the parents
+                    update.setDatasetCode(dataSet.getCode());
+                    update.setModifiedParentDatasetCodesOrNull(codes.toArray(new String[0]));
+                    DataSetBatchUpdateDetails details = new DataSetBatchUpdateDetails();
+                    details.setParentsUpdateRequested(true);
+
                     operationLog.info("Parent data set links of data set " + dataSet.getCode()
                             + " from experiment " + experiment.getIdentifier()
                             + " will be updated.");

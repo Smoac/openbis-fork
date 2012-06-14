@@ -31,14 +31,12 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractorForProteinResults;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.ProteinResultDataSetParentLinkingTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
@@ -95,15 +93,14 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                 new ExperimentBuilder().id(4).identifier("/S/P1/E4")
                         .property(BASE_EXPERIMENT_KEY, "/S/P1/E1").getExperiment();
         final DataSet ds1 =
-                new DataSetBuilder(1).code("ds1").fileFormat("A")
-                        .experiment(e1).modificationDate(new Date(11)).getDataSet();
+                new DataSetBuilder(1).code("ds1").fileFormat("A").experiment(e1)
+                        .modificationDate(new Date(11)).getDataSet();
         final DataSet ds2 =
-                new DataSetBuilder(2).code("ds2").fileFormat("B")
-                        .experiment(e4).modificationDate(new Date(22)).getDataSet();
+                new DataSetBuilder(2).code("ds2").fileFormat("B").experiment(e4)
+                        .modificationDate(new Date(22)).getDataSet();
         final DataSet ds3 =
-                new DataSetBuilder(3).code("ds3").fileFormat("C")
-                        .experiment(e3).modificationDate(new Date(33)).property("ALPHA", "3.1")
-                        .getDataSet();
+                new DataSetBuilder(3).code("ds3").fileFormat("C").experiment(e3)
+                        .modificationDate(new Date(33)).property("ALPHA", "3.1").getDataSet();
         final RecordingMatcher<AtomicEntityOperationDetails> operationRecorder =
                 new RecordingMatcher<AtomicEntityOperationDetails>();
         context.checking(new Expectations()
@@ -120,16 +117,16 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
 
                     one(service).tryToGetExperiment(ExperimentIdentifierFactory.parse("/S/P1/E1"));
                     will(returnValue(e1));
-                    
+
                     one(service).tryGetDataSet("non-sense2");
                     will(returnValue(null));
-                    
+
                     one(service).tryGetDataSet("ds1");
                     will(returnValue(ds1));
-                    
+
                     one(service).tryGetDataSet("ds3");
                     will(returnValue(ds3));
-                    
+
                     one(service).listDataSetsByExperimentID(e1.getId());
                     will(returnValue(Arrays.asList(ds1)));
 
@@ -142,7 +139,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                     one(service).performEntityOperations(with(operationRecorder));
                 }
             });
-        
+
         task.execute();
 
         assertEquals("INFO  OPERATION.ProteinResultDataSetParentLinkingTask - "
@@ -154,7 +151,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                 + "INFO  OPERATION.ProteinResultDataSetParentLinkingTask - "
                 + "Parent data set links for 2 data sets have been updated.",
                 logRecorder.getLogContent());
-        List<DataSetUpdatesDTO> dataSetUpdates =
+        List<DataSetBatchUpdatesDTO> dataSetUpdates =
                 operationRecorder.recordedObject().getDataSetUpdates();
         assertEquals(2L, dataSetUpdates.get(0).getDatasetId().getId().longValue());
         assertEquals(22L, dataSetUpdates.get(0).getVersion().getTime());
