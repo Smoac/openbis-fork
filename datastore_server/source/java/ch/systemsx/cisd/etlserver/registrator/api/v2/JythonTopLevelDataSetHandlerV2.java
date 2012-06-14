@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransac
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
@@ -131,13 +132,13 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     @Override
-    protected void executeJythonScript(File dataSetFile, String scriptString,
+    protected void executeJythonScript(DataSetFile dataSetFile, String scriptString,
             JythonDataSetRegistrationService<T> service)
     {
 
         // Configure the evaluator
         PythonInterpreter interpreter = service.getInterpreter();
-        configureEvaluator(dataSetFile, service, interpreter);
+        configureEvaluator(dataSetFile.getLogicalIncomingFile(), service, interpreter);
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
@@ -155,12 +156,22 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         } else
         {
             executeJythonProcessFunctionWithRetries(interpreter,
-                    (JythonDataSetRegistrationServiceV2<T>) service, retryFunction);
+                    (JythonDataSetRegistrationServiceV2<T>) service, retryFunction, dataSetFile);
         }
     }
 
+    private void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
+    {
+        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
+                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        {
+            waitTheRetryPeriod();
+            // do nothing. just repeat until the application is ready
+        }
+    }
+    
     private void executeJythonProcessFunctionWithRetries(PythonInterpreter interpreter,
-            JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction)
+            JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction, DataSetFile incomingDataSetFile)
     {
         DistinctExceptionsCollection errors = new DistinctExceptionsCollection();
 
@@ -169,6 +180,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         while (true)
         {
+            waitUntilApplicationIsReady(incomingDataSetFile);
+            
             Exception problem;
             try
             {

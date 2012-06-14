@@ -146,7 +146,7 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        protected void handleDataSet(File dataSetFile,
+        protected void handleDataSet(DataSetFile dataSetFile,
                 DataSetRegistrationService<DataSetInformation> service) throws Throwable
         {
 

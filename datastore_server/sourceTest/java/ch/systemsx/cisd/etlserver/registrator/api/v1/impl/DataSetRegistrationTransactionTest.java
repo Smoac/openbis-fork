@@ -684,7 +684,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
 
         @Override
-        protected void handleDataSet(File dataSetFile,
+        protected void handleDataSet(DataSetFile dataSetFile,
                 DataSetRegistrationService<DataSetInformation> aService) throws Throwable
         {
 

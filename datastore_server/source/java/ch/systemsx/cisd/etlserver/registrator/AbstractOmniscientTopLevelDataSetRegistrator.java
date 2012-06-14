@@ -498,7 +498,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 handleValidationErrors(validationErrors, incomingDataSetFile, service);
             } else
             {
-                handleDataSet(incomingDataSetFile.getLogicalIncomingFile(), service);
+                handleDataSet(incomingDataSetFile, service);
                 service.commit();
             }
         } catch (Throwable ex)
@@ -693,6 +693,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * 
      * @throws Throwable
      */
-    protected abstract void handleDataSet(File dataSetFile, DataSetRegistrationService<T> service)
+    protected abstract void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> service)
             throws Throwable;
 }

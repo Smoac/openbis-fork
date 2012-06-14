@@ -612,6 +612,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         while (true)
         {
+            waitUntilApplicationIsReady();
             
             if (result == EntityOperationsState.NO_OPERATION)
             {

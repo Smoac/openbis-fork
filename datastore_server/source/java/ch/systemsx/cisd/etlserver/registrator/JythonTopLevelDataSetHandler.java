@@ -162,7 +162,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
-    public void handleDataSet(File dataSetFile, DataSetRegistrationService<T> genericService)
+    public void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> genericService)
             throws Throwable
     {
         // Load the script
@@ -174,12 +174,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         executeJythonScript(dataSetFile, scriptString, service);
     }
 
-    protected void executeJythonScript(File dataSetFile, String scriptString,
+    protected void executeJythonScript(DataSetFile dataSetFile, String scriptString,
             JythonDataSetRegistrationService<T> service)
     {
         // Configure the evaluator
         PythonInterpreter interpreter = service.interpreter;
-        configureEvaluator(dataSetFile, service, interpreter);
+        configureEvaluator(dataSetFile.getLogicalIncomingFile(), service, interpreter);
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
