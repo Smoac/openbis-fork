@@ -43,4 +43,9 @@ public interface IExperimentImmutable
      * code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
+
+    /**
+     * Returns the permId of this experiment.
+     */
+    String getPermId();
 }

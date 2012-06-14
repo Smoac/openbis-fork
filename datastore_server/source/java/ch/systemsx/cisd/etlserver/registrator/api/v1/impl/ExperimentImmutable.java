@@ -79,6 +79,12 @@ public class ExperimentImmutable implements IExperimentImmutable
     }
 
     @Override
+    public String getPermId()
+    {
+        return experiment.getPermId();
+    }
+
+    @Override
     public int hashCode()
     {
         return getExperimentIdentifier().hashCode();
