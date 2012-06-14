@@ -17,16 +17,25 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -37,6 +46,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdatable
 {
+    // Keep track of the requested updates so they can be sent to the server.
+    private final DataSetBatchUpdatesDTO updates;
+
+    private final DataSetBatchUpdateDetails updateDetails;
+
     public DataSetUpdatable(ExternalData dataSet, IEncapsulatedOpenBISService service)
     {
         super(dataSet, service);
@@ -44,32 +58,56 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         {
             dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
         }
+        updates = new DataSetBatchUpdatesDTO();
+        updateDetails = new DataSetBatchUpdateDetails();
+        initializeUpdates();
+    }
+
+    private void initializeUpdates()
+    {
+        updates.setDatasetCode(dataSet.getCode());
+        updates.setDatasetId(TechId.create(dataSet));
+        updates.setDetails(updateDetails);
+        updates.setVersion(dataSet.getModificationDate());
+        updateDetails.setPropertiesToUpdate(new HashSet<String>());
     }
 
     @Override
     public void setExperiment(IExperimentImmutable experiment)
     {
+        updateDetails.setExperimentUpdateRequested(true);
         if (experiment == null)
         {
             dataSet.setExperiment(null);
+            updates.setExperimentIdentifierOrNull(null);
         } else
         {
             ExperimentImmutable exp = (ExperimentImmutable) experiment;
             dataSet.setExperiment(exp.getExperiment());
+            String identifierString = dataSet.getExperiment().getIdentifier();
+            ExperimentIdentifier experimentIdentifier =
+                    ExperimentIdentifierFactory.parse(identifierString);
+            updates.setExperimentIdentifierOrNull(experimentIdentifier);
         }
     }
 
     @Override
     public void setSample(ISampleImmutable sampleOrNull)
     {
+        updateDetails.setSampleUpdateRequested(true);
         if (sampleOrNull == null)
         {
             dataSet.setSample(null);
+            updates.setSampleIdentifierOrNull(null);
         } else
         {
             SampleImmutable samp = (SampleImmutable) sampleOrNull;
             dataSet.setSample(samp.getSample());
             setExperiment(sampleOrNull.getExperiment());
+
+            String identifierString = dataSet.getSampleIdentifier();
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(identifierString);
+            updates.setSampleIdentifierOrNull(sampleIdentifier);
         }
     }
 
@@ -84,6 +122,9 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
             FileFormatType fileFormatType = new FileFormatType();
             fileFormatType.setCode(fileFormatTypeCode);
             dataSet.tryGetAsDataSet().setFileFormatType(fileFormatType);
+
+            updateDetails.setFileFormatUpdateRequested(true);
+            updates.setFileFormatTypeCode(fileFormatTypeCode);
         }
     }
 
@@ -91,13 +132,21 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         EntityHelper.createOrUpdateProperty(dataSet, propertyCode, propertyValue);
+
+        updates.setProperties(dataSet.getProperties());
+        Set<String> propertiesToUpdate = updateDetails.getPropertiesToUpdate();
+        propertiesToUpdate.add(propertyCode);
+        updateDetails.setPropertiesToUpdate(propertiesToUpdate);
     }
 
     @Override
-    public void setParentDatasets(List<String> parentDatasetCodes)
+    public void setParentDatasets(List<String> parentDataSetCodes)
     {
-        List<ExternalData> dummyParents = createDummyDataSetsFromCodes(parentDatasetCodes);
+        List<ExternalData> dummyParents = createDummyDataSetsFromCodes(parentDataSetCodes);
         dataSet.setParents(dummyParents);
+
+        updateDetails.setParentsUpdateRequested(true);
+        updates.setModifiedParentDatasetCodesOrNull(parentDataSetCodes.toArray(new String[0]));
     }
 
     @Override
@@ -107,6 +156,10 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         {
             List<ExternalData> dummyDataSets = createDummyDataSetsFromCodes(containedDataSetCodes);
             dataSet.tryGetAsContainerDataSet().setContainedDataSets(dummyDataSets);
+
+            updateDetails.setContainerUpdateRequested(true);
+            updates.setModifiedContainedDatasetCodesOrNull(containedDataSetCodes
+                    .toArray(new String[0]));
         } else
         {
             // ignored
