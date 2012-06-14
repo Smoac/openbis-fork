@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -1061,7 +1060,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             final MaterialTypePE materialType, final Map<String, List<NewMaterial>> newMaterials,
             final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
             final NewSample newSample, final NewExternalData externalData,
-            final String updatedDataSetCode, final DataSetUpdatesDTO dataSetUpdate)
+            final String updatedDataSetCode, final DataSetBatchUpdatesDTO dataSetUpdate)
     {
         context.checking(new Expectations()
             {
@@ -1154,15 +1153,21 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(1).of(boFactory).createDataBO(SESSION);
-                    will(returnValue(dataBO));
+                    one(boFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
 
                     one(entityOperationChecker).assertDataSetUpdateAllowed(SESSION,
                             Arrays.asList(dataSetUpdate));
-                    one(dataBO).update(dataSetUpdate);
-                    one(dataBO).getData();
+                    one(dataSetTable).update(Arrays.asList(dataSetUpdate));
+                    one(dataSetTable).save();
+
+                    one(dataSetTable).getDataSets();
                     final DataPE updatedDataSet = createDataSet(updatedDataSetCode, "type");
-                    will(returnValue(updatedDataSet));
+                    will(returnValue(Arrays.asList(updatedDataSet)));
+
+                    one(dataSetDAO).tryToFindFullDataSetsByCodes(Arrays.asList(updatedDataSetCode),
+                            true, false);
+                    will(returnValue(Arrays.asList(updatedDataSet)));
                 }
             });
     }

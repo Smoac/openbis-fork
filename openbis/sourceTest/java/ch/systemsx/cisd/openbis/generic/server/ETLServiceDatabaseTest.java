@@ -21,8 +21,11 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,9 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -168,6 +173,88 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertEquals(2, updatedSample.getParents().size());
     }
 
+    @Test
+    public void testPerformEntityOperationsUpdateDataSet()
+    {
+        // Find the samples to add
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
+                MatchClauseAttribute.TYPE, "HCS_IMAGE"));
+        searchCriteria.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("COMMENT",
+                "no comment"));
+        List<ExternalData> dataSetsToUpdate =
+                service.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(13, dataSetsToUpdate.size());
+
+        Date now = new Date();
+
+        // Update the comment
+        String newComment = "This is a new comment. This is not the old comment.";
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>();
+        for (ExternalData dataSetToUpdate : dataSetsToUpdate)
+        {
+            assertTrue("The modification date should be in the distant past", dataSetToUpdate
+                    .getModificationDate().compareTo(now) < 0);
+
+            String oldComment = EntityHelper.tryFindPropertyValue(dataSetToUpdate, "COMMENT");
+            assertFalse(newComment.equals(oldComment));
+            DataSetBatchUpdatesDTO updates =
+                    createDataSetUpdateDTO(dataSetToUpdate, "COMMENT", newComment);
+            dataSetUpdates.add(updates);
+        }
+
+        performDataSetUpdates(dataSetUpdates);
+
+        // Now retrieve the sample again and check that the properties were updated.
+        List<ExternalData> updatedDataSets =
+                service.searchForDataSets(sessionToken, searchCriteria);
+        // The index has not been updated yet, so we have to group the items into those that
+        // still have the old comment and those with the new comment
+
+        List<ExternalData> dataSetsWithOldValue = new ArrayList<ExternalData>();
+        List<ExternalData> dataSetsWithNewValue = new ArrayList<ExternalData>();
+        for (ExternalData data : updatedDataSets)
+        {
+            String comment = EntityHelper.tryFindPropertyValue(data, "COMMENT");
+            if (newComment.equals(comment))
+            {
+                dataSetsWithNewValue.add(data);
+            }
+        }
+
+        assertEquals(0, dataSetsWithOldValue.size());
+        assertEquals(dataSetsToUpdate.size(), dataSetsWithNewValue.size());
+
+        for (ExternalData dataSetWithNewValue : dataSetsWithNewValue)
+        {
+            assertTrue("The modification date should be current", dataSetWithNewValue
+                    .getModificationDate().compareTo(now) > 0);
+
+            String savedComment = EntityHelper.tryFindPropertyValue(dataSetWithNewValue, "COMMENT");
+            assertTrue(newComment.equals(savedComment));
+        }
+
+    }
+
+    private void performDataSetUpdates(List<DataSetBatchUpdatesDTO> dataSetUpdates)
+    {
+        TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
+        List<NewSpace> spaceRegistrations = Collections.emptyList();
+        List<NewProject> projectRegistrations = Collections.emptyList();
+        List<NewExperiment> experimentRegistrations = Collections.emptyList();
+
+        List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
+        List<NewSample> sampleRegistrations = Collections.emptyList();
+        Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
+        AtomicEntityOperationDetails details =
+                new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
+                        projectRegistrations, experimentRegistrations, sampleUpdates,
+                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
+                        dataSetUpdates);
+        service.performEntityOperations(sessionToken, details);
+    }
+
     private void performSampleUpdate(Sample sampleToUpdate)
     {
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
@@ -216,4 +303,28 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         return sampleUpdate;
     }
 
+    private DataSetBatchUpdatesDTO createDataSetUpdateDTO(ExternalData dataSet,
+            String propertyCode, String propertyValue)
+    {
+        // Create the initial information
+        DataSetBatchUpdatesDTO updates = new DataSetBatchUpdatesDTO();
+        DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
+        updates.setDatasetCode(dataSet.getCode());
+        updates.setDatasetId(TechId.create(dataSet));
+        updates.setDetails(updateDetails);
+        updates.setVersion(dataSet.getModificationDate());
+
+        String identifierString = dataSet.getExperiment().getIdentifier();
+        ExperimentIdentifier experimentIdentifier =
+                ExperimentIdentifierFactory.parse(identifierString);
+        updates.setExperimentIdentifierOrNull(experimentIdentifier);
+
+        // Request a property update
+        EntityHelper.createOrUpdateProperty(dataSet, propertyCode, propertyValue);
+        updates.setProperties(dataSet.getProperties());
+        Set<String> propertiesToUpdate = new HashSet<String>();
+        propertiesToUpdate.add(propertyCode);
+        updateDetails.setPropertiesToUpdate(propertiesToUpdate);
+        return updates;
+    }
 }
