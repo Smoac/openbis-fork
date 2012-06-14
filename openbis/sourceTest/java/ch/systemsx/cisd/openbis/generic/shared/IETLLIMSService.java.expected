@@ -803,4 +803,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId);
+    
+    /**
+     * Method that does nothing. Use it to check if the connection to the server is working.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public void heartbeat(String token);
 }

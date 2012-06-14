@@ -1991,4 +1991,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
         return result;
     }
+
+    @Override
+    public void heartbeat(String token)
+    {
+        // do nothing
+    }
 }

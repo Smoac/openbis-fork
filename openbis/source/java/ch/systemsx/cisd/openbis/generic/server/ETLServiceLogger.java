@@ -655,4 +655,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
+    public void heartbeat(String token)
+    {
+        // do / log nothing
+    }
+
 }
