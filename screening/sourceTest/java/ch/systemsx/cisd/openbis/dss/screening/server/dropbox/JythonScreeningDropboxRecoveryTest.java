@@ -67,6 +67,13 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             throws IOException
     {
         setUpHomeDataBaseExpectations();
+        context.checking(new Expectations()
+            {
+                {
+                    ignoring(openBisService).heartbeat();
+                }
+            });
+
         Properties properties = createThreadPropertiesRelativeToScriptsFolder("hcs-simple-test.py");
         properties.put("TEST_V2_API", "");
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(properties);
@@ -276,8 +283,8 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             registerDataSetsAndThrow(true);
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
             will(returnValue(EntityOperationsState.NO_OPERATION));
-            //this is check at the retry phase - to trigger going into recovery mode
-            
+            // this is check at the retry phase - to trigger going into recovery mode
+
             one(openBisService).didEntityOperationsSucceed(with(any(TechId.class)));
             will(returnValue(EntityOperationsState.OPERATION_SUCCEEDED));
 
