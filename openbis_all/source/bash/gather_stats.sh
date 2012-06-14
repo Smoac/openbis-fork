@@ -7,16 +7,19 @@ SERVERS=" openbis@sprint-openbis.ethz.ch
           openbis@cisd-openbis.ethz.ch
           openbis@obis.ethz.ch
           openbis@openbis-phosphonetx.ethz.ch
-          openbis@openbis-liverx.ethz.ch
-          openbis@agronomics.ethz.ch
           sbsuser@openbis-dsu.ethz.ch
-          openbis@openbis-scu.ethz.ch
-          openbis@openbis-test.ethz.ch
-          openbis@basysbio.ethz.ch
           openbis@openbis-cina.ethz.ch
-		  openbis@limb.ethz.ch
-		  openbis@newchipdb.ethz.ch
-          openbis@bs-plasmids.ethz.ch"
+	  openbis@limb.ethz.ch
+	  openbis@basynthec.ethz.ch
+          openbis@bs-plasmids.ethz.ch
+	  openbis@infectx01.ethz.ch
+	  openbis@lmc-openbis.ethz.ch
+	  openbis@cmng-openbis.dbm.unibas.ch
+          openbis@agronomics.ethz.ch
+          openbis@openbis-scu.ethz.ch
+	  openbis@newchipdb.ethz.ch
+	  openbis@openbis-hupo.ethz.ch
+	  openbis-review.ethz.ch"
 
 SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
         SELECT  r.data_id_child AS data_id, 
@@ -33,15 +36,17 @@ SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
 SELECT count(*) AS cycles FROM data_set_parents WHERE cycle = true;"
 
 SQL_QUERY="psql -c \"$SQL\" openbis_productive"
+PSQL_SETTINGS="psql -Upostgres -c \"show all;\" >> db_settings.txt"
 JAVA_MAX_HEAP_SIZE="echo -n JAVA_MAX_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/jetty/bin/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 2"
 JAVA_INIT_HEAP_SIZE="echo -n JAVA_INIT_HEAP_SIZE: ;cat ~openbis/sprint/openBIS-server/jetty/bin/openbis.conf | grep JAVA_MEM_OPTS | cut -d \- -f 3"
-JAVA_VERSION="java -version"
+JAVA_VERSION="/usr/java/latest/bin/java -version"
 PSQL_VERSION="psql --version | grep PostgreSQL"
 OPENBIS_VERSION="ls -1d ~openbis/sprint-* | cut -d - -f2"
+STARTUP_SCRIPTS="ls -l /etc/init.d/openbis"
 NEW_OPENBIS_VERSION="cat ~openbis/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/BUILD* | cut -f 1 -d :"
 
-#STATEMENTS="$JAVA_MAX_HEAP_SIZE; $JAVA_INIT_HEAP_SIZE; $PSQL_VERSION; $JAVA_VERSION"
-STATEMENTS="$NEW_OPENBIS_VERSION"
+STATEMENTS="$JAVA_VERSION"
+#STATEMENTS="$PSQL_SETTINGS"
 
 if [ -n "${1}" ]
 then
@@ -54,6 +59,6 @@ echo ====================================
 for j in $SERVERS; 
   do
     echo $j:  
-    ssh -Y $j $STATEMENTS
-    echo -e "\n"
+    ssh -oConnectTimeout=5 $j $STATEMENTS
+    #echo -e "\n"
 done
