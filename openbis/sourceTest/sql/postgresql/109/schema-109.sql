@@ -493,7 +493,7 @@ CREATE SEQUENCE code_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('code_seq', 1, false);
+SELECT pg_catalog.setval('code_seq', 7, false);
 CREATE TABLE controlled_vocabularies (
     id tech_id NOT NULL,
     code code NOT NULL,
@@ -778,7 +778,7 @@ CREATE SEQUENCE entity_operations_log_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('entity_operations_log_id_seq', 1, false);
+SELECT pg_catalog.setval('entity_operations_log_id_seq', 10, false);
 CREATE SEQUENCE etpt_id_seq
     START WITH 1
     INCREMENT BY 1
