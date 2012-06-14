@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -140,15 +142,20 @@ public class CorePluginsInjector
 
     public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
     {
-        Set<String> enabledTechnologies =
-                getSet(properties,
+        List<String> enabledTechnologiesRegexs =
+                getList(properties,
                         ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY);
-        Set<String> disabledPlugins = getSet(properties, DISABLED_CORE_PLUGINS_KEY);
+        List<Pattern> enabledTechnologiesPatterns = new ArrayList<Pattern>();
+        for (String regex : enabledTechnologiesRegexs)
+        {
+            enabledTechnologiesPatterns.add(Pattern.compile(regex));
+        }
+        List<String> disabledPlugins = getList(properties, DISABLED_CORE_PLUGINS_KEY);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
         Map<PluginType, Map<String, DssCorePlugin>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, enabledTechnologies, disabledPlugins, pluginNames);
+                scanForCorePlugins(corePluginsFolderPath, enabledTechnologiesPatterns, disabledPlugins, pluginNames);
         for (Entry<PluginType, Map<String, DssCorePlugin>> entry : plugins.entrySet())
         {
             PluginType pluginType = entry.getKey();
@@ -203,9 +210,9 @@ public class CorePluginsInjector
         }
     }
     
-    private Set<String> getSet(Properties properties, String key)
+    private List<String> getList(Properties properties, String key)
     {
-        Set<String> set = new HashSet<String>();
+        List<String> set = new ArrayList<String>();
         String property = properties.getProperty(key);
         if (StringUtils.isNotBlank(property))
         {
@@ -217,10 +224,22 @@ public class CorePluginsInjector
         }
         return set;
     }
+    
+    private boolean isTechnologyEnabled(List<Pattern> enabledTechnologiesPatterns, String technology)
+    {
+        for (Pattern pattern : enabledTechnologiesPatterns)
+        {
+            if (pattern.matcher(technology).matches())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private Map<PluginType, Map<String, DssCorePlugin>> scanForCorePlugins(
-            String corePluginsFolderPath, Set<String> enabledTechnologies,
-            Set<String> disabledPlugins, Set<String> pluginNames)
+            String corePluginsFolderPath, List<Pattern> enabledTechnologies,
+            List<String> disabledPlugins, Set<String> pluginNames)
     {
         Map<PluginType, Map<String, DssCorePlugin>> typeToPluginsMap =
                 new LinkedHashMap<CorePluginsInjector.PluginType, Map<String, DssCorePlugin>>();
@@ -231,7 +250,7 @@ public class CorePluginsInjector
         for (CorePlugin corePlugin : plugins)
         {
             String technology = corePlugin.getName();
-            if (enabledTechnologies.contains(technology) == false)
+            if (isTechnologyEnabled(enabledTechnologies, technology) == false)
             {
                 continue;
             }
@@ -276,7 +295,7 @@ public class CorePluginsInjector
         return typeToPluginsMap;
     }
     
-    private boolean isDisabled(Set<String> disabledPlugins, String fullPluginName)
+    private boolean isDisabled(List<String> disabledPlugins, String fullPluginName)
     {
         for (String disabledPlugin : disabledPlugins)
         {

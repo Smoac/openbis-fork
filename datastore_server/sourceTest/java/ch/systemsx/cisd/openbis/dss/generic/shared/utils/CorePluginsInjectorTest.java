@@ -222,7 +222,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(myProcessingPlugin, PLUGIN_PROPERTIES_FILE_NAME),
                 "script = script.py");
         FileUtilities.writeToFile(new File(myProcessingPlugin, "script.py"), "print 'hello world'");
-        Properties properties = createProperties("proteomics, screening");
+        Properties properties = createProperties("prot.*, screening");
         properties.setProperty(REPORTING_PLUGIN_NAMES, "a, b");
         preparePluginNameLog("screening:drop-boxes:my-drop-box [" + myDropBox + "]",
                 "proteomics:processing-plugins:my-processing [" + myProcessingPlugin + "]");
@@ -231,7 +231,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         
         assertProperties(corePluginsFolderProperty
                 + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
-                + " = proteomics, screening\n" + "inputs = my-drop-box\n"
+                + " = prot.*, screening\n" + "inputs = my-drop-box\n"
                 + "my-drop-box.script1 = " + myDropBox + "/script1.py\n" + "my-drop-box.script2 = "
                 + myDropBox + "/script2.py\n" + "my-processing.script = " + myProcessingPlugin
                 + "/script.py\n" + "processing-plugins = my-processing\n"
