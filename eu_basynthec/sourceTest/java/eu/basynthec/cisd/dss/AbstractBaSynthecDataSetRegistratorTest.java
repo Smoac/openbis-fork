@@ -84,6 +84,8 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
         context.checking(new Expectations()
             {
                 {
+                    allowing(openBisService).heartbeat();
+                    
                     one(
                             openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
