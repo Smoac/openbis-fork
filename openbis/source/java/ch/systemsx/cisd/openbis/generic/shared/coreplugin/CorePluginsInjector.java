@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,15 +42,13 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
  * Injector of DSS plugin.properties from core plugins folder into service.properties.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class CorePluginsInjector
@@ -60,70 +58,38 @@ public class CorePluginsInjector
     private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
 
     public static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
-    
+
     public static final String DEFAULT_CORE_PLUGINS_FOLDER = "../core-plugins";
-    
+
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
-    
+
     static final String DISABLED_MARKER_FILE_NAME = "disabled";
-    
+
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
-    
-    public enum PluginType
-    {
-        DROP_BOXES("drop-boxes", Constants.INPUT_THREAD_NAMES), 
-        DATA_SOURCES("data-sources", Constants.DATA_SOURCES_KEY), 
-        SERVICES("services", Constants.PLUGIN_SERVICES_LIST_KEY), 
-        IMAGE_OVERVIEW_PLUGINS("image-overview-plugins", Constants.OVERVIEW_PLUGINS_SERVICES_LIST_KEY), 
-        REPORTING_PLUGINS("reporting-plugins", Constants.REPORTING_PLUGIN_NAMES), 
-        PROCESSING_PLUGINS("processing-plugins", Constants.PROCESSING_PLUGIN_NAMES),
-        MAINTENANCE_TASKS("maintenance-tasks", MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME), 
-        MISCELLANEOUS("miscellaneous", null);
 
-        private final String subFolderName;
-        private final String keyOfKeyListPropertyOrNull;
-
-        PluginType(String subFolderName, String keyOfKeyListPropertyOrNull)
-        {
-            this.subFolderName = subFolderName;
-            this.keyOfKeyListPropertyOrNull = keyOfKeyListPropertyOrNull;
-        }
-
-        public String getSubFolderName()
-        {
-            return subFolderName;
-        }
-
-        public String getKeyOfKeyListPropertyOrNull()
-        {
-            return keyOfKeyListPropertyOrNull;
-        }
-
-        public boolean isUniquePluginNameRequired()
-        {
-            return keyOfKeyListPropertyOrNull != null;
-        }
-        
-    }
-    
     private static final ISimpleLogger DEFAULT_LOGGER = new Log4jSimpleLogger(LogFactory.getLogger(
             LogCategory.OPERATION, CorePluginsInjector.class));
-    
+
     private final ISimpleLogger logger;
 
     private final Set<String> keysOfKeyLists;
-    
-    public CorePluginsInjector()
+
+    private final ScannerType scannerType;
+
+    private final IPluginType[] pluginTypes;
+
+    public CorePluginsInjector(ScannerType scannerType, IPluginType[] pluginTypes)
     {
-        this(DEFAULT_LOGGER);
+        this(scannerType, pluginTypes, DEFAULT_LOGGER);
     }
-    
-    CorePluginsInjector(ISimpleLogger logger)
+
+    CorePluginsInjector(ScannerType scannerType, IPluginType[] pluginTypes, ISimpleLogger logger)
     {
+        this.scannerType = scannerType;
+        this.pluginTypes = pluginTypes;
         this.logger = logger;
-        PluginType[] values = PluginType.values();
         keysOfKeyLists = new HashSet<String>();
-        for (PluginType type : values)
+        for (IPluginType type : pluginTypes)
         {
             String keyOfKeyListPropertyOrNull = type.getKeyOfKeyListPropertyOrNull();
             if (keyOfKeyListPropertyOrNull != null)
@@ -132,8 +98,8 @@ public class CorePluginsInjector
             }
         }
     }
-    
-    void injectCorePlugins(Properties properties)
+
+    public void injectCorePlugins(Properties properties)
     {
         String corePluginsFolderPath =
                 properties.getProperty(CORE_PLUGINS_FOLDER_KEY, DEFAULT_CORE_PLUGINS_FOLDER);
@@ -151,19 +117,20 @@ public class CorePluginsInjector
             enabledTechnologiesPatterns.add(Pattern.compile(regex));
         }
         List<String> disabledPlugins = getList(properties, DISABLED_CORE_PLUGINS_KEY);
-        PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties);
+        PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties, pluginTypes);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
-        Map<PluginType, Map<String, DssCorePlugin>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, enabledTechnologiesPatterns, disabledPlugins, pluginNames);
-        for (Entry<PluginType, Map<String, DssCorePlugin>> entry : plugins.entrySet())
+        Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins =
+                scanForCorePlugins(corePluginsFolderPath, enabledTechnologiesPatterns,
+                        disabledPlugins, pluginNames);
+        for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
         {
-            PluginType pluginType = entry.getKey();
-            Map<String, DssCorePlugin> map = entry.getValue();
-            for (Entry<String, DssCorePlugin> entry2 : map.entrySet())
+            IPluginType pluginType = entry.getKey();
+            Map<String, NamedCorePluginFolder> map = entry.getValue();
+            for (Entry<String, NamedCorePluginFolder> entry2 : map.entrySet())
             {
                 String pluginName = entry2.getKey();
-                DssCorePlugin plugin = entry2.getValue();
+                NamedCorePluginFolder plugin = entry2.getValue();
                 File definingFolder = plugin.getDefiningFolder();
                 if (new File(definingFolder, DISABLED_MARKER_FILE_NAME).exists())
                 {
@@ -180,7 +147,8 @@ public class CorePluginsInjector
                     }
                 } else
                 {
-                    PluginKeyBundles miscPluginKeyBundles = new PluginKeyBundles(pluginProperties);
+                    PluginKeyBundles miscPluginKeyBundles =
+                            new PluginKeyBundles(pluginProperties, pluginTypes);
                     for (Entry<Object, Object> keyValuePair : pluginProperties.entrySet())
                     {
                         String value = keyValuePair.getValue().toString();
@@ -209,7 +177,7 @@ public class CorePluginsInjector
             properties.setProperty(key, value);
         }
     }
-    
+
     private List<String> getList(Properties properties, String key)
     {
         List<String> set = new ArrayList<String>();
@@ -224,7 +192,7 @@ public class CorePluginsInjector
         }
         return set;
     }
-    
+
     private boolean isTechnologyEnabled(List<Pattern> enabledTechnologiesPatterns, String technology)
     {
         for (Pattern pattern : enabledTechnologiesPatterns)
@@ -237,15 +205,14 @@ public class CorePluginsInjector
         return false;
     }
 
-    private Map<PluginType, Map<String, DssCorePlugin>> scanForCorePlugins(
+    private Map<IPluginType, Map<String, NamedCorePluginFolder>> scanForCorePlugins(
             String corePluginsFolderPath, List<Pattern> enabledTechnologies,
             List<String> disabledPlugins, Set<String> pluginNames)
     {
-        Map<PluginType, Map<String, DssCorePlugin>> typeToPluginsMap =
-                new LinkedHashMap<CorePluginsInjector.PluginType, Map<String, DssCorePlugin>>();
+        Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
+                new LinkedHashMap<IPluginType, Map<String, NamedCorePluginFolder>>();
         CorePluginScanner scanner =
-                new CorePluginScanner(corePluginsFolderPath, CorePluginScanner.ScannerType.DSS,
-                        logger);
+                new CorePluginScanner(corePluginsFolderPath, scannerType, logger);
         List<CorePlugin> plugins = scanner.scanForPlugins();
         for (CorePlugin corePlugin : plugins)
         {
@@ -256,9 +223,8 @@ public class CorePluginsInjector
             }
             File dssFolder =
                     new File(corePluginsFolderPath, technology + "/" + corePlugin.getVersion()
-                            + "/" + CorePluginScanner.ScannerType.DSS.getSubFolderName());
-            PluginType[] values = PluginType.values();
-            for (PluginType pluginType : values)
+                            + "/" + scannerType.getSubFolderName());
+            for (IPluginType pluginType : pluginTypes)
             {
                 File file = new File(dssFolder, pluginType.getSubFolderName());
                 if (file.isDirectory())
@@ -274,16 +240,18 @@ public class CorePluginsInjector
                     for (File pluginFolder : pluginFolders)
                     {
                         String pluginName = pluginFolder.getName();
-                        DssCorePlugin plugin =
-                                new DssCorePlugin(technology, pluginType, pluginFolder);
+                        NamedCorePluginFolder plugin =
+                                new NamedCorePluginFolder(technology, pluginType, pluginFolder);
                         String fullPluginName = plugin.getName();
                         if (isDisabled(disabledPlugins, fullPluginName) == false)
                         {
                             assertAndAddPluginName(pluginName, pluginNames, pluginType);
-                            Map<String, DssCorePlugin> map = typeToPluginsMap.get(pluginType);
+                            Map<String, NamedCorePluginFolder> map =
+                                    typeToPluginsMap.get(pluginType);
                             if (map == null)
                             {
-                                map = new LinkedHashMap<String, CorePluginsInjector.DssCorePlugin>();
+                                map =
+                                        new LinkedHashMap<String, CorePluginsInjector.NamedCorePluginFolder>();
                                 typeToPluginsMap.put(pluginType, map);
                             }
                             map.put(pluginName, plugin);
@@ -294,7 +262,7 @@ public class CorePluginsInjector
         }
         return typeToPluginsMap;
     }
-    
+
     private boolean isDisabled(List<String> disabledPlugins, String fullPluginName)
     {
         for (String disabledPlugin : disabledPlugins)
@@ -308,7 +276,7 @@ public class CorePluginsInjector
     }
 
     private void assertAndAddPluginName(String pluginName, Set<String> pluginNames,
-            PluginType pluginType)
+            IPluginType pluginType)
     {
         for (int i = 0; i < UNALLOWED_PLUGIN_NAME_CHARACTERS.length(); i++)
         {
@@ -323,15 +291,16 @@ public class CorePluginsInjector
         {
             if (pluginNames.contains(pluginName))
             {
-                throw new ConfigurationFailureException(
-                        "There is already a plugin named '" + pluginName + "'.");
+                throw new ConfigurationFailureException("There is already a plugin named '"
+                        + pluginName + "'.");
             }
             pluginNames.add(pluginName);
         }
     }
 
     /**
-     * Load plugin properties file where all references to script names are replaced by script paths.
+     * Load plugin properties file where all references to script names are replaced by script
+     * paths.
      */
     private Properties getPluginProperties(File definingFolder)
     {
@@ -383,12 +352,12 @@ public class CorePluginsInjector
 
     private static final class PluginKeyBundles
     {
-        private Map<PluginType, KeyBundle> keyBundles = new LinkedHashMap<PluginType, KeyBundle>();
+        private Map<IPluginType, KeyBundle> keyBundles =
+                new LinkedHashMap<IPluginType, KeyBundle>();
 
-        PluginKeyBundles(Properties properties)
+        PluginKeyBundles(Properties properties, IPluginType[] pluginTypes)
         {
-            PluginType[] values = PluginType.values();
-            for (PluginType pluginType : values)
+            for (IPluginType pluginType : pluginTypes)
             {
                 String key = pluginType.getKeyOfKeyListPropertyOrNull();
                 if (key != null)
@@ -397,13 +366,13 @@ public class CorePluginsInjector
                 }
             }
         }
-        
+
         public void add(PluginKeyBundles bundles)
         {
-            Set<Entry<PluginType, KeyBundle>> entrySet = keyBundles.entrySet();
-            for (Entry<PluginType, KeyBundle> entry : entrySet)
+            Set<Entry<IPluginType, KeyBundle>> entrySet = keyBundles.entrySet();
+            for (Entry<IPluginType, KeyBundle> entry : entrySet)
             {
-                PluginType pluginType = entry.getKey();
+                IPluginType pluginType = entry.getKey();
                 KeyBundle keyBundle = bundles.keyBundles.get(pluginType);
                 if (keyBundle != null)
                 {
@@ -419,8 +388,8 @@ public class CorePluginsInjector
                 keyBundle.addAndCheckUniquePluginNames(pluginNames);
             }
         }
-        
-        void addPluginNameFor(PluginType pluginType, String pluginName)
+
+        void addPluginNameFor(IPluginType pluginType, String pluginName)
         {
             KeyBundle keyBundle = keyBundles.get(pluginType);
             if (keyBundle != null)
@@ -428,7 +397,7 @@ public class CorePluginsInjector
                 keyBundle.addKey(pluginName);
             }
         }
-        
+
         void addOrReplaceKeyBundleIn(Properties properties)
         {
             for (KeyBundle bundle : keyBundles.values())
@@ -437,10 +406,11 @@ public class CorePluginsInjector
             }
         }
     }
-    
+
     private static final class KeyBundle
     {
         private final String key;
+
         private final Set<String> keys;
 
         KeyBundle(Properties properties, String key)
@@ -454,7 +424,7 @@ public class CorePluginsInjector
                 keys.addAll(Arrays.asList(keyArray));
             }
         }
-        
+
         public void addKey(String newKey)
         {
             keys.add(newKey);
@@ -473,7 +443,7 @@ public class CorePluginsInjector
                 pluginNames.add(keyPrefix);
             }
         }
-        
+
         void addOrReplaceKeyBundleIn(Properties properties)
         {
             if (keys.isEmpty() == false)
@@ -492,14 +462,17 @@ public class CorePluginsInjector
         }
     }
 
-    private static final class DssCorePlugin
+    private static final class NamedCorePluginFolder
     {
         private final String name;
+
         private final File definingFolder;
 
-        DssCorePlugin(String technology, PluginType pluginType, File definingFolder)
+        NamedCorePluginFolder(String technology, IPluginType pluginType, File definingFolder)
         {
-            name = technology + ":" + pluginType.getSubFolderName() + ":" + definingFolder.getName();
+            name =
+                    technology + ":" + pluginType.getSubFolderName() + ":"
+                            + definingFolder.getName();
             this.definingFolder = definingFolder;
             if (definingFolder.isDirectory() == false)
             {
@@ -522,6 +495,6 @@ public class CorePluginsInjector
         {
             return name + " [" + definingFolder + "]";
         }
-        
+
     }
 }

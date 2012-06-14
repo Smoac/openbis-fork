@@ -29,6 +29,8 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
  * Utility class to load properties.
@@ -85,7 +87,9 @@ public class DssPropertyParametersUtil
     public static ExtendedProperties loadServiceProperties()
     {
         ExtendedProperties serviceProperties = loadProperties(SERVICE_PROPERTIES_FILE);
-        new CorePluginsInjector().injectCorePlugins(serviceProperties);
+        CorePluginsInjector injector =
+                new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
+        injector.injectCorePlugins(serviceProperties);
         return serviceProperties;
     }
 

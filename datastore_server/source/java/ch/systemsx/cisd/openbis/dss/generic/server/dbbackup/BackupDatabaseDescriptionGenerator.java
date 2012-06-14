@@ -28,7 +28,9 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CorePluginsInjector;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPluginType;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
  * Given a list of properties files generates a list of well-known databases to be backed up as part
@@ -94,7 +96,8 @@ public class BackupDatabaseDescriptionGenerator
         String property =
                 properties.getProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY,
                         CorePluginsInjector.DEFAULT_CORE_PLUGINS_FOLDER);
-        CorePluginsInjector injector = new CorePluginsInjector();
+        CorePluginsInjector injector =
+                new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
         injector.injectCorePlugins(properties, file.getParentFile().getParent() + "/" + property);
         return properties;
     }
