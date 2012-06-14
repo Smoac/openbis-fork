@@ -58,9 +58,9 @@ def fetchBinaries(version):
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
   os.system("scp sprint:~/fileserver/sprint_builds/openBIS/*-{0}*/*.* {1}".format(version, DOWNLOAD_FOLDER))
 
-def printVersion(version):
+def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
-  printWiki("h2. Version {0} ({1})".format(version, today))
+  printWiki("h{2}. Version {0} ({1})".format(version, today, headerLevel))
   
 def processFile(linkName, filePattern, version, listNestedLevels=1, pagetitle="Sprint Releases"):
   fileName = findFile(filePattern + "-" + version)
@@ -69,7 +69,7 @@ def processFile(linkName, filePattern, version, listNestedLevels=1, pagetitle="S
   printWiki("{0} [{1}|^{2}] ".format(nestedPrefix, linkName, fileName))
   
 def uploadToConfluenceAndPrintPageText(version):
-  printVersion(version)
+  printVersion(version, 1)
   printWiki()
   printWiki("h5. openBIS for Standard Technologies")
   printWiki()
@@ -81,7 +81,7 @@ def uploadToConfluenceAndPrintPageText(version):
 def uploadToConfluenceMetabolomicsAndPrintPageText(version):
   global wikiText
   wikiText = ""
-  printVersion(version)
+  printVersion(version, 2)
   printWiki()
   printWiki("h5. openBIS for Metabolomics")
   printWiki()
