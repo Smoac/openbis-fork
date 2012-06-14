@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -125,6 +126,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
@@ -1711,32 +1713,35 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private List<ExternalData> updateDataSets(Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
-        List<DataPE> dataSetsUpdated = new ArrayList<DataPE>();
-        int index = 0;
-        List<DataSetUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
-        assertDataSetUpdateAllowed(session, dataSetUpdates);
-        for (DataSetUpdatesDTO dataSet : dataSetUpdates)
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
+        if (dataSetUpdates.size() < 1)
         {
-            DataPE updatedDataSet = updateDataSetInternal(session, dataSet);
-            dataSetsUpdated.add(updatedDataSet);
-            progress.update("updateDataSets", dataSetUpdates.size(), ++index);
+            return Collections.emptyList();
         }
-        return DataSetTranslator.translate(dataSetsUpdated, "", session.getBaseIndexURL());
-    }
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        BatchOperationExecutor.executeInBatches(
+                new DataSetBatchUpdate(dataSetTable, dataSetUpdates), progress, "updateDataSets");
+        // These DataPEs are missing their relationships, so we need to retrieve these objects
+        // another way.
+        List<DataPE> updatedDataSets = dataSetTable.getDataSets();
+        List<String> updatedDataSetCodes = new ArrayList<String>();
+        for (DataPE data : updatedDataSets)
+        {
+            updatedDataSetCodes.add(data.getCode());
+        }
+        List<DataPE> dataSetsToReturn =
+                getDAOFactory().getDataDAO().tryToFindFullDataSetsByCodes(updatedDataSetCodes,
+                        true, false);
 
+        return DataSetTranslator.translate(dataSetsToReturn, "", session.getBaseIndexURL());
+    }
+    
     private void assertDataSetUpdateAllowed(Session session, List<DataSetUpdatesDTO> dataSets)
     {
         if (dataSets != null && dataSets.isEmpty() == false)
         {
             entityOperationChecker.assertDataSetUpdateAllowed(session, dataSets);
         }
-    }
-
-    private DataPE updateDataSetInternal(Session session, DataSetUpdatesDTO dataSet)
-    {
-        IDataBO dataBO = businessObjectFactory.createDataBO(session);
-        dataBO.update(dataSet);
-        return dataBO.getData();
     }
 
     private void registerDatasetInternal(final Session session, ArrayList<DataPE> dataSetsCreated,
