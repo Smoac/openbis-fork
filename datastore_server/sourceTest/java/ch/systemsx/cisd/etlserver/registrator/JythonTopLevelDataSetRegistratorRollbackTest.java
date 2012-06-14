@@ -70,6 +70,8 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
         context.checking(new Expectations()
             {
                 {
+                    ignoring(openBisService).heartbeat();
+                    
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
                     atLeast(1).of(openBisService).tryToGetExperiment(

@@ -6,6 +6,7 @@ def should_retry_processing(map, error):
     lastResult = 0
   transaction.getPersistentMap().put("RETRY_COUNT", lastResult + 1)
   print "RETRY TRANSACTION PUTS THE SCORE %d" % (lastResult + 1)
+  return True
 
 def process():
   key = transaction.getPersistentMap().get("RETRY_COUNT");

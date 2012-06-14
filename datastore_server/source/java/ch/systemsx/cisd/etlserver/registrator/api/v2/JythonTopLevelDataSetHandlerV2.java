@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.python.core.PyFunction;
+import org.python.core.PyInteger;
+import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -183,9 +185,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             int errorCount = errors.add(problem);
 
-            // TODO: if the max retry count has happened - then we finish
-            // This actually will likely be removed if we would like to give the control about
-            // retries 100% to the user only
             if (errorCount > processMaxRetryCount)
             {
                 operationLog
@@ -196,18 +195,37 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             DataSetRegistrationPersistentMap persistentMap =
                     service.getTransaction().getPersistentMap();
 
+            PyObject retryFunctionResult = null;
             try
             {
-                invokeFunction(retryFunction, persistentMap, problem);
+                retryFunctionResult = invokeFunction(retryFunction, persistentMap, problem);
             } catch (Exception ex)
             {
                 operationLog.error("The retry function has failed. Rolling back.", ex);
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
 
-            // TODO: we dont have a way to check the result of the jython function. Thus we assume
-            // that the user agreed to do te retry. If that's an object to change we should check
-            // the result and only proceed if this was true
+            if (retryFunctionResult == null)
+            {
+                operationLog
+                        .error("The should_retry_processing function did not return anything. Will not retry.");
+                throw CheckedExceptionTunnel.wrapIfNecessary(problem);
+            }
+
+            if (retryFunctionResult instanceof PyInteger == false)
+            { // the python booleans are returned as PyIntegers
+                operationLog
+                        .error("The should_retry_processing function returned object of non-boolean type "
+                                + retryFunctionResult.getClass() + ". Will not retry.");
+                throw CheckedExceptionTunnel.wrapIfNecessary(problem);
+            }
+
+            if (((PyInteger) retryFunctionResult).asInt() == 0)
+            {
+                operationLog
+                        .error("The should_retry_processing function returned false. Will not retry.");
+                throw CheckedExceptionTunnel.wrapIfNecessary(problem);
+            }
 
             service.rollbackAndForgetTransaction();
             // TODO: now the transaction is rolled back and everything should be in place again.
@@ -215,7 +233,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             // creates the new transaction and propagates the values in the persistent map
             service.transaction().getPersistentMap().putAll(persistentMap);
-            
+
             waitTheRetryPeriod();
         }
     }
@@ -224,7 +242,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         ConcurrencyUtilities.sleep(processRetryPauseInSec * 1000);
     }
-    
+
     protected void executeJythonProcessFunction(PythonInterpreter interpreter,
             IDataSetRegistrationTransaction transaction)
     {

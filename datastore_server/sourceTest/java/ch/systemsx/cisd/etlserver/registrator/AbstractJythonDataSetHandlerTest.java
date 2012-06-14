@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -173,6 +174,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
         precommitDirectory = new File(workingDirectory, "pre-commit");
+        
+        DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
     }
 
     @AfterMethod

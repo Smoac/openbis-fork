@@ -513,14 +513,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * Turn all arguments into a python objects, and calls the specified
      * function.
      */
-    protected void invokeFunction(PyFunction function, Object... args)
+    protected PyObject invokeFunction(PyFunction function, Object... args)
     {
         PyObject[] pyArgs = new PyObject[args.length];
         for (int i = 0; i < args.length; i++)
         {
             pyArgs[i] = Py.java2py(args[i]);
         }
-        function.__call__(pyArgs);
+        return function.__call__(pyArgs);
     }
 
     /**

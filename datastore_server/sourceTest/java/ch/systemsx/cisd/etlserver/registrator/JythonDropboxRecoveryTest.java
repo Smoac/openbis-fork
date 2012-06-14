@@ -1003,10 +1003,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         handler.handle(markerFile);
 
+        assertDataSetNotStoredProcess(DATA_SET_CODE);
 
-        assertDataSetNotStoredProcess( DATA_SET_CODE);
-
-        //no recovery is triggered - files are moved to the faulty paths/marker file is deleted
+        // no recovery is triggered - files are moved to the faulty paths/marker file is deleted
         assertNoOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
@@ -1185,6 +1184,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         protected void initialExpectations()
         {
+            ignoring(openBisService).heartbeat();
 
             // create dataset
             one(openBisService).createDataSetCode();

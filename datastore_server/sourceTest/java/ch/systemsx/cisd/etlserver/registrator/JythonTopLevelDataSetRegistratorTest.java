@@ -92,6 +92,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public void setUp() throws IOException
     {
         super.setUp();
+        context.checking(new Expectations(){
+            {
+                ignoring(openBisService).heartbeat();
+            }
+        });
     }
 
     public ArrayList<TestCaseParameters> multipleVersionsOfTestCase(TestCaseParameters params)

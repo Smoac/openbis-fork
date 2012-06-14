@@ -31,6 +31,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -138,9 +139,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.autoRecoverySettings = transaction.getAutoRecoverySettings();
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
-        
-        this.registrationMaxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
-        this.registrationRetryPauseInSec = globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
+
+        this.registrationMaxRetryCount =
+                globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec =
+                globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -167,9 +170,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
         this.storageRecoveryManager = storageRecoveryManager;
         this.incomingDataSetFile = incomingDataSetFile;
-        
-        this.registrationMaxRetryCount = globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
-        this.registrationRetryPauseInSec = globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
+
+        this.registrationMaxRetryCount =
+                globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec =
+                globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -329,6 +334,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             storageRecoveryManager.checkpointPrecommittedState(registrationId, this);
         }
 
+        waitUntilApplicationIsReady();
+        
         if (registerDataSetsInApplicationServer(registrationId, registrationData) == false)
         {
             return false;
@@ -356,6 +363,9 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             storageRecoveryManager.checkpointPrecommittedStateAfterPostRegistrationHook(this);
         }
+        
+        waitUntilApplicationIsReady();
+
     }
 
     private void logMetadataRegistration(TechId registrationId)
@@ -382,7 +392,20 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
         }
+        
+        waitUntilApplicationIsReady();
+
         return true;
+    }
+
+    private void waitUntilApplicationIsReady()
+    {
+        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
+                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        {
+            waitTheRetryPeriod();
+            // do nothing. just repeat until the application is ready
+        }
     }
 
     /**
@@ -580,8 +603,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private boolean registerDataWithRecovery(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
-        DistinctExceptionsCollection exceptionCollection =
-                new DistinctExceptionsCollection();
+        DistinctExceptionsCollection exceptionCollection = new DistinctExceptionsCollection();
 
         EntityOperationsState result = EntityOperationsState.NO_OPERATION;
 
@@ -590,7 +612,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         while (true)
         {
-
+            
             if (result == EntityOperationsState.NO_OPERATION)
             {
                 try
