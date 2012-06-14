@@ -5,3 +5,7 @@ h3 { font: 12px; }
 
 div#vis { padding-top: 10px;}
 div#vis div { padding-top: 2px;}
+
+.headers { background-color: #eee; }
+.evenRow { background-color: #ffe; }
+.oddRow { background-color: white; }
