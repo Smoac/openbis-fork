@@ -47,7 +47,6 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.Erro
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
