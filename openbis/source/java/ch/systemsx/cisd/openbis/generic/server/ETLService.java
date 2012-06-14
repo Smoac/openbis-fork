@@ -1718,6 +1718,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             return Collections.emptyList();
         }
+        assertDataSetUpdateAllowed(session, dataSetUpdates);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         BatchOperationExecutor.executeInBatches(
                 new DataSetBatchUpdate(dataSetTable, dataSetUpdates), progress, "updateDataSets");
@@ -1735,8 +1736,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         return DataSetTranslator.translate(dataSetsToReturn, "", session.getBaseIndexURL());
     }
-    
-    private void assertDataSetUpdateAllowed(Session session, List<DataSetUpdatesDTO> dataSets)
+
+    private void assertDataSetUpdateAllowed(Session session, List<DataSetBatchUpdatesDTO> dataSets)
     {
         if (dataSets != null && dataSets.isEmpty() == false)
         {

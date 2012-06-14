@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -103,7 +103,7 @@ public interface IEntityOperationChecker
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATA_SET_VIA_DSS")
-    public void assertDataSetUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
-            List<DataSetUpdatesDTO> dataSets);
+    public void assertDataSetUpdateAllowed(
+            IAuthSession session,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) List<DataSetBatchUpdatesDTO> dataSets);
 }

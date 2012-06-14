@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -90,7 +90,8 @@ public class EntityOperationChecker implements IEntityOperationChecker
     }
 
     @Override
-    public void assertDataSetUpdateAllowed(IAuthSession session, List<DataSetUpdatesDTO> dataSets)
+    public void assertDataSetUpdateAllowed(IAuthSession session,
+            List<DataSetBatchUpdatesDTO> dataSets)
     {
     }
 

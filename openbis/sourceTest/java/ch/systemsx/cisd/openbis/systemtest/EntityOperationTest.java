@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilde
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -99,7 +99,8 @@ public class EntityOperationTest extends SystemTestCase
 
         private final List<NewExternalData> dataSets = new ArrayList<NewExternalData>();
 
-        private final List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();
+        private final List<DataSetBatchUpdatesDTO> dataSetUpdates =
+                new ArrayList<DataSetBatchUpdatesDTO>();
 
         private final Map<String, List<NewMaterial>> materials =
                 new HashMap<String, List<NewMaterial>>();
@@ -224,7 +225,7 @@ public class EntityOperationTest extends SystemTestCase
 
         EntityOperationBuilder dataSetUpdate(ExternalData dataSet)
         {
-            DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+            DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
             dataSetUpdate.setDatasetId(new TechId(dataSet));
             dataSetUpdate.setVersion(dataSet.getModificationDate());
             if (dataSet instanceof DataSet)
