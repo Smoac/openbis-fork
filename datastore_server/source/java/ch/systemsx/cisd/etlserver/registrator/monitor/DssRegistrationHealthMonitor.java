@@ -16,21 +16,124 @@
 
 package ch.systemsx.cisd.etlserver.registrator.monitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * The helper class for checking if all conditions necessary for the succesfull registration are
- * met. That includes the availability of application server, availability of the necessary
- * filesystems and the remaining disk space.
+ * met. That includes the availability of application server and availability of the necessary
+ * filesystems.
  * 
  * @author jakubs
  */
 public class DssRegistrationHealthMonitor
 {
-    private IEncapsulatedOpenBISService openBisService;
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DssRegistrationHealthMonitor.class);
 
+    private final IEncapsulatedOpenBISService openBisService;
+
+    private final File recoveryStateDirectory;
+
+    /**
+     * This set contains currently unavailable resources
+     */
+    private final HashSet<String> unavailableResources;
+
+    private static DssRegistrationHealthMonitor instance;
+
+    private static Object instanceLocker = new Object();
+
+    /**
+     * returns the singleton instance of this class. Creates new if doesn't exist yet.
+     */
+    public static DssRegistrationHealthMonitor getInstance(
+            IEncapsulatedOpenBISService openBisService, File recoveryStateDirectory)
+    {
+        if (instance == null)
+        {
+            synchronized (instanceLocker)
+            {
+                if (instance == null)
+                {
+                    instance =
+                            new DssRegistrationHealthMonitor(openBisService, recoveryStateDirectory);
+                }
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * returns the singleton instance of this class.
+     * 
+     * @throws IllegalStateException if no instance has been initialized yet
+     */
+    public static DssRegistrationHealthMonitor getInstance()
+    {
+        if (instance == null)
+        {
+            throw new IllegalStateException("The DssRegistrationHealthMonitor");
+        }
+        return instance;
+    }
+
+    private DssRegistrationHealthMonitor(IEncapsulatedOpenBISService openBisService,
+            File recoveryStateDirectory)
+    {
+        super();
+        this.openBisService = openBisService;
+        this.recoveryStateDirectory = recoveryStateDirectory;
+        this.unavailableResources = new HashSet<String>();
+    }
+
+    private static final String MESSAGE_RESOURCE_AVAILABLE = "The resource %s is now available";
+
+    private static final String MESSAGE_RESOURCE_UNAVAILABLE =
+            "The resource %s has become unavailable.";
+
+    /**
+     * Updates the information about the resource recognized by key is available. It the
+     * availability of the given resource has changed - the notification is being sent.
+     */
+    private boolean updateKeyAvailability(String key, boolean isAvailable, String resourceName)
+    {
+        if (isAvailable && unavailableResources.contains(key))
+        {
+            unavailableResources.remove(key);
+
+            // notify that the resource is available again
+            notificationLog.warn(String.format(MESSAGE_RESOURCE_AVAILABLE, resourceName));
+
+        } else if (false == isAvailable && false == unavailableResources.contains(key))
+        {
+            unavailableResources.add(key);
+
+            // notify that the resource became unavailable
+            notificationLog.warn(String.format(MESSAGE_RESOURCE_UNAVAILABLE, resourceName));
+        }
+        return isAvailable;
+    }
+
+    /**
+     * Checks if the connection to the application server is valid. Sends notification email if the
+     * result of this check has changed from the previous call to this method.
+     */
     public boolean isApplicationServerAlive()
+    {
+        boolean isAvailable = checkApplicationServerAlive();
+        return updateKeyAvailability("!!ApplicationServer", isAvailable, "Application server");
+    }
+
+    private boolean checkApplicationServerAlive()
     {
         try
         {
@@ -41,6 +144,49 @@ public class DssRegistrationHealthMonitor
         }
         return true;
     }
-    
-//    public boolean 
+
+    /**
+     * Checks if the recoveryState file system is available. Sends notification email if the result
+     * of this check has changed from the previous call to this method.
+     */
+    public boolean isRecoveryStateFileSystemAvailable()
+    {
+        boolean isAvailable = checkFilesystemAvailable(recoveryStateDirectory);
+        return updateKeyAvailability("!!recoveryFileSystem", isAvailable,
+                "Dropboxes recovery state directory " + recoveryStateDirectory.getAbsolutePath());
+    }
+
+    /**
+     * Checks if the filesystem for the given path is available. Sends notification email if the
+     * result of this check has changed from the previous call to this method.
+     */
+    public boolean isFilesystemAvailable(File path)
+    {
+        boolean isAvailable = checkFilesystemAvailable(path);
+        return updateKeyAvailability(path.getAbsolutePath(), isAvailable, path.toString());
+    }
+
+    /**
+     * private function that checks if the given path is available by creating and deleting a
+     * temporary file.
+     */
+    private boolean checkFilesystemAvailable(File path)
+    {
+        File temporaryFile = new File(path, "dss_health_monitor.tmp");
+        try
+        {
+            // delete file just in case it already exists...
+            temporaryFile.delete();
+
+            // create and delete a file. return true only if succeeded
+            return temporaryFile.createNewFile() && temporaryFile.delete();
+        } catch (IOException ioe)
+        {
+            // if any error has happened then we just ignore it and return false
+        } catch (SecurityException se)
+        {
+            // if any error has happened then we just ignore it and return false
+        }
+        return false;
+    }
 }
