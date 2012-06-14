@@ -246,7 +246,44 @@ public class ConversionUtils
 
     public static DataSetBatchUpdatesDTO convertToDataSetBatchUpdatesDTO(DataSetUpdatable dataSet)
     {
-        return dataSet.getUpdates();
+        return enrichUpdatesWithInformation(dataSet, dataSet.getUpdates());
+    }
+    
+    private static DataSetBatchUpdatesDTO enrichUpdatesWithInformation(DataSetUpdatable dataSet, DataSetBatchUpdatesDTO dataSetUpdate)
+    {
+        ExternalData externalData = dataSet.getExternalData();
+
+        dataSetUpdate.setDatasetId(new TechId(externalData));
+        dataSetUpdate.setVersion(externalData.getModificationDate());
+        dataSetUpdate.setFileFormatTypeCode(dataSet.getFileFormatType());
+        dataSetUpdate.setProperties(externalData.getProperties());
+
+        if (externalData.getExperiment() != null)
+        {
+            String identifierString = externalData.getExperiment().getIdentifier();
+            ExperimentIdentifier experimentIdentifier =
+                    ExperimentIdentifierFactory.parse(identifierString);
+            dataSetUpdate.setExperimentIdentifierOrNull(experimentIdentifier);
+        }
+
+        if (externalData.getSample() != null)
+        {
+            String identifierString = externalData.getSampleIdentifier();
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(identifierString);
+            dataSetUpdate.setSampleIdentifierOrNull(sampleIdentifier);
+        }
+
+        if (externalData.isContainer())
+        {
+            ContainerDataSet container = externalData.tryGetAsContainerDataSet();
+            String[] containedCodes = Code.extractCodesToArray(container.getContainedDataSets());
+            dataSetUpdate.setModifiedContainedDatasetCodesOrNull(containedCodes);
+        }
+
+        String[] parentCodes = Code.extractCodesToArray(externalData.getParents());
+        dataSetUpdate.setModifiedParentDatasetCodesOrNull(parentCodes);
+
+        return dataSetUpdate;
     }
 
     public static NewMaterial convertToNewMaterial(Material material)

@@ -74,6 +74,13 @@ public interface IDataSetRegistrationTransaction
      * @return A data set or null
      */
     IDataSetUpdatable getDataSetForUpdate(String dataSetCode);
+    
+    /**
+     * Given an immutable data set, make it mutable.
+     * 
+     * @return A data set
+     */
+    IDataSetUpdatable makeDataSetMutable(IDataSetImmutable dataSet);
 
     /**
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
@@ -91,7 +98,7 @@ public interface IDataSetRegistrationTransaction
     ISample getSampleForUpdate(String sampleIdentifierString);
 
     /**
-     * Given an immutable sample, make it mutable
+     * Given an immutable sample, make it mutable.
      * 
      * @return A sample
      */

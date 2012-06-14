@@ -403,12 +403,49 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             }
         }
 
+        public IDataSetUpdatable makeDataSetMutable(IDataSetImmutable dataSet)
+        {
+            if (dataSet == null)
+            {
+                return null;
+            }
+            // Check if we already have an updatable dataSet for this one
+            DataSetUpdatable result = findDataSetLocally(dataSet);
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (dataSet instanceof DataSetImmutable)
+            {
+                result = new DataSetUpdatable((DataSetImmutable) dataSet);
+                dataSetsToBeUpdated.add(result);
+
+                return result;
+            }
+
+            return null;
+        }
+
         private DataSetUpdatable findDataSetLocally(String dataSetCode)
         {
             // This is a slow implementation. Could be sped up by using a hashmap in the future.
             for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
             {
                 if (dataSet.getDataSetCode().equals(dataSetCode))
+                {
+                    return dataSet;
+                }
+            }
+            return null;
+        }
+
+        private DataSetUpdatable findDataSetLocally(IDataSetImmutable dataSetToFind)
+        {
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
+            {
+                if (dataSet.equals(dataSetToFind))
                 {
                     return dataSet;
                 }

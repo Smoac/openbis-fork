@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,12 +64,19 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         initializeUpdates();
     }
 
+    public DataSetUpdatable(DataSetImmutable dataSet)
+    {
+        this(dataSet.dataSet, dataSet.service);
+    }
+
     private void initializeUpdates()
     {
         updates.setDatasetCode(dataSet.getCode());
         updates.setDatasetId(TechId.create(dataSet));
         updates.setDetails(updateDetails);
         updates.setVersion(dataSet.getModificationDate());
+        List<IEntityProperty> emptyProps = Collections.emptyList();
+        updates.setProperties(emptyProps);
         updateDetails.setPropertiesToUpdate(new HashSet<String>());
     }
 

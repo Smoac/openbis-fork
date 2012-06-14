@@ -275,6 +275,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public IDataSetUpdatable makeDataSetMutable(IDataSetImmutable dataSet)
+    {
+        return getStateAsLiveState().makeDataSetMutable(dataSet);
+    }
+
+    @Override
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
         SampleIdentifier sampleIdentifier =
