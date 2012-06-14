@@ -51,5 +51,5 @@ public interface ISample extends ISampleImmutable
     /**
      * Set the parent samples of this sample
      */
-    void setParentSampleCodes(List<String> parentSampleCodes);
+    void setParentSampleIdentifiers(List<String> parentSampleIdentifiers);
 }

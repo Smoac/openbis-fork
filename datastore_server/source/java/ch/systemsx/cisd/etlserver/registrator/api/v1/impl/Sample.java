@@ -75,23 +75,6 @@ public class Sample extends SampleImmutable implements ISample
         return sample;
     }
 
-    /**
-     * This code is derived from
-     * {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in
-     * a test source folder.
-     */
-    private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithCode(
-            String code)
-    {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
-        sample.setProperties(new ArrayList<IEntityProperty>());
-
-        sample.setCode(code);
-
-        return sample;
-    }
-
     public Sample(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         super(sample);
@@ -138,13 +121,13 @@ public class Sample extends SampleImmutable implements ISample
     }
 
     @Override
-    public void setParentSampleCodes(List<String> parentSampleCodes)
+    public void setParentSampleIdentifiers(List<String> parentSampleIdentifiers)
     {
         HashSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> parents =
                 new HashSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample>();
-        for (String code : parentSampleCodes)
+        for (String identifier : parentSampleIdentifiers)
         {
-            parents.add(buildSampleWithCode(code));
+            parents.add(buildSampleWithIdentifier(identifier));
         }
 
         getSample().setParents(parents);

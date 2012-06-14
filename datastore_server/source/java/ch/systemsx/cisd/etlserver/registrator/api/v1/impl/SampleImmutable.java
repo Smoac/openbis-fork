@@ -136,15 +136,15 @@ public class SampleImmutable implements ISampleImmutable
     @Override
     public List<String> getParentSampleIdentifiers()
     {
-        ArrayList<String> parentCodes = new ArrayList<String>();
+        ArrayList<String> parentIdentifiers = new ArrayList<String>();
         Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> sampleParents =
                 sample.getParents();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
         {
-            parentCodes.add(parent.getIdentifier());
+            parentIdentifiers.add(parent.getIdentifier());
         }
 
-        return parentCodes;
+        return parentIdentifiers;
     }
 
     @Override

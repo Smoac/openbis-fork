@@ -99,11 +99,11 @@ public class ConversionUtils
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = apiSample.getSample();
         Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> sampleParents =
                 sample.getParents();
-        String[] parentCodes = new String[sampleParents.size()];
+        String[] parentIdentifiers = new String[sampleParents.size()];
         int i = 0;
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
         {
-            parentCodes[i++] = parent.getCode();
+            parentIdentifiers[i++] = parent.getIdentifier();
         }
 
         List<NewAttachment> attachments = Collections.emptyList();
@@ -119,7 +119,7 @@ public class ConversionUtils
                         sample.getModificationDate(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
                         containerIdentifier, // Container Identifier
-                        parentCodes // Parent Identifiers
+                        parentIdentifiers // Parent Identifiers
                 );
         return sampleUpdate;
     }
@@ -248,8 +248,9 @@ public class ConversionUtils
     {
         return enrichUpdatesWithInformation(dataSet, dataSet.getUpdates());
     }
-    
-    private static DataSetBatchUpdatesDTO enrichUpdatesWithInformation(DataSetUpdatable dataSet, DataSetBatchUpdatesDTO dataSetUpdate)
+
+    private static DataSetBatchUpdatesDTO enrichUpdatesWithInformation(DataSetUpdatable dataSet,
+            DataSetBatchUpdatesDTO dataSetUpdate)
     {
         ExternalData externalData = dataSet.getExternalData();
 
