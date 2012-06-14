@@ -4,9 +4,41 @@
 
 -- @author Manuel Kohler
 
+set type = POLYCOMB2010
+register-type EXPERIMENT ${type}
+
+register-type SAMPLE ILLUMINA_FLOW_CELL listable=true show-container=false show-parents=false description="Flow Cell containing eight flow lanes"
+register-type SAMPLE ILLUMINA_FLOW_LANE listable=true show-container=true show-parents=true description="Flow Lane is parented by one ILLUMINA_SEQUENCING"
+register-type SAMPLE ILLUMINA_SEQUENCING listable=true show-container=false show-parents=false description="Biological Sample"
+
+set type = FASTQ_GZ
+register-type DATA_SET ${type} description="Gzipped FASTQ files produced by CASAVA 1.8+"
+
+set type = ILLUMINA_GA_OUTPUT
+register-type DATA_SET ${type} description="Illumina GA Output"
+
+set type = ILLUMINA_HISEQ_OUTPUT description="Illumina HiSeq Output"
+register-type DATA_SET ${type}
+
+set type = MACS_OUTPUT
+register-type DATA_SET ${type} description="MACS Peak Caller output"
+
+set type = TSV
+register-type DATA_SET ${type} description="All kind of Tab Separated Value files"
+
+set type = WIGGLE
+register-type DATA_SET ${type} description="Visualization Format of ChIP-Seq data for UCSC browser"
+
+set type = BED
+register-type DATA_SET ${type} description="Visualization Format of ChIP-Seq data for UCSC browser"
+
 set type = AFFILIATION
 register-property-type ${type} with data type CONTROLLEDVOCABULARY(AFFILIATION) "description=Where data will be shipped to" "label=Affiliation" 
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = ALIGNMENT
+register-type DATA_SET ${type} description="Alignment software output, e.g.  SAM/BAM"
+assign-to DATA_SET:${type} AFFILIATION
 
 set type = AGILENT_KIT
 register-property-type ${type} with data type CONTROLLEDVOCABULARY(AGILENT_KIT) "description=Kit used for QC" "label=Agilent Kit" 
@@ -110,7 +142,7 @@ set type = KIT
 register-property-type ${type} with data type CONTROLLEDVOCABULARY(KIT) "description=Type of preparation kit" "label=Type of preparation kit"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
-set type = LIBRARY_PROCESSING_SCUCCESSFUL
+set type = LIBRARY_PROCESSING_SUCCESSFUL
 register-property-type ${type} with data type BOOLEAN "description=" "label=Library processing successful"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
@@ -226,3 +258,11 @@ assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 set type = TOTAL_READS
 register-property-type ${type} with data type REAL "description=Total reads which have been tried to map" "label=Total reads"
 assign-to DATA_SET:ALIGNMENT ${type}
+
+set type = CLUSTERING_DATE
+register-property-type ${type} with data type TIMESTAMP "description=Date of Clustering Process" "label=Clustering Date"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CLUSTERING_PROTOCOL_VERSION
+register-property-type ${type} with data type VARCHAR "description=" "label=Cluster Station Protocol Version"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
