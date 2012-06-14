@@ -35,6 +35,7 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -156,6 +157,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                     path);
         }
 
+        DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(), globalState.getRecoveryStateDir());
+        
     }
 
     @Override

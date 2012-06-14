@@ -61,6 +61,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File preCommitDir;
 
+    private final File recoveryStateDir;
+    
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -142,17 +144,17 @@ public class TopLevelDataSetRegistratorGlobalState
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
 
-        File dropboxRecoveryStateDir =
+        this.recoveryStateDir =
                 new File(dssRecoveryStateDir, threadParameters.getThreadName());
         File recoveryMarkerFilesDirectory =
                 new File(getRecoveryMarkerDir(storeRootDir, shareId,
                         threadParameters.getThreadProperties()), threadParameters.getThreadName());
 
-        dropboxRecoveryStateDir.mkdirs();
+        this.recoveryStateDir.mkdirs();
         recoveryMarkerFilesDirectory.mkdirs();
         
         this.storageRecoveryManager = storageRecoveryManager;
-        this.storageRecoveryManager.setDropboxRecoveryStateDir(dropboxRecoveryStateDir);
+        this.storageRecoveryManager.setDropboxRecoveryStateDir(this.recoveryStateDir);
         this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
         this.storageRecoveryManager.setMaximumRertyCount(getMaximumRecoveryCount(threadParameters.getThreadProperties()));
         this.storageRecoveryManager.setRetryPeriodInSeconds(getMinimumRecoveryPeriod(threadParameters.getThreadProperties()));
@@ -214,6 +216,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getPreCommitDir()
     {
         return preCommitDir;
+    }
+
+    public File getRecoveryStateDir()
+    {
+        return recoveryStateDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()
