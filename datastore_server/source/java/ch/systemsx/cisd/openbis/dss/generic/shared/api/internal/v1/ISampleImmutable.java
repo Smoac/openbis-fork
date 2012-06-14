@@ -75,5 +75,5 @@ public interface ISampleImmutable
     /**
      * Gets the parents of this sample
      */
-    public List<String> getParentSampleCodes();
+    public List<String> getParentSampleIdentifiers();
 }
