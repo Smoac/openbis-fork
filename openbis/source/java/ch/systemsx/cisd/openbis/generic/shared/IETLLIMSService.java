@@ -684,7 +684,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
+        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
                 ObjectKind.DATA_SET })

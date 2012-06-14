@@ -49,8 +49,10 @@ import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.server.batch.AbstractBatchOperationDelegate;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
+import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperationDelegate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -1632,7 +1634,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    private List<Sample> updateSamples(Session session,
+    private List<Sample> updateSamples(final Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
@@ -1655,10 +1657,23 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
         assertInstanceSampleUpdateAllowed(session, instanceSamples);
         assertSpaceSampleUpdateAllowed(session, spaceSamples);
-        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
-                progress, "updateSamples");
-        return SampleTranslator.translate(sampleTable.getSamples(), session.getBaseIndexURL());
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        final List<Sample> results = new ArrayList<Sample>();
+
+        IBatchOperationDelegate<SampleUpdatesDTO> delegate =
+                new AbstractBatchOperationDelegate<SampleUpdatesDTO>()
+                    {
+                        @Override
+                        public void batchOperationDidSave()
+                        {
+                            results.addAll(SampleTranslator.translate(sampleTable.getSamples(),
+                                    session.getBaseIndexURL()));
+                        }
+                    };
+
+        BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates,
+                delegate), progress, "updateSamples");
+        return results;
     }
 
     private void assertInstanceSampleUpdateAllowed(Session session,
@@ -1710,7 +1725,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    private List<ExternalData> updateDataSets(Session session,
+    private List<ExternalData> updateDataSets(final Session session,
             AtomicEntityOperationDetails operationDetails, IProgressListener progress)
     {
         List<DataSetBatchUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
@@ -1719,22 +1734,27 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return Collections.emptyList();
         }
         assertDataSetUpdateAllowed(session, dataSetUpdates);
-        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        BatchOperationExecutor.executeInBatches(
-                new DataSetBatchUpdate(dataSetTable, dataSetUpdates), progress, "updateDataSets");
-        // These DataPEs are missing their relationships, so we need to retrieve these objects
-        // another way.
-        List<DataPE> updatedDataSets = dataSetTable.getDataSets();
-        List<String> updatedDataSetCodes = new ArrayList<String>();
-        for (DataPE data : updatedDataSets)
-        {
-            updatedDataSetCodes.add(data.getCode());
-        }
-        List<DataPE> dataSetsToReturn =
-                getDAOFactory().getDataDAO().tryToFindFullDataSetsByCodes(updatedDataSetCodes,
-                        true, false);
+        final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        final ArrayList<ExternalData> results = new ArrayList<ExternalData>();
+        IBatchOperationDelegate<DataSetBatchUpdatesDTO> delegate =
+                new AbstractBatchOperationDelegate<DataSetBatchUpdatesDTO>()
+                    {
 
-        return DataSetTranslator.translate(dataSetsToReturn, "", session.getBaseIndexURL());
+                        @Override
+                        public void batchOperationWillSave()
+                        {
+                            // Need to intercept before saving so we can translate the objects when
+                            // they still have Hibernate sessions.
+                            results.addAll(DataSetTranslator.translate(dataSetTable.getDataSets(),
+                                    "", session.getBaseIndexURL()));
+                        }
+
+                    };
+
+        BatchOperationExecutor.executeInBatches(new DataSetBatchUpdate(dataSetTable,
+                dataSetUpdates, delegate), progress, "updateDataSets");
+
+        return results;
     }
 
     private void assertDataSetUpdateAllowed(Session session, List<DataSetBatchUpdatesDTO> dataSets)

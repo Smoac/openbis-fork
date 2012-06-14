@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -226,7 +228,9 @@ public class EntityOperationTest extends SystemTestCase
         EntityOperationBuilder dataSetUpdate(ExternalData dataSet)
         {
             DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
+            dataSetUpdate.setDetails(new DataSetBatchUpdateDetails());
             dataSetUpdate.setDatasetId(new TechId(dataSet));
+            dataSetUpdate.setDatasetCode(dataSet.getCode());
             dataSetUpdate.setVersion(dataSet.getModificationDate());
             if (dataSet instanceof DataSet)
             {
@@ -234,6 +238,15 @@ public class EntityOperationTest extends SystemTestCase
                 dataSetUpdate.setFileFormatTypeCode(realDataSet.getFileFormatType().getCode());
             }
             dataSetUpdate.setProperties(dataSet.getProperties());
+
+            // Request an update of all properties
+            HashSet<String> propertiesToUpdate = new HashSet<String>();
+            for (IEntityProperty property : dataSet.getProperties())
+            {
+                propertiesToUpdate.add(property.getPropertyType().getCode());
+            }
+            dataSetUpdate.getDetails().setPropertiesToUpdate(propertiesToUpdate);
+
             Sample sample = dataSet.getSample();
             if (sample != null)
             {

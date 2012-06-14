@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class SampleUpdate implements IBatchOperation<SampleUpdatesDTO>
+public class SampleUpdate extends AbstractBatchOperation<SampleUpdatesDTO>
 {
     private final ISampleTable businessTable;
 
@@ -39,6 +39,13 @@ public class SampleUpdate implements IBatchOperation<SampleUpdatesDTO>
 
     public SampleUpdate(ISampleTable businessTable, List<SampleUpdatesDTO> entities)
     {
+        this(businessTable, entities, null);
+    }
+
+    public SampleUpdate(ISampleTable businessTable, List<SampleUpdatesDTO> entities,
+            IBatchOperationDelegate<SampleUpdatesDTO> delegate)
+    {
+        super(delegate);
         this.businessTable = businessTable;
         this.entities = entities;
     }
@@ -47,7 +54,10 @@ public class SampleUpdate implements IBatchOperation<SampleUpdatesDTO>
     public void execute(List<SampleUpdatesDTO> updates)
     {
         businessTable.prepareForUpdateWithSampleUpdates(updates);
+
+        batchOperationWillSave();
         businessTable.save();
+        batchOperationDidSave();
     }
 
     @Override

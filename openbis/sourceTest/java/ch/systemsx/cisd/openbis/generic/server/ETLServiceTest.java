@@ -1164,10 +1164,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataSetTable).getDataSets();
                     final DataPE updatedDataSet = createDataSet(updatedDataSetCode, "type");
                     will(returnValue(Arrays.asList(updatedDataSet)));
-
-                    one(dataSetDAO).tryToFindFullDataSetsByCodes(Arrays.asList(updatedDataSetCode),
-                            true, false);
-                    will(returnValue(Arrays.asList(updatedDataSet)));
                 }
             });
     }

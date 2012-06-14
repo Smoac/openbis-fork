@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetBatchUpdate implements IBatchOperation<DataSetBatchUpdatesDTO>
+public class DataSetBatchUpdate extends AbstractBatchOperation<DataSetBatchUpdatesDTO>
 {
     private final IDataSetTable businessTable;
 
@@ -34,6 +34,13 @@ public class DataSetBatchUpdate implements IBatchOperation<DataSetBatchUpdatesDT
 
     public DataSetBatchUpdate(IDataSetTable businessTable, List<DataSetBatchUpdatesDTO> entities)
     {
+        this(businessTable, entities, null);
+    }
+
+    public DataSetBatchUpdate(IDataSetTable businessTable, List<DataSetBatchUpdatesDTO> entities,
+            IBatchOperationDelegate<DataSetBatchUpdatesDTO> delegate)
+    {
+        super(delegate);
         this.businessTable = businessTable;
         this.entities = entities;
     }
@@ -42,7 +49,10 @@ public class DataSetBatchUpdate implements IBatchOperation<DataSetBatchUpdatesDT
     public void execute(List<DataSetBatchUpdatesDTO> updates)
     {
         businessTable.update(updates);
+
+        batchOperationWillSave();
         businessTable.save();
+        batchOperationDidSave();
     }
 
     @Override

@@ -684,7 +684,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
+        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
                 ObjectKind.DATA_SET })
@@ -803,7 +803,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId);
-    
+
     /**
      * Method that does nothing. Use it to check if the connection to the server is working.
      */
