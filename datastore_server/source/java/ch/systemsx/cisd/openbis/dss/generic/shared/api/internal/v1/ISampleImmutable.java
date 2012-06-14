@@ -71,4 +71,9 @@ public interface ISampleImmutable
      * Returns the permId of this sample.
      */
     String getPermId();
+
+    /**
+     * Gets the parents of this sample
+     */
+    public List<String> getParentSampleCodes();
 }

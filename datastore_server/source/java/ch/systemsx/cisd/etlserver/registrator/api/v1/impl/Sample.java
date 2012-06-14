@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -73,6 +75,23 @@ public class Sample extends SampleImmutable implements ISample
         return sample;
     }
 
+    /**
+     * This code is derived from
+     * {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in
+     * a test source folder.
+     */
+    private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithCode(
+            String code)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+        sample.setProperties(new ArrayList<IEntityProperty>());
+
+        sample.setCode(code);
+
+        return sample;
+    }
+
     public Sample(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         super(sample);
@@ -116,6 +135,19 @@ public class Sample extends SampleImmutable implements ISample
     {
         SampleImmutable containerImpl = (SampleImmutable) container;
         getSample().setContainer(containerImpl.getSample());
+    }
+
+    @Override
+    public void setParentSampleCodes(List<String> parentSampleCodes)
+    {
+        HashSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> parents =
+                new HashSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample>();
+        for (String code : parentSampleCodes)
+        {
+            parents.add(buildSampleWithCode(code));
+        }
+
+        getSample().setParents(parents);
     }
 
 }

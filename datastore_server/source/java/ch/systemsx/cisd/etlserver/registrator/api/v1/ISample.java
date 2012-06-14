@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
-
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -31,7 +32,6 @@ public interface ISample extends ISampleImmutable
      * one is the superclass.
      */
     void setExperiment(IExperimentImmutable experiment);
-
 
     /**
      * Set the type for this sample.
@@ -47,4 +47,9 @@ public interface ISample extends ISampleImmutable
      * Set the value for a property.
      */
     void setPropertyValue(String propertyCode, String propertyValue);
+
+    /**
+     * Set the parent samples of this sample
+     */
+    void setParentSampleCodes(List<String> parentSampleCodes);
 }

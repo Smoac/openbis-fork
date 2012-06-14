@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -130,6 +131,20 @@ public class SampleImmutable implements ISampleImmutable
             }
         }
         return result;
+    }
+
+    @Override
+    public List<String> getParentSampleCodes()
+    {
+        ArrayList<String> parentCodes = new ArrayList<String>();
+        Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> sampleParents =
+                sample.getParents();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
+        {
+            parentCodes.add(parent.getCode());
+        }
+
+        return parentCodes;
     }
 
     @Override
