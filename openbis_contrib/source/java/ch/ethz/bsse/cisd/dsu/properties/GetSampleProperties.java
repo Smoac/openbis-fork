@@ -46,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class GetSampleProperties
 {
+    private static String INDEX_SEPARATOR = "-";
+
     private static final String SERVICE_PROPERTIES = "etc/service.properties";
 
     private static final String ELAND_CONFIG_FILE = "eland_config_file";
@@ -80,11 +82,14 @@ public class GetSampleProperties
 
     private static final String BARCODE_PROPERTY = "BARCODE";
 
+    private static final String INDEX2 = "INDEX2";
+
     private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
 
     private enum sampleProperties
     {
-        ORGANISM_PROPERTY1, BARCODE_PROPERTY1, ISPHIX, EXTERNAL_SAMPLE_NAME1, CYCLES1
+        ORGANISM_PROPERTY1, BARCODE_PROPERTY1, BARCODE_PROPERTY2, ISPHIX, EXTERNAL_SAMPLE_NAME1,
+        CYCLES1
     }
 
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -262,9 +267,22 @@ public class GetSampleProperties
                                 .put(sampleProperties.BARCODE_PROPERTY1, strippedBarcode);
                     }
 
+                    if (property.getPropertyType().getCode().equals(INDEX2))
+                    {
+                        String index2 = property.tryGetAsString();
+                        if (index2 == null || index2.equals("NOINDEX"))
+                        {
+                            index2 = "";
+                            INDEX_SEPARATOR = "";
+
+                        }
+                        propertiesPerSample.put(sampleProperties.BARCODE_PROPERTY2, index2);
+
+                    }
+
                 }
 
-                // when not barcoded
+                // not indexed
                 if (propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1) == null)
                 {
                     // when it is a single sample in a single lane
@@ -288,7 +306,9 @@ public class GetSampleProperties
                                 + bcl2fastqSeparator + cycles + bcl2fastqSeparator + operator
                                 + bcl2fastqSeparator + sample.getCode() + "_" + laneNumber + "\n");
                     }
-                } else
+                    // single indexed
+                } else if (propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY2) == null)
+
                 {
                     bcl2fastqList.add(flowCellId
                             + bcl2fastqSeparator
@@ -301,6 +321,29 @@ public class GetSampleProperties
                             + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1)
                             + bcl2fastqSeparator
                             + propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1)
+                            + bcl2fastqSeparator
+                            + cleanString(propertiesPerSample
+                                    .get(sampleProperties.EXTERNAL_SAMPLE_NAME1))
+                            + bcl2fastqSeparator + propertiesPerSample.get(sampleProperties.ISPHIX)
+                            + bcl2fastqSeparator + cycles + bcl2fastqSeparator + operator
+                            + bcl2fastqSeparator + sample.getCode() + "_" + laneNumber + "\n");
+                }
+                // Dual indexed
+                else
+                {
+                    bcl2fastqList.add(flowCellId
+                            + bcl2fastqSeparator
+                            + laneNumber
+                            + bcl2fastqSeparator
+                            + sampleCode
+                            + "_"
+                            + flowCellId
+                            + bcl2fastqSeparator
+                            + propertiesPerSample.get(sampleProperties.ORGANISM_PROPERTY1)
+                            + bcl2fastqSeparator
+                            + propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY1)
+                            + INDEX_SEPARATOR
+                            + propertiesPerSample.get(sampleProperties.BARCODE_PROPERTY2)
                             + bcl2fastqSeparator
                             + cleanString(propertiesPerSample
                                     .get(sampleProperties.EXTERNAL_SAMPLE_NAME1))
