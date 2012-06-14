@@ -51,10 +51,10 @@ columnHeaders = ["EXTERNAL_SAMPLE_NAME", "BARCODE", "BIOLOGICAL_SAMPLE_ARRIVED",
                  "NOTES", "PRICE"]
 
 columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
-                    "BARCODE": "Index", 
-                    "BIOLOGICAL_SAMPLE_ARRIVED": "Received", 
-                    "PREPARED_BY" : "Prepared by", 
-                    "FRAGMENT_SIZE_PREPARED_ILLUMINA" : "Frag Size", 
+                    "BARCODE": "Index",
+                    "BIOLOGICAL_SAMPLE_ARRIVED": "Received",
+                    "PREPARED_BY" : "Prepared by",
+                    "FRAGMENT_SIZE_PREPARED_ILLUMINA" : "Frag Size",
                     "CONCENTRATION_PREPARED_ILLUMINA" : "Conc",
                     "NOTES" : "Notes",
                     "PRICE" : "Price"}
@@ -370,7 +370,7 @@ def progressBar(toolbar_width = 40):
   # setup toolbar
   sys.stdout.write("[%s]" % (" " * toolbar_width))
   sys.stdout.flush()
-  sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '[' 
+  sys.stdout.write("\b" * (toolbar_width + 1)) # return to start of line, after '[' 
   
 
 '''
@@ -379,8 +379,6 @@ Main script
 
 # for now setting the format by hand
 format = "xlsx" 
-
-service = OpenbisServiceFacadeFactory.tryCreate("tracker", "jadfs8r3jahu12", "http://openbis-dsu.bsse.ethz.ch:8080", 5000)
 
 foundSamples = getNonbilledSamples("ILLUMINA_SEQUENCING")
 groupByPiDict = groupByPi(foundSamples)
