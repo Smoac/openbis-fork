@@ -18,26 +18,26 @@ def countFiles(node):
             sum = sum + countFiles(child)
     return sum
 
-def aggregate(parameters, tableBuilder):
-    space = parameters.get('space').upper()
+
+def gatherExperimentsAndSamples(space):
+    bioSample2ExperimentDict = {}
+    msInjectionSample2bioSamplesDict = {}
+    searchExperiment2msInjectionSamplesDict = {}
+    searchExperimentsByPermIdDict = {}
     searchCriteria = SearchCriteria()
     subCriteria = SearchCriteria()
     subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "BIO*"))
     searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(subCriteria))
     bioSamples = searchService.searchForSamples(searchCriteria)
-    
     searchCriteria = SearchCriteria()
     searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "MS_INJECTION"))
     subCriteria = SearchCriteria()
     subCriteria.operator = SearchOperator.MATCH_ANY_CLAUSES
-    bioSample2ExperimentDict = {}
-    msInjectionSample2bioSamplesDict = {}
-    searchExperiment2msInjectionSamplesDict = {}
-    searchExperimentsByPermIdDict = {}
     for sample in bioSamples:
         if space == sample.space:
             bioSample2ExperimentDict[sample.sampleIdentifier] = sample.experiment.experimentIdentifier
             subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, sample.code))
+    
     if len(bioSample2ExperimentDict) > 0:
         searchCriteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(subCriteria))
         msInjectionSamples = searchService.searchForSamples(searchCriteria)
@@ -47,25 +47,28 @@ def aggregate(parameters, tableBuilder):
             subCriteria = SearchCriteria()
             subCriteria.operator = SearchOperator.MATCH_ANY_CLAUSES
             for sample in msInjectionSamples:
-                bioSamples = []
-                for parent in sample.sample.parents:
-                    if parent.identifier in bioSample2ExperimentDict:
-                        bioSamples.append(parent.identifier)
-                msInjectionSample2bioSamplesDict[sample.sampleIdentifier] = bioSamples
+                msInjectionSample2bioSamplesDict[sample.sampleIdentifier] = sample.parentSampleIdentifiers
                 subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, sample.code))
             searchCriteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(subCriteria))
             searchSamples = searchService.searchForSamples(searchCriteria)
             for sample in searchSamples:
                 experiment = sample.experiment
                 searchExperimentsByPermIdDict[experiment.permId] = experiment
-                msInjectionSample = sample.sample.parents[0].identifer
+                expId = experiment.experimentIdentifier
+                for msInjectionSample in sample.parentSampleIdentifiers:
+                    if expId in searchExperiment2msInjectionSamplesDict:
+                        searchExperiment2msInjectionSamplesDict[expId].append(msInjectionSample)
+                    else:
+                        searchExperiment2msInjectionSamplesDict[expId] = [msInjectionSample]
+    return bioSample2ExperimentDict, msInjectionSample2bioSamplesDict, \
+           searchExperiment2msInjectionSamplesDict, searchExperimentsByPermIdDict
+
+def aggregate(parameters, tableBuilder):
+    space = parameters.get('space').upper()
+    bioSample2ExperimentDict, msInjectionSample2bioSamplesDict, \
+            searchExperiment2msInjectionSamplesDict, searchExperimentsByPermIdDict \
+            = gatherExperimentsAndSamples(space)
         
-    experiments = {}
-    for sample in searchSamples:
-#        print "search sample: " + sample.sampleIdentifier+" "+experiment.experimentIdentifier+" "+experiment.permId
-        experiments[experiment.permId] = experiment
-    
-    print experiments.keys()
     protein = parameters.get('protein')
     result = queryService.select("proteomics-db", 
                                  """select e.perm_id, accession_number, description 
@@ -77,14 +80,26 @@ def aggregate(parameters, tableBuilder):
                                     where accession_number like ?{1} or description like ?{1} 
                                     order by perm_id""", 
                                 ['%' + protein + '%'])
+    tableBuilder.addHeader(BIO_EXPERIMENT)
+    tableBuilder.addHeader(BIO_SAMPLE)
+    tableBuilder.addHeader(MS_SAMPLE)
     tableBuilder.addHeader(SEARCH_EXPERIMENT)
     tableBuilder.addHeader(ACCESION_NUMBER)
     tableBuilder.addHeader(DESCRIPTION)
     for resultRow in result:
         permId = resultRow.get('perm_id')
-        if (permId in experiments):
-            experiment = experiments[permId]
-            row = tableBuilder.addRow()
-            row.setCell(SEARCH_EXPERIMENT, experiment.experimentIdentifier)
-            row.setCell(ACCESION_NUMBER, resultRow.get('accession_number'))
-            row.setCell(DESCRIPTION, resultRow.get('description'))
+        if (permId in searchExperimentsByPermIdDict):
+            experiment = searchExperimentsByPermIdDict[permId]
+            expId = experiment.experimentIdentifier
+            msInjectionSamples = searchExperiment2msInjectionSamplesDict[expId]
+            for msInjectionSample in msInjectionSamples:
+                bioSamples = msInjectionSample2bioSamplesDict[msInjectionSample]
+                for bioSample in bioSamples:
+                    bioExperiment = bioSample2ExperimentDict[bioSample]
+                    row = tableBuilder.addRow()
+                    row.setCell(BIO_EXPERIMENT, bioExperiment)
+                    row.setCell(BIO_SAMPLE, bioSample)
+                    row.setCell(MS_SAMPLE, msInjectionSample)
+                    row.setCell(SEARCH_EXPERIMENT, expId)
+                    row.setCell(ACCESION_NUMBER, resultRow.get('accession_number'))
+                    row.setCell(DESCRIPTION, resultRow.get('description'))
