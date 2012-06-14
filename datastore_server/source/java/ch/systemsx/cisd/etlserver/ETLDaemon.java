@@ -250,7 +250,7 @@ public final class ETLDaemon
                     + incomingDataDirectory + "' will be stored in share "
                     + topLevelRegistrator.getGlobalState().getShareId() + ".");
         }
-
+        
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
         initializeIncomingShares(threads, storeRootDir);
 
@@ -320,13 +320,15 @@ public final class ETLDaemon
             final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
+        final File recoveryStateDirectory = DssPropertyParametersUtil.getDssRecoveryStateDir(parameters.getProperties());
+        
         final ITopLevelDataSetRegistrator pathHandler =
                 createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
                         authorizedLimsService, mailClient, dataSetValidator,
                         dataSourceQueryService, notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, threadParameters.reprocessFaultyDatasets(),
+                        incomingDataDirectory, recoveryStateDirectory,  threadParameters.reprocessFaultyDatasets(),
                         pathHandler);
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
@@ -555,14 +557,15 @@ public final class ETLDaemon
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
             final IStopSignaler stopSignaler, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final File incomingDataDirectory, boolean reprocessFaultyDatasets,
+            final File incomingDataDirectory, final File recoveryStateDirectory,
+            boolean reprocessFaultyDatasets,
             IFaultyPathDirectoryScanningHandlerDelegate faultyPathHandlerDelegate)
     {
         final IDirectoryScanningHandler faultyPathHandler =
                 createFaultyPathHandler(stopSignaler, incomingDataDirectory,
                         reprocessFaultyDatasets, faultyPathHandlerDelegate);
         return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
-                incomingDataDirectory);
+                incomingDataDirectory, recoveryStateDirectory);
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(
