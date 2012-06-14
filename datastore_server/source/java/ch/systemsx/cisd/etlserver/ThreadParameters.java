@@ -198,19 +198,19 @@ public final class ThreadParameters
         // FIXME: choose the right defaults.
         this.dataSetRegistrationMaxRetryCount =
                 Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_MAX_RETRY_COUNT,
-                        "0"));
+                        "6"));
 
         this.dataSetRegistrationRetryPauseInSec =
                 Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC,
-                        "10"));
+                        "300"));
 
         this.processMaxRetryCount =
                 Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT,
-                        "0"));
+                        "6"));
 
         this.processRetryPauseInSec =
                 Integer.parseInt(threadProperties.getProperty(PROCESS_RETRY_PAUSE_IN_SEC,
-                        "10"));
+                        "300"));
         
         this.threadName = threadName;
 

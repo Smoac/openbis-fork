@@ -136,7 +136,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
     protected static final DataSetType CONTAINER_DATA_SET_TYPE = new DataSetType("CONTAINER_TYPE");
-    
+
     protected static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
 
     protected static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
@@ -174,7 +174,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
         precommitDirectory = new File(workingDirectory, "pre-commit");
-        
+
         DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
     }
 
@@ -246,7 +246,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                                     "jython-handler-test"));
                     one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
                     one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
-                    
+
                 }
             });
     }
@@ -318,6 +318,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 prestagingDirectory.getPath());
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_COMMIT_DIR,
                 precommitDirectory.getPath());
+
+        threadProperties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "0");
+        threadProperties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0");
+        threadProperties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT, "0");
+        threadProperties.setProperty(ThreadParameters.DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "0");
 
         if (overrideOrNull != null)
         {
