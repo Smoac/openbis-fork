@@ -93,7 +93,7 @@ fastq_only <- fastqFilePathVector[2]
 pdf(file=paste(fastq_file,"quality.pdf", sep="_"), paper="a4")
  box <- boxPlotPerCycle()
  nuc <- nucleotidesPerCyclePlot()
- cumOccurencesPlot()
+  
 dev.off()
 
 #plotPdf(box)
