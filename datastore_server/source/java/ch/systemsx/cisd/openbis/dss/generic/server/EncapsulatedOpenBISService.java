@@ -719,4 +719,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.didEntityOperationsSucceed(session.getToken(), registrationId);
     }
 
+    @Override
+    public void heartbeat()
+    {
+        service.heartbeat(session.getToken());
+    }
+
 }

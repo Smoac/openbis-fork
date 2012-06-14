@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * The helper class for checking if all conditions necessary for the succesfull registration are
@@ -39,7 +38,7 @@ public class DssRegistrationHealthMonitor
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DssRegistrationHealthMonitor.class);
 
-    private final IEncapsulatedOpenBISService openBisService;
+    private IEncapsulatedOpenBISService openBisService;
 
     private final File recoveryStateDirectory;
 
@@ -86,6 +85,17 @@ public class DssRegistrationHealthMonitor
         return instance;
     }
 
+    /**
+     * Use this method for tests only.
+     */
+    public static void setOpenBisServiceForTest(IEncapsulatedOpenBISService openBisService)
+    {
+        if (instance != null)
+        {
+            instance.openBisService = openBisService;
+        }
+    }
+
     private DssRegistrationHealthMonitor(IEncapsulatedOpenBISService openBisService,
             File recoveryStateDirectory)
     {
@@ -99,6 +109,12 @@ public class DssRegistrationHealthMonitor
 
     private static final String MESSAGE_RESOURCE_UNAVAILABLE =
             "The resource %s has become unavailable.";
+
+    public boolean isApplicationReady(File dropboxDirectory)
+    {
+        return isFilesystemAvailable(dropboxDirectory) && isRecoveryStateFileSystemAvailable()
+                && isApplicationServerAlive();
+    }
 
     /**
      * Updates the information about the resource recognized by key is available. It the
@@ -137,7 +153,7 @@ public class DssRegistrationHealthMonitor
     {
         try
         {
-            openBisService.didEntityOperationsSucceed(new TechId(1));
+            openBisService.heartbeat();
         } catch (Exception e)
         {
             return false;

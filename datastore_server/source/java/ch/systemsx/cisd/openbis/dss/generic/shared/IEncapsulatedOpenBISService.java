@@ -514,4 +514,11 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public EntityOperationsState didEntityOperationsSucceed(TechId registrationId);
+
+    /**
+     * {@link IETLLIMSService#heartbeat(String)}
+     */
+    @ManagedAuthentication
+    public void heartbeat();
+
 }
