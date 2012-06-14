@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
@@ -64,7 +64,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
-    private final List<DataSetUpdatesDTO> dataSetUpdates;
+    private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
@@ -73,7 +73,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
-            List<DataSetUpdatesDTO> dataSetUpdates)
+            List<DataSetBatchUpdatesDTO> dataSetUpdates)
     {
         this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -86,7 +86,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.materialRegistrations = new HashMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
-        this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
+        this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
     }
 
     public TechId getRegistrationId()
@@ -124,7 +124,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         return dataSetRegistrations;
     }
 
-    public List<DataSetUpdatesDTO> getDataSetUpdates()
+    public List<DataSetBatchUpdatesDTO> getDataSetUpdates()
     {
         return dataSetUpdates;
     }

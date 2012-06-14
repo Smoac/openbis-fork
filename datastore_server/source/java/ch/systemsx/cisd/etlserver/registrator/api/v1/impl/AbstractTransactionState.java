@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -60,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -654,11 +653,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         public boolean commit()
         {
             ArrayList<DataSetStorageAlgorithm<T>> algorithms = createStorageAlgorithmsForDataSets();
-            
+
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, rollbackStack,
                             registrationService.getDssRegistrationLog(), openBisService,
-                            registrationService, registrationService.getRegistratorContext().getGlobalState());
+                            registrationService, registrationService.getRegistratorContext()
+                                    .getGlobalState());
 
             boolean storageAlgorithmsSucceeded = runner.prepareAndRunStorageAlgorithms();
 
@@ -784,7 +784,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
             Map<String, List<NewMaterial>> materialRegistrations = convertMaterialsToBeRegistered();
-            List<DataSetUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
+            List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
 
             // experiment updates not yet supported
             List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
@@ -847,12 +847,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
-        private List<DataSetUpdatesDTO> convertDataSetsToBeUpdated()
+        private List<DataSetBatchUpdatesDTO> convertDataSetsToBeUpdated()
         {
-            List<DataSetUpdatesDTO> result = new ArrayList<DataSetUpdatesDTO>();
+            List<DataSetBatchUpdatesDTO> result = new ArrayList<DataSetBatchUpdatesDTO>();
             for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
             {
-                result.add(ConversionUtils.convertToDataSetUpdatesDTO(dataSet));
+                result.add(ConversionUtils.convertToDataSetBatchUpdatesDTO(dataSet));
             }
             return result;
         }

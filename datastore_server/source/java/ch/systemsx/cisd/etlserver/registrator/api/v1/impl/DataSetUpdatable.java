@@ -189,4 +189,9 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         return dataSet;
     }
 
+    public DataSetBatchUpdatesDTO getUpdates()
+    {
+        return updates;
+    }
+
 }

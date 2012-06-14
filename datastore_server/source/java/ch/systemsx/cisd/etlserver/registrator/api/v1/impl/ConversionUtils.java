@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
@@ -241,6 +242,11 @@ public class ConversionUtils
         dataSetUpdate.setModifiedParentDatasetCodesOrNull(parentCodes);
 
         return dataSetUpdate;
+    }
+
+    public static DataSetBatchUpdatesDTO convertToDataSetBatchUpdatesDTO(DataSetUpdatable dataSet)
+    {
+        return dataSet.getUpdates();
     }
 
     public static NewMaterial convertToNewMaterial(Material material)
