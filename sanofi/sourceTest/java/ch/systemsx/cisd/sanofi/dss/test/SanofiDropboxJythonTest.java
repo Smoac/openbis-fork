@@ -154,6 +154,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         super.setUp();
 
+        context.checking(new Expectations()
+            {
+                {
+                    ignoring(openBisService).heartbeat();
+                }
+            });
+
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
         atomicatOperationDetails =

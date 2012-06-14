@@ -133,6 +133,13 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
     {
         super.setUp();
 
+        context.checking(new Expectations()
+            {
+                {
+                    ignoring(openBisService).heartbeat();
+                }
+            });
+        
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
         atomicatOperationDetails =
