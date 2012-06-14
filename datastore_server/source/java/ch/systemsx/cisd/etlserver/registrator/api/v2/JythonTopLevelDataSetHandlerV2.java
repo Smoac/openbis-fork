@@ -27,7 +27,6 @@ import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -51,7 +50,6 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransac
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
-import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
@@ -159,16 +157,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     (JythonDataSetRegistrationServiceV2<T>) service, retryFunction, dataSetFile);
         }
     }
-
-    private void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
-    {
-        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
-                incomingDataSetFile.getRealIncomingFile().getParentFile()))
-        {
-            waitTheRetryPeriod();
-            // do nothing. just repeat until the application is ready
-        }
-    }
     
     private void executeJythonProcessFunctionWithRetries(PythonInterpreter interpreter,
             JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction, DataSetFile incomingDataSetFile)
@@ -247,13 +235,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             // creates the new transaction and propagates the values in the persistent map
             service.transaction().getPersistentMap().putAll(persistentMap);
 
-            waitTheRetryPeriod();
+            waitTheRetryPeriod(processRetryPauseInSec);
         }
-    }
-
-    private void waitTheRetryPeriod()
-    {
-        ConcurrencyUtilities.sleep(processRetryPauseInSec * 1000);
     }
 
     protected void executeJythonProcessFunction(PythonInterpreter interpreter,

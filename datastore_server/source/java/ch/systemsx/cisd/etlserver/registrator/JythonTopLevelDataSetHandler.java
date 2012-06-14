@@ -26,6 +26,7 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
@@ -170,7 +171,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         JythonDataSetRegistrationService<T> service =
                 (JythonDataSetRegistrationService<T>) genericService;
-
+        
+        waitUntilApplicationIsReady(dataSetFile);
+        
         executeJythonScript(dataSetFile, scriptString, service);
     }
 
@@ -187,6 +190,22 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         verifyEvaluatorHookFunctions(interpreter);
     }
 
+
+    protected void waitTheRetryPeriod(int retryPeriod)
+    {
+        ConcurrencyUtilities.sleep(retryPeriod * 1000); //in seconds
+    }
+    
+    protected void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
+    {
+        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
+                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        {
+            waitTheRetryPeriod(10);
+            // do nothing. just repeat until the application is ready
+        }
+    }
+    
     protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
     {
         for (JythonHookFunction function : JythonHookFunction.values())
