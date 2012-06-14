@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 public class GeneralInformationChangingServiceTest extends SystemTestCase
 {
     @Autowired
-    private ICommonServer commonServer;
+    private ICommonServer localCommonServer;
 
     @Autowired
     private IGeneralInformationService generalInformationService;
@@ -73,12 +73,12 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     public void testUpdateSampleProperties()
     {
         TechId id = new TechId(1043L);
-        commonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
+        localCommonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
                 "DESCRIPTION", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
-        commonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
+        localCommonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
                 "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]", commonServer
+                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]", localCommonServer
                 .getSampleInfo(sessionToken, id).getParent());
         HashMap<String, String> properties = new HashMap<String, String>();
         properties.put("SIZE", "42");
@@ -92,7 +92,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
 
         assertProperties("[ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, DESCRIPTION: hello example, GENDER: FEMALE, "
-                + "ORGANISM: DOG, SIZE: 42]", commonServer.getSampleInfo(sessionToken, id)
+                + "ORGANISM: DOG, SIZE: 42]", localCommonServer.getSampleInfo(sessionToken, id)
                 .getParent());
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
