@@ -66,7 +66,7 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<? extends NewExternalData> dataSetRegistrations;
 
-    private final List<DataSetUpdatesDTO> dataSetUpdates;
+    private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
@@ -74,7 +74,7 @@ public class AtomicEntityOperationDetails implements Serializable
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
             List<? extends NewExternalData> dataSetRegistrations,
-            List<DataSetUpdatesDTO> dataSetUpdates)
+            List<DataSetBatchUpdatesDTO> dataSetUpdates)
     {
         this.registrationIdOrNull = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -86,7 +86,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.materialRegistrations = new TreeMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
-        this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
+        this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
     }
 
     public TechId getRegistrationIdOrNull()
@@ -124,7 +124,7 @@ public class AtomicEntityOperationDetails implements Serializable
         return dataSetRegistrations;
     }
 
-    public List<DataSetUpdatesDTO> getDataSetUpdates()
+    public List<DataSetBatchUpdatesDTO> getDataSetUpdates()
     {
         return dataSetUpdates;
     }

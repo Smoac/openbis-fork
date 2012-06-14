@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -1021,7 +1022,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         externalData.setSampleIdentifierOrNull(newSampleIdentifier);
 
         final String updatedDataSetCode = "updateDataSetCode";
-        final DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        final DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
@@ -1205,7 +1206,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         externalData.setSampleIdentifierOrNull(newSampleIdentifier);
 
         final String updatedDataSetCode = "updateDataSetCode";
-        final DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        final DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]

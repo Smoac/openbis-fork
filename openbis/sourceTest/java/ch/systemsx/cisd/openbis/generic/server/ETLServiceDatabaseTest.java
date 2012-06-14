@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -180,7 +180,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
-        List<DataSetUpdatesDTO> dataSetUpdates = Collections.emptyList();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,

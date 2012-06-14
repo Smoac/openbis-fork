@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -79,8 +79,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                 .createIdentifier());
         dataSetRegistrations.add(newExternalData);
 
-        List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();
-        DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>();
+        DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
         dataSetUpdate.setDatasetId(new TechId(1L));
         dataSetUpdates.add(dataSetUpdate);
 
