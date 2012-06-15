@@ -38,6 +38,8 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
 
     private DatabaseInstance databaseInstance;
 
+    private boolean active;
+
     public final String getFirstName()
     {
         return firstName;
@@ -86,6 +88,16 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
     public void setDatabaseInstance(DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean active)
+    {
+        this.active = active;
     }
 
     //
