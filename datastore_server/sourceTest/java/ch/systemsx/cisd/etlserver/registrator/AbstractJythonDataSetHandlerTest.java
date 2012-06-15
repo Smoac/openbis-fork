@@ -72,9 +72,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSystemTestCase
 {
     protected final File recoveryStateDir;
-    
+
     private static final String RECOVERY_STATE_TEST_DIRECTORY = "recovery-state";
-    
+
     private File createRecoveryStateDirectory()
     {
         final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, RECOVERY_STATE_TEST_DIRECTORY);
@@ -82,12 +82,12 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         directory.deleteOnExit();
         return directory;
     }
-    
+
     protected AbstractJythonDataSetHandlerTest()
     {
         recoveryStateDir = createRecoveryStateDirectory();
     }
-    
+
     @BeforeClass
     public static void classSetUp()
     {
@@ -195,7 +195,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         cleanUpDirectoryBeforeTheTest(recoveryStateDir);
         DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
     }
-    
+
     @AfterMethod
     public void tearDown() throws IOException
     {
@@ -257,8 +257,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         context.checking(new Expectations()
             {
                 {
-                    one(storageRecoveryManager).setDropboxRecoveryStateDir(
-                            new File(workingDirectory, "jython-handler-test"));
+                    one(storageRecoveryManager).setDropboxRecoveryStateDir(with(any(File.class)));
                     one(storageRecoveryManager).setRecoveryMarkerFilesDir(
                             new File(new File(workingDirectory, "recovery-marker"),
                                     "jython-handler-test"));
