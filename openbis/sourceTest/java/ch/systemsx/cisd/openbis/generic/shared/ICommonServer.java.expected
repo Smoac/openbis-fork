@@ -1340,6 +1340,13 @@ public interface ICommonServer extends IServer
             TechId authorizationGroupId, List<String> personsCodes);
 
     /**
+     * Deactivates specified persons.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void deactivatePersons(String sessionToken, List<String> personsCodes);
+
+    /**
      * Lists filters available for selected grid.
      */
     @Transactional
