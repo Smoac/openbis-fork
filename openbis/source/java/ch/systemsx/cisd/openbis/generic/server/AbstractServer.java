@@ -312,6 +312,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         person.setRegistrator(registrator);
         person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         person.setDisplaySettings(defaultDisplaySettings);
+        person.setActive(true);
         try
         {
             daoFactory.getPersonDAO().createPerson(person);

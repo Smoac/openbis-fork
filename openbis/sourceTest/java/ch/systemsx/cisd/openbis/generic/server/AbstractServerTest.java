@@ -75,9 +75,9 @@ public class AbstractServerTest extends AssertJUnit
         daoFactory = context.mock(IDAOFactory.class);
         personDAO = context.mock(IPersonDAO.class);
         roleAssigmentDAO = context.mock(IRoleAssignmentDAO.class);
-        
+
         server = new AbstractServer<Object>(sessionManager, daoFactory, null)
-        {
+            {
 
                 @Override
                 public Object createLogger(IInvocationLoggerContext loggerContext)
@@ -85,7 +85,7 @@ public class AbstractServerTest extends AssertJUnit
                     return null;
                 }
 
-        };
+            };
 
         context.checking(new Expectations()
             {
@@ -237,6 +237,7 @@ public class AbstractServerTest extends AssertJUnit
     {
         PersonPE result = new PersonPE();
         result.setUserId(userId);
+        result.setActive(true);
         return result;
     }
 }
