@@ -1060,6 +1060,8 @@ public abstract class Dict
 
     public static final String BUTTON_DELETE = "button_delete";
 
+    public static final String BUTTON_DEACTIVATE = "button_deactivate";
+
     public static final String BUTTON_DELETE_SAMPLE = "button_delete_sample";
 
     public static final String BUTTON_DELETE_EXPERIMENT = "button_delete_experiment";
@@ -1144,6 +1146,12 @@ public abstract class Dict
 
     public static final String REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_MESSAGE =
             "remove_persons_from_authorization_group_confirmation_message";
+
+    public static final String DEACTIVATE_PERSONS_CONFIRMATION_TITLE =
+            "deactivate_persons_confirmation_title";
+
+    public static final String DEACTIVATE_PERSONS_CONFIRMATION_MESSAGE =
+            "deactivate_persons_confirmation_message";
 
     public static final String ALL_RADIO = "all_radio";
 

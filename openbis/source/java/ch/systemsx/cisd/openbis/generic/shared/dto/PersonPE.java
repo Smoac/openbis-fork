@@ -104,6 +104,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     private byte[] serializedDisplaySettings;
 
+    private boolean active;
+
     private final void setSystemUser(final boolean systemUser)
     {
         this.systemUser = systemUser;
@@ -264,6 +266,12 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Transient
+    public final void clearAuthorizationGroups()
+    {
+        authorizationGroups.clear();
+    }
+
+    @Transient
     public final Set<AuthorizationGroupPE> getAuthorizationGroups()
     {
         return new UnmodifiableSetDecorator<AuthorizationGroupPE>(getAuthorizationGroupsInternal());
@@ -301,10 +309,20 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         this.serializedDisplaySettings = value;
     }
 
+    @Column(name = ColumnNames.PERSON_IS_ACTIVE_COLUMN)
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean isActive)
+    {
+        this.active = isActive;
+    }
+
     //
     // IIdHolder
     //
-
     @Override
     @SequenceGenerator(name = SequenceNames.PERSON_SEQUENCE, sequenceName = SequenceNames.PERSON_SEQUENCE, allocationSize = 1)
     @Id

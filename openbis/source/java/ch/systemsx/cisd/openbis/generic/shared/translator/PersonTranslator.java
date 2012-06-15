@@ -64,6 +64,7 @@ public class PersonTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(person
                 .getDatabaseInstance()));
         result.setRegistrationDate(person.getRegistrationDate());
+        result.setActive(person.isActive());
         if (recursively)
         {
             result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));

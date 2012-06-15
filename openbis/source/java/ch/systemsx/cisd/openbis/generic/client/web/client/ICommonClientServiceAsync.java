@@ -66,8 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -878,6 +878,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void removePersonsFromAuthorizationGroup(TechId create, List<String> personsCodes,
             AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#deactivatePersons(List)
+     */
+    public void deactivatePersons(List<String> personsCodes, AsyncCallback<Void> callback);
 
     // -- custom grid filters
 

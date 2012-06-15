@@ -20,15 +20,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonG
 
 /**
  * IDs of column of {@link PersonGrid}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PersonGridColumnIDs
 {
     public static final String USER_ID = "USER_ID";
+
     public static final String FIRST_NAME = "FIRST_NAME";
+
     public static final String LAST_NAME = "LAST_NAME";
+
     public static final String EMAIL = "EMAIL";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+
+    public static final String IS_ACTIVE = "IS_ACTIVE";
 }

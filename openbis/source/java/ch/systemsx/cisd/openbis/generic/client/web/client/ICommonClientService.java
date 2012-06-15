@@ -64,8 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -322,8 +322,7 @@ public interface ICommonClientService extends IClientService
             final TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria)
             throws UserFailureException;
 
-    public TypedTableResultSet<EntityHistory> listEntityHistory(
-            ListEntityHistoryCriteria criteria);
+    public TypedTableResultSet<EntityHistory> listEntityHistory(ListEntityHistoryCriteria criteria);
 
     public String prepareExportEntityHistory(
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria);
@@ -968,10 +967,15 @@ public interface ICommonClientService extends IClientService
             List<String> personsCodes) throws UserFailureException;
 
     /**
-     * Removes persons with specified codesfrom the authorization group with given tech id.
+     * Removes persons with specified codes from the authorization group with given tech id.
      */
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes) throws UserFailureException;
+
+    /**
+     * Deactivates persons with specified codes.
+     */
+    public void deactivatePersons(List<String> personsCodes) throws UserFailureException;
 
     // -- custom grid filters
 

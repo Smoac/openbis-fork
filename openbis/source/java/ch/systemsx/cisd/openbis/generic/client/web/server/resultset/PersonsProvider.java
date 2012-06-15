@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.EMAIL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.FIRST_NAME;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.IS_ACTIVE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.LAST_NAME;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PersonGridColumnIDs.REGISTRATOR;
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Provider of {@link Person} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
@@ -41,7 +42,8 @@ public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
 
     private final TechId authorizationGroupIdOrNull;
 
-    public PersonsProvider(ICommonServer commonServer, String sessionToken, TechId authorizationGroupIdOrNull)
+    public PersonsProvider(ICommonServer commonServer, String sessionToken,
+            TechId authorizationGroupIdOrNull)
     {
         super(commonServer, sessionToken);
         this.authorizationGroupIdOrNull = authorizationGroupIdOrNull;
@@ -56,7 +58,9 @@ public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
             persons = commonServer.listPersons(sessionToken);
         } else
         {
-            persons = commonServer.listPersonInAuthorizationGroup(sessionToken, authorizationGroupIdOrNull);
+            persons =
+                    commonServer.listPersonInAuthorizationGroup(sessionToken,
+                            authorizationGroupIdOrNull);
         }
 
         TypedTableModelBuilder<Person> builder = new TypedTableModelBuilder<Person>();
@@ -66,6 +70,7 @@ public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
         builder.addColumn(EMAIL).withDefaultWidth(200);
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);
+        builder.addColumn(IS_ACTIVE).withDefaultWidth(80);
         for (Person person : persons)
         {
             builder.addRow(person);
@@ -75,6 +80,7 @@ public class PersonsProvider extends AbstractCommonTableModelProvider<Person>
             builder.column(EMAIL).addString(person.getEmail());
             builder.column(REGISTRATOR).addPerson(person.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(person.getRegistrationDate());
+            builder.column(IS_ACTIVE).addString(Boolean.toString(person.isActive()));
         }
         return builder.getModel();
     }

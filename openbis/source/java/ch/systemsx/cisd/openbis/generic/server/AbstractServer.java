@@ -461,6 +461,14 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             }
         }
 
+        if (false == person.isActive())
+        {
+            authenticationLog.info(String.format(
+                    "User '%s' has been deactivated and thus is not permitted to login.",
+                    person.getUserId()));
+            return null;
+        }
+
         removeNotExistingVisits(session);
 
         return asDTO(session);

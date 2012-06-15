@@ -214,6 +214,8 @@ public final class ColumnNames
 
     public static final String PERSON_AUTHOR_COLUMN = "pers_id_author";
 
+    public static final String PERSON_IS_ACTIVE_COLUMN = "is_active";
+
     public static final String PRODUCTION_TIMESTAMP_COLUMN = "production_timestamp";
 
     public static final String PROJECT_COLUMN = "proj_id";

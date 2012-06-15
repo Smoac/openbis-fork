@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  */
 public class PersonGrid extends TypedTableGrid<Person>
 {
-
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "person-browser";
 
@@ -66,6 +65,8 @@ public class PersonGrid extends TypedTableGrid<Person>
     private static final String ADD_BUTTON_SUFFIX = "_add-button";
 
     private static final String REMOVE_BUTTON_SUFFIX = "_remove-button";
+
+    private static final String DEACTIVATE_BUTTON_SUFFIX = "_deactivate-button";
 
     private final AuthorizationGroup authorizationGroupOrNull;
 
@@ -120,6 +121,11 @@ public class PersonGrid extends TypedTableGrid<Person>
         return createBrowserId(group) + ADD_BUTTON_SUFFIX;
     }
 
+    public static final String createDeactivateButtonId(AuthorizationGroup group)
+    {
+        return createBrowserId(group) + DEACTIVATE_BUTTON_SUFFIX;
+    }
+
     public static final String createGridId(AuthorizationGroup group)
     {
         return createBrowserId(group) + GRID_SUFFIX;
@@ -170,7 +176,32 @@ public class PersonGrid extends TypedTableGrid<Person>
             deleteButton.setId(createRemoveButtonId(authorizationGroupOrNull));
             addButton(deleteButton);
             allowMultipleSelection();
+        } else
+        {
+            Button deactivateButton =
+                    createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DEACTIVATE),
+                            new AbstractCreateDialogListener()
+                                {
+                                    @Override
+                                    protected Dialog createDialog(
+                                            List<TableModelRowWithObject<Person>> selected,
+                                            IBrowserGridActionInvoker invoker)
+                                    {
+                                        ArrayList<Person> selectedPersons = new ArrayList<Person>();
+                                        for (TableModelRowWithObject<Person> row : selected)
+                                        {
+                                            selectedPersons.add(row.getObjectOrNull());
+                                        }
+                                        return new PersonListDeactivationConfirmationDialog(
+                                                viewContext, selectedPersons,
+                                                createRefreshCallback(invoker));
+                                    }
+                                });
+            deactivateButton.setId(createDeactivateButtonId(authorizationGroupOrNull));
+            addButton(deactivateButton);
+            allowMultipleSelection();
         }
+
         addEntityOperationsSeparator();
     }
 

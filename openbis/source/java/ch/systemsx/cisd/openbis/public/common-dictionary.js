@@ -153,6 +153,7 @@ var common = {
   button_browse: "Browse",
   button_view: "View",
   button_delete: "Delete",
+  button_deactivate: "Deactivate",
   button_delete_sample: "Delete Sample",
   button_delete_experiment: "Delete Experiment",
   button_delete_material: "Delete Material",
@@ -663,7 +664,10 @@ var common = {
  first_name: "First Name",
  last_name: "Last Name",
  email: "Email",
- 
+ is_active: "Is Active?",
+ deactivate_persons_confirmation_title: "Users Deactivation Confirmation",
+ deactivate_persons_confirmation_message: "Warning! This operation cannot be undone!\n\nDo you really want to deactivate {0} users ({1})?",
+
  //
  // Role Browser
  //
@@ -801,7 +805,6 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  radio_many_users: "Many Users",
  remove_persons_from_authorization_group_confirmation_title: "Users Removal Confirmation",
  remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
-
  
 all_radio: "all ({0})",
 only_selected_radio: "selected ({0})",

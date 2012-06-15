@@ -133,8 +133,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -608,12 +608,11 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<EntityHistory> listEntityHistory(
-            ListEntityHistoryCriteria criteria)
+    public TypedTableResultSet<EntityHistory> listEntityHistory(ListEntityHistoryCriteria criteria)
     {
         String sessionToken = getSessionToken();
-        return listEntities(
-                new EntityHistoryProvider(commonServer, sessionToken, criteria), criteria);
+        return listEntities(new EntityHistoryProvider(commonServer, sessionToken, criteria),
+                criteria);
     }
 
     @Override
@@ -2085,6 +2084,13 @@ public final class CommonClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         commonServer.removePersonsFromAuthorizationGroup(sessionToken, authorizationGroupId,
                 personsCodes);
+    }
+
+    @Override
+    public void deactivatePersons(List<String> personsCodes) throws UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        commonServer.deactivatePersons(sessionToken, personsCodes);
     }
 
     private <T extends IIdHolder> List<TechId> extractTechIds(

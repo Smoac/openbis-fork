@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
-public final class PersonListDeletionConfirmationDialog extends
+/**
+ * @author Pawel Glyzewski
+ */
+public class PersonListDeactivationConfirmationDialog extends
         AbstractDataConfirmationDialog<List<Person>>
 {
     private static final int LABEL_WIDTH = 60;
@@ -40,25 +41,14 @@ public final class PersonListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
-    private final AuthorizationGroup authorizationGroup;
-
-    public PersonListDeletionConfirmationDialog(
+    public PersonListDeactivationConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Person> persons,
-            AuthorizationGroup authorizationGroup, AbstractAsyncCallback<Void> callback)
+            AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, persons, viewContext
-                .getMessage(Dict.REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_TITLE));
-        assert authorizationGroup != null;
+                .getMessage(Dict.DEACTIVATE_PERSONS_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.authorizationGroup = authorizationGroup;
         this.callback = callback;
-    }
-
-    @Override
-    protected void executeConfirmedAction()
-    {
-        viewContext.getCommonService().removePersonsFromAuthorizationGroup(
-                TechId.create(authorizationGroup), extractCodes(data), callback);
     }
 
     private List<String> extractCodes(List<Person> persons)
@@ -75,10 +65,8 @@ public final class PersonListDeletionConfirmationDialog extends
     protected String createMessage()
     {
         List<String> codes = extractCodes(data);
-        return viewContext.getMessage(
-                Dict.REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_MESSAGE, codes.size(),
-                StringUtils.abbreviate(StringUtils.joinList(codes), 1000),
-                authorizationGroup.getCode());
+        return viewContext.getMessage(Dict.DEACTIVATE_PERSONS_CONFIRMATION_MESSAGE, codes.size(),
+                StringUtils.abbreviate(StringUtils.joinList(codes), 1000));
     }
 
     @Override
@@ -86,5 +74,11 @@ public final class PersonListDeletionConfirmationDialog extends
     {
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
+    }
+
+    @Override
+    protected void executeConfirmedAction()
+    {
+        viewContext.getCommonService().deactivatePersons(extractCodes(data), callback);
     }
 }
