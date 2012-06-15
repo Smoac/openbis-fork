@@ -71,6 +71,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSystemTestCase
 {
+    protected final File recoveryStateDir;
+    
+    private static final String RECOVERY_STATE_TEST_DIRECTORY = "recovery-state";
+    
+    private File createRecoveryStateDirectory()
+    {
+        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, RECOVERY_STATE_TEST_DIRECTORY);
+        directory.mkdirs();
+        directory.deleteOnExit();
+        return directory;
+    }
+    
+    protected AbstractJythonDataSetHandlerTest()
+    {
+        recoveryStateDir = createRecoveryStateDirectory();
+    }
+    
     @BeforeClass
     public static void classSetUp()
     {
@@ -175,9 +192,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         prestagingDirectory = new File(workingDirectory, "pre-staging");
         precommitDirectory = new File(workingDirectory, "pre-commit");
 
+        cleanUpDirectoryBeforeTheTest(recoveryStateDir);
         DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
     }
-
+    
     @AfterMethod
     public void tearDown() throws IOException
     {
@@ -226,7 +244,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, workingDirectory, workingDirectory, workingDirectory,
+                        workingDirectory, workingDirectory, workingDirectory, recoveryStateDir,
                         openBisService, mailClient, dataSetValidator, dataSourceQueryService,
                         myFactory, true, threadParameters, storageRecoveryManager);
         return globalState;
