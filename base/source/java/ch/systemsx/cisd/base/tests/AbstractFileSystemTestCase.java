@@ -40,7 +40,7 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
 
     protected static final String TARGETS_DIRECTORY = "targets";
 
-    private static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY
+    protected static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY
             + File.separator + UNIT_TEST_WORKING_DIRECTORY);
 
     protected final File workingDirectory;
@@ -70,21 +70,37 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
         return file;
     }
 
-    private final File createWorkingDirectory()
+    /**
+     * Creates a directory in the unit test root directory "targets/unit-test-wd"
+     */
+    protected final File createDirectoryInUnitTestRoot(String dirName)
     {
-        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getName());
+        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, dirName);
         directory.mkdirs();
         directory.deleteOnExit();
         return directory;
     }
 
+    private final File createWorkingDirectory()
+    {
+        return createDirectoryInUnitTestRoot(getClass().getName());
+    }
+
     @BeforeMethod
     public void setUp() throws IOException
     {
-        deleteDirectory(workingDirectory);
-        workingDirectory.mkdirs();
-        assertEquals(true, workingDirectory.isDirectory());
-        File[] files = workingDirectory.listFiles();
+        cleanUpDirectoryBeforeTheTest(workingDirectory);
+    }
+
+    /**
+     * Deletes, recreates and verifies that this is the empty directory
+     */
+    protected void cleanUpDirectoryBeforeTheTest(File directory)
+    {
+        deleteDirectory(directory);
+        directory.mkdirs();
+        assertEquals(true, directory.isDirectory());
+        File[] files = directory.listFiles();
         if (files != null)
         {
             assertEquals("Unexpected files " + Arrays.asList(files), 0, files.length);
