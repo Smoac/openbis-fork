@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IEntityPropertyHistoryDAO
+public interface IEntityHistoryDAO
 {
     public List<AbstractEntityPropertyHistoryPE> getPropertyHistory(EntityKind entityKind, TechId id);
 }

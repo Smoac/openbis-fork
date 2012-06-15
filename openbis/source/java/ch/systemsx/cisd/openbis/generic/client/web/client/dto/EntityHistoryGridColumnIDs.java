@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 /**
  * @author Franz-Josef Elmer
  */
-public class EntityPropertyHistoryGridColumnIDs
+public class EntityHistoryGridColumnIDs
 {
     public static final String AUTHOR = "AUTHOR";
 
@@ -32,6 +32,8 @@ public class EntityPropertyHistoryGridColumnIDs
     public static final String VALID_UNTIL_DATE = "VALID_UNTIL_DATE";
 
     public static final String VALUE = "VALUE";
+
+    public static final String RELATION_TYPE = "RELATION_TYPE";
 
     public static final String MATERIAL = "MATERIAL";
 

@@ -373,16 +373,17 @@ var common = {
   is_shown_in_edit_view: "Shown in Edit Views?",
   
   //
-  // Entity Properties History Browser and Tab
+  // Entity History Browser and Tab
   //
   
-  properties_history_tab: "Properties History",
-  openbis_entity_property_history_browser_AUTHOR: "Author",
-  openbis_entity_property_history_browser_PROPERTY_TYPE_CODE: "Property Code",
-  openbis_entity_property_history_browser_PROPERTY_TYPE_LABEL: "Property",
-  openbis_entity_property_history_browser_VALID_FROM_DATE: "Valid From Date",
-  openbis_entity_property_history_browser_VALID_UNTIL_DATE: "Valid Until Date",
-  openbis_entity_property_history_browser_VALUE: "Value",
+  entity_history_tab: "History",
+  openbis_entity_history_browser_AUTHOR: "Author",
+  openbis_entity_history_browser_PROPERTY_TYPE_CODE: "Property Code",
+  openbis_entity_history_browser_PROPERTY_TYPE_LABEL: "Property",
+  openbis_entity_history_browser_VALID_FROM_DATE: "Valid From Date",
+  openbis_entity_history_browser_VALID_UNTIL_DATE: "Valid Until Date",
+  openbis_entity_history_browser_VALUE: "Value",
+  openbis_entity_history_browser_RELATION_TYPE: "Relation",
   
   //
   // Wizard

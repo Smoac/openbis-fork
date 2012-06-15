@@ -118,7 +118,7 @@ public abstract class AbstractEntityPropertyHistoryPE implements Serializable
         this.validFromDate = validFromDate;
     }
 
-    @Column(name = ColumnNames.VALID_UNTIL_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Column(name = ColumnNames.VALID_UNTIL_TIMESTAMP_COLUMN, nullable = true, insertable = false, updatable = false)
     public Date getValidUntilDate()
     {
         return validUntilDate;
@@ -131,7 +131,7 @@ public abstract class AbstractEntityPropertyHistoryPE implements Serializable
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.PERSON_AUTHOR_COLUMN, nullable = false, updatable = true)
+    @JoinColumn(name = ColumnNames.PERSON_AUTHOR_COLUMN, nullable = true, updatable = true)
     public PersonPE getAuthor()
     {
         return author;

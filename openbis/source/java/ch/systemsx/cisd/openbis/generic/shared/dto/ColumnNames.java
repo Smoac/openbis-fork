@@ -96,7 +96,11 @@ public final class ColumnNames
 
     public static final String EXPERIMENT_COLUMN = "expe_id";
 
+    public static final String MAIN_EXPERIMENT_COLUMN = "main_expe_id";
+
     public static final String DATA_SET_COLUMN = "ds_id";
+
+    public static final String MAIN_DATA_SET_COLUMN = "main_data_id";
 
     public static final String EXPERIMENT_TYPE_COLUMN = "exty_id";
 
@@ -222,6 +226,8 @@ public final class ColumnNames
 
     public static final String SAMPLE_COLUMN = "samp_id";
 
+    public static final String MAIN_SAMPLE_COLUMN = "main_samp_id";
+
     public static final String SAMPLE_TYPE_COLUMN = "saty_id";
 
     public static final String SAMPLE_TYPE_PROPERTY_TYPE_COLUMN = "stpt_id";
@@ -249,6 +255,10 @@ public final class ColumnNames
     public static final String VALID_FROM_TIMESTAMP_COLUMN = "valid_from_timestamp";
 
     public static final String VALID_UNTIL_TIMESTAMP_COLUMN = "valid_until_timestamp";
+
+    public static final String RELATION_TYPE_COLUMN = "relation_type";
+
+    public static final String ENTITY_PERM_ID_COLUMN = "entity_perm_id";
 
     public static final String EVENT_TYPE = "event_type";
 

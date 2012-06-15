@@ -27,23 +27,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Grid for historical entity property values.
+ * Grid for historical entity values.
  * 
  * @author Franz-Josef Elmer
  */
-public class EntityPropertyHistoryGrid extends TypedTableGrid<EntityPropertyHistory>
+public class EntityHistoryGrid extends TypedTableGrid<EntityHistory>
 {
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX
-            + "entity_property_history_browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "entity_history_browser";
 
     public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
@@ -52,20 +51,20 @@ public class EntityPropertyHistoryGrid extends TypedTableGrid<EntityPropertyHist
             final EntityKind entityKind, final TechId entityID)
     {
         DisposableTabContent tabContent =
-                new DisposableTabContent(viewContext.getMessage(Dict.PROPERTIES_HISTORY_TAB),
+                new DisposableTabContent(viewContext.getMessage(Dict.ENTITY_HISTORY_TAB),
                         viewContext, null)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()
                         {
-                            EntityPropertyHistoryGrid grid =
-                                    new EntityPropertyHistoryGrid(
+                            EntityHistoryGrid grid =
+                                    new EntityHistoryGrid(
                                             viewContext.getCommonViewContext(), entityKind,
                                             entityID);
                             return grid.asDisposableWithoutToolbar();
                         }
                     };
-        tabContent.setIds(DisplayTypeIDGenerator.PROPERTIES_HISTORY_SECTION);
+        tabContent.setIds(DisplayTypeIDGenerator.ENTITY_HISTORY_SECTION);
         return tabContent;
     }
 
@@ -73,21 +72,21 @@ public class EntityPropertyHistoryGrid extends TypedTableGrid<EntityPropertyHist
 
     private TechId entityID;
 
-    private EntityPropertyHistoryGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+    private EntityHistoryGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             EntityKind entityKind, TechId entityID)
     {
         super(viewContext, BROWSER_ID, true,
-                DisplayTypeIDGenerator.ENTITY_PROPERTY_HISTORY_BROWSER_GRID);
+                DisplayTypeIDGenerator.ENTITY_HISTORY_BROWSER_GRID);
         this.entityKind = entityKind;
         this.entityID = entityID;
     }
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<EntityPropertyHistory>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<EntityPropertyHistory>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityHistory>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<EntityHistory>> callback)
     {
-        ListEntityPropertyHistoryCriteria criteria = new ListEntityPropertyHistoryCriteria();
+        ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.copyPagingConfig(resultSetConfig);
         criteria.setEntityKind(entityKind);
         criteria.setEntityID(entityID);
@@ -96,7 +95,7 @@ public class EntityPropertyHistoryGrid extends TypedTableGrid<EntityPropertyHist
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<TableModelRowWithObject<EntityPropertyHistory>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<EntityHistory>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportEntityPropertyHistory(exportCriteria, callback);

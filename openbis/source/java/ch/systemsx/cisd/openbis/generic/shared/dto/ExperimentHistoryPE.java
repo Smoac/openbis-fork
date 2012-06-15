@@ -21,22 +21,29 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Persitence entity representing a historical experiment property.
+ * Persitence entity representing a historical experiment.
  * 
  * @author Franz-Josef Elmer
  */
 @Entity
-@Table(name = TableNames.EXPERIMENT_PROPERTIES_HISTORY_TABLE)
-public class ExperimentPropertyHistoryPE extends AbstractEntityPropertyHistoryPE
+@Table(name = TableNames.EXPERIMENT_HISTORY_VIEW)
+public class ExperimentHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    private ProjectPE project;
+
+    private DataPE dataSet;
+
+    private SamplePE sample;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
+    @JoinColumn(name = ColumnNames.MAIN_EXPERIMENT_COLUMN)
     ExperimentPE getEntityInternal()
     {
         return (ExperimentPE) entity;
@@ -60,5 +67,63 @@ public class ExperimentPropertyHistoryPE extends AbstractEntityPropertyHistoryPE
             ExperimentTypePropertyTypePE experimentTypePropertyType)
     {
         entityTypePropertyType = experimentTypePropertyType;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
+    public SamplePE getSample()
+    {
+        return sample;
+    }
+
+    public void setSample(SamplePE sample)
+    {
+        this.sample = sample;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
+    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
+    public DataPE getDataSet()
+    {
+        return dataSet;
+    }
+
+    public void setDataSet(DataPE dataSet)
+    {
+        this.dataSet = dataSet;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ProjectPE.class)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN)
+    private ProjectPE getProjectInternal()
+    {
+        return project;
+    }
+
+    @Override
+    @Transient
+    public ProjectPE getProject()
+    {
+        return getProjectInternal();
+    }
+
+    @SuppressWarnings("unused")
+    private void setProjectInternal(ProjectPE project)
+    {
+        this.project = project;
+    }
+
+    @Override
+    @Transient
+    public IMatchingEntity getRelatedEntity()
+    {
+        if (sample != null)
+        {
+            return sample;
+        } else if (dataSet != null)
+        {
+            return dataSet;
+        }
+        return null;
     }
 }

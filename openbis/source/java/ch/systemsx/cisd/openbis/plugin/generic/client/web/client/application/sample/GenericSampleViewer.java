@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityPropertyHistoryGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityHistoryGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
@@ -223,7 +223,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         dataSetSection = new SampleDataSetsSection(context, sampleId, generator.getSampleType());
         container.addSection(dataSetSection);
         // Properties History
-        container.addSection(EntityPropertyHistoryGrid.createPropertiesHistorySection(viewContext,
+        container.addSection(EntityHistoryGrid.createPropertiesHistorySection(viewContext,
                 EntityKind.SAMPLE, sampleId));
 
         // Attachments

@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * Interface for setting meta data of columns defined by {@link TypedTableModelBuilder#addColumn(String)}. 
- *
+ * Interface for setting meta data of columns defined by
+ * {@link TypedTableModelBuilder#addColumn(String)}.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IColumnMetaData
@@ -29,7 +30,7 @@ public interface IColumnMetaData
      * Sets the title.
      */
     public IColumnMetaData withTitle(String title);
-    
+
     /**
      * Sets the default column width.
      */
@@ -39,15 +40,19 @@ public interface IColumnMetaData
      * Sets the data type.
      */
     public IColumnMetaData withDataType(DataTypeCode dataType);
-    
+
     /**
      * Sets hidden flag to <code>true</code>.
      */
     public IColumnMetaData hideByDefault();
-    
+
     /**
      * Sets editable falg to <code>true</code>.
      */
     public IColumnMetaData editable();
 
+    /**
+     * Sets linkEntitiesOnly flag to <code>true</code>
+     */
+    public IColumnMetaData linkEntitiesOnly();
 }

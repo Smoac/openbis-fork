@@ -53,7 +53,7 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      */
     public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind);
 
-    public IEntityPropertyHistoryDAO getEntityPropertyHistoryDAO();
+    public IEntityHistoryDAO getEntityPropertyHistoryDAO();
 
     /**
      * @return The implementation of the {@link IVocabularyDAO}.

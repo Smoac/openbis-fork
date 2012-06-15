@@ -31,14 +31,14 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -92,13 +92,13 @@ public class PropertiesHistoryTest extends SystemTestCase
                 "[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:2>, DESCRIPTION: A simple experiment<a:1>, GENDER: term:MALE [GENDER]<a:1>]",
                 history.toString());
 
-        ListEntityPropertyHistoryCriteria criteria = new ListEntityPropertyHistoryCriteria();
+        ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.setEntityKind(EntityKind.EXPERIMENT);
         criteria.setEntityID(id);
-        TypedTableResultSet<EntityPropertyHistory> propertyHistory =
+        TypedTableResultSet<EntityHistory> propertyHistory =
                 commonClientService.listEntityPropertyHistory(criteria);
 
-        List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
+        List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
         assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], Doe, John]", sortedHistory
                 .get(0).getValues().subList(0, 4).toString());
@@ -180,13 +180,13 @@ public class PropertiesHistoryTest extends SystemTestCase
                 "[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:1>, COMMENT: very advanced stuff<a:1>, GENDER: term:MALE [GENDER]<a:2>]",
                 history.toString());
 
-        ListEntityPropertyHistoryCriteria criteria = new ListEntityPropertyHistoryCriteria();
+        ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.setEntityKind(EntityKind.SAMPLE);
         criteria.setEntityID(id);
-        TypedTableResultSet<EntityPropertyHistory> propertyHistory =
+        TypedTableResultSet<EntityHistory> propertyHistory =
                 commonClientService.listEntityPropertyHistory(criteria);
 
-        List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
+        List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
         assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], System User]", sortedHistory
                 .get(0).getValues().subList(0, 4).toString());
@@ -261,13 +261,13 @@ public class PropertiesHistoryTest extends SystemTestCase
                 "[BACTERIUM: material:BACTERIUM1 [BACTERIUM]<a:1>, COMMENT: no comment<a:1>, GENDER: term:FEMALE [GENDER]<a:1>]",
                 history.toString());
 
-        ListEntityPropertyHistoryCriteria criteria = new ListEntityPropertyHistoryCriteria();
+        ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.setEntityKind(EntityKind.DATA_SET);
         criteria.setEntityID(id);
-        TypedTableResultSet<EntityPropertyHistory> propertyHistory =
+        TypedTableResultSet<EntityHistory> propertyHistory =
                 commonClientService.listEntityPropertyHistory(criteria);
 
-        List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
+        List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
         assertEquals("[BACTERIUM, bacterium, BACTERIUM1 [BACTERIUM], System User]", sortedHistory
                 .get(0).getValues().subList(0, 4).toString());
@@ -318,14 +318,14 @@ public class PropertiesHistoryTest extends SystemTestCase
         TechId id = new TechId(34);
         commonServer.updateMaterialProperties(sessionToken, id, Arrays.asList(new PropertyUpdates(
                 "DESCRIPTION", "new description"), new PropertyUpdates("ORGANISM", "HUMAN")));
-        ListEntityPropertyHistoryCriteria criteria = new ListEntityPropertyHistoryCriteria();
+        ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.setEntityKind(EntityKind.MATERIAL);
         criteria.setEntityID(id);
 
-        TypedTableResultSet<EntityPropertyHistory> propertyHistory =
+        TypedTableResultSet<EntityHistory> propertyHistory =
                 commonClientService.listEntityPropertyHistory(criteria);
 
-        List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
+        List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
         assertEquals("[DESCRIPTION, Description, test bacterium 1, System User]", sortedHistory
                 .get(0).getValues().subList(0, 4).toString());
@@ -336,7 +336,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         assertValidDates(sortedHistory.get(1));
     }
 
-    private void assertValidDates(TableModelRowWithObject<EntityPropertyHistory> row)
+    private void assertValidDates(TableModelRowWithObject<EntityHistory> row)
     {
         Date validFromDate = row.getObjectOrNull().getValidFromDate();
         Date validUntilDate = row.getObjectOrNull().getValidUntilDate();
@@ -344,24 +344,24 @@ public class PropertiesHistoryTest extends SystemTestCase
                 validFromDate.getTime() <= validUntilDate.getTime());
     }
 
-    private List<TableModelRowWithObject<EntityPropertyHistory>> getSortedHistory(
-            TypedTableResultSet<EntityPropertyHistory> propertyHistory)
+    private List<TableModelRowWithObject<EntityHistory>> getSortedHistory(
+            TypedTableResultSet<EntityHistory> propertyHistory)
     {
-        GridRowModels<TableModelRowWithObject<EntityPropertyHistory>> list =
+        GridRowModels<TableModelRowWithObject<EntityHistory>> list =
                 propertyHistory.getResultSet().getList();
-        List<TableModelRowWithObject<EntityPropertyHistory>> sortedHistory =
-                new ArrayList<TableModelRowWithObject<EntityPropertyHistory>>();
-        for (GridRowModel<TableModelRowWithObject<EntityPropertyHistory>> gridRowModel : list)
+        List<TableModelRowWithObject<EntityHistory>> sortedHistory =
+                new ArrayList<TableModelRowWithObject<EntityHistory>>();
+        for (GridRowModel<TableModelRowWithObject<EntityHistory>> gridRowModel : list)
         {
             sortedHistory.add(gridRowModel.getOriginalObject());
         }
         Collections.sort(sortedHistory,
-                new Comparator<TableModelRowWithObject<EntityPropertyHistory>>()
+                new Comparator<TableModelRowWithObject<EntityHistory>>()
                     {
 
                         @Override
-                        public int compare(TableModelRowWithObject<EntityPropertyHistory> o1,
-                                TableModelRowWithObject<EntityPropertyHistory> o2)
+                        public int compare(TableModelRowWithObject<EntityHistory> o1,
+                                TableModelRowWithObject<EntityHistory> o2)
                         {
                             return o1.getObjectOrNull().getPropertyType().getCode()
                                     .compareTo(o2.getObjectOrNull().getPropertyType().getCode());

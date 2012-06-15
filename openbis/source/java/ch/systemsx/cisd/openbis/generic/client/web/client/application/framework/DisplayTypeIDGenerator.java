@@ -68,7 +68,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PROPERTY_TYPE_BROWSER_GRID("property-type-browser-grid"),
 
-    ENTITY_PROPERTY_HISTORY_BROWSER_GRID("entity-property-history-browser-grid"),
+    ENTITY_HISTORY_BROWSER_GRID("entity-property-history-browser-grid"),
 
     PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID("property-type-assignment-browser-grid"),
 
@@ -94,7 +94,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     DATA_SETS_SECTION("data-sets-section"),
 
-    PROPERTIES_HISTORY_SECTION("properties-history-section"),
+    ENTITY_HISTORY_SECTION("entity-history-section"),
 
     DATA_SET_PARENTS_SECTION("data-set-parents-section"),
 

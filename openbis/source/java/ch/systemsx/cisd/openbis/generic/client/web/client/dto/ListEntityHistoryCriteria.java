@@ -20,14 +20,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ListEntityPropertyHistoryCriteria extends
-        DefaultResultSetConfig<String, TableModelRowWithObject<EntityPropertyHistory>> implements
+public class ListEntityHistoryCriteria extends
+        DefaultResultSetConfig<String, TableModelRowWithObject<EntityHistory>> implements
         IsSerializable
 {
     private EntityKind entityKind;

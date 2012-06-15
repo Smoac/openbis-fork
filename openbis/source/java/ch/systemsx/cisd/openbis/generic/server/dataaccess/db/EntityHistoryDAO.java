@@ -23,7 +23,7 @@ import org.python.tests.RedundantInterfaceDeclarations.Implementation;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
@@ -31,20 +31,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * The unique {@link Implementation} of {@link IEntityPropertyHistoryDAO}.
+ * The unique {@link Implementation} of {@link IEntityHistoryDAO}.
  * 
  * @author Franz-Josef Elmer
  */
-class EntityPropertyHistoryDAO extends AbstractDAO implements IEntityPropertyHistoryDAO
+class EntityHistoryDAO extends AbstractDAO implements IEntityHistoryDAO
 {
-    EntityPropertyHistoryDAO(PersistencyResources persistencyResources,
-            DatabaseInstancePE databaseInstance)
+    EntityHistoryDAO(PersistencyResources persistencyResources, DatabaseInstancePE databaseInstance)
     {
         super(persistencyResources.getSessionFactoryOrNull(), databaseInstance);
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            EntityPropertyHistoryDAO.class);
+            EntityHistoryDAO.class);
 
     @Override
     public List<AbstractEntityPropertyHistoryPE> getPropertyHistory(EntityKind entityKind,
@@ -52,7 +51,7 @@ class EntityPropertyHistoryDAO extends AbstractDAO implements IEntityPropertyHis
     {
         List<AbstractEntityPropertyHistoryPE> result =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s eph where eph.entityInternal.id = ?", entityKind
+                        String.format("from %s eh where eh.entityInternal.id = ?", entityKind
                                 .getEntityPropertyHistoryClass().getSimpleName()),
                         toArray(id.getId())));
         if (operationLog.isDebugEnabled())

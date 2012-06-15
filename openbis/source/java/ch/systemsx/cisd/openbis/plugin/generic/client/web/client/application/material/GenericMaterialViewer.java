@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityPropertyHistoryGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.EntityHistoryGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -119,7 +119,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + material.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
 
-        container.addSection(EntityPropertyHistoryGrid.createPropertiesHistorySection(viewContext,
+        container.addSection(EntityHistoryGrid.createPropertiesHistorySection(viewContext,
                 EntityKind.MATERIAL, new TechId(material.getId())));
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels(material);

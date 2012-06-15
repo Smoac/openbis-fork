@@ -83,7 +83,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -123,7 +123,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -243,7 +243,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTransl
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
-import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyHistoryTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
@@ -613,16 +613,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    public List<EntityPropertyHistory> listEntityPropertyHistory(String sessionToken,
+    public List<EntityHistory> listEntityHistory(String sessionToken,
             EntityKind entityKind, TechId entityID)
     {
-        checkSession(sessionToken);
-        IEntityPropertyHistoryDAO entityPropertyHistoryDAO =
+        Session session = getSession(sessionToken);
+        IEntityHistoryDAO entityPropertyHistoryDAO =
                 getDAOFactory().getEntityPropertyHistoryDAO();
         List<AbstractEntityPropertyHistoryPE> result =
                 entityPropertyHistoryDAO.getPropertyHistory(
                         DtoConverters.convertEntityKind(entityKind), entityID);
-        return EntityPropertyHistoryTranslator.translate(result);
+        return EntityHistoryTranslator.translate(result, session.getBaseIndexURL());
     }
 
     private static List<EntityTypePropertyType<?>> extractAssignments(

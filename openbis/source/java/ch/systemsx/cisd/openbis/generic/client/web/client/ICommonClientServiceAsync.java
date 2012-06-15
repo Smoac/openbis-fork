@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -272,16 +272,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#listEntityPropertyHistory(ListEntityPropertyHistoryCriteria)
+     * @see ICommonClientService#listEntityPropertyHistory(ListEntityHistoryCriteria)
      */
-    public void listEntityPropertyHistory(ListEntityPropertyHistoryCriteria criteria,
-            AsyncCallback<TypedTableResultSet<EntityPropertyHistory>> asyncCallback);
+    public void listEntityPropertyHistory(ListEntityHistoryCriteria criteria,
+            AsyncCallback<TypedTableResultSet<EntityHistory>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportEntityPropertyHistory(TableExportCriteria)
      */
     public void prepareExportEntityPropertyHistory(
-            TableExportCriteria<TableModelRowWithObject<EntityPropertyHistory>> criteria,
+            TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /**

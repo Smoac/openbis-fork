@@ -53,6 +53,8 @@ public final class TableNames
 
     public static final String DATA_SET_PROPERTIES_HISTORY_TABLE = "data_set_properties_history";
 
+    public static final String DATA_SET_HISTORY_VIEW = "data_set_history_view";
+
     public static final String DATA_SET_TYPE_PROPERTY_TYPE_TABLE = "data_set_type_property_types";
 
     public static final String DATA_TYPES_TABLE = "data_types";
@@ -71,6 +73,8 @@ public final class TableNames
 
     public static final String EXPERIMENT_PROPERTIES_HISTORY_TABLE =
             "experiment_properties_history";
+
+    public static final String EXPERIMENT_HISTORY_VIEW = "experiment_history_view";
 
     public static final String EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE =
             "experiment_type_property_types";
@@ -120,6 +124,8 @@ public final class TableNames
     public static final String SAMPLE_PROPERTIES_TABLE = "sample_properties";
 
     public static final String SAMPLE_PROPERTIES_HISTORY_TABLE = "sample_properties_history";
+
+    public static final String SAMPLE_HISTORY_VIEW = "sample_history_view";
 
     public static final String SAMPLE_TYPE_PROPERTY_TYPE_TABLE = "sample_type_property_types";
 

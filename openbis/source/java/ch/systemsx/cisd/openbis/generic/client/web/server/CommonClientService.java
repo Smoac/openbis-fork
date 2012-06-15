@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpda
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityPropertyHistoryCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CustomGridColumnProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DeletionsProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityPropertyHistoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityHistoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypePropertyTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
@@ -134,7 +134,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityPropertyHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -415,7 +415,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public String prepareExportEntityPropertyHistory(
-            TableExportCriteria<TableModelRowWithObject<EntityPropertyHistory>> criteria)
+            TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -608,12 +608,12 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<EntityPropertyHistory> listEntityPropertyHistory(
-            ListEntityPropertyHistoryCriteria criteria)
+    public TypedTableResultSet<EntityHistory> listEntityPropertyHistory(
+            ListEntityHistoryCriteria criteria)
     {
         String sessionToken = getSessionToken();
         return listEntities(
-                new EntityPropertyHistoryProvider(commonServer, sessionToken, criteria), criteria);
+                new EntityHistoryProvider(commonServer, sessionToken, criteria), criteria);
     }
 
     @Override

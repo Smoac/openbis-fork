@@ -284,7 +284,7 @@ public class DataSetTranslator
      * Creates an <var>externalData</var> from <var>dataPE</vra> an fills it with all data needed by
      * {@link IEntityInformationHolder}.
      */
-    private static ExternalData translateBasicProperties(DataPE dataPE)
+    public static ExternalData translateBasicProperties(DataPE dataPE)
     {
         ExternalData result = null;
         if (dataPE.isContainer())

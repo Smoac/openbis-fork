@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
@@ -111,7 +111,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IEntityOperationsLogDAO entityOperationsLogDAO;
 
-    private EntityPropertyHistoryDAO entityPropertyHistoryDAO;
+    private EntityHistoryDAO entityPropertyHistoryDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
@@ -152,7 +152,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                     getPersistencyResources(), databaseInstance));
         }
         entityPropertyHistoryDAO =
-                new EntityPropertyHistoryDAO(getPersistencyResources(), databaseInstance);
+                new EntityHistoryDAO(getPersistencyResources(), databaseInstance);
     }
 
     //
@@ -178,7 +178,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     }
 
     @Override
-    public IEntityPropertyHistoryDAO getEntityPropertyHistoryDAO()
+    public IEntityHistoryDAO getEntityPropertyHistoryDAO()
     {
         return entityPropertyHistoryDAO;
     }

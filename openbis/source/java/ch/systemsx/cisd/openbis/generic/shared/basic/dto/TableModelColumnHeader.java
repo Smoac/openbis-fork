@@ -49,6 +49,8 @@ public class TableModelColumnHeader implements Serializable
 
     private boolean editable;
 
+    private boolean linkEntitiesOnly;
+
     protected Vocabulary vocabularyOrNull;
 
     public TableModelColumnHeader()
@@ -150,6 +152,16 @@ public class TableModelColumnHeader implements Serializable
     public boolean isEditable()
     {
         return editable;
+    }
+
+    public void setLinkEntitiesOnly(boolean linkEntitiesOnly)
+    {
+        this.linkEntitiesOnly = linkEntitiesOnly;
+    }
+
+    public boolean isLinkEntitiesOnly()
+    {
+        return linkEntitiesOnly;
     }
 
     public void setTitle(String title)

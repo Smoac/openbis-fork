@@ -263,6 +263,9 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     return LinkExtractor.createPermlink(entityTableCell.getEntityKind(), permId);
                 }
 
+            } else if (header.isLinkEntitiesOnly())
+            {
+                return null;
             }
             return LinkExtractor.createPermlink(entityKind, value.toString());
         }

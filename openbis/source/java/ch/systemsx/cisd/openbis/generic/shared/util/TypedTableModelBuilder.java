@@ -108,6 +108,14 @@ public class TypedTableModelBuilder<T extends Serializable>
             column.getHeader().setEditable(true);
             return this;
         }
+
+        @Override
+        public IColumnMetaData linkEntitiesOnly()
+        {
+            column.getHeader().setLinkEntitiesOnly(true);
+            return this;
+        }
+
     }
 
     private static interface IIndexProvider

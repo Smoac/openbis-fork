@@ -21,6 +21,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -30,13 +31,19 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * @author Franz-Josef Elmer
  */
 @Entity
-@Table(name = TableNames.DATA_SET_PROPERTIES_HISTORY_TABLE)
-public class DataSetPropertyHistoryPE extends AbstractEntityPropertyHistoryPE
+@Table(name = TableNames.DATA_SET_HISTORY_VIEW)
+public class DataSetHistoryPE extends AbstractEntityHistoryPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    private SamplePE sample;
+
+    private DataPE dataSet;
+
+    private ExperimentPE experiment;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_SET_COLUMN)
+    @JoinColumn(name = ColumnNames.MAIN_DATA_SET_COLUMN)
     DataPE getEntityInternal()
     {
         return (DataPE) entity;
@@ -60,4 +67,58 @@ public class DataSetPropertyHistoryPE extends AbstractEntityPropertyHistoryPE
     {
         entityTypePropertyType = dataSetTypePropertyType;
     }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
+    public SamplePE getSample()
+    {
+        return sample;
+    }
+
+    public void setSample(SamplePE sample)
+    {
+        this.sample = sample;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = DataPE.class)
+    @JoinColumn(name = ColumnNames.DATA_ID_COLUMN)
+    public DataPE getDataSet()
+    {
+        return dataSet;
+    }
+
+    public void setDataSet(DataPE dataSet)
+    {
+        this.dataSet = dataSet;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN)
+    public ExperimentPE getExperiment()
+    {
+        return experiment;
+    }
+
+    public void setExperiment(ExperimentPE experiment)
+    {
+        this.experiment = experiment;
+    }
+
+    @Override
+    @Transient
+    public IMatchingEntity getRelatedEntity()
+    {
+        if (experiment != null)
+        {
+            return experiment;
+        } else if (sample != null)
+        {
+            return sample;
+        } else if (dataSet != null)
+        {
+            return dataSet;
+        }
+        return null;
+    }
+
 }

@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+
 /**
  * @author Franz-Josef Elmer
  */
-public class EntityPropertyHistory implements Serializable
+public class EntityHistory implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -51,6 +53,16 @@ public class EntityPropertyHistory implements Serializable
     private Date validUntilDate;
 
     private Person author;
+
+    private IEntityInformationHolderWithIdentifier relatedEntityOrNull;
+
+    private String relationTypeOrNull;
+
+    private String relatedEntityPermIdOrNull;
+
+    private Space relatedSpaceOrNull;
+
+    private Project relatedProjectOrNull;
 
     public EntityKind getEntityKind()
     {
@@ -122,4 +134,53 @@ public class EntityPropertyHistory implements Serializable
         this.author = author;
     }
 
+    public IEntityInformationHolderWithIdentifier tryGetRelatedEntity()
+    {
+        return relatedEntityOrNull;
+    }
+
+    public void setRelatedEntity(IEntityInformationHolderWithIdentifier relatedEntity)
+    {
+        this.relatedEntityOrNull = relatedEntity;
+    }
+
+    public String tryGetRelationType()
+    {
+        return relationTypeOrNull;
+    }
+
+    public void setRelationType(String relationType)
+    {
+        this.relationTypeOrNull = relationType;
+    }
+
+    public String tryGetRelatedEntityPermId()
+    {
+        return relatedEntityPermIdOrNull;
+    }
+
+    public void setRelatedEntityPermId(String relatedEntityPermId)
+    {
+        this.relatedEntityPermIdOrNull = relatedEntityPermId;
+    }
+
+    public void setRelatedSpace(Space relatedSpace)
+    {
+        this.relatedSpaceOrNull = relatedSpace;
+    }
+
+    public Space tryGetRelatedSpace()
+    {
+        return relatedSpaceOrNull;
+    }
+
+    public void setRelatedProject(Project relatedProject)
+    {
+        this.relatedProjectOrNull = relatedProject;
+    }
+
+    public Project tryGetRelatedProject()
+    {
+        return relatedProjectOrNull;
+    }
 }

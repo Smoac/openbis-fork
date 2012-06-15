@@ -464,7 +464,7 @@ public abstract class Dict
     // Entity Property History Browser
     //
 
-    public static final String PROPERTIES_HISTORY_TAB = "properties_history_tab";
+    public static final String ENTITY_HISTORY_TAB = "entity_history_tab";
 
     //
     // Attachments Browser
