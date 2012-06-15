@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithSelfReference;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAA;
@@ -119,6 +120,14 @@ public class JsonSerializationTest
     {
         ObjectWithEnumTypes object = ObjectWithEnumTypes.createObject();
         ObjectMap map = ObjectWithEnumTypes.createMap(new ObjectCounter(), ObjectType.TYPE);
+        serializeObjectAndMapAndCompare(object, map.toMap());
+    }
+
+    @Test
+    public void testSerializeObjectWithSelfReference() throws Exception
+    {
+        ObjectWithSelfReference object = ObjectWithSelfReference.createObject();
+        ObjectMap map = ObjectWithSelfReference.createMap(new ObjectCounter(), ObjectType.TYPE);
         serializeObjectAndMapAndCompare(object, map.toMap());
     }
 
